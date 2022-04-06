@@ -22,7 +22,7 @@
 @cardContent = {
 @saActionNeeded match {
     case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-        <p>@messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_")@messages("label.online_returns_deadline", nextDeadlineTaxYear)</p>
+        <p>@messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_") @messages("label.online_returns_deadline", nextDeadlineTaxYear)</p>
     }
     case NotEnrolledSelfAssessmentUser(saUtr) => {
         <p>@messages("label.not_enrolled.content")</p>

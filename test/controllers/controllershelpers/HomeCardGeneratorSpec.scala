@@ -668,6 +668,82 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, false))
       }
 
+      "return None when toggled on without Itsa enrollments and enrollment type is NonFilerSelfAssessmentUser" in {
+
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(
+            saUser = NonFilerSelfAssessmentUser,
+            request = FakeRequest()
+          )
+
+        val stubConfigDecorator = new ConfigDecorator(
+          injected[Configuration],
+          injected[Langs],
+          injected[ServicesConfig]
+        ) {
+          override lazy val saItsaTileEnabled: Boolean = true
+        }
+
+        def sut: HomeCardGenerator =
+          new HomeCardGenerator(
+            payAsYouEarn,
+            taxCalculation,
+            selfAssessment,
+            nationalInsurance,
+            taxCredits,
+            childBenefit,
+            marriageAllowance,
+            statePension,
+            taxSummaries,
+            seissView,
+            latestNewsAndUpdatesView,
+            saAndItsaMergeView,
+            enrolmentsHelper
+          )(stubConfigDecorator)
+
+        lazy val cardBody = sut.getSaAndItsaMergeCard()
+
+        cardBody mustBe None
+      }
+
+      "return Itsa/sa Card when toggled on without Itsa enrollments and enrollment type is WrongCredentialsSelfAssessmentUser" in {
+
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(
+            saUser = WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+            request = FakeRequest()
+          )
+
+        val stubConfigDecorator = new ConfigDecorator(
+          injected[Configuration],
+          injected[Langs],
+          injected[ServicesConfig]
+        ) {
+          override lazy val saItsaTileEnabled: Boolean = true
+        }
+
+        def sut: HomeCardGenerator =
+          new HomeCardGenerator(
+            payAsYouEarn,
+            taxCalculation,
+            selfAssessment,
+            nationalInsurance,
+            taxCredits,
+            childBenefit,
+            marriageAllowance,
+            statePension,
+            taxSummaries,
+            seissView,
+            latestNewsAndUpdatesView,
+            saAndItsaMergeView,
+            enrolmentsHelper
+          )(stubConfigDecorator)
+
+        lazy val cardBody = sut.getSaAndItsaMergeCard()
+
+        cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, false))
+      }
+
       "return nothing when toggled off" in {
 
         homeCardGenerator.getSaAndItsaMergeCard() mustBe None
