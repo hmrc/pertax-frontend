@@ -58,6 +58,7 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
     "render the given content correctly" in {
 
       doc.text() must include(Messages("label.stop_using_Verify"))
+      doc.text() must include(Messages("label.percentage_points_uplift_in_NIC"))
     }
   }
 }
