@@ -87,14 +87,6 @@
     }
 
     @{
-        val covidBanner = showUserResearchBanner match {
-            case true => Map[String, Any]("covidBannerTitle" -> Messages("label.url_coronavirus"),
-                "covidBannerLink" -> configDecorator.bannerLinkUrl,
-                "covidBannerDismissText" -> Some(Messages("label.hide_message")),
-                "covidBannerGaAction" -> Some("homepage Covid banner"))
-            case false => Map.empty[String, Any]
-        }
-
         val arguments = TemplateArgumentsBuilder(
 
             Some(AccountMenuStyleComponent(
@@ -118,6 +110,13 @@
                 controllers.routes.AssetsController.versioned("javascripts/polyfill.js").url,
                 controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js").url
             )),
+            Some(FullWidthBannerComponent(
+                Messages("label.help_improve_gov_uk"),
+                Messages("label.get.involved.in.making.gov.services.better"),
+                configDecorator.bannerLinkUrl,
+                Some(Messages("label.no_thanks")),
+                Some("homepage UR banner")
+            )).filter(x => showUserResearchBanner),
             Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
             Some(InlineScriptComponent(inlineScript.toString)),
             configDecorator.ssoUrl.map(SsoUrlComponent),
@@ -135,7 +134,7 @@
         ) ++ Map[String, Any](
             "bodyClass" -> printable,
             "headInlineScript" -> headInlineScript
-        ) ++ covidBanner
+        )
 
         val extraArguments:Map[String,Any] = if(configDecorator.accessibilityStatementToggle) {
             arguments ++ Map[String,Any](
