@@ -39,6 +39,7 @@ class TaxCalculationStateSpec extends BaseSpec {
     ConfidenceLevel.L200,
     None,
     None,
+    Set(),
     None,
     None,
     None,
