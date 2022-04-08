@@ -31,10 +31,10 @@ class EnrolmentsHelper {
 
   def itsaEnrolmentStatus(enrolments: Set[Enrolment]): Option[ItsaEnrolment] =
     enrolments
-      .find(_.key == "MTDITID")
+      .find(_.key == "HMRC-MTD-IT")
       .flatMap { enrolment =>
         enrolment.identifiers
-          .find(id => id.key == "HMRC-MTD-IT")
+          .find(id => id.key == "MTDITID")
           .map(_ => ItsaEnrolmentEnrolled(fromString(enrolment.state)))
       }
 

@@ -62,6 +62,7 @@ class ConfigDecorator @Inject() (
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
   lazy val seissFrontendHost = getExternalUrl(s"self-employed-income-support-frontend.host").getOrElse("")
+  lazy val incomeTaxViewChangeFrontendHost = getExternalUrl(s"income-tax-view-change-frontend.host").getOrElse("")
   lazy val preferencesFrontendService = getExternalUrl(s"preferences-frontend").getOrElse("")
   lazy val contactHost = getExternalUrl(s"contact-frontend.host").getOrElse("")
   lazy val citizenAuthHost = getExternalUrl(s"citizen-auth.host").getOrElse("")
@@ -257,8 +258,8 @@ class ConfigDecorator @Inject() (
   lazy val rlsInterruptToggle =
     runModeConfiguration.getOptional[Boolean]("feature.rls-interrupt-toggle.enabled").getOrElse(false)
 
-  lazy val newSaItsaTileEnabled =
-    runModeConfiguration.getOptional[Boolean]("feature.new-sa-itsa-tile.enabled").getOrElse(false)
+  lazy val saItsaTileEnabled =
+    runModeConfiguration.getOptional[Boolean]("feature.sa-itsa-tile.enabled").getOrElse(false)
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
@@ -268,6 +269,8 @@ class ConfigDecorator @Inject() (
   lazy val sessionTimeoutInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.timeout").getOrElse(900)
   lazy val sessionTimeoutInMinutes = sessionTimeoutInSeconds / 60
   lazy val sessionCountdownInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.countdown").getOrElse(120)
+
+  lazy val itsaViewUrl = s"$incomeTaxViewChangeFrontendHost/report-quarterly/income-and-expenses/view?origin=PTA"
 
   def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
@@ -286,6 +289,7 @@ class ConfigDecorator @Inject() (
       .toBoolean
 
   lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
+  lazy val seissClaimsUrl = s"$seissFrontendHost/self-employment-support/claim/your-claims"
 }
 
 trait TaxcalcUrls {
