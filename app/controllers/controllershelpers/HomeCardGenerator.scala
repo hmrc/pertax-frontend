@@ -23,7 +23,8 @@ import models._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
-import util.DateTimeTools.previousAndCurrentTaxYear
+import util.DateTimeTools.{current, previousAndCurrentTaxYear}
+import util.EnrolmentsHelper
 import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
 
@@ -39,7 +40,9 @@ class HomeCardGenerator @Inject() (
   statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
   seissView: SeissView,
-  latestNewsAndUpdatesView: LatestNewsAndUpdatesView
+  latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
+  saAndItsaMergeView: SaAndItsaMergeView,
+  enrolmentsHelper: EnrolmentsHelper
 )(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
@@ -47,16 +50,16 @@ class HomeCardGenerator @Inject() (
     taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
     taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
     saActionNeeded: SelfAssessmentUserType,
-    showSeissCard: Boolean,
-    currentTaxYear: Int
+    showSeissCard: Boolean
   )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
     List(
       getLatestNewsAndUpdatesCard(),
       getPayAsYouEarnCard(taxComponentsState),
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
-      getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
-      if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.newSaItsaTileEnabled)
+      getSaAndItsaMergeCard(),
+      getSelfAssessmentCard(saActionNeeded),
+      if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.saItsaTileEnabled)
         Some(seissView())
       else None,
       getNationalInsuranceCard(),
@@ -92,16 +95,34 @@ class HomeCardGenerator @Inject() (
       .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation)
       .map(taxCalculationView(_))
 
-  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType, nextDeadlineTaxYear: Int)(implicit
+  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType)(implicit
     request: UserRequest[AnyContent],
     messages: Messages
   ): Option[HtmlFormat.Appendable] =
-    if (!request.isVerify && !configDecorator.newSaItsaTileEnabled) {
+    if (!request.isVerify && !configDecorator.saItsaTileEnabled) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
         case saWithActionNeeded =>
-          Some(selfAssessmentView(saWithActionNeeded, previousAndCurrentTaxYear, nextDeadlineTaxYear.toString))
+          Some(selfAssessmentView(saWithActionNeeded, previousAndCurrentTaxYear, (current.currentYear + 1).toString))
       }
+    } else {
+      None
+    }
+
+  def getSaAndItsaMergeCard()(implicit
+    messages: Messages,
+    request: UserRequest[_]
+  ): Option[HtmlFormat.Appendable] =
+    if (
+      configDecorator.saItsaTileEnabled && request.trustedHelper.isEmpty &&
+      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
+    ) {
+      Some(
+        saAndItsaMergeView(
+          (current.currentYear + 1).toString,
+          enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
+        )
+      )
     } else {
       None
     }

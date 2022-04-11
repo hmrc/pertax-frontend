@@ -30,7 +30,7 @@ class SessionManagementControllerSpec extends BaseSpec {
 
     "return 200" in new LocalSetup {
 
-      val result = controller.keepAlive()(FakeRequest("GET", ""))
+      val result = controller.keepAlive(FakeRequest("GET", ""))
 
       status(result) mustBe OK
     }
