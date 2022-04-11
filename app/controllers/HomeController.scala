@@ -83,9 +83,11 @@ class HomeController @Inject() (
               showSeissCard,
               current.currentYear
             )
-
-            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
-
+            val benefitCards: Seq[Html] = if (request.trustedHelper.isEmpty) {
+              homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
+            } else {
+              Seq.empty
+            }
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
             Ok(homeView(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType)))

@@ -48,8 +48,9 @@
             @viewModel.incomeCards
             </div>
 
-            <h2 class="section-header flush--top">@messages("title.benefits")</h2>
-
+            @if(viewModel.benefitCards.nonEmpty) {
+                <h2 class="section-header flush--top">@messages("title.benefits")</h2>
+            }
             <div class="flex-container grid-row">
             @viewModel.benefitCards
             </div>

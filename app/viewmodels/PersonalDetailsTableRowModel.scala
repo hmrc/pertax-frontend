@@ -24,5 +24,6 @@ case class PersonalDetailsTableRowModel(
   content: HtmlFormat.Appendable,
   linkTextMessage: String,
   visuallyhiddenText: String,
-  linkUrl: Option[String]
+  linkUrl: Option[String],
+  displayChangelink: Boolean = true
 )

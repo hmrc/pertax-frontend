@@ -37,24 +37,26 @@ signinDetailsHelpers: Option[PersonalDetailsTableRowModel])(implicit request: Us
         @row.content
     </dd>
     <dd class="govuk-summary-list__actions">
-        @row.linkUrl.map { url =>
-        <a class="govuk-link" href="@url">
+        @if(row.displayChangelink){
+            @row.linkUrl.map { url =>
+            <a class="govuk-link" href="@url">
 
-            @messages(row.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
-            <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
+                @messages(row.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
+                <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
+                }
+            </a>
+            }.getOrElse(
+            Html(s"<p>${messages(row.linkTextMessage)}</p>")
+            )
+
+            @extraLinks.map { url =>
+            <a class="govuk-link yourProfileExtraLink" href="@url.linkUrl">
+
+                @messages(url.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
+                <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
+                }
+            </a>
             }
-        </a>
-        }.getOrElse(
-        Html(s"<p>${messages(row.linkTextMessage)}</p>")
-        )
-
-        @extraLinks.map { url =>
-        <a class="govuk-link yourProfileExtraLink" href="@url.linkUrl">
-
-            @messages(url.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
-            <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
-            }
-        </a>
         }
     </dd>
 </div>
