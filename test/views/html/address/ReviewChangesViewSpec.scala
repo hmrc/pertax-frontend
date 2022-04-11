@@ -49,7 +49,7 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertContainsLink(
         result(PostalAddrType),
         messages("label.change"),
-        routes.PostalDoYouLiveInTheUKController.onPageLoad().url
+        routes.PostalDoYouLiveInTheUKController.onPageLoad.url
       )
 
       assertNotContainLink(
@@ -77,7 +77,7 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertNotContainLink(
         result(ResidentialAddrType),
         messages("label.change"),
-        routes.PostalDoYouLiveInTheUKController.onPageLoad().url
+        routes.PostalDoYouLiveInTheUKController.onPageLoad.url
       )
     }
 

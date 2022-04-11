@@ -12,9 +12,9 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "pertax-frontend"
 
-scalaVersion := "2.12.11"
+scalaVersion := "2.12.15"
 
-val silencerVersion = "1.7.0"
+val silencerVersion = "1.7.8"
 
 lazy val plugins: Seq[Plugins] =
   Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
@@ -26,7 +26,7 @@ lazy val playSettings: Seq[Setting[_]] = Seq(
 lazy val scoverageSettings = {
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;models/.data/..*;view.*;models.*;uk.gov.hmrc.pertax.auth.*;.*(AuthService|BuildInfo|Routes).*;config/*",
-    ScoverageKeys.coverageMinimum := 80,
+    ScoverageKeys.coverageMinimumStmtTotal := 80,
     ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true
   )
@@ -49,7 +49,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     inConfig(Test)(testSettings),
     inConfig(IntegrationTest)(itSettings),
-    Keys.fork in IntegrationTest := false,
+    IntegrationTest / Keys.fork := false,
     addTestReportOption(IntegrationTest, "int-test-reports"),
     playSettings,
     scoverageSettings,
