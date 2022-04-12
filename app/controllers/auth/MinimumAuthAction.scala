@@ -90,7 +90,7 @@ class MinimumAuthAction @Inject() (
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
-    case _: NoActiveSession => Results.Redirect(routes.PublicController.sessionTimeout()).withNewSession
+    case _: NoActiveSession => Results.Redirect(routes.PublicController.sessionTimeout).withNewSession
 
     case _: InsufficientEnrolments => throw InsufficientEnrolments("")
   }

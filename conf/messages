@@ -448,7 +448,7 @@ label.make_a_payment=Make a payment
 label.view_your_payments=View your payments
 label.check_if_you_need_to_fill_in_a_tax_return=Check if you need to fill in a tax return
 label.find_out_how_to_access_self_assessment=Find out how to access Self Assessment
-label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=View and manage your Self Assessment tax return. The deadline for online returns is 31 January {0}.
+label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=View and manage your Self Assessment tax return.
 label.national_insurance=National Insurance
 label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=You have a National Insurance number to make sure your National Insurance contributions and tax are recorded against your name only.
 label.your_national_insurance_number_is_your_unique_identifier=Your National Insurance number is your unique identifier.
@@ -465,7 +465,7 @@ label.not_enrolled.content=You are registered for Self Assessment. To use your S
 label.not_enrolled.link.text=Request access to your Self Assessment
 
 title.seiss=Self-Employment Income Support Scheme (SEISS)
-body.seiss=View your SEISS grants.
+body.seiss=View your SEISS grants
 
 #
 # News
@@ -485,6 +485,22 @@ label.secondary_class_1_1a_1b_paid_by_employers=secondary Class 1, 1A and 1B (pa
 label.prepare_for_the_health_and_social_care_levy=Prepare for the Health and Social Care Levy (opens in new tab)
 healthAndSocialCareLevy.link.url = https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy
 label.the_increase_will_not_apply_if_you_are_over_the_state_pension_age=The increase will not apply if you are over the State Pension age.
+#
+# ITSA
+#
+label.your_self_assessment=Your Self Assessment
+label.online_returns_deadline=The deadline for online returns is 31 January {0}.
+label.mtd_for_sa=Making Tax Digital for Income Tax Self Assessment
+label.send_updates_hmrc_compatible_software=Send updates using HMRC compatible software.
+label.view_manage_your_mtd_for_sa=View and manage your Making Tax Digital for Income Tax Self Assessment
+label.itsa_header=Income Tax Self Assessment
+label.view_manage_sa_return=View and manage your Self Assessment tax return
+label.access_your_sa_returns=Access your Self Assessment tax returns
+label.old_way_sa_returns=The old way for filing your Self Assessment tax returns.
+label.self_assessment_tax_returns=Self Assessment tax returns
+label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax Self Assessment or access your Self Assessment tax returns.
+label.online_deadline_final_declarations=The deadline for final declarations or online returns is 31 January {0}.
+
 #
 # Benefits
 #

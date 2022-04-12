@@ -53,7 +53,7 @@ class AuthActionSpec extends BaseSpec {
     new SessionAuditorFake(app.injector.instanceOf[AuditConnector], app.injector.instanceOf[EnrolmentsHelper])
 
   class Harness(authAction: AuthAction) extends InjectedController {
-    def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
+    def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.nino.getOrElse("fail").toString}, Enrolments: ${request.enrolments.toString}," +
           s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}"
@@ -104,7 +104,7 @@ class AuthActionSpec extends BaseSpec {
       "the user is an Individual" in {
 
         val controller = retrievals(confidenceLevel = ConfidenceLevel.L50)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
       }
@@ -112,7 +112,7 @@ class AuthActionSpec extends BaseSpec {
       "the user is an Organisation" in {
 
         val controller = retrievals(affinityGroup = Some(Organisation), confidenceLevel = ConfidenceLevel.L50)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
       }
@@ -120,7 +120,7 @@ class AuthActionSpec extends BaseSpec {
       "the user is an Agent" in {
 
         val controller = retrievals(affinityGroup = Some(Agent), confidenceLevel = ConfidenceLevel.L50)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
       }
@@ -138,7 +138,7 @@ class AuthActionSpec extends BaseSpec {
       "the user in an Individual" in {
 
         val controller = retrievals(credentialStrength = CredentialStrength.weak)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe mfaRedirectUrl
       }
@@ -146,7 +146,7 @@ class AuthActionSpec extends BaseSpec {
       "the user in an Organisation" in {
 
         val controller = retrievals(affinityGroup = Some(Organisation), credentialStrength = CredentialStrength.weak)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
           mfaRedirectUrl
@@ -155,7 +155,7 @@ class AuthActionSpec extends BaseSpec {
       "the user in an Agent" in {
 
         val controller = retrievals(affinityGroup = Some(Agent), credentialStrength = CredentialStrength.weak)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
           mfaRedirectUrl
@@ -170,7 +170,7 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentHelper)
       val controller = new Harness(authAction)
-      val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
+      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
       redirectLocation(result).get must endWith("/auth-login-stub")
     }
@@ -183,7 +183,7 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentHelper)
       val controller = new Harness(authAction)
-      val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
+      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
       redirectLocation(result).get must endWith("/auth-login-stub")
     }
@@ -196,7 +196,7 @@ class AuthActionSpec extends BaseSpec {
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderVerify)
-      val result = controller.onPageLoad()(request)
+      val result = controller.onPageLoad(request)
       status(result) mustBe SEE_OTHER
       session(result) mustBe new Session(
         Map(
@@ -215,7 +215,7 @@ class AuthActionSpec extends BaseSpec {
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
-      val result = controller.onPageLoad()(request)
+      val result = controller.onPageLoad(request)
       status(result) mustBe SEE_OTHER
 
       redirectLocation(result).get must endWith(
@@ -231,7 +231,7 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentHelper)
       val controller = new Harness(authAction)
-      val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
+      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
 
       whenReady(result.failed) { ex =>
         ex mustBe an[InsufficientEnrolments]
@@ -244,7 +244,7 @@ class AuthActionSpec extends BaseSpec {
 
       val controller = retrievals()
 
-      val result = controller.onPageLoad()(FakeRequest("", ""))
+      val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(nino)
     }
@@ -257,7 +257,7 @@ class AuthActionSpec extends BaseSpec {
 
       val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeSaEnrolments(utr)))
 
-      val result = controller.onPageLoad()(FakeRequest("", ""))
+      val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(utr)
     }
@@ -270,7 +270,7 @@ class AuthActionSpec extends BaseSpec {
 
       val controller = retrievals(saEnrolments = Enrolments(fakeSaEnrolments(utr)))
 
-      val result = controller.onPageLoad()(FakeRequest("", ""))
+      val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(nino)
       contentAsString(result) must include(utr)
@@ -285,7 +285,7 @@ class AuthActionSpec extends BaseSpec {
       val controller =
         retrievals(trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)))
 
-      val result = controller.onPageLoad()(FakeRequest("", ""))
+      val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(
         s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))"
@@ -296,7 +296,7 @@ class AuthActionSpec extends BaseSpec {
   "A user with a SCP Profile Url must include a redirect uri back to the home controller" in {
     val controller = retrievals(profileUrl = Some("http://www.google.com/"))
 
-    val result = controller.onPageLoad()(FakeRequest("", ""))
+    val result = controller.onPageLoad(FakeRequest("", ""))
     status(result) mustBe OK
     contentAsString(result) must include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
   }
@@ -304,7 +304,7 @@ class AuthActionSpec extends BaseSpec {
   "A user without a SCP Profile Url must continue to not have one" in {
     val controller = retrievals(profileUrl = None)
 
-    val result = controller.onPageLoad()(FakeRequest("", ""))
+    val result = controller.onPageLoad(FakeRequest("", ""))
     status(result) mustBe OK
     contentAsString(result) mustNot include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
   }
@@ -312,7 +312,7 @@ class AuthActionSpec extends BaseSpec {
   "A user with a SCP Profile Url that is not valid must strip out the SCP Profile Url" in {
     val controller = retrievals(profileUrl = Some("notAUrl"))
 
-    val result = controller.onPageLoad()(FakeRequest("", ""))
+    val result = controller.onPageLoad(FakeRequest("", ""))
     status(result) mustBe OK
     contentAsString(result) mustNot include(config.pertaxFrontendBackLink)
   }
@@ -326,7 +326,7 @@ class AuthActionSpec extends BaseSpec {
         affinityGroup = None
       )
 
-      val result = controller.onPageLoad()(FakeRequest("", ""))
+      val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(nino)
     }
