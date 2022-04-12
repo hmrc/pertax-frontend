@@ -193,15 +193,6 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
       "render the welsh language toggle" in new LocalSetup {
         assertContainsLink(doc, "Cymraeg", "/personal-account/lang/cyGb")
       }
-
-      // Change to test for user research banner after COVID-19
-      "render the Coronavirus information banner in place of the user research banner" in new LocalSetup {
-
-        assertContainsLink(
-          doc,
-          messages("label.url_coronavirus"),
-          configDecorator.bannerLinkUrl.getOrElse("URL not found"))
-      }
     }
 
     "rendering the nav bar" must {
