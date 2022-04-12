@@ -60,6 +60,7 @@ class GetPersonDetailsActionSpec extends BaseSpec {
       ConfidenceLevel.L50,
       None,
       None,
+      Set(),
       None,
       None,
       None,

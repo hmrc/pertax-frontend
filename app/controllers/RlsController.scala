@@ -81,7 +81,7 @@ class RlsController @Inject() (
         )
     }
 
-  def rlsInterruptOnPageLoad(): Action[AnyContent] = authenticate.async { implicit request =>
+  def rlsInterruptOnPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     if (configDecorator.rlsInterruptToggle) {
       editAddressLockRepository.getAddressesLock(request.nino.map(_.withoutSuffix).getOrElse("Nino")).flatMap {
         case AddressesLock(residentialLock, postalLock) =>
@@ -110,14 +110,14 @@ class RlsController @Inject() (
                   Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
                 )
               } else {
-                Future.successful(Redirect(routes.HomeController.index()))
+                Future.successful(Redirect(routes.HomeController.index))
               }
 
             }
             .getOrElse(Future.successful(InternalServerError(internalServerErrorView())))
       }
     } else {
-      Future.successful(Redirect(routes.HomeController.index()))
+      Future.successful(Redirect(routes.HomeController.index))
     }
   }
 }

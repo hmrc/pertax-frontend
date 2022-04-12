@@ -18,7 +18,7 @@ package controllers.auth.requests
 
 import models._
 import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
@@ -32,6 +32,7 @@ final case class UserRequest[+A](
   confidenceLevel: ConfidenceLevel,
   personDetails: Option[PersonDetails],
   trustedHelper: Option[TrustedHelper],
+  enrolments: Set[Enrolment],
   profile: Option[String],
   unreadMessageCount: Option[Int] = None,
   activeTab: Option[ActiveTab] = None,
