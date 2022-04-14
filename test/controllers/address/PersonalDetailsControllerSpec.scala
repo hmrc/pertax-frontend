@@ -76,7 +76,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
           Some(fakePersonDetails.copy(address = Some(address)))
         }
 
-        val result = controller.onPageLoad()(FakeRequest())
+        val result = controller.onPageLoad(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some("/personal-account/update-your-address")
@@ -93,7 +93,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
           Some(fakePersonDetails.copy(address = Some(address)))
         }
 
-        val result = controller.onPageLoad()(FakeRequest())
+        val result = controller.onPageLoad(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some("/personal-account/update-your-address")
@@ -112,7 +112,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
           Some(fakePersonDetails.copy(address = Some(address)))
         }
 
-        val result = controller.onPageLoad()(FakeRequest())
+        val result = controller.onPageLoad(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some("/personal-account/update-your-address")
@@ -123,7 +123,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
       "no address has an rls status with true" in new LocalSetup {
         override def sessionCacheResponse: Option[CacheMap] = None
 
-        val result = controller.onPageLoad()(FakeRequest())
+        val result = controller.onPageLoad(FakeRequest())
 
         status(result) mustBe OK
       }
@@ -143,7 +143,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad()(FakeRequest())
+      val result = controller.onPageLoad(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1))

@@ -48,8 +48,7 @@ class MessageFrontendService @Inject() (
 
   def getMessageInboxLinkPartial(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(
-      messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController
-        .messageList()
+      messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController.messageList
     )
 
   def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] = {

@@ -1,5 +1,5 @@
 @*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,12 @@ pageName = Some(messages("label.your_personal_tax_account"))
                       @messages("label.all_your_letters_will_be_sent_to_this_address")
                     </dt>
                     <dd class="cya-answer">@Html(addressDto.mkString(", <br>"))</dd>
-                    <dd class="cya-change"><a href="@controllers.address.routes.ClosePostalAddressController.onPageLoad()">@messages("label.change")</a></dd>
+                    <dd class="cya-change"><a href="@controllers.address.routes.ClosePostalAddressController.onPageLoad">@messages("label.change")</a></dd>
                 </div>
             </dl>
 
 
-            @form(controllers.address.routes.ClosePostalAddressController.confirmSubmit()) {
+            @form(controllers.address.routes.ClosePostalAddressController.confirmSubmit) {
                 <button class="button">@messages("label.confirm_and_save")</button>
             }
         </div>

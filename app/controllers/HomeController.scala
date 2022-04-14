@@ -80,8 +80,7 @@ class HomeController @Inject() (
               taxCalculationStateCyMinusOne,
               taxCalculationStateCyMinusTwo,
               saUserType,
-              showSeissCard,
-              current.currentYear
+              showSeissCard
             )
             val benefitCards: Seq[Html] = if (request.trustedHelper.isEmpty) {
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
