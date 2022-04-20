@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import play.api.i18n.Messages
 import uk.gov.hmrc.play.language.LanguageUtils
 import viewmodels._
+import util.DateHelper._
 
 import com.google.inject.Inject
 
@@ -28,7 +29,7 @@ class ViewUtils @Inject() (languageUtils: LanguageUtils) {
   def fromMessage(message: Message)(implicit messages: Messages): String =
     message match {
       case Text(key, args)     => messages(key, args.map(fromMessage): _*)
-      case Date(date, default) => languageUtils.Dates.formatDate(date, default)
+      case Date(date, default) => languageUtils.Dates.formatDate(date.map(_.toJavaLocalDate), default)
       case Literal(value)      => value
     }
 

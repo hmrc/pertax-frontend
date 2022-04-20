@@ -91,3 +91,5 @@ GET         /personal-account/assets/*file                                      
 GET         /admin/metrics                                                             com.kenshoo.play.metrics.MetricsController.metrics
 
 ->          /                                                                          health.Routes
+->          /hmrc-frontend                                                             hmrcfrontend.Routes
+->          /pta-frontend                                                              ptafrontend.Routes

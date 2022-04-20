@@ -16,11 +16,10 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import uk.gov.hmrc.play.language.LanguageUtils
-
 @import scala.concurrent.ExecutionContext
+@import util.DateHelper._
 
 @this(mainView: MainView, form: FormWithCSRF, languageUtils: LanguageUtils)
 @(typ: AddrType, addressDto: AddressDto, doYouLiveInTheUK: String, isUkAddress: Boolean,  startDateDto: Option[DateDto],
@@ -86,7 +85,7 @@ displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDeco
                 <dt class="cya-question">
                   @typ.ifIs(residential = messages("label.when_you_started_living_here"), postal = "")
                 </dt>
-                <dd class="cya-answer">@languageUtils.Dates.formatDate(startDateDto.startDate)</dd>
+                <dd class="cya-answer">@languageUtils.Dates.formatDate(startDateDto.startDate.toJavaLocalDate)</dd>
                 <dd class="cya-change"><a href="@controllers.address.routes.StartDateController.onPageLoad(typ)">@messages("label.change") <span class="visuallyhidden">@messages("label.when_you_started_living_here.change")</span></a></dd>
               }
             </div>
