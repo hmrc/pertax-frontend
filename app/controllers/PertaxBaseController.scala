@@ -33,7 +33,7 @@ abstract class PertaxBaseController(cc: MessagesControllerComponents)(implicit e
   }
 
   val baseBreadcrumb: Breadcrumb =
-    List("label.account_home" -> routes.HomeController.index().url)
+    List("label.account_home" -> routes.HomeController.index.url)
 
 }
 

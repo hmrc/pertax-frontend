@@ -1,5 +1,5 @@
 @*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ pageName = Some(messages("label.your_personal_tax_account"))
         <div class="column-two-thirds">
             @errors(closePostalAddressChoiceForm)
 
-            @form(action = controllers.address.routes.ClosePostalAddressController.onSubmit()) {
+            @form(action = controllers.address.routes.ClosePostalAddressController.onSubmit) {
             <div class="form-group inline">
                 @input_yes_no(
                 closePostalAddressChoiceForm("onPageLoad"),

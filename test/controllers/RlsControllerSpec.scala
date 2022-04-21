@@ -53,7 +53,7 @@ class RlsControllerSpec extends BaseSpec {
       injected[MessagesControllerComponents],
       injected[CheckYourAddressInterruptView],
       injected[InternalServerErrorView]
-    )(injected[ConfigDecorator], injected[TemplateRenderer], injected[CountryHelper], ec)
+    )(injected[ConfigDecorator], injected[TemplateRenderer], ec)
 
   "rlsInterruptOnPageLoad" must {
     "return internal server error" when {
@@ -67,7 +67,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe INTERNAL_SERVER_ERROR
       }
@@ -87,7 +87,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe SEE_OTHER
         redirectLocation(r) mustBe Some("/personal-account")
@@ -107,7 +107,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe SEE_OTHER
         redirectLocation(r) mustBe Some("/personal-account")
@@ -127,7 +127,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe SEE_OTHER
         redirectLocation(r) mustBe Some("/personal-account")
@@ -148,7 +148,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe SEE_OTHER
         redirectLocation(r) mustBe Some("/personal-account")
@@ -170,7 +170,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe OK
         contentAsString(r) must include("""id="main_address"""")
@@ -192,7 +192,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe OK
         contentAsString(r) must include("""id="postal_address"""")
@@ -214,7 +214,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe OK
         contentAsString(r) must include("""id="main_address"""")
@@ -236,7 +236,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe OK
         contentAsString(r) must include("""id="main_address"""")
@@ -258,7 +258,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe OK
         contentAsString(r) mustNot include("""id="main_address"""")
@@ -280,7 +280,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe OK
         contentAsString(r) must include("""id="main_address"""")
@@ -302,7 +302,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe OK
         contentAsString(r) mustNot include("""id="main_address"""")
@@ -328,7 +328,7 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
         status(r) mustBe OK
       }
     }
@@ -348,13 +348,13 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe OK
         contentAsString(r) mustNot include("""id="main_address"""")
         contentAsString(r) must include("""id="postal_address"""")
         contentAsString(r) must include("You need to update your postal address to receive post from HMRC.")
-        contentAsString(r) must include(controllers.address.routes.ClosePostalAddressController.onPageLoad().url)
+        contentAsString(r) must include(controllers.address.routes.ClosePostalAddressController.onPageLoad.url)
       }
     }
 
@@ -373,13 +373,13 @@ class RlsControllerSpec extends BaseSpec {
             )
         })
 
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
 
         status(r) mustBe OK
         contentAsString(r) mustNot include("""id="main_address"""")
         contentAsString(r) must include("""id="postal_address"""")
         contentAsString(r) must include("You need to update your postal address to receive post from HMRC.")
-        contentAsString(r) mustNot include(controllers.address.routes.ClosePostalAddressController.onPageLoad().url)
+        contentAsString(r) mustNot include(controllers.address.routes.ClosePostalAddressController.onPageLoad.url)
 
       }
     }

@@ -31,8 +31,9 @@ label.hm_revenue_customs_ni_print.customs=Thollau EM
 label.continue=Parhau
 label.your_personal_tax_account=Cyfrif treth personol
 label.your_personal_tax_account_gov_uk=Cyfrif treth personol - GOV.UK
-label.your_profile=Eich proffil
-label.personal_details=Manylion personol
+label.profile_and_settings=Proffil a gosodiadau
+label.profile=Proffil
+label.settings=Gosodiadau
 label.track_your_forms=Dilyn eich ffurflenni
 label.your_national_insurance_number_is=Eich rhif Yswiriant Gwladol yw
 label.check_your_national_insurance_contributions=Gwirio’ch cyfraniadau Yswiriant Gwladol
@@ -61,6 +62,9 @@ label.your.postal_address=eich cyfeiriad post
 label.trusted_helpers=Cynorthwywyr y Gellir Ymddiried Ynddynt
 label.your_trusted_helpers=eich cynorthwywyr y gellir ymddiried ynddynt
 label.manage_trusted_helpers=Rheoli’ch Cynorthwywyr y Gellir Ymddiried Ynddynt
+label.manage_tax_agents=Rheoli’ch asiantau treth
+label.your_tax_agents=eich asiantau treth
+label.add_view_change_tax_agents=Ychwanegu, newid neu fwrw golwg dros asiantau treth
 label.go_paperless=Ewch yn ddi-bapur
 label.go_paperless_content=Cael e-byst ynghylch trethi, yn lle llythyrau
 label.sign_in_details=Manylion mewngofnodi
@@ -107,6 +111,7 @@ label.address_line_four=Llinell cyfeiriad 4 (dewisol)
 label.address_line_five=Llinell cyfeiriad 5 (dewisol)
 label.country=Gwlad
 label.change=Newid
+label.manage=Rheoli
 label.telephone_0300_200_3300=Ffôn: 0300 200 1900
 label.textphone_0300_200_3319=Ffôn testun: 0300 200 3319
 label.contact_number=0300 200 1900
@@ -136,7 +141,7 @@ label.back=Yn ôl
 label.if_you_send_your_tax_return_online=Os ydych yn cyflwyno’ch Ffurflen Dreth ar-lein
 label.if_you_send_your_tax_return_by_post=Os ydych yn cyflwyno’ch Ffurflen Dreth drwy’r post
 label.activate_your_self_assessment_registration=Cychwyn eich cofrestriad ar gyfer Hunanasesiad
-label.activate_your_self_assessment=Cychwyn eich Hunanasesiad
+label.activate_your_self_assessment=Actifadu eich Hunanasesiad
 label.you_need_to_activate_your_self_assessment_registration_using_your_text_before_link_1=Mae angen i chi gychwyn eich cofrestriad Hunanasesiad drwy ddefnyddio’ch cod cychwn.
 label.you_need_to_activate_your_self_assessment_registration_using_your_text_before_link_2=Anfonwyd eich cod cychwyn atoch drwy’r post pan wnaethoch gofrestru i wneud eich Hunanasesiad ar-lein.
 label.you_need_to_activate_your_self_assessment_registration_using_your_text_before_link_3=Os oes mwy na 10 diwrnod gwaith wedi mynd heibio (21 os ydych dramor) ac nad yw wedi dod i law
@@ -437,8 +442,8 @@ label.complete_your_tax_return=Llenwi’ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
 label.view_your_payments=Bwrw golwg dros eich taliadau
 label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
-label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
-label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.find_out_how_to_access_self_assessment=Cael gwybod sut i gael at Hunanasesiad
+label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg dros eich Ffurflen Dreth Hunanasesiad a’i rheoli.
 label.not_enrolled.content=Rydych wedi cofrestru ar gyfer Hunanasesiad. I ddefnyddio’ch cyfrif Hunanasesiad ar-lein, mae’n rhaid i chi wneud cais i gael mynediad ato.
 label.not_enrolled.link.text=Gwneud cais i gael mynediad at eich Hunanasesiad
 
@@ -453,7 +458,23 @@ label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth ar gyfer blwyddyn dreth {0} i {1}
 
 title.seiss=Cynllun Cymhorthdal Incwm Hunangyflogaeth (SEISS)
-body.seiss=Bwrw golwg dros eich hawliadau SEISS.
+body.seiss=Bwrw golwg dros eich grantiau SEISS
+
+#
+# ITSA
+#
+label.your_self_assessment=Eich Hunanasesiad
+label.online_returns_deadline=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.mtd_for_sa=Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm
+label.send_updates_hmrc_compatible_software=Anfon diweddariadau gan ddefnyddio meddalwedd sy’n cydweddu â CThEM.
+label.view_manage_your_mtd_for_sa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm a’i reoli
+label.itsa_header=Hunanasesiad Treth Incwm
+label.view_manage_sa_return=Bwrw golwg dros eich Ffurflen Dreth Hunanasesiad a’i rheoli
+label.access_your_sa_returns=Cael at eich Ffurflenni Treth Hunanasesiad
+label.old_way_sa_returns=Yr hen ffordd o gyflwyno eich Ffurflenni Treth Hunanasesiad.
+label.self_assessment_tax_returns=Ffurflenni Treth Hunanasesiad
+label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
+label.online_deadline_final_declarations=Y dyddiad cau ar gyfer datganiadau terfynol neu Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
 
 #
 # Benefits

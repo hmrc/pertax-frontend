@@ -1,5 +1,5 @@
 @*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,19 +28,19 @@
 
     <div class="grid-row">
         <div class="column-full">
-            <a class="link-back" href="@controllers.address.routes.PersonalDetailsController.onPageLoad()" data-journey-click="link - click:Your National Insurance letter:Back">@messages("label.back")</a>
+            <a class="link-back" href="@controllers.address.routes.PersonalDetailsController.onPageLoad" data-journey-click="link - click:Your National Insurance letter:Back">@messages("label.back")</a>
 
             <header class="page-heading">
                 <h1 id="page-title" class="heading-xlarge">
                 @messages("label.your_national_insurance_letter")
                 </h1>
                 <p class="heading-secondary"><span class="visuallyhidden">
-                    @messages("label.this.section.is") </span>@messages("label.personal_details")</p>
+                    @messages("label.this.section.is") </span>@messages("label.profile")</p>
             </header>
 
             <div class="print-this">
                 <img class="print-this__icon" src="@configDecorator.assetsPrefix/images/icon-print.svg" alt="Print Icon" aria-hidden="true"/>
-                <a class="print-this__link" href="javascript:window.print()" data-journey-click="print - click:Your National Insurance letter:@messages("label.print")">@messages("label.print")</a>
+                <a class="print-this__link" href="javascript:window.print" data-journey-click="print - click:Your National Insurance letter:@messages("label.print")">@messages("label.print")</a>
             </div>
             @if(saveNiLetterAsPdfLinkEnabled) {
                 <div class="save-this">

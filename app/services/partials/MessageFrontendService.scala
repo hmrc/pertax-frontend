@@ -16,14 +16,14 @@
 
 package services.partials
 
+import com.codahale.metrics.Timer
 import com.google.inject.{Inject, Singleton}
-import com.kenshoo.play.metrics.Metrics
-import metrics.HasMetrics
+import metrics.{Metrics, MetricsEnumeration}
 import models.MessageCount
 import play.api.Logging
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 import util.EnhancedPartialRetriever
 
@@ -31,43 +31,46 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class MessageFrontendService @Inject() (
-  override val http: HttpClient,
-  val metrics: Metrics,
+  http: HttpClient,
+  metrics: Metrics,
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
-  servicesConfig: ServicesConfig
+  servicesConfig: ServicesConfig,
+  enhancedPartialRetriever: EnhancedPartialRetriever
 )(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics with Logging {
+    extends Logging {
 
   lazy val messageFrontendUrl: String = servicesConfig.baseUrl("message-frontend")
 
   def getMessageListPartial(implicit request: RequestHeader): Future[HtmlPartial] =
-    loadPartial(messageFrontendUrl + "/messages")
+    enhancedPartialRetriever.loadPartial(messageFrontendUrl + "/messages")
 
   def getMessageDetailPartial(messageToken: String)(implicit request: RequestHeader): Future[HtmlPartial] =
-    loadPartial(messageFrontendUrl + "/messages/" + messageToken)
+    enhancedPartialRetriever.loadPartial(messageFrontendUrl + "/messages/" + messageToken)
 
   def getMessageInboxLinkPartial(implicit request: RequestHeader): Future[HtmlPartial] =
-    loadPartial(
-      messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController
-        .messageList()
+    enhancedPartialRetriever.loadPartial(
+      messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController.messageList
     )
 
   def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] = {
     val url = messageFrontendUrl + "/messages/count?read=No"
 
-    withMetricsTimer("get-unread-message-count") { t =>
-      implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+    val timerContext: Timer.Context =
+      metrics.startTimer(MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT)
 
-      (for {
-        messageCount <- http.GET[Option[MessageCount]](url)
-      } yield {
-        t.completeTimerAndIncrementSuccessCounter()
-        messageCount.map(_.count)
-      }) recover { case e =>
-        t.completeTimerAndIncrementFailedCounter()
-        logger.warn(s"Failed to load json", e)
-        None
-      }
+    implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+
+    (for {
+      messageCount <- http.GET[Option[MessageCount]](url)
+    } yield {
+      timerContext.stop()
+      metrics.incrementSuccessCounter(MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT)
+      messageCount.map(_.count)
+    }) recover { case e =>
+      timerContext.stop()
+      metrics.incrementFailedCounter(MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT)
+      logger.warn(s"Failed to load json", e)
+      None
     }
   }
 }

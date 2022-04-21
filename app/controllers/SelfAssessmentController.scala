@@ -60,10 +60,10 @@ class SelfAssessmentController @Inject() (
             case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
               Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
             case WrongCredentialsSelfAssessmentUser(_) =>
-              Redirect(routes.SaWrongCredentialsController.landingPage())
+              Redirect(routes.SaWrongCredentialsController.landingPage)
             case NotEnrolledSelfAssessmentUser(_) =>
-              Redirect(routes.SelfAssessmentController.requestAccess())
-            case _ => Redirect(routes.HomeController.index())
+              Redirect(routes.SelfAssessmentController.requestAccess)
+            case _ => Redirect(routes.HomeController.index)
           }
         } else {
           errorRenderer.error(INTERNAL_SERVER_ERROR)
@@ -83,10 +83,10 @@ class SelfAssessmentController @Inject() (
           Ok(failedIvContinueToActivateSaView())
         case WrongCredentialsSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Wrong credentials SA filer")
-          Redirect(routes.SaWrongCredentialsController.landingPage())
+          Redirect(routes.SaWrongCredentialsController.landingPage)
         case NotEnrolledSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Never enrolled SA filer")
-          Redirect(routes.SelfAssessmentController.requestAccess())
+          Redirect(routes.SelfAssessmentController.requestAccess)
         case NonFilerSelfAssessmentUser =>
           Ok(cannotConfirmIdentityView(retryUrl))
       }
@@ -116,7 +116,7 @@ class SelfAssessmentController @Inject() (
         case NotEnrolledSelfAssessmentUser(saUtr) =>
           val deadlineYear = current.finishYear.toString
           Ok(requestAccessToSelfAssessmentView(saUtr.utr, deadlineYear))
-        case _ => Redirect(routes.HomeController.index())
+        case _ => Redirect(routes.HomeController.index)
       }
     }
 }

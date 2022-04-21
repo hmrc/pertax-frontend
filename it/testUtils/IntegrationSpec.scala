@@ -1,4 +1,4 @@
-package utils
+package testUtils
 
 import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo, urlMatching}
 import org.scalatest.concurrent.ScalaFutures
@@ -6,9 +6,11 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl, MessagesProvider}
+import play.api
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.renderer.TemplateRenderer
+import scala.concurrent.ExecutionContext
 
 trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with Matchers {
 
@@ -62,17 +64,17 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
        |}
        |""".stripMargin
 
-  override def fakeApplication = GuiceApplicationBuilder()
-    .configure(
-      "microservice.services.citizen-details.port" -> server.port(),
-      "microservice.services.auth.port" -> server.port(),
-      "microservice.services.message-frontend.port" -> server.port()
-    ).build()
-
-  implicit lazy val messageProvider = app.injector.instanceOf[MessagesProvider]
-  lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
+    GuiceApplicationBuilder()
+      .configure(
+        "microservice.services.citizen-details.port" -> server.port(),
+        "microservice.services.auth.port" -> server.port(),
+        "microservice.services.message-frontend.port" -> server.port(),
+        "microservice.services.agent-client-authorisation.port" -> server.port(),
+        "microservice.services.cachable.session-cache.port" -> server.port()
+      ).overrides(
+      api.inject.bind[TemplateRenderer].to(testUtils.MockTemplateRenderer)
+    )
 
   override def beforeEach() = {
     super.beforeEach()
