@@ -52,7 +52,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
 
       val result = controller.processDoYouKnowOtherCredentials(request)
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.signInAgain().url)
+      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.signInAgain.url)
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
@@ -61,7 +61,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
       val result = controller.processDoYouKnowOtherCredentials(request)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.doYouKnowUserId().url)
+      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.doYouKnowUserId.url)
     }
 
     "return a bad request when supplied no value" in {
@@ -78,7 +78,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
 
       val result = controller.processDoYouKnowUserId(request)
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.needToResetPassword().url)
+      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.needToResetPassword.url)
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
@@ -86,7 +86,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
       val result = controller.processDoYouKnowUserId(request)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.findYourUserId().url)
+      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.findYourUserId.url)
     }
 
     "return a bad request when supplied no value" in {

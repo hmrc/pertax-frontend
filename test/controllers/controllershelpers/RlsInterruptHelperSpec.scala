@@ -50,6 +50,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
     ConfidenceLevel.L200,
     None,
     None,
+    Set(),
     None,
     None,
     None,
@@ -79,6 +80,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           ConfidenceLevel.L200,
           Some(buildFakePersonDetails.copy(address = Some(buildFakeAddress.copy(isRls = true)))),
           None,
+          Set(),
           None,
           None,
           None,
@@ -104,6 +106,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
             buildFakePersonDetails.copy(correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)))
           ),
           None,
+          Set(),
           None,
           None,
           None,
@@ -132,6 +135,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
             )
           ),
           None,
+          Set(),
           None,
           None,
           None,
@@ -155,6 +159,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           ConfidenceLevel.L200,
           Some(buildFakePersonDetails.copy(address = Some(buildFakeAddress.copy(isRls = true)))),
           None,
+          Set(),
           None,
           None,
           None,
@@ -180,6 +185,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
             buildFakePersonDetails.copy(correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)))
           ),
           None,
+          Set(),
           None,
           None,
           None,
@@ -208,6 +214,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
             )
           ),
           None,
+          Set(),
           None,
           None,
           None,
@@ -236,6 +243,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
             )
           ),
           None,
+          Set(),
           None,
           None,
           None,
@@ -264,6 +272,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
             )
           ),
           None,
+          Set(),
           None,
           None,
           None,
@@ -296,6 +305,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
             )
           ),
           None,
+          Set(),
           None,
           None,
           None,

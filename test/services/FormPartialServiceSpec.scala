@@ -16,53 +16,51 @@
 
 package services
 
-import com.codahale.metrics.Timer
-import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import metrics.Metrics
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.twirl.api.Html
 import services.partials.FormPartialService
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
-import util.BaseSpec
+import util.{BaseSpec, EnhancedPartialRetriever}
 import util.Fixtures._
 
 import scala.concurrent.Future
 
 class FormPartialServiceSpec extends BaseSpec {
+  val mockEnhancedPartialRetriever = mock[EnhancedPartialRetriever]
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockEnhancedPartialRetriever)
+  }
 
   trait LocalSetup {
-    val timer = mock[Timer.Context]
     val formPartialService: FormPartialService = new FormPartialService(
-      mock[DefaultHttpClient],
-      mock[Metrics],
       mock[ConfigDecorator],
-      injected[HeaderCarrierForPartialsConverter]
-    ) {
-      override val metricsOperator: MetricsOperator = mock[MetricsOperator]
-      when(metricsOperator.startTimer(any())) thenReturn timer
-    }
+      mockEnhancedPartialRetriever
+    )
   }
 
   "Calling FormPartialServiceSpec" must {
 
     "return form list for National insurance" in new LocalSetup {
 
-      when(formPartialService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
+      when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
       formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).map(p => p mustBe "<title/>")
-      verify(formPartialService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
+      verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any())(any(), any())
     }
 
     "return form list for Self-assessment" in new LocalSetup {
 
-      when(formPartialService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
+      when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
       formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).map(p => p mustBe "<title/>")
-      verify(formPartialService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
+      verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any())(any(), any())
     }
 
   }

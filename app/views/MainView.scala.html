@@ -1,5 +1,5 @@
 @*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@
 
         if(request.personDetails.isDefined) {
             if(request.nino.isDefined) {
-                seq += Map("url" -> controllers.address.routes.PersonalDetailsController.onPageLoad().url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
+                seq += Map("url" -> controllers.address.routes.PersonalDetailsController.onPageLoad.url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
             }
             seq += Map("url" -> configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
             seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
@@ -87,20 +87,24 @@
     }
 
     @{
-        val covidBanner = showUserResearchBanner match {
-            case true => Map[String, Any]("covidBannerTitle" -> Messages("label.url_coronavirus"),
-                "covidBannerLink" -> configDecorator.bannerLinkUrl,
-                "covidBannerDismissText" -> Some(Messages("label.hide_message")),
-                "covidBannerGaAction" -> Some("homepage Covid banner"))
-            case false => Map.empty[String, Any]
+       val urBanner = {
+            if(showUserResearchBanner) {
+                Some(FullWidthBannerComponent(
+                    Messages("label.help_improve_gov_uk"),
+                    Messages("label.get.involved.in.making.gov.services.better"),
+                    configDecorator.bannerLinkUrl,
+                    Some(Messages("label.no_thanks")),
+                    Some("homepage UR banner")
+                ))
+            } else { None }
         }
 
         val arguments = TemplateArgumentsBuilder(
 
             Some(AccountMenuStyleComponent(
                 langUrls = Some((
-                        controllers.routes.LanguageSwitchController.enGb().url,
-                        controllers.routes.LanguageSwitchController.cyGb().url
+                        controllers.routes.LanguageSwitchController.enGb.url,
+                        controllers.routes.LanguageSwitchController.cyGb.url
                 )),
                 signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
                 activeTab = request.activeTab,
@@ -118,6 +122,7 @@
                 controllers.routes.AssetsController.versioned("javascripts/polyfill.js").url,
                 controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js").url
             )),
+            urBanner,
             Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
             Some(InlineScriptComponent(inlineScript.toString)),
             configDecorator.ssoUrl.map(SsoUrlComponent),
@@ -135,7 +140,7 @@
         ) ++ Map[String, Any](
             "bodyClass" -> printable,
             "headInlineScript" -> headInlineScript
-        ) ++ covidBanner
+        )
 
         val extraArguments:Map[String,Any] = if(configDecorator.accessibilityStatementToggle) {
             arguments ++ Map[String,Any](

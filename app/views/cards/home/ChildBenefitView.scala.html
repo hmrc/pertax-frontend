@@ -1,5 +1,5 @@
 @*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 @()(implicit messages: play.api.i18n.Messages)
 
 @card(
-    url = Some(routes.InterstitialController.displayChildBenefits().url),
+    url = Some(routes.InterstitialController.displayChildBenefits.url),
     gaAction = Some("Benefits"),
     gaLabel = Some("Child Benefit"),
     heading = messages("label.child_benefit"),

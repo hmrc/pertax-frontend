@@ -42,7 +42,7 @@ class MessageController @Inject() (
     extends PertaxBaseController(cc) {
 
   def messageBreadcrumb: Breadcrumb =
-    "label.all_messages" -> routes.MessageController.messageList().url ::
+    "label.all_messages" -> routes.MessageController.messageList.url ::
       baseBreadcrumb
 
   def messageList: Action[AnyContent] =

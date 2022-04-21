@@ -1,17 +1,19 @@
 package address
 
 import com.github.tomakehurst.wiremock.client.WireMock.{status => _}
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo}
-import org.scalatest.concurrent.PatienceConfiguration
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo}
+import play.api.Application
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route}
 import play.api.test.Helpers.{status => getStatus, _}
-import utils.IntegrationSpec
-
+import testUtils.IntegrationSpec
+import uk.gov.hmrc.http.HeaderNames
 
 class RLSInterruptPageSpec extends IntegrationSpec {
 
   val url = s"/personal-account"
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
   "personal-account" must {
     "show rls interrupt" when {
@@ -48,15 +50,15 @@ class RLSInterruptPageSpec extends IntegrationSpec {
         server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
           .willReturn(ok(designatoryDetails)))
 
-        val request = FakeRequest(GET, url)
+        val request = FakeRequest(GET, url).withHeaders(HeaderNames.authorisation -> "Bearer 1")
 
-        val result = route(fakeApplication(), request)
+        val result = route(app, request)
 
         result.map(getStatus) mustBe Some(SEE_OTHER)
         result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
       }
 
-      "RLS indicator is set for correspondance address for non tax credit user" in {
+      "RLS indicator is set for correspondence address for non tax credit user" in {
         val designatoryDetails =
           """|
              |{
@@ -91,7 +93,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
 
         val request = FakeRequest(GET, url)
 
-        val result = route(fakeApplication(), request)
+        val result = route(app, request)
 
         result.map(getStatus) mustBe Some(SEE_OTHER)
         result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
@@ -142,7 +144,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
 
         val request = FakeRequest(GET, url)
 
-        val result = route(fakeApplication(), request)
+        val result = route(app, request)
 
         result.map(getStatus) mustBe Some(SEE_OTHER)
         result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
@@ -197,7 +199,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
 
       val request = FakeRequest(GET, url)
 
-      val result = route(fakeApplication(), request)
+      val result = route(app, request)
 
       result.map(getStatus) mustBe Some(OK)
     }

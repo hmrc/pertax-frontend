@@ -1,5 +1,5 @@
 @*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 
 @(utr: String, deadlineYear: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("title.request_sa_access.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.HomeController.index().url)) {
+@mainView(messages("title.request_sa_access.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.HomeController.index.url)) {
     <div class="grid-row">
         <div class="column-two-thirds">
             <header class="page-heading">
