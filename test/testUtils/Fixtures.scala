@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
@@ -23,7 +23,7 @@ import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAd
 import models.dto.AddressDto
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -38,7 +38,6 @@ import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
-import services.AgentClientAuthorisationService
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever

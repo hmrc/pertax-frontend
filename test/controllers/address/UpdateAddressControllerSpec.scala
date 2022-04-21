@@ -27,9 +27,9 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import testUtils.Fixtures
 import uk.gov.hmrc.http.cache.client.CacheMap
-import util.Fixtures
-import util.Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified}
+import Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified}
 import views.html.personaldetails.UpdateAddressView
 
 class UpdateAddressControllerSpec extends AddressBaseSpec {

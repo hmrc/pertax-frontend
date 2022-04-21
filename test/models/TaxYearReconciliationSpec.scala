@@ -20,7 +20,7 @@ import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
 import org.joda.time.LocalDate
 import play.api.libs.json.{JsError, JsString, Json}
-import util.BaseSpec
+import testUtils.BaseSpec
 
 class TaxYearReconciliationSpec extends BaseSpec {
 

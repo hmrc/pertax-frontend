@@ -23,10 +23,10 @@ import org.mockito.Mockito.{mock, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
+import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import util.BaseSpec
 
 class TaxCalculationStateSpec extends BaseSpec {
 

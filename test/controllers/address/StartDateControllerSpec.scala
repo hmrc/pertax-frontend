@@ -27,13 +27,13 @@ import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
+import testUtils.ActionBuilderFixture
+import testUtils.Fixtures.fakeStreetTupleListAddressForUnmodified
+import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.fixtures.AddressFixture.{address => addressFixture}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.language.LanguageUtils
-import util.ActionBuilderFixture
-import util.Fixtures.fakeStreetTupleListAddressForUnmodified
-import util.UserRequestFixture.buildUserRequest
-import util.fixtures.AddressFixture.{address => addressFixture}
-import util.fixtures.PersonFixture.emptyPerson
+import testUtils.fixtures.PersonFixture._
 import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
 
 import scala.concurrent.Future

@@ -28,10 +28,10 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
+import testUtils.Fixtures
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
-import util.Fixtures
-import util.Fixtures.{fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
+import Fixtures.{fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
 import views.html.personaldetails.PostcodeLookupView
 
 class PostcodeLookupControllerSpec extends AddressBaseSpec {

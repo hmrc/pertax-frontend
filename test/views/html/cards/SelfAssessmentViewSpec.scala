@@ -24,7 +24,7 @@ import org.scalatest.Assertion
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.home.SelfAssessmentView
 

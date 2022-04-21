@@ -23,8 +23,9 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import util.{BaseSpec, WireMockHelper}
+import testUtils.BaseSpec
 import com.github.tomakehurst.wiremock.client.WireMock._
+import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class DefaultAgentClientAuthorisationConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {

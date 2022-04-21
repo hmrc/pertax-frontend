@@ -26,16 +26,17 @@ import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.partials.PreferencesFrontendPartialService
+import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import util._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
-  import BetterOptionValues._
+  import testUtils.BetterOptionValues._
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 

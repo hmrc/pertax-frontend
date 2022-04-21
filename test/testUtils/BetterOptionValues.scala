@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
-import org.scalactic._
+import org.scalactic.source
 import org.scalatest.exceptions.{StackDepthException, TestFailedException}
 
 object BetterOptionValues {

@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
-import com.codahale.metrics.MetricRegistry
-import com.kenshoo.play.metrics.Metrics
+import scala.io.Source.fromFile
 
-class NullMetrics extends Metrics {
-  override def defaultRegistry: MetricRegistry = new MetricRegistry
-  override def toJson: String = ""
+object FileHelper {
+
+  def loadFile(name: String): String = {
+    val source = fromFile(name)
+    try source.mkString
+    finally source.close()
+  }
 }

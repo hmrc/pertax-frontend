@@ -19,7 +19,7 @@ package error
 import config.ConfigDecorator
 import play.api.test.FakeRequest
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.{InternalServerErrorView, UnauthenticatedErrorView, ViewSpec}
 
 class LocalErrorHandlerSpec extends ViewSpec {

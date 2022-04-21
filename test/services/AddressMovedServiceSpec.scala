@@ -21,8 +21,8 @@ import models.{AnyOtherMove, MovedFromScotland, MovedToScotland}
 import org.mockito.Mockito.{mock, when}
 import org.scalatest.concurrent.ScalaFutures
 import play.api.http.Status._
+import testUtils.BaseSpec
 import uk.gov.hmrc.http.HttpResponse
-import util.BaseSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 

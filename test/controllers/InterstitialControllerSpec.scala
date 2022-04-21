@@ -31,12 +31,13 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import services._
 import services.partials.{FormPartialService, SaPartialService}
+import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.ViewNewsAndUpdatesView

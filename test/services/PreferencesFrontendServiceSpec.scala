@@ -35,8 +35,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.CONTENT_TYPE
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, WireMockHelper}
+import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{BaseSpec, WireMockHelper}
+import testUtils.BaseSpec
 
 class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 

@@ -24,6 +24,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import org.scalatest.concurrent.IntegrationPatience
+import testUtils.{BaseSpec, WireMockHelper}
 
 class TimeoutSpec extends BaseSpec with Timeout with WireMockHelper with IntegrationPatience {
 

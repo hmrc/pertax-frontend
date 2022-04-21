@@ -14,26 +14,12 @@
  * limitations under the License.
  */
 
-package util.fixtures
+package testUtils.fixtures
 
-import models.Address
-import org.joda.time.LocalDate
+import models.Person
 
-object AddressFixture {
+object PersonFixture {
 
-  def address(
-    line1: Option[String] = None,
-    line2: Option[String] = None,
-    line3: Option[String] = None,
-    line4: Option[String] = None,
-    line5: Option[String] = None,
-    postcode: Option[String] = None,
-    country: Option[String] = None,
-    startDate: Option[LocalDate] = None,
-    endDate: Option[LocalDate] = None,
-    `type`: Option[String] = None,
-    isRls: Boolean = false
-  ) =
-    Address(line1, line2, line3, line4, line5, postcode, country, startDate, endDate, `type`, isRls)
+  def emptyPerson = Person(None, None, None, None, None, None, None, None, None)
 
 }

@@ -24,8 +24,9 @@ import org.mockito.Mockito._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, Fixtures}
+import testUtils.{BaseSpec, Fixtures}
+import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.BaseSpec
 import views.html.cards.personaldetails._
 
 class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {

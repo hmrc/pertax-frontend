@@ -23,8 +23,9 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status._
 import play.api.libs.json.Writes
 import play.api.test.Injecting
+import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
-import util.{BaseSpec, WireMockHelper}
+import testUtils.BaseSpec
 
 import java.util.concurrent.LinkedBlockingQueue
 import scala.concurrent.{ExecutionContext, Future}

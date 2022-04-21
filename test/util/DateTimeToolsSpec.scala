@@ -17,6 +17,7 @@
 package util
 
 import org.joda.time.{LocalDate => JodaLocalDate}
+import testUtils.BaseSpec
 
 import java.time.LocalDateTime
 

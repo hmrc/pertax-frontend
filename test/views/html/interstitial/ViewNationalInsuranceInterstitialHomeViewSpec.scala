@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 
 class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {

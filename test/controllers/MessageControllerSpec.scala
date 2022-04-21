@@ -28,9 +28,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
+import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import util._
 import views.html.message.{MessageDetailView, MessageInboxView}
 

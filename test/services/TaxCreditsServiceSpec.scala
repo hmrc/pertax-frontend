@@ -21,9 +21,9 @@ import connectors.TaxCreditsConnector
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status._
+import testUtils.BaseSpec
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
-import util.BaseSpec
-import util.Fixtures.fakeNino
+import testUtils.Fixtures.fakeNino
 
 import scala.concurrent.Future
 

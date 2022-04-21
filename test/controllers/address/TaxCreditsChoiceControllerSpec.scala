@@ -31,11 +31,11 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{LocalSessionCache, TaxCreditsService}
+import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
-import util.Fixtures.buildPersonDetailsCorrespondenceAddress
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec}
+import testUtils.Fixtures.buildPersonDetailsCorrespondenceAddress
+import testUtils.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 

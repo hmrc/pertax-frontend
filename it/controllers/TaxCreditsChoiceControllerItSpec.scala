@@ -11,9 +11,9 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, writeableOf_AnyContentAsEmpty}
-import uk.gov.hmrc.http.{HeaderNames, SessionId}
+import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.renderer.TemplateRenderer
-import utils.{FileHelper, IntegrationSpec}
+import testUtils.{FileHelper, IntegrationSpec}
 
 class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 

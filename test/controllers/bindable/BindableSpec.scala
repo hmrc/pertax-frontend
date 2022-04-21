@@ -17,8 +17,8 @@
 package controllers.bindable
 
 import play.api.test.Injecting
+import testUtils.BaseSpec
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
-import util.BaseSpec
 
 class BindableSpec extends BaseSpec with Injecting {
 

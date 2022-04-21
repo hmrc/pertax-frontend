@@ -24,10 +24,10 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import util.BaseSpec
 
 import scala.concurrent.Future
 import cats.implicits._
+import testUtils.BaseSpec
 
 class SeissServiceSpec extends BaseSpec {
 

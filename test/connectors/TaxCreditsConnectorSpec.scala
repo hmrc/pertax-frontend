@@ -22,8 +22,8 @@ import play.api.Application
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import util.Fixtures.fakeNino
-import util.{BaseSpec, FileHelper, NullMetrics, WireMockHelper}
+import testUtils.Fixtures.fakeNino
+import testUtils.{BaseSpec, FileHelper, NullMetrics, WireMockHelper}
 
 class TaxCreditsConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 

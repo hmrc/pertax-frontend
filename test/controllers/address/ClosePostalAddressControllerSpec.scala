@@ -28,12 +28,12 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
+import testUtils.Fixtures
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
-import util.Fixtures
-import util.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
-import util.UserRequestFixture.buildUserRequest
+import Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
 import java.time.Instant

@@ -29,14 +29,14 @@ import org.mockito.Mockito.{reset, when}
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import services._
+import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
-import util.Fixtures._
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec}
+import testUtils.Fixtures._
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateAddressConfirmationView
 

@@ -17,8 +17,8 @@
 package models
 
 import models.dto.AddressDto
-import util.BaseSpec
-import util.Fixtures._
+import testUtils.BaseSpec
+import testUtils.Fixtures._
 
 class AddressJourneyDataSpec extends BaseSpec {
 

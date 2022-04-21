@@ -19,8 +19,8 @@ package controllers.auth
 import controllers.auth.requests.UserRequest
 import models.SelfAssessmentUserType
 import play.api.mvc.{Request, Result}
-import util.ActionBuilderFixture
-import util.UserRequestFixture.buildUserRequest
+import testUtils.ActionBuilderFixture
+import testUtils.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
 

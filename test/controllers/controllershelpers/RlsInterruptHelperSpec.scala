@@ -24,10 +24,11 @@ import org.mockito.Mockito._
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import util.Fixtures.{buildFakeAddress, buildFakeCorrespondenceAddress, buildFakePersonDetails, fakeNino}
-import util.{BaseSpec, Fixtures}
+import testUtils.Fixtures.{buildFakeAddress, buildFakeCorrespondenceAddress, buildFakePersonDetails, fakeNino}
+import testUtils.BaseSpec
 
 import java.time.Instant
 import scala.concurrent.Future

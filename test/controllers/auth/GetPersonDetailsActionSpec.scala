@@ -31,10 +31,11 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.partials.MessageFrontendService
 import connectors.PersonDetailsNotFoundResponse
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import util.{BaseSpec, Fixtures}
+import testUtils.BaseSpec
 
 import scala.concurrent.Future
 
