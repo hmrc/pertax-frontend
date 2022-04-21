@@ -17,96 +17,97 @@
 package util
 
 import com.codahale.metrics.Timer
-import com.kenshoo.play.metrics.Metrics
-import metrics.HasMetrics
+import com.github.tomakehurst.wiremock.client.WireMock.{get, notFound, ok, serverError, urlEqualTo}
+import metrics.{Metrics, MetricsImpl}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.IntegrationPatience
+import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import uk.gov.hmrc.http.{GatewayTimeoutException, HttpGet}
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
-import scala.concurrent.Future
-
-class EnhancedPartialRetrieverSpec extends BaseSpec {
+class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   lazy implicit val fakeRequest = FakeRequest("", "")
 
-  trait LocalSetup {
+  val mockMetrics: MetricsImpl = mock[MetricsImpl]
 
-    val metricId = "load-partial"
-
-    def simulateCallFailed: Boolean
-
-    def returnPartial: HtmlPartial
-
-    lazy val (epr, metrics, timer) = {
-
-      val timer = mock[Timer.Context]
-
-      val epr = new EnhancedPartialRetriever(injected[HeaderCarrierForPartialsConverter]) with HasMetrics {
-
-        override val http: HttpGet = mock[HttpGet]
-        if (simulateCallFailed)
-          when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.failed(
-            new GatewayTimeoutException("Gateway timeout")
-          )
-        else
-          when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.successful(
-            returnPartial
-          )
-
-        override val metrics: Metrics = mock[Metrics]
-        override val metricsOperator: MetricsOperator = mock[MetricsOperator]
-        when(metricsOperator.startTimer(any())) thenReturn timer
-      }
-
-      (epr, epr.metricsOperator, timer)
-    }
-
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockMetrics)
   }
+
+  server.start()
+  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+    .overrides(
+      bind[MetricsImpl].toInstance(mockMetrics)
+    )
+    .configure(
+      "microservice.services.contact-frontend.port" -> server.port(),
+      "metrics.enabled"                             -> false,
+      "auditing.enabled"                            -> false,
+      "auditing.traceRequests"                      -> false
+    )
+    .build()
+
+  val sut = injected[EnhancedPartialRetriever]
 
   "Calling EnhancedPartialRetriever.loadPartial" must {
 
-    "return a successful partial and log the right metrics" in new LocalSetup {
+    "return a successful partial and log the right metrics" in {
 
-      override val simulateCallFailed = false
-      override val returnPartial = HtmlPartial.Success.apply(Some("my title"), Html("my body content"))
+      val returnPartial: HtmlPartial = HtmlPartial.Success.apply(None, Html("my body content"))
+      val url = s"http://localhost:${server.port()}/"
+      server.stubFor(
+        get(urlEqualTo("/")).willReturn(ok("my body content"))
+      )
+      when(mockMetrics.startTimer(any())).thenReturn(mock[Timer.Context])
+      when(mockMetrics.incrementSuccessCounter(any())).thenAnswer(_ => None)
+      when(mockMetrics.incrementFailedCounter(any())).thenAnswer(_ => None)
 
-      epr.loadPartial("/").futureValue mustBe returnPartial
-
-      verify(metrics, times(1)).startTimer(metricId)
-      verify(metrics, times(1)).incrementSuccessCounter(metricId)
-      verify(metrics, times(0)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
-
+      sut.loadPartial(url).futureValue mustBe returnPartial
+      verify(mockMetrics, times(1)).startTimer(any())
+      verify(mockMetrics, times(0)).incrementFailedCounter(any())
+      verify(mockMetrics, times(1)).incrementSuccessCounter(any())
     }
 
-    "return a failed partial and log the right metrics" in new LocalSetup {
+    "return a failed partial and log the right metrics" in {
 
-      override val simulateCallFailed = false
-      override val returnPartial = HtmlPartial.Failure(Some(404), "Not Found")
+      val returnPartial: HtmlPartial = HtmlPartial.Failure(Some(404), "Not Found")
+      val url = s"http://localhost:${server.port()}/"
+      server.stubFor(
+        get(urlEqualTo("/")).willReturn(notFound.withBody("Not Found"))
+      )
 
-      epr.loadPartial("/").futureValue mustBe returnPartial
+      when(mockMetrics.startTimer(any())).thenReturn(mock[Timer.Context])
+      when(mockMetrics.incrementSuccessCounter(any())).thenAnswer(_ => None)
+      when(mockMetrics.incrementFailedCounter(any())).thenAnswer(_ => None)
 
-      verify(metrics, times(1)).startTimer(metricId)
-      verify(metrics, times(0)).incrementSuccessCounter(metricId)
-      verify(metrics, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      sut.loadPartial(url).futureValue mustBe returnPartial
+      verify(mockMetrics, times(1)).startTimer(any())
+      verify(mockMetrics, times(1)).incrementFailedCounter(any())
+      verify(mockMetrics, times(0)).incrementSuccessCounter(any())
     }
 
-    "when the call to the service fails log the right metrics" in new LocalSetup {
+    "when the call to the service fails log the right metrics" in {
 
-      override val simulateCallFailed = true
-      override def returnPartial = ???
+      val returnPartial: HtmlPartial = HtmlPartial.Failure(Some(500), "Error")
+      val url = s"http://localhost:${server.port()}/"
+      server.stubFor(
+        get(urlEqualTo("/")).willReturn(serverError.withBody("Error"))
+      )
 
-      epr.loadPartial("/").futureValue
+      when(mockMetrics.startTimer(any())).thenReturn(mock[Timer.Context])
+      when(mockMetrics.incrementSuccessCounter(any())).thenAnswer(_ => None)
+      when(mockMetrics.incrementFailedCounter(any())).thenAnswer(_ => None)
 
-      verify(metrics, times(1)).startTimer(metricId)
-      verify(metrics, times(0)).incrementSuccessCounter(metricId)
-      verify(metrics, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      sut.loadPartial(url).futureValue mustBe returnPartial
+      verify(mockMetrics, times(1)).startTimer(any())
+      verify(mockMetrics, times(1)).incrementFailedCounter(any())
+      verify(mockMetrics, times(0)).incrementSuccessCounter(any())
     }
   }
 }

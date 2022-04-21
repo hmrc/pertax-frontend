@@ -24,10 +24,10 @@
 @this(mainView: MainView)
 @(continueUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("label.personal_details"), Some(messages("label.your_personal_tax_account"))) {
+@mainView(messages("label.profile"), Some(messages("label.your_personal_tax_account"))) {
 
     <div class="page-heading">
-        <h1 class="heading-large no-margin-bottom no-margin-top">@messages("label.personal_details")</h1>
+        <h1 class="heading-large no-margin-bottom no-margin-top">@messages("label.profile")</h1>
     </div>
 
     <div class="grid-row">

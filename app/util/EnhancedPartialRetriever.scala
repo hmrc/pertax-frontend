@@ -16,45 +16,49 @@
 
 package util
 
+import com.codahale.metrics.Timer
 import com.google.inject.Inject
-import metrics.HasMetrics
+import metrics.{Metrics, MetricsEnumeration}
 import play.api.Logging
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.{HttpException, HttpGet}
+import uk.gov.hmrc.http.{HttpClient, HttpException}
 import uk.gov.hmrc.play.partials.HtmlPartial._
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class EnhancedPartialRetriever @Inject() (
+class EnhancedPartialRetriever @Inject() (
+  metrics: Metrics,
+  http: HttpClient,
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
-)(implicit executionContext: ExecutionContext)
-    extends HasMetrics with Logging {
+) extends Logging {
 
-  def http: HttpGet
+  def loadPartial(url: String)(implicit request: RequestHeader, ec: ExecutionContext): Future[HtmlPartial] = {
+    val timerContext: Timer.Context =
+      metrics.startTimer(MetricsEnumeration.LOAD_PARTIAL)
 
-  def loadPartial(url: String)(implicit request: RequestHeader): Future[HtmlPartial] =
-    withMetricsTimer("load-partial") { timer =>
-      implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+    implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
 
-      http.GET[HtmlPartial](url) map {
-        case partial: HtmlPartial.Success =>
-          timer.completeTimerAndIncrementSuccessCounter()
-          partial
-        case partial: HtmlPartial.Failure =>
-          logger.error(s"Failed to load partial from $url, partial info: $partial")
-          timer.completeTimerAndIncrementFailedCounter()
-          partial
-      } recover { case e =>
-        timer.completeTimerAndIncrementFailedCounter()
-        logger.error(s"Failed to load partial from $url", e)
-        e match {
-          case ex: HttpException =>
-            HtmlPartial.Failure(Some(ex.responseCode))
-          case _ =>
-            HtmlPartial.Failure(None)
-        }
+    http.GET[HtmlPartial](url) map {
+      case partial: HtmlPartial.Success =>
+        timerContext.stop()
+        metrics.incrementSuccessCounter(MetricsEnumeration.LOAD_PARTIAL)
+        partial
+      case partial: HtmlPartial.Failure =>
+        timerContext.stop()
+        logger.error(s"Failed to load partial from $url, partial info: $partial")
+        metrics.incrementFailedCounter(MetricsEnumeration.LOAD_PARTIAL)
+        partial
+    } recover { case e =>
+      timerContext.stop()
+      metrics.incrementFailedCounter(MetricsEnumeration.LOAD_PARTIAL)
+      logger.error(s"Failed to load partial from $url", e)
+      e match {
+        case ex: HttpException =>
+          HtmlPartial.Failure(Some(ex.responseCode))
+        case _ =>
+          HtmlPartial.Failure(None)
       }
-
     }
+  }
 }

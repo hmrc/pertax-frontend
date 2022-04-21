@@ -23,6 +23,7 @@ import models.{SelfAssessmentUser, SelfAssessmentUserType}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
+import cats.implicits._
 
 class SeissService @Inject() (seissConnector: SeissConnector, appConfig: ConfigDecorator)(implicit
   ec: ExecutionContext
@@ -32,10 +33,7 @@ class SeissService @Inject() (seissConnector: SeissConnector, appConfig: ConfigD
     if (appConfig.isSeissTileEnabled) {
       saUserType match {
         case user: SelfAssessmentUser =>
-          seissConnector.getClaims(user.saUtr.utr).map {
-            case Right(claims) => claims.nonEmpty
-            case Left(_)       => false
-          }
+          seissConnector.getClaims(user.saUtr.utr).bimap(_ => false, claims => claims.nonEmpty).merge
         case _ => Future.successful(false)
       }
     } else {

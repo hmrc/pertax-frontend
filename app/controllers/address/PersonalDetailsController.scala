@@ -23,6 +23,7 @@ import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDeta
 import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
+import services.AgentClientAuthorisationService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildPersonDetailsEvent
@@ -41,11 +42,15 @@ class PersonalDetailsController @Inject() (
   withActiveTabAction: WithActiveTabAction,
   auditConnector: AuditConnector,
   rlsInterruptHelper: RlsInterruptHelper,
+  agentClientAuthorisationService: AgentClientAuthorisationService,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   personalDetailsView: PersonalDetailsView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>
     Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad))
@@ -56,6 +61,7 @@ class PersonalDetailsController @Inject() (
       import models.dto.AddressPageVisitedDto
 
       rlsInterruptHelper.enforceByRlsStatus(for {
+        agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
         addressModel <- request.nino
                           .map { nino =>
                             editAddressLockRepository.get(nino.withoutSuffix)
@@ -84,6 +90,7 @@ class PersonalDetailsController @Inject() (
         val trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
         val paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
         val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
+        val manageTaxAgent = if (agentClientStatus) personalDetailsViewModel.getManageTaxAgentsRow else None
 
         Ok(
           personalDetailsView(
@@ -91,7 +98,8 @@ class PersonalDetailsController @Inject() (
             addressDetails,
             trustedHelpers,
             paperlessHelpers,
-            signinDetailsHelpers
+            signinDetailsHelpers,
+            manageTaxAgent
           )
         )
       })
