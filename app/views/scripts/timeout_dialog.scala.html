@@ -1,5 +1,5 @@
 @*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
     window.GOVUK.timeoutDialog({
         timeout: @sessionTimeoutInSeconds,
         countdown: @sessionCountdownInSeconds,
-        keepAliveUrl: '@controllers.routes.SessionManagementController.keepAlive()',
-        signOutUrl: '@controllers.routes.SessionManagementController.timeOut()',
+        keepAliveUrl: '@controllers.routes.SessionManagementController.keepAlive',
+        signOutUrl: '@controllers.routes.SessionManagementController.timeOut',
         title: "@messages("label.timeout.dialog.title")",
         message: "@messages("label.timeout.dialog.message")",
         keepAliveButtonText: "@messages("label.timeout.dialog.keepAlive.button")",

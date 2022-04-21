@@ -17,30 +17,24 @@
 package services.partials
 
 import com.google.inject.{Inject, Singleton}
-import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import metrics.HasMetrics
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
+import uk.gov.hmrc.play.partials.HtmlPartial
 import util.{EnhancedPartialRetriever, Tools}
 
 import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class SaPartialService @Inject() (
-  override val http: HttpClient,
-  val metrics: Metrics,
-  val configDecorator: ConfigDecorator,
-  headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
-  val tools: Tools
-)(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
+  configDecorator: ConfigDecorator,
+  tools: Tools,
+  enhancedPartialRetriever: EnhancedPartialRetriever
+)(implicit executionContext: ExecutionContext) {
 
   private val returnUrl = configDecorator.pertaxFrontendHomeUrl
   private val returnLinkText = configDecorator.saPartialReturnLinkText
 
   def getSaAccountSummary(implicit request: RequestHeader): Future[HtmlPartial] =
-    loadPartial(
+    enhancedPartialRetriever.loadPartial(
       configDecorator.businessTaxAccountService + s"/business-account/partial/sa/account-summary?returnUrl=${tools
         .urlEncode(returnUrl)}&returnLinkText=${tools.urlEncode(returnLinkText)}"
     )

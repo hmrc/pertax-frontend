@@ -38,6 +38,7 @@ class WithBreadcrumbAction @Inject() (implicit ec: ExecutionContext) {
               request.confidenceLevel,
               request.personDetails,
               request.trustedHelper,
+              request.enrolments,
               request.profile,
               request.unreadMessageCount,
               request.activeTab,

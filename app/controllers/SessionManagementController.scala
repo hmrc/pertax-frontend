@@ -26,6 +26,6 @@ class SessionManagementController @Inject() (mcc: MessagesControllerComponents) 
   }
 
   def timeOut: Action[AnyContent] = Action {
-    Redirect(routes.PublicController.sessionTimeout()).withNewSession
+    Redirect(routes.PublicController.sessionTimeout).withNewSession
   }
 }

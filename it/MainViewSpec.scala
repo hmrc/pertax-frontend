@@ -37,7 +37,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.{EnrolmentStoreCachingService, LocalSessionCache}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
@@ -135,6 +135,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
         confidenceLevel,
         personDetails,
         trustedHelper,
+        Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
         profile,
         messageCount,
         None,
@@ -191,15 +192,6 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
 
       "render the welsh language toggle" in new LocalSetup {
         assertContainsLink(doc, "Cymraeg", "/personal-account/lang/cyGb")
-      }
-
-      // Change to test for user research banner after COVID-19
-      "render the Coronavirus information banner in place of the user research banner" in new LocalSetup {
-
-        assertContainsLink(
-          doc,
-          messages("label.url_coronavirus"),
-          configDecorator.bannerLinkUrl.getOrElse("URL not found"))
       }
     }
 

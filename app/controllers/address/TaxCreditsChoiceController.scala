@@ -19,7 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.bindable.{AddrType, ResidentialAddrType}
+import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.TaxCreditsChoiceId
 import models.dto.TaxCreditsChoiceDto
@@ -33,8 +33,6 @@ import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
-import java.time.Instant
-import java.time.LocalDate
 
 class TaxCreditsChoiceController @Inject() (
   authJourney: AuthJourney,

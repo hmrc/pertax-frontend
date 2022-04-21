@@ -269,7 +269,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
       }
 
       val result =
-        controller.onSubmit()(FakeRequest())
+        controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("http://localhost:9362/tax-credits-service/personal/change-address")

@@ -18,7 +18,8 @@ package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
 import controllers.auth.requests.UserRequest
-import play.api.mvc.{ActionBuilder, AnyContent, ControllerComponents}
+import play.api.mvc.{ActionBuilder, AnyContent}
+
 @ImplementedBy(classOf[AuthJourneyImpl])
 trait AuthJourney {
   val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent]
@@ -30,8 +31,7 @@ class AuthJourneyImpl @Inject() (
   authAction: AuthAction,
   minimumAuthAction: MinimumAuthAction,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
-  getPersonDetailsAction: GetPersonDetailsAction,
-  cc: ControllerComponents
+  getPersonDetailsAction: GetPersonDetailsAction
 ) extends AuthJourney {
 
   override val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
