@@ -31,7 +31,7 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
     document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
-  "TaxCalculation card" must {
+  "LatestNewsAndUpdates card" must {
 
     val doc =
       asDocument(
@@ -49,7 +49,7 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
 
       hasLink(
         doc,
-        Messages("label.stop_using_Verify"),
+        Messages("label.percentage_points_uplift_in_NIC"),
         s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/news"
       )
 
@@ -57,7 +57,6 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
 
     "render the given content correctly" in {
 
-      doc.text() must include(Messages("label.stop_using_Verify"))
       doc.text() must include(Messages("label.percentage_points_uplift_in_NIC"))
     }
   }
