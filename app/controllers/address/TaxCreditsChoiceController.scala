@@ -62,7 +62,7 @@ class TaxCreditsChoiceController @Inject() (
                 Redirect(configDecorator.tcsChangeAddressUrl)
               case Some(false) =>
                 cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
-                Redirect(routes.DoYouLiveInTheUKController.onPageLoad())
+                Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
               case None =>
                 InternalServerError(internalServerErrorView())
             }
@@ -99,7 +99,7 @@ class TaxCreditsChoiceController @Inject() (
           )
         }
       } else {
-        Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+        Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
       }
     }
 }
