@@ -19,20 +19,19 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import controllers.controllershelpers.HomeCardGenerator
 import error.ErrorRenderer
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.Configuration
 import play.api.i18n.Langs
-import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
+import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services._
 import services.partials.{FormPartialService, SaPartialService}
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -40,8 +39,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.ViewNewsAndUpdatesView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewSaAndItsaMergePageView}
+import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.Future
@@ -358,7 +356,10 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewChildBenefitsSummaryInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
-          injected[ViewNewsAndUpdatesView]
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[EnrolmentsHelper],
+          injected[SeissService]
         )(stubConfigDecorator, templateRenderer, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
