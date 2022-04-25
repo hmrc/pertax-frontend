@@ -115,7 +115,7 @@ class SelfAssessmentController @Inject() (
       request.saUserType match {
         case NotEnrolledSelfAssessmentUser(saUtr) =>
           val deadlineYear = current.finishYear.toString
-          Ok(requestAccessToSelfAssessmentView(saUtr.utr, deadlineYear))
+          Ok(requestAccessToSelfAssessmentView(deadlineYear))
         case _ => Redirect(routes.HomeController.index)
       }
     }
