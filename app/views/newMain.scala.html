@@ -22,6 +22,7 @@
 @import views.html.helper.CSPNonce
 @import components.{attorneyBanner, backLink, Link, FullWidthMainContent}
 @import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.ptafrontend.views.html._
 
 @this(
     hmrcLayout: HmrcLayout,
@@ -35,7 +36,9 @@
     link: Link,
     backLink: backLink,
     hmrcAccountMenu: HmrcAccountMenu,
-    banner: attorneyBanner
+    banner: attorneyBanner,
+    ptaHead: PtaHead,
+    ptaScripts: PtaScripts
 )(implicit accountMenuConfig: AccountMenuConfig)
 
 @(
@@ -59,6 +62,7 @@
             countdown = Some(configDecorator.sessionCountdownInSeconds)
         )
     }
+    @ptaHead()
 }
 
 
@@ -95,16 +99,18 @@
     hmrcAccountMenu(AccountMenu(
         signOut = SignOut(href = controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
         language = if(messages.lang.code == "cy") Cy else En,
-        businessTaxAccount = Some(BusinessTaxAccount(href=""))
+        businessTaxAccount = Some(BusinessTaxAccount(href="#"))
     ).withUrlsFromConfig())
 }
 
 @additionalScripts = {
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/jquery.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/pertax.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/polyfill.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
+    @ptaScripts()
 }
 
 @contentBlock = {
@@ -120,15 +126,15 @@
 }
 
 @fullPageTitle = @{
-    s"""$pageTitle - ${messages("site.service_name")} - ${messages("co.car.gov.uk")}"""
+    s"""$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"""
 }
 
 @hmrcLayout(
     pageTitle = Some(fullPageTitle),
-    serviceName = Some(messages("carBenefitHome.title")),
+    serviceName = Some(messages("label.your_personal_tax_account")),
     nonce = CSPNonce.get,
     isWelshTranslationAvailable = true,
-    userResearchBannerUrl = Some(messages("carBenefitHome.banner.recruitment.linkURL")),
+    userResearchBannerUrl = configDecorator.bannerLinkUrl,
     accessibilityStatementUrl = Some(configDecorator.accessibilityStatementUrl(request.uri)),
     displayHmrcBanner = false,
     additionalHeadBlock = Some(headBlock),
