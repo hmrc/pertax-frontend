@@ -17,36 +17,39 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import views.html.interstitial.InterstitialWrapperView
 @import scala.concurrent.ExecutionContext
+@import views.html.components.{H1, Link, P, H2}
 
-@this(mainView: MainView)
+@this(
+    mainView: newMain,
+    h1: H1,
+    h2: H2,
+    p: P,
+    link: Link
+)
 
 @(redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
-@mainView(messages("label.news_and_updates"), Some(messages("label.your_personal_tax_account"))){
+@mainView(
+    pageTitle = messages("label.news_and_updates"),
+    showBackLink = true
+){
 
-<div class="grid-row">
-<div  class="column-two-thirds">
-    @back_link()
-    <h1 id ="newsHeading" class="heading-xlarge">@messages("label.news_and_updates")</h1>
+    @h1("label.news_and_updates", elmId =Some("newsHeading"))
 
-            <section class="app-markdown">
+    <section class="app-markdown">
+        @h2("label.percentage_points_uplift_in_NIC", elmId=Some("nic"))
+        @p(Text(messages("label.national_insurance_contributions_will_increase_by_1.25_percentage_points")))
+        @p(Text(messages("label.the_increase_will_apply_to")))
 
-            <h2 id="nic" class="sectionHeadingH2">@messages("label.percentage_points_uplift_in_NIC")</h2>
-            <p>@messages("label.national_insurance_contributions_will_increase_by_1.25_percentage_points")</p>
-                <p>@messages("label.the_increase_will_apply_to")</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>@messages("label.class_1_paid_by_employees")</li>
+            <li>@messages("label.class_4_paid_by_self_employed")</li>
+            <li>@messages("label.secondary_class_1_1a_1b_paid_by_employers")</li>
+        </ul>
+        @p(Text(messages("label.the_increase_will_not_apply_if_you_are_over_the_state_pension_age")))
+        @link(link = messages("healthAndSocialCareLevy.link.url"), messageKey = "label.prepare_for_the_health_and_social_care_levy", attrTarget = true)
+    </section>
 
-            <ul class="list list-bullet">
-                <li>@messages("label.class_1_paid_by_employees")</li>
-                <li>@messages("label.class_4_paid_by_self_employed")</li>
-                <li>@messages("label.secondary_class_1_1a_1b_paid_by_employers")</li>
-            </ul>
-                <p>@messages("label.the_increase_will_not_apply_if_you_are_over_the_state_pension_age")</p>
-            <p><a class="trackLink"  href=@messages("healthAndSocialCareLevy.link.url") rel="noreferrer noopener" target="_blank">@messages("label.prepare_for_the_health_and_social_care_levy")</a></p>
-        </section>
-
-</div>
-</div>
 }

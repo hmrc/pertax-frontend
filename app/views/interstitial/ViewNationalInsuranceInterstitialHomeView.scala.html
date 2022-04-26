@@ -17,47 +17,50 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import tags._
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import views.html.interstitial._
 @import scala.concurrent.ExecutionContext
+@import views.html.components.{H1, H2, P, Link, Button}
 
-@this(interstitialWrapperView: InterstitialWrapperView)
+@this(
+    main: newMain,
+    h1: H1,
+    h2: H2,
+    p: P,
+    link: Link,
+    button: Button,
+    govukInsetText: GovukInsetText
+)
 
-@(formPartial: Html, redirectUrl: String, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(formPartial: Html, redirectUrl: String, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-    @interstitialWrapperView(messages("label.national_insurance_summary"), messages("label.national_insurance")) {
+@main(
+    pageTitle = messages("label.national_insurance_summary")
+) {
 
-        <div class="column-two-thirds">
+    @h1("label.national_insurance")
 
-        @if(nino.isDefined) {
+    @if(nino.isDefined) {
 
-            @nino.map { nino =>
-                <div class="panel-indent panel-border-wide">
-                    <p>@messages("label.your_national_insurance_number_is") @formattedNino(nino)</p>
-                </div>
-            }
-
-            @if(configDecorator.nispEnabled) {
-                <h2 class="heading-medium">@messages("label.check_your_national_insurance_contributions")</h2>
-                <p>@messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")</p>
-                <p><a class="trackLink" href="@configDecorator.nationalInsuranceRecordUrl">@messages("label.check_your_national_insurance_contributions")</a></p>
-            }
-
-            <h2 class="heading-medium">@messages("label.print_proof_of_your_national_insurance_number")</h2>
-            <p>@messages("label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_number_")</p>
-            <p><a class="trackLink" href="@routes.NiLetterController.printNationalInsuranceNumber">@messages("label.print_proof_of_your_national_insurance_number")</a></p>
-
-            <div class="forms-group pertax-panel" id="national_insurance">
-                <div class="grid-row">
-                    <div class="column-full">
-                    @formPartial
-                    </div>
-                </div>
-            </div>
-        } else {
-            <p>@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-            <a href="@routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
+        @nino.map { nino =>
+            @govukInsetText(InsetText(content = HtmlContent(messages("label.your_national_insurance_number_is") + " " +formattedNino(nino))))
         }
+
+        @if(configDecorator.nispEnabled) {
+            @h2("label.check_your_national_insurance_contributions")
+            @p(Text(messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")))
+            @link(configDecorator.nationalInsuranceRecordUrl, messageKey = "label.check_your_national_insurance_contributions")
+        }
+
+        @h2("label.print_proof_of_your_national_insurance_number")
+        @p(Text(messages("label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_number_")))
+        @link(routes.NiLetterController.printNationalInsuranceNumber.url, messageKey = "label.print_proof_of_your_national_insurance_number")
+
+        <div class="forms-group pertax-panel" id="national_insurance">
+            @formPartial
         </div>
+    } else {
+        @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")))
+        @button(href = Some(routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl))).url), id="continue", msg = "global.label.continue_button")
     }
+}

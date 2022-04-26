@@ -26,6 +26,7 @@ import util.BetterOptionValues
 import viewmodels.TaxCalculationViewModel
 import views.html.ViewSpec
 import views.html.cards.home.TaxCalculationView
+import util.DateHelper.JodaTimeConverters
 
 class TaxCalculationViewModelSpec extends ViewSpec {
 
@@ -39,7 +40,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
         asDocument(taxCalculation(taxRec)(messages, config).toString)
     }
 
-  def formatDate(date: LocalDate) = injected[LanguageUtils].Dates.formatDate(Some(date), "dd MMMM yyyy")(messages)
+  def formatDate(date: LocalDate) =
+    injected[LanguageUtils].Dates.formatDate(Some(date.toJavaLocalDate), "dd MMMM yyyy")(messages)
 
   "taxCalculation" should {
 
