@@ -16,25 +16,24 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import scala.concurrent.ExecutionContext
+@import views.html.components.{H1, P, Button}
 
-@this(mainView: MainView)
-@(continueUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@this(
+    mainView: newMain,
+    h1: H1,
+    p: P,
+    button: Button
+)
+@(continueUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("label.profile"), Some(messages("label.your_personal_tax_account"))) {
+@mainView(
+    pageTitle = messages("label.profile")
+) {
 
-    <div class="page-heading">
-        <h1 class="heading-large no-margin-bottom no-margin-top">@messages("label.profile")</h1>
-    </div>
-
-    <div class="grid-row">
-        <div class="column-two-thirds">
-            <p>@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-            <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(continueUrl)))" class="button" role="button">@messages("global.label.continue_button")</a>
-        </div>
-    </div>
+    @h1("label.profile")
+    @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")))
+    @button(msg = "global.label.continue_button", href=Some(controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(continueUrl))).url))
 
 }

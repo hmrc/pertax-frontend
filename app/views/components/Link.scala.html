@@ -28,7 +28,7 @@
 
 @attrValues = @{
   attrs.map{
-    case(key, value) => key + "=" + value
+    case(key, value) => Html(s" $key=${value.replace(" ", "&#32;")}")
   }
 }
 

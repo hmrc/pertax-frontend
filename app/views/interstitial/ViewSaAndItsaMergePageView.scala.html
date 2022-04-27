@@ -16,96 +16,94 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import scala.concurrent.ExecutionContext
+@import components.{H1, H2, P, Link}
 
-@this(mainView: MainView)
+@this(
+    mainView: newMain,
+    h1: H1,
+    h2: H2,
+    p: P,
+    link: Link
+)
 
-@(redirectUrl: String, nextDeadlineTaxYear: String, isItsa: Boolean, isSa: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(redirectUrl: String, nextDeadlineTaxYear: String, isItsa: Boolean, isSa: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("label.your_self_assessment"), Some(messages("label.your_personal_tax_account"))) {
+@mainView(
+    pageTitle = messages("label.your_self_assessment"),
+    showBackLink = true
+) {
 
-    <div class="grid-row">
-        <div class="column-two-thirds">
-            @back_link()
+    @if(isItsa) {
+        @h1("label.itsa_header")
+        @h2("label.mtd_for_sa")
+        @p(Text(messages("label.send_updates_hmrc_compatible_software")))
+        @link(configDecorator.itsaViewUrl, "label.view_manage_your_mtd_for_sa", attrs = Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"View and manage your Making Tax Digital for Income Tax Self Assessment"))
+    } else {
+        @h1("label.your_self_assessment")
+    }
 
-            @if(isItsa) {
-                <h1 class="govuk-heading-l govuk-!-margin-bottom-8">@messages("label.itsa_header")</h1>
-                <h2 class="govuk-heading-m">@messages("label.mtd_for_sa")</h2>
-                <p>@messages("label.send_updates_hmrc_compatible_software")</p>
-                <p><a class="ga-track-anchor-click" href="@configDecorator.itsaViewUrl" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View and manage your Making Tax Digital for Income Tax Self Assessment">@messages("label.view_manage_your_mtd_for_sa")</a></p>
-            } else {
-                <h1 class="govuk-heading-l govuk-!-margin-bottom-8">@messages("label.your_self_assessment")</h1>
-            }
-
-            @if(isSa) {
+    @if(isSa) {
+        @if(isItsa) {
+            @h2("label.self_assessment_tax_returns")
+        }
+        @saActionNeeded match {
+            case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
                 @if(isItsa) {
-                    <h2 class="govuk-heading-m">@messages("label.self_assessment_tax_returns")</h2>
+                    @p(Text(messages("label.old_way_sa_returns")))
+                    @link(routes.InterstitialController.displaySelfAssessment.url, "label.access_your_sa_returns", attrs = Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Access your Self Assessment tax returns"))
+                } else {
+                    @p(Text(messages("label.online_returns_deadline", nextDeadlineTaxYear)))
+
+                    <ul class="govuk-list">
+                        <li>
+                            @link(routes.InterstitialController.displaySelfAssessment.url, "label.view_manage_sa_return", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"View and manage your Self Assessment tax return"), inParagraph=true)
+                        </li>
+                        <li>
+                            @link(configDecorator.completeYourTaxReturnUrl(saUtr.toString, taxYear, messages.lang), "label.complete_your_tax_return", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Complete your tax return"), inParagraph=true)
+                        </li>
+                        <li>
+                            @link(controllers.routes.PaymentsController.makePayment.url, "label.make_a_payment", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Make a payment"), inParagraph=true)
+                        </li>
+                        <li>
+                            @link(configDecorator.viewSaPaymentsUrl(saUtr.value, messages.lang), "label.view_your_payments", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"View your payments"), inParagraph=true)
+                        </li>
+                        <li>
+                            @link("https://www.gov.uk/check-if-you-need-a-tax-return", "label.check_if_you_need_to_fill_in_a_tax_return", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Check if you need to fill in a tax return"),inParagraph=true)
+                        </li>
+                    </ul>
                 }
-                @saActionNeeded match {
-                    case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-                        @if(isItsa) {
-                            <p>@messages("label.old_way_sa_returns")</p>
-
-                            <p><a class="ga-track-anchor-click" href="@routes.InterstitialController.displaySelfAssessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Access your Self Assessment tax returns">@messages("label.access_your_sa_returns")</a></p>
-                        } else {
-                            <p>@messages("label.online_returns_deadline", nextDeadlineTaxYear)</p>
-
-            <p><a class="ga-track-anchor-click" href="@routes.InterstitialController.displaySelfAssessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View and manage your Self Assessment tax return">@messages("label.view_manage_sa_return")</a>
-            </p>
-            <p>  <a class="ga-track-anchor-click" href="@configDecorator.completeYourTaxReturnUrl(saUtr.toString, taxYear, messages.lang)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Complete your tax return">@messages("label.complete_your_tax_return")</a>
-            </p>
-            <p>         <a class="ga-track-anchor-click" href="@controllers.routes.PaymentsController.makePayment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">@messages("label.make_a_payment")</a>
-            </p>
-            <p> <a class="ga-track-anchor-click" href="@configDecorator.viewSaPaymentsUrl(saUtr.value, messages.lang)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your payments">@messages("label.view_your_payments")</a>
-            </p>
-            <p>  <a class="ga-track-anchor-click" href="https://www.gov.uk/check-if-you-need-a-tax-return" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Check if you need to fill in a tax return">@messages("label.check_if_you_need_to_fill_in_a_tax_return")</a>
-            </p>
-                        }
-                    }
-                    case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-                        <ul class="govuk-list">
-                            <li>
-                                <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.handleSelfAssessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">@messages("label.activate_your_self_assessment")</a>
-                            </li>
-                        </ul>
-                    }
-                    case WrongCredentialsSelfAssessmentUser(saUtr) => {
-                        <ul class="govuk-list">
-                            <li>
-                                <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.handleSelfAssessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">@messages("label.find_out_how_to_access_self_assessment")</a>
-                            </li>
-                        </ul>
-                    }
+            }
+        case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
+            <ul class="govuk-list">
+                <li>
+                    @link(controllers.routes.SelfAssessmentController.handleSelfAssessment.url, "label.activate_your_self_assessment", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Activate your Self Assessment"), inParagraph=true)
+                </li>
+            </ul>
+        }
+        case WrongCredentialsSelfAssessmentUser(saUtr) => {
+            <ul class="govuk-list">
+                <li>
+                    @link(controllers.routes.SelfAssessmentController.handleSelfAssessment.url, "label.find_out_how_to_access_self_assessment", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Find out how to access Self Assessment"), inParagraph=true)
+                </li>
+            </ul>
+        }
                     case NotEnrolledSelfAssessmentUser(saUtr) => {
-                        <p>@messages("label.not_enrolled.content")</p>
+                        @p(Text(messages("label.not_enrolled.content")))
                         <ul class="govuk-list">
                             <li>
-                                <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.redirectToEnrolForSa" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Request access to your Self Assessment">@messages("label.not_enrolled.link.text")</a>
+                                @link(controllers.routes.SelfAssessmentController.redirectToEnrolForSa.url, "label.not_enrolled.link.text", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Request access to your Self Assessment"), inParagraph=true)
                             </li>
                         </ul>
                     }
                     case _ => {}
                 }
-                @if(!isItsa) {
-                    <h2 class="govuk-heading-m">@messages("label.making_tax_digital")</h2>
-                    <p>@messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return")</p>
-
-                    <p>@messages("label.some_businesses_agents_using_mtd_for_itsa")</p>
-
-                    <p><a class="ga-track-anchor-click" href="@configDecorator.makingTaxDigitalForIncomeTaxUrl(messages.lang)"
-                    data-ga-event-category="link - click" data-ga-event-label="Find out about Making Tax Digital for Income Tax Self Assessment"
-                    rel="noreferrer noopener" target="_blank">@messages("label.find_out_about_making_tax_digital_for_income_tax_self_assessment")</a></p>
-                }
             }
 
             @if(isSeiss) {
                 <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-                <h2 class="govuk-heading-m">@messages("title.seiss")</h2>
-                <p><a class="trackLink" href="@configDecorator.seissClaimsUrl">@messages("body.seiss")</a></p>
+                @h2("title.seiss")
+                @link(configDecorator.seissClaimsUrl, "body.seiss")
             }
 
-        </div>
-    </div>
 }
