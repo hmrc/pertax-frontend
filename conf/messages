@@ -315,7 +315,7 @@ label.when_you_started_living_here=When you started living here
 label.when_you_started_living_here.change=when you started living here
 label.what_happens_next=What happens next
 label.confirm_and_save=Confirm and save
-label.help_improve_gov_uk=Help improve GOV.UK
+label.help_improve_gov_uk=Help improve the Child Benefit service
 label.get.involved.in.making.gov.services.better=Get involved in making government services better (opens in a new window or tab)
 label.url_coronavirus=Coronavirus (COVID-19): guidance and support (opens in a new window or tab)
 label.hide_message=Hide message
@@ -475,11 +475,7 @@ body.seiss=View your SEISS grants
 # News
 #
 label.latest_news_and_updates=Latest news and updates
-label.stop_using_Verify=HMRC Personal Tax Account to stop using GOV.UK Verify
 label.news_and_updates=News and Updates
-label.verify_stop_from_1_April_2022=From 1 April 2022, you will not be able to use GOV.UK Verify to sign in to your HMRC Personal Tax Account and Self Assessment. You will need to use Government Gateway to sign in.
-label.create_government_gateway_sign_in=Create Government Gateway sign in details by selecting ’Sign in’ (opens in new tab)
-createGGSigningIn.link.url = https://www.gov.uk/log-in-register-hmrc-online-services
 label.percentage_points_uplift_in_NIC=1.25 percentage points uplift in National Insurance contributions
 label.national_insurance_contributions_will_increase_by_1.25_percentage_points=From 6 April 2022 to 5 April 2023 National Insurance contributions will increase by 1.25 percentage points. This will be spent on the NHS, health and social care in the UK.
 label.the_increase_will_apply_to=The increase will apply to:
