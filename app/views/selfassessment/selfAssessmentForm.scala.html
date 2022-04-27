@@ -28,15 +28,12 @@
 
         @form(action = call){
             <div class="form-group @if(SAForm.hasErrors){form-field--error form-group-error}">
-                <div class="page-heading" aria-hidden="true">
-                    <h1 class="heading-xlarge">
-                        @title
-                    </h1>
-                    <p class="heading-secondary"><span class="visuallyhidden">@messages("label.this.section.is") </span>@messages("label.access_your_self_assessment")</p>
-                </div>
                 <fieldset class="inline" id="wrongCredentialsFormChoice" @if(SAForm.hasErrors){aria-describedby="error-message-wrongCredentialsFormChoice-input"}>
-                    <legend class="visuallyhidden">
-                        <h1>@messages(title)</h1>
+                    <legend>
+                        <h1 class="heading-xlarge page-heading">
+                            @title
+                            <span class="heading-secondary"><span class="visuallyhidden">@messages("label.this.section.is") </span>@messages("label.access_your_self_assessment")</span>
+                        </h1>
                     </legend>
 
                     @if(SAForm.hasErrors) { <span class="error-message" id="error-message-wrongCredentialsFormChoice-input"><span class="visually-hidden">@messages("error.message.error") </span>@messages("label.select_an_answer")</span>}
@@ -64,7 +61,7 @@
 
 
             <div class="form-group inline">
-                <button class="button ga-track-error" data-ga-event-action=@title data-radio-button-name="wrongCredentialsFormChoice">@messages("global.label.continue_button")</button>
+                <button class="button ga-track-error" data-ga-event-action="@title" data-radio-button-name="wrongCredentialsFormChoice">@messages("global.label.continue_button")</button>
             </div>
         }
 
