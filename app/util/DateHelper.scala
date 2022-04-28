@@ -23,6 +23,8 @@ object DateHelper {
   }
 
   implicit class JodaDateTimeConverters(val jodaDateTime: org.joda.time.DateTime) extends AnyVal {
-    def toJavaLocalDateTime: java.time.LocalDateTime = java.time.LocalDateTime.parse(jodaDateTime.toString)
+    def toJavaLocalDateTime: java.time.LocalDateTime =
+      java.time.ZonedDateTime.parse(jodaDateTime.toString).toLocalDateTime
+
   }
 }
