@@ -21,7 +21,7 @@
 
 @this(mainView: MainView)
 
-@(utr: String, deadlineYear: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(deadlineYear: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(messages("title.request_sa_access.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.HomeController.index.url)) {
     <div class="grid-row">
@@ -44,13 +44,6 @@
 
             <p>
             @messages("label.request_sa_access.p2")
-            </p>
-
-            <p>
-        <div class="panel-indent">
-            @messages("labels.your_utr_is")
-            <span class="bold-small">@utr</span>
-        </div>
             </p>
 
             <p>
