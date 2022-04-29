@@ -84,6 +84,9 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       doc.text() must include(Messages("label.itsa_header"))
       doc.text() must include(Messages("label.mtd_for_sa"))
       doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
+      doc.text() must not include (Messages("label.making_tax_digital"))
+      doc.text() must not include (Messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return"))
+
       hasLink(
         doc,
         Messages("label.view_manage_your_mtd_for_sa"),
@@ -112,7 +115,14 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
         doc.text() must include(
           Messages("label.online_returns_deadline", nextDeadlineTaxYear)
         )
+        doc.text() must include(Messages("label.making_tax_digital"))
+        doc.text() must include(Messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return"))
 
+        hasLink(
+          doc,
+          Messages("label.find_out_about_making_tax_digital_for_income_tax_self_assessment"),
+          s"${configDecorator.makingTaxDigitalForIncomeTaxUrl}"
+        )
         hasLink(
           doc,
           Messages("label.view_manage_sa_return"),
