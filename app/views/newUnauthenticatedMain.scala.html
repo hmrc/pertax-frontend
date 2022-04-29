@@ -21,7 +21,6 @@
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.{AccountMenu, SignOut, _}
 @import views.html.helper.CSPNonce
 @import components.{attorneyBanner, backLink, Link, FullWidthMainContent}
-@import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.ptafrontend.views.html._
 
 @this(
@@ -48,9 +47,8 @@
     showBackLink: Boolean = false,
     disableSessionExpired: Boolean = false,
     fullWidth: Boolean = false,
-    scripts: Option[Html] = None,
-    hideAccountMenu: Boolean = false
-)(content: Html)(implicit request: UserRequest[_], messages: Messages)
+    scripts: Option[Html] = None
+)(content: Html)(implicit request: Request[_], messages: Messages)
 
 @headBlock = {
     <meta name="format-detection" content="telephone=no" />
@@ -69,7 +67,6 @@
 
 
 @beforeContent = {
-    @if(!hideAccountMenu && request.personDetails.nonEmpty) { @accountMenu }
 
     @if(showBackLink){
         <div class="govuk-grid-row">
@@ -84,25 +81,9 @@
         @hmrcLanguageSelectHelper()
     }
 
-    @attorneyBanner
-
     @if(beforeContentHtml.isDefined){
         @beforeContentHtml
     }
-}
-
-@attorneyBanner = @{
-    request.trustedHelper.map{ helper =>
-        banner(helper)
-    }
-}
-
-@accountMenu = @{
-    hmrcAccountMenu(AccountMenu(
-        signOut = SignOut(href = controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
-        language = if(messages.lang.code == "cy") Cy else En,
-        businessTaxAccount = Some(BusinessTaxAccount(href="#"))
-    ).withUrlsFromConfig())
 }
 
 @additionalScripts = {
