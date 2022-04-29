@@ -170,6 +170,8 @@ class ConfigDecorator @Inject() (
 
   lazy val healthAndSocialCareLevyUrl = "https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy"
 
+  lazy val makingTaxDigitalForIncomeTaxUrl = "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax"
+
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
   lazy val selfAssessmentFormPartialLinkUrl =
