@@ -18,4 +18,10 @@
 
 @(msg: String, href: Option[String] = None, classes: Option[String] = None, name: Option[String] = None, id: String = "submit", attrs: Map[String, String] = Map.empty, isStartButton: Boolean = false)(implicit messages: Messages)
 
+@attributes = @{
+ attrs.map{
+  case(key, value) => Html(s" $key=${value.replace(" ", "&#32;")}")
+ }
+}
+
 @govukButton(Button(content = Text(messages(msg)), href = href, classes = classes.getOrElse(""), name = name, attributes = attrs ++ Map("id" -> id, "type" -> "submit"), isStartButton = isStartButton))

@@ -21,7 +21,6 @@
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.{AccountMenu, SignOut, _}
 @import views.html.helper.CSPNonce
 @import components.{attorneyBanner, backLink, Link, FullWidthMainContent}
-@import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.ptafrontend.views.html._
 
 @this(
@@ -31,7 +30,7 @@
     twoThirdsMainContent: TwoThirdsMainContent,
     fullWidthMainContent: FullWidthMainContent,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-    govukPhaseBanner : GovukPhaseBanner,
+    hmrcReportTechnicalIssue: HmrcReportTechnicalIssue,
     configDecorator: ConfigDecorator,
     link: Link,
     backLink: backLink,
@@ -48,10 +47,8 @@
     showBackLink: Boolean = false,
     disableSessionExpired: Boolean = false,
     fullWidth: Boolean = false,
-    scripts: Option[Html] = None,
-    hideAccountMenu: Boolean = false,
-    showChildBenefitBanner: Boolean = false
-)(content: Html)(implicit request: UserRequest[_], messages: Messages)
+    scripts: Option[Html] = None
+)(content: Html)(implicit request: Request[_], messages: Messages)
 
 @headBlock = {
     <meta name="format-detection" content="telephone=no" />
@@ -70,7 +67,6 @@
 
 
 @beforeContent = {
-    @if(!hideAccountMenu && request.personDetails.nonEmpty) { @accountMenu }
 
     @if(showBackLink){
         <div class="govuk-grid-row">
@@ -85,25 +81,9 @@
         @hmrcLanguageSelectHelper()
     }
 
-    @attorneyBanner
-
     @if(beforeContentHtml.isDefined){
         @beforeContentHtml
     }
-}
-
-@attorneyBanner = @{
-    request.trustedHelper.map{ helper =>
-        banner(helper)
-    }
-}
-
-@accountMenu = @{
-    hmrcAccountMenu(AccountMenu(
-        signOut = SignOut(href = controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
-        language = if(messages.lang.code == "cy") Cy else En,
-        businessTaxAccount = Some(BusinessTaxAccount(href="#"))
-    ).withUrlsFromConfig())
 }
 
 @additionalScripts = {
@@ -119,19 +99,12 @@
 @contentBlock = {
     @content
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--l">
-    @hmrcReportTechnicalIssueHelper()
-
-<hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-    @govukPhaseBanner(PhaseBanner(
-        tag = Some(Tag(
-        content = Text(messages("label.beta"))
-    )),
-        content = HtmlContent(messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_before_link") + " " +
-            link(link= configDecorator.betaFeedbackUnauthenticatedUrl(configDecorator.deskproToken),
-                messageKey="global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text",
-                inParagraph = true) + " " +
-                messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_after_link")
-        )
+    @hmrcReportTechnicalIssue(ReportTechnicalIssue(
+        serviceId = configDecorator.deskproToken,
+        language = if(messages.lang.code == "cy") Cy else En,
+        referrerUrl = Some(request.uri),
+        baseUrl = Some(configDecorator.reportAProblemPartialUrl),
+        classes = Some("govuk-!-margin-bottom-8")
     ))
 }
 
@@ -139,35 +112,17 @@
     s"""$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"""
 }
 
-@childBenefitBanner = {
-    <div class="hmrc-user-research-banner" data-module="hmrc-user-research-banner">
-        <div class="hmrc-user-research-banner__container govuk-width-container">
-            <div class="hmrc-user-research-banner__text">
-                <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
-                    @messages("label.help_improve_gov_uk")
-                </div>
-                <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href=@configDecorator.childBenefitLinkUrl.getOrElse("") target="_blank">
-                    @messages("label.child_benefit_survey_text")
-                </a>
-            </div>
-            <button class="govuk-link hmrc-user-research-banner__close">
-                @messages("label.no_thanks")
-            </button>
-        </div>
-    </div>
-}
-
 @hmrcLayout(
     pageTitle = Some(fullPageTitle),
     serviceName = Some(messages("label.your_personal_tax_account")),
     nonce = CSPNonce.get,
     isWelshTranslationAvailable = true,
+    userResearchBannerUrl = configDecorator.bannerLinkUrl,
     accessibilityStatementUrl = Some(configDecorator.accessibilityStatementUrl(request.uri)),
     displayHmrcBanner = false,
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),
     additionalScriptsBlock = Some(additionalScripts),
-    additionalBannersBlock = if(showChildBenefitBanner){Some(childBenefitBanner)}else{None},
     mainContentLayout = if(fullWidth) {
                             Some(fullWidthMainContent(_))
                         } else {

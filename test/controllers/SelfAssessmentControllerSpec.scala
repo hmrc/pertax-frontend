@@ -139,7 +139,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       status(result) mustBe OK
 
       doc
-        .getElementsByClass("heading-large")
+        .getElementsByClass("govuk-heading-l")
         .toString()
         .contains("Activate your Self Assessment registration") mustBe true
     }
