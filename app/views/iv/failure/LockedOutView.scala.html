@@ -15,16 +15,22 @@
  *@
 
 @import config.ConfigDecorator
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import views.html.iv.IvOutcomeWrapperView
 @import scala.concurrent.ExecutionContext
+@import components.{H1, P}
 
-@this(ivOutcomeWrapperView: IvOutcomeWrapperView)
+@this(
+    main: newUnauthenticatedMain,
+    h1: H1,
+    p: P
+)
 
-@(allowContinue: Boolean)(implicit request: Request[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(allowContinue: Boolean)(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@ivOutcomeWrapperView(messages("label.we_cannot_confirm_your_identity"), messages("label.we_cannot_confirm_your_identity")) {
-
-    <p>@messages("label.you_have_tried_to_confirm_your_identity_")</p>
-    <p>@messages("label.try_again_in_24_hours")</p>
+@main(
+    pageTitle = messages("label.we_cannot_confirm_your_identity")
+) {
+    @h1("label.we_cannot_confirm_your_identity")
+    @p(Text("label.you_have_tried_to_confirm_your_identity_")))
+    @p(Text("label.try_again_in_24_hours")))
 }
