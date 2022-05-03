@@ -46,8 +46,9 @@
                     link(configDecorator.onlineServicesHelpdeskUrl,
                         messageKey = messages("label.you_need_to_activate_your_self_assessment_registration_using_your_link_text") + " " + messages("label.opens_in_a_new_window"),
                         attrTarget = true,
-                        attrs = Map("data-ga-event-category" -> "self-assessment", "data-ga-event-action"->"click", "data-ga-event-label"->"Call OSH")
-                    ) + "."))
+                        attrs = Map("data-ga-event-category" -> "self-assessment", "data-ga-event-action"->"click", "data-ga-event-label"->"Call OSH"),
+                        fullStop = true)
+    ))
 
     @button(msg = "label.activate_your_self_assessment_registration",
             href = Some(configDecorator.ssoToActivateSaEnrolmentPinUrl),

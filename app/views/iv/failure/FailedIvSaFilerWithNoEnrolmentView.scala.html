@@ -17,6 +17,7 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
+@import components.{H1, H2, P, Link}
 
 @this(
     mainView: newMain,
@@ -37,11 +38,13 @@
 }
 
 @sidebar = {
-    <div class="column-third webchat-container">
-        <h2 class="heading-small">@messages("label.webchat_service")</h2>
-        <p class="no-margin-top">
-            <a class="openChat ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - webchat" href="#">@messages("label.chat_online_with_one_of_our_advisers")</a>
-        </p>
+    <div class="webchat-container">
+        @h2("label.webchat_service", classes = Some("govuk-heading=s"))
+        @link("#",
+            "label.chat_online_with_one_of_our_advisers",
+            classes=Some("openChat govuk-link ga-track-anchor-click"),
+            attrs = Map("data-ga-event-category"->"self-assessment", "data-ga-event-action"->"click", "data-ga-event-label"->"Ambiguous SA user - webchat")
+        )
     </div>
 }
 
@@ -54,7 +57,7 @@
     @h2("label.if_you_send_your_tax_return_online")
 
     @p(HtmlContent(messages("label.you_must_sign_out_then_sign_in_with_the_user_id_text_before_link") + " " +
-                    link(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.pertaxFrontendHost + controllers.routes.HomeController.index.url)), None).urlm
+                    link(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.pertaxFrontendHost + controllers.routes.HomeController.index.url)), None).url,
                         "label.you_must_sign_out_then_sign_in_with_the_user_id_link_text",
                         inParagraph = true,
                         attrs = Map("data-ga-event-category"->"self-assessment", "data-ga-event-action"->"click", "data-ga-event-label"->"Ambiguous SA user - Sign out"))
@@ -79,10 +82,24 @@
     ))
 
     @p(HtmlContent(messages("label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessment_text_before_link") + " " +
-                    link<a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Activate SA" href="@configDecorator.hmrcProblemsSigningIn" target="_blank">@messages("label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessment_link_text") @messages("label.opens_in_a_new_window")</a>.</p>
+                    link(configDecorator.hmrcProblemsSigningIn,
+                        messageKey = messages("label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessment_link_text") + " " + messages("label.opens_in_a_new_window"),
+                        attrs = Map("data-ga-event-category"->"self-assessment", "data-ga-event-action"->"click", "data-ga-event-label"->"Ambiguous SA user - Activate SA"),
+                        attrTarget = true,
+                        inParagraph = true,
+                        fullStop = true)
+    ))
 
-            <h2>@messages("label.if_you_send_your_tax_return_by_post")</h2>
-            <p>@messages("label.you_cannot_view_your_self_assessment_information_here_")</p>
-            <p>@messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="@configDecorator.ssoToRegistration" target="_blank" rel="noopener noreferrer">@Messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text") @Messages("label.opens_in_a_new_window")</a>.</p>
+    @h2("label.if_you_send_your_tax_return_by_post")
 
+    @p(Text(messages("label.you_cannot_view_your_self_assessment_information_here_")))
+
+    @p(HtmlContent(messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link") + " " +
+                    link(configDecorator.ssoToRegistration,
+                        Messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text") + " " + Messages("label.opens_in_a_new_window"),
+                        attrs = Map("data-ga-event-category"->"self-assessment", "data-ga-event-action"->"click", "data-ga-event-label"->"Ambiguous SA user - Send by post"),
+                        attrTarget = true,
+                        fullStop = true,
+                        inParagraph = true)
+    ))
 }
