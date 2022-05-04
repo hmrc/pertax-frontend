@@ -37,10 +37,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   val preferencesFrontendService: PreferencesFrontendService,
-  val taiService: TaiService,
-  val taxCalculationService: TaxCalculationService,
-  val homeCardGenerator: HomeCardGenerator,
-  val homePageCachingHelper: HomePageCachingHelper,
+  taiService: TaiService,
+  taxCalculationService: TaxCalculationService,
+  homeCardGenerator: HomeCardGenerator,
+  homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
@@ -58,9 +58,7 @@ class HomeController @Inject() (
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
-      configDecorator.bannerLinkUrl.fold(Future.successful(false))(_ =>
-        homePageCachingHelper.hasUserDismissedUrInvitation.map(!_)
-      )
+      homePageCachingHelper.hasUserDismissedBanner.map(!_ && configDecorator.bannerHomePageIsEnabled)
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear)

@@ -90,9 +90,9 @@
        val urBanner = {
             if(showUserResearchBanner) {
                 Some(FullWidthBannerComponent(
-                    Messages("label.help_improve_gov_uk"),
-                    Messages("label.get.involved.in.making.gov.services.better"),
-                    configDecorator.bannerLinkUrl,
+                    if (messages.lang.code == "cy") configDecorator.bannerHomePageHeadingCy else configDecorator.bannerHomePageHeadingEn,
+                    if (messages.lang.code == "cy") configDecorator.bannerHomePageLinkTextCy else configDecorator.bannerHomePageLinkTextEn,
+                    Some(configDecorator.bannerHomePageLinkUrl),
                     Some(Messages("label.no_thanks")),
                     Some("homepage UR banner")
                 ))

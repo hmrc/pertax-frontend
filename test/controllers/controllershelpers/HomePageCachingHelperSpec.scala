@@ -57,7 +57,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
         c
       }
 
-      lazy val hasUserDismissedUrInvitationResult: Boolean = cachingHelper.hasUserDismissedUrInvitation.futureValue
+      lazy val hasUserDismissedUrInvitationResult: Boolean = cachingHelper.hasUserDismissedBanner.futureValue
     }
 
     "return true if cached value returns true" in new LocalSetup {

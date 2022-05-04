@@ -19,17 +19,20 @@ package controllers
 import config.ConfigDecorator
 import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.{AuthJourney, AuthJourneyImpl, WithActiveTabAction}
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, RlsInterruptHelper}
 import models.{SelfAssessmentUser, _}
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
+import play.api.Application
+import play.api.inject.bind
 import play.api.libs.json.JsBoolean
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.EditAddressLockRepository
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -38,11 +41,12 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
+import uk.gov.hmrc.play.partials.FormPartialRetriever
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures}
+import util.{ActionBuilderFixture, BaseSpec, Fixtures, MockTemplateRenderer}
 import views.html.HomeView
 
 import java.time.Instant
@@ -159,7 +163,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl
     ) thenReturn "/bas-gateway/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
-    when(mockConfigDecorator.bannerLinkUrl) thenReturn None
+    when(mockConfigDecorator.bannerHomePageIsEnabled) thenReturn false
     when(mockConfigDecorator.rlsInterruptToggle) thenReturn true
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
@@ -184,13 +188,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
       if (config.taxComponentsEnabled)
-        verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+        verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
       if (config.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
+        verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return a 200 status when accessing index page with good nino and a non sa User" in new LocalSetup {
@@ -205,13 +209,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
       if (config.taxComponentsEnabled)
-        verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+        verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
       if (config.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
+        verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
@@ -227,7 +231,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       override lazy val getPaperlessPreferenceResponse = ActivatePaperlessNotAllowedResponse
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
     }
@@ -244,7 +248,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getPaperlessPreferenceResponse =
         ActivatePaperlessRequiresUserActionResponse("http://www.example.com")
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("http://www.example.com")
     }
@@ -259,11 +263,11 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       })
       override lazy val getTaxCalculationResponse = TaxCalculationNotFoundResponse
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
       if (config.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
+        verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
@@ -275,7 +279,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
     }
 
@@ -301,12 +305,12 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe SEE_OTHER
     }
 
-    "return a 200 status when both the user's residential and postal addresses status are rls but both adresseses have been updated" in new LocalSetup {
+    "return a 200 status when both the user's residential and postal addresses status are rls but both addresses have been updated" in new LocalSetup {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
         .thenReturn(Future.successful(AddressesLock(true, true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -327,7 +331,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe OK
     }
@@ -353,7 +357,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe SEE_OTHER
     }
@@ -379,7 +383,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe OK
     }
@@ -431,7 +435,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe OK
     }
@@ -488,6 +492,33 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       status(r) mustBe SEE_OTHER
     }
 
+  }
+
+  "banner is present when enabled and user has not closed it" in new LocalSetup {
+    when(mockConfigDecorator.bannerHomePageIsEnabled) thenReturn true
+    when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+      .thenReturn(Future.successful(AddressesLock(false, false)))
+
+    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+        block(
+          buildUserRequest(
+            request = request,
+            personDetails = Some(
+              PersonDetails(
+                address = Some(buildFakeAddress),
+                correspondenceAddress = Some(buildFakeCorrespondenceAddress),
+                person = buildFakePerson
+              )
+            )
+          )
+        )
+    })
+
+    val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+
+    status(r) mustBe OK
+    contentAsString(r) must contain(mockConfigDecorator.bannerHomePageLinkUrl)
   }
 
   "Calling serviceCallResponses" must {
