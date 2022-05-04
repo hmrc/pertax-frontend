@@ -19,38 +19,33 @@ package controllers
 import config.ConfigDecorator
 import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, AuthJourneyImpl, WithActiveTabAction}
+import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, RlsInterruptHelper}
-import models.{SelfAssessmentUser, _}
+import models._
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.JsBoolean
-import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.EditAddressLockRepository
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.partials.FormPartialRetriever
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, MockTemplateRenderer}
+import util.{ActionBuilderFixture, BaseSpec, Fixtures}
 import views.html.HomeView
 
-import java.time.Instant
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
@@ -64,13 +59,15 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockAuthJourney = mock[AuthJourney]
   val mockTemplateRenderer = mock[TemplateRenderer]
+  val mockHomePageCachingHelper = mock[HomePageCachingHelper]
 
   override def beforeEach: Unit =
     reset(
       mockConfigDecorator,
       mockTaxCalculationService,
       mockTaiService,
-      mockMessageFrontendService
+      mockMessageFrontendService,
+      mockHomePageCachingHelper
     )
 
   override def now: () => DateTime = DateTime.now
@@ -494,31 +491,94 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   }
 
-  "banner is present when enabled and user has not closed it" in new LocalSetup {
-    when(mockConfigDecorator.bannerHomePageIsEnabled) thenReturn true
-    when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
-      .thenReturn(Future.successful(AddressesLock(false, false)))
+  "banner is present" when {
+    "it is enabled and user has not closed it" in new LocalSetup {
+      when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(false))
 
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(
-            request = request,
-            personDetails = Some(
-              PersonDetails(
-                address = Some(buildFakeAddress),
-                correspondenceAddress = Some(buildFakeCorrespondenceAddress),
-                person = buildFakePerson
-              )
-            )
+      val app: Application = localGuiceApplicationBuilder(
+        NonFilerSelfAssessmentUser,
+        Some(
+          PersonDetails(
+            address = Some(buildFakeAddress),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress),
+            person = buildFakePerson
           )
         )
-    })
+      ).overrides(
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+      ).configure(
+        "feature.banner.home.enabled" -> true
+      ).build()
 
-    val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      val configDecorator = injected[ConfigDecorator]
 
-    status(r) mustBe OK
-    contentAsString(r) must contain(mockConfigDecorator.bannerHomePageLinkUrl)
+      val r: Future[Result] =
+        app.injector.instanceOf[HomeController].index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+
+      status(r) mustBe OK
+      contentAsString(r) must include(configDecorator.bannerHomePageLinkUrl)
+      contentAsString(r) must include(configDecorator.bannerHomePageHeadingEn)
+      contentAsString(r) must include(configDecorator.bannerHomePageLinkTextEn)
+    }
+  }
+
+  "banner is not present" when {
+    "it is not enabled" in new LocalSetup {
+      when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(false))
+
+      val app: Application = localGuiceApplicationBuilder(
+        NonFilerSelfAssessmentUser,
+        Some(
+          PersonDetails(
+            address = Some(buildFakeAddress),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress),
+            person = buildFakePerson
+          )
+        )
+      ).overrides(
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+      ).configure(
+        "feature.banner.home.enabled" -> false
+      ).build()
+
+      val configDecorator = injected[ConfigDecorator]
+
+      val r: Future[Result] =
+        app.injector.instanceOf[HomeController].index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+
+      status(r) mustBe OK
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkUrl)
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageHeadingEn)
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkTextEn)
+    }
+    "it is enabled and user has closed it" in new LocalSetup {
+      when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(true))
+
+      val app: Application = localGuiceApplicationBuilder(
+        NonFilerSelfAssessmentUser,
+        Some(
+          PersonDetails(
+            address = Some(buildFakeAddress),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress),
+            person = buildFakePerson
+          )
+        )
+      ).overrides(
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+      ).configure(
+        "feature.banner.home.enabled" -> true
+      ).build()
+
+      val configDecorator = injected[ConfigDecorator]
+
+      val r: Future[Result] =
+        app.injector.instanceOf[HomeController].index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+
+      status(r) mustBe OK
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkUrl)
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageHeadingEn)
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkTextEn)
+    }
   }
 
   "Calling serviceCallResponses" must {
@@ -526,48 +586,62 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     val userNino = Some(fakeNino)
 
     "return TaxComponentsDisabled where taxComponents is not enabled" in new LocalSetup {
+      when(mockTaiService.taxComponents(any(), any())(any())).thenReturn(null)
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaiService].toInstance(mockTaiService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> false,
+          "feature.taxcalc.enabled"        -> true
+        )
+        .build()
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request
-            )
-          )
-      })
-
-      when(mockConfigDecorator.taxComponentsEnabled) thenReturn false
+      override val controller = app.injector.instanceOf[HomeController]
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
       result mustBe TaxComponentsDisabledState
-
+      verify(mockTaiService, times(0)).taxComponents(any(), any())(any())
     }
 
     "return TaxCalculationAvailable status when data returned from TaxCalculation" in new LocalSetup {
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaiService].toInstance(mockTaiService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled"        -> true
+        )
+        .build()
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      override val controller = app.injector.instanceOf[HomeController]
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
       result mustBe TaxComponentsAvailableState(
         TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
       )
+      verify(mockTaiService, times(1)).taxComponents(any(), any())(any())
 
     }
 
     "return TaxComponentsNotAvailableState status when TaxComponentsUnavailableResponse from TaxComponents" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaiService].toInstance(mockTaiService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled"        -> true
+        )
+        .build()
+
+      override val controller = app.injector.instanceOf[HomeController]
 
       when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxComponentsUnavailableResponse)
@@ -576,6 +650,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
       result mustBe TaxComponentsNotAvailableState
+      verify(mockTaiService, times(1)).taxComponents(any(), any())(any())
+      verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(any())(any())
     }
 
     "return TaxComponentsUnreachableState status when there is TaxComponents returns an unexpected response" in new LocalSetup {
