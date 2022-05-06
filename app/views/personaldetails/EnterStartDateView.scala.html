@@ -17,12 +17,20 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import tags._
-@import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF, _}
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
+@import components.{ErrorSummary, InputDate, P, Link, Button}
 
-@this(mainView: MainView, form: FormWithCSRF, dateFieldsFreeInline: DateFieldsFreeInline)
-@(residenceStartDateForm: Form[DateDto], typ: AddrType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@this(
+    main: newMain,
+    form: FormWithCSRF,
+    errorSummary: ErrorSummary,
+    inputDate: InputDate,
+    p: P,
+    link: Link,
+    button: Button,
+    govukDetails: GovukDetails
+)
+@(residenceStartDateForm: Form[DateDto], typ: AddrType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @scriptElem = {
   @if(residenceStartDateForm.hasErrors) {
@@ -36,77 +44,45 @@
   }
 }
 
-@mainView(
-  title = typ.ifIs(
-    residential = messages("label.when_did_you_start_living_here"),
-    postal = ""
-  ),
-  pageName = Some(messages("label.your_personal_tax_account")),
-  scriptElement = Some(scriptElem)
+@detailsContent = {
+    @messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_text_before_link")
+    @link(configDecorator.scottishRateIncomeTaxUrl,
+            messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_link_text") + " " + messages("label.opens_in_a_new_window"),
+            inParagraph = true,
+            fullStop = true,
+            attrTarget = true,
+            attrs = Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Why do you need to know this", "data-ga-event-label"->"Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)")
+    )
+}
+
+@main(
+    pageTitle = typ.ifIs(
+        residential = messages("label.when_did_you_start_living_here"),
+        postal = ""
+    ),
+    showBackLink = true,
+    scripts = Some(scriptElem)
 ) {
-    @back_link()
 
+    @errorSummary(residenceStartDateForm, Some("startDate.day"))
 
-        <div class="grid-row">
-            <div class="column-two-thirds">
-                @errors(residenceStartDateForm)
-                    @form(controllers.address.routes.StartDateController.onSubmit(typ)) {
+    @form(controllers.address.routes.StartDateController.onSubmit(typ)) {
+        @inputDate(
+            fieldName="startDate",
+            form = residenceStartDateForm,
+            legendKey = typ.ifIs(residential = messages("label.when_did_you_start_living_here"), postal = ""),
+            hint = Some(HtmlContent(s"""
+                            ${p(Text(messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax")))}
+                            ${p(Text(messages("label.for_example_31_3_2015")), classes=Some("govuk-hint"), elmId=Some("date-hint"))}
+            """)),
+        )
 
-                    <div class="form-group @if(residenceStartDateForm.hasErrors){form-group-error form-field--error}">
-                        <fieldset aria-describedby="date-hint@residenceStartDateForm.errors.map { error => date-error}">
-                            <legend>
-                                <h1 class="heading-xlarge">@typ.ifIs(residential = messages("label.when_did_you_start_living_here"), postal = "")</h1>
-                            </legend>
-                            <p>@messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax")</p>
-                            <p class="form-hint" id="date-hint">@messages("label.for_example_31_3_2015")</p>
+        @govukDetails(Details(
+            summary = Text(messages("label.why_do_you_need_to_know_this")),
+            content = HtmlContent(detailsContent),
+            id=Some("details-content")
+        ))
 
-                            @residenceStartDateForm.errors.map { error => <span class="error-message" id="date-error"><span class="visually-hidden">@messages("error.message.error") </span>@Messages(error.message)</span>}
-
-                            <div class="form-date" id="startDate">
-                                @tags.input(
-                                    residenceStartDateForm("startDate.day"),
-                                    '_inputClass -> "form-control",
-                                    '_labelClass -> "form-label",
-                                    '_label -> messages("date.fields.day"),
-                                    '_divClass -> "form-group-day"
-                                )
-
-                                @tags.input(
-                                    residenceStartDateForm("startDate.month"),
-                                    '_inputClass -> "form-control",
-                                    '_labelClass -> "form-label",
-                                    '_label -> messages("date.fields.month"),
-                                    '_divClass -> "form-group-month"
-                                )
-
-                                @tags.input(
-                                    residenceStartDateForm("startDate.year"),
-                                    '_inputClass -> "form-control",
-                                    '_labelClass -> "form-label",
-                                    '_label -> messages("date.fields.year"),
-                                    '_divClass -> "form-group-year"
-                                )
-                            </div>
-
-                        </fieldset>
-                    </div>
-
-                    <details class="form-group">
-                        <summary class="ga-track-accordion-click" data-ga-event-action="When did your address change" data-ga-event-label="Why do you need to know this" aria-controls="details-content" aria-expanded="false">
-                            <span class="summary">@messages("label.why_do_you_need_to_know_this")</span>
-                        </summary>
-                        <div class="panel panel-border-wide" id="details-content" aria-hidden="true">
-                            <p>
-                                @messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="Why do you need to know this" data-ga-event-label="Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)" href="@configDecorator.scottishRateIncomeTaxUrl" target="_blank" rel="noopener noreferrer" tabindex="-1">@messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_link_text") @messages("label.opens_in_a_new_window")</a>.
-                            </p>
-                        </div>
-                    </details>
-
-                    <button class="button">@messages("label.continue")</button>
-                    }
-
-            </div>
-        </div>
-
-
+        @button("label.continue")
+    }
 }

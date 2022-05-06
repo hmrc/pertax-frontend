@@ -35,7 +35,7 @@
 
 @address = {
     @p(Text(messages("label.your_main_address_is")))
-    @p(HtmlContent(s"""<span>${addressDto.mkString(",</span><span>")}</span>"""))
+    @p(HtmlContent(s"""<span>${addressDto.mkString(",</span><br><span>")}</span>"""))
 }
 
 @main(
@@ -43,7 +43,7 @@
     showBackLink = true
 ) {
 
-    @errors(closePostalAddressChoiceForm)
+    @errorSummary(closePostalAddressChoiceForm, Some("onPageLoad-true"))
 
     @form(action = controllers.address.routes.ClosePostalAddressController.onSubmit) {
         @inputRadios(

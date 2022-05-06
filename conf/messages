@@ -388,6 +388,7 @@ error.date_in_future=The date you started living here must be today or in the pa
 head.error.country_required=Enter a country
 error.country_required=Enter a country
 error.message.error = Error:
+error.you_must_select_an_answer=Select an answer
 
 #
 # Messages in lower case
