@@ -369,6 +369,7 @@ error.date_in_future=Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw fan h
 head.error.country_required=Nodwch wlad
 error.country_required=Nodwch wlad
 error.message.error = Gwall:
+error.you_must_select_an_answer=Dewis ateb
 
 #
 # Messages in lower case
