@@ -60,7 +60,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       bind[IdentityVerificationFrontendService].toInstance(mockIdentityVerificationFrontendService),
       bind[AuthAction].toInstance(mockAuthAction),
       bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
-      bind[AuthJourney].toInstance(mockAuthJourney),
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[HomeController].toInstance(mockHomeController),
       bind[RlsController].toInstance(mockRlsConfirmAddressController)
