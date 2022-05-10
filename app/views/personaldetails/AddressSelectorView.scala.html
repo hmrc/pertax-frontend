@@ -41,7 +41,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
     showBackLink = true
 ) {
 
-    @errorSummary(addressSelectorForm, if(addressSelectorForm.errors){Some(addressSelectorForm.errors.head.key)} else {None})
+    @errorSummary(addressSelectorForm, Some("radio-0"))
 
     @form(action = controllers.address.routes.AddressSelectorController.onSubmit(typ), args = 'class -> "select-address-form", 'id -> "select-address-form") {
         <input type="hidden" name="postcode" value="@postcode" />
@@ -55,7 +55,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
                     case(ad, index) =>
                         RadioItem(
                             content = Text(s"""${ad.address.lines.mkString(", ")}, ${ad.address.town}, ${ad.address.postcode}"""),
-                            id = Some("radio" + index),
+                            id = Some("radio-" + index),
                             value = Some(ad.id),
                             checked = addressSelectorForm("addressId").value.contains(ad.id),
                             attributes = Map("data-line1"->ad.address.lines(0), "data-line2"-> Try(ad.address.lines(1)).getOrElse(""), "data-line3"->ad.address.town.getOrElse(""), "data-postcode"-> ad.address.postcode)
@@ -65,6 +65,6 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
 
         @link(controllers.address.routes.UpdateAddressController.onPageLoad(typ).url, "label.enter_your_address_if_it_is_not_shown")
 
-        @button("global.label.continue_button", id="submitAddressSelector"))
+        @button("global.label.continue_button", id="submitAddressSelector")
     }
 }
