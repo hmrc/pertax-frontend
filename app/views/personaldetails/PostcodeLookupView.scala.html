@@ -14,71 +14,75 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF, Input, _}
 @import tags._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
+@import components.{ErrorSummary, InputValue, Link, Button}
 
-@this(mainView: MainView, form: FormWithCSRF, input: Input)
+@this(
+    main: newMain,
+    form: FormWithCSRF,
+    errorSummary: ErrorSummary,
+    inputValue: InputValue,
+    link: Link,
+    button: Button,
+    govukFieldset : GovukFieldset
+)
+
 @(addressFinderForm: Form[models.dto.AddressFinderDto], typ: AddrType)(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(
-  title = typ.ifIs(
+@main(
+  pageTitle = typ.ifIs(
     residential = messages("label.find_your_address"),
     postal = messages("label.find_your_postal_address")
   ),
-  pageName = Some(messages("label.your_personal_tax_account"))
+  showBackLink = true
 ) {
-  @back_link()
 
-  <div class="grid-row">
-    <div class="column-two-thirds">
-      @errors(addressFinderForm)
+    @errorSummary(addressFinderForm)
 
 
-      @form(action = controllers.address.routes.PostcodeLookupController.onSubmit(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
+    @form(action = controllers.address.routes.PostcodeLookupController.onSubmit(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
 
+        @govukFieldset(Fieldset(
+            legend = Some(Legend(
+                content = Text(typ.ifIs( residential = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))),
+                classes = "govuk-fieldset__legend--l",
+                isPageHeading = true
+            )),
+            html = fieldsetContent
+        ))
 
-        <fieldset @addressFinderForm.errors.map { error => aria-describedby="@error.key-error-message"}>
-          <legend><h1 class="heading-xlarge">
-            @typ.ifIs( residential = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))
-          </h1></legend>
-          <div class="form-group postcode-container">
-            @tags.input(
-              addressFinderForm("postcode"),
-              '_inputClass -> "form-control",
-              '_labelClass -> "form-label inputLabelBeforeError postcode-label",
-              '_label -> messages("title.postcode"),
-              '_error_id -> "postcode-error-message",
-              '_autoComplete -> "postal-code"
-            )
-          </div>
-            @if(addressFinderForm.hasErrors) {
-              @if(addressFinderForm.errors.exists(_.messages.contains("error.address_doesnt_exist_try_to_enter_manually"))) {
-                <p>
-                <a href="@controllers.address.routes.UpdateAddressController.onPageLoad(typ)">@messages("label.enter_your_address_yourself")</a>
-                </p>
-              }
-            }
+        @button("global.label.find_your_address", id="submitAddressFinder")
+    }
+}
 
-          <div class="form-group">
-            @input(
-              addressFinderForm("filter"),
-              '_inputClass -> "form-control",
-              '_labelClass -> "form-label inputLabelBeforeError",
-              '_label -> messages("title.house.name.or.number"),
-              '_autoComplete -> "address-line1"
-            )
-          </div>
+@fieldsetContent = {
+    @inputValue(
+        form = addressFinderForm,
+        id = "postcode",
+        name = "postcode",
+        classes = Some("govuk-!-width-one-half"),
+        labelKey = "title.postcode",
+        labelClasses = "govuk-label",
+        autocomplete = Some("postal-code")
+    )
 
-        </fieldset>
+    @if(addressFinderForm.hasErrors) {
+        @if(addressFinderForm.errors.exists(_.messages.contains("error.address_doesnt_exist_try_to_enter_manually"))) {
+            @link(controllers.address.routes.UpdateAddressController.onPageLoad(typ).url, "label.enter_your_address_yourself")
+        }
+    }
 
-      <button class="button submitAddressFinder" id="submitAddressFinder">@messages("global.label.find_your_address")</button>
-      }
-    </div>
-
-  </div>
+    @inputValue(
+        form = addressFinderForm,
+        id = "filter",
+        name = "filter",
+        classes = Some("govuk-!-width-one-half"),
+        labelKey = "title.house.name.or.number",
+        labelClasses = "govuk-label",
+        autocomplete = Some("address-line1")
+    )
 }

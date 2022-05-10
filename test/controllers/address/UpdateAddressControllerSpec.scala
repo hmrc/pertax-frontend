@@ -205,7 +205,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("heading-xlarge").toString().contains("Your postal address") mustBe true
+      doc.getElementsByClass("govuk-fieldset__heading").toString().contains("Your postal address") mustBe true
     }
 
     "show 'Enter your address' when user amends residential address manually and address has not been selected" in new LocalSetup {
@@ -218,7 +218,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("heading-xlarge").toString().contains("Your address") mustBe true
+      doc.getElementsByClass("govuk-fieldset__heading").toString().contains("Your address") mustBe true
     }
 
     "show 'Edit the address (optional)' when user amends correspondence address manually and address has been selected" in new LocalSetup {
@@ -239,7 +239,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("heading-xlarge").toString().contains("Edit the address (optional)") mustBe true
+      doc.getElementsByClass("govuk-fieldset__heading").toString().contains("Edit the address (optional)") mustBe true
     }
 
     "show 'Edit your address (optional)' when user amends residential address manually and address has been selected" in new LocalSetup {
@@ -260,7 +260,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("heading-xlarge").toString().contains("Edit your address (optional)") mustBe true
+      doc.getElementsByClass("govuk-fieldset__heading").toString().contains("Edit your address (optional)") mustBe true
     }
   }
 

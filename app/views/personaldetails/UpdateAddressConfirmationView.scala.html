@@ -16,66 +16,58 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import scala.concurrent.ExecutionContext
+@import components.{H1, H2, P, Link}
 
-@this(mainView: MainView)
+@this(
+    main: newMain,
+    h1: H1,
+    h2: H2,
+    p: P,
+    link: Link,
+    govukPanel : GovukPanel
+)
+
 @(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]], subheading: Option[String])(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-    @additionalGaCalls = {
+@additionalGaCalls = {
     @typ.ifIsPostal {
         ga('set', 'page', '/personal-account/your-address/@typ/thank-you');
     }
+}
+
+@content = {
+    @subheading.map{p1 =>
+        @h2("label.what_happens_next")
+        @p(Text(messages(p1)))
     }
+}
 
-    @content = {
-        @subheading.map(p1 =>
+@main(
+    pageTitle = messages("label.your_address_has_been_changed")
+) {
 
-            <h2 class="heading-large">
-                {messages("label.what_happens_next")}
-            </h2>
-            <p>
-                {messages(p1)}
-            </p>
+    @if(closedPostalAddress) {
+        @govukPanel(Panel(
+            title = Text(messages("label.your_postal_address_has_been_changed_"))
+        ))
+
+        @p(Text(messages("label.all_your_letters_will_be_sent_to_this_addr")))
+
+        @p(HtmlContent(addr.map(x => x.mkString(", <br>")).getOrElse(""))))
+
+    } else {
+        @govukPanel(Panel(
+            title = Text(messages("label.your_address_has_been_changed"))
+        ))
+
+        @typ.ifIs(
+            residential = { content },
+            postal = Html("")
         )
+
+        @link(controllers.address.routes.PersonalDetailsController.onPageLoad.url, "label.return_to_your_profile_page")>
+
     }
-
-    @mainView(messages("label.your_address_has_been_changed"), Some(messages("label.your_personal_tax_account")), additionalGaCalls = Some(additionalGaCalls)) {
-
-        @if(closedPostalAddress) {
-
-            <div class="grid-row">
-                <div class="column-two-thirds">
-
-                    <div class="govuk-box-highlight">
-                        <h1 class="heading-xlarge">@messages("label.your_postal_address_has_been_changed_")</h1>
-                    </div>
-
-                    <p>@messages("label.all_your_letters_will_be_sent_to_this_addr")</p>
-
-                    <p>@Html(addr.map(x => x.mkString(", <br>")).getOrElse(""))</p>
-
-                    <p><a href="@controllers.address.routes.PersonalDetailsController.onPageLoad" class="button" role="button">@messages("label.return_to_your_profile_page")</a></p>
-                </div>
-            </div>
-
-        } else {
-            <div class="grid-row">
-                <div class="column-two-thirds">
-
-                    <div class="govuk-box-highlight">
-                        <h1 class="heading-xlarge">@messages("label.your_address_has_been_changed")</h1>
-                    </div>
-
-                    @typ.ifIs(
-                        residential = { content },
-                        postal = Html(""))
-
-                    <p><a href="@controllers.address.routes.PersonalDetailsController.onPageLoad">@messages("label.return_to_your_profile_page")</a></p>
-                </div>
-            </div>
-
-        }
-    }
+}
