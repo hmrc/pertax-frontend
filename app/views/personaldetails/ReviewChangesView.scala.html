@@ -16,43 +16,47 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import uk.gov.hmrc.play.language.LanguageUtils
 @import scala.concurrent.ExecutionContext
 @import util.DateHelper._
+@import components.{H1, Link, Button}
 
-@this(mainView: MainView, form: FormWithCSRF, languageUtils: LanguageUtils)
+@this(
+    main: newMain,
+    form: FormWithCSRF,
+    languageUtils: LanguageUtils,
+    h1: H1,
+    link: Link,
+    button: Button
+)
+
 @(typ: AddrType, addressDto: AddressDto, doYouLiveInTheUK: String, isUkAddress: Boolean,  startDateDto: Option[DateDto],
-displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(title = messages("label.check_your_details"),
-  pageName = Some(messages("label.your_personal_tax_account"))
+@main(
+    pageTitle = messages("label.check_your_details"),
+    showBackLink = true
 ) {
-    @back_link()
 
-  <div class="grid-row">
-    <div class="column-two-thirds">
-      <header class="page-heading">
-        <h1 class="heading-xlarge">@messages("label.check_your_details")</h1>
-      </header>
-        <dl class="govuk-check-your-answers cya-questions-short form-group">
-          <div>
+    @h1("label.check_your_details")
+        <dl class="govuk-summary-list form-group">
+            <div class="govuk-summary-list__row">
             @if(typ==PostalAddrType){
-          <dt class="cya-question">
-             @messages("label.is_your_postal_address_in_the_uk")
-          </dt>
-            <dd class="cya-answer">@messages(doYouLiveInTheUK)</dd>
-              <dd class="cya-change"><a href="@controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="visuallyhidden">@messages("label.is_your_postal_address_in_the_uk")</span></a></dd>
+                <dt class="govuk-summary-list__key">
+                    @messages("label.is_your_postal_address_in_the_uk")
+                </dt>
+                <dd class="govuk-summary-list__value">@messages(doYouLiveInTheUK)</dd>
+                <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="govuk-visually-hidden">@messages("label.is_your_postal_address_in_the_uk")</span></a></dd>
             }else{
-            <dt class="cya-question">
-                @messages("label.is_your_main_address_in_the_uk")
-            </dt>
-          <dd class="cya-answer">@messages(doYouLiveInTheUK)</dd>
-              <dd class="cya-change"><a href="@controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="visuallyhidden"> @messages("label.is_your_main_address_in_the_uk.change")</span></a></dd>
+                <dt class="govuk-summary-list__key">
+                    @messages("label.is_your_main_address_in_the_uk")
+                </dt>
+                <dd class="govuk-summary-list__value">@messages(doYouLiveInTheUK)</dd>
+                <dd class="govuk-summary-list__acions"><a href="@controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="govuk-visually-hidden"> @messages("label.is_your_main_address_in_the_uk.change")</span></a></dd>
             }
         </div>
-        <div>
-          <dt class="cya-question">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
             @typ.ifIs(
               residential = {
               if(displayDateAddressChanged) {
@@ -68,34 +72,32 @@ displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDeco
 
             @if(isUkAddress) {
 
-            <dd class="cya-answer">@Html(addressDto.toList.map(item => s"<div>$item</div>").mkString)</dd>
+            <dd class="govuk-summary-list__value">@Html(addressDto.toList.map(item => s"<div>$item</div>").mkString)</dd>
 
-            <dd class="cya-change"><a href="@controllers.address.routes.UpdateAddressController.onPageLoad(typ)">@messages("label.change") <span class="visuallyhidden">@messages("label.change_address")</span></a></dd>
+            <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.UpdateAddressController.onPageLoad(typ)">@messages("label.change") <span class="govuk-visually-hidden">@messages("label.change_address")</span></a></dd>
             } else {
 
-            <dd class="cya-answer">@Html(addressDto.toListWithCountry.map(item => s"<div>$item</div>").mkString)</dd>
+            <dd class="govuk-summary-list__value">@Html(addressDto.toListWithCountry.map(item => s"<div>$item</div>").mkString)</dd>
 
-            <dd class="cya-change"><a href="@controllers.address.routes.UpdateInternationalAddressController.onPageLoad(typ)">@messages("label.change") <span class="visuallyhidden">@messages("label.change_address")</span></a></dd>
+            <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.UpdateInternationalAddressController.onPageLoad(typ)">@messages("label.change") <span class="govuk-visually-hidden">@messages("label.change_address")</span></a></dd>
             }
 
         </div>
           @if(displayDateAddressChanged && typ.toString != "postal") {
-            <div>
+            <div class="govuk-summary-list__row">
               @startDateDto.map { startDateDto =>
-                <dt class="cya-question">
+                <dt class="govuk-summary-list__key">
                   @typ.ifIs(residential = messages("label.when_you_started_living_here"), postal = "")
                 </dt>
-                <dd class="cya-answer">@languageUtils.Dates.formatDate(startDateDto.startDate.toJavaLocalDate)</dd>
-                <dd class="cya-change"><a href="@controllers.address.routes.StartDateController.onPageLoad(typ)">@messages("label.change") <span class="visuallyhidden">@messages("label.when_you_started_living_here.change")</span></a></dd>
+                <dd class="govuk-summary-list__value">@languageUtils.Dates.formatDate(startDateDto.startDate.toJavaLocalDate)</dd>
+                <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.StartDateController.onPageLoad(typ)">@messages("label.change") <span class="govuk-visually-hidden">@messages("label.when_you_started_living_here.change")</span></a></dd>
               }
             </div>
           }
       </dl>
 
-      @form(controllers.address.routes.AddressSubmissionController.onSubmit(typ)) {
-        <button class="button">@messages("label.confirm_and_save")</button>
-      }
-    </div>
-  </div>
+    @form(controllers.address.routes.AddressSubmissionController.onSubmit(typ)) {
+        @button("label.confirm_and_save")
+    }
 
 }
