@@ -119,11 +119,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
         hasLink(
           doc,
-          Messages("label.find_out_about_making_tax_digital_for_income_tax_self_assessment"),
-          s"${configDecorator.makingTaxDigitalForIncomeTaxUrl}"
-        )
-        hasLink(
-          doc,
           Messages("label.view_manage_sa_return"),
           "/personal-account/self-assessment-summary"
         )
