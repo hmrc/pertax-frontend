@@ -16,18 +16,24 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import viewmodels.{AddressRowModel, ExtraLinks, PersonalDetailsTableRowModel}
-
 @import scala.concurrent.ExecutionContext
+@import components.{H1, H2, P}
 
-@this(mainView: MainView)
+@this(
+    main: newMain,
+    h1: H1,
+    h2: H2,
+    p: P,
+    hmrcPageHeading: HmrcPageHeading
+)
+
 @(personalDetails: Seq[PersonalDetailsTableRowModel],
 addressDetails: AddressRowModel,
 trustedHelpers: Option[PersonalDetailsTableRowModel],
 paperlessHelpers: Option[PersonalDetailsTableRowModel],
 signinDetailsHelpers: Option[PersonalDetailsTableRowModel],
-manageTaxAgent: Option[PersonalDetailsTableRowModel])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+manageTaxAgent: Option[PersonalDetailsTableRowModel])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil) = {
 <div class="govuk-summary-list__row" id="@row.id">
@@ -38,26 +44,24 @@ manageTaxAgent: Option[PersonalDetailsTableRowModel])(implicit request: UserRequ
         @row.content
     </dd>
     <dd class="govuk-summary-list__actions">
-        @if(row.displayChangelink){
-            @row.linkUrl.map { url =>
-            <a class="govuk-link" href="@url">
+        @row.linkUrl.map { url =>
+        <a class="govuk-link" href="@url">
 
-                @messages(row.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
-                <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
-                }
-            </a>
-            }.getOrElse(
-            Html(s"<p>${messages(row.linkTextMessage)}</p>")
-            )
-
-            @extraLinks.map { url =>
-            <a class="govuk-link yourProfileExtraLink" href="@url.linkUrl">
-
-                @messages(url.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
-                <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
-                }
-            </a>
+            @messages(row.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
+            <span class="govuk-visually-hidden">@messages(row.visuallyhiddenText)</span>
             }
+        </a>
+        }.getOrElse(
+        Html(s"""<p class="govuk-body">${messages(row.linkTextMessage)}</p>""")
+        )
+
+        @extraLinks.map { url =>
+        <a class="govuk-link yourProfileExtraLink" href="@url.linkUrl">
+
+            @messages(url.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
+            <span class="govuk-visually-hidden">@messages(row.visuallyhiddenText)</span>
+            }
+        </a>
         }
     </dd>
 </div>
@@ -83,7 +87,7 @@ case _ => emptyAddressRow(isMainAddress)
     </dd>
     <dd class="govuk-summary-list__actions">
         <a class="govuk-link" href=@AddressRowModel.changeMainAddressUrl(configDecorator)>
-            @messages("label.change") <span class="visuallyhidden">@messages("label.your_main_home")</span>
+            @messages("label.change") <span class="govuk-visually-hidden">@messages("label.your_main_home")</span>
         </a>
     </dd>
 </div>
@@ -96,7 +100,7 @@ case _ => emptyAddressRow(isMainAddress)
     </dd>
     <dd class="govuk-summary-list__actions">
         <a class="govuk-link" href=@AddressRowModel.changePostalAddressUrl>
-            @messages("label.change") <span class="visuallyhidden">@messages("label.your.postal_address")</span>
+            @messages("label.change") <span class="govuk-visually-hidden">@messages("label.your.postal_address")</span>
         </a>
     </dd>
 </div>
@@ -104,36 +108,30 @@ case _ => emptyAddressRow(isMainAddress)
 }
 
 
-@mainView(messages("label.your_personal_details"),Some(messages("label.your_personal_tax_account"))) {
+@main(
+    pageTitle = messages("label.your_personal_details")
+) {
 
-<div class="grid-row">
-    <div class="column-two-thirds">
+    @hmrcPageHeading(PageHeading(
+        text = request.name.map(upperCaseToTitleCase).getOrElse(messages("label.your_account")),
+        section = Some(messages("label.profile_and_settings"))
+    ))
 
-        <header class="page-heading">
-            <h1 class="heading-xlarge">
-                @request.name.map(upperCaseToTitleCase).getOrElse(messages("label.your_account"))
-            </h1>
-            <p class="heading-secondary"><span class="visuallyhidden">@messages("label.this.section.is") </span>@messages("label.profile_and_settings")</p>
-        </header>
-
-        <div class="pertax-personal-details">
-            <h2>@messages("label.profile")</h2>
-            <dl class="govuk-summary-list">
-                @personalDetails.map(row => rowsPresenter(row))
-
-                @addressRowsPresenter(addressDetails.mainAddress, true)
-                @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink.toList)
-            </dl>
-            <h2>@messages("label.settings")</h2>
-            <dl class="govuk-summary-list">
-                @paperlessHelpers.map(rowsPresenter(_))
-                @signinDetailsHelpers.map(rowsPresenter(_))
-                @trustedHelpers.map(rowsPresenter(_))
-                @manageTaxAgent.map(rowsPresenter(_))
-            </dl>
-        </div>
+    <div class="pertax-personal-details">
+        @h2("label.profile")
+        <dl class="govuk-summary-list">
+            @personalDetails.map(row => rowsPresenter(row))
+            @addressRowsPresenter(addressDetails.mainAddress, true)
+            @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink.toList)
+        </dl>
+        @h2("label.settings")
+        <dl class="govuk-summary-list">
+            @paperlessHelpers.map(rowsPresenter(_))
+            @signinDetailsHelpers.map(rowsPresenter(_))
+            @trustedHelpers.map(rowsPresenter(_))
+            @manageTaxAgent.map(rowsPresenter(_))
+        </dl>
     </div>
-</div>
 
 <div class="flex-container grid-row pertax-personal-details">
 
