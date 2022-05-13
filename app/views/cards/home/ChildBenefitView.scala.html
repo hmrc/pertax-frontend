@@ -19,6 +19,7 @@
 @()(implicit messages: play.api.i18n.Messages)
 
 @card(
+    id = Some("child-benefit-card"),
     url = Some(routes.InterstitialController.displayChildBenefits.url),
     gaAction = Some("Benefits"),
     gaLabel = Some("Child Benefit"),
