@@ -117,6 +117,10 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
         doc.text() must include(Messages("label.making_tax_digital"))
         doc.text() must include(Messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return"))
 
+        doc
+          .getElementsContainingText("Find out about Making Tax Digital for Income Tax Self Assessment")
+          .hasAttr("href") mustBe true
+
         hasLink(
           doc,
           Messages("label.view_manage_sa_return"),
