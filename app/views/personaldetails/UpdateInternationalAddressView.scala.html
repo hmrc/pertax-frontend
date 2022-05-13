@@ -41,24 +41,15 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
 }
 
 @scriptElems = {
-
-    <script src="@routes.AssetsController.versioned("javascripts/accessible-autocomplete.min.js").url"></script>
-
-
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/accessible-autocomplete.min.js")'></script>
     <script>
-        document.onreadystatechange = function () {
-            if (document.readyState == "interactive") {
-                accessibleAutocomplete.enhanceSelectElement({
-                  selectElement: document.querySelector('#country')
-                })
-            }
-        }
+        accessibleAutocomplete.enhanceSelectElement({
+            selectElement: document.querySelector('#country'),
+            showAllValues: false,
+            autoselect: true
+        });
     </script>
-
 }
-
-<link rel="stylesheet" href="@routes.AssetsController.versioned("stylesheets/modules/accessible-autocomplete.min.css")" >
-
 
 
 @main(
@@ -138,12 +129,18 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
         autocomplete = Some("address-level3")
     )
 
-    @inputValue(
-        form = updateAddressForm,
+    @govukSelect(Select(
         id = "country",
         name = "country",
-        labelKey = "label.country",
-        labelClasses = "govuk-label",
-        classes = Some("govuk-!-width-three-quarters")
-    )
+        items = Seq(SelectItem(value=None,text="")) ++ countries.map{ c =>
+            SelectItem(
+                value = Some(c.countryName),
+                text = c.countryName,
+                selected = false
+            )
+        },
+        label = Label(
+            content = Text(messages("label.country"))
+        )
+    ))
 }

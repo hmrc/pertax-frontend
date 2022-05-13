@@ -55,6 +55,8 @@
 @headBlock = {
     <meta name="format-detection" content="telephone=no" />
     <link rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
+<link rel="stylesheet" href='@routes.AssetsController.versioned("stylesheets/modules/accessible-autocomplete.min.css")'>
+
 
     @if(!disableSessionExpired){
         @hmrcTimeoutDialogHelper(
@@ -107,12 +109,12 @@
 
 @additionalScripts = {
     <script src='@controllers.routes.AssetsController.versioned("javascripts/jquery.js")'></script>
-    <script src='@controllers.routes.AssetsController.versioned("javascripts/pertax.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/polyfill.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
     @ptaScripts()
+    @scripts
 }
 
 @contentBlock = {
