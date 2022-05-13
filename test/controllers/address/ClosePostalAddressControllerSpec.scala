@@ -214,7 +214,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
     "render the thank you page upon successful submission of closing the correspondence address and no locks present" in new LocalSetup {
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
       val result = controller.confirmSubmit(FakeRequest())
 
@@ -246,7 +246,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "render the thank you page upon successful submission of closing the correspondence address and only a lock on the residential address" in new LocalSetup {
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditResidentialAddress(Instant.now())))
 
