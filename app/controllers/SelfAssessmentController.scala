@@ -113,9 +113,9 @@ class SelfAssessmentController @Inject() (
   def requestAccess: Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
       request.saUserType match {
-        case NotEnrolledSelfAssessmentUser(saUtr) =>
+        case NotEnrolledSelfAssessmentUser(_) =>
           val deadlineYear = current.finishYear.toString
-          Ok(requestAccessToSelfAssessmentView(saUtr.utr, deadlineYear))
+          Ok(requestAccessToSelfAssessmentView(deadlineYear))
         case _ => Redirect(routes.HomeController.index)
       }
     }

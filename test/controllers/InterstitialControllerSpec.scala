@@ -25,7 +25,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.Configuration
 import play.api.i18n.Langs
-import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
+import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -40,8 +40,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import testUtils.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.ViewNewsAndUpdatesView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewSaAndItsaMergePageView}
+import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.Future
@@ -330,6 +329,68 @@ class InterstitialControllerSpec extends BaseSpec {
       status(result) mustBe OK
 
       contentAsString(result) must include("News and Updates")
+    }
+
+    "return UNAUTHORIZED when toggled off" in {
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val isNewsAndUpdatesTileEnabled: Boolean = false
+      }
+
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mock[PreferencesFrontendService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummaryInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[EnrolmentsHelper],
+          injected[SeissService]
+        )(stubConfigDecorator, templateRenderer, ec) {
+          private def formPartialServiceResponse = Future.successful {
+            HtmlPartial.Success(Some("Success"), Html("any"))
+          }
+          when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
+          when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
+
+          when(saPartialService.getSaAccountSummary(any())) thenReturn {
+            Future.successful(HtmlPartial.Success(Some("Success"), Html("any")))
+          }
+
+          when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+            Future.successful(ActivatePaperlessNotAllowedResponse)
+          }
+        }
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              request = request
+            )
+          )
+      })
+
+      val result = controller.displayNewsAndUpdates(fakeRequest)
+
+      status(result) mustBe UNAUTHORIZED
+
     }
   }
 
