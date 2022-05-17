@@ -52,7 +52,7 @@ displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDeco
                     @messages("label.is_your_main_address_in_the_uk")
                 </dt>
                 <dd class="govuk-summary-list__value">@messages(doYouLiveInTheUK)</dd>
-                <dd class="govuk-summary-list__acions"><a href="@controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="govuk-visually-hidden"> @messages("label.is_your_main_address_in_the_uk.change")</span></a></dd>
+                <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="govuk-visually-hidden"> @messages("label.is_your_main_address_in_the_uk.change")</span></a></dd>
             }
         </div>
         <div class="govuk-summary-list__row">
