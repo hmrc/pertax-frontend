@@ -72,7 +72,7 @@
 
             @h2("label.if_you_do_not_currently_claim_child_benefit")
 
-            @p(HtmlContent(messages("text.if_you_do_not_claim_child_benefit_text_before_link") + " " + link(configDecorator.childBenefitsCheckIfYouCanClaim, messageKey = messages("text.if_you_do_not_claim_child_benefit_link_text") + " " + messages("label.opens_in_a_new_window"), attrTarget = true, inParagraph = true)))
+            @p(HtmlContent(messages("text.if_you_do_not_claim_child_benefit_text_before_link") + " " + link(configDecorator.childBenefitsCheckIfYouCanClaim, messageKey = messages("text.if_you_do_not_claim_child_benefit_link_text") + " " + messages("label.opens_in_a_new_window"), attrTarget = true, inParagraph = true, fullStop = true)))
         } else {
             @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")), classes = Some("govuk-body-l"))
 
