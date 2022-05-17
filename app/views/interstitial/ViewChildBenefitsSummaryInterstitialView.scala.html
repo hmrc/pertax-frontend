@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import scala.concurrent.ExecutionContext
 @import views.html.newMain
-@import views.html.components.{H1, H2, H3, Link, P}
+@import views.html.components.{H1, H2, H3, Link, P, Button}
 
 @this(
     main: newMain,
@@ -27,7 +27,8 @@
     h2: H2,
     h3: H3,
     p: P,
-    link: Link
+    link: Link,
+    button: Button
 )
 
 @(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
@@ -75,7 +76,7 @@
         } else {
             @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")), classes = Some("govuk-body-l"))
 
-            <a href="@routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
+            @button("global.label.continue_button", href=Some(routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl))).url), id="continue")
         }
     </div>
 }
