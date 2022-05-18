@@ -170,7 +170,9 @@ class ConfigDecorator @Inject() (
 
   lazy val healthAndSocialCareLevyUrl = "https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy"
 
-  lazy val makingTaxDigitalForIncomeTaxUrl = "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax"
+  def makingTaxDigitalForIncomeTaxUrl(lang: Lang): String =
+    if (lang.code equals "en") { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax" }
+    else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
