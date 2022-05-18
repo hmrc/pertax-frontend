@@ -164,7 +164,7 @@ label.you_cannot_access_your_account=We cannot access your details
 label.we_need_to_speak_to_you_about_an_mci_error_=This is because of an MCI issue. It means that we need to check some details with you before you can sign in again
 label.how_to_contact_us=You can call us to
 label.resolve.mci.issue=resolve the MCI issue with an advisor.
-label.opens_in_a_new_window=(opens in a new window or tab)
+label.opens_in_a_new_window=(opens in a new tab)
 label.yes=Yes
 label.no=No
 
