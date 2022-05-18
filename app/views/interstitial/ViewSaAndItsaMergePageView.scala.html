@@ -87,27 +87,28 @@
                     @link(controllers.routes.SelfAssessmentController.handleSelfAssessment.url, "label.find_out_how_to_access_self_assessment", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Find out how to access Self Assessment"), inParagraph=true)
                 </li>
             </ul>
-                    case NotEnrolledSelfAssessmentUser(saUtr) => {
-                        @p(Text(messages("label.not_enrolled.content")))
-                        <ul class="govuk-list">
-                            <li>
-                                @link(controllers.routes.SelfAssessmentController.redirectToEnrolForSa.url, "label.not_enrolled.link.text", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Request access to your Self Assessment"), inParagraph=true)
-                            </li>
-                        </ul>
-                    }
-                    case _ => {}
-                }
-                @if(!isItsa) {
-                    <h2 class="govuk-heading-m">@messages("label.making_tax_digital")</h2>
-                    <p>@messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return")</p>
-
-                    <p>@messages("label.some_businesses_agents_using_mtd_for_itsa")</p>
-
-                    <p><a class="ga-track-anchor-click" href="@configDecorator.makingTaxDigitalForIncomeTaxUrl"
-                    data-ga-event-category="link - click" data-ga-event-label="Find out about Making Tax Digital for Income Tax Self Assessment"
-                    rel="noreferrer noopener" target="_blank">@messages("label.find_out_about_making_tax_digital_for_income_tax_self_assessment")</a></p>
-                }
-            }
+        }
+        case NotEnrolledSelfAssessmentUser(saUtr) => {
+            @p(Text(messages("label.not_enrolled.content")))
+            <ul class="govuk-list">
+                <li>
+                    @link(controllers.routes.SelfAssessmentController.redirectToEnrolForSa.url, "label.not_enrolled.link.text", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Request access to your Self Assessment"), inParagraph=true)
+                </li>
+            </ul>
+        }
+        case _ => {}
+    }
+        @if(!isItsa) {
+            @h2("label.making_tax_digital")
+            @p(Text(messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return")))
+            @p(Text(messages("label.some_businesses_agents_using_mtd_for_itsa")))
+            @link(configDecorator.makingTaxDigitalForIncomeTaxUrl,
+                    "label.find_out_about_making_tax_digital_for_income_tax_self_assessment",
+                    attrTarget = true,
+                    attrs = Map("data-ga-event-category"->"link - click", "data-ga-event-label"->"Find out about Making Tax Digital for Income Tax Self Assessment")
+            )
+        }
+    }
 
             @if(isSeiss) {
                 <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
