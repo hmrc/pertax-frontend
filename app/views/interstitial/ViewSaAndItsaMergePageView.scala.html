@@ -102,7 +102,7 @@
             @h2("label.making_tax_digital")
             @p(Text(messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return")))
             @p(Text(messages("label.some_businesses_agents_using_mtd_for_itsa")))
-            @link(configDecorator.makingTaxDigitalForIncomeTaxUrl,
+            @link(configDecorator.makingTaxDigitalForIncomeTaxUrl(messages.lang),
                     "label.find_out_about_making_tax_digital_for_income_tax_self_assessment",
                     attrTarget = true,
                     attrs = Map("data-ga-event-category"->"link - click", "data-ga-event-label"->"Find out about Making Tax Digital for Income Tax Self Assessment")
