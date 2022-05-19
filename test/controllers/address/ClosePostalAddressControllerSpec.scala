@@ -197,7 +197,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       "pertax-frontend",
       auditType,
       dataEvent.eventId,
-      Map("path" -> "/test", "transactionName" -> "closure_of_correspondence"),
+      Map("path" -> "/", "transactionName" -> "closure_of_correspondence"),
       Map(
         "nino"              -> Some(Fixtures.fakeNino.nino),
         "etag"              -> Some("115"),
@@ -302,7 +302,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     "return 500 if insert address lock fails" in new LocalSetup {
       override def isInsertCorrespondenceAddressLockSuccessful: Boolean = false
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/").asInstanceOf[Request[A]]
 
       val result = controller.confirmSubmit(currentRequest)
 
