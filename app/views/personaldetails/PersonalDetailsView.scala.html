@@ -26,7 +26,8 @@
 addressDetails: AddressRowModel,
 trustedHelpers: Option[PersonalDetailsTableRowModel],
 paperlessHelpers: Option[PersonalDetailsTableRowModel],
-signinDetailsHelpers: Option[PersonalDetailsTableRowModel])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+signinDetailsHelpers: Option[PersonalDetailsTableRowModel],
+manageTaxAgent: Option[PersonalDetailsTableRowModel])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil) = {
 <div class="govuk-summary-list__row" id="@row.id">
@@ -112,20 +113,23 @@ case _ => emptyAddressRow(isMainAddress)
             <h1 class="heading-xlarge">
                 @request.name.map(upperCaseToTitleCase).getOrElse(messages("label.your_account"))
             </h1>
-            <p class="heading-secondary"><span class="visuallyhidden">@messages("label.this.section.is") </span>@messages("label.your_profile")</p>
+            <p class="heading-secondary"><span class="visuallyhidden">@messages("label.this.section.is") </span>@messages("label.profile_and_settings")</p>
         </header>
 
         <div class="pertax-personal-details">
-            <h2>@messages("label.personal_details")</h2>
+            <h2>@messages("label.profile")</h2>
             <dl class="govuk-summary-list">
                 @personalDetails.map(row => rowsPresenter(row))
 
                 @addressRowsPresenter(addressDetails.mainAddress, true)
-                @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink().toList)
-
-                @trustedHelpers.map(rowsPresenter(_))
+                @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink.toList)
+            </dl>
+            <h2>@messages("label.settings")</h2>
+            <dl class="govuk-summary-list">
                 @paperlessHelpers.map(rowsPresenter(_))
                 @signinDetailsHelpers.map(rowsPresenter(_))
+                @trustedHelpers.map(rowsPresenter(_))
+                @manageTaxAgent.map(rowsPresenter(_))
             </dl>
         </div>
     </div>

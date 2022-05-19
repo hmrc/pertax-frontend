@@ -43,6 +43,8 @@ class ConfigDecorator @Inject() (
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
+  val sessionCacheTtl = runModeConfiguration.getOptional[Int]("feature.session-cache.ttl").getOrElse(15)
+
   def seissUrl = servicesConfig.baseUrl("self-employed-income-support")
 
   private lazy val contactFrontendService = servicesConfig.baseUrl("contact-frontend")
@@ -80,6 +82,7 @@ class ConfigDecorator @Inject() (
   lazy val taxCalcFrontendHost = getExternalUrl(s"taxcalc-frontend.host").getOrElse("")
   lazy val dfsFrontendHost = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
   lazy val fandfFrontendHost = getExternalUrl(s"fandf-frontend.host").getOrElse("")
+  lazy val agentClientManagementFrontendHost = getExternalUrl("agent-client-management-frontend.host").getOrElse("")
 
   lazy val saFrontendHost = getExternalUrl(s"sa-frontend.host").getOrElse("")
   lazy val governmentGatewayLostCredentialsFrontendHost =
@@ -166,6 +169,10 @@ class ConfigDecorator @Inject() (
   lazy val generalQueriesUrl = "https://www.gov.uk/contact-hmrc"
 
   lazy val healthAndSocialCareLevyUrl = "https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy"
+
+  def makingTaxDigitalForIncomeTaxUrl(lang: Lang): String =
+    if (lang.code equals "en") { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax" }
+    else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
@@ -290,6 +297,7 @@ class ConfigDecorator @Inject() (
 
   lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
   lazy val seissClaimsUrl = s"$seissFrontendHost/self-employment-support/claim/your-claims"
+  lazy val manageTaxAgentsUrl = s"$agentClientManagementFrontendHost/manage-your-tax-agents"
 }
 
 trait TaxcalcUrls {

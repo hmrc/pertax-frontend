@@ -17,9 +17,7 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
-@import views.html.interstitial.InterstitialWrapperView
 @import scala.concurrent.ExecutionContext
 
 @this(mainView: MainView)
@@ -32,13 +30,7 @@
     @back_link()
     <h1 id ="newsHeading" class="heading-xlarge">@messages("label.news_and_updates")</h1>
 
-    <ul class="list list-bullet">
-        <li><p><a class="ga-track-anchor-click"  href="#nicSection" data-ga-event-category="link - click"  data-ga-event-label="1.25 percentage points uplift in National Insurance contributions">@messages("label.percentage_points_uplift_in_NIC")</a></p></li>
-        <li><p><a class="ga-track-anchor-click"  href="#verifySection" data-ga-event-category="link - click" data-ga-event-label="HMRC Personal Tax Account to stop using GOV.UK Verify">@messages("label.stop_using_Verify")</a></p></li>
-    </ul>
-
             <section class="app-markdown">
-            <hr id="nicSection" class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
             <h2 id="nic" class="sectionHeadingH2">@messages("label.percentage_points_uplift_in_NIC")</h2>
             <p>@messages("label.national_insurance_contributions_will_increase_by_1.25_percentage_points")</p>
@@ -53,13 +45,6 @@
             <p><a class="trackLink"  href=@messages("healthAndSocialCareLevy.link.url") rel="noreferrer noopener" target="_blank">@messages("label.prepare_for_the_health_and_social_care_levy")</a></p>
         </section>
 
-        <section class="app-markdown">
-
-            <hr id="verifySection" class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-            <h2 id="verify" class="sectionHeadingH2">@messages("label.stop_using_Verify")</h2>
-            <p>@messages("label.verify_stop_from_1_April_2022")</p>
-            <p> <a class="trackLink"  href=@messages("createGGSigningIn.link.url") rel="noreferrer noopener" target="_blank">@messages("label.create_government_gateway_sign_in")</a></p>
-        </section>
 </div>
 </div>
 }

@@ -32,7 +32,6 @@ import uk.gov.hmrc.domain
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
-import util.EnrolmentsHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,8 +39,7 @@ class AuthActionImpl @Inject() (
   val authConnector: AuthConnector,
   configDecorator: ConfigDecorator,
   sessionAuditor: SessionAuditor,
-  cc: ControllerComponents,
-  enrolmentsHelper: EnrolmentsHelper
+  cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
@@ -106,8 +104,6 @@ class AuthActionImpl @Inject() (
               case b => b
             }
             .asInstanceOf[Request[A]]
-
-          val saEnrolment = enrolmentsHelper.selfAssessmentStatus(enrolments, trustedHelper)
 
           val authenticatedRequest = AuthenticatedRequest[A](
             trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),

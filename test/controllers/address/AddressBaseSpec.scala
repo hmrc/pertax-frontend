@@ -50,6 +50,7 @@ trait AddressBaseSpec extends BaseSpec {
   val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
+  val mockAgentClientAuthorisationService = mock[AgentClientAuthorisationService]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
 
@@ -73,7 +74,8 @@ trait AddressBaseSpec extends BaseSpec {
       mockCitizenDetailsConnector,
       mockAddressMovedService,
       mockEditAddressLockRepository,
-      mockAuditConnector
+      mockAuditConnector,
+      mockAgentClientAuthorisationService
     )
 
   val thisYearStr: String = "2019"
@@ -116,6 +118,9 @@ trait AddressBaseSpec extends BaseSpec {
 
     def getEditedAddressIndicators: List[AddressJourneyTTLModel] = List.empty
 
+    when(mockAgentClientAuthorisationService.getAgentClientStatus(any(), any(), any())).thenReturn(
+      Future.successful(true)
+    )
     when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
       Future.successful(CacheMap("id", Map.empty))
     }

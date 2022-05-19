@@ -1,8 +1,8 @@
-# pertax-frontend
+## pertax-frontend
 
 This is the repository for the Personal Tax Account (PTA) frontend project.
 
-### Integrating the PTA header into your project
+#### Integrating the PTA header into your project
 
 Example Partial URL:
 ```conf

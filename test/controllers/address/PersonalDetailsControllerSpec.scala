@@ -46,6 +46,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         mockAuditConnector,
         injected[RlsInterruptHelper],
+        mockAgentClientAuthorisationService,
         cc,
         displayAddressInterstitialView,
         injected[PersonalDetailsView]

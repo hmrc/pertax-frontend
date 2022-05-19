@@ -53,7 +53,7 @@ class RlsControllerSpec extends BaseSpec {
       injected[MessagesControllerComponents],
       injected[CheckYourAddressInterruptView],
       injected[InternalServerErrorView]
-    )(injected[ConfigDecorator], injected[TemplateRenderer], injected[CountryHelper], ec)
+    )(injected[ConfigDecorator], injected[TemplateRenderer], ec)
 
   "rlsInterruptOnPageLoad" must {
     "return internal server error" when {
