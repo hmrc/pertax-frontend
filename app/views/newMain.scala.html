@@ -30,6 +30,7 @@
     hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
     twoThirdsMainContent: TwoThirdsMainContent,
     fullWidthMainContent: FullWidthMainContent,
+    twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
     hmrcReportTechnicalIssue: HmrcReportTechnicalIssue,
     configDecorator: ConfigDecorator,
@@ -144,9 +145,12 @@
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),
     additionalScriptsBlock = Some(additionalScripts),
-    mainContentLayout = if(fullWidth) {
-                            Some(fullWidthMainContent(_))
+    mainContentLayout = Some(sidebarContent match {
+        case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
+        case None => if(fullWidth) {
+                            fullWidthMainContent(_)
                         } else {
-                            Some(twoThirdsMainContent(_))
+                            twoThirdsMainContent(_)
                         }
+    })
     )(contentBlock)

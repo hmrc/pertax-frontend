@@ -15,7 +15,6 @@
  *@
 
 @import config.ConfigDecorator
-@import views.html.iv.IvOutcomeWrapperView
 @import scala.concurrent.ExecutionContext
 @import components.{H1, P, Link}
 
@@ -41,7 +40,6 @@
         <li>
             @link(configDecorator.generalQueriesUrl,
                 "label.contact_hm_revenues_and_customs_for_help",
-                attrs = Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Service unavailable", "data-ga-event-label"->"contact HM Revenue and Customs for help"),
                 inParagraph = true)
         </li>
     </ul>

@@ -29,15 +29,7 @@
 
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@scriptElem = {
-    <script>
-            $(function () {
-                ga('send', 'event', 'self-assessment', 'pageLoad', 'User type - not yet activated SA filer');
-            });
-    </script>
-}
-
-@mainView(pageTitle = messages("label.activate_your_self_assessment"), scripts = Some(scriptElem)) {
+@mainView(pageTitle = messages("label.activate_your_self_assessment")) {
     @h1("label.activate_your_self_assessment_registration")
     @p(Text(messages("label.you_need_to_activate_your_self_assessment_registration_using_your_text_before_link_1")))
     @p(Text(messages("label.you_need_to_activate_your_self_assessment_registration_using_your_text_before_link_2")))
@@ -46,12 +38,11 @@
                     link(configDecorator.onlineServicesHelpdeskUrl,
                         messageKey = messages("label.you_need_to_activate_your_self_assessment_registration_using_your_link_text") + " " + messages("label.opens_in_a_new_window"),
                         attrTarget = true,
-                        attrs = Map("data-ga-event-category" -> "self-assessment", "data-ga-event-action"->"click", "data-ga-event-label"->"Call OSH"),
+                        inParagraph = true,
                         fullStop = true)
     ))
 
     @button(msg = "label.activate_your_self_assessment_registration",
-            href = Some(configDecorator.ssoToActivateSaEnrolmentPinUrl),
-            attrs = Map("data-ga-event-category"->"self-assessment", "data-ga-event-action"->"click", "data-ga-event-label"->"Activate SA registration")
+            href = Some(configDecorator.ssoToActivateSaEnrolmentPinUrl)
     )
 }
