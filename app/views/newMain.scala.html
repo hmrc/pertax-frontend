@@ -30,6 +30,7 @@
     hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
     twoThirdsMainContent: TwoThirdsMainContent,
     fullWidthMainContent: FullWidthMainContent,
+    twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
     govukPhaseBanner : GovukPhaseBanner,
     configDecorator: ConfigDecorator,
@@ -170,9 +171,11 @@
     beforeContentBlock = Some(beforeContent),
     additionalScriptsBlock = Some(additionalScripts),
     additionalBannersBlock = if(showChildBenefitBanner){Some(childBenefitBanner)}else{None},
-    mainContentLayout = if(fullWidth) {
-                            Some(fullWidthMainContent(_))
-                        } else {
-                            Some(twoThirdsMainContent(_))
-                        }
+    mainContentLayout = Some(sidebarContent match {
+        case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
+        case None => if(fullWidth) {
+            fullWidthMainContent(_)
+        } else {
+            twoThirdsMainContent(_)
+    })
     )(contentBlock)
