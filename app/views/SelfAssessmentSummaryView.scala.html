@@ -19,27 +19,23 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
 
-@this(mainView: MainView)
+@this(main: newMain)
 
 @(formPartial: Html, saPartial: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("label.self_assessment_summary"), Some(messages("label.your_personal_tax_account"))) {
+@main(
+    pageTitle = messages("label.self_assessment_summary"),
+    fullWidth = true
+) {
     <div class="summary-page">
-        <div class="grid-row">
-            <div class="column-full">
+        <div class="govuk-grid-column-full">
             @saPartial
-            </div>
         </div>
-        @if(request.nino.isDefined) {
-            <div class="grid-row">
-                <div class="summary-panel">
-                    <div class="column-two-thirds">
-                        <div class="form-group" id="self-assessment-forms">
-                        @formPartial
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
     </div>
+    @if(request.nino.isDefined) {
+
+        <div class="govuk-form-group" id="self-assessment-forms">
+            @formPartial
+        </div>
+    }
 }

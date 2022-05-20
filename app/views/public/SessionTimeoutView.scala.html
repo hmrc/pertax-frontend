@@ -15,18 +15,25 @@
  *@
 
 @import config.ConfigDecorator
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
+@import components.{H1, P, Button}
 
-@this(unauthenticatedMainView: UnauthenticatedMainView)
-@()(implicit request: Request[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@this(
+    main: newUnauthenticatedMain,
+    h1: H1,
+    p: P,
+    button: Button
+)
 
-@unauthenticatedMainView(messages("label.sign_in"), displayTimeoutDialog = false) {
+@()(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-    <header class="page-heading">
-        <h1 class="heading-xlarge">@messages("label.youve_been_signed_out")</h1>
-    </header>
-    <p>@messages("label.timeout_message", configDecorator.sessionTimeoutInMinutes.toString)</p>
-    <p>@messages("label.please_sign_in_again")</p>
-    <a class="button" href="@controllers.routes.HomeController.index" role="button">@messages("label.sign_in")</a>
+@main(
+    pageTitle = messages("label.sign_in"),
+    disableSessionExpired = true
+) {
+
+    @h1("label.youve_been_signed_out")
+    @p(Text(messages("label.timeout_message", configDecorator.sessionTimeoutInMinutes.toString)))
+    @p(Text(messages("label.please_sign_in_again")))
+    @button("label.sign_in", href=Some(controllers.routes.HomeController.index.url))
 }

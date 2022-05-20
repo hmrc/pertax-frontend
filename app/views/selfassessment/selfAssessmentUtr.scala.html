@@ -14,16 +14,16 @@
  * limitations under the License.
  *@
 
-@import controllers.auth.requests.UserRequest
+@this()
 
 @(saUtr: Option[String])(implicit messages: play.api.i18n.Messages)
 
-<p>
+<p class="govuk-body">
     @messages("labels.need_utr")
 </p>
 
 @saUtr.map { utr =>
-    <p>
-        @messages("labels.your_utr_is") <span class="bold-small">@utr</span>.
+    <p class="govuk-body">
+        @messages("labels.your_utr_is") <span class="govuk-!-font-weight-bold">@utr</span>.
     </p>
 }

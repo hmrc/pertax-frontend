@@ -16,23 +16,30 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import scala.concurrent.ExecutionContext
+@import components.{H1, P, Link}
 
-@this(mainView: MainView)
-@()(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@this(
+    main: newMain,
+    h1: H1,
+    p: P,
+    link: Link
+)
 
-@anchor(text: String, url: String) = {<a href="@url" target="_blank">@text</a>}
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(title = messages("global.page.not.found.error.title"),
-pageName = Some(messages("label.your_personal_tax_account"))
+@main(
+    pageTitle = messages("global.page.not.found.error.title")
 ) {
 
-<h1>@Messages("global.page.not.found.error.title")</h1>
-<p>@Messages("global.page.not.found.error.check.web.address.correct")</p>
-<p>@Messages("global.page.not.found.error.check.web.address.full")</p>
-<p>@Html(Messages("global.page.not.found.error.contact", anchor(Messages("global.page.not.found.error.contact.link.text"), Messages("global.page.not.found.error.contact.link"))))</p>
+    @h1("global.page.not.found.error.title")
+    @p(Text(Messages("global.page.not.found.error.check.web.address.correct")))
+    @p(Text(Messages("global.page.not.found.error.check.web.address.full")))
+    @p(HtmlContent(Messages("global.page.not.found.error.contact") + " " +
+                   link(Messages("global.page.not.found.error.contact.link"),
+                        Messages("global.page.not.found.error.contact.link.text"),
+                        inParagraph = true,
+                        attrTarget = true)
+    ))
 
 }

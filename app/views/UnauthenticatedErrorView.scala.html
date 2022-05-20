@@ -15,27 +15,24 @@
  *@
 
 @import config.ConfigDecorator
-@import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import scala.concurrent.ExecutionContext
+@import components.{H1, P}
 
-@this(unauthenticatedMainView: UnauthenticatedMainView)
+@this(
+    main: newUnauthenticatedMain,
+    h1: H1,
+    p: P
+)
 
 @(pageTitle: String, heading: String, message: String)(implicit request: Request[_],
-        configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+        configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@unauthenticatedMainView(title = messages(pageTitle),
-    pageName = Some(messages("label.your_personal_tax_account")),
-    backlinkUrl = Some("javascript:window.history.back();")
+@main(
+    pageTitle = messages(pageTitle),
+    showBackLink = true
 ) {
 
-    <div class="grid-row pertax-error">
-        <div class="column-two-thirds">
-            <header class="page-header">
-                <h1>@messages(heading)</h1>
-            </header>
-            <p>@Html(messages(message))</p>
-        </div>
-    </div>
+    @h1(heading)
+    @p(HtmlContent(messages(message)))
 
 }

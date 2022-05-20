@@ -15,26 +15,27 @@
  *@
 
 @import config.ConfigDecorator
-@import views.html.iv.IvOutcomeWrapperView
+@import uk.gov.hmrc.renderer.TemplateRenderer
+
 @import scala.concurrent.ExecutionContext
-@import components.{H1, P, Button}
 
-@this(
-    main: newUnauthenticatedMain,
-    h1: H1,
-    p: P,
-    button: Button
-)
+@this(unauthenticatedMainView: UnauthenticatedMainView)
 
-@(continueUrl: String)(implicit request: Request[_], messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(title: String, header: String)(content: Html)(implicit request: Request[_], configDecorator: ConfigDecorator,
+         templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@main(
-    pageTitle = messages("label.we_have_confirmed_your_identity")
-) {
+    @unauthenticatedMainView(title) {
 
-    @h1("label.we_have_confirmed_your_identity")
+        <div class="grid-row">
+            <div class="column-two-thirds">
 
-    @p(Text(messages("label.you_can_sign_in_to_your_personal_tax_account")))
+                <header class="page-heading">
+                    <h1 class="heading-xlarge">@header</h1>
+                </header>
 
-    @button("global.label.continue_button", href=Some(continueUrl), id="continue")
-}
+                @content
+
+            </div>
+        </div>
+
+    }

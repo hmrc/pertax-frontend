@@ -15,26 +15,29 @@
  *@
 
 @import config.ConfigDecorator
-@import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import scala.concurrent.ExecutionContext
+@import components.{H1, P, Link}
 
-@this(unauthenticatedMainView: UnauthenticatedMainView)
+@this(
+    main: newUnauthenticatedMain,
+    h1: H1,
+    p: P,
+    link: Link
+)
 
-@()(implicit request: Request[_],
-        configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@()(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@unauthenticatedMainView(title = messages("global.error.InternalServerError500.pta.title"),
-    pageName = Some(messages("label.your_personal_tax_account")),
-    backlinkUrl = Some("javascript:window.history.back();")
+@main(
+    pageTitle = messages("global.error.InternalServerError500.pta.title"),
+    showBackLink = true
 ) {
 
-    <div class="grid-row pertax-error">
-        <div class="column-two-thirds">
-             <h1 class="heading-48">@messages("global.error.InternalServerError500.pta.title")</h1>
-            <p>@messages("global.error.InternalServerError500.pta.message.you.can") <a href="@configDecorator.contactHmrcUrl">@messages("global.error.InternalServerError500.pta.message.contact.hmrc")</a> @messages("global.error.InternalServerError500.pta.message.by.phone.post")</p>
-
-        </div>
-    </div>
+    @h1("global.error.InternalServerError500.pta.title")
+    @p(HtmlContent(messages("global.error.InternalServerError500.pta.message.you.can") + " " +
+                    link(configDecorator.contactHmrcUrl,
+                        "global.error.InternalServerError500.pta.message.contact.hmrc",
+                        inParagraph = true) + " " +
+                    messages("global.error.InternalServerError500.pta.message.by.phone.post")
+    ))
 
 }

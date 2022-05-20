@@ -15,6 +15,7 @@
  *@
 
 @import config.ConfigDecorator
+@import views.html.iv.IvOutcomeWrapperView
 @import scala.concurrent.ExecutionContext
 @import components.{H1, P}
 
@@ -30,6 +31,6 @@
     pageTitle = messages("label.we_cannot_confirm_your_identity")
 ) {
     @h1("label.we_cannot_confirm_your_identity")
-    @p(Text(messages("label.you_have_tried_to_confirm_your_identity_")))
-    @p(Text(messages("label.try_again_in_24_hours")))
+    @p(Text("label.you_have_tried_to_confirm_your_identity_")))
+    @p(Text("label.try_again_in_24_hours")))
 }
