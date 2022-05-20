@@ -54,7 +54,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
             items = recordSet.addresses.zipWithIndex.map{
                     case(ad, index) =>
                         RadioItem(
-                            content = Text(s"""${ad.address.lines.mkString(", ")}, ${ad.address.town}, ${ad.address.postcode}"""),
+                            content = Text(s"""${ad.address.lines.mkString(", ")}, ${ad.address.town.getOrElse("")}, ${ad.address.postcode}"""),
                             id = Some("radio-" + index),
                             value = Some(ad.id),
                             checked = addressSelectorForm("addressId").value.contains(ad.id),

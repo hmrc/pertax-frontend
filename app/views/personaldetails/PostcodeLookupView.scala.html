@@ -52,7 +52,8 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
                 classes = "govuk-fieldset__legend--l",
                 isPageHeading = true
             )),
-            html = fieldsetContent
+            html = fieldsetContent,
+            attributes = if(addressFinderForm("postcode").hasErrors){Map("aria-describedby" -> "postcode-error")} else {Map.empty}
         ))
 
         @button("global.label.find_your_address", id="submitAddressFinder")
