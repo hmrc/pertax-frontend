@@ -32,7 +32,7 @@
     fullWidthMainContent: FullWidthMainContent,
     twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-    govukPhaseBanner : GovukPhaseBanner,
+    hmrcReportTechnicalIssue: HmrcReportTechnicalIssue,
     configDecorator: ConfigDecorator,
     link: Link,
     backLink: backLink,
@@ -51,6 +51,11 @@
     fullWidth: Boolean = false,
     scripts: Option[Html] = None,
     hideAccountMenu: Boolean = false,
+    accountHome: Boolean = false,
+    messagesActive: Boolean = false,
+    checkProgressActive: Boolean = false,
+    yourProfileActive: Boolean = false,
+    businessTaxAccountActive: Boolean = false,
     showChildBenefitBanner: Boolean = false
 )(content: Html)(implicit request: UserRequest[_], messages: Messages)
 
@@ -105,7 +110,11 @@
     hmrcAccountMenu(AccountMenu(
         signOut = SignOut(href = controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
         language = if(messages.lang.code == "cy") Cy else En,
-        businessTaxAccount = Some(BusinessTaxAccount(href="#"))
+        businessTaxAccount = Some(BusinessTaxAccount(href="#", active = businessTaxAccountActive)),
+        accountHome = uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.AccountHome(active = accountHome),
+        messages = uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.AccountMessages(active = messagesActive),
+        checkProgress = uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.CheckProgress(active = checkProgressActive),
+        yourProfile = YourProfile(active = yourProfileActive)
     ).withUrlsFromConfig())
 }
 
@@ -174,8 +183,9 @@
     mainContentLayout = Some(sidebarContent match {
         case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
         case None => if(fullWidth) {
-            fullWidthMainContent(_)
-        } else {
-            twoThirdsMainContent(_)
+                            fullWidthMainContent(_)
+                        } else {
+                            twoThirdsMainContent(_)
+                        }
     })
     )(contentBlock)

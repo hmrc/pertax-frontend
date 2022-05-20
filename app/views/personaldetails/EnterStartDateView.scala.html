@@ -32,26 +32,13 @@
 )
 @(residenceStartDateForm: Form[DateDto], typ: AddrType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@scriptElem = {
-  @if(residenceStartDateForm.hasErrors) {
-    @residenceStartDateForm.errors.map { error =>
-      <script>
-        $(function(){
-          ga('send', 'event', 'error - field', 'When did you start living here?', '@messages(s"head.${error.message}")');
-        });
-      </script>
-    }
-  }
-}
-
 @detailsContent = {
     @messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_text_before_link")
     @link(configDecorator.scottishRateIncomeTaxUrl,
             messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_link_text") + " " + messages("label.opens_in_a_new_window"),
             inParagraph = true,
             fullStop = true,
-            attrTarget = true,
-            attrs = Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Why do you need to know this", "data-ga-event-label"->"Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)")
+            attrTarget = true
     )
 }
 
@@ -60,8 +47,7 @@
         residential = messages("label.when_did_you_start_living_here"),
         postal = ""
     ),
-    showBackLink = true,
-    scripts = Some(scriptElem)
+    showBackLink = true
 ) {
 
     @errorSummary(residenceStartDateForm, Some("startDate.day"))
