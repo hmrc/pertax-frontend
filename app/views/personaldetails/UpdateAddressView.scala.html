@@ -46,7 +46,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
 }
 
 @fieldsetDescribedBy = @{
-   updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message").mkString("")
+   updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message").mkString("").trim
 }
 
 @main(
