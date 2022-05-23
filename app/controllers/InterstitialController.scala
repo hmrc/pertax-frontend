@@ -34,6 +34,7 @@ import util.DateTimeTools._
 import util.EnrolmentsHelper
 import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
+import views.html.personaldetails.CannotUseServiceView
 import views.html.selfassessment.Sa302InterruptView
 import util.FormPartialUpgrade
 
@@ -54,6 +55,7 @@ class InterstitialController @Inject() (
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
   enrolmentsHelper: EnrolmentsHelper,
+  someView: CannotUseServiceView,
   seissService: SeissService
 )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
@@ -74,6 +76,7 @@ class InterstitialController @Inject() (
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
     formPartialService.getNationalInsurancePartial.map { p =>
+//        Ok(someView(""))
       Ok(
         viewNationalInsuranceInterstitialHomeView(
           formPartial = if (configDecorator.partialUpgradeEnabled) {

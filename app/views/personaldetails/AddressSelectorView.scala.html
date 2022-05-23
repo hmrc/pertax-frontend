@@ -57,8 +57,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
                             content = Text(s"""${ad.address.lines.mkString(", ")}, ${ad.address.town.getOrElse("")}, ${ad.address.postcode}"""),
                             id = Some("radio-" + index),
                             value = Some(ad.id),
-                            checked = addressSelectorForm("addressId").value.contains(ad.id),
-                            attributes = Map("data-line1"->ad.address.lines(0), "data-line2"-> Try(ad.address.lines(1)).getOrElse(""), "data-line3"->ad.address.town.getOrElse(""), "data-postcode"-> ad.address.postcode)
+                            checked = addressSelectorForm("addressId").value.contains(ad.id)
                         ),
                     }
         )
