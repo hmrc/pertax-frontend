@@ -47,13 +47,13 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     @form(action = controllers.address.routes.PostcodeLookupController.onSubmit(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
 
         @govukFieldset(Fieldset(
+            describedBy = if(addressFinderForm("postcode").hasErrors){Some("postcode-error")} else {None},
             legend = Some(Legend(
                 content = Text(typ.ifIs( residential = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))),
                 classes = "govuk-fieldset__legend--l",
                 isPageHeading = true
             )),
-            html = fieldsetContent,
-            attributes = if(addressFinderForm("postcode").hasErrors){Map("aria-describedby" -> "postcode-error")} else {Map.empty}
+            html = fieldsetContent
         ))
 
         @button("global.label.find_your_address", id="submitAddressFinder")

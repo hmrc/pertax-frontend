@@ -45,6 +45,10 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
   }
 }
 
+@fieldsetDescribedBy = @{
+   updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message").mkString("")
+}
+
 @main(
   pageTitle = getYourAddressLabels.toString,
   showBackLink = true
@@ -55,6 +59,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     @form(action = controllers.address.routes.UpdateAddressController.onSubmit(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
 
         @govukFieldset(Fieldset(
+            describedBy = Some(fieldsetDescribedBy),
             legend = Some(Legend(
                 content = HtmlContent(getYourAddressLabels),
                 classes = "govuk-fieldset__legend--l",
