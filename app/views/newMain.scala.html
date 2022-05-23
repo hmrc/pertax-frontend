@@ -18,7 +18,7 @@
 @import config.ConfigDecorator
 @import uk.gov.hmrc.hmrcfrontend.config.AccountMenuConfig
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits.RichAccountMenu
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.{AccountMenu, SignOut, _}
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.{AccountMenu, SignOut, AccountHome, AccountMessages, CheckProgress, _}
 @import views.html.helper.CSPNonce
 @import components.{attorneyBanner, backLink, Link, FullWidthMainContent}
 @import controllers.auth.requests.UserRequest
@@ -111,9 +111,9 @@
         signOut = SignOut(href = controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
         language = if(messages.lang.code == "cy") Cy else En,
         businessTaxAccount = Some(BusinessTaxAccount(href="#", active = businessTaxAccountActive)),
-        accountHome = uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.AccountHome(active = accountHome),
-        messages = uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.AccountMessages(active = messagesActive),
-        checkProgress = uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.CheckProgress(active = checkProgressActive),
+        accountHome = AccountHome(active = accountHome),
+        messages = AccountMessages(active = messagesActive),
+        checkProgress = CheckProgress(active = checkProgressActive),
         yourProfile = YourProfile(active = yourProfileActive)
     ).withUrlsFromConfig())
 }
