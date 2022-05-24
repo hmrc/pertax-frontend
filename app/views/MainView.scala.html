@@ -82,9 +82,12 @@
         }
     }
 
+
     @accessibilityFooterUrl = {
         @configDecorator.accessibilityStatementUrl(request.uri)
     }
+
+
 
     @{
        val urBanner = {
@@ -97,6 +100,14 @@
                     Some("homepage UR banner")
                 ))
             } else { None }
+        }
+
+        val isGG = request.trustedHelper match {
+            case Some(TrustedHelper(_,_,_,_)) => Map.empty[String, Any]
+            case _ => Map[String, Any](
+                "isGovernmentGateway" -> request.isGovernmentGateway,
+                "isSa" -> request.isSa
+            )
         }
 
         val arguments = TemplateArgumentsBuilder(
@@ -128,11 +139,6 @@
             configDecorator.ssoUrl.map(SsoUrlComponent),
             Some(GetHelpFormComponent(getHelpFormView(supportLinkEnabled, false))),
             backlinkUrl.map(BackLinkUrlComponent(_)),
-            Some(UserPropertiesComponent(
-                isGovernmentGateway = request.isGovernmentGateway,
-                isVerify = request.isVerify,
-                isSa = request.isSa
-            )),
             Some(ActingAttorneyBannerComponent(actingAttorneyBanner)),
             pageName.map(NavTitleComponent),
             Some(BetaBannerComponent(configDecorator.deskproToken)),
@@ -140,7 +146,7 @@
         ) ++ Map[String, Any](
             "bodyClass" -> printable,
             "headInlineScript" -> headInlineScript
-        )
+        ) ++ isGG
 
         val extraArguments:Map[String,Any] = if(configDecorator.accessibilityStatementToggle) {
             arguments ++ Map[String,Any](

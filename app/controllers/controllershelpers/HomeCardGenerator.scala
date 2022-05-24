@@ -63,10 +63,16 @@ class HomeCardGenerator @Inject() (
         Some(seissView())
       else None,
       getNationalInsuranceCard(),
-      getAnnualTaxSummaryCard
+      if (request.trustedHelper.isEmpty) {
+        getAnnualTaxSummaryCard
+      } else {
+        None
+      }
     ).flatten
 
-  def getBenefitCards(taxComponents: Option[TaxComponents])(implicit messages: Messages): Seq[Html] =
+  def getBenefitCards(
+    taxComponents: Option[TaxComponents]
+  )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
     List(
       getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
       getChildBenefitCard(),

@@ -143,7 +143,8 @@ class PersonalDetailsViewModel @Inject() (
           HtmlFormat.raw(TemplateFunctions.upperCaseToTitleCase(name)),
           "label.change",
           "label.your_name",
-          Some(configDecorator.changeNameLinkUrl)
+          Some(configDecorator.changeNameLinkUrl),
+          displayChangelink = request.trustedHelper.isEmpty
         )
       )
 
@@ -205,7 +206,8 @@ class PersonalDetailsViewModel @Inject() (
       HtmlFormat.raw(""),
       "label.change",
       "label.your_paperless_settings",
-      Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
+      Some(controllers.routes.PaperlessPreferencesController.managePreferences.url),
+      displayChangelink = request.trustedHelper.isEmpty
     ) onlyIf request.isGovernmentGateway
 
   def getSignInDetailsRow(implicit
@@ -219,7 +221,8 @@ class PersonalDetailsViewModel @Inject() (
         HtmlFormat.raw(messages("label.sign_in_details_content")),
         "label.change",
         "label.your_gg_details",
-        Some(profileUrl)
+        Some(profileUrl),
+        displayChangelink = request.trustedHelper.isEmpty
       ) onlyIf request.isGovernmentGateway
     }
 }
