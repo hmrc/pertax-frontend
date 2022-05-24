@@ -57,7 +57,7 @@
         @link(routes.NiLetterController.printNationalInsuranceNumber.url, messageKey = "label.print_proof_of_your_national_insurance_number")
 
         <div class="forms-group pertax-panel" id="national_insurance">
-            @Html(formPartial.toString.replace("href", "class=\"govuk-link\" href").replace("list-bullet", "govuk-list--bullet").replace("h2", "h2 class=\"govuk-heading-m\""))
+            @formPartial
         </div>
     } else {
         @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")))
