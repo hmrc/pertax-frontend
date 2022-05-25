@@ -16,14 +16,21 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import scala.concurrent.ExecutionContext
+@import components.{H1, P, Link}
 
-@this(mainView: MainView)
+@this(
+    main: newMain,
+    h1: H1,
+    p: P,
+    link: Link
+)
+
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("label.you_cannot_access_your_account"), Some(messages("label.your_personal_tax_account"))) {
+@mainView(
+    pageTitle = messages("label.you_cannot_access_your_account")
+) {
 
     <div class="grid-row pertax-error">
         <div class="column-two-thirds">
