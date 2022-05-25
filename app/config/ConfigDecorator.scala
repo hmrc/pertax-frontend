@@ -135,6 +135,8 @@ class ConfigDecorator @Inject() (
   lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
 
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
+  lazy val reportAProblemPartialUrlNew = s"$contactHost/contact/problem_reports"
+
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val deskproToken = "PTA"
 
