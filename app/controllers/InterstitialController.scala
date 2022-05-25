@@ -76,10 +76,10 @@ class InterstitialController @Inject() (
     formPartialService.getNationalInsurancePartial.map { p =>
       Ok(
         viewNationalInsuranceInterstitialHomeView(
-          formPartial = if(configDecorator.partialUpgradeEnabled) {
+          formPartial = if (configDecorator.partialUpgradeEnabled) {
             //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
             FormPartialUpgrade.upgrade(p successfulContentOrEmpty)
-          } else{
+          } else {
             p successfulContentOrEmpty
           },
           redirectUrl = currentUrl,
