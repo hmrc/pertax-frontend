@@ -19,6 +19,7 @@ package util
 import org.jsoup.Jsoup
 import play.twirl.api.Html
 
+//TODO: To be deleted. See DDCNL-6008
 class FormPartialUpgradeSpec extends BaseSpec {
 
   "Calling FormPartialUpgrade" must {
