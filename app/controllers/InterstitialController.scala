@@ -77,6 +77,7 @@ class InterstitialController @Inject() (
       Ok(
         viewNationalInsuranceInterstitialHomeView(
           formPartial = if(configDecorator.partialUpgradeEnabled) {
+            //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
             FormPartialUpgrade.upgrade(p successfulContentOrEmpty)
           } else{
             p successfulContentOrEmpty
