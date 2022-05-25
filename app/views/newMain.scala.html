@@ -32,6 +32,7 @@
     fullWidthMainContent: FullWidthMainContent,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
     hmrcReportTechnicalIssue: HmrcReportTechnicalIssue,
+    govukPhaseBanner : GovukPhaseBanner,
     configDecorator: ConfigDecorator,
     link: Link,
     backLink: backLink,
@@ -123,6 +124,20 @@
         baseUrl = Some(configDecorator.reportAProblemPartialUrl),
         classes = Some("govuk-!-margin-bottom-8")
     ))
+
+<hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+    @govukPhaseBanner(PhaseBanner(
+        tag = Some(Tag(
+        content = Text(messages("label.beta"))
+    )),
+        content = HtmlContent(messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_before_link") + " " +
+            link(link= configDecorator.betaFeedbackUnauthenticatedUrl(configDecorator.deskproToken),
+                messageKey="global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text",
+                inParagraph = true) + " " +
+                messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_after_link")
+        )
+    ))
+
 }
 
 @fullPageTitle = @{
