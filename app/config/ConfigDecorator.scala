@@ -268,6 +268,9 @@ class ConfigDecorator @Inject() (
   lazy val saItsaTileEnabled =
     runModeConfiguration.getOptional[Boolean]("feature.sa-itsa-tile.enabled").getOrElse(false)
 
+  lazy val partialUpgradeEnabled =
+    runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)
+
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
   lazy val assetsPrefix = runModeConfiguration.get[String](s"assets.url") + runModeConfiguration
