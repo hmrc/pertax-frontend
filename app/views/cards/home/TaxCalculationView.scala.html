@@ -29,15 +29,15 @@
         gaLabel = Some(viewUtils.fromMessage(viewModel.heading.label)),
         heading = viewUtils.fromMessage(viewModel.heading.label),
         headingTag = "h3",
-        bodyContent = Some(Html(viewModel.content.map(content => s"<p>${viewUtils.fromMessage(content)}</p>").mkString))
+        bodyContent = Some(Html(viewModel.content.map(content => s"""<p class="govuk-body">${viewUtils.fromMessage(content)}</p>""").mkString))
     ) {
         @if(viewModel.links.nonEmpty) {
-            <ul>
+            <ul class="govuk-list">
             @viewModel.links.map { case Link(label, url, trackingLabel) => {
                     <li>
                         <a class="ga-track-anchor-click" href="@viewUtils.fromUrl(url)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">
-                        @viewUtils.fromMessage(label)
-                    </a>
+                            @viewUtils.fromMessage(label)
+                        </a>
                     </li>
                 }
             }

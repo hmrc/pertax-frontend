@@ -30,7 +30,8 @@
 @(viewModel: HomeViewModel)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @main(
-    pageTitle = messages("label.account_home")
+    pageTitle = messages("label.account_home"),
+    fullWidth = true
 ) {
 
     @hmrcPageHeading(PageHeading(
@@ -53,13 +54,13 @@
             @viewModel.incomeCards
             </div>
 
-            @h2("title.benefits", classes = Some("section-header"))
+            @h2("title.benefits", classes = Some("govuk-heading-m section-header"))
 
             <div class="flex-container grid-row">
             @viewModel.benefitCards
             </div>
 
-            @h2("title.pensions", classes = Some("section-header"))
+            @h2("title.pensions", classes = Some("govuk-heading-m section-header"))
 
             <div class="flex-container grid-row">
             @viewModel.pensionCards
