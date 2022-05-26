@@ -19,7 +19,12 @@
 @import scala.concurrent.ExecutionContext
 @import components.{H1, P, Link}
 
-@this(main: newMain)
+@this(
+    main: newMain,
+    h1: H1,
+    p: P,
+    link: Link
+)
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @main(
@@ -29,7 +34,7 @@
     @h1("global.page.not.found.error.title")
     @p(Text(Messages("global.page.not.found.error.check.web.address.correct")))
     @p(Text(Messages("global.page.not.found.error.check.web.address.full")))
-    @p(HtmlContent(Messages("global.page.not.found.error.contact" + " " +
+    @p(HtmlContent(Messages("global.page.not.found.error.contact") + " " +
                    link(Messages("global.page.not.found.error.contact.link"),
                         Messages("global.page.not.found.error.contact.link.text"),
                         inParagraph = true,

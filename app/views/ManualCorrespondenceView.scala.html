@@ -26,20 +26,17 @@
     link: Link
 )
 
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(
+@main(
     pageTitle = messages("label.you_cannot_access_your_account")
 ) {
 
-    <div class="grid-row pertax-error">
-        <div class="column-two-thirds">
-            <h1>@messages("label.you_cannot_access_your_account")</h1>
-            <p>@Html(messages("label.we_need_to_speak_to_you_about_an_mci_error_"))</p>
+    @h1("label.you_cannot_access_your_account")
+    @p(HtmlContent(messages("label.we_need_to_speak_to_you_about_an_mci_error_")))
 
-            <p>@messages("label.how_to_contact_us") <a href="@configDecorator.generalQueriesUrl">@messages("label.resolve.mci.issue")</a></p>
-
-        </div>
-    </div>
+    @p(HtmlContent(messages("label.how_to_contact_us") + " " +
+                    link(configDecorator.generalQueriesUrl, "label.resolve.mci.issue", inParagraph = true)
+    ))
 
 }

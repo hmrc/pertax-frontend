@@ -16,29 +16,34 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import viewmodels.HomeViewModel
 @import scala.concurrent.ExecutionContext
+@import components.H2
 
-@this(mainView: MainView)
-@(viewModel: HomeViewModel)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@this(
+    main: newMain,
+    hmrcPageHeading: HmrcPageHeading,
+    govukInsetText: GovukInsetText,
+    h2: H2
+)
 
-    @mainView(messages("label.account_home"), Some(messages("label.your_personal_tax_account")), viewModel.showUserResearchBanner) {
+@(viewModel: HomeViewModel)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-        <header class="page-heading" id="pertaxHome">
-            <h1 class="heading-xlarge">
-            @request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)
+@main(
+    pageTitle = messages("label.account_home")
+) {
 
-            </h1>
-            <p class="heading-secondary"><span class="visuallyhidden">
-                @messages("label.this.section.is") </span>@messages("label.account_home")</p>
-        </header>
+    @hmrcPageHeading(PageHeading(
+        text = request.name.fold(messages("label.your_account"))(upperCaseToTitleCase),
+        section = Some(messages("label.account_home"))
+    ))
 
         @viewModel.saUtr.map { utr =>
-            <p class="panel-indent" id="utrNo">
-                @messages("label.home_page.utr") <span>@utr</span>
-            </p>
+            @govukInsetText(InsetText(
+                id = Some("utrNo"),
+                content = HtmlContent(messages("label.home_page.utr") + s" <span>$utr</span>"),
+                classes = "govuk-!-margin-top-0"
+            ))
         }
 
         <div class="pertax-home">
@@ -48,13 +53,13 @@
             @viewModel.incomeCards
             </div>
 
-            <h2 class="section-header flush--top">@messages("title.benefits")</h2>
+            @h2("title.benefits", classes = Some("section-header"))
 
             <div class="flex-container grid-row">
             @viewModel.benefitCards
             </div>
 
-            <h2 class="section-header flush--top">@messages("title.pensions")</h2>
+            @h2("title.pensions", classes = Some("section-header"))
 
             <div class="flex-container grid-row">
             @viewModel.pensionCards
