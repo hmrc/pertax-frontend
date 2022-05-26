@@ -47,7 +47,8 @@
     beforeContentHtml: Option[Html] = None,
     showBackLink: Boolean = false,
     disableSessionExpired: Boolean = false,
-    fullWidth: Boolean = false
+    fullWidth: Boolean = false,
+    showChildBenefitBanner: Boolean = false
 )(content: Html)(implicit request: UserRequest[_], messages: Messages)
 
 @headBlock = {
@@ -137,6 +138,24 @@
     s"""$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"""
 }
 
+@childBenefitBanner = {
+    <div class="hmrc-user-research-banner" data-module="hmrc-user-research-banner">
+        <div class="hmrc-user-research-banner__container govuk-width-container">
+            <div class="hmrc-user-research-banner__text">
+                <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
+                    @messages("label.help_improve_gov_uk")
+                </div>
+                <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href=@configDecorator.childBenefitLinkUrl.getOrElse("") target="_blank">
+                    @messages("label.child_benefit_survey_text")
+                </a>
+            </div>
+            <button class="govuk-link hmrc-user-research-banner__close">
+                @messages("label.no_thanks")
+            </button>
+        </div>
+    </div>
+}
+
 @hmrcLayout(
     pageTitle = Some(fullPageTitle),
     serviceName = Some(messages("label.your_personal_tax_account")),
@@ -148,6 +167,7 @@
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),
     additionalScriptsBlock = Some(additionalScripts),
+    additionalBannersBlock = if(showChildBenefitBanner){Some(childBenefitBanner)}else{None},
     mainContentLayout = if(fullWidth) {
                             Some(fullWidthMainContent(_))
                         } else {

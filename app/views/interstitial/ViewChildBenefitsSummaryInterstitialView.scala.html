@@ -33,7 +33,7 @@
 
 @(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@main(pageTitle = messages("label.report_changes_that_affect_your_child_benefit")) {
+@main(pageTitle = messages("label.report_changes_that_affect_your_child_benefit"), showChildBenefitBanner = true) {
 
     @h1("label.report_changes_that_affect_your_child_benefit")
     @if(request.nino.isDefined) {
