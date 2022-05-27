@@ -25,5 +25,6 @@ case class PersonalDetailsTableRowModel(
   linkTextMessage: String,
   visuallyhiddenText: String,
   linkUrl: Option[String],
-  displayChangelink: Boolean = true
+  displayChangelink: Boolean = true,
+  isPostalAddressSame: Boolean = true
 )

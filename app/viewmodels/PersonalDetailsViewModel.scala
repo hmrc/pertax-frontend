@@ -77,11 +77,11 @@ class PersonalDetailsViewModel @Inject() (
     postalAddress match {
       case Some(address) => Some(address)
       case _ =>
-        personDetails.address.map { _ =>
+        personDetails.address.map { address =>
           PersonalDetailsTableRowModel(
             "postal_address",
             "label.postal_address",
-            correspondenceAddressView(None, countryHelper.excludedCountries),
+            correspondenceAddressView(Some(address), countryHelper.excludedCountries),
             "label.change",
             "label.your.postal_address",
             Some(AddressRowModel.changePostalAddressUrl)
@@ -107,7 +107,8 @@ class PersonalDetailsViewModel @Inject() (
           ),
           linkTextMessage,
           "label.your.postal_address",
-          linkUrl
+          linkUrl,
+          false
         )
       if (isCorrespondenceChangeLocked)
         createRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
