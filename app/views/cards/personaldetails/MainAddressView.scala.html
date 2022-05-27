@@ -23,7 +23,7 @@
     }
 
     @cardContent = {
-        <p>
+        <p class="govuk-body">
     @personDetails.address.map { address =>
         @address.lines.map { line =>
             <span class="address-line">@upperCaseToTitleCase(line)</span>
