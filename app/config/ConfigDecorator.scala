@@ -135,6 +135,7 @@ class ConfigDecorator @Inject() (
   lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
 
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
+
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val deskproToken = "PTA"
 
@@ -267,6 +268,9 @@ class ConfigDecorator @Inject() (
 
   lazy val saItsaTileEnabled =
     runModeConfiguration.getOptional[Boolean]("feature.sa-itsa-tile.enabled").getOrElse(false)
+
+  lazy val partialUpgradeEnabled =
+    runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
 

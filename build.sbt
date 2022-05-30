@@ -79,7 +79,10 @@ lazy val microservice = Project(appName, file("."))
       "controllers.bindable._",
       "uk.gov.hmrc.domain._",
       "util.TemplateFunctions._",
-      "uk.gov.hmrc.http.HeaderCarrier"
+      "uk.gov.hmrc.http.HeaderCarrier",
+      "uk.gov.hmrc.govukfrontend.views.html.components._",
+      "uk.gov.hmrc.hmrcfrontend.views.html.components._",
+      "uk.gov.hmrc.hmrcfrontend.views.html.helpers._"
     )
   )
 
