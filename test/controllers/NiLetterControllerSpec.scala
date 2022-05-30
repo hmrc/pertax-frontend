@@ -103,7 +103,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
 
       status(r) mustBe OK
       val doc = Jsoup.parse(contentAsString(r))
-      doc.getElementById("page-title").text() mustBe "Your National Insurance letter"
+      doc.getElementsByClass("govuk-heading-xl").text() mustBe "Your National Insurance letter"
       doc
         .getElementById("keep-ni-number-safe")
         .text() mustBe "Keep this number in a safe place. Do not destroy this letter."

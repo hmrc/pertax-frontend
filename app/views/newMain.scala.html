@@ -43,6 +43,7 @@
 
 @(
     pageTitle: String,
+    serviceName: String = "label.your_personal_tax_account",
     sidebarContent: Option[Html] = None,
     beforeContentHtml: Option[Html] = None,
     showBackLink: Boolean = false,
@@ -136,7 +137,7 @@
 
 @hmrcLayout(
     pageTitle = Some(fullPageTitle),
-    serviceName = Some(messages("label.your_personal_tax_account")),
+    serviceName = Some(messages(serviceName)),
     nonce = CSPNonce.get,
     isWelshTranslationAvailable = true,
     userResearchBannerUrl = configDecorator.bannerLinkUrl,
