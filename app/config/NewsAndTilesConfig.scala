@@ -24,12 +24,13 @@ import play.api.i18n.Lang
 import scala.collection.JavaConverters._
 
 @Singleton
-class NewsAndTilesConfig @Inject()(configuration: Configuration) {
+class NewsAndTilesConfig @Inject() (configuration: Configuration) {
 
-  def getNewsAndContentModelList(lang: Lang): List[NewsAndContentModel] = {
-    configuration.underlying.getObject("feature.news").asScala.map {
-
-      case (newsSection, _) =>
+  def getNewsAndContentModelList(lang: Lang): List[NewsAndContentModel] =
+    configuration.underlying
+      .getObject("feature.news")
+      .asScala
+      .map { case (newsSection, _) =>
         val shortDescription = if (lang.code equals "en") {
           configuration.get[String](s"feature.news.$newsSection.short-description-en")
         } else {
@@ -43,6 +44,6 @@ class NewsAndTilesConfig @Inject()(configuration: Configuration) {
         val startDate = configuration.get[String](s"feature.news.$newsSection.start-date")
         val endDate = configuration.get[String](s"feature.news.$newsSection.end-date")
         NewsAndContentModel(shortDescription, content, startDate, endDate)
-    }.toList
-  }
+      }
+      .toList
 }

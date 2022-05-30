@@ -17,13 +17,14 @@
 package controllers
 
 import com.google.inject.Inject
-import config.ConfigDecorator
+import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.controllershelpers.PaperlessInterruptHelper
 import error.ErrorRenderer
 import models._
 import play.api.Logging
+import play.api.i18n.Lang
 import play.api.mvc._
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
@@ -54,7 +55,8 @@ class InterstitialController @Inject() (
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
   enrolmentsHelper: EnrolmentsHelper,
-  seissService: SeissService
+  seissService: SeissService,
+  newsAndTilesConfig: NewsAndTilesConfig
 )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
 
@@ -153,9 +155,9 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displayNewsAndUpdates: Action[AnyContent] = authenticate { implicit request =>
+  def displayNewsAndUpdates(lang: Lang): Action[AnyContent] = authenticate { implicit request =>
     if (configDecorator.isNewsAndUpdatesTileEnabled) {
-      Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl))
+      Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, newsAndTilesConfig.getNewsAndContentModelList(lang)))
     } else {
       errorRenderer.error(UNAUTHORIZED)
     }
