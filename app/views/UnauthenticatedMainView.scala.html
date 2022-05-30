@@ -64,18 +64,6 @@
 
 
     @{
-        val urBanner = {
-            if(showUserResearchBanner) {
-                Some(FullWidthBannerComponent(
-                    Messages("label.help_improve_gov_uk"),
-                    Messages("label.get.involved.in.making.gov.services.better"),
-                    configDecorator.bannerLinkUrl,
-                    Some(Messages("label.no_thanks")),
-                    Some("homepage UR banner")
-                ))
-            } else { None }
-        }
-
         val name = ""
         val arguments = TemplateArgumentsBuilder(
 
@@ -98,7 +86,7 @@
                 controllers.routes.AssetsController.versioned("javascripts/card.js").url,
                 controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js").url
             )),
-            urBanner,
+            None,
             Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
             Some(InlineScriptComponent(inlineScript.toString)),
             configDecorator.ssoUrl.map(SsoUrlComponent),

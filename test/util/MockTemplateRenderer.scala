@@ -31,6 +31,6 @@ object MockTemplateRenderer extends TemplateRenderer {
   override def renderDefaultTemplate(path: String, content: Html, extraArgs: Map[String, Any])(implicit
     messages: Messages
   ) =
-    content
+    Html(content + extraArgs.toString)
 
 }

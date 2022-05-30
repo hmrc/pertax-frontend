@@ -28,7 +28,7 @@ class HomePageCachingHelper @Inject() (
   val sessionCache: LocalSessionCache
 ) {
 
-  def hasUserDismissedUrInvitation[T](implicit hc: HeaderCarrier): Future[Boolean] =
+  def hasUserDismissedBanner(implicit hc: HeaderCarrier): Future[Boolean] =
     sessionCache.fetch() map {
       case Some(cacheMap) => cacheMap.getEntry[Boolean]("urBannerDismissed").getOrElse(false)
       case None           => false
