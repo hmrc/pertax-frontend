@@ -36,21 +36,12 @@
     ) {
 
         @h1("label.news_and_updates", elmId = Some("newsHeading"))
-
-        <section class="app-markdown">
-            @h2("label.percentage_points_uplift_in_NIC", elmId = Some("nic"))
-            @p(Text(messages("label.national_insurance_contributions_will_increase_by_1.25_percentage_points")))
-            @p(Text(messages("label.the_increase_will_apply_to")))
-
-            <ul class="govuk-list govuk-list--bullet">
-                <li>@messages("label.class_1_paid_by_employees")</li>
-                <li>@messages("label.class_4_paid_by_self_employed")</li>
-                <li>@messages("label.secondary_class_1_1a_1b_paid_by_employers")</li>
-            </ul>
-            @p(Text(messages("label.the_increase_will_not_apply_if_you_are_over_the_state_pension_age")))
-            @link(link = messages("healthAndSocialCareLevy.link.url"), messageKey = "label.prepare_for_the_health_and_social_care_levy", attrTarget = true)
-
-            <p>@newsAndContentModelList</p>
-        </section>
-
+        @for(newsAndContentModel <- newsAndContentModelList) {
+            <section class="app-markdown">
+                <h2>@newsAndContentModel.shortDescription</h2>
+                <div>
+                @Html(newsAndContentModel.content)
+                </div>
+            </section>
+        }
     }
