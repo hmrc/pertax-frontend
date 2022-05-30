@@ -30,7 +30,6 @@ import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec}
@@ -60,7 +59,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
       injected[ErrorRenderer]
-    )(config, templateRenderer, ec)
+    )(config, ec)
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

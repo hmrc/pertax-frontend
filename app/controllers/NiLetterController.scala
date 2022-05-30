@@ -25,7 +25,6 @@ import org.joda.time.LocalDate
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.BadRequestException
-import uk.gov.hmrc.renderer.{ActiveTabYourProfile, TemplateRenderer}
 import views.html.print._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,12 +40,11 @@ class NiLetterController @Inject() (
   pdfWrapperView: NiLetterPDfWrapperView,
   niLetterView: NiLetterView,
   withActiveTabAction: WithActiveTabAction
-)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def printNationalInsuranceNumber: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withActiveTabAction
-      .addActiveTab(ActiveTabYourProfile) andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
         if (request.personDetails.isDefined) {
           Future.successful(

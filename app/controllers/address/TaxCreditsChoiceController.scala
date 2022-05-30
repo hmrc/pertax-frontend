@@ -26,7 +26,6 @@ import models.dto.TaxCreditsChoiceDto
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
-import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
 
@@ -40,7 +39,7 @@ class TaxCreditsChoiceController @Inject() (
   editAddressLockRepository: EditAddressLockRepository,
   taxCreditsChoiceView: TaxCreditsChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>

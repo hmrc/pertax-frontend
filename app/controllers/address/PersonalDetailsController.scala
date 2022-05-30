@@ -25,7 +25,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
 import services.AgentClientAuthorisationService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildPersonDetailsEvent
 import viewmodels.PersonalDetailsViewModel
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -48,7 +47,6 @@ class PersonalDetailsController @Inject() (
   personalDetailsView: PersonalDetailsView
 )(implicit
   configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
   ec: ExecutionContext
 ) extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 

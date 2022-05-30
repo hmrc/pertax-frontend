@@ -38,7 +38,6 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
@@ -59,7 +58,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockAuthJourney = mock[AuthJourney]
-  val mockTemplateRenderer = mock[TemplateRenderer]
 
   override def beforeEach: Unit =
     reset(
@@ -105,7 +103,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[HomeView],
         mockSeissService,
         injected[RlsInterruptHelper]
-      )(mockConfigDecorator, mockTemplateRenderer, ec)
+      )(mockConfigDecorator, ec)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
       Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))

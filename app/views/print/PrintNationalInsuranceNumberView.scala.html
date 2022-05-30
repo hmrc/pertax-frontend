@@ -16,7 +16,6 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
 
 @this(
@@ -26,7 +25,7 @@
 )
 
 @(personDetails: models.PersonDetails, dateString: String, saveNiLetterAsPdfLinkEnabled: Boolean, nino : Option[Nino])(implicit request: UserRequest[_],
-        configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+        configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @main(
     pageTitle = messages("label.print_your_national_insurance_summary"),

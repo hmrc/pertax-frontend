@@ -22,7 +22,6 @@ import org.jsoup.nodes.Document
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.SaUtrGenerator
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures
 import util.UserRequestFixture.buildUserRequest
 import viewmodels.HomeViewModel

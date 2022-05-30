@@ -98,7 +98,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
           cc,
           injected[InternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(mockConfigDecorator, templateRenderer, ec)
+        )(mockConfigDecorator, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

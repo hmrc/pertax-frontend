@@ -31,7 +31,6 @@ import org.joda.time.LocalDate
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.AddressSelectorService
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.AddressSelectorView
@@ -47,7 +46,7 @@ class AddressSelectorController @Inject() (
   addressSelectorView: AddressSelectorView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   addressSelectorService: AddressSelectorService
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =

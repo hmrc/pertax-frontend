@@ -29,7 +29,6 @@ import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
 import services.{PreferencesFrontendService, SeissService}
 import uk.gov.hmrc.play.partials.HtmlPartial
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools._
 import util.EnrolmentsHelper
 import views.html.SelfAssessmentSummaryView
@@ -54,7 +53,7 @@ class InterstitialController @Inject() (
   viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService
-)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
 
   val saBreadcrumb: Breadcrumb =

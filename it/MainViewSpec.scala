@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import config.{ConfigDecorator, LocalTemplateRenderer}
+import config.ConfigDecorator
 import connectors.EnrolmentsConnector
 import controllers.auth.requests.UserRequest
 import models._
@@ -63,9 +63,6 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
 
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
-      .overrides(
-        bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
-      )
       .configure(Map(
         "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
         "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",

@@ -27,7 +27,6 @@ import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.ManualCorrespondenceView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,7 +37,7 @@ class GetPersonDetailsAction @Inject() (
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
   manualCorrespondenceView: ManualCorrespondenceView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext, templateRenderer: TemplateRenderer)
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] with I18nSupport {
 
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =

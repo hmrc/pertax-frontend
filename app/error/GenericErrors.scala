@@ -22,13 +22,11 @@ import controllers.auth.requests.UserRequest
 import play.api.i18n.Messages
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, InternalServerError}
-import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.ErrorView
 
 import scala.concurrent.ExecutionContext
 
 class GenericErrors @Inject() (errorView: ErrorView)(implicit
-  templateRenderer: TemplateRenderer,
   ec: ExecutionContext
 ) {
 

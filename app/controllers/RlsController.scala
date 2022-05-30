@@ -26,7 +26,6 @@ import models.{Address, AddressPageVisitedDtoId, AddressesLock}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
 import views.html.personaldetails.CheckYourAddressInterruptView
@@ -43,7 +42,6 @@ class RlsController @Inject() (
   internalServerErrorView: InternalServerErrorView
 )(implicit
   configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
   ec: ExecutionContext
 ) extends PertaxBaseController(cc) {
 

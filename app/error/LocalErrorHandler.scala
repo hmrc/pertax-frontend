@@ -23,7 +23,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
-import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.{InternalServerErrorView, UnauthenticatedErrorView}
 
 import scala.concurrent.ExecutionContext
@@ -34,7 +33,7 @@ class LocalErrorHandler @Inject() (
   val materializer: Materializer,
   internalServerErrorView: InternalServerErrorView,
   unauthenticatedErrorTemplate: UnauthenticatedErrorView
-)(implicit val configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
+)(implicit val configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends FrontendErrorHandler with I18nSupport {
 
   override def standardErrorTemplate(

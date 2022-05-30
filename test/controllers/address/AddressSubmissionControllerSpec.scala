@@ -62,7 +62,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         injected[ReviewChangesView],
         injected[DisplayAddressInterstitialView],
         injected[GenericErrors]
-      )(config, templateRenderer, ec)
+      )(config, ec)
   }
 
   "onPageLoad" must {

@@ -68,7 +68,6 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       injected[WithActiveTabAction]
     )(
       config,
-      templateRenderer,
       ec
     )
 

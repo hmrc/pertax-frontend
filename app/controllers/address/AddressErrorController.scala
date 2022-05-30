@@ -22,7 +22,6 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUseServiceView}
 
@@ -36,7 +35,7 @@ class AddressErrorController @Inject() (
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   cannotUseServiceView: CannotUseServiceView,
   addressAlreadyUpdatedView: AddressAlreadyUpdatedView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =

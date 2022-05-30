@@ -34,7 +34,6 @@ import play.api.test.Helpers.{contentAsString, redirectLocation, _}
 import services.SelfAssessmentService
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.BaseSpec
 import util.Fixtures.buildFakeRequestWithAuth
@@ -82,7 +81,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[FailedIvContinueToActivateSaView],
         injected[CannotConfirmIdentityView],
         injected[RequestAccessToSelfAssessmentView]
-      )(config, templateRenderer, ec)
+      )(config, ec)
 
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
       Future.successful(AuditResult.Success)
