@@ -26,17 +26,17 @@ import scala.collection.JavaConverters._
 @Singleton
 class NewsAndTilesConfig @Inject() (configuration: Configuration) {
 
-  def getNewsAndContentModelList(lang: Lang): List[NewsAndContentModel] =
+  def getNewsAndContentModelList(lang: String): List[NewsAndContentModel] =
     configuration.underlying
       .getObject("feature.news")
       .asScala
       .map { case (newsSection, _) =>
-        val shortDescription = if (lang.code equals "en") {
+        val shortDescription = if (lang equals "en") {
           configuration.get[String](s"feature.news.$newsSection.short-description-en")
         } else {
           configuration.get[String](s"feature.news.$newsSection.short-description-cy")
         }
-        val content = if (lang.code equals "en") {
+        val content = if (lang equals "en") {
           configuration.get[String](s"feature.news.$newsSection.content-en")
         } else {
           configuration.get[String](s"feature.news.$newsSection.content-cy")

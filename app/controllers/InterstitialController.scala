@@ -155,7 +155,7 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displayNewsAndUpdates(lang: Lang): Action[AnyContent] = authenticate { implicit request =>
+  def displayNewsAndUpdates(lang: String): Action[AnyContent] = authenticate { implicit request =>
     if (configDecorator.isNewsAndUpdatesTileEnabled) {
       Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, newsAndTilesConfig.getNewsAndContentModelList(lang)))
     } else {
