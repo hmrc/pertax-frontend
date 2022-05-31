@@ -18,7 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -45,7 +45,6 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
     new PaperlessPreferencesController(
       mockPreferencesFrontendPartialService,
       mockAuthJourney,
-      injected[WithActiveTabAction],
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
       injected[ErrorRenderer],

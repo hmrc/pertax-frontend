@@ -18,7 +18,7 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedTaxCreditsChoiceId
@@ -33,14 +33,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TaxCreditsChoiceController @Inject() (
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   cachingHelper: AddressJourneyCachingHelper,
   editAddressLockRepository: EditAddressLockRepository,
   taxCreditsChoiceView: TaxCreditsChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
+    extends AddressController(authJourney, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { _ => _ =>

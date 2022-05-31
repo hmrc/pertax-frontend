@@ -19,7 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.addresslookup.RecordSet
@@ -42,12 +42,11 @@ class PostcodeLookupController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   auditConnector: AuditConnector,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   postcodeLookupView: PostcodeLookupView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
+    extends AddressController(authJourney, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

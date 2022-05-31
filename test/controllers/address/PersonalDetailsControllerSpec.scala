@@ -43,7 +43,6 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         mockEditAddressLockRepository,
         mockAuthJourney,
         addressJourneyCachingHelper,
-        withActiveTabAction,
         mockAuditConnector,
         injected[RlsInterruptHelper],
         mockAgentClientAuthorisationService,

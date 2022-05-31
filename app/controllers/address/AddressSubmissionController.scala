@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.CitizenDetailsConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper
@@ -46,7 +46,6 @@ class AddressSubmissionController @Inject() (
   val editAddressLockRepository: EditAddressLockRepository,
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
-  withActiveTabAction: WithActiveTabAction,
   auditConnector: AuditConnector,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
@@ -55,7 +54,7 @@ class AddressSubmissionController @Inject() (
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   genericErrors: GenericErrors
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
+    extends AddressController(authJourney, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

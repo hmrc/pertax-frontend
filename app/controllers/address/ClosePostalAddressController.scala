@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.{CitizenDetailsConnector, UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressSuccessResponse, UpdateAddressUnexpectedResponse}
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyAuditingHelper.auditForClosingPostalAddress
 import controllers.controllershelpers.AddressJourneyCachingHelper
@@ -47,7 +47,6 @@ class ClosePostalAddressController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   auditConnector: AuditConnector,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   closeCorrespondenceAddressChoiceView: CloseCorrespondenceAddressChoiceView,
@@ -55,7 +54,7 @@ class ClosePostalAddressController @Inject() (
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
+    extends AddressController(authJourney, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>

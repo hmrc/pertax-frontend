@@ -53,7 +53,6 @@ object UserRequestFixture {
       profile,
       messageCount,
       None,
-      None,
       request
     )
 }

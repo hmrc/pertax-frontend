@@ -38,7 +38,6 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
       new AddressErrorController(
         mockAuthJourney,
         addressJourneyCachingHelper,
-        withActiveTabAction,
         cc,
         displayAddressInterstitialView,
         injected[CannotUseServiceView],

@@ -44,7 +44,6 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         mockAuditConnector,
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         injected[PostcodeLookupView],
         displayAddressInterstitialView

@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models._
 import org.joda.time.DateTime
@@ -41,7 +41,6 @@ class HomeController @Inject() (
   val homeCardGenerator: HomeCardGenerator,
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   homeView: HomeView,
   seissService: SeissService,

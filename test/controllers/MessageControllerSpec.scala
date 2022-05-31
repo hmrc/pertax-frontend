@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.CitizenDetailsConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -51,7 +51,6 @@ class MessageControllerSpec extends BaseSpec {
     new MessageController(
       mockMessageFrontendService,
       mockAuthJourney,
-      injected[WithActiveTabAction],
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
       injected[MessageInboxView],

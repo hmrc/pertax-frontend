@@ -18,7 +18,7 @@ package controllers
 
 import connectors.PdfGeneratorConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
@@ -64,8 +64,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       injected[ErrorRenderer],
       injected[PrintNationalInsuranceNumberView],
       injected[NiLetterPDfWrapperView],
-      injected[NiLetterView],
-      injected[WithActiveTabAction]
+      injected[NiLetterView]
     )(
       config,
       ec

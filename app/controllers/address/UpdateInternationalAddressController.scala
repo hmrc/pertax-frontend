@@ -18,7 +18,7 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper}
 import models.dto.{AddressDto, DateDto}
@@ -37,12 +37,11 @@ class UpdateInternationalAddressController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   auditConnector: AuditConnector,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   updateInternationalAddressView: UpdateInternationalAddressView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(authJourney, cc, displayAddressInterstitialView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

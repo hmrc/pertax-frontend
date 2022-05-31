@@ -31,7 +31,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class PaperlessPreferencesController @Inject() (
   val preferencesFrontendPartialService: PreferencesFrontendPartialService,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,

@@ -18,7 +18,7 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator, RlsInterruptHelper}
 import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -38,7 +38,6 @@ class PersonalDetailsController @Inject() (
   val editAddressLockRepository: EditAddressLockRepository,
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
-  withActiveTabAction: WithActiveTabAction,
   auditConnector: AuditConnector,
   rlsInterruptHelper: RlsInterruptHelper,
   agentClientAuthorisationService: AgentClientAuthorisationService,
@@ -48,7 +47,7 @@ class PersonalDetailsController @Inject() (
 )(implicit
   configDecorator: ConfigDecorator,
   ec: ExecutionContext
-) extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+) extends AddressController(authJourney, cc, displayAddressInterstitialView) {
 
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>
     Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad))

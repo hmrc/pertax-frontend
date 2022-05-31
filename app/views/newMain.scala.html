@@ -18,7 +18,7 @@
 @import config.ConfigDecorator
 @import uk.gov.hmrc.hmrcfrontend.config.AccountMenuConfig
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits.RichAccountMenu
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.{AccountMenu, SignOut, _}
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.{AccountMenu, SignOut, AccountHome, AccountMessages, CheckProgress, _}
 @import views.html.helper.CSPNonce
 @import components.{attorneyBanner, backLink, Link, FullWidthMainContent}
 @import controllers.auth.requests.UserRequest
@@ -30,6 +30,7 @@
     hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
     twoThirdsMainContent: TwoThirdsMainContent,
     fullWidthMainContent: FullWidthMainContent,
+    twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
     hmrcReportTechnicalIssue: HmrcReportTechnicalIssue,
     configDecorator: ConfigDecorator,
@@ -51,6 +52,11 @@
     disableSessionExpired: Boolean = false,
     fullWidth: Boolean = false,
     scripts: Option[Html] = None,
+    accountHome: Boolean = false,
+    messagesActive: Boolean = false,
+    checkProgressActive: Boolean = false,
+    yourProfileActive: Boolean = false,
+    businessTaxAccountActive: Boolean = false,
     hideAccountMenu: Boolean = false
 )(content: Html)(implicit request: UserRequest[_], messages: Messages)
 
@@ -105,7 +111,11 @@
     hmrcAccountMenu(AccountMenu(
         signOut = SignOut(href = controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
         language = if(messages.lang.code == "cy") Cy else En,
-        businessTaxAccount = Some(BusinessTaxAccount(href="#"))
+        businessTaxAccount = Some(BusinessTaxAccount(href="#", active = businessTaxAccountActive)),
+        accountHome = AccountHome(active = accountHome),
+        messages = AccountMessages(active = messagesActive, messageCount = request.unreadMessageCount),
+        checkProgress = CheckProgress(active = checkProgressActive),
+        yourProfile = YourProfile(active = yourProfileActive)
     ).withUrlsFromConfig())
 }
 
@@ -140,15 +150,18 @@
     serviceName = Some(messages(serviceName)),
     nonce = CSPNonce.get,
     isWelshTranslationAvailable = true,
-    userResearchBannerUrl = configDecorator.bannerLinkUrl,
     accessibilityStatementUrl = Some(configDecorator.accessibilityStatementUrl(request.uri)),
     displayHmrcBanner = false,
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),
     additionalScriptsBlock = Some(additionalScripts),
-    mainContentLayout = if(fullWidth) {
-                            Some(fullWidthMainContent(_))
-                        } else {
-                            Some(twoThirdsMainContent(_))
-                        }
+    mainContentLayout = Some(sidebarContent match {
+        case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
+        case None =>
+            if(fullWidth) {
+                fullWidthMainContent(_)
+            } else {
+                twoThirdsMainContent(_)
+            }
+    })
     )(contentBlock)

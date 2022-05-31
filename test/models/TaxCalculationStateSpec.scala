@@ -43,7 +43,6 @@ class TaxCalculationStateSpec extends BaseSpec {
     None,
     None,
     None,
-    None,
     fakeRequest
   )
 

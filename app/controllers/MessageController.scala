@@ -32,7 +32,6 @@ import scala.concurrent.ExecutionContext
 class MessageController @Inject() (
   val messageFrontendService: MessageFrontendService,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
   messageInboxView: MessageInboxView,

@@ -35,7 +35,6 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       new PostalDoYouLiveInTheUKController(
         addressJourneyCachingHelper,
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         injected[PostalInternationalAddressChoiceView],
         displayAddressInterstitialView
@@ -106,7 +105,6 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
         new PostalDoYouLiveInTheUKController(
           addressJourneyCachingHelper,
           mockAuthJourney,
-          withActiveTabAction,
           cc,
           injected[PostalInternationalAddressChoiceView],
           displayAddressInterstitialView

@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
-import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.joda.time.LocalDate
 import play.api.i18n.Messages
@@ -38,8 +38,7 @@ class NiLetterController @Inject() (
   errorRenderer: ErrorRenderer,
   printNiNumberView: PrintNationalInsuranceNumberView,
   pdfWrapperView: NiLetterPDfWrapperView,
-  niLetterView: NiLetterView,
-  withActiveTabAction: WithActiveTabAction
+  niLetterView: NiLetterView
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 

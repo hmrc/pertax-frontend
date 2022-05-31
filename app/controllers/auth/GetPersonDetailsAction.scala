@@ -58,7 +58,6 @@ class GetPersonDetailsAction @Inject() (
                 request.enrolments,
                 request.profile,
                 messageCount,
-                request.activeTab,
                 request.breadcrumb,
                 request.request
               )
@@ -78,7 +77,6 @@ class GetPersonDetailsAction @Inject() (
               request.enrolments,
               request.profile,
               messageCount,
-              request.activeTab,
               request.breadcrumb,
               request.request
             )

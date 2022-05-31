@@ -16,7 +16,6 @@
 
 package controllers.address
 
-import controllers.auth.WithActiveTabAction
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.GenericErrors
@@ -54,7 +53,6 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         mockEditAddressLockRepository,
         mockAuthJourney,
         new AddressJourneyCachingHelper(mockLocalSessionCache),
-        injected[WithActiveTabAction],
         mockAuditConnector,
         injected[MessagesControllerComponents],
         errorRenderer,

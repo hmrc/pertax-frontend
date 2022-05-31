@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, RlsInterruptHelper}
 import models.{SelfAssessmentUser, _}
 import org.joda.time.DateTime
@@ -98,7 +98,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[HomeCardGenerator],
         injected[HomePageCachingHelper],
         mockAuthJourney,
-        injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
         injected[HomeView],
         mockSeissService,

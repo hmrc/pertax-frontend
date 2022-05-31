@@ -59,7 +59,6 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         mockAuditConnector,
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         errorRenderer,
         injected[CloseCorrespondenceAddressChoiceView],
