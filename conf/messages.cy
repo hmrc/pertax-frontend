@@ -283,7 +283,6 @@ label.if_your_accountant_filed_check_with_them=os mai eich cyfrifydd wnaeth gyfl
 label.call_us_if_you_filed_your_return_by_post_link_text=ffoniwch ni
 label.call_us_if_you_filed_your_return_by_post_text_after_link=os gwnaethoch gyflwyno’ch Ffurflen Dreth drwy’r post
 label.help_improve_gov_uk=Helpu i wella’r gwasanaeth Budd-dal Plant
-label.get.involved.in.making.gov.services.better=Gallwch fod yn rhan o wneud gwasanaethau’r Llywodraeth yn well (yn agor ffenestr neu dab newydd)
 label.no_thanks=Dim diolch
 label.url_coronavirus=Coronafeirws (COVID-19): Arweiniad a chefnogaeth (yn agor mewn ffenestr neu dab newydd)
 label.hide_message=Cuddio’r neges
