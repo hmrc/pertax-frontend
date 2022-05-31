@@ -84,7 +84,8 @@ class PersonalDetailsViewModel @Inject() (
             correspondenceAddressView(Some(address), countryHelper.excludedCountries),
             "label.change",
             "label.your.postal_address",
-            Some(AddressRowModel.changePostalAddressUrl)
+            Some(AddressRowModel.changePostalAddressUrl),
+            isPostalAddressSame = true
           )
         }
     }
@@ -107,8 +108,7 @@ class PersonalDetailsViewModel @Inject() (
           ),
           linkTextMessage,
           "label.your.postal_address",
-          linkUrl,
-          false
+          linkUrl
         )
       if (isCorrespondenceChangeLocked)
         createRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)

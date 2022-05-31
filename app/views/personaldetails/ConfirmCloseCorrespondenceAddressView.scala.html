@@ -37,7 +37,7 @@ pageName = Some(messages("label.your_personal_tax_account"))
             <dl class="govuk-check-your-answers cya-questions-short form-group">
                 <div>
                     <dt class="cya-question">
-                      @messages("label.all_your_letters_will_be_sent_to_this_address")
+                      @messages("label.all_letters_will_be_sent_to_this_address")
                     </dt>
                     <dd class="cya-answer">@Html(addressDto.mkString(", <br>"))</dd>
                     <dd class="cya-change"><a href="@controllers.address.routes.ClosePostalAddressController.onPageLoad">@messages("label.change")</a></dd>
