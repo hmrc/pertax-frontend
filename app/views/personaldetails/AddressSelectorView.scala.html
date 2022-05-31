@@ -38,7 +38,8 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
         residential = messages("label.select_your_address"),
         postal = messages("label.select_an_address")
     ),
-    showBackLink = true
+    showBackLink = true,
+    yourProfileActive = true
 ) {
 
     @errorSummary(addressSelectorForm, Some("radio-0"))

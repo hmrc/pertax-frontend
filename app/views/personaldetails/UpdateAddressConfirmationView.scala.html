@@ -45,7 +45,8 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
 }
 
 @main(
-    pageTitle = messages("label.your_address_has_been_changed")
+    pageTitle = messages("label.your_address_has_been_changed"),
+    yourProfileActive = true
 ) {
 
     @if(closedPostalAddress) {

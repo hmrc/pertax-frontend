@@ -28,7 +28,10 @@
 
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@main(messages("label.your_address_has_already_been_updated")) {
+@main(
+    pageTitle = messages("label.your_address_has_already_been_updated"),
+    yourProfileActive = true
+) {
 
     @h1("label.your_address_has_already_been_updated")
 

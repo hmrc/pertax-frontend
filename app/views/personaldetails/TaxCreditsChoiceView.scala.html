@@ -33,7 +33,8 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
 
 @main(
     pageTitle = messages("label.do_you_get_tax_credits"),
-    showBackLink = true
+    showBackLink = true,
+    yourProfileActive = true
 ) {
 
     @errorSummary(taxCreditsChoiceForm, Some("taxCreditsChoice-yes"))
