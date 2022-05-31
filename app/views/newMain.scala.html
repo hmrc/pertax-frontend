@@ -112,7 +112,7 @@
         language = if(messages.lang.code == "cy") Cy else En,
         businessTaxAccount = Some(BusinessTaxAccount(href="#", active = businessTaxAccountActive)),
         accountHome = AccountHome(active = accountHome),
-        messages = AccountMessages(active = messagesActive),
+        messages = AccountMessages(active = messagesActive, messageCount = request.unreadMessageCount),
         checkProgress = CheckProgress(active = checkProgressActive),
         yourProfile = YourProfile(active = yourProfileActive)
     ).withUrlsFromConfig())

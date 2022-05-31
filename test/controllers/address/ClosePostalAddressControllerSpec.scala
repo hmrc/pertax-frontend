@@ -65,7 +65,6 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       None
     )(buildUserRequest(request = FakeRequest()), configDecorator, messages, ec).toString
 
-
     def controller: ClosePostalAddressController =
       new ClosePostalAddressController(
         mockCitizenDetailsConnector,
