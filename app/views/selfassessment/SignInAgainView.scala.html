@@ -20,7 +20,7 @@
 @import scala.concurrent.ExecutionContext
 @import components.{P, Button}
 
-@this(main: newMain, selfAssessmentHeading: selfAssessmentHeading, p: P, button: Button)
+@this(main: MainView, selfAssessmentHeading: selfAssessmentHeading, p: P, button: Button)
 
 @(signInAgainUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 

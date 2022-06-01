@@ -43,7 +43,7 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import views.html.newMain
+import views.html.MainView
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -139,7 +139,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
 
     implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest()
 
-    def view: newMain = app.injector.instanceOf[newMain]
+    def view: MainView = app.injector.instanceOf[MainView]
 
     val title = "Fake page title"
     val heading = "Fake page heading"
@@ -201,7 +201,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(request = FakeRequest(), messageCount = Some(msgCount))
 
-          doc.getElementsByAttributeValueMatching("aria-label", "Number of unread messages").text() must include(
+          doc.getElementsByClass("hmrc-notification-badge").first().text() must include(
             msgCount.toString)
         }
       }
@@ -211,7 +211,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
       }
 
       "render the Your Profile link" in new LocalSetup {
-        assertContainsLink(doc, "Your profile and Settings", "/personal-account/your-profile")
+        assertContainsLink(doc, "Profile and settings", "/personal-account/your-profile")
       }
 
       "render the BTA link" when {
@@ -257,7 +257,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
           doc.getElementById("attorneyBanner") mustBe an[Element]
 
           assertContainsText(doc, principalName)
-          assertContainsLink(doc, "Return to your own account", "/return-url")
+          assertContainsLink(doc, "Return to your account", "/return-url")
         }
       }
 

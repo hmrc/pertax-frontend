@@ -19,7 +19,7 @@
 @import views.html.selfassessment.selfAssessmentForm
 @import scala.concurrent.ExecutionContext
 
-@this(main: newMain, saForm: selfAssessmentForm)
+@this(main: MainView, saForm: selfAssessmentForm)
 @(wrongCredentialsUserForm: Form[dto.SAWrongCredentialsDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @main(

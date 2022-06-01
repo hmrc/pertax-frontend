@@ -19,7 +19,7 @@
 @import scala.concurrent.ExecutionContext
 @import components.{H1, P}
 
-@this(main: newMain, h1: H1, p: P)
+@this(main: MainView, h1: H1, p: P)
 @(title: String, heading: Option[String] = None, body: List[String] = Nil)(implicit request: UserRequest[_],
         configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
