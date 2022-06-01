@@ -21,9 +21,9 @@ object AppDependencies {
     "uk.gov.hmrc.mongo"   %% s"hmrc-mongo-$playVersion" % "0.62.0",
     "io.lemonlabs"        %% "scala-uri"                % "2.2.3",
     "com.typesafe.play"   %% "play-json-joda"           % "2.6.10",
-    "uk.gov.hmrc"         %% "play-frontend-hmrc"       % s"3.9.0-play-28",
+    "uk.gov.hmrc"         %% "play-frontend-hmrc"       % s"3.21.0-play-28",
     "uk.gov.hmrc"         %% "play-frontend-pta"        % "0.3.0",
-    "org.jsoup"                % "jsoup"                  % "1.15.1"
+    "org.jsoup"           % "jsoup"                     % "1.15.1"
   )
 
   val test = Seq(

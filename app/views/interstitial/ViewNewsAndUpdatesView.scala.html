@@ -16,20 +16,19 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import scala.concurrent.ExecutionContext
 @import views.html.components.{H1, Link, P, H2}
 
 @this(
-    mainView: newMain,
+    mainView: MainView,
     h1: H1,
     h2: H2,
     p: P,
     link: Link
 )
 
-@(redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 @mainView(
     pageTitle = messages("label.news_and_updates"),
     showBackLink = true
