@@ -34,6 +34,7 @@ import util.EnrolmentsHelper
 import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
+import util.FormPartialUpgrade
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -74,7 +75,12 @@ class InterstitialController @Inject() (
     formPartialService.getNationalInsurancePartial.map { p =>
       Ok(
         viewNationalInsuranceInterstitialHomeView(
-          formPartial = p successfulContentOrElse Html(""),
+          formPartial = if (configDecorator.partialUpgradeEnabled) {
+            //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
+            FormPartialUpgrade.upgrade(p successfulContentOrEmpty)
+          } else {
+            p successfulContentOrEmpty
+          },
           redirectUrl = currentUrl,
           request.nino
         )

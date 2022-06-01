@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package viewmodels
+package util
 
-import play.twirl.api.HtmlFormat
+import org.jsoup.Jsoup
+import play.twirl.api.Html
 
-case class PersonalDetailsTableRowModel(
-  id: String,
-  titleMessage: String,
-  content: HtmlFormat.Appendable,
-  linkTextMessage: String,
-  visuallyhiddenText: String,
-  linkUrl: Option[String],
-  displayChangelink: Boolean = true
-)
+object FormPartialUpgrade {
+
+  //TODO: To be deleted. See DDCNL-6008
+  def upgrade(partial: Html): Html = {
+    val doc = Jsoup.parse(partial.toString)
+    doc.getElementsByTag("a").addClass("govuk-link")
+    doc.getElementsByTag("ul").removeClass("list-bullet").addClass("govuk-list govuk-list--bullet")
+    doc.getElementsByTag("h2").addClass("govuk-heading-m")
+    Html(doc.select("body").html)
+  }
+}

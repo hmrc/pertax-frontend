@@ -164,7 +164,7 @@ label.you_cannot_access_your_account=We cannot access your details
 label.we_need_to_speak_to_you_about_an_mci_error_=This is because of an MCI issue. It means that we need to check some details with you before you can sign in again
 label.how_to_contact_us=You can call us to
 label.resolve.mci.issue=resolve the MCI issue with an advisor.
-label.opens_in_a_new_window=(opens in a new window or tab)
+label.opens_in_a_new_window=(opens in a new tab)
 label.yes=Yes
 label.no=No
 
@@ -316,7 +316,6 @@ label.when_you_started_living_here.change=when you started living here
 label.what_happens_next=What happens next
 label.confirm_and_save=Confirm and save
 label.help_improve_gov_uk=Help improve the Child Benefit service
-label.get.involved.in.making.gov.services.better=Get involved in making government services better (opens in a new window or tab)
 label.url_coronavirus=Coronavirus (COVID-19): guidance and support (opens in a new window or tab)
 label.hide_message=Hide message
 label.no_thanks=No thanks
@@ -501,6 +500,10 @@ label.old_way_sa_returns=The old way for filing your Self Assessment tax returns
 label.self_assessment_tax_returns=Self Assessment tax returns
 label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax Self Assessment or access your Self Assessment tax returns.
 label.online_deadline_final_declarations=The deadline for final declarations or online returns is 31 January {0}.
+label.making_tax_digital=Making Tax Digital
+label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return=From 6 April 2024 the Making Tax Digital service for Income Tax Self Assessment will replace the Self Assessment tax return.
+label.some_businesses_agents_using_mtd_for_itsa=Some businesses and agents are already using the Making Tax Digital service for Income Tax Self Assessment.
+label.find_out_about_making_tax_digital_for_income_tax_self_assessment=Find out about Making Tax Digital for Income Tax Self Assessment (opens in new tab)
 
 #
 # Benefits

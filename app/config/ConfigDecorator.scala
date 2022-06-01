@@ -135,6 +135,7 @@ class ConfigDecorator @Inject() (
   lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
 
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
+
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val deskproToken = "PTA"
 
@@ -169,6 +170,10 @@ class ConfigDecorator @Inject() (
   lazy val generalQueriesUrl = "https://www.gov.uk/contact-hmrc"
 
   lazy val healthAndSocialCareLevyUrl = "https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy"
+
+  def makingTaxDigitalForIncomeTaxUrl(lang: Lang): String =
+    if (lang.code equals "en") { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax" }
+    else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
@@ -227,8 +232,6 @@ class ConfigDecorator @Inject() (
   lazy val allowSaPreview =
     runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
 
-  lazy val bannerLinkUrl = runModeConfiguration.getOptional[String]("feature.ur-link.url")
-
   lazy val taxcalcEnabled =
     runModeConfiguration.getOptional[String]("feature.taxcalc.enabled").getOrElse("true").toBoolean
   lazy val taxComponentsEnabled =
@@ -264,6 +267,9 @@ class ConfigDecorator @Inject() (
   lazy val saItsaTileEnabled =
     runModeConfiguration.getOptional[Boolean]("feature.sa-itsa-tile.enabled").getOrElse(false)
 
+  lazy val partialUpgradeEnabled =
+    runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)
+
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
   lazy val assetsPrefix = runModeConfiguration.get[String](s"assets.url") + runModeConfiguration
@@ -294,6 +300,19 @@ class ConfigDecorator @Inject() (
   lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
   lazy val seissClaimsUrl = s"$seissFrontendHost/self-employment-support/claim/your-claims"
   lazy val manageTaxAgentsUrl = s"$agentClientManagementFrontendHost/manage-your-tax-agents"
+
+  lazy val bannerHomePageIsEnabled: Boolean =
+    runModeConfiguration.getOptional[Boolean]("feature.banner.home.enabled").getOrElse(false)
+  lazy val bannerHomePageHeadingEn: String =
+    runModeConfiguration.getOptional[String]("feature.banner.home.heading.en").getOrElse("")
+  lazy val bannerHomePageLinkTextEn: String =
+    runModeConfiguration.getOptional[String]("feature.banner.home.link.text.en").getOrElse("")
+  lazy val bannerHomePageHeadingCy: String =
+    runModeConfiguration.getOptional[String]("feature.banner.home.heading.cy").getOrElse("")
+  lazy val bannerHomePageLinkTextCy: String =
+    runModeConfiguration.getOptional[String]("feature.banner.home.link.text.cy").getOrElse("")
+  lazy val bannerHomePageLinkUrl: String =
+    runModeConfiguration.getOptional[String]("feature.banner.home.link.url").getOrElse("")
 }
 
 trait TaxcalcUrls {

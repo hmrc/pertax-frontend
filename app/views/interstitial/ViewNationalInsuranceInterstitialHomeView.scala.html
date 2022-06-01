@@ -23,7 +23,7 @@
 @import views.html.components.{H1, H2, P, Link, Button}
 
 @this(
-    main: MainView,
+    main: newMain,
     h1: H1,
     h2: H2,
     p: P,
@@ -31,7 +31,6 @@
     button: Button,
     govukInsetText: GovukInsetText
 )
-
 
 @(formPartial: Html, redirectUrl: String, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 

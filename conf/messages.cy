@@ -116,7 +116,7 @@ label.telephone_0300_200_3300=Ffôn: 0300 200 1900
 label.textphone_0300_200_3319=Ffôn testun: 0300 200 3319
 label.contact_number=0300 200 1900
 label.outside_uk_441355359022=Y tu allan i’r DU: +44 135 535 9022
-label.opens_in_a_new_window=(yn agor ffenestr neu dab newydd)
+label.opens_in_a_new_window=(yn agor mewn tab newydd)
 label.yes=Iawn
 label.no=Na
 label.list_of_messages=Rhestr o negeseuon
@@ -283,7 +283,6 @@ label.if_your_accountant_filed_check_with_them=os mai eich cyfrifydd wnaeth gyfl
 label.call_us_if_you_filed_your_return_by_post_link_text=ffoniwch ni
 label.call_us_if_you_filed_your_return_by_post_text_after_link=os gwnaethoch gyflwyno’ch Ffurflen Dreth drwy’r post
 label.help_improve_gov_uk=Helpu i wella’r gwasanaeth Budd-dal Plant
-label.get.involved.in.making.gov.services.better=Gallwch fod yn rhan o wneud gwasanaethau’r Llywodraeth yn well (yn agor ffenestr neu dab newydd)
 label.no_thanks=Dim diolch
 label.url_coronavirus=Coronafeirws (COVID-19): Arweiniad a chefnogaeth (yn agor mewn ffenestr neu dab newydd)
 label.hide_message=Cuddio’r neges
@@ -472,6 +471,10 @@ label.old_way_sa_returns=Yr hen ffordd o gyflwyno eich Ffurflenni Treth Hunanase
 label.self_assessment_tax_returns=Ffurflenni Treth Hunanasesiad
 label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
 label.online_deadline_final_declarations=Y dyddiad cau ar gyfer datganiadau terfynol neu Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.making_tax_digital=Troi Treth yn Ddigidol
+label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return=O 6 Ebrill 2024 ymlaen bydd y gwasanaeth Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm yn disodli’r Ffurflen Dreth Hunanasesiad.
+label.some_businesses_agents_using_mtd_for_itsa=Mae rhai busnesau ac asiantau eisoes yn defnyddio’r gwasanaeth Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm.
+label.find_out_about_making_tax_digital_for_income_tax_self_assessment=Cael gwybod am y cynllun Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm (yn agor tab newydd)
 
 #
 # Benefits

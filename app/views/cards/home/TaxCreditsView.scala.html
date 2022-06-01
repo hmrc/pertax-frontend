@@ -19,6 +19,7 @@
 @(showTaxCreditsPaymentLink: Boolean)(implicit messages: play.api.i18n.Messages)
 
 @card(
+    id = Some("tax-credits-card"),
     url = Some("/tax-credits-service/renewals/service-router"),
     gaAction = Some("Benefits"),
     gaLabel = Some("Tax credits"),

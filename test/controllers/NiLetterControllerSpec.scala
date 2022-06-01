@@ -48,7 +48,6 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[PdfGeneratorConnector].toInstance(mockPdfGeneratorConnector),
-      bind[AuthJourney].toInstance(mockAuthJourney),
       bind[HomeController].toInstance(mockHomeController),
       bind[RlsController].toInstance(mockRlsConfirmAddressController)
     )
