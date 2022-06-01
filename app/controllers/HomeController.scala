@@ -39,6 +39,7 @@ class HomeController @Inject() (
   val preferencesFrontendService: PreferencesFrontendService,
   taiService: TaiService,
   taxCalculationService: TaxCalculationService,
+  breathingSpaceService: BreathingSpaceService,
   homeCardGenerator: HomeCardGenerator,
   homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
@@ -71,6 +72,7 @@ class HomeController @Inject() (
           for {
             (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
             showSeissCard                                                                   <- seissService.hasClaims(saUserType)
+            breathingSpaceIndicator                                                         <- breathingSpaceService.getBreathingSpaceIndicator(request.nino)
           } yield {
 
             val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
@@ -87,7 +89,7 @@ class HomeController @Inject() (
             }
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
-            Ok(homeView(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType)))
+            Ok(homeView(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType, breathingSpaceIndicator)))
           }
         }
       }
