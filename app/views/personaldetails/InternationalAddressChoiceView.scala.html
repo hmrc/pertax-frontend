@@ -21,7 +21,7 @@
 @import components.{ErrorSummary, InputYesNo, Button}
 
 @this(
-    main: MainView,
+    main: newMain,
     form: FormWithCSRF,
     errorSummary: ErrorSummary,
     inputYesNo: InputYesNo,
@@ -33,7 +33,8 @@
 
 @main(
     pageTitle = messages("label.is_your_main_address_in_the_uk"),
-    showBackLink = true
+    showBackLink = true,
+    yourProfileActive = true
 ) {
 
     @errorSummary(internationalAddressChoiceForm, Some("internationalAddressChoice-yes"))
@@ -46,6 +47,6 @@
             hint = Some(Text(messages("label.the_uk_is_england_")))
         )
 
-        @button("global.label.continue_button", attrs = Map("data-ga-event-action"->"Do you live in the UK?", "data-radio-button-name"->"internationalAddressChoice"))
+        @button("global.label.continue_button")
     }
 }

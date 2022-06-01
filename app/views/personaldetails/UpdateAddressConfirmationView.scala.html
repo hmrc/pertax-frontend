@@ -20,7 +20,7 @@
 @import components.{H1, H2, P, Link}
 
 @this(
-    main: MainView,
+    main: newMain,
     h1: H1,
     h2: H2,
     p: P,
@@ -45,7 +45,8 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
 }
 
 @main(
-    pageTitle = messages("label.your_address_has_been_changed")
+    pageTitle = messages("label.your_address_has_been_changed"),
+    yourProfileActive = true
 ) {
 
     @if(closedPostalAddress) {
@@ -67,7 +68,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
             postal = Html("")
         )
 
-        @link(controllers.address.routes.PersonalDetailsController.onPageLoad.url, "label.return_to_your_profile_page")>
+        @link(controllers.address.routes.PersonalDetailsController.onPageLoad.url, "label.return_to_your_profile_page")
 
     }
 }

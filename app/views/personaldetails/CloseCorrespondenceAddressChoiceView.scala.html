@@ -21,7 +21,7 @@
 @import components.{ErrorSummary, P, InputRadios, Button}
 
 @this(
-    main: MainView,
+    main: newMain,
     form: FormWithCSRF,
     errorSummary: ErrorSummary,
     p: P,
@@ -40,7 +40,8 @@
 
 @main(
     pageTitle = messages("label.do_you_want_all_your_letters_to_be_sent_"),
-    showBackLink = true
+    showBackLink = true,
+    yourProfileActive = true
 ) {
 
     @errorSummary(closePostalAddressChoiceForm, Some("onPageLoad-true"))
@@ -67,8 +68,7 @@
         )
 
         @button("global.label.continue_button",
-                classes=Some("govuk-button ga-track-radio-select ga-track-error"),
-                attrs = Map("data-ga-event-action"->"Do you want all your letters sent to your main address?", "data-radio-button-name"->"onPageLoad")
+                classes=Some("govuk-button")
         )
     }
 }

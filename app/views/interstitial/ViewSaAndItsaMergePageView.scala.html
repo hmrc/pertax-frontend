@@ -38,7 +38,7 @@
         @h1("label.itsa_header")
         @h2("label.mtd_for_sa")
         @p(Text(messages("label.send_updates_hmrc_compatible_software")))
-        @link(configDecorator.itsaViewUrl, "label.view_manage_your_mtd_for_sa", attrs = Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"View and manage your Making Tax Digital for Income Tax Self Assessment"))
+        @link(configDecorator.itsaViewUrl, "label.view_manage_your_mtd_for_sa")
     } else {
         @h1("label.your_self_assessment")
     }
@@ -51,7 +51,7 @@
             case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
                 @if(isItsa) {
                     @p(Text(messages("label.old_way_sa_returns")))
-                    @link(routes.InterstitialController.displaySelfAssessment.url, "label.access_your_sa_returns", attrs = Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Access your Self Assessment tax returns"))
+                    @link(routes.InterstitialController.displaySelfAssessment.url, "label.access_your_sa_returns")
                 } else {
                     @p(Text(messages("label.online_returns_deadline", nextDeadlineTaxYear)))
 

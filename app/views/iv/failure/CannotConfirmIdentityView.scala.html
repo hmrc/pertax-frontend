@@ -19,7 +19,7 @@
 @import components.{H1, P, Link}
 
 @this(
-    main: UnauthenticatedMainView,
+    main: newUnauthenticatedMain,
     h1: H1,
     p: P,
     link: Link
@@ -36,7 +36,7 @@
     @p(Text(messages("label.you_can")))
 
     <ul class="govuk-list govuk-list--bullet">
-        <li>@link(retryUrl, "label.try_confirm_identity_again")/li>
-        <li>@link(configDecorator.generalQueriesUrl, "label.contact_hm_revenues_and_customs_for_help", attrs = Map("data-ga-event-category"->"link - click", "data-ga-event-action" -> "We cannot confirm your identity", "data-ga-event-label" -> "contact HM Revenue and Customs for help"))</li>
+        <li>@link(retryUrl, "label.try_confirm_identity_again", inParagraph = true)</li>
+        <li>@link(configDecorator.generalQueriesUrl, "label.contact_hm_revenues_and_customs_for_help", inParagraph = true)</li>
     </ul>
 }

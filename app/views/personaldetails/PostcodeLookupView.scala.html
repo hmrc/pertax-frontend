@@ -21,7 +21,7 @@
 @import components.{ErrorSummary, InputValue, Link, Button}
 
 @this(
-    main: MainView,
+    main: newMain,
     form: FormWithCSRF,
     errorSummary: ErrorSummary,
     inputValue: InputValue,
@@ -38,7 +38,8 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     residential = messages("label.find_your_address"),
     postal = messages("label.find_your_postal_address")
   ),
-  showBackLink = true
+  showBackLink = true,
+    yourProfileActive = true
 ) {
 
     @errorSummary(addressFinderForm)
@@ -47,6 +48,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     @form(action = controllers.address.routes.PostcodeLookupController.onSubmit(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
 
         @govukFieldset(Fieldset(
+            describedBy = if(addressFinderForm("postcode").hasErrors){Some("postcode-error")} else {None},
             legend = Some(Legend(
                 content = Text(typ.ifIs( residential = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))),
                 classes = "govuk-fieldset__legend--l",

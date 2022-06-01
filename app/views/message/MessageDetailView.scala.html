@@ -18,13 +18,14 @@
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 
-@this(main: MainView)
+@this(main: newMain)
 
 @(message: Html, title: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @main(
     pageTitle = title,
-    showBackLink = true
+    showBackLink = true,
+    messagesActive = true
 ) {
     @message
 }

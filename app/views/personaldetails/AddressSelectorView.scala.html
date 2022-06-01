@@ -22,7 +22,7 @@
 @import components.{ErrorSummary, InputRadios, Link, Button}
 
 @this(
-    main: MainView,
+    main: newMain,
     form: FormWithCSRF,
     errorSummary: ErrorSummary,
     inputRadios: InputRadios,
@@ -38,7 +38,8 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
         residential = messages("label.select_your_address"),
         postal = messages("label.select_an_address")
     ),
-    showBackLink = true
+    showBackLink = true,
+    yourProfileActive = true
 ) {
 
     @errorSummary(addressSelectorForm, Some("radio-0"))
@@ -54,11 +55,10 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
             items = recordSet.addresses.zipWithIndex.map{
                     case(ad, index) =>
                         RadioItem(
-                            content = Text(s"""${ad.address.lines.mkString(", ")}, ${ad.address.town}, ${ad.address.postcode}"""),
+                            content = Text(s"""${ad.address.lines.mkString(", ")}, ${ad.address.town.getOrElse("")}, ${ad.address.postcode}"""),
                             id = Some("radio-" + index),
                             value = Some(ad.id),
-                            checked = addressSelectorForm("addressId").value.contains(ad.id),
-                            attributes = Map("data-line1"->ad.address.lines(0), "data-line2"-> Try(ad.address.lines(1)).getOrElse(""), "data-line3"->ad.address.town.getOrElse(""), "data-postcode"-> ad.address.postcode)
+                            checked = addressSelectorForm("addressId").value.contains(ad.id)
                         ),
                     }
         )

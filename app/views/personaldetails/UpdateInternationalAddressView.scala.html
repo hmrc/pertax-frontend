@@ -22,7 +22,7 @@
 @import components.{ErrorSummary, InputValue, Button}
 
 @this(
-    main: MainView,
+    main: newMain,
     form: FormWithCSRF,
     errorSummary: ErrorSummary,
     inputValue: InputValue,
@@ -51,11 +51,15 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     </script>
 }
 
+@fieldsetDescribedBy = @{
+    updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message").mkString("").trim
+}
 
 @main(
     pageTitle = getYourAddressLabels.toString,
     showBackLink = true,
-    scripts = Some(scriptElems)
+    scripts = Some(scriptElems),
+    yourProfileActive = true
 ) {
 
 
@@ -64,6 +68,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     @form(action = controllers.address.routes.UpdateInternationalAddressController.onSubmit(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
 
         @govukFieldset(Fieldset(
+            describedBy = Some(fieldsetDescribedBy),
             legend = Some(Legend(
                 content = HtmlContent(getYourAddressLabels),
                 classes = "govuk-fieldset__legend--l",

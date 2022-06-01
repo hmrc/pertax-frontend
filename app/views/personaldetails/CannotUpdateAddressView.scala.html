@@ -20,7 +20,7 @@
 @import components.{H1, P, Link}
 
 @this(
-    main: MainView,
+    main: newMain,
     h1: H1,
     p: P,
     link: Link
@@ -30,7 +30,8 @@
 
 @main(
     pageTitle = messages("label.your_address_cannot_be_updated"),
-    showBackLink = true
+    showBackLink = true,
+    yourProfileActive = true
 ) {
 
     @h1("label.you_cannot_use_this_service_to_update_your_address")

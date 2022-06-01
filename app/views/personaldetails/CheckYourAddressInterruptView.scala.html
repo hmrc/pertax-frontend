@@ -22,7 +22,7 @@
 @import components.{H1, P, Link}
 
 @this(
-    main: MainView,
+    main: newMain,
     addressView: AddressView,
     h1: H1,
     p: P,
@@ -32,7 +32,11 @@
 
 @(mainAddressOption: Option[Address], postalAddressOption: Option[Address])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@main(messages("rls.title.update_your_address"), hideAccountMenu = true) {
+@main(
+    pageTitle = messages("rls.title.update_your_address"),
+    hideAccountMenu = true,
+    yourProfileActive = true
+) {
 
     @h1("rls.title.update_your_address")
 

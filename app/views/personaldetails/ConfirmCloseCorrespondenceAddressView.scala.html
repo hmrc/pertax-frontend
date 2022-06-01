@@ -20,7 +20,7 @@
 @import components.{H1, Button}
 
 @this(
-    main: MainView,
+    main: newMain,
     form: FormWithCSRF,
     h1: H1,
     govukSummaryList: GovukSummaryList,
@@ -32,7 +32,7 @@
 @main(
     pageTitle = messages("label.check_your_details"),
     showBackLink = true,
-    fullWidth = true
+    yourProfileActive = true
 ) {
 
     @h1("label.check_your_details")
