@@ -15,15 +15,13 @@
  *@
 
 @import tags._
-
-@import views.html.back_link
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 @import components.{ErrorSummary, InputYesNo, Button}
 
 @this(
-    main: newMain,
+    main: MainView,
     formWithCSRF: FormWithCSRF,
     errorSummary: ErrorSummary,
     inputYesNo: InputYesNo,

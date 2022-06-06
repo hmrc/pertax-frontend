@@ -1,21 +1,7 @@
 .print-this {
   border-bottom: 1px solid $black;
-  display: none;
   margin: 0 0 15px;
-  position: relative;
-
-  &__icon {
-    left: 0;
-    position: absolute;
-    top: 2px;
-  }
-
-  &__link {
-    color: $black;
-    font-size: 16px;
-    padding-left: 25px;
-    text-decoration: none;
-  }
+  display: inline-block;
 }
 
 .save-this {
@@ -30,6 +16,19 @@
     font-size: 16px;
     text-decoration: none;
   }
+}
+
+.print-this__icon {
+     left: 0;
+     top: 2px;
+}
+
+.print-this__link {
+     color: #000;
+     font-size: 16px;
+     padding-bottom: 20px;
+     text-decoration: none;
+     font-family: "GDS Transport", Arial, sans-serif;
 }
 
 @page {
