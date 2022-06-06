@@ -35,7 +35,7 @@ object HomeViewModel {
     pensionCards: Seq[Html],
     showUserResearchBanner: Boolean,
     selfAssessmentUserType: SelfAssessmentUserType,
-    breathingSpaceIndicator : Boolean
+    breathingSpaceIndicator: Boolean
   ): HomeViewModel = {
 
     val utr: Option[String] = selfAssessmentUserType match {

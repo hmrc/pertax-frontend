@@ -21,42 +21,44 @@ import com.google.inject.Inject
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics.HasMetrics
+import models.BreathingSpaceIndicator
 import play.api.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import play.api.http.Status._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpException, UpstreamErrorResponse}
+import uk.gov.hmrc.http._
 
 import java.util.UUID.randomUUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BreathingSpaceConnector @Inject()(http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)
-    extends HasMetrics with Logging{
+class BreathingSpaceConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)
+    extends HasMetrics with Logging {
 
   val baseUrl = configDecorator.breathingSpaceIfProxyService
 
-  def getBreathingSpaceIndicator(nino: Nino)(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Boolean]  = {
-    val url = s"$baseUrl/$nino/memorandum"
+  def getBreathingSpaceIndicator(
+    nino: Nino
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Boolean] = {
+    val url = s"$baseUrl/individuals/breathing-space/NINO/$nino/memorandum"
     implicit val bsHeaderCarrier: HeaderCarrier = hc
       .withExtraHeaders(
         "CorrelationId" -> randomUUID.toString
       )
-
     withMetricsTimer("get-breathing-space-indicator") { timer =>
-
       EitherT(
         http
-          .GET[Either[UpstreamErrorResponse, Boolean]](url)(implicitly,bsHeaderCarrier,implicitly)
+          .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(implicitly, bsHeaderCarrier, implicitly)
           .map {
-            case response @ Right(_) => timer.completeTimerAndIncrementSuccessCounter()
-              response
-            case Left(error)
-              if error.statusCode == NOT_FOUND || error.statusCode == UNPROCESSABLE_ENTITY =>
+            case response @ Right(_) =>
+              timer.completeTimerAndIncrementSuccessCounter()
+              response map { value =>
+                value.json.as[BreathingSpaceIndicator].breathingSpaceIndicator
+              }
+            case Left(error) if error.statusCode == NOT_FOUND || error.statusCode == UNPROCESSABLE_ENTITY =>
               timer.completeTimerAndIncrementSuccessCounter()
               logger.info(error.message)
               Left(error)
-            case Left(error)
-              if error.statusCode >= 499 || error.statusCode == TOO_MANY_REQUESTS =>
+            case Left(error) if error.statusCode >= 499 || error.statusCode == TOO_MANY_REQUESTS =>
               timer.completeTimerAndIncrementSuccessCounter()
               logger.error(error.message)
               Left(error)
@@ -73,18 +75,6 @@ class BreathingSpaceConnector @Inject()(http: HttpClient, configDecorator: Confi
             throw exception
         }
       )
-
-//      http.GET[HttpResponse](url) map { response =>
-//        response.status match {
-//          case OK =>
-//            timer.completeTimerAndIncrementSuccessCounter()
-//            Right((response.json \ "breathingSpaceIndicator").as[Boolean])
-//
-//          case _ =>
-//            timer.completeTimerAndIncrementFailedCounter()
-//            Left(s"HttpError: $errorCode. Invalid call for getUserIdsWithEnrolments: $response")
-//        }
-//      }
     }
   }
 }

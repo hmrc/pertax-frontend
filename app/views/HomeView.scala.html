@@ -35,11 +35,26 @@
                 @messages("label.this.section.is") </span>@messages("label.account_home")</p>
         </header>
 
+            @if(viewModel.breathingSpaceIndicator) {
+            <div class="govuk-phase-banner">
+                <p class="govuk-phase-banner__content">
+                    <strong class="govuk-tag govuk-phase-banner__content__tag">
+                        @messages("label.breathing_space")
+                    </strong>
+                    <span class="govuk-phase-banner__text">
+                  <a class="govuk-link govuk-link--no-visited-state" href="@controllers.routes.InterstitialController.displayBreathingSpaceDetails">@messages("label.find_out_what_it_means_to_be_in_breathing_space")</a>.
+                </span>
+                </p>
+            </div>
+            }
+
         @viewModel.saUtr.map { utr =>
             <p class="panel-indent" id="utrNo">
                 @messages("label.home_page.utr") <span>@utr</span>
             </p>
         }
+
+
 
         <div class="pertax-home">
 

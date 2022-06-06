@@ -89,7 +89,18 @@ class HomeController @Inject() (
             }
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
-            Ok(homeView(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType, breathingSpaceIndicator)))
+            Ok(
+              homeView(
+                HomeViewModel(
+                  incomeCards,
+                  benefitCards,
+                  pensionCards,
+                  showUserResearchBanner,
+                  saUserType,
+                  breathingSpaceIndicator
+                )
+              )
+            )
           }
         }
       }

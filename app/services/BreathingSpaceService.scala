@@ -18,9 +18,8 @@ package services
 
 import cats.implicits._
 import com.google.inject.Inject
-import connectors.{AgentClientAuthorisationConnector, BreathingSpaceConnector}
-import models.AgentClientStatus
-import play.api.mvc.Request
+import config.ConfigDecorator
+import connectors.BreathingSpaceConnector
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -28,25 +27,28 @@ import util.{FutureEarlyTimeout, RateLimitedException}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BreathingSpaceService @Inject()(
-  servicesConfig: ServicesConfig,
+class BreathingSpaceService @Inject() (
+  configDecorator: ConfigDecorator,
   breathingSpaceConnector: BreathingSpaceConnector
 ) {
 
-  lazy private val breathingSpaceIndicatorEnabled =
-    servicesConfig.getBoolean("feature.breathing-Space-indicator.enabled")
-
-  def getBreathingSpaceIndicator(ninoOpt: Option[Nino])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] =
-     {
-      breathingSpaceConnector.getBreathingSpaceIndicator(ninoOpt.get)
-        .bimap(
-          _ => false, breathingSpaceIndicator => breathingSpaceIndicator)
-        .merge
-        .recover {
-          case FutureEarlyTimeout   => false
-          case RateLimitedException => false
-        }
+  def getBreathingSpaceIndicator(
+    ninoOpt: Option[Nino]
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] =
+    if (configDecorator.isBreathingSpaceIndicatorEnabled) {
+      ninoOpt match {
+        case Some(nino) =>
+          breathingSpaceConnector
+            .getBreathingSpaceIndicator(nino)
+            .bimap(_ => false, breathingSpaceIndicator => breathingSpaceIndicator)
+            .merge
+            .recover {
+              case FutureEarlyTimeout   => false
+              case RateLimitedException => false
+            }
+        case _ => Future.successful(false)
+      }
     } else {
       Future.successful(false)
-    })
+    }
 }

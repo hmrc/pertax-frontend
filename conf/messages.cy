@@ -476,6 +476,20 @@ label.some_businesses_agents_using_mtd_for_itsa=Mae rhai busnesau ac asiantau ei
 label.find_out_about_making_tax_digital_for_income_tax_self_assessment=Cael gwybod am y cynllun Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm (yn agor tab newydd)
 
 #
+# Breathing Space
+#
+label.breathing_space=Amser i gael eich gwynt atoch
+label.find_out_what_it_means_to_be_in_breathing_space=Darganfyddwch beth mae’n ei olygu i fod mewn Amser i gael eich gwynt atoch
+label.you_are_in_breathing_space=Rydych mewn cyfnod ‘amser i gael eich gwynt atoch’ (Breathing Space)
+label.the_debt_respite_scheme_gives_people_in_debt_the_right_to_legal_protections_from_their_creditors=Mae’r Cynllun Seibiant rhag Dyled (amser i gael eich gwynt atoch) yn rhoi’r hawl i bobl sydd mewn dyled gael eu diogelu’n gyfreithiol rhag eu credydwyr.
+label.whilst_you_are_in_breathing_space=Tra eich bod yn y cyfnod hwn, ni fyddwn yn:
+label.add_interest_or_charges_to_your_debt=codi llog na chostau ar eich dyled
+label.contact_you_to_ask_for_payment=cysylltu â chi i ofyn am daliad
+label.take_enforcement_action_against_you=cymryd camau gorfodi yn eich erbyn
+label.you_can_still_make_payments_towards_your_debt_during_breathing_space=Gallwch barhau i wneud taliadau tuag at eich dyled yn ystod y cyfnod amser i gael eich gwynt atoch. Siaradwch â’ch ymgynghorydd arian i gael rhagor o wybodaeth am y cynllun.
+
+
+#
 # Benefits
 #
 title.benefits=Budd-daliadau

@@ -505,6 +505,19 @@ label.some_businesses_agents_using_mtd_for_itsa=Some businesses and agents are a
 label.find_out_about_making_tax_digital_for_income_tax_self_assessment=Find out about Making Tax Digital for Income Tax Self Assessment (opens in new tab)
 
 #
+# Breathing Space
+#
+label.breathing_space=Breathing Space
+label.find_out_what_it_means_to_be_in_breathing_space=Find out what it means to be in Breathing Space
+label.you_are_in_breathing_space=You are in Breathing Space
+label.the_debt_respite_scheme_gives_people_in_debt_the_right_to_legal_protections_from_their_creditors=The Debt Respite Scheme (Breathing Space) gives people in debt the right to legal protections from their creditors.
+label.whilst_you_are_in_breathing_space=Whilst you’re in breathing space, we will not:
+label.add_interest_or_charges_to_your_debt=add interest or charges to your debt
+label.contact_you_to_ask_for_payment=contact you to ask for payment
+label.take_enforcement_action_against_you=take enforcement action against you
+label.you_can_still_make_payments_towards_your_debt_during_breathing_space=You can still make payments towards your debt during breathing space. Talk to your money adviser for more information about Breathing Space.
+
+#
 # Benefits
 #
 title.benefits=Benefits

@@ -57,8 +57,6 @@ class ConfigDecorator @Inject() (
 
   private lazy val enrolmentStoreProxyService = servicesConfig.baseUrl("enrolment-store-proxy")
 
-
-
   lazy val addTaxesFrontendUrl: String = servicesConfig.baseUrl("add-taxes-frontend")
   lazy val addTaxesPtaOrigin: String = "pta-sa"
 
@@ -97,6 +95,8 @@ class ConfigDecorator @Inject() (
   lazy val isAtsTileEnabled = runModeConfiguration.get[String]("feature.tax-summaries-tile.enabled").toBoolean
   lazy val isNewsAndUpdatesTileEnabled =
     runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
+  lazy val isBreathingSpaceIndicatorEnabled =
+    servicesConfig.getBoolean("feature.breathing-Space-indicator.enabled")
   lazy val annualTaxSaSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 

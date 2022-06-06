@@ -73,6 +73,8 @@ GET         /personal-account/sa-enrolment                                      
 
 GET         /personal-account/national-insurance-summary                               controllers.InterstitialController.displayNationalInsurance
 GET         /personal-account/news                                                     controllers.InterstitialController.displayNewsAndUpdates
+GET         /personal-account/breathing-space                                          controllers.InterstitialController.displayBreathingSpaceDetails
+
 GET         /personal-account/national-insurance-summary/print-letter                  controllers.NiLetterController.printNationalInsuranceNumber
 GET         /personal-account/national-insurance-summary/save-letter-as-pdf            controllers.NiLetterController.saveNationalInsuranceNumberAsPdf
 GET         /personal-account/child-benefit-forms                                      controllers.InterstitialController.displayChildBenefits
