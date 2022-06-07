@@ -32,7 +32,8 @@
     serviceName = messages("label.national_insurance"),
     showBackLink = true,
     backLinkUrl = controllers.address.routes.PersonalDetailsController.onPageLoad.url,
-    fullWidth = true
+    fullWidth = true,
+    yourProfileActive = true
 ) {
 
     @hmrcPageHeading(PageHeading(
@@ -42,7 +43,7 @@
 
     <div class="print-this">
         <img class="print-this__icon" src='@controllers.routes.AssetsController.versioned("images/icon-print.svg")' alt="Print Icon" aria-hidden="true"/>
-        <a class="print-this__link" href="javascript:window.print" data-journey-click="print - click:Your National Insurance letter:@messages("label.print")">@messages("label.print")</a>
+        <a class="print-this__link" href="javascript:window.print()" data-journey-click="print - click:Your National Insurance letter:@messages("label.print")">@messages("label.print")</a>
     </div>
     @if(saveNiLetterAsPdfLinkEnabled) {
         <div class="save-this">
