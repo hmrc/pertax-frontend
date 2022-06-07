@@ -39,7 +39,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
+import views.html.interstitial.{ViewBreathingSpaceView, ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.Future
@@ -75,6 +75,7 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[Sa302InterruptView],
         injected[ViewNewsAndUpdatesView],
         injected[ViewSaAndItsaMergePageView],
+        injected[ViewBreathingSpaceView],
         injected[EnrolmentsHelper],
         injected[SeissService]
       )(config, templateRenderer, ec) {
@@ -358,6 +359,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[Sa302InterruptView],
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService]
         )(stubConfigDecorator, templateRenderer, ec) {
@@ -423,6 +425,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[Sa302InterruptView],
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService]
         )(stubConfigDecorator, templateRenderer, ec)
@@ -471,6 +474,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[Sa302InterruptView],
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService]
         )(stubConfigDecorator, templateRenderer, ec)

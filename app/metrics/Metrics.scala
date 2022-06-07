@@ -44,7 +44,9 @@ class MetricsImpl @Inject() (metrics: com.kenshoo.play.metrics.Metrics) extends 
     MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT -> metrics.defaultRegistry
       .timer("get-unread-message-count-timer"),
     MetricsEnumeration.LOAD_PARTIAL -> metrics.defaultRegistry
-      .timer("load-partial-timer")
+      .timer("load-partial-timer"),
+    MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR -> metrics.defaultRegistry
+      .timer("get-breathing-space-indicator-timer")
   )
 
   val successCounters = Map(
@@ -55,7 +57,9 @@ class MetricsImpl @Inject() (metrics: com.kenshoo.play.metrics.Metrics) extends 
     MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT -> metrics.defaultRegistry
       .counter("get-unread-message-count-success-counter"),
     MetricsEnumeration.LOAD_PARTIAL -> metrics.defaultRegistry
-      .counter("load-partial-success-counter")
+      .counter("load-partial-success-counter"),
+    MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR -> metrics.defaultRegistry
+      .counter("get-breathing-space-indicator-counter")
   )
 
   val failedCounters = Map(
@@ -66,7 +70,9 @@ class MetricsImpl @Inject() (metrics: com.kenshoo.play.metrics.Metrics) extends 
     MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT -> metrics.defaultRegistry
       .counter("get-unread-message-count-failed-counter"),
     MetricsEnumeration.LOAD_PARTIAL -> metrics.defaultRegistry
-      .counter("load-partial-failed-counter")
+      .counter("load-partial-failed-counter"),
+    MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR -> metrics.defaultRegistry
+      .counter("get-breathing-space-indicator-counter")
   )
 
   override def startTimer(api: MetricsEnumeration): Context = timers(api).time()
