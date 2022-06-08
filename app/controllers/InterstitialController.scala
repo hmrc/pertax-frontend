@@ -39,25 +39,25 @@ import views.html.selfassessment.Sa302InterruptView
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
-class InterstitialController @Inject()(
-                                        val formPartialService: FormPartialService,
-                                        val saPartialService: SaPartialService,
-                                        val preferencesFrontendService: PreferencesFrontendService,
-                                        authJourney: AuthJourney,
-                                        withBreadcrumbAction: WithBreadcrumbAction,
-                                        cc: MessagesControllerComponents,
-                                        errorRenderer: ErrorRenderer,
-                                        viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
-                                        viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
-                                        selfAssessmentSummaryView: SelfAssessmentSummaryView,
-                                        sa302InterruptView: Sa302InterruptView,
-                                        viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
-                                        viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
-                                        enrolmentsHelper: EnrolmentsHelper,
-                                        seissService: SeissService,
-                                        newsAndTilesConfig: NewsAndTilesConfig
-                                      )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
-  extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
+class InterstitialController @Inject() (
+  val formPartialService: FormPartialService,
+  val saPartialService: SaPartialService,
+  val preferencesFrontendService: PreferencesFrontendService,
+  authJourney: AuthJourney,
+  withBreadcrumbAction: WithBreadcrumbAction,
+  cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
+  viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
+  viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
+  selfAssessmentSummaryView: SelfAssessmentSummaryView,
+  sa302InterruptView: Sa302InterruptView,
+  viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
+  viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
+  enrolmentsHelper: EnrolmentsHelper,
+  seissService: SeissService,
+  newsAndTilesConfig: NewsAndTilesConfig
+)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
+    extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
 
   val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
@@ -101,7 +101,7 @@ class InterstitialController @Inject()(
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
     if (
       configDecorator.saItsaTileEnabled && request.trustedHelper.isEmpty &&
-        (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
+      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       for {
         hasSeissClaims <- seissService.hasClaims(request.saUserType)
@@ -132,7 +132,7 @@ class InterstitialController @Inject()(
 
       for {
         formPartial <- formPartial
-        saPartial <- saPartial
+        saPartial   <- saPartial
       } yield Ok(
         selfAssessmentSummaryView(
           formPartial successfulContentOrElse Html(""),
