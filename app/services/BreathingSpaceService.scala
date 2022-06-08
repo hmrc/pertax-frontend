@@ -22,7 +22,6 @@ import config.ConfigDecorator
 import connectors.BreathingSpaceConnector
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import util.{FutureEarlyTimeout, RateLimitedException}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,10 +40,7 @@ class BreathingSpaceService @Inject() (
             .getBreathingSpaceIndicator(nino)
             .bimap(_ => false, breathingSpaceIndicator => breathingSpaceIndicator)
             .merge
-            .recover {
-              case FutureEarlyTimeout   => false
-              case RateLimitedException => false
-            }
+            .recover { case _ => false }
         case _ => Future.successful(false)
       }
     } else {

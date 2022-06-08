@@ -142,13 +142,17 @@ class BreathingSpaceServiceSpec extends BaseSpec {
           EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(new BadRequestException("BAD REQUEST")))
         )
 
-      whenReady(
-        sut
-          .getBreathingSpaceIndicator(Some(nino))
-          .failed
-      ) { e =>
-        e mustBe a[BadRequestException]
-      }
+      sut
+        .getBreathingSpaceIndicator(Some(nino))
+        .futureValue mustBe false
+
+//      whenReady(
+//        sut
+//          .getBreathingSpaceIndicator(Some(nino))
+//          .failed
+//      ) { e =>
+//        e mustBe a[BadRequestException]
+//      }
 
     }
 
@@ -159,13 +163,17 @@ class BreathingSpaceServiceSpec extends BaseSpec {
           EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(new UnauthorizedException("Unauthorized")))
         )
 
-      whenReady(
-        sut
-          .getBreathingSpaceIndicator(Some(nino))
-          .failed
-      ) { e =>
-        e mustBe a[UnauthorizedException]
-      }
+      sut
+        .getBreathingSpaceIndicator(Some(nino))
+        .futureValue mustBe false
+
+//      whenReady(
+//        sut
+//          .getBreathingSpaceIndicator(Some(nino))
+//          .failed
+//      ) { e =>
+//        e mustBe a[UnauthorizedException]
+//      }
 
     }
 
@@ -176,13 +184,17 @@ class BreathingSpaceServiceSpec extends BaseSpec {
           EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(new HttpException("FORBIDDEN", FORBIDDEN)))
         )
 
-      whenReady(
-        sut
-          .getBreathingSpaceIndicator(Some(nino))
-          .failed
-      ) { e =>
-        e mustBe a[HttpException]
-      }
+      sut
+        .getBreathingSpaceIndicator(Some(nino))
+        .futureValue mustBe false
+
+//      whenReady(
+//        sut
+//          .getBreathingSpaceIndicator(Some(nino))
+//          .failed
+//      ) { e =>
+//        e mustBe a[HttpException]
+//      }
 
     }
 

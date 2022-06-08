@@ -19,7 +19,6 @@ package connectors
 import cats.data.EitherT
 import cats.implicits.catsStdInstancesForFuture
 import com.codahale.metrics.Timer
-import com.google.common.util.concurrent.RateLimiter
 import com.google.inject.Inject
 import metrics.{Metrics, MetricsEnumeration}
 import models.BreathingSpaceIndicator
@@ -30,7 +29,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.{Limiters, Throttle, Timeout}
+import util.Timeout
 
 import java.util.UUID.randomUUID
 import scala.concurrent.duration._
@@ -39,14 +38,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class BreathingSpaceConnector @Inject() (
   val httpClient: HttpClient,
   val metrics: Metrics,
-  servicesConfig: ServicesConfig,
-  limiters: Limiters
-) extends Throttle with Timeout with Logging {
+  servicesConfig: ServicesConfig
+) extends Timeout with Logging {
 
   lazy val baseUrl = servicesConfig.baseUrl("breathing-space-if-proxy")
   lazy val timeoutInSec =
     servicesConfig.getInt("feature.breathing-Space-indicator.timeoutInSec")
-  val rateLimiter: RateLimiter = limiters.rateLimiterForGetBreathingSpaceIndicator
   val metricName = MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR
 
   def getBreathingSpaceIndicator(
@@ -61,15 +58,13 @@ class BreathingSpaceConnector @Inject() (
       )
 
     val result =
-      withThrottle {
-        withTimeout(timeoutInSec seconds) {
-          httpClient
-            .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(implicitly, bsHeaderCarrier, implicitly)
-            .map { response =>
-              timerContext.stop()
-              response
-            }
-        }
+      withTimeout(timeoutInSec seconds) {
+        httpClient
+          .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(implicitly, bsHeaderCarrier, implicitly)
+          .map { response =>
+            timerContext.stop()
+            response
+          }
       }
 
     val eitherResponse = EitherT(

@@ -27,11 +27,7 @@ class Limiters @Inject() (configuration: Configuration) {
   lazy val maxTpsForGetClientStatus = configuration
     .getOptional[Double]("feature.agent-client-authorisation.maxTps")
     .getOrElse(100.0)
-  lazy val maxTpsForGetBreathingSpaceIndicator = configuration
-    .getOptional[Double]("feature.breathing-Space-indicator.maxTps")
-    .getOrElse(100.0)
   val rateLimiterForGetClientStatus: RateLimiter = RateLimiter.create(maxTpsForGetClientStatus)
-  val rateLimiterForGetBreathingSpaceIndicator: RateLimiter = RateLimiter.create(maxTpsForGetBreathingSpaceIndicator)
 }
 
 case object RateLimitedException extends RuntimeException

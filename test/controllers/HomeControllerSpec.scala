@@ -18,9 +18,8 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, RlsInterruptHelper}
+import controllers.auth.AuthJourney
+import controllers.controllershelpers.HomePageCachingHelper
 import models._
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
@@ -31,8 +30,8 @@ import play.api.libs.json.JsBoolean
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services._
 import services.partials.MessageFrontendService
+import services._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -41,9 +40,7 @@ import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures}
-import views.html.HomeView
+import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
 
@@ -60,6 +57,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockAuthJourney = mock[AuthJourney]
   val mockTemplateRenderer = mock[TemplateRenderer]
   val mockHomePageCachingHelper = mock[HomePageCachingHelper]
+  val mockBreathingSpaceService = mock[BreathingSpaceService]
 
   override def beforeEach: Unit =
     reset(
@@ -147,6 +145,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
     when(mockConfigDecorator.bannerHomePageIsEnabled) thenReturn false
     when(mockConfigDecorator.rlsInterruptToggle) thenReturn true
+    when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())) thenReturn Future.successful(true)
 
   }
 
