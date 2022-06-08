@@ -132,7 +132,6 @@ class BreathingSpaceServiceSpec extends BaseSpec {
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe false
-
     }
 
     "throws BadRequestException when BadRequestException is thrown from connector" in {
@@ -145,15 +144,6 @@ class BreathingSpaceServiceSpec extends BaseSpec {
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe false
-
-//      whenReady(
-//        sut
-//          .getBreathingSpaceIndicator(Some(nino))
-//          .failed
-//      ) { e =>
-//        e mustBe a[BadRequestException]
-//      }
-
     }
 
     "throws UnauthorizedException when UnauthorizedException is thrown from connector" in {
@@ -166,15 +156,6 @@ class BreathingSpaceServiceSpec extends BaseSpec {
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe false
-
-//      whenReady(
-//        sut
-//          .getBreathingSpaceIndicator(Some(nino))
-//          .failed
-//      ) { e =>
-//        e mustBe a[UnauthorizedException]
-//      }
-
     }
 
     "throws HttpException when HttpException is thrown from connector" in {
@@ -187,15 +168,6 @@ class BreathingSpaceServiceSpec extends BaseSpec {
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe false
-
-//      whenReady(
-//        sut
-//          .getBreathingSpaceIndicator(Some(nino))
-//          .failed
-//      ) { e =>
-//        e mustBe a[HttpException]
-//      }
-
     }
 
     "return false when FutureEarlyTimeout is thrown from connector" in {
@@ -221,7 +193,6 @@ class BreathingSpaceServiceSpec extends BaseSpec {
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe false
-
     }
 
   }
