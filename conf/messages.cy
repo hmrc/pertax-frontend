@@ -478,8 +478,8 @@ label.find_out_about_making_tax_digital_for_income_tax_self_assessment=Cael gwyb
 #
 # Breathing Space
 #
-label.breathing_space=Amser i gael eich gwynt atoch
-label.find_out_what_it_means_to_be_in_breathing_space=Darganfyddwch beth mae’n ei olygu i fod mewn Amser i gael eich gwynt atoch
+label.breathing_space=AMSER I GAEL EICH GWYNT ATOCH
+label.find_out_what_it_means_to_be_in_breathing_space=Darganfyddwch beth mae’n ei olygu i fod mewn Amser i gael eich gwynt atoch.
 label.you_are_in_breathing_space=Rydych mewn cyfnod ‘amser i gael eich gwynt atoch’ (Breathing Space)
 label.the_debt_respite_scheme_gives_people_in_debt_the_right_to_legal_protections_from_their_creditors=Mae’r Cynllun Seibiant rhag Dyled (amser i gael eich gwynt atoch) yn rhoi’r hawl i bobl sydd mewn dyled gael eu diogelu’n gyfreithiol rhag eu credydwyr.
 label.whilst_you_are_in_breathing_space=Tra eich bod yn y cyfnod hwn, ni fyddwn yn:
