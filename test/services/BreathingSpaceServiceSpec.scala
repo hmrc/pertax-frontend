@@ -17,12 +17,16 @@
 package services
 
 import cats.data.EitherT
+import config.ConfigDecorator
 import connectors.BreathingSpaceConnector
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import play.api.Configuration
 import play.api.http.Status._
+import play.api.i18n.Langs
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.{BaseSpec, Fixtures, FutureEarlyTimeout, RateLimitedException}
 
 import scala.concurrent.Future
@@ -47,6 +51,25 @@ class BreathingSpaceServiceSpec extends BaseSpec {
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe true
+
+    }
+
+    "return false when isBreathingSpaceIndicatorEnabled is false" in {
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val isBreathingSpaceIndicatorEnabled: Boolean = false
+      }
+
+      def newSut: BreathingSpaceService =
+        new BreathingSpaceService(stubConfigDecorator, mockBreathingSpaceConnector)
+
+      newSut
+        .getBreathingSpaceIndicator(Some(nino))
+        .futureValue mustBe false
 
     }
 
