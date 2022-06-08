@@ -25,7 +25,6 @@ import metrics.{Metrics, MetricsEnumeration}
 import models.BreathingSpaceIndicator
 import play.api.Logging
 import play.api.http.Status._
-import play.api.libs.json.Format.GenericFormat
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf

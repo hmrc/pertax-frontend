@@ -22,7 +22,6 @@ import config.ConfigDecorator
 import connectors.BreathingSpaceConnector
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.{FutureEarlyTimeout, RateLimitedException}
 
 import scala.concurrent.{ExecutionContext, Future}

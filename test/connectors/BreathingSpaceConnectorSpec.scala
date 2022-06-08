@@ -18,9 +18,11 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.Application
+import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
+import play.api.test.Helpers.{BAD_GATEWAY, BAD_REQUEST, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.{HttpException, UpstreamErrorResponse}
 import util.{BaseSpec, Fixtures, WireMockHelper}
 
 class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
@@ -36,33 +38,99 @@ class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
 
   val url = s"/$nino/memorandum"
 
-  "BreathingSpaceConnector getBreathingSpaceIndicator is called" must {
+  val breathingSpaceTrueResponse =
+    s"""
+       |{
+       |    "breathingSpaceIndicator": true
+       |}
+       |""".stripMargin
 
-    "return a right response" in {
+  val breathingSpaceFalseResponse =
+    s"""
+       |{
+       |    "breathingSpaceIndicator": false
+       |}
+       |""".stripMargin
+
+  "getBreathingSpaceIndicator is called" must {
+
+    "return a true right response" in {
 
       server.stubFor(
         get(urlPathEqualTo(url))
-          .willReturn(
-            okJson(
-              Json
-                .toJson(true)
-                .toString()
-            )
-          )
-      )
-
-      println(
-        "sut\n        .getBreathingSpaceIndicator(nino)\n        .value\n        .futureValue.." +
-          sut
-            .getBreathingSpaceIndicator(nino)
-            .value
-            .futureValue
+          .willReturn(ok(breathingSpaceTrueResponse))
       )
 
       sut
         .getBreathingSpaceIndicator(nino)
         .value
-        .futureValue mustBe Right(true)
+        .futureValue
+        .right
+        .get mustBe true
+    }
+
+    "return a false right response" in {
+
+      server.stubFor(
+        get(urlPathEqualTo(url))
+          .willReturn(ok(breathingSpaceFalseResponse))
+      )
+
+      sut
+        .getBreathingSpaceIndicator(nino)
+        .value
+        .futureValue
+        .right
+        .get mustBe false
+    }
+
+    List(
+      NOT_FOUND,
+      TOO_MANY_REQUESTS,
+      INTERNAL_SERVER_ERROR,
+      BAD_GATEWAY,
+      SERVICE_UNAVAILABLE
+    ).foreach { httpResponse =>
+      s"return a $httpResponse when $httpResponse status is received" in {
+
+        server.stubFor(
+          get(urlPathEqualTo(url))
+            .willReturn(aResponse.withStatus(httpResponse))
+        )
+
+        val result = sut
+          .getBreathingSpaceIndicator(nino)
+          .value
+          .futureValue
+          .left
+          .get
+
+        result mustBe an[UpstreamErrorResponse]
+        result.statusCode mustBe httpResponse
+
+      }
+    }
+
+    List(
+      BAD_REQUEST,
+      IM_A_TEAPOT,
+      UNPROCESSABLE_ENTITY
+    ).foreach { httpResponse =>
+      s"throws a HttpException when $httpResponse status is received" in {
+
+        server.stubFor(
+          get(urlPathEqualTo(url))
+            .willReturn(aResponse.withStatus(httpResponse))
+        )
+
+        val result = sut
+          .getBreathingSpaceIndicator(nino)
+          .value
+
+        whenReady(result.failed) { e =>
+          e mustBe a[HttpException]
+        }
+      }
     }
   }
 
