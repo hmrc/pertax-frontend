@@ -17,12 +17,13 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import play.api.Application
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.{BAD_GATEWAY, BAD_REQUEST, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HttpException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderNames, HttpException, UpstreamErrorResponse}
 import util.{BaseSpec, Fixtures, WireMockHelper}
 
 class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
@@ -37,6 +38,15 @@ class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
   val nino: Nino = Fixtures.fakeNino
 
   val url = s"/$nino/memorandum"
+
+  def verifyHeader(requestPattern: RequestPatternBuilder): Unit =
+    server.verify(
+      requestPattern
+        .withHeader(
+          "Correlation-Id",
+          matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
+        )
+    )
 
   val breathingSpaceTrueResponse =
     s"""
@@ -67,6 +77,8 @@ class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
         .futureValue
         .right
         .get mustBe true
+
+      verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
     "return a false right response" in {
@@ -82,6 +94,8 @@ class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
         .futureValue
         .right
         .get mustBe false
+
+      verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
     List(
@@ -107,7 +121,7 @@ class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
 
         result mustBe an[UpstreamErrorResponse]
         result.statusCode mustBe httpResponse
-
+        verifyHeader(getRequestedFor(urlEqualTo(url)))
       }
     }
 
@@ -130,6 +144,8 @@ class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
         whenReady(result.failed) { e =>
           e mustBe a[HttpException]
         }
+
+        verifyHeader(getRequestedFor(urlEqualTo(url)))
       }
     }
   }
