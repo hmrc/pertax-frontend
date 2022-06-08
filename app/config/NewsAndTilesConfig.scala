@@ -18,34 +18,46 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import models.NewsAndContentModel
-import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import play.api.Configuration
-import play.api.i18n.Lang
-import util.DateTimeTools.defaultTZ
+import util.LocalDateUtilities
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.collection.JavaConverters._
 
 @Singleton
-class NewsAndTilesConfig @Inject() (configuration: Configuration) {
+class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtilities: LocalDateUtilities) {
 
   def getNewsAndContentModelList(lang: String): List[NewsAndContentModel] =
     configuration.underlying
       .getObject("feature.news")
       .asScala
       .map { case (newsSection, _) =>
-        val shortDescription = if (lang equals "en") {
-          configuration.get[String](s"feature.news.$newsSection.short-description-en")
-        } else {
-          configuration.get[String](s"feature.news.$newsSection.short-description-cy")
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val localStartDate =
+          LocalDate.parse(configuration.get[String](s"feature.news.$newsSection.start-date"), formatter)
+        val optionalEndDate = configuration.getOptional[String](s"feature.news.$newsSection.end-date")
+        val localEndDate = optionalEndDate match {
+          case Some(endDate) => LocalDate.parse(endDate, formatter)
+          case None          => LocalDate.MAX
         }
-        val content = if (lang equals "en") {
-          configuration.get[String](s"feature.news.$newsSection.content-en")
+
+        if (localDateUtilities.isBetween(LocalDate.now(), localStartDate, localEndDate)) {
+          val shortDescription = if (lang equals "en") {
+            configuration.get[String](s"feature.news.$newsSection.short-description-en")
+          } else {
+            configuration.get[String](s"feature.news.$newsSection.short-description-cy")
+          }
+          val content = if (lang equals "en") {
+            configuration.get[String](s"feature.news.$newsSection.content-en")
+          } else {
+            configuration.get[String](s"feature.news.$newsSection.content-cy")
+          }
+          Some(NewsAndContentModel(newsSection, shortDescription, content))
         } else {
-          configuration.get[String](s"feature.news.$newsSection.content-cy")
+          None
         }
-        val startDate = configuration.get[String](s"feature.news.$newsSection.start-date")
-        val endDate = configuration.get[String](s"feature.news.$newsSection.end-date")
-        NewsAndContentModel(shortDescription, content, startDate, endDate)
       }
       .toList
+      .flatten
 }

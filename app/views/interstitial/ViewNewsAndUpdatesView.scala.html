@@ -30,18 +30,18 @@
 )
 
 @(redirectUrl: String, newsAndContentModelList: List[NewsAndContentModel])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
-    @mainView(
-        pageTitle = messages("label.news_and_updates"),
-        showBackLink = true
-    ) {
+@mainView(
+    pageTitle = messages("label.news_and_updates"),
+    showBackLink = true
+) {
 
-        @h1("label.news_and_updates", elmId = Some("newsHeading"))
-        @for(newsAndContentModel <- newsAndContentModelList) {
-            <section class="app-markdown">
-                <h2>@newsAndContentModel.shortDescription</h2>
-                <div>
-                @Html(newsAndContentModel.content)
-                </div>
-            </section>
-        }
+    @h1("label.news_and_updates", elmId = Some("newsHeading"))
+    @for(newsAndContentModel <- newsAndContentModelList) {
+        <section class="app-markdown">
+            <h2 id="@newsAndContentModel.newsSectionName" autofocus>@newsAndContentModel.shortDescription</h2>
+            <div>
+            @Html(newsAndContentModel.content)
+            </div>
+        </section>
     }
+}

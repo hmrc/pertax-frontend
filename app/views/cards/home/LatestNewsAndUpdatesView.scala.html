@@ -14,15 +14,18 @@
  * limitations under the License.
  *@
 
+@import config.NewsAndTilesConfig
 @import tags._
-@this()
+
+@this(newsAndTilesConfig: NewsAndTilesConfig)
 @()(implicit messages: play.api.i18n.Messages)
 
 @cardNewsAndUpdates(
-id = Some("news-card"),
-gaAction = Some("Income"),
-gaLabel = Some("Latest news and updates"),
-heading = messages("label.latest_news_and_updates"),
-headingTag = "h3"
-){
+    id = Some("news-card"),
+    gaAction = Some("Income"),
+    gaLabel = Some("Latest news and updates"),
+    heading = messages("label.latest_news_and_updates"),
+    headingTag = "h3",
+    newsAndContentModelList = newsAndTilesConfig.getNewsAndContentModelList(messages.lang.code)
+) {
 }

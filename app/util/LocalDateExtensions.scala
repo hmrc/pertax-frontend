@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
-package models
+package util
 
-case class NewsAndContentModel(newsSectionName: String, shortDescription: String, content: String)
+import java.time.LocalDate
+
+class LocalDateUtilities {
+
+  def isBetween(date: LocalDate, start: LocalDate, end: LocalDate): Boolean =
+    isAfterOrEqual(date, start) && isBeforeOrEqual(date, end)
+
+  def isAfterOrEqual(date: LocalDate, that: LocalDate): Boolean = !date.isBefore(that)
+
+  def isBeforeOrEqual(date: LocalDate, that: LocalDate): Boolean = !date.isAfter(that)
+}
