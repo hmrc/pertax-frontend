@@ -16,4 +16,4 @@
 
 package models
 
-case class NewsAndContentModel(newsSectionName: String, shortDescription: String, content: String)
+case class NewsAndContentModel(newsSectionName: String, shortDescription: String, content: String, isDynamic: Boolean)

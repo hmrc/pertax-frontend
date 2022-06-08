@@ -24,7 +24,6 @@ import controllers.controllershelpers.PaperlessInterruptHelper
 import error.ErrorRenderer
 import models._
 import play.api.Logging
-import play.api.i18n.Lang
 import play.api.mvc._
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
@@ -32,41 +31,37 @@ import services.{PreferencesFrontendService, SeissService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools._
-import util.EnrolmentsHelper
+import util.{EnrolmentsHelper, FormPartialUpgrade}
 import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
-import util.FormPartialUpgrade
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.postfixOps
 
-class InterstitialController @Inject() (
-  val formPartialService: FormPartialService,
-  val saPartialService: SaPartialService,
-  val preferencesFrontendService: PreferencesFrontendService,
-  authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction,
-  cc: MessagesControllerComponents,
-  errorRenderer: ErrorRenderer,
-  viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
-  viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
-  selfAssessmentSummaryView: SelfAssessmentSummaryView,
-  sa302InterruptView: Sa302InterruptView,
-  viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
-  viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
-  enrolmentsHelper: EnrolmentsHelper,
-  seissService: SeissService,
-  newsAndTilesConfig: NewsAndTilesConfig
-)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
+class InterstitialController @Inject()(
+                                        val formPartialService: FormPartialService,
+                                        val saPartialService: SaPartialService,
+                                        val preferencesFrontendService: PreferencesFrontendService,
+                                        authJourney: AuthJourney,
+                                        withBreadcrumbAction: WithBreadcrumbAction,
+                                        cc: MessagesControllerComponents,
+                                        errorRenderer: ErrorRenderer,
+                                        viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
+                                        viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
+                                        selfAssessmentSummaryView: SelfAssessmentSummaryView,
+                                        sa302InterruptView: Sa302InterruptView,
+                                        viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
+                                        viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
+                                        enrolmentsHelper: EnrolmentsHelper,
+                                        seissService: SeissService,
+                                        newsAndTilesConfig: NewsAndTilesConfig
+                                      )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
+  extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
 
   val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
-
-  private def currentUrl(implicit request: Request[AnyContent]) =
-    configDecorator.pertaxFrontendHost + request.path
-
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)
@@ -91,6 +86,9 @@ class InterstitialController @Inject() (
     }
   }
 
+  private def currentUrl(implicit request: Request[AnyContent]) =
+    configDecorator.pertaxFrontendHost + request.path
+
   def displayChildBenefits: Action[AnyContent] = authenticate { implicit request =>
     Ok(
       viewChildBenefitsSummaryInterstitialView(
@@ -103,7 +101,7 @@ class InterstitialController @Inject() (
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
     if (
       configDecorator.saItsaTileEnabled && request.trustedHelper.isEmpty &&
-      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
+        (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       for {
         hasSeissClaims <- seissService.hasClaims(request.saUserType)
@@ -134,7 +132,7 @@ class InterstitialController @Inject() (
 
       for {
         formPartial <- formPartial
-        saPartial   <- saPartial
+        saPartial <- saPartial
       } yield Ok(
         selfAssessmentSummaryView(
           formPartial successfulContentOrElse Html(""),
@@ -157,8 +155,9 @@ class InterstitialController @Inject() (
 
   def displayNewsAndUpdates(lang: String): Action[AnyContent] = authenticate { implicit request =>
     if (configDecorator.isNewsAndUpdatesTileEnabled) {
-      //service to get the dynamic content
-      Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, newsAndTilesConfig.getNewsAndContentModelList(lang)))
+      val models = newsAndTilesConfig.getNewsAndContentModelList(lang)
+      //service to get the dynamic content send the models and get the details from the dynamic list
+      Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, models))
     } else {
       errorRenderer.error(UNAUTHORIZED)
     }

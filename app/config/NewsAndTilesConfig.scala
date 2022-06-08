@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter
 import scala.collection.JavaConverters._
 
 @Singleton
-class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtilities: LocalDateUtilities) {
+class NewsAndTilesConfig @Inject()(configuration: Configuration, localDateUtilities: LocalDateUtilities) {
 
   def getNewsAndContentModelList(lang: String): List[NewsAndContentModel] =
     configuration.underlying
@@ -39,21 +39,26 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
         val optionalEndDate = configuration.getOptional[String](s"feature.news.$newsSection.end-date")
         val localEndDate = optionalEndDate match {
           case Some(endDate) => LocalDate.parse(endDate, formatter)
-          case None          => LocalDate.MAX
+          case None => LocalDate.MAX
         }
 
         if (localDateUtilities.isBetween(LocalDate.now(), localStartDate, localEndDate)) {
-          val shortDescription = if (lang equals "en") {
-            configuration.get[String](s"feature.news.$newsSection.short-description-en")
-          } else {
-            configuration.get[String](s"feature.news.$newsSection.short-description-cy")
+          val isDynamicOptional = configuration.getOptional[Boolean](s"feature.news.$newsSection.dynamic-content")
+          isDynamicOptional match {
+            case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true))
+            case None =>
+              val shortDescription = if (lang equals "en") {
+                configuration.get[String](s"feature.news.$newsSection.short-description-en")
+              } else {
+                configuration.get[String](s"feature.news.$newsSection.short-description-cy")
+              }
+              val content = if (lang equals "en") {
+                configuration.get[String](s"feature.news.$newsSection.content-en")
+              } else {
+                configuration.get[String](s"feature.news.$newsSection.content-cy")
+              }
+              Some(NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false))
           }
-          val content = if (lang equals "en") {
-            configuration.get[String](s"feature.news.$newsSection.content-en")
-          } else {
-            configuration.get[String](s"feature.news.$newsSection.content-cy")
-          }
-          Some(NewsAndContentModel(newsSection, shortDescription, content))
         } else {
           None
         }
