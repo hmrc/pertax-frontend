@@ -395,6 +395,94 @@ class InterstitialControllerSpec extends BaseSpec {
     }
   }
 
+  "Calling displayBreathingSpaceDetails" must {
+
+    "call displayBreathingSpaceDetails and return 200 when called by authorised user using GG" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure = false
+      lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
+
+      val testController = controller
+
+      val result = testController.displayBreathingSpaceDetails(fakeRequest)
+
+      status(result) mustBe OK
+
+      contentAsString(result) must include("You are in Breathing Space")
+    }
+
+    "return UNAUTHORIZED when toggled off" in {
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val isBreathingSpaceIndicatorEnabled: Boolean = false
+      }
+
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mock[PreferencesFrontendService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummaryInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[EnrolmentsHelper],
+          injected[SeissService]
+        )(stubConfigDecorator, templateRenderer, ec) {
+          private def formPartialServiceResponse = Future.successful {
+            HtmlPartial.Success(Some("Success"), Html("any"))
+          }
+          when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
+          when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
+
+          when(saPartialService.getSaAccountSummary(any())) thenReturn {
+            Future.successful(HtmlPartial.Success(Some("Success"), Html("any")))
+          }
+
+          when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+            Future.successful(ActivatePaperlessNotAllowedResponse)
+          }
+        }
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              request = request
+            )
+          )
+      })
+
+      val result = controller.displayBreathingSpaceDetails(fakeRequest)
+
+      status(result) mustBe UNAUTHORIZED
+
+    }
+  }
+
   "Calling displayItsa" must {
 
     "saItsaTileEnabled is false return Unauthorized" in {
