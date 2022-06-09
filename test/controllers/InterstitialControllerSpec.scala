@@ -303,7 +303,7 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockNewsAndTileConfig.getNewsAndContentModelList()(mockMessages)).thenReturn(List[NewsAndContentModel]())
+      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
 
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
@@ -327,7 +327,7 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockNewsAndTileConfig.getNewsAndContentModelList()(mockMessages)).thenReturn(List[NewsAndContentModel]())
+      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
 
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
