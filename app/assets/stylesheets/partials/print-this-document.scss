@@ -1,18 +1,18 @@
 .print-this {
-  border-bottom: 1px solid $black;
+  border-bottom: 1px solid #0b0c0c;
   margin: 0 0 15px;
   display: inline-block;
 }
 
 .save-this {
-  border-bottom: 1px solid $black;
+  border-bottom: 1px solid #0b0c0c;
   position: relative;
   display: inline-block;
   margin: 0 0 0 15px;
 
   &__link,
   &__link:visited {
-    color: $black;
+    color: #0b0c0c;
     font-size: 16px;
     text-decoration: none;
   }
@@ -31,14 +31,22 @@
      font-family: "GDS Transport", Arial, sans-serif;
 }
 
+.save-this__link {
+     color: #000;
+     font-size: 16px;
+     padding-bottom: 20px;
+     text-decoration: none;
+     font-family: "GDS Transport", Arial, sans-serif;
+}
+
 @page {
   size: auto;
   margin: 0;
 }
 
 .print-document {
-  border: 1px solid $grey-1;
-  box-shadow: 6px 6px 0 0 $grey-3;
+  border: 1px solid #6f777b;
+  box-shadow: 6px 6px 0 0 #dee0e2;
   padding: 25px 50px;
   width: 75%;
 
