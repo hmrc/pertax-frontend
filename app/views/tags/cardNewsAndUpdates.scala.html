@@ -14,13 +14,14 @@
  * limitations under the License.
  *@
 
+@import config.ConfigDecorator
 @(id: Option[String] = None,
         gaAction: Option[String] = None,
         gaLabel: Option[String] = None,
         heading: String,
         headingTag: String = "h2",
         newsAndContentModelList: List[NewsAndContentModel]
-)(actionContent: Html)(implicit messages: play.api.i18n.Messages)
+)(actionContent: Html)(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
 
 <div class="card" @id.map { i => id="@i" }>
 <div class="card-body card-body-news">
@@ -28,7 +29,7 @@
     @heading
 </@headingTag>
 @for(newsAndContentModel <- newsAndContentModelList) {
-    <p><a class="ga-track-anchor-click" href="@controllers.routes.InterstitialController.displayNewsAndUpdates(messages.lang.code)/@newsAndContentModel.newsSectionName" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@newsAndContentModel.shortDescription">@newsAndContentModel.shortDescription</a></p>
+    <p><a class="ga-track-anchor-click" href="@configDecorator.displayNewsAndUpdatesUrl(newsAndContentModel.newsSectionName)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@newsAndContentModel.shortDescription">@newsAndContentModel.shortDescription</a></p>
 }
 </div>
 </div>

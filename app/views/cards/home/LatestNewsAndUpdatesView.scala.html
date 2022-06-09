@@ -14,11 +14,13 @@
  * limitations under the License.
  *@
 
+@import config.ConfigDecorator
 @import config.NewsAndTilesConfig
 @import tags._
 
 @this(newsAndTilesConfig: NewsAndTilesConfig)
-@()(implicit messages: play.api.i18n.Messages)
+
+@()(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
 
 @cardNewsAndUpdates(
     id = Some("news-card"),
@@ -26,6 +28,6 @@
     gaLabel = Some("Latest news and updates"),
     heading = messages("label.latest_news_and_updates"),
     headingTag = "h3",
-    newsAndContentModelList = newsAndTilesConfig.getNewsAndContentModelList(messages.lang.code)
+    newsAndContentModelList = newsAndTilesConfig.getNewsAndContentModelList()
 ) {
 }

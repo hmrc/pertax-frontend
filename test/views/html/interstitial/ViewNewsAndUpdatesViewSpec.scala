@@ -44,7 +44,7 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
       asDocument(
         viewNewsAndUpdatesView(
           s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/news",
-          List[NewsAndContentModel](newsAndContentModel)
+          List[NewsAndContentModel](newsAndContentModel), "nicSection"
         ).toString
       )
     "show content" in {

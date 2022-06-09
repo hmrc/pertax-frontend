@@ -153,11 +153,11 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displayNewsAndUpdates(lang: String): Action[AnyContent] = authenticate { implicit request =>
+  def displayNewsAndUpdates(newsSectionId: String): Action[AnyContent] = authenticate { implicit request =>
     if (configDecorator.isNewsAndUpdatesTileEnabled) {
-      val models = newsAndTilesConfig.getNewsAndContentModelList(lang)
+      val models = newsAndTilesConfig.getNewsAndContentModelList()
       //service to get the dynamic content send the models and get the details from the dynamic list
-      Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, models))
+      Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, models, newsSectionId))
     } else {
       errorRenderer.error(UNAUTHORIZED)
     }

@@ -19,6 +19,7 @@ package config
 import com.google.inject.{Inject, Singleton}
 import models.NewsAndContentModel
 import play.api.Configuration
+import play.api.i18n.Messages
 import util.LocalDateUtilities
 
 import java.time.LocalDate
@@ -28,7 +29,7 @@ import scala.collection.JavaConverters._
 @Singleton
 class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtilities: LocalDateUtilities) {
 
-  def getNewsAndContentModelList(lang: String): List[NewsAndContentModel] =
+  def getNewsAndContentModelList()(implicit messages: Messages): List[NewsAndContentModel] =
     configuration.underlying
       .getObject("feature.news")
       .asScala
@@ -47,12 +48,12 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
           isDynamicOptional match {
             case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true))
             case None =>
-              val shortDescription = if (lang equals "en") {
+              val shortDescription = if (messages.lang.code equals "en") {
                 configuration.get[String](s"feature.news.$newsSection.short-description-en")
               } else {
                 configuration.get[String](s"feature.news.$newsSection.short-description-cy")
               }
-              val content = if (lang equals "en") {
+              val content = if (messages.lang.code equals "en") {
                 configuration.get[String](s"feature.news.$newsSection.content-en")
               } else {
                 configuration.get[String](s"feature.news.$newsSection.content-cy")
