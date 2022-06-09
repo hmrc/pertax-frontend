@@ -23,7 +23,7 @@ class LocalDateUtilities {
   def isBetween(date: LocalDate, start: LocalDate, end: LocalDate): Boolean =
     isAfterOrEqual(date, start) && isBeforeOrEqual(date, end)
 
-  def isAfterOrEqual(date: LocalDate, that: LocalDate): Boolean = !date.isBefore(that)
+  private def isAfterOrEqual(date: LocalDate, that: LocalDate): Boolean = !date.isBefore(that)
 
-  def isBeforeOrEqual(date: LocalDate, that: LocalDate): Boolean = !date.isAfter(that)
+  private def isBeforeOrEqual(date: LocalDate, that: LocalDate): Boolean = !date.isAfter(that)
 }

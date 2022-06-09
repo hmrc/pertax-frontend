@@ -16,11 +16,11 @@
 
 package controllers
 
-import config.ConfigDecorator
+import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
-import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
+import models._
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.Configuration
@@ -50,15 +50,15 @@ class InterstitialControllerSpec extends BaseSpec {
 
   trait LocalSetup {
 
+    lazy val fakeRequest = FakeRequest("", "")
+    val mockAuthJourney = mock[AuthJourney]
+    val mockNewsAndTileConfig = mock[NewsAndTilesConfig]
+
     def simulateFormPartialServiceFailure: Boolean
 
     def simulateSaPartialServiceFailure: Boolean
 
     def paperlessResponse: ActivatePaperlessResponse
-
-    lazy val fakeRequest = FakeRequest("", "")
-
-    val mockAuthJourney = mock[AuthJourney]
 
     def controller: InterstitialController =
       new InterstitialController(
@@ -76,7 +76,8 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewNewsAndUpdatesView],
         injected[ViewSaAndItsaMergePageView],
         injected[EnrolmentsHelper],
-        injected[SeissService]
+        injected[SeissService],
+        mockNewsAndTileConfig
       )(config, templateRenderer, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
@@ -295,13 +296,15 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
+      when(mockNewsAndTileConfig.getNewsAndContentModelList("en")).thenReturn(List[NewsAndContentModel]())
+
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
       val testController = controller
 
-      val result = testController.displayNewsAndUpdates(fakeRequest)
+      val result = testController.displayNewsAndUpdates("en")(fakeRequest)
 
       status(result) mustBe OK
 
@@ -317,13 +320,15 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
+      when(mockNewsAndTileConfig.getNewsAndContentModelList("en")).thenReturn(List[NewsAndContentModel]())
+
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
       val testController = controller
 
-      val result = testController.displayNewsAndUpdates(fakeRequest)
+      val result = testController.displayNewsAndUpdates("en")(fakeRequest)
 
       status(result) mustBe OK
 
@@ -359,11 +364,13 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[EnrolmentsHelper],
-          injected[SeissService]
+          injected[SeissService],
+          mock[NewsAndTilesConfig]
         )(stubConfigDecorator, templateRenderer, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
           }
+
           when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
           when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
 
@@ -386,7 +393,7 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      val result = controller.displayNewsAndUpdates(fakeRequest)
+      val result = controller.displayNewsAndUpdates("en")(fakeRequest)
 
       status(result) mustBe UNAUTHORIZED
 
@@ -424,7 +431,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[EnrolmentsHelper],
-          injected[SeissService]
+          injected[SeissService],
+          mock[NewsAndTilesConfig]
         )(stubConfigDecorator, templateRenderer, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -472,7 +480,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[EnrolmentsHelper],
-          injected[SeissService]
+          injected[SeissService],
+          mock[NewsAndTilesConfig]
         )(stubConfigDecorator, templateRenderer, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
