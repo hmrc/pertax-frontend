@@ -17,8 +17,6 @@
 @this(addressView: AddressView)
 @(address: Option[models.Address], countries: List[Country])(implicit messages: play.api.i18n.Messages)
 
-@address.map { a => @addressView(a, countries)}.getOrElse(
-    messages("label.same_as_main_address")
-)
+@address.map { a => @addressView(a, countries)}
 
-<p>@messages("label.all_your_letters_will_be_sent_to_this_address")</p>
+<p>@messages("label.all_letters_will_be_sent_to_this_address")</p>

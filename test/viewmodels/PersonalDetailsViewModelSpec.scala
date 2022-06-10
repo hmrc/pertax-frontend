@@ -30,7 +30,7 @@ import views.html.ViewSpec
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
-import java.time.{Instant, OffsetDateTime}
+import java.time.Instant
 import scala.util.Random
 
 class PersonalDetailsViewModelSpec extends ViewSpec {
@@ -361,10 +361,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val expectedPostalAddress = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
-          correspondenceAddressView(None, countryHelper.excludedCountries),
+          correspondenceAddressView(Some(testAddress), countryHelper.excludedCountries),
           "label.change",
           "label.your.postal_address",
-          Some(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url)
+          Some(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url),
+          isPostalAddressSame = true
         )
 
         actual.postalAddress mustBe Some(expectedPostalAddress)
