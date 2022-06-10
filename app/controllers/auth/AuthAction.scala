@@ -58,7 +58,7 @@ class AuthActionImpl @Inject() (
     def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
       if (confLevel.level >= ConfidenceLevel.L200.level) Some(confLevel) else None
   }
-
+// add singleAccount Check in here ?
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
     val compositePredicate =
@@ -105,6 +105,15 @@ class AuthActionImpl @Inject() (
             }
             .asInstanceOf[Request[A]]
 
+          def singleAccountEnrolmentPresent(enrolments: Set[Enrolment]) =
+            enrolments
+              .find(_.key == "HMRC-PT")
+              .flatMap { enrolment =>
+                enrolment.identifiers
+                  .find(id => id.key == "NINO")
+              }
+              .nonEmpty
+
           val authenticatedRequest = AuthenticatedRequest[A](
             trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
             credentials,
@@ -120,10 +129,13 @@ class AuthActionImpl @Inject() (
             trimmedRequest
           )
 
+          println(request.uri)
           for {
             result        <- block(authenticatedRequest)
             updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
-          } yield updatedResult
+          } yield
+            if (singleAccountEnrolmentPresent(enrolments)) updatedResult
+            else Redirect(SafeRedirectUrl(configDecorator.taxEnrolmentDeniedRedirect(Some(request.uri))).url)
 
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
