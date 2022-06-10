@@ -60,6 +60,13 @@
       color: #0b0c0c;
       font-weight: 600;
     }
+
+    @media (max-width: 640px) {
+      h3 {
+        text-align: left;
+      }
+    }
+
   }
 
   .document-address {
@@ -180,6 +187,10 @@
   .print-document {
     border: none;
     box-shadow: none;
+
+   .print-header h3 {
+     text-align: right;
+   }
   }
 
   .govuk-template__body {
