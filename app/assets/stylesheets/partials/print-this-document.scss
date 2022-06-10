@@ -1,14 +1,7 @@
-.print-this {
+.print-this, .save-this {
   border-bottom: 1px solid #0b0c0c;
   margin: 0 0 15px;
   display: inline-block;
-}
-
-.save-this {
-  border-bottom: 1px solid #0b0c0c;
-  position: relative;
-  display: inline-block;
-  margin: 0 0 0 15px;
 
   &__link,
   &__link:visited {
@@ -18,12 +11,11 @@
   }
 }
 
-.print-this__icon {
-     left: 0;
-     top: 2px;
+.save-this {
+  margin-left: 1em;
 }
 
-.print-this__link {
+.print-this__link, .save-this__link {
      color: #000;
      font-size: 16px;
      padding-bottom: 20px;
@@ -31,13 +23,6 @@
      font-family: "GDS Transport", Arial, sans-serif;
 }
 
-.save-this__link {
-     color: #000;
-     font-size: 16px;
-     padding-bottom: 20px;
-     text-decoration: none;
-     font-family: "GDS Transport", Arial, sans-serif;
-}
 
 @page {
   size: auto;
@@ -71,7 +56,7 @@
 
     h3 {
       text-align: right;
-      margin-top: 2em;
+      margin: 2em 0 0;
       color: #0b0c0c;
       font-weight: 600;
     }
@@ -79,11 +64,12 @@
 
   .document-address {
     &__recipient {
-      margin-top: 50px;
+      margin-top: 25px;
     }
 
     &__sender {
       text-align: left;
+      margin-top: 25px;
 
       .phone {
         margin-top: 1.05263em;
@@ -93,42 +79,17 @@
         margin-left: 1em;
       }
 
-      .sender-details {
-        float: right;
-      }
       @media (min-width: 641px) {
         .sender-details {
           width: 90%;
-        }
-
-        .your-nino {
-          width: 60%;
-          float: left;
-        }
-
-        .your-nino-number {
-          width: 40%;
-          float: left;
-        }
-      }
-      @media (max-width: 640px) {
-        margin-top: 1em;
-
-        .your-nino-number {
-          margin-bottom: 1em;
+          float: right;
         }
       }
     }
   }
 
-  .list li {
-    margin-bottom: 0;
-  }
-
   &__information-box {
     border: 2px solid #28a197;
-    display: block;
-    margin-bottom: 1em;
     padding: 5px 10px;
     width: 100%;
     background-color: #e1f3f1;
@@ -141,6 +102,7 @@
 
   #keep-ni-number-safe {
     margin-top: 1.875em;
+    text-align: center;
   }
 }
 
@@ -149,9 +111,6 @@
   border-bottom: 2px solid #28a197;
 }
 
-.ni-number-right h3 {
-  margin-bottom: 0;
-}
 
 .you-download-and-use,
 .view-more-info-app {
@@ -175,21 +134,17 @@
 .got-ni-box {
   background: #e1f3f1;
   padding: 1px 10px;
-  font-size: 15px;
   print-color-adjust: exact;
 
   h3 {
     margin-top: 1.05263em;
+    margin-bottom: 0;
   }
 }
 
 .got-ni-box,
 .got-ni-box ul li {
   font-size: 15px;
-}
-
-.keep-heading {
-  text-align: center;
 }
 
 .insurance-number-text {
@@ -206,10 +161,6 @@
 .available-information {
   font-size: 24px;
   margin-bottom: 0;
-}
-
-#view-more-info-chanel {
-  margin-bottom: 10px;
 }
 
 .footer-page-date {
@@ -231,14 +182,6 @@
     box-shadow: none;
   }
 
-  .save-this {
-    display: none;
-  }
-
-  .govuk-footer {
-    display: none;
-  }
-
   .govuk-template__body {
     visibility: hidden;
   }
@@ -254,20 +197,7 @@
   }
 
   .print-header .govuk-grid-column-two-thirds {
-    margin-top: -5em;
-  }
-  @-moz-document url-prefix() {
-    .print-header .column-two-thirds {
-      margin-top: 0;
-    }
-
-    .keep-heading {
-      margin-top: 10px;
-    }
-
-    .sender-details p {
-      margin: 0.5em 0;
-    }
+    margin-top: -4em;
   }
 
   .print-document {
@@ -285,16 +215,6 @@
     .document-address__sender {
       float: right;
       width: 41%;
-
-      .your-nino {
-        width: 60%;
-        float: left;
-      }
-
-      .your-nino-number {
-        width: 40%;
-        float: left;
-      }
     }
 
     .ni-letter .govuk-grid-column-two-thirds {
