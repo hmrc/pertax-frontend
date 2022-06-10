@@ -175,6 +175,9 @@ class ConfigDecorator @Inject() (
     if (lang.code equals "en") { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax" }
     else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
+  def taxEnrolmentDeniedRedirect(url: Option[String]) =
+    s"https://www.tax.service.gov.uk/protect-tax-info?redirectUrl=$url"
+
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
   lazy val selfAssessmentFormPartialLinkUrl =
