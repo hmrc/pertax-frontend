@@ -39,9 +39,9 @@
         @for(newsAndContentModel <- newsAndContentModelList) {
             <section class="app-markdown">
                 @if(selectedNewsSectionId.equals(newsAndContentModel.newsSectionName)) {
-                    <h2 id="@newsAndContentModel.newsSectionName" autofocus>@newsAndContentModel.shortDescription</h2>
+                    <h2 id="@newsAndContentModel.newsSectionName" class="govuk-heading-m" autofocus>@newsAndContentModel.shortDescription</h2>
                 } else {
-                    <h2 id="@newsAndContentModel.newsSectionName">@newsAndContentModel.shortDescription</h2>
+                    <h2 id="@newsAndContentModel.newsSectionName" class="govuk-heading-m">@newsAndContentModel.shortDescription</h2>
                 }
             <div>
             @Html(newsAndContentModel.content)
