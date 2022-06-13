@@ -61,8 +61,10 @@ class BreathingSpaceConnector @Inject() (
 
     val result =
       withTimeout(timeoutInSec seconds) {
-        withCircuitBreaker(httpClient
-          .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(implicitly, bsHeaderCarrier, implicitly))(bsHeaderCarrier)
+        withCircuitBreaker(
+          httpClient
+            .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(implicitly, bsHeaderCarrier, implicitly)
+        )(bsHeaderCarrier)
           .map { response =>
             timerContext.stop()
             response
@@ -75,7 +77,7 @@ class BreathingSpaceConnector @Inject() (
           case Right(response) =>
             metrics.incrementSuccessCounter(metricName)
             Right(response)
-          case Left(error) if error.statusCode == NOT_FOUND =>
+          case Left(error) if error.statusCode == NOT_FOUND || error.statusCode == TOO_MANY_REQUESTS =>
             metrics.incrementFailedCounter(metricName)
             logger.info(error.message)
             Left(error)
@@ -93,7 +95,6 @@ class BreathingSpaceConnector @Inject() (
     eitherResponse.map { value =>
       value.json.as[BreathingSpaceIndicator].breathingSpaceIndicator
     }
-
 
   }
 }

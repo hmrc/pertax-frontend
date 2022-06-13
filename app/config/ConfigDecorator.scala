@@ -321,9 +321,15 @@ class ConfigDecorator @Inject() (
   lazy val breathingSpcaeTimeoutInSec =
     servicesConfig.getInt("feature.breathing-Space-indicator.timeoutInSec")
 
-  def numberOfCallsToTriggerStateChange(serviceName : String): Int = runModeConfiguration.get[Int](s"microservice.services.$serviceName.circuit.breaker.failedCallsInUnstableBeforeUnavailable")
-  def unavailablePeriodDuration(serviceName : String) : Int = runModeConfiguration.get[Int](s"microservice.services.$serviceName.circuit.breaker.unavailablePeriodDurationInMillis")
-  def unstablePeriodDuration(serviceName : String) : Int = runModeConfiguration.get[Int](s"microservice.services.$serviceName-if-proxy.circuit.breaker.unstablePeriodDurationInMillis")
+  def numberOfCallsToTriggerStateChange(serviceName: String): Int = servicesConfig.getInt(
+    s"microservice.services.$serviceName.circuitBreaker.numberOfCallsToTriggerStateChange"
+  )
+  def unavailablePeriodDuration(serviceName: String): Int = servicesConfig.getInt(
+    s"microservice.services.$serviceName.circuitBreaker.unavailablePeriodDurationInSeconds"
+  )
+  def unstablePeriodDuration(serviceName: String): Int = servicesConfig.getInt(
+    s"microservice.services.$serviceName.circuitBreaker.unstablePeriodDurationInSeconds"
+  )
 }
 
 trait TaxcalcUrls {
