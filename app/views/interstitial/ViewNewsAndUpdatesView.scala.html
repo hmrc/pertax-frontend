@@ -34,18 +34,31 @@
         pageTitle = messages("label.news_and_updates"),
         showBackLink = true
     ) {
-
         @h1("label.news_and_updates", elmId = Some("newsHeading"))
+        @if(newsAndContentModelList.size > 1) {
+            <div class="govuk-!-margin-bottom-7">
+                <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
+                @for(newsAndContentModel <- newsAndContentModelList) {
+                    <li>
+                        <a class="govuk-link govuk-link--no-visited-state" href="./@newsAndContentModel.newsSectionName">@newsAndContentModel.shortDescription</a>
+                    </li>
+                }
+                </ul>
+            </div>
+        }
+
         @for(newsAndContentModel <- newsAndContentModelList) {
             <section class="app-markdown">
+                <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
                 @if(selectedNewsSectionId.equals(newsAndContentModel.newsSectionName)) {
-                    <h2 id="@newsAndContentModel.newsSectionName" class="govuk-heading-m" autofocus>@newsAndContentModel.shortDescription</h2>
+                    <h2 id="@newsAndContentModel.newsSectionName" autofocus class="govuk-heading-m">@newsAndContentModel.shortDescription</h2>
                 } else {
                     <h2 id="@newsAndContentModel.newsSectionName" class="govuk-heading-m">@newsAndContentModel.shortDescription</h2>
                 }
-            <div>
-            @Html(newsAndContentModel.content)
-            </div>
+
+                <div>
+                @Html(newsAndContentModel.content)
+                </div>
             </section>
         }
     }
