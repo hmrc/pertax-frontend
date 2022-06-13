@@ -71,12 +71,17 @@ class AuthActionSpec extends BaseSpec {
   val fakeConfidenceLevel = ConfidenceLevel.L200
   val enrolmentHelper = injected[EnrolmentsHelper]
 
-  def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
+  def fakeSaEnrolments(utr: String) = Set(
+    Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
+    Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.toString)), "None", None)
+  )
 
   def retrievals(
     nino: Option[String] = Some(nino.toString),
     affinityGroup: Option[AffinityGroup] = Some(Individual),
-    saEnrolments: Enrolments = Enrolments(Set.empty),
+    saEnrolments: Enrolments = Enrolments(
+      Set(Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.toString)), "None", None))
+    ),
     credentialStrength: String = CredentialStrength.strong,
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
     trustedHelper: Option[TrustedHelper] = None,
