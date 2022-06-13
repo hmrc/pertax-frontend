@@ -20,6 +20,7 @@ import cats.data.EitherT
 import cats.implicits.catsStdInstancesForFuture
 import com.codahale.metrics.Timer
 import com.google.inject.Inject
+import config.ConfigDecorator
 import metrics.{Metrics, MetricsEnumeration}
 import models.BreathingSpaceIndicator
 import play.api.Logging
@@ -28,7 +29,6 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.Timeout
 
 import java.util.UUID.randomUUID
@@ -38,13 +38,15 @@ import scala.concurrent.{ExecutionContext, Future}
 class BreathingSpaceConnector @Inject() (
   val httpClient: HttpClient,
   val metrics: Metrics,
-  servicesConfig: ServicesConfig
-) extends Timeout with Logging {
+  override val configDecorator: ConfigDecorator
+) extends Timeout with Logging with ServicesCircuitBreaker {
 
-  lazy val baseUrl = servicesConfig.baseUrl("breathing-space-if-proxy")
+  lazy val baseUrl = configDecorator.breathingSpcaeBaseUrl
   lazy val timeoutInSec =
-    servicesConfig.getInt("feature.breathing-Space-indicator.timeoutInSec")
+    configDecorator.breathingSpcaeTimeoutInSec
   val metricName = MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR
+
+  override val externalServiceName = configDecorator.breathingSpaceAppName
 
   def getBreathingSpaceIndicator(
     nino: Nino
@@ -59,8 +61,8 @@ class BreathingSpaceConnector @Inject() (
 
     val result =
       withTimeout(timeoutInSec seconds) {
-        httpClient
-          .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(implicitly, bsHeaderCarrier, implicitly)
+        withCircuitBreaker(httpClient
+          .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(implicitly, bsHeaderCarrier, implicitly))(bsHeaderCarrier)
           .map { response =>
             timerContext.stop()
             response
@@ -73,16 +75,16 @@ class BreathingSpaceConnector @Inject() (
           case Right(response) =>
             metrics.incrementSuccessCounter(metricName)
             Right(response)
-          case Left(error) if error.statusCode == NOT_FOUND || error.statusCode == TOO_MANY_REQUESTS =>
-            metrics.incrementSuccessCounter(metricName)
+          case Left(error) if error.statusCode == NOT_FOUND =>
+            metrics.incrementFailedCounter(metricName)
             logger.info(error.message)
             Left(error)
           case Left(error) if error.statusCode >= 400 && error.statusCode <= 499 =>
-            metrics.incrementSuccessCounter(metricName)
+            metrics.incrementFailedCounter(metricName)
             logger.error(error.message)
             throw new HttpException(error.message, error.statusCode)
           case Left(error) =>
-            metrics.incrementSuccessCounter(metricName)
+            metrics.incrementFailedCounter(metricName)
             logger.error(error.message, error)
             Left(error)
         }
@@ -91,6 +93,7 @@ class BreathingSpaceConnector @Inject() (
     eitherResponse.map { value =>
       value.json.as[BreathingSpaceIndicator].breathingSpaceIndicator
     }
+
 
   }
 }

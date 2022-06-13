@@ -315,6 +315,15 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.getOptional[String]("feature.banner.home.link.text.cy").getOrElse("")
   lazy val bannerHomePageLinkUrl: String =
     runModeConfiguration.getOptional[String]("feature.banner.home.link.url").getOrElse("")
+
+  lazy val breathingSpcaeBaseUrl = servicesConfig.baseUrl("breathing-space-if-proxy")
+  lazy val breathingSpaceAppName = "breathing-space-if-proxy"
+  lazy val breathingSpcaeTimeoutInSec =
+    servicesConfig.getInt("feature.breathing-Space-indicator.timeoutInSec")
+
+  def numberOfCallsToTriggerStateChange(serviceName : String): Int = runModeConfiguration.get[Int](s"microservice.services.$serviceName.circuit.breaker.failedCallsInUnstableBeforeUnavailable")
+  def unavailablePeriodDuration(serviceName : String) : Int = runModeConfiguration.get[Int](s"microservice.services.$serviceName.circuit.breaker.unavailablePeriodDurationInMillis")
+  def unstablePeriodDuration(serviceName : String) : Int = runModeConfiguration.get[Int](s"microservice.services.$serviceName-if-proxy.circuit.breaker.unstablePeriodDurationInMillis")
 }
 
 trait TaxcalcUrls {
