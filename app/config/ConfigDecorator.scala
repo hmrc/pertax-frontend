@@ -95,7 +95,7 @@ class ConfigDecorator @Inject() (
   lazy val isNewsAndUpdatesTileEnabled =
     runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
   lazy val isBreathingSpaceIndicatorEnabled =
-    servicesConfig.getBoolean("feature.breathing-Space-indicator.enabled")
+    servicesConfig.getBoolean("feature.breathing-space-indicator.enabled")
   lazy val annualTaxSaSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
@@ -319,7 +319,7 @@ class ConfigDecorator @Inject() (
   lazy val breathingSpcaeBaseUrl = servicesConfig.baseUrl("breathing-space-if-proxy")
   lazy val breathingSpaceAppName = "breathing-space-if-proxy"
   lazy val breathingSpcaeTimeoutInSec =
-    servicesConfig.getInt("feature.breathing-Space-indicator.timeoutInSec")
+    servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
 
   def numberOfCallsToTriggerStateChange(serviceName: String): Int = servicesConfig.getInt(
     s"microservice.services.$serviceName.circuitBreaker.numberOfCallsToTriggerStateChange"
