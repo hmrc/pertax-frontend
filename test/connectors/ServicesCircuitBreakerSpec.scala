@@ -18,7 +18,7 @@ package connectors
 
 import config.ConfigDecorator
 import uk.gov.hmrc.circuitbreaker.CircuitBreakerConfig
-import uk.gov.hmrc.http.{HttpException, TooManyRequestException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HttpException, UpstreamErrorResponse}
 import util.BaseSpec
 
 class ServicesCircuitBreakerSpec extends BaseSpec with ServicesCircuitBreaker {
@@ -42,6 +42,16 @@ class ServicesCircuitBreakerSpec extends BaseSpec with ServicesCircuitBreaker {
       breakOnException(throwable) mustBe true
     }
 
+    "return true for 429 Upstream4xxResponse" in {
+      val throwable = UpstreamErrorResponse("message", 429, 429)
+      breakOnException(throwable) mustBe true
+    }
+
+    "return true for 499 Upstream4xxResponse" in {
+      val throwable = UpstreamErrorResponse("message", 499, 499)
+      breakOnException(throwable) mustBe true
+    }
+
     "return false for Upstream4xxResponse" in {
       val throwable = UpstreamErrorResponse("message", 400, 400)
       breakOnException(throwable) mustBe false
@@ -51,9 +61,13 @@ class ServicesCircuitBreakerSpec extends BaseSpec with ServicesCircuitBreaker {
       val throwable = new HttpException("TooManyRequest", 429)
       breakOnException(throwable) mustBe true
     }
+    "return true for HttpException and 499 response code" in {
+      val throwable = new HttpException("unkown exception", 499)
+      breakOnException(throwable) mustBe true
+    }
 
     "return false for HttpException and 400 response code" in {
-      val throwable = new HttpException("TooManyRequest", 400)
+      val throwable = new HttpException("BadRequest", 400)
       breakOnException(throwable) mustBe false
     }
 

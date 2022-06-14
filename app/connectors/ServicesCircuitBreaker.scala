@@ -39,11 +39,13 @@ trait ServicesCircuitBreaker extends UsingCircuitBreaker {
   object Is5xxOrTooManyRequest {
     def unapply(throwable: Throwable): Option[Int] =
       throwable match {
-        case exc: HttpException if is5xx(exc.responseCode) || exc.responseCode == TOO_MANY_REQUESTS =>
+        case exc: HttpException
+            if is5xx(exc.responseCode) || exc.responseCode == TOO_MANY_REQUESTS || exc.responseCode == 499 =>
           Some(exc.responseCode)
-        case Upstream5xxResponse(error)                                          => Some(error.statusCode)
-        case Upstream4xxResponse(error) if error.statusCode == TOO_MANY_REQUESTS => Some(error.statusCode)
-        case _                                                                   => None
+        case Upstream5xxResponse(error) => Some(error.statusCode)
+        case Upstream4xxResponse(error) if error.statusCode == TOO_MANY_REQUESTS || error.statusCode == 499 =>
+          Some(error.statusCode)
+        case _ => None
       }
   }
 
