@@ -41,12 +41,22 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
        |        "ggCredId": "xyz"
        |    },
        |    "externalId": "testExternalId",
-       |    "allEnrolments": [],
+       |    "allEnrolments": [
+       |       {
+       |          "key":"HMRC-PT",
+       |          "identifiers": [
+       |             {
+       |                "key":"NINO",
+       |                "value": "$generatedNino"
+       |             }
+       |          ]
+       |       }
+       |    ],
        |    "affinityGroup": "Individual",
        |    "credentialStrength": "strong"
        |}
        |""".stripMargin
-
+  //Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.toString)), "None", None)
   val citizenResponse =
     s"""|
        |{
