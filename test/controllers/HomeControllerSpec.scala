@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
+import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
@@ -145,7 +146,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
     when(mockConfigDecorator.bannerHomePageIsEnabled) thenReturn false
     when(mockConfigDecorator.rlsInterruptToggle) thenReturn true
-    when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())) thenReturn Future.successful(true)
+    when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())) thenReturn Future.successful(
+      WithinPeriod
+    )
 
   }
 

@@ -20,8 +20,11 @@ import cats.implicits._
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.BreathingSpaceConnector
+import models.BreathingSpaceIndicatorResponse
+import play.api.http.Status._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,18 +35,29 @@ class BreathingSpaceService @Inject() (
 
   def getBreathingSpaceIndicator(
     ninoOpt: Option[Nino]
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] =
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[BreathingSpaceIndicatorResponse] =
     if (configDecorator.isBreathingSpaceIndicatorEnabled) {
       ninoOpt match {
         case Some(nino) =>
           breathingSpaceConnector
             .getBreathingSpaceIndicator(nino)
-            .bimap(_ => false, breathingSpaceIndicator => breathingSpaceIndicator)
+            .bimap(
+              errorResponse => breathingSpaceIndicatorResponseForErrorResponse(errorResponse),
+              breathingSpaceIndicator => BreathingSpaceIndicatorResponse.fromBoolean(breathingSpaceIndicator)
+            )
             .merge
-            .recover { case _ => false }
-        case _ => Future.successful(false)
+            .recover { case _ => BreathingSpaceIndicatorResponse.StatusUnknown }
+        case _ => Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)
       }
     } else {
-      Future.successful(false)
+      Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)
+    }
+
+  private def breathingSpaceIndicatorResponseForErrorResponse(
+    error: UpstreamErrorResponse
+  ): BreathingSpaceIndicatorResponse =
+    error match {
+      case WithStatusCode(NOT_FOUND) => BreathingSpaceIndicatorResponse.NotFound
+      case _                         => BreathingSpaceIndicatorResponse.StatusUnknown
     }
 }

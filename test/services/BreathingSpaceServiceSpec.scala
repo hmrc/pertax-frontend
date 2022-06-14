@@ -19,6 +19,7 @@ package services
 import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.BreathingSpaceConnector
+import models.BreathingSpaceIndicatorResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.Configuration
@@ -43,18 +44,18 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
   "BreathingSpaceService getBreathingSpaceIndicator is called" must {
 
-    "return true when Nino is Some(_) and response from connector is true" in {
+    "return BreathingSpaceIndicatorResponse.WithinPeriod when Nino is Some(_) and response from connector is true" in {
 
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(EitherT[Future, UpstreamErrorResponse, Boolean](Future(Right(true))))
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe true
+        .futureValue mustBe BreathingSpaceIndicatorResponse.WithinPeriod
 
     }
 
-    "return false when isBreathingSpaceIndicatorEnabled is false" in {
+    "return BreathingSpaceIndicatorResponse.StatusUnknown when isBreathingSpaceIndicatorEnabled is false" in {
 
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
@@ -69,30 +70,30 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
       newSut
         .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe false
+        .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
 
     }
 
-    "return false when Nino is None" in {
+    "return BreathingSpaceIndicatorResponse.StatusUnknown when Nino is None" in {
 
       sut
         .getBreathingSpaceIndicator(None)
-        .futureValue mustBe false
+        .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
 
     }
 
-    "return false when response from connector is false" in {
+    "return BreathingSpaceIndicatorResponse.OutOfPeriod when response from connector is false" in {
 
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(EitherT[Future, UpstreamErrorResponse, Boolean](Future(Right(false))))
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe false
+        .futureValue mustBe BreathingSpaceIndicatorResponse.OutOfPeriod
 
     }
 
-    "return false when response from connector is Left NOT_FOUND response" in {
+    "return BreathingSpaceIndicatorResponse.NotFound when response from connector is Left NOT_FOUND response" in {
 
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(
@@ -103,10 +104,10 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe false
+        .futureValue mustBe BreathingSpaceIndicatorResponse.NotFound
     }
 
-    "return false when response from connector is Left INTERNAL_SERVER_ERROR response" in {
+    "return BreathingSpaceIndicatorResponse.StatusUnknown when response from connector is Left INTERNAL_SERVER_ERROR response" in {
 
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(
@@ -117,10 +118,10 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe false
+        .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
-    "return false when response from connector is Left TOO_MANY_REQUESTS response" in {
+    "return BreathingSpaceIndicatorResponse.StatusUnknown when response from connector is Left TOO_MANY_REQUESTS response" in {
 
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(
@@ -131,7 +132,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe false
+        .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
     "throws BadRequestException when BadRequestException is thrown from connector" in {
@@ -143,7 +144,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe false
+        .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
     "throws UnauthorizedException when UnauthorizedException is thrown from connector" in {
@@ -155,7 +156,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe false
+        .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
     "throws HttpException when HttpException is thrown from connector" in {
@@ -167,7 +168,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe false
+        .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
     "return false when FutureEarlyTimeout is thrown from connector" in {
@@ -179,20 +180,8 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe false
+        .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
 
-    }
-
-    "return false when RateLimitedException is thrown from connector" in {
-
-      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
-        .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(RateLimitedException))
-        )
-
-      sut
-        .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe false
     }
 
   }

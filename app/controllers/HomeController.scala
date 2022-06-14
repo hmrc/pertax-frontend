@@ -21,6 +21,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
+import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
 import org.joda.time.DateTime
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
@@ -72,7 +73,10 @@ class HomeController @Inject() (
           for {
             (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
             showSeissCard                                                                   <- seissService.hasClaims(saUserType)
-            breathingSpaceIndicator                                                         <- breathingSpaceService.getBreathingSpaceIndicator(request.nino)
+            breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.nino).map {
+                                         case WithinPeriod => true
+                                         case _            => false
+                                       }
           } yield {
 
             val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
