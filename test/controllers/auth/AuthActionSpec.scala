@@ -16,7 +16,9 @@
 
 package controllers.auth
 
+import controllers.address
 import controllers.auth.requests.AuthenticatedRequest
+import controllers.bindable.ResidentialAddrType
 import models.UserName
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -303,6 +305,31 @@ class AuthActionSpec extends BaseSpec {
     val result = controller.onPageLoad(FakeRequest("", ""))
     status(result) mustBe OK
     contentAsString(result) must include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
+  }
+
+  "A user with a no SingleAccount enrolment should redirect" in {
+
+    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
+      Some(nino) ~
+        Some(Individual) ~
+        Enrolments(Set.empty) ~
+        Some(fakeCredentials) ~
+        Some(CredentialStrength.strong) ~
+        ConfidenceLevel.L200 ~
+        None ~
+        None ~
+        None
+    )
+
+    val authAction =
+      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+
+    val controller = new Harness(authAction)
+
+    val result = controller.onPageLoad(FakeRequest("", ""))
+    status(result) mustBe SEE_OTHER
+
+    redirectLocation(result) mustBe Some("https://www.tax.service.gov.uk/protect-tax-info?redirectUrl=Some()")
   }
 
   "A user without a SCP Profile Url must continue to not have one" in {

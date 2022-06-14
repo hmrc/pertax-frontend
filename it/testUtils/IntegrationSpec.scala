@@ -56,7 +56,7 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
        |    "credentialStrength": "strong"
        |}
        |""".stripMargin
-  //Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.toString)), "None", None)
+
   val citizenResponse =
     s"""|
        |{
