@@ -66,10 +66,6 @@ class NiLetterController @Inject() (
       implicit request =>
         if (configDecorator.saveNiLetterAsPdfLinkEnabled) {
           if (request.personDetails.isDefined) {
-            val applicationMinCss =
-              Source
-                .fromURL(controllers.routes.AssetsController.versioned("css/applicationMin.css").absoluteURL(true))
-                .mkString
             val saveNiLetterAsPDFCss = Source
               .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL(true))
               .mkString
@@ -78,7 +74,7 @@ class NiLetterController @Inject() (
               niLetterView(request.personDetails.get, LocalDate.now.toString("MM/YY"), request.nino).toString()
             val htmlPayload = pdfWrapperView()
               .toString()
-              .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss$applicationMinCss")
+              .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss")
               .replace("<!-- niLetterPlaceHolder -->", niLetter)
               .filter(_ >= ' ')
               .trim
