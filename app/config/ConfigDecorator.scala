@@ -235,8 +235,6 @@ class ConfigDecorator @Inject() (
   lazy val allowSaPreview =
     runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
 
-  lazy val bannerLinkUrl = runModeConfiguration.getOptional[String]("feature.ur-link.url")
-
   lazy val taxcalcEnabled =
     runModeConfiguration.getOptional[String]("feature.taxcalc.enabled").getOrElse("true").toBoolean
   lazy val taxComponentsEnabled =
@@ -305,6 +303,19 @@ class ConfigDecorator @Inject() (
   lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
   lazy val seissClaimsUrl = s"$seissFrontendHost/self-employment-support/claim/your-claims"
   lazy val manageTaxAgentsUrl = s"$agentClientManagementFrontendHost/manage-your-tax-agents"
+
+  lazy val bannerHomePageIsEnabled: Boolean =
+    runModeConfiguration.getOptional[Boolean]("feature.banner.home.enabled").getOrElse(false)
+  lazy val bannerHomePageHeadingEn: String =
+    runModeConfiguration.getOptional[String]("feature.banner.home.heading.en").getOrElse("")
+  lazy val bannerHomePageLinkTextEn: String =
+    runModeConfiguration.getOptional[String]("feature.banner.home.link.text.en").getOrElse("")
+  lazy val bannerHomePageHeadingCy: String =
+    runModeConfiguration.getOptional[String]("feature.banner.home.heading.cy").getOrElse("")
+  lazy val bannerHomePageLinkTextCy: String =
+    runModeConfiguration.getOptional[String]("feature.banner.home.link.text.cy").getOrElse("")
+  lazy val bannerHomePageLinkUrl: String =
+    runModeConfiguration.getOptional[String]("feature.banner.home.link.url").getOrElse("")
 }
 
 trait TaxcalcUrls {

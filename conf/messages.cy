@@ -80,7 +80,7 @@ label.if_you_do_live_in_the_uk_text_before_link=Os ydych yn byw yn y DU, gallwch
 label.if_you_do_live_in_the_uk_link_text=newid eich cyfeiriad
 label.if_you_do_not_live_in_the_uk_text_before_link=Os nad ydych y byw yn y DU,
 label.if_you_do_not_live_in_the_uk_link_text=llenwch y ffurflen ‘Notification of a change in personal details’ i ddiweddaru’ch cyfeiriad
-label.all_your_letters_will_be_sent_to_this_address=Bydd eich llythyrau’n cael eu hanfon i’r cyfeiriad hwn.
+label.all_letters_will_be_sent_to_this_address=Bydd pob llythyr yn cael ei anfon i’r cyfeiriad hwn.
 label.same_as_main_address=Yr un peth â’r prif gyfeiriad
 label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow=Dim ond unwaith y diwrnod y gallwch newid y cyfeiriad hwn. Rhowch gynnig arall arni yfory.
 label.select_your_address=Dewis eich cyfeiriad
@@ -116,7 +116,7 @@ label.telephone_0300_200_3300=Ffôn: 0300 200 1900
 label.textphone_0300_200_3319=Ffôn testun: 0300 200 3319
 label.contact_number=0300 200 1900
 label.outside_uk_441355359022=Y tu allan i’r DU: +44 135 535 9022
-label.opens_in_a_new_window=(yn agor mewn tab newydd)
+label.opens_in_a_new_window=(yn agor tab newydd)
 label.yes=Iawn
 label.no=Na
 label.list_of_messages=Rhestr o negeseuon
@@ -283,7 +283,6 @@ label.if_your_accountant_filed_check_with_them=os mai eich cyfrifydd wnaeth gyfl
 label.call_us_if_you_filed_your_return_by_post_link_text=ffoniwch ni
 label.call_us_if_you_filed_your_return_by_post_text_after_link=os gwnaethoch gyflwyno’ch Ffurflen Dreth drwy’r post
 label.help_improve_gov_uk=Helpu i wella’r gwasanaeth Budd-dal Plant
-label.get.involved.in.making.gov.services.better=Gallwch fod yn rhan o wneud gwasanaethau’r Llywodraeth yn well (yn agor ffenestr neu dab newydd)
 label.no_thanks=Dim diolch
 label.url_coronavirus=Coronafeirws (COVID-19): Arweiniad a chefnogaeth (yn agor mewn ffenestr neu dab newydd)
 label.hide_message=Cuddio’r neges
@@ -369,6 +368,7 @@ error.date_in_future=Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw fan h
 head.error.country_required=Nodwch wlad
 error.country_required=Nodwch wlad
 error.message.error = Gwall:
+error.you_must_select_an_answer=Dewis ateb
 
 #
 # Messages in lower case
