@@ -58,7 +58,7 @@ class AuthActionImpl @Inject() (
     def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
       if (confLevel.level >= ConfidenceLevel.L200.level) Some(confLevel) else None
   }
-// add singleAccount Check in here ?
+
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
     val compositePredicate =
@@ -129,7 +129,6 @@ class AuthActionImpl @Inject() (
             trimmedRequest
           )
 
-          println(request.uri)
           for {
             result        <- block(authenticatedRequest)
             updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
