@@ -325,10 +325,10 @@ class ConfigDecorator @Inject() (
     s"microservice.services.$serviceName.circuitBreaker.numberOfCallsToTriggerStateChange"
   )
   def unavailablePeriodDuration(serviceName: String): Int = servicesConfig.getInt(
-    s"microservice.services.$serviceName.circuitBreaker.unavailablePeriodDurationInSeconds"
+    s"microservice.services.$serviceName.circuitBreaker.unavailablePeriodDurationInMillis"
   )
   def unstablePeriodDuration(serviceName: String): Int = servicesConfig.getInt(
-    s"microservice.services.$serviceName.circuitBreaker.unstablePeriodDurationInSeconds"
+    s"microservice.services.$serviceName.circuitBreaker.unstablePeriodDurationInMillis"
   )
 }
 
