@@ -1,18 +1,18 @@
 @*
- * Copyright 2022 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *@
+* Copyright 2022 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
@@ -30,22 +30,41 @@
 )
 
 @(redirectUrl: String, newsAndContentModelList: List[NewsAndContentModel], selectedNewsSectionId: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
-    @mainView(
-        pageTitle = messages("label.news_and_updates"),
-        showBackLink = true
-    ) {
+@ptaScript = {
+    <script>
+            document.onreadystatechange = function () {
+                document.getElementById('@selectedNewsSectionId').focus();
+            }
+    </script>
+}
+@mainView(
+    pageTitle = messages("label.news_and_updates"),
+    showBackLink = true,
+    scripts = Some(ptaScript)
+) {
+    @h1("label.news_and_updates", elmId = Some("newsHeading"))
+    @if(newsAndContentModelList.size > 1) {
+        <div class="govuk-!-margin-bottom-7">
+            <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
+            @for(newsAndContentModel <- newsAndContentModelList) {
+                <li>
+                    <a class="govuk-link govuk-link--no-visited-state" href="./@newsAndContentModel.newsSectionName">@newsAndContentModel.shortDescription</a>
+                </li>
+            }
+            </ul>
+        </div>
+    }
 
-        @h1("label.news_and_updates", elmId = Some("newsHeading"))
-        @for(newsAndContentModel <- newsAndContentModelList) {
-            <section class="app-markdown">
-                @if(selectedNewsSectionId.equals(newsAndContentModel.newsSectionName)) {
-                    <h2 id="@newsAndContentModel.newsSectionName" class="govuk-heading-m" autofocus>@newsAndContentModel.shortDescription</h2>
-                } else {
-                    <h2 id="@newsAndContentModel.newsSectionName" class="govuk-heading-m">@newsAndContentModel.shortDescription</h2>
-                }
+    @for(newsAndContentModel <- newsAndContentModelList) {
+        <section class="app-markdown">
+            <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+            @if(selectedNewsSectionId.equals(newsAndContentModel.newsSectionName)) {
+                <div id="@newsAndContentModel.newsSectionName" tabindex="0"></div>
+            }
+            <h2 class="govuk-heading-m">@newsAndContentModel.shortDescription</h2>
             <div>
             @Html(newsAndContentModel.content)
             </div>
-            </section>
-        }
+        </section>
     }
+}
