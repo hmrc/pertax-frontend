@@ -28,7 +28,8 @@
 @(retryUrl: String)(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @main(
-    pageTitle = messages("label.you_have_been_signed_out")
+    pageTitle = messages("label.you_have_been_signed_out"),
+    disableSessionExpired = true
 ) {
 
     @h1("label.you_have_been_signed_out")
