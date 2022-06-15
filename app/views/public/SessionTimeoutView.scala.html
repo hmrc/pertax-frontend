@@ -33,7 +33,6 @@
 ) {
 
     @h1("label.youve_been_signed_out")
-    @p(Text(messages("label.timeout_message", configDecorator.sessionTimeoutInMinutes.toString)))
-    @p(Text(messages("label.please_sign_in_again")))
+    @p(Text(messages("label.timeout_message")))
     @button("label.sign_in", href=Some(controllers.routes.HomeController.index.url))
 }
