@@ -58,6 +58,8 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
 
         @p(HtmlContent(addr.map(x => x.mkString(", <br>")).getOrElse(""))))
 
+        @link(controllers.address.routes.PersonalDetailsController.onPageLoad.url, "label.return_to_your_profile_page")
+
     } else {
         @govukPanel(Panel(
             title = Text(messages("label.your_address_has_been_changed"))
