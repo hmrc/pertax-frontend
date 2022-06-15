@@ -17,19 +17,20 @@
 package controllers.auth
 
 import controllers.auth.requests.UserRequest
-import models.SelfAssessmentUserType
+import models.{PersonDetails, SelfAssessmentUserType}
 import play.api.mvc.{Request, Result}
 import util.ActionBuilderFixture
 import util.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
 
-class FakeAuthJourney(saUser: SelfAssessmentUserType) extends AuthJourney {
+class FakeAuthJourney(saUser: SelfAssessmentUserType, personDetails: Option[PersonDetails] = None) extends AuthJourney {
   private val actionBuilderFixture = new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
       block(
         buildUserRequest(
           saUser = saUser,
+          personDetails = personDetails,
           request = request
         )
       )

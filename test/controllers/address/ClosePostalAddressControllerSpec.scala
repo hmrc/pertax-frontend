@@ -17,26 +17,28 @@
 package controllers.address
 
 import connectors.{UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressResponse, UpdateAddressUnexpectedResponse}
+import controllers.auth.requests.UserRequest
 import controllers.bindable.PostalAddrType
 import models._
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify}
+import org.mockito.Mockito.{times, verify, when}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.Request
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services._
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
-import util.Fixtures
+import uk.gov.hmrc.renderer.ActiveTabYourProfile
+import util.{ActionBuilderFixture, Fixtures}
 import util.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
 import util.UserRequestFixture.buildUserRequest
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
 import java.time.Instant
+import scala.concurrent.Future
 
 class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
@@ -44,12 +46,34 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
 
+    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+        block(
+          buildUserRequest(
+            request = currentRequest[A],
+            personDetails = personDetailsForRequest,
+            saUser = saUserType,
+            activeTab = Some(ActiveTabYourProfile)
+          )
+        )
+    })
+
     val expectedAddressConfirmationView = updateAddressConfirmationView(
       PostalAddrType,
       closedPostalAddress = true,
       Some(fakeAddress.fullAddress),
       None
-    )(buildUserRequest(request = FakeRequest()), configDecorator, templateRenderer, messages, ec).toString
+    )(
+      buildUserRequest(
+        request = FakeRequest("GET", "/test"),
+        saUser = NonFilerSelfAssessmentUser,
+        activeTab = Some(ActiveTabYourProfile)
+      ),
+      configDecorator,
+      templateRenderer,
+      messages,
+      ec
+    ).toString
 
     def controller: ClosePostalAddressController =
       new ClosePostalAddressController(

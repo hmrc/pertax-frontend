@@ -21,19 +21,19 @@ import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, RlsInterruptHelper}
-import models.{SelfAssessmentUser, _}
+import models._
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
+import play.api.Application
+import play.api.inject.bind
 import play.api.libs.json.JsBoolean
-import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -45,8 +45,7 @@ import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures}
 import views.html.HomeView
 
-import java.time.Instant
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
@@ -60,13 +59,15 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockAuthJourney = mock[AuthJourney]
   val mockTemplateRenderer = mock[TemplateRenderer]
+  val mockHomePageCachingHelper = mock[HomePageCachingHelper]
 
   override def beforeEach: Unit =
     reset(
       mockConfigDecorator,
       mockTaxCalculationService,
       mockTaiService,
-      mockMessageFrontendService
+      mockMessageFrontendService,
+      mockHomePageCachingHelper
     )
 
   override def now: () => DateTime = DateTime.now
@@ -91,21 +92,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val getLtaServiceResponse = Future.successful(true)
 
     lazy val allowLowConfidenceSA = false
-
-    def controller =
-      new HomeController(
-        mockPreferencesFrontendService,
-        mockTaiService,
-        mockTaxCalculationService,
-        injected[HomeCardGenerator],
-        injected[HomePageCachingHelper],
-        mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents],
-        injected[HomeView],
-        mockSeissService,
-        injected[RlsInterruptHelper]
-      )(mockConfigDecorator, mockTemplateRenderer, ec)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
       Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
@@ -159,13 +145,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl
     ) thenReturn "/bas-gateway/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
-    when(mockConfigDecorator.bannerLinkUrl) thenReturn None
+    when(mockConfigDecorator.bannerHomePageIsEnabled) thenReturn false
     when(mockConfigDecorator.rlsInterruptToggle) thenReturn true
-
-    def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
-      controller
-      route(app, req)
-    }
 
   }
 
@@ -177,105 +158,127 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaiService].toInstance(mockTaiService),
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled"        -> true
+        )
+        .build()
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val controller = app.injector.instanceOf[HomeController]
+
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
-      if (config.taxComponentsEnabled)
-        verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (config.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
+      verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return a 200 status when accessing index page with good nino and a non sa User" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = request
-            )
-          )
-      })
+      val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
+        .overrides(
+          bind[TaiService].toInstance(mockTaiService),
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled"        -> true
+        )
+        .build()
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val controller = app.injector.instanceOf[HomeController]
+
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
-      if (config.taxComponentsEnabled)
-        verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (config.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
+      verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
+    }
+
+    "return a 200 status when accessing index page with good nino and a non sa User and tai/taxcalc are disabled" in new LocalSetup {
+
+      val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
+        .overrides(
+          bind[TaiService].toInstance(mockTaiService),
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> false,
+          "feature.taxcalc.enabled"        -> false
+        )
+        .build()
+
+      val controller = app.injector.instanceOf[HomeController]
+
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      status(r) mustBe OK
+
+      verify(mockTaiService, times(0)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      verify(mockTaxCalculationService, times(0)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request
-            )
-          )
-      })
+      val app: Application = localGuiceApplicationBuilder().build()
+
+      val controller = app.injector.instanceOf[HomeController]
 
       override lazy val getPaperlessPreferenceResponse = ActivatePaperlessNotAllowedResponse
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
     }
 
     "redirect when Preferences Frontend returns ActivatePaperlessRequiresUserActionResponse" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[PreferencesFrontendService].toInstance(mockPreferencesFrontendService)
+        )
+        .build()
+
+      val controller = app.injector.instanceOf[HomeController]
 
       override lazy val getPaperlessPreferenceResponse =
         ActivatePaperlessRequiresUserActionResponse("http://www.example.com")
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("http://www.example.com")
     }
 
     "return 200 when TaxCalculationService returns TaxCalculationNotFoundResponse" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService)
+        )
+        .build()
+
+      val controller = app.injector.instanceOf[HomeController]
+
       override lazy val getTaxCalculationResponse = TaxCalculationNotFoundResponse
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
       if (config.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
+        verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      val app: Application = localGuiceApplicationBuilder().build()
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val controller = app.injector.instanceOf[HomeController]
+
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
     }
 
@@ -285,49 +288,41 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request,
-              personDetails = Some(
-                PersonDetails(
-                  address = Some(buildFakeAddress.copy(isRls = true)),
-                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
-                  person = buildFakePerson
-                )
-              )
-            )
+      val app: Application = localGuiceApplicationBuilder(
+        personDetails = Some(
+          PersonDetails(
+            address = Some(buildFakeAddress.copy(isRls = true)),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+            person = buildFakePerson
           )
-      })
+        )
+      ).build()
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val controller = app.injector.instanceOf[HomeController]
+
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe SEE_OTHER
     }
 
-    "return a 200 status when both the user's residential and postal addresses status are rls but both adresseses have been updated" in new LocalSetup {
+    "return a 200 status when both the user's residential and postal addresses status are rls but both addresses have been updated" in new LocalSetup {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
         .thenReturn(Future.successful(AddressesLock(true, true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request,
-              personDetails = Some(
-                PersonDetails(
-                  address = Some(buildFakeAddress.copy(isRls = true)),
-                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
-                  person = buildFakePerson
-                )
-              )
-            )
+      val app: Application = localGuiceApplicationBuilder(
+        personDetails = Some(
+          PersonDetails(
+            address = Some(buildFakeAddress.copy(isRls = true)),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+            person = buildFakePerson
           )
-      })
+        )
+      ).build()
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val controller = app.injector.instanceOf[HomeController]
+
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe OK
     }
@@ -337,23 +332,19 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request,
-              personDetails = Some(
-                PersonDetails(
-                  address = Some(buildFakeAddress.copy(isRls = true)),
-                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = false)),
-                  person = buildFakePerson
-                )
-              )
-            )
+      val app: Application = localGuiceApplicationBuilder(
+        personDetails = Some(
+          PersonDetails(
+            address = Some(buildFakeAddress.copy(isRls = true)),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = false)),
+            person = buildFakePerson
           )
-      })
+        )
+      ).build()
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val controller = app.injector.instanceOf[HomeController]
+
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe SEE_OTHER
     }
@@ -363,23 +354,19 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(true, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request,
-              personDetails = Some(
-                PersonDetails(
-                  address = Some(buildFakeAddress.copy(isRls = true)),
-                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = false)),
-                  person = buildFakePerson
-                )
-              )
-            )
+      val app: Application = localGuiceApplicationBuilder(
+        personDetails = Some(
+          PersonDetails(
+            address = Some(buildFakeAddress.copy(isRls = true)),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = false)),
+            person = buildFakePerson
           )
-      })
+        )
+      ).build()
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val controller = app.injector.instanceOf[HomeController]
+
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe OK
     }
@@ -389,21 +376,17 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request,
-              personDetails = Some(
-                PersonDetails(
-                  address = Some(buildFakeAddress.copy(isRls = false)),
-                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
-                  person = buildFakePerson
-                )
-              )
-            )
+      val app: Application = localGuiceApplicationBuilder(
+        personDetails = Some(
+          PersonDetails(
+            address = Some(buildFakeAddress.copy(isRls = false)),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+            person = buildFakePerson
           )
-      })
+        )
+      ).build()
+
+      val controller = app.injector.instanceOf[HomeController]
 
       val r: Future[Result] = controller.index()(FakeRequest())
 
@@ -415,23 +398,19 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(false, true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request,
-              personDetails = Some(
-                PersonDetails(
-                  address = Some(buildFakeAddress.copy(isRls = false)),
-                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
-                  person = buildFakePerson
-                )
-              )
-            )
+      val app: Application = localGuiceApplicationBuilder(
+        personDetails = Some(
+          PersonDetails(
+            address = Some(buildFakeAddress.copy(isRls = false)),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+            person = buildFakePerson
           )
-      })
+        )
+      ).build()
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val controller = app.injector.instanceOf[HomeController]
+
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe OK
     }
@@ -441,21 +420,17 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(true, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request,
-              personDetails = Some(
-                PersonDetails(
-                  address = Some(buildFakeAddress.copy(isRls = true)),
-                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
-                  person = buildFakePerson
-                )
-              )
-            )
+      val app: Application = localGuiceApplicationBuilder(
+        personDetails = Some(
+          PersonDetails(
+            address = Some(buildFakeAddress.copy(isRls = true)),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+            person = buildFakePerson
           )
-      })
+        )
+      ).build()
+
+      val controller = app.injector.instanceOf[HomeController]
 
       val r: Future[Result] = controller.index()(FakeRequest())
 
@@ -467,21 +442,17 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(false, true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request,
-              personDetails = Some(
-                PersonDetails(
-                  address = Some(buildFakeAddress.copy(isRls = true)),
-                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
-                  person = buildFakePerson
-                )
-              )
-            )
+      val app: Application = localGuiceApplicationBuilder(
+        personDetails = Some(
+          PersonDetails(
+            address = Some(buildFakeAddress.copy(isRls = true)),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+            person = buildFakePerson
           )
-      })
+        )
+      ).build()
+
+      val controller = app.injector.instanceOf[HomeController]
 
       val r: Future[Result] = controller.index()(FakeRequest())
 
@@ -490,53 +461,157 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   }
 
+  "banner is present" when {
+    "it is enabled and user has not closed it" in new LocalSetup {
+      when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(false))
+
+      val app: Application = localGuiceApplicationBuilder(
+        NonFilerSelfAssessmentUser,
+        Some(
+          PersonDetails(
+            address = Some(buildFakeAddress),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress),
+            person = buildFakePerson
+          )
+        )
+      ).overrides(
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+      ).configure(
+        "feature.banner.home.enabled" -> true
+      ).build()
+
+      val configDecorator = injected[ConfigDecorator]
+
+      val r: Future[Result] =
+        app.injector.instanceOf[HomeController].index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+
+      status(r) mustBe OK
+      contentAsString(r) must include(configDecorator.bannerHomePageLinkUrl)
+      contentAsString(r) must include(configDecorator.bannerHomePageHeadingEn)
+      contentAsString(r) must include(configDecorator.bannerHomePageLinkTextEn)
+    }
+  }
+
+  "banner is not present" when {
+    "it is not enabled" in new LocalSetup {
+      when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(false))
+
+      val app: Application = localGuiceApplicationBuilder(
+        NonFilerSelfAssessmentUser,
+        Some(
+          PersonDetails(
+            address = Some(buildFakeAddress),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress),
+            person = buildFakePerson
+          )
+        )
+      ).overrides(
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+      ).configure(
+        "feature.banner.home.enabled" -> false
+      ).build()
+
+      val configDecorator = injected[ConfigDecorator]
+
+      val r: Future[Result] =
+        app.injector.instanceOf[HomeController].index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+
+      status(r) mustBe OK
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkUrl)
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageHeadingEn)
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkTextEn)
+    }
+    "it is enabled and user has closed it" in new LocalSetup {
+      when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(true))
+
+      val app: Application = localGuiceApplicationBuilder(
+        NonFilerSelfAssessmentUser,
+        Some(
+          PersonDetails(
+            address = Some(buildFakeAddress),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress),
+            person = buildFakePerson
+          )
+        )
+      ).overrides(
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+      ).configure(
+        "feature.banner.home.enabled" -> true
+      ).build()
+
+      val configDecorator = injected[ConfigDecorator]
+
+      val r: Future[Result] =
+        app.injector.instanceOf[HomeController].index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+
+      status(r) mustBe OK
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkUrl)
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageHeadingEn)
+      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkTextEn)
+    }
+  }
+
   "Calling serviceCallResponses" must {
 
     val userNino = Some(fakeNino)
 
     "return TaxComponentsDisabled where taxComponents is not enabled" in new LocalSetup {
+      when(mockTaiService.taxComponents(any(), any())(any())).thenReturn(null)
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaiService].toInstance(mockTaiService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> false,
+          "feature.taxcalc.enabled"        -> true
+        )
+        .build()
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request
-            )
-          )
-      })
-
-      when(mockConfigDecorator.taxComponentsEnabled) thenReturn false
+      val controller = app.injector.instanceOf[HomeController]
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
       result mustBe TaxComponentsDisabledState
-
+      verify(mockTaiService, times(0)).taxComponents(any(), any())(any())
     }
 
     "return TaxCalculationAvailable status when data returned from TaxCalculation" in new LocalSetup {
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaiService].toInstance(mockTaiService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled"        -> true
+        )
+        .build()
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      val controller = app.injector.instanceOf[HomeController]
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
       result mustBe TaxComponentsAvailableState(
         TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
       )
+      verify(mockTaiService, times(1)).taxComponents(any(), any())(any())
 
     }
 
     "return TaxComponentsNotAvailableState status when TaxComponentsUnavailableResponse from TaxComponents" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaiService].toInstance(mockTaiService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled"        -> true
+        )
+        .build()
+
+      val controller = app.injector.instanceOf[HomeController]
 
       when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxComponentsUnavailableResponse)
@@ -545,16 +620,24 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
       result mustBe TaxComponentsNotAvailableState
+      verify(mockTaiService, times(1)).taxComponents(any(), any())(any())
+      verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(any())(any())
     }
 
     "return TaxComponentsUnreachableState status when there is TaxComponents returns an unexpected response" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaiService].toInstance(mockTaiService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled"        -> true
+        )
+        .build()
+
+      val controller = app.injector.instanceOf[HomeController]
 
       when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxComponentsUnexpectedResponse(HttpResponse(INTERNAL_SERVER_ERROR)))
@@ -567,12 +650,18 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return None where TaxCalculation service is not enabled" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(buildUserRequest(request = request))
-      })
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaiService].toInstance(mockTaiService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled"        -> false
+        )
+        .build()
 
-      when(mockConfigDecorator.taxcalcEnabled) thenReturn false
+      val controller = app.injector.instanceOf[HomeController]
 
       val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year))
 
@@ -582,12 +671,18 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return only  CY-1 None and CY-2 None when get TaxYearReconcillation returns Nil" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaiService].toInstance(mockTaiService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled"        -> true
+        )
+        .build()
+
+      val controller = app.injector.instanceOf[HomeController]
 
       when(mockTaxCalculationService.getTaxYearReconciliations(any())(any())) thenReturn Future.successful(Nil)
 
@@ -599,12 +694,18 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return taxCalculation for CY1 and CY2 status from list returned from TaxCalculation Service." in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaiService].toInstance(mockTaiService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled"        -> true
+        )
+        .build()
+
+      val controller = app.injector.instanceOf[HomeController]
 
       val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
 
