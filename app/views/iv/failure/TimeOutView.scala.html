@@ -15,21 +15,31 @@
  *@
 
 @import config.ConfigDecorator
-@import uk.gov.hmrc.renderer.TemplateRenderer
-@import views.html.iv.IvOutcomeWrapperView
 @import scala.concurrent.ExecutionContext
+@import components.{H1, P, Link}
 
-@this(ivOutcomeWrapperView: IvOutcomeWrapperView)
+@this(
+    main: newUnauthenticatedMain,
+    h1: H1,
+    p: P,
+    link: Link
+)
 
-@(retryUrl: String)(implicit request: Request[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(retryUrl: String)(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@ivOutcomeWrapperView(messages("label.you_have_been_signed_out"), messages("label.you_have_been_signed_out")) {
+@main(
+    pageTitle = messages("label.you_have_been_signed_out")
+) {
 
-    <p>@messages("label.you_have_not_done_anything_for_15_minutes_")</p>
-    <p>@messages("label.you_can")</p>
+    @h1("label.you_have_been_signed_out")
+    @p(Text(messages("label.you_have_not_done_anything_for_15_minutes_")))
+    @p(Text(messages("label.you_can")))
 
-    <ul class="list list-bullet">
-        <li><a href="@retryUrl">@messages("label.try_confirm_identity_again")</a></li>
-        <li><a class="ga-track-anchor-click" href="@configDecorator.generalQueriesUrl" data-ga-event-category="link - click" data-ga-event-action="You have been signed out" data-ga-event-label="contact HM Revenue and Customs for help">@messages("label.contact_hm_revenues_and_customs_for_help")</a></li>
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@link(retryUrl, "label.try_confirm_identity_again", inParagraph = true)</li>
+        <li>@link(configDecorator.generalQueriesUrl,
+                "label.contact_hm_revenues_and_customs_for_help",
+                inParagraph = true)
+        </li>
     </ul>
 }
