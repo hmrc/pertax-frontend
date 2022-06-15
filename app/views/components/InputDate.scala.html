@@ -28,7 +28,7 @@
     hint: Option[Content] = None,
     hintId: Option[String] = None,
     isPageHeading: Boolean = true,
-    legendClasses: String = "govuk-fieldset__legend--l",
+    legendClasses: String = "",
     fieldSetAttrs: Map[String, String] = Map.empty,
     errorId: Option[String] = None,
     items: Seq[InputItem] = Seq.empty,
@@ -43,6 +43,7 @@
                 id = hintId
             )),
     fieldset = Some(Fieldset(
+
         legend =
             if(legendCaption.isDefined){
                 Some(HmrcPageHeadingLegend(

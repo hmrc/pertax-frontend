@@ -209,7 +209,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("govuk-fieldset__heading").toString().contains("Your postal address") mustBe true
+      doc.getElementsByClass("heading-xlarge").toString().contains("Your postal address") mustBe true
     }
 
     "show 'Enter your address' when user amends residential address manually and address has not been selected" in new LocalSetup {
@@ -222,7 +222,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("govuk-fieldset__heading").toString().contains("Your address") mustBe true
+      doc.getElementsByClass("heading-xlarge").toString().contains("Your address") mustBe true
     }
 
     "verify an audit event has been sent when user chooses to add/amend view address" in new LocalSetup {

@@ -18,16 +18,16 @@
 
 @(form: Form[_], errorFieldName: Option[String] = None)(implicit messages: Messages)
 
-@if(form.hasErrors) {
-    @defining(form.errors.map { error =>
+@if(form.errors.nonEmpty) {
+    @defining(form.errors.groupBy(_.key).values.flatMap(_.headOption).map { error =>
         ErrorLink(
-            href = Some(s"#${errorFieldName.getOrElse(error.key)}"),
-            content = Text(messages(s"head.${error.message}"))
+        href = Some(s"#${errorFieldName.getOrElse(error.key)}"),
+        content = Text(messages(error.message, error.args:_*))
         )
     }) { errorLinks =>
-            @govukErrorSummary(ErrorSummary(
-            errorList = errorLinks.toSeq,
-            title = Text(messages("label.theres_a_problem"))
-            ))
+        @govukErrorSummary(ErrorSummary(
+        errorList = errorLinks.toSeq,
+        title = Text(messages("error.summary.title"))
+        ))
     }
 }

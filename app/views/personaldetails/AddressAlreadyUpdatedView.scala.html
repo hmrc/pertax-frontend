@@ -16,30 +16,27 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link}
 
-@this(
-    main: newMain,
-    h1: H1,
-    p: P,
-    link: Link
-)
+@this(mainView: MainView)
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@mainView(messages("label.your_address_has_already_been_updated"), Some(messages("label.your_personal_tax_account"))) {
 
-@main(
-    pageTitle = messages("label.your_address_has_already_been_updated"),
-    yourProfileActive = true
-) {
+  <div class="grid-row">
+    <div class="column-two-thirds">
 
-    @h1("label.your_address_has_already_been_updated")
+      <header class="page-heading">
+        <h1 class="heading-xlarge">@Html(messages("label.your_address_has_already_been_updated"))</h1>
+      </header>
+      <p class="summary">@messages("label.to_continue_you_can")</p>
 
-    @p(Text(messages("label.to_continue_you_can")))
-
-      <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("label.see_your_current_address_text_before_link") @link(configDecorator.personalAccountYourAddress, "label.see_your_current_address_link_text", inParagraph=true)</li>
-        <li>@messages("label.go_to_your_personal_tax_account_home_text_before_link") @link(configDecorator.personalAccount, "label.go_to_your_personal_tax_account_home_link_text", inParagraph=true)</li>
+      <ul class="list list-bullet">
+        <li>@messages("label.see_your_current_address_text_before_link") <a href="@configDecorator.personalAccountYourAddress">@messages("label.see_your_current_address_link_text")</a></li>
+        <li>@messages("label.go_to_your_personal_tax_account_home_text_before_link") <a href="@configDecorator.personalAccount">@messages("label.go_to_your_personal_tax_account_home_link_text")</a></li>
       </ul>
+    </div>
+  </div>
 
 }

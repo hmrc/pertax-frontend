@@ -16,50 +16,39 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF, _}
+@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
-@import components.{H1, Button}
 
-@this(
-    main: newMain,
-    form: FormWithCSRF,
-    h1: H1,
-    govukSummaryList: GovukSummaryList,
-    button: Button
-)
+@this(mainView: MainView, form: FormWithCSRF)
+@(addressDto: List[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@(addressDto: List[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
-
-@main(
-    pageTitle = messages("label.check_your_details"),
-    showBackLink = true,
-    yourProfileActive = true
+@mainView(title = messages("label.check_your_details"),
+pageName = Some(messages("label.your_personal_tax_account"))
 ) {
+@back_link()
 
-    @h1("label.check_your_details")
+    <div class="grid-row">
+        <div class="column-full">
+            <header class="page-heading">
+                <h1 class="heading-xlarge">@messages("label.check_your_details")</h1>
+            </header>
 
-    @govukSummaryList(SummaryList(
-        rows = Seq(
-            SummaryListRow(
-                key = Key(
-                    content = Text(messages("all_letters_will_be_sent_to_this_address"))
-                ),
-                value = Value(
-                    content = HtmlContent(addressDto.mkString(", <br>"))
-                ),
-                actions = Some(Actions(
-                    items = Seq(
-                        ActionItem(
-                            href = controllers.address.routes.ClosePostalAddressController.onPageLoad.url,
-                            content = Text(messages("label.change")),
-                            visuallyHiddenText = None
-                        )
-                    )
-                ))
-            )
-        )
-    ))
+            <dl class="govuk-check-your-answers cya-questions-short form-group">
+                <div>
+                    <dt class="cya-question">
+                      @messages("label.all_letters_will_be_sent_to_this_address")
+                    </dt>
+                    <dd class="cya-answer">@Html(addressDto.mkString(", <br>"))</dd>
+                    <dd class="cya-change"><a href="@controllers.address.routes.ClosePostalAddressController.onPageLoad">@messages("label.change")</a></dd>
+                </div>
+            </dl>
 
-    @form(controllers.address.routes.ClosePostalAddressController.confirmSubmit) {
-        @button("label.confirm_and_save")
-    }
+
+            @form(controllers.address.routes.ClosePostalAddressController.confirmSubmit) {
+                <button class="button">@messages("label.confirm_and_save")</button>
+            }
+        </div>
+    </div>
+
 }

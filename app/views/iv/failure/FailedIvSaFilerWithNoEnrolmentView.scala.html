@@ -16,77 +16,55 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
+
 @import scala.concurrent.ExecutionContext
-@import components.{H1, H2, P, Link}
 
-@this(
-    mainView: newMain,
-    h1: H1,
-    h2: H2,
-    p: P,
-    link: Link
-)
+@this(mainView: MainView)
 @(lostCredentialsChooseAccountUrl: String, webChatPartial: Html)(implicit request: UserRequest[_],
-        configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+        configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-
-@sidebar = {
-    <div class="webchat-container">
-        @h2("label.webchat_service", classes = Some("govuk-heading-m"))
-        @link("#",
-            "label.chat_online_with_one_of_our_advisers",
-            classes=Some("govuk-link openChat")
-        )
-    </div>
+@scriptElem = {
+    <script>
+            $(function () {
+                ga('send', 'event', 'self-assessment', 'pageLoad', 'User type - Ambiguous SA filer');
+            });
+    </script>
 }
 
-@mainView(messages("label.you_cannot_access_your_self_assessment_"), sidebarContent = Some(sidebar)) {
+@mainView(messages("label.you_cannot_access_your_self_assessment_"), scriptElement = Some(scriptElem)) {
 
     @webChatPartial
 
-    @h1("label.you_cannot_access_your_self_assessment_")
+    <div class="grid-row">
+        <div class="column-two-thirds">
 
-    @h2("label.if_you_send_your_tax_return_online")
+            <header class="page-heading">
+                <h1 class="heading-large">@messages("label.you_cannot_access_your_self_assessment_")</h1>
+            </header>
 
-    @p(HtmlContent(messages("label.you_must_sign_out_then_sign_in_with_the_user_id_text_before_link") + " " +
-                    link(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.pertaxFrontendHost + controllers.routes.HomeController.index.url)), None).url,
-                        "label.you_must_sign_out_then_sign_in_with_the_user_id_link_text",
-                        inParagraph = true)
-                    + " " + messages("label.you_must_sign_out_then_sign_in_with_the_user_id_text_after_link")
-    ))
+            <h2 class="heading-medium">@messages("label.if_you_send_your_tax_return_online")</h2>
 
-    @p(HtmlContent(link(configDecorator.notShownSaRecoverYourUserId,
-                    "label.you_must_sign_out_then_sign_in_with_the_user_id_recover_link_text",
-                    inParagraph = true
-                    ) + " " + messages("label.you_must_sign_out_then_sign_in_with_the_user_id_recover_text_after_link")
-    ))
+            <p>@messages("label.you_must_sign_out_then_sign_in_with_the_user_id_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Sign out" href="@controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.pertaxFrontendHost + controllers.routes.HomeController.index.url)), None)">@messages("label.you_must_sign_out_then_sign_in_with_the_user_id_link_text")</a>, @messages("label.you_must_sign_out_then_sign_in_with_the_user_id_text_after_link")</p>
+            <p> <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Recover ID" href="@configDecorator.notShownSaRecoverYourUserId">@messages("label.you_must_sign_out_then_sign_in_with_the_user_id_recover_link_text")</a> @messages("label.you_must_sign_out_then_sign_in_with_the_user_id_recover_text_after_link")</p>
 
-    @h2("label.if_you_have_never_sent_your_tax_return_online")
+            <h2>@messages("label.if_you_have_never_sent_your_tax_return_online")</h2>
 
-    @p(HtmlContent(messages("label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_text_before_link") + " " +
-                    link(configDecorator.ssoToRegisterForSaEnrolment,
-                        messages("label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_link_text") + " " +messages("label.opens_in_a_new_window"),
-                        attrTarget = true, inParagraph = true)
-                        + ". " + messages("label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_text_after_link") + "."
-    ))
+            <p>@messages("label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Enrol for SA" href="@configDecorator.ssoToRegisterForSaEnrolment" target="_blank" rel="noopener noreferrer">@messages("label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_link_text") @messages("label.opens_in_a_new_window")</a>. @messages("label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_text_after_link").</p>
 
-    @p(HtmlContent(messages("label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessment_text_before_link") + " " +
-                    link(configDecorator.hmrcProblemsSigningIn,
-                        messageKey = messages("label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessment_link_text") + " " + messages("label.opens_in_a_new_window"),
-                        attrTarget = true,
-                        inParagraph = true,
-                        fullStop = true)
-    ))
+        <p>@messages("label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessment_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Activate SA" href="@configDecorator.hmrcProblemsSigningIn" target="_blank">@messages("label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessment_link_text") @messages("label.opens_in_a_new_window")</a>.</p>
 
-    @h2("label.if_you_send_your_tax_return_by_post")
+            <h2>@messages("label.if_you_send_your_tax_return_by_post")</h2>
+            <p>@messages("label.you_cannot_view_your_self_assessment_information_here_")</p>
+            <p>@messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="@configDecorator.ssoToRegistration" target="_blank" rel="noopener noreferrer">@Messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text") @Messages("label.opens_in_a_new_window")</a>.</p>
 
-    @p(Text(messages("label.you_cannot_view_your_self_assessment_information_here_")))
+        </div>
 
-    @p(HtmlContent(messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link") + " " +
-                    link(configDecorator.ssoToRegistration,
-                        Messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text") + " " + Messages("label.opens_in_a_new_window"),
-                        attrTarget = true,
-                        fullStop = true,
-                        inParagraph = true)
-    ))
+        <div class="column-third webchat-container">
+            <h2 class="heading-small">@messages("label.webchat_service")</h2>
+            <p class="no-margin-top">
+                <a class="openChat ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - webchat" href="#">@messages("label.chat_online_with_one_of_our_advisers")</a>
+            </p>
+        </div>
+    </div>
 }

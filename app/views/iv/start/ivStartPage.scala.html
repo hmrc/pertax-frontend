@@ -16,24 +16,24 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
+
+
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import scala.concurrent.ExecutionContext
-@import components.{H1, P, Button}
 
-@this(
-    mainView: newMain,
-    h1: H1,
-    p: P,
-    button: Button
-)
+@this(mainView: MainView)
 
-@(redirectUrl: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(redirectUrl: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(messages("label.confirm_your_identity")) {
 
-    @h1("label.confirm_your_identity")
-    @p(Text(messages("label.before_you_continue_we_need_to_check")))
-    @p(Text(messages("label.we_re_going_to_ask_you_some_security_questions")))
-    @button("global.label.continue_button", href = Some(controllers.routes.ApplicationController.uplift(redirectUrl.map(SafeRedirectUrl.apply)).url),  id="continue")
+    <header class="page-heading">
+        <h1>@messages("label.confirm_your_identity")</h1>
+    </header>
+
+    <p>@messages("label.before_you_continue_we_need_to_check")</p>
+    <p>@messages("label.we_re_going_to_ask_you_some_security_questions")</p>
+    <a href="@controllers.routes.ApplicationController.uplift(redirectUrl.map(SafeRedirectUrl.apply))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
 
 }
