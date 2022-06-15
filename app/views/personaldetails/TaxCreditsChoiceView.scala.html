@@ -14,38 +14,46 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF, _}
 @import tags._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
-@import components.{ErrorSummary, InputYesNo, Button}
 
-@this(
-    main: newMain,
-    form: FormWithCSRF,
-    errorSummary: ErrorSummary,
-    inputYesNo: InputYesNo,
-    button: Button
-)
-
+@this(mainView: MainView, form: FormWithCSRF, inputRadioGroup: InputRadioGroup)
 @(taxCreditsChoiceForm: Form[dto.TaxCreditsChoiceDto], tcsChangeAddressUrl: String)(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@main(
-    pageTitle = messages("label.do_you_get_tax_credits"),
-    showBackLink = true,
-    yourProfileActive = true
+@mainView(title = messages("label.do_you_get_tax_credits"),
+  pageName = Some(messages("label.your_personal_tax_account"))
 ) {
+@back_link()
 
-    @errorSummary(taxCreditsChoiceForm, Some("taxCreditsChoice-yes"))
 
-    @form(action = controllers.address.routes.TaxCreditsChoiceController.onSubmit) {
-        @inputYesNo(
-            form = taxCreditsChoiceForm,
-            legend = "label.do_you_get_tax_credits",
-            name =  "taxCreditsChoice"
-        )
+    <div class="grid-row">
+      <div class="column-two-thirds">
 
-        @button("global.label.continue_button")
-    }
+        @errors(taxCreditsChoiceForm)
+
+        @form(action = controllers.address.routes.TaxCreditsChoiceController.onSubmit, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
+          <div class="form-group inline">
+            @input_yes_no(
+              taxCreditsChoiceForm("taxCreditsChoice"),
+                Seq(
+                  "true" -> messages("label.yes"),
+                  "false" -> messages("label.no")
+                ),
+                '_labelClass -> "block-label",
+                '_error -> taxCreditsChoiceForm("taxCreditsChoice").error.fold("")(e => {messages(e.message)}),
+                '_legend -> messages("label.do_you_get_tax_credits")
+              )
+          </div>
+          <div class="form-group inline">
+            <button class="button ga-track-radio-select ga-track-error" data-ga-event-action="Do you get tax credits?" data-radio-button-name="taxCreditsChoice">@messages("global.label.continue_button")</button>
+          </div>
+        }
+      </div>
+    </div>
+
 }

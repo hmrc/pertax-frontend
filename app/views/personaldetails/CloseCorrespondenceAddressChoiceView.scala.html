@@ -14,61 +14,50 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF, _}
 @import tags._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
-@import components.{ErrorSummary, P, InputRadios, Button}
 
-@this(
-    main: newMain,
-    form: FormWithCSRF,
-    errorSummary: ErrorSummary,
-    p: P,
-    inputRadios: InputRadios,
-    button: Button
-)
-
-
+@this(mainView: MainView, form: FormWithCSRF, input: InputRadioGroup)
 @(addressDto: List[String], closePostalAddressChoiceForm: Form[dto.ClosePostalAddressChoiceDto]
-)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@address = {
-    @p(Text(messages("label.your_main_address_is")))
-    @p(HtmlContent(s"""<span>${addressDto.mkString(",</span><br><span>")}</span>"""))
-}
+@address = {<p>@messages("label.your_main_address_is")</p>
+<p><span>@Html(addressDto.mkString(",</span><span>"))</span></p>}
 
-@main(
-    pageTitle = messages("label.do_you_want_all_your_letters_to_be_sent_"),
-    showBackLink = true,
-    yourProfileActive = true
+@mainView(title = messages("label.do_you_want_all_your_letters_to_be_sent_"),
+pageName = Some(messages("label.your_personal_tax_account"))
 ) {
+@back_link()
 
-    @errorSummary(closePostalAddressChoiceForm, Some("onPageLoad-true"))
 
-    @form(action = controllers.address.routes.ClosePostalAddressController.onSubmit) {
-        @inputRadios(
-            form = closePostalAddressChoiceForm,
-            legend = "label.do_you_want_all_your_letters_to_be_sent_",
-            name = "onPageLoad",
-            items = Seq(
-                        RadioItem(
-                            content = Text(messages("label.yes_send_all_letters_to_my_main_address")),
-                            id = Some("onPageLoad-true"),
-                            value = Some("true"),
-                            checked = closePostalAddressChoiceForm("onPageLoad").value.contains("true")
-                        ),
-                        RadioItem(
-                            content = Text(messages("label.no_return_to_my_personal_details")),
-                            id = Some("onPageLoad-false"),
-                            value = Some("false"),
-                            checked = closePostalAddressChoiceForm("onPageLoad").value.contains("false")
-                        )),
-            hint = Some(HtmlContent(address))
-        )
+    <div class="grid-row">
+        <div class="column-two-thirds">
+            @errors(closePostalAddressChoiceForm)
 
-        @button("global.label.continue_button",
-                classes=Some("govuk-button")
-        )
-    }
+            @form(action = controllers.address.routes.ClosePostalAddressController.onSubmit) {
+            <div class="form-group inline">
+                @input_yes_no(
+                closePostalAddressChoiceForm("onPageLoad"),
+                Seq(
+                "true" -> messages("label.yes_send_all_letters_to_my_main_address"),
+                "false" -> messages("label.no_return_to_my_personal_details")
+                ),
+                '_labelClass -> "block-label",
+                '_error -> closePostalAddressChoiceForm("onPageLoad").error.map(_.withMessage({messages("label.select_an_answer")})),
+                '_legend -> messages("label.do_you_want_all_your_letters_to_be_sent_"),
+                '_hint -> address
+                )
+            </div>
+            <div class="form-group inline">
+                <button class="button ga-track-radio-select ga-track-error" data-ga-event-action="Do you want all your letters sent to your main address?" data-radio-button-name="onPageLoad">@messages("global.label.continue_button")</button>
+            </div>
+            }
+
+        </div>
+    </div>
+
 }

@@ -35,14 +35,14 @@
     name = name,
     items = Seq(
         RadioItem(
-            content = Text(messages("label.yes")),
+            content = Text(messages("site.yes")),
             id = Some(name + "-yes"),
             value = Some("true"),
             checked = form(name).value.contains("true"),
             attributes = yesAttrs
         ),
         RadioItem(
-            content = Text(messages("label.no")),
+            content = Text(messages("site.no")),
             id = Some(name+ "-no"),
             value = Some("false"),
             checked = form(name).value.contains("false"),

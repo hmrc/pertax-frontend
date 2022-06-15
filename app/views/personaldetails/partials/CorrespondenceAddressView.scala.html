@@ -14,12 +14,9 @@
  * limitations under the License.
  *@
 
-@import components.P
-
-@this(addressView: AddressView, p: P)
+@this(addressView: AddressView)
 @(address: Option[models.Address], countries: List[Country])(implicit messages: play.api.i18n.Messages)
 
 @address.map { a => @addressView(a, countries)}
 
-@p(Text(messages("label.all_letters_will_be_sent_to_this_address")))
-
+<p>@messages("label.all_letters_will_be_sent_to_this_address")</p>
