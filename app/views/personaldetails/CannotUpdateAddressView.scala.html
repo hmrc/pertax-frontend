@@ -16,28 +16,39 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
+@import components.{H1, P, Link}
 
-@this(mainView: MainView)
-@(typ: AddrType, proposedStartDate: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@this(
+    main: newMain,
+    h1: H1,
+    p: P,
+    link: Link
+)
 
-@mainView(title = messages("label.your_address_cannot_be_updated"),
-  pageName = Some(messages("label.your_personal_tax_account"))
+@(typ: AddrType, proposedStartDate: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,messages: play.api.i18n.Messages, ec: ExecutionContext)
+
+@main(
+    pageTitle = messages("label.your_address_cannot_be_updated"),
+    showBackLink = true,
+    yourProfileActive = true
 ) {
-    @back_link()
-  <div class="grid-row">
-    <div class="column-two-thirds">
-      <header class="page-heading">
-        <h1 class="heading-xlarge">@messages("label.you_cannot_use_this_service_to_update_your_address")</h1>
-      </header>
 
-      <p class="lede margin-bottom">@messages("label.the_date_you_entered_is_earlier_than_a_date_previously_held_")</p>
+    @h1("label.you_cannot_use_this_service_to_update_your_address")
 
-      <p class="margin-top">@messages("label.if_you_entered_proposedStartDate_by_mistake_text_before_link_1") @proposedStartDate @Messages("label.if_you_entered_proposedStartDate_by_mistake_text_before_link_2") <a href="@controllers.address.routes.StartDateController.onPageLoad(typ).url">@messages("label.if_you_entered_proposedStartDate_by_mistake_link_text")</a>.</p>
+    @p(Text(messages("label.the_date_you_entered_is_earlier_than_a_date_previously_held_")), classes = Some("govuk-body-l"))
 
-      <p>@messages("label.if_you_entered_the_correct_date_contact_HMRC_text_before_link") <a href="@configDecorator.changePersonalDetailsUrl" target="_blank" rel="noopener noreferrer">@messages("label.if_you_entered_the_correct_date_contact_HMRC_link_text") @messages("label.opens_in_a_new_window")</a> @messages("label.if_you_entered_the_correct_date_contact_HMRC_text_after_link").</p>
+    @p(HtmlContent(messages("label.if_you_entered_proposedStartDate_by_mistake_text_before_link_1") + " " +
+                    proposedStartDate + " " +
+                    Messages("label.if_you_entered_proposedStartDate_by_mistake_text_before_link_2") + " " +
+                    link(controllers.address.routes.StartDateController.onPageLoad(typ).url, "label.if_you_entered_proposedStartDate_by_mistake_link_text", inParagraph = true, fullStop = true)))
 
-    </div>
-   </div>
+    @p(HtmlContent(messages("label.if_you_entered_the_correct_date_contact_HMRC_text_before_link") + " " +
+                    link(configDecorator.changePersonalDetailsUrl,
+                            messages("label.if_you_entered_the_correct_date_contact_HMRC_link_text") + " " + messages("label.opens_in_a_new_window"),
+                            attrTarget = true,
+                            inParagraph = true) + " " +
+                            messages("label.if_you_entered_the_correct_date_contact_HMRC_text_after_link")+"."
+    ))
+
 }

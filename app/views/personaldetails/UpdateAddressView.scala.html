@@ -17,16 +17,21 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import tags._
-@import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF, Input, _}
-@import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import scala.concurrent.ExecutionContext
+@import components.{ErrorSummary, InputValue, Button}
 
-@this(mainView: MainView, form: FormWithCSRF, input: Input)
+@this(
+    main: newMain,
+    form: FormWithCSRF,
+    errorSummary: ErrorSummary,
+    inputValue: InputValue,
+    button: Button,
+    govukFieldset : GovukFieldset
+)
 
 @(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, addressFinderDto: Option[AddressFinderDto],
 addressLookupServiceDown: Boolean, showEnterAddressHeader: Boolean)(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @getYourAddressLabels = {
   @if(showEnterAddressHeader) {
@@ -40,78 +45,96 @@ configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: 
   }
 }
 
-@mainView(
-  title = getYourAddressLabels.toString,
-  pageName = Some(Messages("label.your_personal_tax_account"))) {
-  @back_link()
+@fieldsetDescribedBy = @{
+   updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message").mkString("").trim
+}
 
-  <div class="grid-row">
-    <div class="column-two-thirds">
-      @errors(updateAddressForm)
+@main(
+    pageTitle = getYourAddressLabels.toString,
+    showBackLink = true,
+    yourProfileActive = true
+) {
 
-      @form(action = controllers.address.routes.UpdateAddressController.onSubmit(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
+    @errorSummary(updateAddressForm)
 
-        <fieldset @updateAddressForm.errors.map { error => aria-describedby="@updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message") "}>
+    @form(action = controllers.address.routes.UpdateAddressController.onSubmit(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
 
-          <legend><h1 class="heading-xlarge">@getYourAddressLabels</h1></legend>
+        @govukFieldset(Fieldset(
+            describedBy = Some(fieldsetDescribedBy),
+            legend = Some(Legend(
+                content = HtmlContent(getYourAddressLabels),
+                classes = "govuk-fieldset__legend--l",
+                isPageHeading = true
+            )),
+            html = fieldsetContent
+        ))
 
-          @tags.input(
-            updateAddressForm("line1"),
-            '_inputClass -> "form-control form-control-3-4",
-            '_labelClass -> "form-label inputLabelBeforeError",
-            '_label -> Messages("label.first_line_of_your_address"),
-            '_error_id -> "line1-error-message",
-            '_autoComplete -> "address-line1"
-          )
-
-          @tags.input(
-            updateAddressForm("line2"),
-            '_inputClass -> "form-control form-control-3-4",
-            '_labelClass -> "form-label",
-            '_label -> Messages("label.second_line_of_your_address"),
-            '_error_id -> "line2-error-message",
-            '_autoComplete -> "address-line2"
-          )
-
-          @tags.input(
-            updateAddressForm("line3"),
-            '_inputClass -> "form-control form-control-3-4",
-            '_labelClass -> "form-label",
-            '_label -> Messages("label.third_line_of_your_address"),
-            '_autoComplete -> "address-level1"
-          )
-
-          @tags.input(
-            updateAddressForm("line4"),
-            '_inputClass -> "form-control form-control-3-4",
-            '_labelClass -> "form-label",
-            '_label -> Messages("label.fourth_line_of_your_address"),
-            '_autoComplete -> "address-level2"
-          )
-
-          @tags.input(
-            updateAddressForm("line5"),
-            '_inputClass -> "form-control form-control-3-4",
-            '_labelClass -> "form-label",
-            '_label -> Messages("label.fifth_line_of_your_address"),
-            '_autoComplete -> "address-level3"
-          )
-
-          @tags.input(
-            updateAddressForm("postcode"),
-            '_inputClass -> "form-control form-control-1-4",
-            '_labelClass -> "form-label inputLabelBeforeError",
-            '_label -> Messages("title.postcode"),
-            '_error_id -> "postcode-error-message",
-            '_autoComplete -> "postal-code"
-          )
-
-        </fieldset>
         <input type="hidden" name="type" value="@updateAddressForm("type").value" />
         <input type="hidden" name="etag" value="@updateAddressForm("etag").value" />
 
-      <button class="button" id="updateAddress">@messages("label.continue")</button>
-      }
-    </div>
-  </div>
+        @button("label.continue", id="updateAddress")
+    }
+}
+
+@fieldsetContent = {
+
+    @inputValue(
+        form = updateAddressForm,
+        id = "line1",
+        name = "line1",
+        labelKey = "label.first_line_of_your_address",
+        labelClasses = "govuk-label",
+        classes = Some("govuk-!-width-three-quarters"),
+        autocomplete = Some("address-line1")
+    )
+
+    @inputValue(
+        form = updateAddressForm,
+        id = "line2",
+        name = "line2",
+        labelKey = "label.second_line_of_your_address",
+        labelClasses = "govuk-label",
+        classes = Some("govuk-!-width-three-quarters"),
+        autocomplete = Some("address-line2")
+    )
+
+    @inputValue(
+        form = updateAddressForm,
+        id = "line3",
+        name = "line3",
+        labelKey = "label.third_line_of_your_address",
+        labelClasses = "govuk-label",
+        classes = Some("govuk-!-width-three-quarters"),
+        autocomplete = Some("address-level1")
+    )
+
+    @inputValue(
+        form = updateAddressForm,
+        id = "line4",
+        name = "line4",
+        labelKey = "label.fourth_line_of_your_address",
+        labelClasses = "govuk-label",
+        classes = Some("govuk-!-width-three-quarters"),
+        autocomplete = Some("address-level2")
+    )
+
+    @inputValue(
+        form = updateAddressForm,
+        id = "line5",
+        name = "line5",
+        labelKey = "label.fifth_line_of_your_address",
+        labelClasses = "govuk-label",
+        classes = Some("govuk-!-width-three-quarters"),
+        autocomplete = Some("address-level3")
+    )
+
+    @inputValue(
+        form = updateAddressForm,
+        id = "postcode",
+        name = "postcode",
+        labelKey = "title.postcode",
+        labelClasses = "govuk-label",
+        classes = Some("govuk-!-width-three-quarters"),
+        autocomplete = Some("postal-code")
+    )
 }

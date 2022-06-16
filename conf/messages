@@ -128,9 +128,8 @@ label.your_address_has_been_changed=Your address has been changed
 label.enter_your_address_if_it_is_not_shown=Enter your address manually
 label.enter_your_address_yourself=Enter your address manually
 label.sign_in=Sign in
-label.youve_been_signed_out=You have been signed out
-label.timeout_message=You have not done anything for {0} minutes, so we have signed you out to keep your account secure.
-label.please_sign_in_again=Please sign in again.
+label.youve_been_signed_out=For your security, we signed you out
+label.timeout_message=We did not save your answers.
 label.timeout.dialog.title=You are about to be signed out
 label.timeout.dialog.message=You will be signed out for security reasons in
 label.timeout.dialog.minutes=minutes
@@ -164,7 +163,7 @@ label.you_cannot_access_your_account=We cannot access your details
 label.we_need_to_speak_to_you_about_an_mci_error_=This is because of an MCI issue. It means that we need to check some details with you before you can sign in again
 label.how_to_contact_us=You can call us to
 label.resolve.mci.issue=resolve the MCI issue with an advisor.
-label.opens_in_a_new_window=(opens in a new tab)
+label.opens_in_a_new_window=(opens in new tab)
 label.yes=Yes
 label.no=No
 
@@ -387,6 +386,7 @@ error.date_in_future=The date you started living here must be today or in the pa
 head.error.country_required=Enter a country
 error.country_required=Enter a country
 error.message.error = Error:
+error.you_must_select_an_answer=Select an answer
 
 #
 # Messages in lower case
