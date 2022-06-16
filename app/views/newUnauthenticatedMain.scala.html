@@ -30,7 +30,6 @@
     twoThirdsMainContent: TwoThirdsMainContent,
     fullWidthMainContent: FullWidthMainContent,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-    hmrcReportTechnicalIssue: HmrcReportTechnicalIssue,
     govukPhaseBanner: GovukPhaseBanner,
     configDecorator: ConfigDecorator,
     link: Link,
@@ -100,13 +99,7 @@
 @contentBlock = {
     @content
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--l">
-    @hmrcReportTechnicalIssue(ReportTechnicalIssue(
-        serviceId = configDecorator.deskproToken,
-        language = if(messages.lang.code == "cy") Cy else En,
-        referrerUrl = Some(request.uri),
-        baseUrl = Some(configDecorator.reportAProblemPartialUrl),
-        classes = Some("govuk-!-margin-bottom-8")
-    ))
+    @hmrcReportTechnicalIssueHelper()
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
     @govukPhaseBanner(PhaseBanner(
         tag = Some(Tag(
