@@ -16,16 +16,15 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
 
-@this(main: newMain)
+@this(mainView: MainView)
 
-@(message: Html, title: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(message: Html, title: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@main(
-    pageTitle = title,
-    showBackLink = true,
-    messagesActive = true
-) {
+@mainView(title = title, Some(messages("label.your_personal_tax_account"))) {
+
+    @back_link()
     @message
 }

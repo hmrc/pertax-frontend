@@ -19,35 +19,44 @@
 @import views.html.back_link
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
+
 @import scala.concurrent.ExecutionContext
-@import components.{ErrorSummary, InputYesNo, Button}
 
-@this(
-    main: newMain,
-    formWithCSRF: FormWithCSRF,
-    errorSummary: ErrorSummary,
-    inputYesNo: InputYesNo,
-    button: Button
-)
+@this(mainView: MainView, formWithCSRF: FormWithCSRF, inputRadioGroup: InputRadioGroup)
+@(internationalAddressChoiceForm: Form[dto.InternationalAddressChoiceDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@(internationalAddressChoiceForm: Form[dto.InternationalAddressChoiceDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
-
-@main(
-    pageTitle = messages("label.is_your_postal_address_in_the_uk"),
-    showBackLink = true,
-    yourProfileActive = true
+@mainView(title = messages("label.is_your_postal_address_in_the_uk"),
+pageName = Some(messages("label.your_personal_tax_account"))
 ) {
 
-    @errorSummary(internationalAddressChoiceForm, Some("internationalAddressChoice-yes"))
+    @back_link()
 
-    @formWithCSRF(action = controllers.address.routes.PostalDoYouLiveInTheUKController.onSubmit) {
-        @inputYesNo(
-            form = internationalAddressChoiceForm,
-            legend = "label.is_your_postal_address_in_the_uk",
-            name = "internationalAddressChoice",
-            hint = Some(Text(messages("label.the_uk_is_england_")))
-        )
+        <div class="grid-row">
+            <div class="column-two-thirds">
+                @errors(internationalAddressChoiceForm)
+                @formWithCSRF(action = controllers.address.routes.PostalDoYouLiveInTheUKController.onSubmit) {
+                <div class="form-group inline">
+                    @input_yes_no(
+                        internationalAddressChoiceForm("internationalAddressChoice"),
+                        Seq(
+                            "true" -> messages("label.yes"),
+                            "false" -> messages("label.no")
+                        ),
+                        '_labelClass -> "block-label inputLabelBeforeError",
+                        '_error -> internationalAddressChoiceForm("internationalAddressChoice").error.fold("")(e => {messages(e.message)}),
+                        '_legend -> messages("label.is_your_postal_address_in_the_uk"),
+                        '_hint -> messages("label.the_uk_is_england_")
+                    )
+                </div>
+                <div class="form-group inline">
+                    <button class="button ga-track-error" data-ga-event-action="Is your postal address in the UK?" data-radio-button-name="internationalAddressChoice">@messages("global.label.continue_button")</button>
+                </div>
+                }
+            </div>
+        </div>
 
-        @button("global.label.continue_button")
-    }
+
 }
