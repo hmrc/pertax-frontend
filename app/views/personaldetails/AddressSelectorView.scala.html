@@ -33,11 +33,15 @@
 @(addressSelectorForm: Form[models.dto.AddressSelectorDto], recordSet: models.addresslookup.RecordSet, typ: AddrType,
 postcode: String, filter: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@main(
-    pageTitle = typ.ifIs(
+@title = {
+    @if(addressSelectorForm.hasErrors){@messages("error.message.error") } @typ.ifIs(
         residential = messages("label.select_your_address"),
         postal = messages("label.select_an_address")
-    ),
+    )
+}
+
+@main(
+    pageTitle = title.toString,
     showBackLink = true,
     yourProfileActive = true
 ) {

@@ -38,6 +38,10 @@
     @p(HtmlContent(s"""<span>${addressDto.mkString(",</span><br><span>")}</span>"""))
 }
 
+@title = {
+    @if(addressSelectorForm.hasErrors){@messages("error.message.error") }@messages("label.do_you_want_all_your_letters_to_be_sent_")
+}
+
 @main(
     pageTitle = messages("label.do_you_want_all_your_letters_to_be_sent_"),
     showBackLink = true,

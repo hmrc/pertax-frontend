@@ -33,11 +33,15 @@
 @(addressFinderForm: Form[models.dto.AddressFinderDto], typ: AddrType)(implicit request: UserRequest[_],
 configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
+@title = {
+    @if(addressFinderForm.hasErrors){@messages("error.message.error")  }@typ.ifIs(
+        residential = messages("label.find_your_address"),
+        postal = messages("label.find_your_postal_address")
+    )
+}
+
 @main(
-  pageTitle = typ.ifIs(
-    residential = messages("label.find_your_address"),
-    postal = messages("label.find_your_postal_address")
-  ),
+  pageTitle = title.toString,
   showBackLink = true,
     yourProfileActive = true
 ) {
