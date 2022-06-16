@@ -14,55 +14,57 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF, _}
 @import tags._
 @import scala.util.Try
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
+@import components.{ErrorSummary, InputRadios, Link, Button}
 
-@this(mainView: MainView, form: FormWithCSRF)
+@this(
+    main: newMain,
+    form: FormWithCSRF,
+    errorSummary: ErrorSummary,
+    inputRadios: InputRadios,
+    link: Link,
+    button: Button
+)
+
 @(addressSelectorForm: Form[models.dto.AddressSelectorDto], recordSet: models.addresslookup.RecordSet, typ: AddrType,
-postcode: String, filter: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+postcode: String, filter: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(
-  title = typ.ifIs(
-    residential = messages("label.select_your_address"),
-    postal = messages("label.select_an_address")
-  ),
-  pageName = Some(messages("label.your_personal_tax_account"))
+@main(
+    pageTitle = typ.ifIs(
+        residential = messages("label.select_your_address"),
+        postal = messages("label.select_an_address")
+    ),
+    showBackLink = true,
+    yourProfileActive = true
 ) {
-@back_link()
 
-  <div class="grid-row">
-    <div class="column-two-thirds">
-        @errors(addressSelectorForm)
+    @errorSummary(addressSelectorForm, Some("radio-0"))
 
-      @form(action = controllers.address.routes.AddressSelectorController.onSubmit(typ), args = 'class -> "select-address-form", 'id -> "select-address-form") {
-          <input type="hidden" name="postcode" value="@postcode" />
-          <input type="hidden" name="filter" value="@filter" />
+    @form(action = controllers.address.routes.AddressSelectorController.onSubmit(typ), args = 'class -> "select-address-form", 'id -> "select-address-form") {
+        <input type="hidden" name="postcode" value="@postcode" />
+        <input type="hidden" name="filter" value="@filter" />
 
-          <div class="form-group@if(addressSelectorForm.errors){ form-group-error}">
-              <fieldset id="addressId" @if(addressSelectorForm.errors) { aria-describedby="addressId-error-message"}>
-                  <legend><h1 class="heading-xlarge">@typ.ifIs( residential = messages("label.select_your_address"), postal = messages("label.select_an_address"))</h1></legend>
-                  @addressSelectorForm.errors.map { error => <span class="error-message" id="addressId-error-message"><span class="visually-hidden">@messages("error.message.error")</span> @messages(error.message)</span>}
-                @for((ad,index) <- recordSet.addresses.zipWithIndex){
-                  <div class="multiple-choice">
-                    <input id="radio-@index" type="radio" name="addressId" value="@ad.id" data-line1="@ad.address.lines(0)" data-line2='@Try(ad.address.lines(1)).getOrElse("")' data-line3="@ad.address.town" data-line4="" data-postcode="@ad.address.postcode" data-type="" data-etag="">
-                    <label for="radio-@index">
-                    @ad.address.lines.mkString(", "), @ad.address.town, @ad.address.postcode
-                    </label>
-                  </div>
-                }
-            </fieldset>
-        </div>
+        @inputRadios(
+            form = addressSelectorForm,
+            legend = typ.ifIs( residential = messages("label.select_your_address"), postal = messages("label.select_an_address")),
+            name = "addressId",
+            items = recordSet.addresses.zipWithIndex.map{
+                    case(ad, index) =>
+                        RadioItem(
+                            content = Text(s"""${ad.address.lines.mkString(", ")}, ${ad.address.town.getOrElse("")}, ${ad.address.postcode}"""),
+                            id = Some("radio-" + index),
+                            value = Some(ad.id),
+                            checked = addressSelectorForm("addressId").value.contains(ad.id)
+                        ),
+                    }
+        )
 
-        <p class="form-group"><a href="@controllers.address.routes.UpdateAddressController.onPageLoad(typ)">@messages("label.enter_your_address_if_it_is_not_shown")</a></p>
+        @link(controllers.address.routes.UpdateAddressController.onPageLoad(typ).url, "label.enter_your_address_if_it_is_not_shown")
 
-        <button class="button" id="submitAddressSelector">@messages("global.label.continue_button")</button>
-      }
-    </div>
-  </div>
+        @button("global.label.continue_button", id="submitAddressSelector")
+    }
 }

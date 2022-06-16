@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 @import uk.gov.hmrc.hmrcfrontend.views.config.HmrcPageHeadingLegend
 @import uk.gov.hmrc.hmrcfrontend.views.config.HmrcSectionCaption
+@import views.html.helper._
 
 @this(govukRadios: GovukRadios)
 
@@ -58,6 +59,6 @@
         classes = hintClasses
     )},
     items = items,
-    errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
+    errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message)))),
     classes = if(inline){"govuk-radios--inline"}else{"govuk-radios"}
 ))

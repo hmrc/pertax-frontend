@@ -18,119 +18,135 @@
 @import controllers.auth.requests.UserRequest
 @import tags._
 @import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF, Input, _}
-@import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import scala.concurrent.ExecutionContext
+@import components.{ErrorSummary, InputValue, Button}
 
-@this(mainView: MainView, form: FormWithCSRF, input: Input)
+@this(
+    main: newMain,
+    form: FormWithCSRF,
+    errorSummary: ErrorSummary,
+    inputValue: InputValue,
+    button: Button,
+    govukFieldset: GovukFieldset,
+    govukSelect : GovukSelect
+)
 
 @(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, countries: List[Country])(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @getYourAddressLabels = {
-@typ.ifIs(
-residential = messages("label.enter_your_address"),
-postal = messages("label.enter_the_address"))
+    @typ.ifIs(
+    residential = messages("label.enter_your_address"),
+    postal = messages("label.enter_the_address"))
 }
 
 @scriptElems = {
-
-<script src="@routes.AssetsController.versioned("javascripts/accessible-autocomplete.min.js").url"></script>
-
-
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/accessible-autocomplete.min.js")'></script>
     <script>
-        document.onreadystatechange = function () {
-            if (document.readyState == "interactive") {
-                accessibleAutocomplete.enhanceSelectElement({
-                  selectElement: document.querySelector('#country')
-                })
-            }
-        }
+        accessibleAutocomplete.enhanceSelectElement({
+            selectElement: document.querySelector('#country'),
+            showAllValues: false,
+            autoselect: true
+        });
     </script>
-
 }
 
-<link rel="stylesheet" href="@routes.AssetsController.versioned("stylesheets/modules/accessible-autocomplete.min.css")" >
+@fieldsetDescribedBy = @{
+    updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message").mkString("").trim
+}
+
+@main(
+    pageTitle = getYourAddressLabels.toString,
+    showBackLink = true,
+    scripts = Some(scriptElems),
+    yourProfileActive = true
+) {
 
 
+    @errorSummary(updateAddressForm)
 
-@mainView(
-title = getYourAddressLabels.toString,
-pageName = Some(messages("label.your_personal_tax_account")),
-scriptElement = Some(scriptElems)) {
-@back_link()
+    @form(action = controllers.address.routes.UpdateInternationalAddressController.onSubmit(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
 
+        @govukFieldset(Fieldset(
+            describedBy = Some(fieldsetDescribedBy),
+            legend = Some(Legend(
+                content = HtmlContent(getYourAddressLabels),
+                classes = "govuk-fieldset__legend--l",
+                isPageHeading = true
+            )),
+            html = fieldsetContent
+        ))
+        <input type="hidden" name="type" value="@updateAddressForm("type").value" />
+        <input type="hidden" name="etag" value="@updateAddressForm("etag").value" />
+        @button("label.continue", id="updateAddress")
+    }
+}
 
-    <div class="grid-row">
-        <div class="column-two-thirds">
-            @errors(updateAddressForm)
+@fieldsetContent = {
 
-            @form(action = controllers.address.routes.UpdateInternationalAddressController.onSubmit(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
+    @inputValue(
+        form = updateAddressForm,
+        id = "line1",
+        name = "line1",
+        labelKey = "label.address_line_one",
+        labelClasses = "govuk-label",
+        classes = Some("govuk-!-width-three-quarters"),
+        autocomplete = Some("address-line1")
+    )
 
-            <fieldset @updateAddressForm.errors.map { error => aria-describedby="@updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message") "}>
+    @inputValue(
+        form = updateAddressForm,
+        id = "line2",
+        name = "line2",
+        labelKey = "label.address_line_two",
+        labelClasses = "govuk-label",
+        classes = Some("govuk-!-width-three-quarters"),
+        autocomplete = Some("address-line2")
+    )
 
-                <legend><h1 class="heading-xlarge">@getYourAddressLabels</h1></legend>
-                    @tags.input(
-                    updateAddressForm("line1"),
-                    '_inputClass -> "form-control form-control-3-4",
-                    '_labelClass -> "form-label inputLabelBeforeError",
-                    '_label -> messages("label.address_line_one"),
-                    '_error_id -> "line1-error-message",
-                    '_autoComplete -> "address-line1"
-                    )
+    @inputValue(
+        form = updateAddressForm,
+        id = "line3",
+        name = "line3",
+        labelKey = "label.address_line_three",
+        labelClasses = "govuk-label",
+        classes = Some("govuk-!-width-three-quarters"),
+        autocomplete = Some("address-level1")
+    )
 
-                    @tags.input(
-                    updateAddressForm("line2"),
-                    '_inputClass -> "form-control form-control-3-4",
-                    '_labelClass -> "form-label",
-                    '_label -> messages("label.address_line_two"),
-                    '_error_id -> "line2-error-message",
-                    '_autoComplete -> "address-line2"
-                    )
+    @inputValue(
+        form = updateAddressForm,
+        id = "line4",
+        name = "line4",
+        labelKey = "label.address_line_four",
+        labelClasses = "govuk-label",
+        classes = Some("govuk-!-width-three-quarters"),
+        autocomplete = Some("address-level2")
+    )
 
-                    @tags.input(
-                    updateAddressForm("line3"),
-                    '_inputClass -> "form-control form-control-3-4",
-                    '_labelClass -> "form-label",
-                    '_label -> messages("label.address_line_three"),
-                    '_autoComplete -> "address-level1"
-                    )
+    @inputValue(
+        form = updateAddressForm,
+        id = "line5",
+        name = "line5",
+        labelKey = "label.address_line_five",
+        labelClasses = "govuk-label",
+        classes = Some("govuk-!-width-three-quarters"),
+        autocomplete = Some("address-level3")
+    )
 
-                    @tags.input(
-                    updateAddressForm("line4"),
-                    '_inputClass -> "form-control form-control-3-4",
-                    '_labelClass -> "form-label",
-                    '_label -> messages("label.address_line_four"),
-                    '_autoComplete -> "address-level2"
-                    )
-
-                    @tags.input(
-                    updateAddressForm("line5"),
-                    '_inputClass -> "form-control form-control-3-4",
-                    '_labelClass -> "form-label",
-                    '_label -> messages("label.address_line_five"),
-                    '_autoComplete -> "address-level3"
-                    )
-
-                    @countryInput(
-                    field = updateAddressForm("country"),
-                    elementOptions = ("","") :: countries.map(c => (c.countryName,c.countryName)),
-                    displayEmptyValue = true,
-                    '_labelClass -> "form-label",
-                    '_errorId -> "country-error-message",
-                    '_label -> messages("label.country"),
-                    '_inputClass -> "form-control",
-                    '_errorsAboveInput -> true
-                    )
-            </fieldset>
-
-            <input type="hidden" name="type" value="@updateAddressForm("type").value" />
-            <input type="hidden" name="etag" value="@updateAddressForm("etag").value" />
-            <div class="form-group">
-                <button class="button" id="updateAddress">@messages("label.continue")</button>
-            </div>
-            }
-        </div>
-    </div>
-
+    @govukSelect(Select(
+        id = "country",
+        name = "country",
+        errorMessage = updateAddressForm("country").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
+        items = Seq(SelectItem(value=None,text="")) ++ countries.map{ c =>
+            SelectItem(
+                value = Some(c.countryName),
+                text = c.countryName,
+                selected = false
+            )
+        },
+        label = Label(
+            content = Text(messages("label.country"))
+        )
+    ))
 }
