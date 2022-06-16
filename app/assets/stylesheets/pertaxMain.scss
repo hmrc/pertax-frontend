@@ -277,3 +277,22 @@ input[type="text"].autocomplete__input {
 #newsHeading {
 margin-bottom: 1em;
 }
+
+.govuk-tag {
+    display: inline-block;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    color: #FFFFFF;
+    background-color: #1D70B8;
+    letter-spacing: 1px;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-family: "GDS Transport", arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-weight: 700;
+    padding-top: 5px;
+    padding-right: 8px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+}
