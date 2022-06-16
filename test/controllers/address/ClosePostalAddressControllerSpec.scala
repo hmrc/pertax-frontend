@@ -63,17 +63,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       closedPostalAddress = true,
       Some(fakeAddress.fullAddress),
       None
-    )(
-      buildUserRequest(
-        request = FakeRequest("GET", "/test"),
-        saUser = NonFilerSelfAssessmentUser,
-        activeTab = Some(ActiveTabYourProfile)
-      ),
-      configDecorator,
-      templateRenderer,
-      messages,
-      ec
-    ).toString
+    )(buildUserRequest(request = FakeRequest()), configDecorator, messages, ec).toString
 
     def controller: ClosePostalAddressController =
       new ClosePostalAddressController(
@@ -221,7 +211,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       "pertax-frontend",
       auditType,
       dataEvent.eventId,
-      Map("path" -> "/test", "transactionName" -> "closure_of_correspondence"),
+      Map("path" -> "/", "transactionName" -> "closure_of_correspondence"),
       Map(
         "nino"              -> Some(Fixtures.fakeNino.nino),
         "etag"              -> Some("115"),
@@ -238,7 +228,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
     "render the thank you page upon successful submission of closing the correspondence address and no locks present" in new LocalSetup {
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
       val result = controller.confirmSubmit(FakeRequest())
 
@@ -270,7 +260,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "render the thank you page upon successful submission of closing the correspondence address and only a lock on the residential address" in new LocalSetup {
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditResidentialAddress(Instant.now())))
 
@@ -326,7 +316,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     "return 500 if insert address lock fails" in new LocalSetup {
       override def isInsertCorrespondenceAddressLockSuccessful: Boolean = false
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/").asInstanceOf[Request[A]]
 
       val result = controller.confirmSubmit(currentRequest)
 
