@@ -91,6 +91,7 @@ label.enter_your_address_yourself=Nodi’ch cyfeiriad eich hun
 label.sign_in=Mewngofnodi
 label.youve_been_signed_out=Er eich diogelwch, gwnaethom eich allgofnodi
 label.timeout_message=Ni wnaethom gadw’ch atebion.
+label.please_sign_in_again=Mewngofnodwch eto.
 label.timeout.dialog.title=Rydych ar fin cael eich allgofnodi
 label.timeout.dialog.message=Am resymau diogelwch, byddwch yn cael eich allgofnodi ymhen
 label.timeout.dialog.minutes=o funudau

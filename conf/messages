@@ -130,6 +130,7 @@ label.enter_your_address_yourself=Enter your address manually
 label.sign_in=Sign in
 label.youve_been_signed_out=For your security, we signed you out
 label.timeout_message=We did not save your answers.
+label.please_sign_in_again=Please sign in again.
 label.timeout.dialog.title=You are about to be signed out
 label.timeout.dialog.message=You will be signed out for security reasons in
 label.timeout.dialog.minutes=minutes
