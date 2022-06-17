@@ -14,20 +14,22 @@
  * limitations under the License.
  *@
 
+@import config.ConfigDecorator
 @(id: Option[String] = None,
-gaAction: Option[String] = None,
-gaLabel: Option[String] = None,
-heading: String,
-headingTag: String = "h2"
-)(actionContent: Html)(implicit messages: play.api.i18n.Messages)
+        gaAction: Option[String] = None,
+        gaLabel: Option[String] = None,
+        heading: String,
+        headingTag: String = "h2",
+        newsAndContentModelList: List[NewsAndContentModel]
+)(actionContent: Html)(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
 
 <div class="card" @id.map { i => id="@i" }>
-
-    <div class="card-body card-body-news">
-
-        <@headingTag class="heading-small card-heading card-heading-news">
-            @heading
-    </@headingTag>
-    <p><a class="ga-track-anchor-click"  href="@controllers.routes.InterstitialController.displayNewsAndUpdates#nicSection" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="1.25 percentage points uplift in National Insurance contributions">@messages("label.percentage_points_uplift_in_NIC")</a></p>
+<div class="card-body card-body-news">
+    <@headingTag class="heading-small card-heading card-heading-news">
+    @heading
+</@headingTag>
+@for(newsAndContentModel <- newsAndContentModelList) {
+    <p><a class="ga-track-anchor-click" href="@configDecorator.displayNewsAndUpdatesUrl(newsAndContentModel.newsSectionName)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@newsAndContentModel.shortDescription">@newsAndContentModel.shortDescription</a></p>
+}
 </div>
 </div>

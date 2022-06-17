@@ -16,9 +16,9 @@
 
 package controllers.controllershelpers
 
-import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
 import com.google.inject.{Inject, Singleton}
+import config.{ConfigDecorator, NewsAndTilesConfig}
+import controllers.auth.requests.UserRequest
 import models._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
@@ -42,7 +42,8 @@ class HomeCardGenerator @Inject() (
   seissView: SeissView,
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
   saAndItsaMergeView: SaAndItsaMergeView,
-  enrolmentsHelper: EnrolmentsHelper
+  enrolmentsHelper: EnrolmentsHelper,
+  newsAndTilesConfig: NewsAndTilesConfig
 )(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
@@ -68,20 +69,6 @@ class HomeCardGenerator @Inject() (
       } else {
         None
       }
-    ).flatten
-
-  def getBenefitCards(
-    taxComponents: Option[TaxComponents]
-  )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
-    List(
-      getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
-      getChildBenefitCard(),
-      getMarriageAllowanceCard(taxComponents)
-    ).flatten
-
-  def getPensionCards()(implicit messages: Messages): Seq[Html] =
-    List(
-      getStatePensionCard()
     ).flatten
 
   def getPayAsYouEarnCard(
@@ -150,7 +137,7 @@ class HomeCardGenerator @Inject() (
     }
 
   def getLatestNewsAndUpdatesCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
-    if (configDecorator.isNewsAndUpdatesTileEnabled) {
+    if (configDecorator.isNewsAndUpdatesTileEnabled && newsAndTilesConfig.getNewsAndContentModelList().nonEmpty) {
       Some(latestNewsAndUpdatesView())
     } else {
       None
@@ -163,6 +150,15 @@ class HomeCardGenerator @Inject() (
       None
     }
 
+  def getBenefitCards(
+    taxComponents: Option[TaxComponents]
+  )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
+    List(
+      getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
+      getChildBenefitCard(),
+      getMarriageAllowanceCard(taxComponents)
+    ).flatten
+
   def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(taxCreditsView(showTaxCreditsPaymentLink))
 
@@ -173,6 +169,11 @@ class HomeCardGenerator @Inject() (
     messages: Messages
   ): Some[HtmlFormat.Appendable] =
     Some(marriageAllowanceView(taxComponents))
+
+  def getPensionCards()(implicit messages: Messages): Seq[Html] =
+    List(
+      getStatePensionCard()
+    ).flatten
 
   def getStatePensionCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(statePensionView())
