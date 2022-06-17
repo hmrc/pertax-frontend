@@ -22,7 +22,6 @@ $('.skiplink').click(function (e) {
   $(':header:first').attr('tabindex', '-1').focus();
 });
 
-GOVUK.shimLinksWithButtonRole.init();
 
 
 $(document).ready(function() {
