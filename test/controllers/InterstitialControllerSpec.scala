@@ -445,6 +445,7 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val fakeRequest = FakeRequest("", "")
 
       val mockAuthJourney = mock[AuthJourney]
+      val mockNewsAndTileConfig: NewsAndTilesConfig = mock[NewsAndTilesConfig]
 
       def controller: InterstitialController =
         new InterstitialController(
@@ -463,7 +464,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
-          injected[SeissService]
+          injected[SeissService],
+          mockNewsAndTileConfig
         )(stubConfigDecorator, templateRenderer, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
