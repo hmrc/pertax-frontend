@@ -117,6 +117,9 @@ class ConfigDecorator @Inject() (
   def sa302Url(saUtr: String, taxYear: String) =
     s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
 
+  def displayNewsAndUpdatesUrl(newsSectionId: String) =
+    s"/personal-account/news/$newsSectionId"
+
   def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang) =
     s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (if (lang.code equals "en") "eng"
                                                                                 else "cym")
