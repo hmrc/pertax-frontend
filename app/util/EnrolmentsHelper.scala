@@ -49,4 +49,13 @@ class EnrolmentsHelper {
           .find(id => id.key == "UTR")
           .map(key => SelfAssessmentEnrolment(SaUtr(key.value), fromString(enrolment.state)))
       }
+
+  def singleAccountEnrolmentPresent(enrolments: Set[Enrolment]): Boolean =
+    enrolments
+      .find(_.key == "HMRC-PT")
+      .flatMap { enrolment =>
+        enrolment.identifiers
+          .find(id => id.key == "NINO")
+      }
+      .nonEmpty
 }

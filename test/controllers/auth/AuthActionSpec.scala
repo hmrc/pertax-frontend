@@ -50,8 +50,9 @@ class AuthActionSpec extends BaseSpec {
 
   val mockAuthConnector = mock[AuthConnector]
   def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
+  val enrolmentsHelper: EnrolmentsHelper = app.injector.instanceOf[EnrolmentsHelper]
   val sessionAuditor =
-    new SessionAuditorFake(app.injector.instanceOf[AuditConnector], app.injector.instanceOf[EnrolmentsHelper])
+    new SessionAuditorFake(app.injector.instanceOf[AuditConnector], enrolmentsHelper)
 
   class Harness(authAction: AuthAction) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -97,7 +98,7 @@ class AuthActionSpec extends BaseSpec {
     )
 
     val authAction =
-      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
 
     new Harness(authAction)
   }
@@ -174,7 +175,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(IncorrectCredentialStrength()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -187,7 +188,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -198,7 +199,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderVerify)
@@ -217,7 +218,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
@@ -235,7 +236,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
 
@@ -322,7 +323,7 @@ class AuthActionSpec extends BaseSpec {
     )
 
     val authAction =
-      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
 
     val controller = new Harness(authAction)
 
