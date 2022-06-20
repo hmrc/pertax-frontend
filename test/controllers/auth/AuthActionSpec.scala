@@ -330,7 +330,7 @@ class AuthActionSpec extends BaseSpec {
     val result = controller.onPageLoad(FakeRequest("", ""))
     status(result) mustBe SEE_OTHER
 
-    redirectLocation(result) mustBe Some("https://www.tax.service.gov.uk/protect-tax-info?redirectUrl=Some()")
+    redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=Some()")
   }
 
   "A user without a SCP Profile Url must continue to not have one" in {

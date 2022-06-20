@@ -74,6 +74,7 @@ class ConfigDecorator @Inject() (
   lazy val identityVerificationHost = getExternalUrl(s"identity-verification.host").getOrElse("")
   lazy val identityVerificationPrefix = getExternalUrl(s"identity-verification.prefix").getOrElse("mdtp")
   lazy val basGatewayFrontendHost = getExternalUrl(s"bas-gateway-frontend.host").getOrElse("")
+  lazy val taxEnrolmentAssignmentFrontendHost = getExternalUrl(s"tax-enrolment-assignment-frontend.host").getOrElse("")
   lazy val pertaxFrontendHost = getExternalUrl(s"pertax-frontend.host").getOrElse("")
   lazy val pertaxFrontendForAuthHost = getExternalUrl(s"pertax-frontend.auth-host").getOrElse("")
   lazy val feedbackSurveyFrontendHost = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
@@ -176,7 +177,7 @@ class ConfigDecorator @Inject() (
     else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
   def taxEnrolmentDeniedRedirect(url: Option[String]) =
-    s"https://www.tax.service.gov.uk/protect-tax-info?redirectUrl=$url"
+    s"$taxEnrolmentAssignmentFrontendHost/protect-tax-info?redirectUrl=$url"
 
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
