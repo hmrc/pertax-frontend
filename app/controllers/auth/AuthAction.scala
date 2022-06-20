@@ -32,6 +32,7 @@ import uk.gov.hmrc.domain
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import util.EnrolmentsHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,7 +40,8 @@ class AuthActionImpl @Inject() (
   val authConnector: AuthConnector,
   configDecorator: ConfigDecorator,
   sessionAuditor: SessionAuditor,
-  cc: ControllerComponents
+  cc: ControllerComponents,
+  enrolmentsHelper: EnrolmentsHelper
 )(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
@@ -105,15 +107,6 @@ class AuthActionImpl @Inject() (
             }
             .asInstanceOf[Request[A]]
 
-          def singleAccountEnrolmentPresent(enrolments: Set[Enrolment]) =
-            enrolments
-              .find(_.key == "HMRC-PT")
-              .flatMap { enrolment =>
-                enrolment.identifiers
-                  .find(id => id.key == "NINO")
-              }
-              .nonEmpty
-
           val authenticatedRequest = AuthenticatedRequest[A](
             trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
             credentials,
@@ -133,7 +126,7 @@ class AuthActionImpl @Inject() (
             result        <- block(authenticatedRequest)
             updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
           } yield
-            if (singleAccountEnrolmentPresent(enrolments)) updatedResult
+            if (enrolmentsHelper.singleAccountEnrolmentPresent(enrolments)) updatedResult
             else Redirect(SafeRedirectUrl(configDecorator.taxEnrolmentDeniedRedirect(Some(request.uri))).url)
 
         case _ => throw new RuntimeException("Can't find credentials for user")
