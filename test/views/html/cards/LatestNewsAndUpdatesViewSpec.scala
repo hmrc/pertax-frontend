@@ -44,20 +44,5 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
         Messages("label.latest_news_and_updates")
       )
     }
-
-    "render the given url correctly" in {
-
-      hasLink(
-        doc,
-        Messages("label.percentage_points_uplift_in_NIC"),
-        s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/news"
-      )
-
-    }
-
-    "render the given content correctly" in {
-
-      doc.text() must include(Messages("label.percentage_points_uplift_in_NIC"))
-    }
   }
 }

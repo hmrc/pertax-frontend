@@ -27,43 +27,51 @@ import java.time.format.DateTimeFormatter
 import scala.collection.JavaConverters._
 
 @Singleton
-class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtilities: LocalDateUtilities) {
+class NewsAndTilesConfig @Inject()(configuration: Configuration, localDateUtilities: LocalDateUtilities) {
 
-  def getNewsAndContentModelList()(implicit messages: Messages): List[NewsAndContentModel] =
-    configuration.underlying
-      .getObject("feature.news")
-      .asScala
-      .map { case (newsSection, _) =>
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val localStartDate =
-          LocalDate.parse(configuration.get[String](s"feature.news.$newsSection.start-date"), formatter)
-        val optionalEndDate = configuration.getOptional[String](s"feature.news.$newsSection.end-date")
-        val localEndDate = optionalEndDate match {
-          case Some(endDate) => LocalDate.parse(endDate, formatter)
-          case None          => LocalDate.MAX
-        }
+  def getNewsAndContentModelList()(implicit messages: Messages): List[NewsAndContentModel] = {
+    val config = configuration.underlying
 
-        if (localDateUtilities.isBetween(LocalDate.now(), localStartDate, localEndDate)) {
-          val isDynamicOptional = configuration.getOptional[Boolean](s"feature.news.$newsSection.dynamic-content")
-          isDynamicOptional match {
-            case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true))
-            case None =>
-              val shortDescription = if (messages.lang.code equals "en") {
-                configuration.get[String](s"feature.news.$newsSection.short-description-en")
-              } else {
-                configuration.get[String](s"feature.news.$newsSection.short-description-cy")
-              }
-              val content = if (messages.lang.code equals "en") {
-                configuration.get[String](s"feature.news.$newsSection.content-en")
-              } else {
-                configuration.get[String](s"feature.news.$newsSection.content-cy")
-              }
-              Some(NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false))
+    if (config.hasPathOrNull("feature.news")) {
+      config
+        .getObject("feature.news")
+        .asScala
+        .map { case (newsSection, _) =>
+          val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+          val localStartDate =
+            LocalDate.parse(configuration.get[String](s"feature.news.$newsSection.start-date"), formatter)
+          val optionalEndDate = configuration.getOptional[String](s"feature.news.$newsSection.end-date")
+          val localEndDate = optionalEndDate match {
+            case Some(endDate) => LocalDate.parse(endDate, formatter)
+            case None => LocalDate.MAX
           }
-        } else {
-          None
+
+          if (localDateUtilities.isBetween(LocalDate.now(), localStartDate, localEndDate)) {
+            val isDynamicOptional = configuration.getOptional[Boolean](s"feature.news.$newsSection.dynamic-content")
+            isDynamicOptional match {
+              case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true))
+              case None =>
+                val shortDescription = if (messages.lang.code equals "en") {
+                  configuration.get[String](s"feature.news.$newsSection.short-description-en")
+                } else {
+                  configuration.get[String](s"feature.news.$newsSection.short-description-cy")
+                }
+                val content = if (messages.lang.code equals "en") {
+                  configuration.get[String](s"feature.news.$newsSection.content-en")
+                } else {
+                  configuration.get[String](s"feature.news.$newsSection.content-cy")
+                }
+                Some(NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false))
+            }
+          } else {
+            None
+          }
         }
-      }
-      .toList
-      .flatten
+        .toList
+        .flatten
+    } else {
+      List[NewsAndContentModel]()
+    }
+
+  }
 }
