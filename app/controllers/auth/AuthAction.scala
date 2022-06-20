@@ -126,8 +126,10 @@ class AuthActionImpl @Inject() (
             result        <- block(authenticatedRequest)
             updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
           } yield
-            if (enrolmentsHelper.singleAccountEnrolmentPresent(enrolments)) updatedResult
-            else Redirect(SafeRedirectUrl(configDecorator.taxEnrolmentDeniedRedirect(Some(request.uri))).url)
+            if (configDecorator.singleAccountEnrolmentFeature) {
+              if (enrolmentsHelper.singleAccountEnrolmentPresent(enrolments)) updatedResult
+              else Redirect(SafeRedirectUrl(configDecorator.taxEnrolmentDeniedRedirect(Some(request.uri))).url)
+            } else updatedResult
 
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
