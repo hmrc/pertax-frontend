@@ -239,6 +239,8 @@ class ConfigDecorator @Inject() (
   lazy val ltaEnabled = runModeConfiguration.getOptional[String]("feature.lta.enabled").getOrElse("true").toBoolean
   lazy val allowSaPreview =
     runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
+  lazy val singleAccountEnrolmentFeature =
+    runModeConfiguration.getOptional[String]("feature.single-account-enrolment.enabled").getOrElse("false").toBoolean
 
   lazy val taxcalcEnabled =
     runModeConfiguration.getOptional[String]("feature.taxcalc.enabled").getOrElse("true").toBoolean
