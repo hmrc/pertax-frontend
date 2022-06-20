@@ -23,11 +23,12 @@ import models.UserName
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
+import play.api.http.HeaderNames
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
-import play.api.test.FakeRequest
+import play.api.test.{FakeHeaders, FakeRequest}
 import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
@@ -327,10 +328,17 @@ class AuthActionSpec extends BaseSpec {
 
     val controller = new Harness(authAction)
 
-    val result = controller.onPageLoad(FakeRequest("", ""))
-    status(result) mustBe SEE_OTHER
+    val result = controller.onPageLoad(
+      FakeRequest(
+        method = "GET",
+        uri = "https://example.com",
+        headers = FakeHeaders(Seq(HeaderNames.HOST -> "localhost")),
+        body = AnyContentAsEmpty
+      )
+    )
 
-    redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=Some()")
+    status(result) mustBe SEE_OTHER
+    redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=Some(https://example.com)")
   }
 
   "A user without a SCP Profile Url must continue to not have one" in {
