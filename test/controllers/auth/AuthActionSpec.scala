@@ -74,7 +74,7 @@ class AuthActionSpec extends BaseSpec {
   val fakeConfidenceLevel = ConfidenceLevel.L200
   val enrolmentHelper = injected[EnrolmentsHelper]
 
-  def fakeSaEnrolments(utr: String) = Set(
+  def fakeEnrolments(utr: String) = Set(
     Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
     Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.toString)), "None", None)
   )
@@ -262,7 +262,7 @@ class AuthActionSpec extends BaseSpec {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
-      val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeSaEnrolments(utr)))
+      val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeEnrolments(utr)))
 
       val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
@@ -275,7 +275,7 @@ class AuthActionSpec extends BaseSpec {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
-      val controller = retrievals(saEnrolments = Enrolments(fakeSaEnrolments(utr)))
+      val controller = retrievals(saEnrolments = Enrolments(fakeEnrolments(utr)))
 
       val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
