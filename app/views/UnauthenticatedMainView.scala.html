@@ -118,6 +118,7 @@
 @hmrcLayout(
     pageTitle = Some(fullPageTitle),
     serviceName = Some(messages("label.your_personal_tax_account")),
+    serviceUrl = Some(configDecorator.personalAccount),
     signOutUrl = if(!disableSessionExpired){Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url)}else{None},
     nonce = CSPNonce.get,
     isWelshTranslationAvailable = true,
