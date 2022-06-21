@@ -179,8 +179,8 @@ class ConfigDecorator @Inject() (
     if (lang.code equals "en") { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax" }
     else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
-  def taxEnrolmentDeniedRedirect(url: Option[String]) =
-    s"$taxEnrolmentAssignmentFrontendHost/protect-tax-info?redirectUrl=$url"
+  def taxEnrolmentDeniedRedirect(url: String): String =
+    s"$taxEnrolmentAssignmentFrontendHost/protect-tax-info?redirectUrl=${SafeRedirectUrl(url).encodedUrl}"
 
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"

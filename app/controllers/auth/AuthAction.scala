@@ -128,7 +128,8 @@ class AuthActionImpl @Inject() (
           } yield
             if (configDecorator.singleAccountEnrolmentFeature) {
               if (enrolmentsHelper.singleAccountEnrolmentPresent(enrolments)) updatedResult
-              else Redirect(SafeRedirectUrl(configDecorator.taxEnrolmentDeniedRedirect(Some(request.uri))).url)
+                else Redirect(SafeRedirectUrl(configDecorator.taxEnrolmentDeniedRedirect(Some(request.uri))).url)
+                else Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri))
             } else updatedResult
 
         case _ => throw new RuntimeException("Can't find credentials for user")
