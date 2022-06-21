@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,22 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import config.ConfigDecorator
-@import config.NewsAndTilesConfig
-@import tags._
+package util
 
-@this(newsAndTilesConfig: NewsAndTilesConfig)
+import java.time.LocalDate
 
-@()(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
+class LocalDateUtilities {
 
-@cardNewsAndUpdates(
-    id = Some("news-card"),
-    gaAction = Some("Income"),
-    gaLabel = Some("Latest news and updates"),
-    heading = messages("label.latest_news_and_updates"),
-    headingTag = "h3",
-    newsAndContentModelList = newsAndTilesConfig.getNewsAndContentModelList()
-) {
+  def isBetween(date: LocalDate, start: LocalDate, end: LocalDate): Boolean =
+    isAfterOrEqual(date, start) && isBeforeOrEqual(date, end)
+
+  private def isAfterOrEqual(date: LocalDate, that: LocalDate): Boolean = !date.isBefore(that)
+
+  private def isBeforeOrEqual(date: LocalDate, that: LocalDate): Boolean = !date.isAfter(that)
 }

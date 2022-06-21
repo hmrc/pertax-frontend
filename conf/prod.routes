@@ -72,7 +72,7 @@ GET         /personal-account/self-assessment-home                              
 GET         /personal-account/sa-enrolment                                             controllers.SelfAssessmentController.redirectToEnrolForSa
 
 GET         /personal-account/national-insurance-summary                               controllers.InterstitialController.displayNationalInsurance
-GET         /personal-account/news                                                     controllers.InterstitialController.displayNewsAndUpdates
+GET         /personal-account/news/:newsSectionId                                      controllers.InterstitialController.displayNewsAndUpdates(newsSectionId: String)
 GET         /personal-account/national-insurance-summary/print-letter                  controllers.NiLetterController.printNationalInsuranceNumber
 GET         /personal-account/national-insurance-summary/save-letter-as-pdf            controllers.NiLetterController.saveNationalInsuranceNumberAsPdf
 GET         /personal-account/child-benefit-forms                                      controllers.InterstitialController.displayChildBenefits
