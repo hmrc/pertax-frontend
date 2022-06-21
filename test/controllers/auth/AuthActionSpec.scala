@@ -338,7 +338,7 @@ class AuthActionSpec extends BaseSpec {
     )
 
     status(result) mustBe SEE_OTHER
-    redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=Some(https://example.com)")
+    redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=https%3A%2F%2Fexample.com")
   }
 
   "A user without a SCP Profile Url must continue to not have one" in {
