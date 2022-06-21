@@ -27,6 +27,10 @@
 @(personDetails: models.PersonDetails, dateString: String, saveNiLetterAsPdfLinkEnabled: Boolean, nino : Option[Nino])(implicit request: UserRequest[_],
         configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
+@stylesheet = {
+    <link rel="stylesheet" href='@routes.AssetsController.versioned("stylesheets/partials/print-this-document.css")'>
+}
+
 @main(
     pageTitle = messages("label.print_your_national_insurance_summary"),
     serviceName = messages("label.national_insurance"),
@@ -34,7 +38,7 @@
     backLinkUrl = controllers.address.routes.PersonalDetailsController.onPageLoad.url,
     fullWidth = true,
     yourProfileActive = true,
-    ninoPage = true
+    stylesheets = Some(stylesheet)
 ) {
 
     @hmrcPageHeading(PageHeading(

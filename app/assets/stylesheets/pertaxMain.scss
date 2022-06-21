@@ -2,14 +2,10 @@
 @import "modules/conditionals";
 @import "card";
 @import "flexbox";
-@import "af-upgrade";
 @import "bta-partial";
-@import "partials/vertical-spacing";
 @import "partials/grid";
 @import "partials/panel";
-@import "partials/errors";
 @import "partials/home";
-@import "partials/summary-list";
 
 //Global
 .grid-row {
@@ -22,11 +18,6 @@
   }
 }
 
-.page-heading {
-  margin-bottom: 20px;
-  margin-top: 0;
-  padding-bottom: 20px;
-}
 
 @media (max-width: 800px) {
   span {
@@ -46,46 +37,7 @@ address {
   font-style: normal;
 }
 
-//Pertax page
 
-.padding-top {
-  padding-top: 45px;
-}
-
-.padding-bottom {
-  padding-bottom: 30px;
-}
-
-.margin-top {
-  margin-top: 30px;
-}
-
-//Personal details page
-.personal-details {
-  .page-heading {
-    margin-bottom: 30px;
-  }
-}
-
-//Start Page
-.start-page {
-  .text {
-    margin: 30px 0 45px;
-    max-width: 100%;
-  }
-
-  .button {
-    &.button-get-started {
-      font-size: 24px;
-      margin: 10px 0 0;
-      padding: 9px 50px 5px 20px;
-    }
-  }
-
-  .list-bullet {
-    margin: 20px 0 20px 20px;
-  }
-}
 
 //Summary pages
 .summary-page {
@@ -106,24 +58,6 @@ address {
   border-left: 4px solid $banner-text-colour;
 }
 
-.amounts {
-  @include media(desktop) {
-    width: 79%;
-  }
-
-  p:first-child {
-    margin-top: 3px;
-
-    @include media(mobile) {
-      margin-top: 15px;
-    }
-  }
-}
-
-.heading-medium {
-  font-size: 30px;
-}
-
 .nino > span {
   margin-right: 5px;
 }
@@ -136,88 +70,7 @@ input[type="text"].autocomplete__input {
   display: block;
 }
 
-.covid-banner {
-  background-color: #0b0c0c;
-  border-top: 10px solid #ffe114;
-  padding: 20px 0;
-}
 
-.covid-banner a {
-  color: #fff;
-
-  &:focus {
-    color: $black;
-  }
-}
-
-.covid-banner__title {
-  font-weight: 700;
-  float: left;
-
-  display: inline-block;
-  display: flexbox;
-  display: flex;
-  flex-align: center;
-  align-items: center;
-  box-sizing: border-box;
-  padding-left: 50px;
-  min-height: 45px;
-  background-image: url( ../images/covid-icon.png );
-  background-image: url( ../images/covid-icon.svg );
-  background-repeat: no-repeat;
-  background-position: 0 50%;
-  background-size: 37px auto;
-}
-
-.covid-banner__close {
-  float: right;
-  font-size: 19px;
-  margin-top: 0.5em;
-}
-
-@media screen and (max-width: 900px) {
-  .covid-banner__title,
-  .covid-banner__close {
-    float: none;
-  }
-
-  .covid-banner__close {
-    font-size: 16px;
-  }
-}
-
-.heading-xlarge {
-  margin: 0 0 0.5em;
-}
-
-.form-group {
-  margin-top: 1.8em;
-}
-
-.error-message {
-  margin-bottom: 15px;
-}
-
-.form-date .form-group {
-  margin-top: 0;
-}
-
-.govuk-box-highlight {
-  background-color: #00703c;
-}
-
-.form-group.form-field--error {
-  padding-bottom: 0;
-  padding-top: 0;
-}
-
-#pertaxHome {
-  margin-bottom: 10px;
-
-  + .pertax-home {
-    margin-top: 20px;
-  }
-}
 
 #utrNo {
   border-left: 8px solid #bfc1c3;
@@ -243,19 +96,6 @@ input[type="text"].autocomplete__input {
     margin-top: 1em;
 }
 
-
-.govuk-hint {
-    color: #505a5f;
-}
-
-.full-width-banner {
-  display: none;
-}
-
-.full-width-banner.banner-panel--show {
-  display: block;
-}
-
 #news-card .card-body-news a {
     border-bottom: 1px solid #c7dceb;
     display: inline;
@@ -271,8 +111,4 @@ input[type="text"].autocomplete__input {
         color: #2e8aca;
         text-decoration: none;
     }
-}
-
-#newsHeading {
-margin-bottom: 1em;
 }

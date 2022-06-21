@@ -40,6 +40,10 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     postal = messages("label.enter_the_address"))
 }
 
+@stylesheet = {
+    <link rel="stylesheet" href='@routes.AssetsController.versioned("stylesheets/modules/accessible-autocomplete.min.css")'>
+}
+
 @scriptElems = {
     <script src='@controllers.routes.AssetsController.versioned("javascripts/accessible-autocomplete.min.js")'></script>
     <script>
@@ -63,6 +67,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     pageTitle = title.toString,
     showBackLink = true,
     scripts = Some(scriptElems),
+    stylesheets = Some(stylesheet),
     yourProfileActive = true
 ) {
 

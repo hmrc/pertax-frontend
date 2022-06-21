@@ -52,8 +52,8 @@
     backLinkUrl: String = "#",
     disableSessionExpired: Boolean = false,
     fullWidth: Boolean = false,
+    stylesheets: Option[Html] = None,
     scripts: Option[Html] = None,
-    ninoPage: Boolean = false,
     accountHome: Boolean = false,
     messagesActive: Boolean = false,
     checkProgressActive: Boolean = false,
@@ -67,11 +67,8 @@
 @headBlock = {
     <meta name="format-detection" content="telephone=no" />
     <link rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
-    <link rel="stylesheet" href='@routes.AssetsController.versioned("stylesheets/modules/accessible-autocomplete.min.css")'>
 
-    @if(ninoPage) {
-        <link rel="stylesheet" href='@routes.AssetsController.versioned("stylesheets/partials/print-this-document.css")'>
-    }
+    @stylesheets
 
     @if(!disableSessionExpired){
         @hmrcTimeoutDialogHelper(
