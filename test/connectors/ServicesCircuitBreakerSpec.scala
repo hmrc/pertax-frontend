@@ -34,7 +34,7 @@ class ServicesCircuitBreakerSpec extends BaseSpec with ServicesCircuitBreaker {
   "breakOnException" should {
     "return true for HttpException and 5xx response code" in {
       val throwable = new HttpException("message", 500)
-      breakOnException(throwable) mustBe true
+      breakOnException(throwable) mustBe false
     }
 
     "return true for Upstream5xxResponse" in {
@@ -59,11 +59,11 @@ class ServicesCircuitBreakerSpec extends BaseSpec with ServicesCircuitBreaker {
 
     "return true for HttpException and 429 response code" in {
       val throwable = new HttpException("TooManyRequest", 429)
-      breakOnException(throwable) mustBe true
+      breakOnException(throwable) mustBe false
     }
     "return true for HttpException and 499 response code" in {
       val throwable = new HttpException("unkown exception", 499)
-      breakOnException(throwable) mustBe true
+      breakOnException(throwable) mustBe false
     }
 
     "return false for HttpException and 400 response code" in {

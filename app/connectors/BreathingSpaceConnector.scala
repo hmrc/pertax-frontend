@@ -24,12 +24,10 @@ import config.ConfigDecorator
 import metrics.{Metrics, MetricsEnumeration}
 import models.BreathingSpaceIndicator
 import play.api.Logging
-import play.api.http.Status._
 import play.api.libs.json.Format.GenericFormat
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http._
 import util.Timeout
 
@@ -40,6 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class BreathingSpaceConnector @Inject() (
   val httpClient: HttpClient,
   val metrics: Metrics,
+  httpClientResponse: HttpClientResponse,
   override val configDecorator: ConfigDecorator
 ) extends Timeout with Logging with ServicesCircuitBreaker {
 
@@ -53,50 +52,36 @@ class BreathingSpaceConnector @Inject() (
   def getBreathingSpaceIndicator(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Boolean] = {
-
     val timerContext: Timer.Context = metrics.startTimer(metricName)
     val url = s"$baseUrl/$nino/memorandum"
     implicit val bsHeaderCarrier: HeaderCarrier = hc
       .withExtraHeaders(
         "Correlation-Id" -> randomUUID.toString
       )
-
-    val result =
-      withTimeout(timeoutInSec seconds) {
-        withCircuitBreaker(
-          httpClient
-            .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(implicitly, bsHeaderCarrier, implicitly)
-        )(bsHeaderCarrier)
-          .map { response =>
-            timerContext.stop()
-            response
-          }
-      }
-
-    val eitherResponse = EitherT(
-      result
-        .map {
-          case Right(response) =>
-            metrics.incrementSuccessCounter(metricName)
-            Right(response)
-          case Left(error) if error.statusCode == NOT_FOUND || error.statusCode == TOO_MANY_REQUESTS =>
-            metrics.incrementFailedCounter(metricName)
-            logger.info(error.message)
-            Left(error)
-          case Left(error) if error.statusCode >= 400 && error.statusCode <= 499 =>
-            metrics.incrementFailedCounter(metricName)
-            logger.error(error.message)
-            throw new HttpException(error.message, error.statusCode)
-          case Left(error) =>
-            metrics.incrementFailedCounter(metricName)
-            logger.error(error.message, error)
-            Left(error)
+    val result = withTimeout(timeoutInSec seconds) {
+      withCircuitBreaker(
+        httpClient
+          .GET[HttpResponse](url)(implicitly, bsHeaderCarrier, implicitly)
+      )(bsHeaderCarrier)
+        .map { response =>
+          timerContext.stop()
+          Right(response)
         }
-    )
-
-    eitherResponse.map { value =>
-      value.json.as[BreathingSpaceIndicator].breathingSpaceIndicator
+    } recover {
+      case notFound: NotFoundException =>
+        timerContext.stop()
+        Left(UpstreamErrorResponse(notFound.getMessage, notFound.responseCode, notFound.responseCode))
+      case badRequest: BadRequestException =>
+        timerContext.stop()
+        Left(UpstreamErrorResponse(badRequest.getMessage, badRequest.responseCode, badRequest.responseCode))
+      case error: UpstreamErrorResponse =>
+        timerContext.stop()
+        Left(error)
+      case error =>
+        timerContext.stop()
+        throw error
     }
-
+    httpClientResponse.read(result, metricName)(hc).map(_.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
+
 }

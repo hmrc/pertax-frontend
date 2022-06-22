@@ -19,7 +19,7 @@ package connectors
 import config.ConfigDecorator
 import play.api.http.Status.TOO_MANY_REQUESTS
 import uk.gov.hmrc.circuitbreaker.{CircuitBreakerConfig, UsingCircuitBreaker}
-import uk.gov.hmrc.http.HttpException
+import uk.gov.hmrc.http.{HttpException, UpstreamErrorResponse}
 import uk.gov.hmrc.http.HttpReads.is5xx
 import uk.gov.hmrc.http.UpstreamErrorResponse.{Upstream4xxResponse, Upstream5xxResponse}
 
@@ -36,23 +36,10 @@ trait ServicesCircuitBreaker extends UsingCircuitBreaker {
     unstablePeriodDuration = configDecorator.unstablePeriodDuration(externalServiceName)
   )
 
-  object Is5xxOrTooManyRequest {
-    def unapply(throwable: Throwable): Option[Int] =
-      throwable match {
-        case exc: HttpException
-            if is5xx(exc.responseCode) || exc.responseCode == TOO_MANY_REQUESTS || exc.responseCode == 499 =>
-          Some(exc.responseCode)
-        case Upstream5xxResponse(error) => Some(error.statusCode)
-        case Upstream4xxResponse(error) if error.statusCode == TOO_MANY_REQUESTS || error.statusCode == 499 =>
-          Some(error.statusCode)
-        case _ => None
-      }
-  }
-
   override def breakOnException(throwable: Throwable): Boolean =
     throwable match {
-      case Is5xxOrTooManyRequest(_) => true
-      case _                        => false
+      case error: UpstreamErrorResponse if error.statusCode == TOO_MANY_REQUESTS || error.statusCode >= 499 => true
+      case _                                                                                                => false
     }
 
 }
