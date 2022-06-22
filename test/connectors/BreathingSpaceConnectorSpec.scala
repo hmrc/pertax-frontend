@@ -72,12 +72,6 @@ class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
           .willReturn(ok(breathingSpaceTrueResponse))
       )
 
-      println(
-        "response..........." + sut
-          .getBreathingSpaceIndicator(nino)
-          .value
-      )
-
       sut
         .getBreathingSpaceIndicator(nino)
         .value
@@ -111,8 +105,8 @@ class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
       BAD_GATEWAY,
       SERVICE_UNAVAILABLE,
       IM_A_TEAPOT,
-//      NOT_FOUND,
-//      BAD_REQUEST,
+      NOT_FOUND,
+      BAD_REQUEST,
       UNPROCESSABLE_ENTITY
     ).foreach { httpResponse =>
       s"return a $httpResponse when $httpResponse status is received" in {
