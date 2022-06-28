@@ -16,18 +16,18 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.admin.NotFoundException
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
+import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.{BAD_GATEWAY, BAD_REQUEST, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderNames, HttpException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import util.{BaseSpec, Fixtures, WireMockHelper}
 
-class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
+class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
@@ -95,6 +95,26 @@ class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper {
         .futureValue
         .right
         .get mustBe false
+
+      verifyHeader(getRequestedFor(urlEqualTo(url)))
+    }
+
+    "return a BAD_GATEWAY for timeout response" in {
+
+      server.stubFor(
+        get(urlPathEqualTo(url))
+          .willReturn(ok(breathingSpaceTrueResponse).withFixedDelay(5000))
+      )
+
+      val result = sut
+        .getBreathingSpaceIndicator(nino)
+        .value
+        .futureValue
+        .left
+        .get
+
+      result mustBe an[UpstreamErrorResponse]
+      result.statusCode mustBe BAD_GATEWAY
 
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }

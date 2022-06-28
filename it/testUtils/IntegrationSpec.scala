@@ -71,7 +71,8 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
         "microservice.services.auth.port" -> server.port(),
         "microservice.services.message-frontend.port" -> server.port(),
         "microservice.services.agent-client-authorisation.port" -> server.port(),
-        "microservice.services.cachable.session-cache.port" -> server.port()
+        "microservice.services.cachable.session-cache.port" -> server.port(),
+        "microservice.services.breathing-space-if-proxy.port" -> server.port()
       ).overrides(
       api.inject.bind[TemplateRenderer].to(testUtils.MockTemplateRenderer)
     )
