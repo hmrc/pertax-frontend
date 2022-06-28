@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package metrics
+package models
 
-object MetricsEnumeration extends Enumeration {
+sealed trait BreathingSpaceIndicatorResponse
+object BreathingSpaceIndicatorResponse {
+  case object WithinPeriod extends BreathingSpaceIndicatorResponse // true status
+  case object OutOfPeriod extends BreathingSpaceIndicatorResponse // false status
+  case object NotFound extends BreathingSpaceIndicatorResponse // not found response
+  case object StatusUnknown
+      extends BreathingSpaceIndicatorResponse // all others including feature disabled and exceptions
 
-  type MetricsEnumeration = Value
-  val GET_AGENT_CLIENT_STATUS = Value
-  val GET_SEISS_CLAIMS = Value
-  val GET_UNREAD_MESSAGE_COUNT = Value
-  val LOAD_PARTIAL = Value
-  val GET_BREATHING_SPACE_INDICATOR = Value
+  def fromBoolean(b: Boolean): BreathingSpaceIndicatorResponse =
+    if (b) WithinPeriod else OutOfPeriod
 }

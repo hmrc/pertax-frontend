@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
+import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
@@ -29,8 +30,8 @@ import play.api.inject.bind
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services._
 import services.partials.MessageFrontendService
+import services._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -55,6 +56,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockAuthJourney = mock[AuthJourney]
   val mockTemplateRenderer = mock[TemplateRenderer]
   val mockHomePageCachingHelper = mock[HomePageCachingHelper]
+  val mockBreathingSpaceService = mock[BreathingSpaceService]
 
   override def beforeEach: Unit =
     reset(
@@ -141,6 +143,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
     when(mockConfigDecorator.bannerHomePageIsEnabled) thenReturn false
     when(mockConfigDecorator.rlsInterruptToggle) thenReturn true
+    when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())) thenReturn Future.successful(
+      WithinPeriod
+    )
 
   }
 
