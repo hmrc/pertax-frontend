@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package metrics
+package models
 
-object MetricsEnumeration extends Enumeration {
+import play.api.libs.json.Json
 
-  type MetricsEnumeration = Value
-  val GET_AGENT_CLIENT_STATUS = Value
-  val GET_SEISS_CLAIMS = Value
-  val GET_UNREAD_MESSAGE_COUNT = Value
-  val LOAD_PARTIAL = Value
-  val GET_BREATHING_SPACE_INDICATOR = Value
+case class BreathingSpaceIndicator(breathingSpaceIndicator: Boolean)
+
+object BreathingSpaceIndicator {
+  implicit val formats = Json.format[BreathingSpaceIndicator]
 }

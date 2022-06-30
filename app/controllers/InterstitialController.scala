@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
+import views.html.interstitial.{ViewBreathingSpaceView, ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -52,6 +52,7 @@ class InterstitialController @Inject() (
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
+  viewBreathingSpaceView: ViewBreathingSpaceView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig
@@ -161,4 +162,13 @@ class InterstitialController @Inject() (
       errorRenderer.error(UNAUTHORIZED)
     }
   }
+
+  def displayBreathingSpaceDetails: Action[AnyContent] = authenticate { implicit request =>
+    if (configDecorator.isBreathingSpaceIndicatorEnabled) {
+      Ok(viewBreathingSpaceView(redirectUrl = currentUrl))
+    } else {
+      errorRenderer.error(UNAUTHORIZED)
+    }
+  }
+
 }

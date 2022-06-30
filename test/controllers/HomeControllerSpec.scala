@@ -18,31 +18,27 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
-import controllers.auth.requests.UserRequest
 import controllers.auth.AuthJourney
-import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, RlsInterruptHelper}
+import controllers.controllershelpers.HomePageCachingHelper
+import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import play.api.Application
 import play.api.inject.bind
-import play.api.libs.json.JsBoolean
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services._
 import services.partials.MessageFrontendService
+import services._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures}
-import views.html.HomeView
+import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
 
@@ -58,6 +54,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockAuthJourney = mock[AuthJourney]
   val mockHomePageCachingHelper = mock[HomePageCachingHelper]
+  val mockBreathingSpaceService = mock[BreathingSpaceService]
 
   override def beforeEach: Unit =
     reset(
@@ -128,9 +125,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       Future.successful(getIVJourneyStatusResponse)
     }
 
-    when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
-      Future.successful(Some(CacheMap("id", Map("urBannerDismissed" -> JsBoolean(true)))))
-    }
+    when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(false))
+
     when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
       Future.successful(None)
     }
@@ -157,6 +153,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     ) thenReturn "/bas-gateway/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
     when(mockConfigDecorator.rlsInterruptToggle) thenReturn true
+    when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())) thenReturn Future.successful(
+      WithinPeriod
+    )
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
       controller
@@ -182,6 +181,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           "feature.tax-components.enabled" -> true,
           "feature.taxcalc.enabled"        -> true
         )
+        .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
 
       override val controller = app.injector.instanceOf[HomeController]
@@ -204,6 +204,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           "feature.tax-components.enabled" -> true,
           "feature.taxcalc.enabled"        -> true
         )
+        .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
 
       override val controller = app.injector.instanceOf[HomeController]
@@ -226,6 +227,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           "feature.tax-components.enabled" -> false,
           "feature.taxcalc.enabled"        -> false
         )
+        .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
 
       override val controller = app.injector.instanceOf[HomeController]
@@ -239,7 +241,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
 
-      val app: Application = localGuiceApplicationBuilder().build()
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
+        .build()
 
       override val controller = app.injector.instanceOf[HomeController]
 
@@ -256,6 +260,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .overrides(
           bind[PreferencesFrontendService].toInstance(mockPreferencesFrontendService)
         )
+        .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
 
       override val controller = app.injector.instanceOf[HomeController]
@@ -274,6 +279,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .overrides(
           bind[TaxCalculationService].toInstance(mockTaxCalculationService)
         )
+        .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
 
       override val controller = app.injector.instanceOf[HomeController]
@@ -289,7 +295,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
 
-      val app: Application = localGuiceApplicationBuilder().build()
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
+        .build()
 
       override val controller = app.injector.instanceOf[HomeController]
 
@@ -333,7 +341,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
             person = buildFakePerson
           )
         )
-      ).build()
+      ).overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)).build()
 
       override val controller = app.injector.instanceOf[HomeController]
 
@@ -377,7 +385,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
             person = buildFakePerson
           )
         )
-      ).build()
+      ).overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)).build()
 
       override val controller = app.injector.instanceOf[HomeController]
 
@@ -421,7 +429,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
             person = buildFakePerson
           )
         )
-      ).build()
+      ).overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)).build()
 
       override val controller = app.injector.instanceOf[HomeController]
 

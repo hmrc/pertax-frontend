@@ -1,0 +1,53 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+@import scala.concurrent.ExecutionContext
+@import views.html.components.{H1, Link, P, H2}
+
+@this(
+    mainView: newMain,
+    h1: H1,
+    h2: H2,
+    p: P,
+    link: Link
+)
+
+@(redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@mainView(
+    pageTitle = messages("label.breathing_space"),
+    showBackLink = true
+){
+
+    @h1("label.you_are_in_breathing_space", elmId =Some("youAreInBreathingSpaceHeading"))
+
+    <section class="app-markdown">
+
+        @p(Text(messages("label.the_debt_respite_scheme_gives_people_in_debt_the_right_to_legal_protections_from_their_creditors")))
+        @p(Text(messages("label.whilst_you_are_in_breathing_space")))
+
+        <ul class="govuk-list govuk-list--bullet">
+            <li>@messages("label.add_interest_or_charges_to_your_debt")</li>
+            <li>@messages("label.contact_you_to_ask_for_payment")</li>
+            <li>@messages("label.take_enforcement_action_against_you")</li>
+        </ul>
+        @p(Text(messages("label.you_can_still_make_payments_towards_your_debt_during_breathing_space")))
+    </section>
+
+}
