@@ -466,7 +466,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[EnrolmentsHelper],
           injected[SeissService],
           mockNewsAndTileConfig
-        )(stubConfigDecorator, templateRenderer, ec) {
+        )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
           }

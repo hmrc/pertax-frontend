@@ -154,39 +154,39 @@
 }
 
 @childBenefitBanner = {
-<div class="hmrc-user-research-banner" data-module="hmrc-user-research-banner">
-    <div class="hmrc-user-research-banner__container govuk-width-container">
-        <div class="hmrc-user-research-banner__text">
-            <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
-                @messages("label.help_improve_gov_uk")
+    <div class="hmrc-user-research-banner" data-module="hmrc-user-research-banner">
+        <div class="hmrc-user-research-banner__container govuk-width-container">
+            <div class="hmrc-user-research-banner__text">
+                <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
+                    @messages("label.help_improve_gov_uk")
+                </div>
+                <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href=@configDecorator.childBenefitLinkUrl.getOrElse("") target="_blank">
+                    @messages("label.child_benefit_survey_text")
+                </a>
             </div>
-            <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href=@configDecorator.childBenefitLinkUrl.getOrElse("") target="_blank">
-                @messages("label.child_benefit_survey_text")
-            </a>
+            <button class="govuk-link hmrc-user-research-banner__close">
+                @messages("label.no_thanks")
+            </button>
         </div>
-        <button class="govuk-link hmrc-user-research-banner__close">
-            @messages("label.no_thanks")
-        </button>
     </div>
-</div>
 }
 
 @ptaHomeBanner = {
-<div class="hmrc-user-research-banner" data-module="hmrc-user-research-banner">
-    <div class="hmrc-user-research-banner__container govuk-width-container">
-        <div class="hmrc-user-research-banner__text">
-            <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
-                @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageHeadingCy} else {@configDecorator.bannerHomePageHeadingEn}
+    <div class="hmrc-user-research-banner" data-module="hmrc-user-research-banner">
+        <div class="hmrc-user-research-banner__container govuk-width-container">
+            <div class="hmrc-user-research-banner__text">
+                <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
+                    @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageHeadingCy} else {@configDecorator.bannerHomePageHeadingEn}
+                </div>
+                <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href="@configDecorator.bannerHomePageLinkUrl" target="_blank">
+                    @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageLinkTextCy }else {@configDecorator.bannerHomePageLinkTextEn}
+                </a>
             </div>
-            <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href="@configDecorator.bannerHomePageLinkUrl" target="_blank">
-                @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageLinkTextCy }else {@configDecorator.bannerHomePageLinkTextEn}
-            </a>
+            <button class="govuk-link hmrc-user-research-banner__close">
+                @messages("label.no_thanks")
+            </button>
         </div>
-        <button class="govuk-link hmrc-user-research-banner__close">
-            @messages("label.no_thanks")
-        </button>
     </div>
-</div>
 }
 
 @hmrcLayout(
@@ -200,7 +200,7 @@
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),
     additionalScriptsBlock = Some(additionalScripts),
-    additionalBannersBlock = if(showChildBenefitBanner){Some(childBenefitBanner)}else if (showUserResearchBanner){Some(ptaHomeBanner)}else{None},
+    additionalBannersBlock = if(showChildBenefitBanner){Some(childBenefitBanner)}else if (showUserResearchBanner && configDecorator.bannerHomePageIsEnabled){Some(ptaHomeBanner)}else{None},
     mainContentLayout = Some(sidebarContent match {
         case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
         case None =>
