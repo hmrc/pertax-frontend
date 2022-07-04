@@ -72,9 +72,7 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
         "microservice.services.agent-client-authorisation.port" -> server.port(),
         "microservice.services.cachable.session-cache.port" -> server.port(),
         "microservice.services.breathing-space-if-proxy.port" -> server.port()
-      ).overrides(
-      api.inject.bind[TemplateRenderer].to(testUtils.MockTemplateRenderer)
-    )
+      )
 
   override def beforeEach() = {
     super.beforeEach()

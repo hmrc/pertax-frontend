@@ -211,7 +211,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
       }
 
       "render the Your Profile link" in new LocalSetup {
-        assertContainsLink(doc, "Profile and settings", "/personal-account/your-profile")
+        assertContainsLink(doc, "Your Profile", "/personal-account/your-profile")
       }
 
       "render the BTA link" when {
