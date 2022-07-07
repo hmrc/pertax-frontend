@@ -23,7 +23,7 @@ import org.mockito.Mockito._
 import org.mockito.hamcrest.MockitoHamcrest.argThat
 import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -36,23 +36,22 @@ import scala.concurrent.Future
 
 class SessionAuditorSpec extends BaseSpec with AuditTags {
 
+  val auditConnector: AuditConnector = mock[AuditConnector]
+  val enrolmentsHelper: EnrolmentsHelper = injected[EnrolmentsHelper]
+  val sessionAuditor = new SessionAuditor(auditConnector, enrolmentsHelper)
+  val testRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(auditConnector)
   }
-
-  val auditConnector = mock[AuditConnector]
-  val enrolmentsHelper = injected[EnrolmentsHelper]
-  val sessionAuditor = new SessionAuditor(auditConnector, enrolmentsHelper)
 
   def originalResult[A]: Result = Ok
 
   def mockSendExtendedEvent(result: Future[AuditResult]): Unit =
     when(auditConnector.sendExtendedEvent(any())(any(), any())).thenReturn(result)
 
-  val testRequest = FakeRequest()
-
-  def authenticatedRequest[A](request: Request[A]) = AuthenticatedRequest[A](
+  def authenticatedRequest[A](request: Request[A]): AuthenticatedRequest[A] = AuthenticatedRequest[A](
     Some(Fixtures.fakeNino),
     Credentials("foo", "bar"),
     ConfidenceLevel.L200,
@@ -60,7 +59,8 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
     None,
     None,
     Set.empty,
-    request
+    request,
+    None
   )
 
   def eqExtendedDataEvent[A](authenticatedRequest: AuthenticatedRequest[A]): ExtendedDataEvent = {

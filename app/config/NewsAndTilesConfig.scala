@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter
 import scala.collection.JavaConverters._
 
 @Singleton
-class NewsAndTilesConfig @Inject()(configuration: Configuration, localDateUtilities: LocalDateUtilities) {
+class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtilities: LocalDateUtilities) {
 
   def getNewsAndContentModelList()(implicit messages: Messages): List[NewsAndContentModel] = {
     val config = configuration.underlying
@@ -43,7 +43,7 @@ class NewsAndTilesConfig @Inject()(configuration: Configuration, localDateUtilit
           val optionalEndDate = configuration.getOptional[String](s"feature.news.$newsSection.end-date")
           val localEndDate = optionalEndDate match {
             case Some(endDate) => LocalDate.parse(endDate, formatter)
-            case None => LocalDate.MAX
+            case None          => LocalDate.MAX
           }
 
           if (localDateUtilities.isBetween(LocalDate.now(), localStartDate, localEndDate)) {
