@@ -1,0 +1,62 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits._
+@import uk.gov.hmrc.hmrcfrontend.views.config.HmrcPageHeadingLegend
+@import uk.gov.hmrc.hmrcfrontend.views.config.HmrcSectionCaption
+
+
+@this(govukDateInput: GovukDateInput)
+
+@(
+    fieldName: String,
+    form: Form[_],
+    legendKey: String,
+    hint: Option[Content] = None,
+    hintId: Option[String] = None,
+    isPageHeading: Boolean = true,
+    legendClasses: String = "govuk-fieldset__legend--l",
+    fieldSetAttrs: Map[String, String] = Map.empty,
+    errorId: Option[String] = None,
+    items: Seq[InputItem] = Seq.empty,
+    legendCaption: Option[String] = None
+)(implicit messages: Messages)
+
+@govukDateInput(DateInput(
+    id=fieldName,
+    errorMessage = form(fieldName).error.map(err => ErrorMessage(id = errorId, content = Text(messages(err.message, err.args:_*)))),
+    hint = hint.map(hintHtml => Hint(
+                content = hintHtml,
+                id = hintId
+            )),
+    fieldset = Some(Fieldset(
+        legend =
+            if(legendCaption.isDefined){
+                Some(HmrcPageHeadingLegend(
+                    content = Text(messages(legendKey)),
+                    caption = HmrcSectionCaption(Text(messages(legendCaption.get)))
+                ))
+            } else {
+                Some(Legend(
+                    content = Text(messages(legendKey)),
+                    classes = legendClasses,
+                    isPageHeading = isPageHeading
+                ))
+            },
+        attributes = fieldSetAttrs
+    )),
+    items = items
+).withFormField(form(fieldName)))

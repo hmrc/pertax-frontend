@@ -30,7 +30,7 @@ import scala.concurrent.Future
 
 class HomePageCachingHelperSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(bind[LocalSessionCache].toInstance(mock[LocalSessionCache]))
     .build()
 
@@ -57,7 +57,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
         c
       }
 
-      lazy val hasUserDismissedUrInvitationResult: Boolean = cachingHelper.hasUserDismissedUrInvitation.futureValue
+      lazy val hasUserDismissedUrInvitationResult: Boolean = cachingHelper.hasUserDismissedBanner.futureValue
     }
 
     "return true if cached value returns true" in new LocalSetup {

@@ -361,10 +361,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val expectedPostalAddress = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
-          correspondenceAddressView(None, countryHelper.excludedCountries),
+          correspondenceAddressView(Some(testAddress), countryHelper.excludedCountries),
           "label.change",
           "label.your.postal_address",
-          Some(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url)
+          Some(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url),
+          isPostalAddressSame = true
         )
 
         actual.postalAddress mustBe Some(expectedPostalAddress)

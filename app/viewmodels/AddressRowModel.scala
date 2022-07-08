@@ -28,7 +28,7 @@ final case class AddressRowModel(
 ) {
   def extraPostalAddressLink()(implicit messages: Messages): Option[ExtraLinks] = {
     def showRemoveLink(address: PersonalDetailsTableRowModel) = {
-      val hasSameAddress = address.content.toString().contains(messages("label.same_as_main_address"))
+      val hasSameAddress = address.isPostalAddressSame
       val canRemoveAddress = address.linkUrl.isDefined
 
       !hasSameAddress && canRemoveAddress

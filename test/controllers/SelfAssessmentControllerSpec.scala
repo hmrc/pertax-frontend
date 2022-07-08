@@ -58,9 +58,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[AuditConnector].toInstance(mockAuditConnector),
-      bind[AuthAction].toInstance(mockAuthAction),
-      bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
-      bind[AuthJourney].toInstance(defaultFakeAuthJourney)
+      bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction)
     )
     .build()
 
@@ -139,7 +137,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       status(result) mustBe OK
 
       doc
-        .getElementsByClass("heading-large")
+        .getElementsByClass("govuk-heading-l")
         .toString()
         .contains("Activate your Self Assessment registration") mustBe true
     }

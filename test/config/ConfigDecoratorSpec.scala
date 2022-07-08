@@ -20,6 +20,7 @@ import java.net.{MalformedURLException, URL}
 import play.api.Configuration
 import play.api.i18n.Langs
 import testUtils.BaseSpec
+import play.api.i18n.Lang
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -41,6 +42,18 @@ class ConfigDecoratorSpec extends BaseSpec {
       config.ssoToSaAccountSummaryUrl(saUtr, "1516") mustBe
         s"http://localhost:9553/bas-gateway/ssoout/non-digital?continue=http%3A%2F%2Flocalhost%3A9237%2Fself-assessment%2Find%2F$saUtr%2Ftaxreturn%2F1516%2Foptions"
     }
+  }
+
+  "checking for welsh mtd advert url" in {
+    lazy val lang: Lang = Lang("cy")
+    config.makingTaxDigitalForIncomeTaxUrl(lang) mustBe
+      "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy"
+  }
+
+  "checking for english mtd advert url" in {
+    lazy val lang: Lang = Lang("en")
+    config.makingTaxDigitalForIncomeTaxUrl(lang) mustBe
+      "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax"
   }
 
   "Calling toPortalUrl" must {

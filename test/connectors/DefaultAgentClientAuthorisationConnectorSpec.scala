@@ -31,7 +31,11 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 class DefaultAgentClientAuthorisationConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
-      "microservice.services.agent-client-authorisation.port" -> server.port()
+      "microservice.services.agent-client-authorisation.port" -> server.port(),
+      "feature.agent-client-authorisation.maxTps"             -> 100,
+      "feature.agent-client-authorisation.cache"              -> true,
+      "feature.agent-client-authorisation.enabled"            -> true,
+      "feature.agent-client-authorisation.timeoutInSec"       -> 1
     )
     .build()
 

@@ -119,7 +119,7 @@ label.if_you_do_live_in_the_uk_text_before_link=If you do live in the UK, you ca
 label.if_you_do_live_in_the_uk_link_text=change your address
 label.if_you_do_not_live_in_the_uk_text_before_link=If you do not live in the UK,
 label.if_you_do_not_live_in_the_uk_link_text=fill in the ‘Notification of a change in personal details’ form to update your address
-label.all_your_letters_will_be_sent_to_this_address=All your letters will be sent to this address.
+label.all_letters_will_be_sent_to_this_address=All letters will be sent to this address.
 label.same_as_main_address=Same as main address
 label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow=You can only change this address once a day. Please try again tomorrow.
 label.select_your_address=Select your address
@@ -128,8 +128,8 @@ label.your_address_has_been_changed=Your address has been changed
 label.enter_your_address_if_it_is_not_shown=Enter your address manually
 label.enter_your_address_yourself=Enter your address manually
 label.sign_in=Sign in
-label.youve_been_signed_out=You have been signed out
-label.timeout_message=You have not done anything for {0} minutes, so we have signed you out to keep your account secure.
+label.youve_been_signed_out=For your security, we signed you out
+label.timeout_message=We did not save your answers.
 label.please_sign_in_again=Please sign in again.
 label.timeout.dialog.title=You are about to be signed out
 label.timeout.dialog.message=You will be signed out for security reasons in
@@ -164,7 +164,7 @@ label.you_cannot_access_your_account=We cannot access your details
 label.we_need_to_speak_to_you_about_an_mci_error_=This is because of an MCI issue. It means that we need to check some details with you before you can sign in again
 label.how_to_contact_us=You can call us to
 label.resolve.mci.issue=resolve the MCI issue with an advisor.
-label.opens_in_a_new_window=(opens in a new window or tab)
+label.opens_in_a_new_window=(opens in new tab)
 label.yes=Yes
 label.no=No
 
@@ -316,7 +316,6 @@ label.when_you_started_living_here.change=when you started living here
 label.what_happens_next=What happens next
 label.confirm_and_save=Confirm and save
 label.help_improve_gov_uk=Help improve the Child Benefit service
-label.get.involved.in.making.gov.services.better=Get involved in making government services better (opens in a new window or tab)
 label.url_coronavirus=Coronavirus (COVID-19): guidance and support (opens in a new window or tab)
 label.hide_message=Hide message
 label.no_thanks=No thanks
@@ -388,6 +387,7 @@ error.date_in_future=The date you started living here must be today or in the pa
 head.error.country_required=Enter a country
 error.country_required=Enter a country
 error.message.error = Error:
+error.you_must_select_an_answer=Select an answer
 
 #
 # Messages in lower case
@@ -500,6 +500,23 @@ label.old_way_sa_returns=The old way for filing your Self Assessment tax returns
 label.self_assessment_tax_returns=Self Assessment tax returns
 label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax Self Assessment or access your Self Assessment tax returns.
 label.online_deadline_final_declarations=The deadline for final declarations or online returns is 31 January {0}.
+label.making_tax_digital=Making Tax Digital
+label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return=From 6 April 2024 the Making Tax Digital service for Income Tax Self Assessment will replace the Self Assessment tax return.
+label.some_businesses_agents_using_mtd_for_itsa=Some businesses and agents are already using the Making Tax Digital service for Income Tax Self Assessment.
+label.find_out_about_making_tax_digital_for_income_tax_self_assessment=Find out about Making Tax Digital for Income Tax Self Assessment (opens in new tab)
+
+#
+# Breathing Space
+#
+label.breathing_space=BREATHING SPACE
+label.find_out_what_it_means_to_be_in_breathing_space=Find out what it means to be in Breathing Space.
+label.you_are_in_breathing_space=You are in Breathing Space
+label.the_debt_respite_scheme_gives_people_in_debt_the_right_to_legal_protections_from_their_creditors=The Debt Respite Scheme (Breathing Space) gives people in debt the right to legal protections from their creditors.
+label.whilst_you_are_in_breathing_space=Whilst you’re in breathing space, we will not:
+label.add_interest_or_charges_to_your_debt=add interest or charges to your debt
+label.contact_you_to_ask_for_payment=contact you to ask for payment
+label.take_enforcement_action_against_you=take enforcement action against you
+label.you_can_still_make_payments_towards_your_debt_during_breathing_space=You can still make payments towards your debt during breathing space. Talk to your money adviser for more information about Breathing Space.
 
 #
 # Benefits

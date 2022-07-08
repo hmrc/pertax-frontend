@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import config.ConfigDecorator
+import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.controllershelpers.PaperlessInterruptHelper
@@ -31,12 +31,13 @@ import services.{PreferencesFrontendService, SeissService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools._
-import util.EnrolmentsHelper
+import util.{EnrolmentsHelper, FormPartialUpgrade}
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
+import views.html.interstitial.{ViewBreathingSpaceView, ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.postfixOps
 
 class InterstitialController @Inject() (
   val formPartialService: FormPartialService,
@@ -52,18 +53,16 @@ class InterstitialController @Inject() (
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
+  viewBreathingSpaceView: ViewBreathingSpaceView,
   enrolmentsHelper: EnrolmentsHelper,
-  seissService: SeissService
+  seissService: SeissService,
+  newsAndTilesConfig: NewsAndTilesConfig
 )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
 
   val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
-
-  private def currentUrl(implicit request: Request[AnyContent]) =
-    configDecorator.pertaxFrontendHost + request.path
-
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)
@@ -75,13 +74,21 @@ class InterstitialController @Inject() (
     formPartialService.getNationalInsurancePartial.map { p =>
       Ok(
         viewNationalInsuranceInterstitialHomeView(
-          formPartial = p successfulContentOrElse Html(""),
+          formPartial = if (configDecorator.partialUpgradeEnabled) {
+            //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
+            FormPartialUpgrade.upgrade(p successfulContentOrEmpty)
+          } else {
+            p successfulContentOrEmpty
+          },
           redirectUrl = currentUrl,
           request.nino
         )
       )
     }
   }
+
+  private def currentUrl(implicit request: Request[AnyContent]) =
+    configDecorator.pertaxFrontendHost + request.path
 
   def displayChildBenefits: Action[AnyContent] = authenticate { implicit request =>
     Ok(
@@ -147,11 +154,22 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displayNewsAndUpdates: Action[AnyContent] = authenticate { implicit request =>
+  def displayNewsAndUpdates(newsSectionId: String): Action[AnyContent] = authenticate { implicit request =>
     if (configDecorator.isNewsAndUpdatesTileEnabled) {
-      Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl))
+      val models = newsAndTilesConfig.getNewsAndContentModelList()
+      //service to get the dynamic content send the models and get the details from the dynamic list
+      Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, models, newsSectionId))
     } else {
       errorRenderer.error(UNAUTHORIZED)
     }
   }
+
+  def displayBreathingSpaceDetails: Action[AnyContent] = authenticate { implicit request =>
+    if (configDecorator.isBreathingSpaceIndicatorEnabled) {
+      Ok(viewBreathingSpaceView(redirectUrl = currentUrl))
+    } else {
+      errorRenderer.error(UNAUTHORIZED)
+    }
+  }
+
 }

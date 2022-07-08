@@ -47,7 +47,7 @@ class TaxCalculationStateSpec extends BaseSpec {
     fakeRequest
   )
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
     .build()
 

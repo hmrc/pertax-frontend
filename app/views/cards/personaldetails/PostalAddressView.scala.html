@@ -29,7 +29,7 @@
         <span class="address-line">@if(!countries.contains(Country(correspondenceAddress.country.getOrElse("")))) {@correspondenceAddress.country.getOrElse("")}</span>
     }
         </p>
-        <p>@messages("label.all_your_letters_will_be_sent_to_this_address")</p>
+        <p>@messages("label.all_letters_will_be_sent_to_this_address")</p>
     }
 
     @if(isLocked) {

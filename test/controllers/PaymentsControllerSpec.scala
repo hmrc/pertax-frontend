@@ -46,8 +46,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
-      bind[PayApiConnector].toInstance(mockPayConnector),
-      bind[AuthJourney].toInstance(mockAuthJourney)
+      bind[PayApiConnector].toInstance(mockPayConnector)
     )
     .build()
 

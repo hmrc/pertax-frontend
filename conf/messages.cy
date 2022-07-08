@@ -80,7 +80,7 @@ label.if_you_do_live_in_the_uk_text_before_link=Os ydych yn byw yn y DU, gallwch
 label.if_you_do_live_in_the_uk_link_text=newid eich cyfeiriad
 label.if_you_do_not_live_in_the_uk_text_before_link=Os nad ydych y byw yn y DU,
 label.if_you_do_not_live_in_the_uk_link_text=llenwch y ffurflen ‘Notification of a change in personal details’ i ddiweddaru’ch cyfeiriad
-label.all_your_letters_will_be_sent_to_this_address=Bydd eich llythyrau’n cael eu hanfon i’r cyfeiriad hwn.
+label.all_letters_will_be_sent_to_this_address=Bydd pob llythyr yn cael ei anfon i’r cyfeiriad hwn.
 label.same_as_main_address=Yr un peth â’r prif gyfeiriad
 label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow=Dim ond unwaith y diwrnod y gallwch newid y cyfeiriad hwn. Rhowch gynnig arall arni yfory.
 label.select_your_address=Dewis eich cyfeiriad
@@ -89,8 +89,8 @@ label.your_address_has_been_changed=Mae’ch cyfeiriad wedi’i newid
 label.enter_your_address_if_it_is_not_shown=Nodi’ch cyfeiriad os nad yw’n cael ei ddangos
 label.enter_your_address_yourself=Nodi’ch cyfeiriad eich hun
 label.sign_in=Mewngofnodi
-label.youve_been_signed_out=Mae’r system wedi’ch allgofnodi
-label.timeout_message=Nid ydych wedi gwneud unrhyw beth am {0} munud, felly rydym wedi’ch allgofnodi er mwyn cadw’ch cyfrif yn ddiogel.
+label.youve_been_signed_out=Er eich diogelwch, gwnaethom eich allgofnodi
+label.timeout_message=Ni wnaethom gadw’ch atebion.
 label.please_sign_in_again=Mewngofnodwch eto.
 label.timeout.dialog.title=Rydych ar fin cael eich allgofnodi
 label.timeout.dialog.message=Am resymau diogelwch, byddwch yn cael eich allgofnodi ymhen
@@ -116,7 +116,7 @@ label.telephone_0300_200_3300=Ffôn: 0300 200 1900
 label.textphone_0300_200_3319=Ffôn testun: 0300 200 3319
 label.contact_number=0300 200 1900
 label.outside_uk_441355359022=Y tu allan i’r DU: +44 135 535 9022
-label.opens_in_a_new_window=(yn agor ffenestr neu dab newydd)
+label.opens_in_a_new_window=(yn agor tab newydd)
 label.yes=Iawn
 label.no=Na
 label.list_of_messages=Rhestr o negeseuon
@@ -283,7 +283,6 @@ label.if_your_accountant_filed_check_with_them=os mai eich cyfrifydd wnaeth gyfl
 label.call_us_if_you_filed_your_return_by_post_link_text=ffoniwch ni
 label.call_us_if_you_filed_your_return_by_post_text_after_link=os gwnaethoch gyflwyno’ch Ffurflen Dreth drwy’r post
 label.help_improve_gov_uk=Helpu i wella’r gwasanaeth Budd-dal Plant
-label.get.involved.in.making.gov.services.better=Gallwch fod yn rhan o wneud gwasanaethau’r Llywodraeth yn well (yn agor ffenestr neu dab newydd)
 label.no_thanks=Dim diolch
 label.url_coronavirus=Coronafeirws (COVID-19): Arweiniad a chefnogaeth (yn agor mewn ffenestr neu dab newydd)
 label.hide_message=Cuddio’r neges
@@ -369,6 +368,7 @@ error.date_in_future=Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw fan h
 head.error.country_required=Nodwch wlad
 error.country_required=Nodwch wlad
 error.message.error = Gwall:
+error.you_must_select_an_answer=Dewis ateb
 
 #
 # Messages in lower case
@@ -471,6 +471,24 @@ label.old_way_sa_returns=Yr hen ffordd o gyflwyno eich Ffurflenni Treth Hunanase
 label.self_assessment_tax_returns=Ffurflenni Treth Hunanasesiad
 label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
 label.online_deadline_final_declarations=Y dyddiad cau ar gyfer datganiadau terfynol neu Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.making_tax_digital=Troi Treth yn Ddigidol
+label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return=O 6 Ebrill 2024 ymlaen bydd y gwasanaeth Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm yn disodli’r Ffurflen Dreth Hunanasesiad.
+label.some_businesses_agents_using_mtd_for_itsa=Mae rhai busnesau ac asiantau eisoes yn defnyddio’r gwasanaeth Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm.
+label.find_out_about_making_tax_digital_for_income_tax_self_assessment=Cael gwybod am y cynllun Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm (yn agor tab newydd)
+
+#
+# Breathing Space
+#
+label.breathing_space=AMSER I GAEL EICH GWYNT ATOCH
+label.find_out_what_it_means_to_be_in_breathing_space=Darganfyddwch beth mae’n ei olygu i fod mewn Amser i gael eich gwynt atoch.
+label.you_are_in_breathing_space=Rydych mewn cyfnod ‘amser i gael eich gwynt atoch’ (Breathing Space)
+label.the_debt_respite_scheme_gives_people_in_debt_the_right_to_legal_protections_from_their_creditors=Mae’r Cynllun Seibiant rhag Dyled (amser i gael eich gwynt atoch) yn rhoi’r hawl i bobl sydd mewn dyled gael eu diogelu’n gyfreithiol rhag eu credydwyr.
+label.whilst_you_are_in_breathing_space=Tra eich bod yn y cyfnod hwn, ni fyddwn yn:
+label.add_interest_or_charges_to_your_debt=codi llog na chostau ar eich dyled
+label.contact_you_to_ask_for_payment=cysylltu â chi i ofyn am daliad
+label.take_enforcement_action_against_you=cymryd camau gorfodi yn eich erbyn
+label.you_can_still_make_payments_towards_your_debt_during_breathing_space=Gallwch barhau i wneud taliadau tuag at eich dyled yn ystod y cyfnod amser i gael eich gwynt atoch. Siaradwch â’ch ymgynghorydd arian i gael rhagor o wybodaeth am y cynllun.
+
 
 #
 # Benefits
