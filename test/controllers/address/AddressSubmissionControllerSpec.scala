@@ -96,7 +96,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -111,7 +111,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
     "display the appropriate label for address when the residential address has changed" in new LocalSetup {
@@ -205,7 +205,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -232,7 +232,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -280,7 +280,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
