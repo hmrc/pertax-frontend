@@ -112,6 +112,7 @@ object UserSessionAuditEvent {
         s"$key-${identifier.key}" -> Json.toJson(identifier.value)
       }
     }
+    print("sandeep" + flattenEnrolments)
 
     removeNulls(
       flattenEnrolments.foldLeft(
@@ -125,7 +126,7 @@ object UserSessionAuditEvent {
           "allEnrolments"   -> model.allEnrolments
         )
       ) { case (jsObject, element) =>
-        jsObject + element
+        jsObject + (element._1 -> element._2)
       }
     )
   }
