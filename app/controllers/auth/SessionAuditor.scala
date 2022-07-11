@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector, enrolmentsHelper: EnrolmentsHelper)(
+private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector, enrolmentsHelper: EnrolmentsHelper)(
   implicit ec: ExecutionContext
 ) extends AuditTags with Logging {
 
@@ -62,7 +62,7 @@ private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector, en
 
         sendAuditEvent.map {
           case Success => result.addingToSession(sessionKey -> "true")(request)
-          case _       => result
+          case _ => result
         }
 
       case _ => Future.successful(result)
@@ -83,14 +83,14 @@ private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector, en
 }
 
 case class UserSessionAuditEvent(
-  nino: Option[Nino],
-  credentials: Credentials,
-  confidenceLevel: ConfidenceLevel,
-  name: Option[String],
-  saUtr: Option[SaUtr],
-  allEnrolments: Set[Enrolment],
-  affinityGroup: Option[AffinityGroup]
-)
+                                  nino: Option[Nino],
+                                  credentials: Credentials,
+                                  confidenceLevel: ConfidenceLevel,
+                                  name: Option[String],
+                                  saUtr: Option[SaUtr],
+                                  allEnrolments: Set[Enrolment],
+                                  affinityGroup: Option[AffinityGroup]
+                                )
 
 object UserSessionAuditEvent {
   implicit val credentialsFormats: OFormat[Credentials] = Json.format[Credentials]
@@ -112,21 +112,23 @@ object UserSessionAuditEvent {
         s"$key-${identifier.key}" -> Json.toJson(identifier.value)
       }
     }
-    print("sandeep" + flattenEnrolments)
 
     removeNulls(
-      flattenEnrolments.foldLeft(
-        Json.obj(
-          "nino"            -> model.nino,
-          "affinityGroup"   -> model.affinityGroup.fold("None")(_.toString),
-          "credentials"     -> model.credentials,
-          "confidenceLevel" -> model.confidenceLevel,
-          "name"            -> model.name,
-          "saUtr"           -> model.saUtr,
-          "allEnrolments"   -> model.allEnrolments
-        )
-      ) { case (jsObject, element) =>
-        jsObject + (element._1 -> element._2)
+      flattenEnrolments.foldLeft(Json.obj(
+        "nino" -> model.nino,
+        "affinityGroup" -> model.affinityGroup.fold("None")(_.toString),
+        "credentials" -> model.credentials,
+        "confidenceLevel" -> model.confidenceLevel,
+        "name" -> model.name,
+        "saUtr" -> model.saUtr,
+        "allEnrolments" -> model.allEnrolments,
+        "newKey" -> "NewValue"
+      )) { (initialObject, currElement) =>
+        val newElement = currElement match {
+          case (jsObject, element) =>
+            jsObject -> element
+        }
+        initialObject + newElement
       }
     )
   }
