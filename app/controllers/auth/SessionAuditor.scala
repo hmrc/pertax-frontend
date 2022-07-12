@@ -18,6 +18,7 @@ package controllers.auth
 
 import _root_.util.{AuditServiceTools, EnrolmentsHelper}
 import com.google.inject.Inject
+import controllers.auth.UserSessionAuditEvent.writes
 import controllers.auth.requests.AuthenticatedRequest
 import play.api.Logging
 import play.api.libs.json._
@@ -51,7 +52,7 @@ private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector, enr
             ExtendedDataEvent(
               auditSource = AuditServiceTools.auditSource,
               auditType = auditType,
-              detail = Json.toJson(eventDetail),
+              detail = Json.toJson(writes(eventDetail)),
               tags = buildTags(request)
             )
           )
@@ -114,16 +115,18 @@ object UserSessionAuditEvent {
     }
 
     removeNulls(
-      flattenEnrolments.foldLeft(Json.obj(
-        "nino" -> model.nino,
-        "affinityGroup" -> model.affinityGroup.fold("None")(_.toString),
-        "credentials" -> model.credentials,
-        "confidenceLevel" -> model.confidenceLevel,
-        "name" -> model.name,
-        "saUtr" -> model.saUtr,
-        "allEnrolments" -> model.allEnrolments,
-        "newKey" -> "NewValue"
-      )) { (initialObject, currElement) =>
+      flattenEnrolments.foldLeft(
+        Json.obj(
+          "nino" -> model.nino,
+          "affinityGroup" -> model.affinityGroup.fold("None")(_.toString),
+          "credentials" -> model.credentials,
+          "confidenceLevel" -> model.confidenceLevel,
+          "name" -> model.name,
+          "saUtr" -> model.saUtr,
+          "allEnrolments" -> model.allEnrolments,
+          "newKey" -> "NewValue"
+        )
+      ) { (initialObject, currElement) =>
         val newElement = currElement match {
           case (jsObject, element) =>
             jsObject -> element
