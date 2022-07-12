@@ -403,22 +403,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       cardBody mustBe None
     }
 
-    "return nothing for a verify user" in {
-      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = saUserType,
-        credentials = Credentials("", "Verify"),
-        confidenceLevel = ConfidenceLevel.L500,
-        request = FakeRequest()
-      )
-
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType)
-
-      cardBody mustBe None
-    }
-  }
-
   "Calling getNationalInsuranceCard" must {
     "return NI Card when toggled on" in {
 

@@ -45,8 +45,6 @@ final case class UserRequest[+A](
 
   def isGovernmentGateway: Boolean = credentials.providerType == "GovernmentGateway"
 
-  def isVerify: Boolean = credentials.providerType == "Verify"
-
   def isSa: Boolean = saUserType != NonFilerSelfAssessmentUser
 
   def isSaUserLoggedIntoCorrectAccount: Boolean = saUserType match {

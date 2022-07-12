@@ -72,18 +72,6 @@ class PublicControllerSpec extends BaseSpec {
     }
   }
 
-  "Calling PublicController.verifyEntryPoint" must {
-
-    "redirect to /personal-account page with Verify auth provider" in {
-      val request = FakeRequest("GET", "/personal-account/start-verify")
-      val r = controller.verifyEntryPoint()(request)
-
-      status(r) mustBe SEE_OTHER
-      redirectLocation(r) mustBe Some("/personal-account")
-      session(r) mustBe new Session(Map(config.authProviderKey -> config.authProviderVerify))
-    }
-  }
-
   "Calling PublicController.governmentGatewayEntryPoint" must {
 
     "redirect to /personal-account page with GG auth provider" in {

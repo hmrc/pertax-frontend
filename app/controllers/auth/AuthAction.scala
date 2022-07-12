@@ -135,12 +135,6 @@ class AuthActionImpl @Inject() (
           .url
 
       request.session.get(configDecorator.authProviderKey) match {
-        case Some(configDecorator.authProviderVerify) =>
-          lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/ida/login"
-          Redirect(idaSignIn).withSession(
-            "loginOrigin"    -> configDecorator.defaultOrigin.origin,
-            "login_redirect" -> postSignInRedirectUrl(request)
-          )
         case Some(configDecorator.authProviderGG) =>
           lazy val ggSignIn = s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"
           Redirect(

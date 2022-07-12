@@ -41,15 +41,11 @@ class PaperlessPreferencesController @Inject() (
   def managePreferences: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request: UserRequest[_] =>
-        if (request.isVerify) {
-          errorRenderer.futureError(BAD_REQUEST)
-        } else {
-          Future.successful(
-            Redirect(
-              getManagePreferencesUrl(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
-            )
+        Future.successful(
+          Redirect(
+            getManagePreferencesUrl(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
           )
-        }
+        )
     }
 
   private def getManagePreferencesUrl(returnUrl: String, returnLinkText: String): String =
