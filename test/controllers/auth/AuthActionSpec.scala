@@ -33,7 +33,6 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.binders.Origin
 import util.RetrievalOps._
 import util.{BaseSpec, EnrolmentsHelper, Fixtures}
 
@@ -302,7 +301,7 @@ class AuthActionSpec extends BaseSpec {
 
       val controller = retrievals(
         credentialStrength = CredentialStrength.strong,
-        confidenceLevel = ConfidenceLevel.L500,
+        confidenceLevel = ConfidenceLevel.L200,
         affinityGroup = None
       )
 

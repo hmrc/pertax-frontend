@@ -98,7 +98,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   "getSignInDetailsRow" must {
     "return None" when {
       "user is not GG and profile URL is defined" in {
-        val request = userRequest.copy(credentials = Credentials("", "Verify"), profile = Some("example.com"))
+        val request =
+          userRequest.copy(credentials = Credentials("", ""), profile = Some("example.com"))
         val actual = personalDetailsViewModel.getSignInDetailsRow(request, messages)
         actual mustBe None
       }
@@ -109,7 +110,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       }
 
       "user is not GG and profile URL is not defined" in {
-        val request = userRequest.copy(credentials = Credentials("", "Verify"))
+        val request = userRequest.copy(credentials = Credentials("", "GovernmentGateway"))
         val actual = personalDetailsViewModel.getSignInDetailsRow(request, messages)
         actual mustBe None
       }
@@ -139,7 +140,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   "getPaperlessSettingsRow" must {
     "return None" when {
       "user is not gg" in {
-        val request = userRequest.copy(credentials = Credentials("", "Verify"))
+        val request = userRequest.copy(credentials = Credentials("", ""))
         val actual = personalDetailsViewModel.getPaperlessSettingsRow(request, messages)
         actual mustBe None
       }
@@ -184,7 +185,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "return PersonalDetailsTableRowModel" when {
       "user is verify" in {
-        val request = userRequest.copy(credentials = Credentials("", "Verify"))
+        val request = userRequest.copy(credentials = Credentials("", "GovernmentGateway"))
         val actual = personalDetailsViewModel.getTrustedHelpersRow(request, messages)
         val expected = Some(
           PersonalDetailsTableRowModel(

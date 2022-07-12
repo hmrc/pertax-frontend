@@ -22,14 +22,14 @@ import error.GenericErrors
 import models.NonFilerSelfAssessmentUser
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
-import play.api.mvc.Results.{BadRequest, InternalServerError, Ok}
+import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HttpResponse
-import util.UserRequestFixture.buildUserRequest
 import util.BaseSpec
+import util.UserRequestFixture.buildUserRequest
 
 class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
 
@@ -40,8 +40,8 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
 
   implicit val userRequest = buildUserRequest(
     saUser = NonFilerSelfAssessmentUser,
-    credentials = Credentials("", "Verify"),
-    confidenceLevel = ConfidenceLevel.L500,
+    credentials = Credentials("", "GovernmentGateway"),
+    confidenceLevel = ConfidenceLevel.L200,
     request = FakeRequest()
   )
 

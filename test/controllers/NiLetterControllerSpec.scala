@@ -89,8 +89,8 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
+              credentials = Credentials("", "GovernmentGateway"),
+              confidenceLevel = ConfidenceLevel.L200,
               request = request
             )
           )

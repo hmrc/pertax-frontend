@@ -78,7 +78,7 @@ class SelfAssessmentStatusActionSpec
   ): AuthenticatedRequest[AnyContent] =
     AuthenticatedRequest(
       nino,
-      Credentials("", "Verify"),
+      Credentials("", "GovernmentGateway"),
       ConfidenceLevel.L200,
       None,
       None,

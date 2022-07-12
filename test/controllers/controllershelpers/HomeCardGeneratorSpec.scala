@@ -245,8 +245,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "Verify"),
-        confidenceLevel = ConfidenceLevel.L500,
+        credentials = Credentials("", "GovernmentGateway"),
+        confidenceLevel = ConfidenceLevel.L200,
         request = FakeRequest()
       )
 
@@ -259,8 +259,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "Verify"),
-        confidenceLevel = ConfidenceLevel.L500,
+        credentials = Credentials("", "GovernmentGateway"),
+        confidenceLevel = ConfidenceLevel.L200,
         request = FakeRequest()
       )
 
@@ -273,8 +273,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "Verify"),
-        confidenceLevel = ConfidenceLevel.L500,
+        credentials = Credentials("", "GovernmentGateway"),
+        confidenceLevel = ConfidenceLevel.L200,
         request = FakeRequest()
       )
 
@@ -287,8 +287,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "Verify"),
-        confidenceLevel = ConfidenceLevel.L500,
+        credentials = Credentials("", "GovernmentGateway"),
+        confidenceLevel = ConfidenceLevel.L200,
         request = FakeRequest()
       )
 
