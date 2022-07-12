@@ -123,8 +123,7 @@ object UserSessionAuditEvent {
           "confidenceLevel" -> model.confidenceLevel,
           "name" -> model.name,
           "saUtr" -> model.saUtr,
-          "allEnrolments" -> model.allEnrolments,
-          "newKey" -> "NewValue"
+          "allEnrolments" -> model.allEnrolments
         )
       ) { (initialObject, currElement) =>
         val newElement = currElement match {
