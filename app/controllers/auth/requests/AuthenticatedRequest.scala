@@ -16,7 +16,7 @@
 
 package controllers.auth.requests
 
-import models.{SelfAssessmentEnrolment, UserName}
+import models.UserName
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper

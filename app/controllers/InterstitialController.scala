@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewBreathingSpaceView, ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
+import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}

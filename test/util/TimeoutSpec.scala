@@ -16,14 +16,11 @@
 
 package util
 
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo}
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
+import akka.actor.ActorSystem
+import org.scalatest.concurrent.IntegrationPatience
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import akka.actor.ActorSystem
-import org.scalatest.concurrent.IntegrationPatience
 
 class TimeoutSpec extends BaseSpec with Timeout with WireMockHelper with IntegrationPatience {
 

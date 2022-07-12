@@ -19,9 +19,9 @@ package util
 import controllers.auth.requests.UserRequest
 import models._
 import play.api.mvc.Request
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 
 object UserRequestFixture {
