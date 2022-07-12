@@ -402,6 +402,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       cardBody mustBe None
     }
+  }
 
   "Calling getNationalInsuranceCard" must {
     "return NI Card when toggled on" in {

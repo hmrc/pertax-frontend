@@ -92,7 +92,7 @@ class HomeCardGenerator @Inject() (
     request: UserRequest[AnyContent],
     messages: Messages
   ): Option[HtmlFormat.Appendable] =
-    if (configDecorator.saItsaTileEnabled) {
+    if (!configDecorator.saItsaTileEnabled) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
         case saWithActionNeeded =>
