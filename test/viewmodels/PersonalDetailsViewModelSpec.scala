@@ -57,7 +57,6 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     None,
     None,
     None,
-    None,
     fakeRequest
   )
 

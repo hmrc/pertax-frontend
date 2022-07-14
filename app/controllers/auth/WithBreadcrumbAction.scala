@@ -41,7 +41,6 @@ class WithBreadcrumbAction @Inject() (implicit ec: ExecutionContext) {
               request.enrolments,
               request.profile,
               request.unreadMessageCount,
-              request.activeTab,
               Some(breadcrumb),
               request.request
             )

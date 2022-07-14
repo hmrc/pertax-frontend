@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.CitizenDetailsConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -29,7 +29,6 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.play.partials.HtmlPartial
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.message.{MessageDetailView, MessageInboxView}
@@ -52,12 +51,11 @@ class MessageControllerSpec extends BaseSpec {
     new MessageController(
       mockMessageFrontendService,
       mockAuthJourney,
-      injected[WithActiveTabAction],
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
       injected[MessageInboxView],
       injected[MessageDetailView]
-    )(config, templateRenderer, ec) {
+    )(config, ec) {
       when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }

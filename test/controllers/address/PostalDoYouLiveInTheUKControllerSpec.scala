@@ -35,7 +35,6 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       new PostalDoYouLiveInTheUKController(
         addressJourneyCachingHelper,
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         injected[PostalInternationalAddressChoiceView],
         displayAddressInterstitialView
@@ -106,11 +105,10 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
         new PostalDoYouLiveInTheUKController(
           addressJourneyCachingHelper,
           mockAuthJourney,
-          withActiveTabAction,
           cc,
           injected[PostalInternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(mockConfigDecorator, templateRenderer, ec)
+        )(mockConfigDecorator, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

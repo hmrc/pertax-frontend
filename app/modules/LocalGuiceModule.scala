@@ -17,14 +17,10 @@
 package modules
 
 import com.google.inject.AbstractModule
-import config.LocalTemplateRenderer
 import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.renderer.TemplateRenderer
 
 class LocalGuiceModule extends AbstractModule {
-  override def configure() = {
-    bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
+  override def configure() =
     bind(classOf[SessionCache]).to(classOf[LocalSessionCache])
-  }
 }

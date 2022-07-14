@@ -40,7 +40,6 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       new UpdateAddressController(
         addressJourneyCachingHelper,
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         injected[UpdateAddressView],
         displayAddressInterstitialView

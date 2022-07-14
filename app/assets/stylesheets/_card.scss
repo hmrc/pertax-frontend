@@ -130,7 +130,7 @@ html[data-useragent*="MSIE 10.0"] .flex-container {
   }
 }
 
-.js {
+
   .card-body.active {
     &:hover {
       background-color: $link-colour;
@@ -161,7 +161,6 @@ html[data-useragent*="MSIE 10.0"] .flex-container {
       text-decoration: none;
     }
   }
-}
 
 .card-heading-news {
     color:#005ea5;

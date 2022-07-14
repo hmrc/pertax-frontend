@@ -20,7 +20,7 @@
 @import components.{H1, H2, P, Link}
 
 @this(
-    main: newMain,
+    main: MainView,
     h1: H1,
     h2: H2,
     p: P,
@@ -56,7 +56,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
 
         @p(Text(messages("label.all_your_letters_will_be_sent_to_this_addr")))
 
-        @p(HtmlContent(addr.map(x => x.mkString(", <br>")).getOrElse(""))))
+        @p(HtmlContent(addr.map(x => x.mkString(", <br>")).getOrElse("")))
 
         @link(controllers.address.routes.PersonalDetailsController.onPageLoad.url, "label.return_to_your_profile_page")
 

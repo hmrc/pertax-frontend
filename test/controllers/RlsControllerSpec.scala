@@ -28,7 +28,6 @@ import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures}
 import views.html.InternalServerErrorView
@@ -53,7 +52,7 @@ class RlsControllerSpec extends BaseSpec {
       injected[MessagesControllerComponents],
       injected[CheckYourAddressInterruptView],
       injected[InternalServerErrorView]
-    )(injected[ConfigDecorator], injected[TemplateRenderer], ec)
+    )(injected[ConfigDecorator], ec)
 
   "rlsInterruptOnPageLoad" must {
     "return internal server error" when {

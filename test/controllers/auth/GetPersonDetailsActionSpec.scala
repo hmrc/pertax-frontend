@@ -64,7 +64,6 @@ class GetPersonDetailsActionSpec extends BaseSpec {
       None,
       None,
       None,
-      None,
       FakeRequest("", "")
     )
 

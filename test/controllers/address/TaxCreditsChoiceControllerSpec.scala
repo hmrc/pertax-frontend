@@ -34,7 +34,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
     def controller: TaxCreditsChoiceController =
       new TaxCreditsChoiceController(
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         addressJourneyCachingHelper,
         mockEditAddressLockRepository,

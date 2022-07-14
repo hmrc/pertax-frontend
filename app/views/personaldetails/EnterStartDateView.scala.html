@@ -21,7 +21,7 @@
 @import components.{ErrorSummary, InputDate, P, Link, Button}
 
 @this(
-    main: newMain,
+    main: MainView,
     form: FormWithCSRF,
     errorSummary: ErrorSummary,
     inputDate: InputDate,
@@ -42,11 +42,15 @@
     )
 }
 
-@main(
-    pageTitle = typ.ifIs(
+@title = {
+    @if(residenceStartDateForm.hasErrors){@messages("error.message.error")  }@typ.ifIs(
         residential = messages("label.when_did_you_start_living_here"),
         postal = ""
-    ),
+    )
+}
+
+@main(
+    pageTitle = title.toString,
     showBackLink = true,
     yourProfileActive = true
 ) {

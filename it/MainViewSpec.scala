@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import config.{ConfigDecorator, LocalTemplateRenderer}
+import config.ConfigDecorator
 import connectors.EnrolmentsConnector
 import controllers.auth.requests.UserRequest
 import models._
@@ -43,7 +43,6 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.MainView
 
 import java.util.UUID
@@ -63,9 +62,6 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
 
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
-      .overrides(
-        bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
-      )
       .configure(Map(
         "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
         "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
@@ -110,7 +106,6 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
   lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
 
   implicit val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
-  implicit val templateRenderer: TemplateRenderer = app.injector.instanceOf[TemplateRenderer]
   implicit val messages: Messages = MessagesImpl(Lang("en"), messagesApi).messages
 
   trait LocalSetup {
@@ -139,7 +134,6 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
         profile,
         messageCount,
         None,
-        None,
         request
       )
 
@@ -154,17 +148,12 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
 
     def main: Html = {
       view(
-        title,
-        Some(heading),
-        showUserResearchBanner = true,
-        Some(Html("SidebarLinks")),
-        Some("sidebar-class"),
-        supportLinkEnabled = true,
-        Some(Html("script")),
-        Some(Html("ScriptElement")),
-        Some(backLinkUrl),
-        Some(Html("AdditionalGaCalls")),
-        printableDocument = true
+        pageTitle = title,
+        serviceName = heading,
+        sidebarContent = Some(Html("SidebarLinks")),
+        scripts = Some(Html("script")),
+        showBackLink = true,
+        backLinkUrl = backLinkUrl
       )(Html(content))
     }
 
@@ -191,7 +180,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
       }
 
       "render the welsh language toggle" in new LocalSetup {
-        assertContainsLink(doc, "Cymraeg", "/personal-account/lang/cyGb")
+        assertContainsLink(doc, "Cymraeg", "/hmrc-frontend/language/cy")
       }
     }
 
@@ -212,7 +201,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(request = FakeRequest(), messageCount = Some(msgCount))
 
-          doc.getElementsByAttributeValueMatching("aria-label", "Number of unread messages").text() must include(
+          doc.getElementsByClass("hmrc-notification-badge").first().text() must include(
             msgCount.toString)
         }
       }
@@ -222,7 +211,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
       }
 
       "render the Your Profile link" in new LocalSetup {
-        assertContainsLink(doc, "Your profile", "/personal-account/your-profile")
+        assertContainsLink(doc, "Your Profile", "/personal-account/your-profile")
       }
 
       "render the BTA link" when {
@@ -245,7 +234,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
 
       "render the back link" in new LocalSetup {
 
-        val backLink = doc.getElementsByClass("link-back").first()
+        val backLink = doc.getElementById("back-link")
 
         backLink.attr("href") mustBe backLinkUrl
         backLink.text() mustBe messages("label.back")
@@ -268,7 +257,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
           doc.getElementById("attorneyBanner") mustBe an[Element]
 
           assertContainsText(doc, principalName)
-          assertContainsLink(doc, "Return to your own account", "/return-url")
+          assertContainsLink(doc, "Return to your account", "/return-url")
         }
       }
 

@@ -31,7 +31,6 @@ class AddressControllerSpec extends AddressBaseSpec {
   object SUT
       extends AddressController(
         injected[AuthJourney],
-        withActiveTabAction,
         cc,
         displayAddressInterstitialView
       )

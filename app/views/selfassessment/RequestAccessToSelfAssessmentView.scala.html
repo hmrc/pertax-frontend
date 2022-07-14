@@ -16,46 +16,41 @@
 
 @import controllers.auth.requests.UserRequest
 @import config.ConfigDecorator
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
+@import components.{H2, P, Button}
 
-@this(mainView: MainView)
+@this(
+    main: MainView,
+    hmrcPageHeading: HmrcPageHeading,
+    h2: H2,
+    p: P,
+    button: Button
+)
 
-@(deadlineYear: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(deadlineYear: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("title.request_sa_access.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.HomeController.index.url)) {
-    <div class="grid-row">
-        <div class="column-two-thirds">
-            <header class="page-heading">
-                <h1 class="heading-xlarge">
-                @messages("title.request_sa_access.h1")
-                </h1>
-                <p class="heading-secondary">
-                    <span class="visuallyhidden">
-                        @messages("label.this.section.is")
-                    </span>
-                    @messages("label.access_your_self_assessment")
-                </p>
-            </header>
+@main(
+    pageTitle = messages("title.request_sa_access.h1"),
+    showBackLink = true,
+    backLinkID = false,
+    backLinkUrl = controllers.routes.HomeController.index.url
+) {
 
-            <p>
-            @messages("label.request_sa_access.p1")
-            </p>
+    @hmrcPageHeading(PageHeading(
+        text = messages("title.request_sa_access.h1"),
+        section = Some(messages("label.access_your_self_assessment"))
+    ))
 
-            <p>
-            @messages("label.request_sa_access.p2")
-            </p>
+    @p(Text(messages("label.request_sa_access.p1")))
 
-            <p>
-            @messages("label.request_sa_access.p3")
-            </p>
+    @p(Text(messages("label.request_sa_access.p2")))
 
-            <a href="@configDecorator.selfAssessmentEnrolUrl" class="button" id="continue" role="button">@messages("label.request_sa_access.button")</a>
+    @p(Text(messages("label.request_sa_access.p3")))
 
-            <h2 class="section-header">@messages("label.do_your_tax_return_before_the_deadline")</h2>
-            <p>
-            @messages("label.the_deadline_to_do_your_tax_return_online_is_", deadlineYear)
-            </p>
-        </div>
-    </div>
+    @button("label.request_sa_access.button", Some(configDecorator.selfAssessmentEnrolUrl), id="continue")
+
+    @h2("label.do_your_tax_return_before_the_deadline")
+
+    @p(Text(messages("label.the_deadline_to_do_your_tax_return_online_is_", deadlineYear)))
+
 }

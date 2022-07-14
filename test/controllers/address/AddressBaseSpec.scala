@@ -19,7 +19,7 @@ package controllers.address
 import config.ConfigDecorator
 import connectors.{CitizenDetailsConnector, PersonDetailsResponse, PersonDetailsSuccessResponse, UpdateAddressResponse, UpdateAddressSuccessResponse}
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models._
@@ -56,7 +56,6 @@ trait AddressBaseSpec extends BaseSpec {
 
   lazy val messagesApi: MessagesApi = injected[MessagesApi]
 
-  lazy val withActiveTabAction: WithActiveTabAction = injected[WithActiveTabAction]
   lazy val cc: MessagesControllerComponents = injected[MessagesControllerComponents]
   lazy val errorRenderer: ErrorRenderer = injected[ErrorRenderer]
   lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = injected[DisplayAddressInterstitialView]

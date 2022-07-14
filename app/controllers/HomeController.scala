@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
@@ -29,7 +29,6 @@ import play.twirl.api.Html
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import uk.gov.hmrc.time.CurrentTaxYear
 import viewmodels.HomeViewModel
 import views.html.HomeView
@@ -44,19 +43,17 @@ class HomeController @Inject() (
   homeCardGenerator: HomeCardGenerator,
   homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   homeView: HomeView,
   seissService: SeissService,
   rlsInterruptHelper: RlsInterruptHelper
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
-    authJourney.authWithPersonalDetails andThen withActiveTabAction
-      .addActiveTab(ActiveTabHome)
+    authJourney.authWithPersonalDetails
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =

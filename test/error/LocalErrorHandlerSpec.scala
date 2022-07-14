@@ -18,7 +18,6 @@ package error
 
 import config.ConfigDecorator
 import play.api.test.FakeRequest
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import views.html.{InternalServerErrorView, UnauthenticatedErrorView, ViewSpec}
 
@@ -53,7 +52,7 @@ class LocalErrorHandlerSpec extends ViewSpec {
     doc.getElementsByTag("p").toString must include(
       messages(
         "global.error.InternalServerError500.pta.message.you.can"
-      ) + " <a href=\"https://www.gov.uk/contact-hmrc\">" + messages(
+      ) + " <a href=\"https://www.gov.uk/contact-hmrc\" class=\"govuk-link\">" + messages(
         "global.error.InternalServerError500.pta.message.contact.hmrc"
       ) + "</a> " + messages("global.error.InternalServerError500.pta.message.by.phone.post")
     )

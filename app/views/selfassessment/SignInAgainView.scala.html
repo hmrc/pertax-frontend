@@ -16,24 +16,23 @@
 
 @import controllers.auth.requests.UserRequest
 @import config.ConfigDecorator
-@import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import views.html.selfassessment.selfAssessmentHeading
 @import scala.concurrent.ExecutionContext
+@import components.{P, Button}
 
-@this(mainView: MainView)
+@this(main: MainView, selfAssessmentHeading: selfAssessmentHeading, p: P, button: Button)
 
-@(signInAgainUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(signInAgainUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("title.sign_in_again.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowOtherCredentials.url)) {
-    <div class="grid-row">
-        <div class="column-two-thirds">
+@main(
+    pageTitle = messages("title.sign_in_again.h1"),
+    showBackLink = true,
+    backLinkID = false,
+    backLinkUrl = controllers.routes.SaWrongCredentialsController.doYouKnowOtherCredentials.url
+) {
+    @selfAssessmentHeading("title.sign_in_again.h1")
 
-            @selfAssessmentHeading("title.sign_in_again.h1")
+    @p(Text(messages("label.sign_in_again")))
 
-            <p>@messages("label.sign_in_again")</p>
-
-            <a href="@signInAgainUrl" class="button" role="button" id="continue">@messages("global.label.continue_button")</a>
-        </div>
-    </div>
+    @button("global.label.continue_button", href=Some(signInAgainUrl), id="continue")
 }

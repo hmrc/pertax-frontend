@@ -44,7 +44,6 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         mockAuditConnector,
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         injected[UpdateInternationalAddressView],
         displayAddressInterstitialView

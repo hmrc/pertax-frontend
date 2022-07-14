@@ -24,7 +24,6 @@ import error.ErrorRenderer
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.partials.PreferencesFrontendPartialService
-import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.Tools
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,17 +31,15 @@ import scala.concurrent.{ExecutionContext, Future}
 class PaperlessPreferencesController @Inject() (
   val preferencesFrontendPartialService: PreferencesFrontendPartialService,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   tools: Tools
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def managePreferences: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withActiveTabAction
-      .addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request: UserRequest[_] =>
         if (request.isVerify) {
           errorRenderer.futureError(BAD_REQUEST)

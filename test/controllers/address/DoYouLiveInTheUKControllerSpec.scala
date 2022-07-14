@@ -36,7 +36,6 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       new DoYouLiveInTheUKController(
         addressJourneyCachingHelper,
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         injected[InternationalAddressChoiceView],
         displayAddressInterstitialView
@@ -94,11 +93,10 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
         new DoYouLiveInTheUKController(
           addressJourneyCachingHelper,
           mockAuthJourney,
-          withActiveTabAction,
           cc,
           injected[InternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(mockConfigDecorator, templateRenderer, ec)
+        )(mockConfigDecorator, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

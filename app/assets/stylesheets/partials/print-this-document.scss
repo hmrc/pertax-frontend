@@ -1,36 +1,28 @@
-.print-this {
-  border-bottom: 1px solid $black;
-  display: none;
+.print-this, .save-this {
+  border-bottom: 1px solid #0b0c0c;
   margin: 0 0 15px;
-  position: relative;
+  display: inline-block;
 
-  &__icon {
-    left: 0;
-    position: absolute;
-    top: 2px;
-  }
-
-  &__link {
-    color: $black;
+  &__link,
+  &__link:visited {
+    color: #0b0c0c;
     font-size: 16px;
-    padding-left: 25px;
     text-decoration: none;
   }
 }
 
 .save-this {
-  border-bottom: 1px solid $black;
-  position: relative;
-  display: inline-block;
-  margin: 0 0 0 15px;
-
-  &__link,
-  &__link:visited {
-    color: $black;
-    font-size: 16px;
-    text-decoration: none;
-  }
+  margin-left: 1em;
 }
+
+.print-this__link, .save-this__link {
+     color: #000;
+     font-size: 16px;
+     padding-bottom: 20px;
+     text-decoration: none;
+     font-family: "GDS Transport", Arial, sans-serif;
+}
+
 
 @page {
   size: auto;
@@ -38,15 +30,15 @@
 }
 
 .print-document {
-  border: 1px solid $grey-1;
-  box-shadow: 6px 6px 0 0 $grey-3;
+  border: 1px solid #6f777b;
+  box-shadow: 6px 6px 0 0 #dee0e2;
   padding: 25px 50px;
   width: 75%;
 
   .print-header {
     margin-bottom: 15px;
 
-    .column-one-third {
+    .govuk-grid-column-one-third {
       border-left: #28a197 solid;
       padding-left: 8px;
     }
@@ -64,20 +56,27 @@
 
     h3 {
       text-align: right;
-      margin-top: 2em;
-      font-size: 1.2em;
+      margin: 2em 0 0;
       color: #0b0c0c;
       font-weight: 600;
     }
+
+    @media (max-width: 640px) {
+      h3 {
+        text-align: left;
+      }
+    }
+
   }
 
   .document-address {
     &__recipient {
-      margin-top: 50px;
+      margin-top: 25px;
     }
 
     &__sender {
       text-align: left;
+      margin-top: 25px;
 
       .phone {
         margin-top: 1.05263em;
@@ -87,42 +86,17 @@
         margin-left: 1em;
       }
 
-      .sender-details {
-        float: right;
-      }
       @media (min-width: 641px) {
         .sender-details {
           width: 90%;
-        }
-
-        .your-nino {
-          width: 60%;
-          float: left;
-        }
-
-        .your-nino-number {
-          width: 40%;
-          float: left;
-        }
-      }
-      @media (max-width: 640px) {
-        margin-top: 1em;
-
-        .your-nino-number {
-          margin-bottom: 1em;
+          float: right;
         }
       }
     }
   }
 
-  .list li {
-    margin-bottom: 0;
-  }
-
   &__information-box {
     border: 2px solid #28a197;
-    display: block;
-    margin-bottom: 1em;
     padding: 5px 10px;
     width: 100%;
     background-color: #e1f3f1;
@@ -132,6 +106,11 @@
     box-sizing: border-box;
     print-color-adjust: exact;
   }
+
+  #keep-ni-number-safe {
+    margin-top: 1.875em;
+    text-align: center;
+  }
 }
 
 .ni-number-right,
@@ -139,9 +118,6 @@
   border-bottom: 2px solid #28a197;
 }
 
-.ni-number-right h3 {
-  margin-bottom: 0;
-}
 
 .you-download-and-use,
 .view-more-info-app {
@@ -153,11 +129,11 @@
 }
 
 @media (min-width: 641px) {
-  .ni-letter .column-two-thirds {
+  .ni-letter .govuk-grid-column-two-thirds {
     width: 62%;
   }
 
-  .ni-letter .column-one-third {
+  .ni-letter .govuk-grid-column-one-third {
     width: 38%;
   }
 }
@@ -165,17 +141,17 @@
 .got-ni-box {
   background: #e1f3f1;
   padding: 1px 10px;
-  font-size: 15px;
   print-color-adjust: exact;
+
+  h3 {
+    margin-top: 1.05263em;
+    margin-bottom: 0;
+  }
 }
 
 .got-ni-box,
 .got-ni-box ul li {
   font-size: 15px;
-}
-
-.keep-heading {
-  text-align: center;
 }
 
 .insurance-number-text {
@@ -192,10 +168,6 @@
 .available-information {
   font-size: 24px;
   margin-bottom: 0;
-}
-
-#view-more-info-chanel {
-  margin-bottom: 10px;
 }
 
 .footer-page-date {
@@ -215,17 +187,13 @@
   .print-document {
     border: none;
     box-shadow: none;
+
+   .print-header h3 {
+     text-align: right;
+   }
   }
 
-  .save-this {
-    display: none;
-  }
-
-  #footer {
-    display: none;
-  }
-
-  .printable {
+  .govuk-template__body {
     visibility: hidden;
   }
 
@@ -239,21 +207,8 @@
     visibility: visible;
   }
 
-  .print-header .column-two-thirds {
-    margin-top: -5em;
-  }
-  @-moz-document url-prefix() {
-    .print-header .column-two-thirds {
-      margin-top: 0;
-    }
-
-    .keep-heading {
-      margin-top: 10px;
-    }
-
-    .sender-details p {
-      margin: 0.5em 0;
-    }
+  .print-header .govuk-grid-column-two-thirds {
+    margin-top: -4em;
   }
 
   .print-document {
@@ -271,24 +226,14 @@
     .document-address__sender {
       float: right;
       width: 41%;
-
-      .your-nino {
-        width: 60%;
-        float: left;
-      }
-
-      .your-nino-number {
-        width: 40%;
-        float: left;
-      }
     }
 
-    .ni-letter .column-two-thirds {
+    .ni-letter .govuk-grid-column-two-thirds {
       width: 62%;
       float: left;
     }
 
-    .ni-letter .column-one-third {
+    .ni-letter .govuk-grid-column-one-third {
       width: 38%;
       float: left;
     }
@@ -306,6 +251,10 @@
       font-size: 24px;
       margin-bottom: 0;
       print-color-adjust: exact;
+    }
+
+    #keep-ni-number-safe {
+      margin-top: 1em;
     }
   }
 }

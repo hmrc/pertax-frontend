@@ -34,7 +34,7 @@ function offerChat(chatId) {
 }
 
 //Webchat click to chat
-$(document).ready(function () {
+document.addEventListener("DOMContentLoaded", function(event) {
   if (typeof openChat !== 'undefined') {
     $('.webchat-container').css({ display: 'block' });
     $('.openChat').click(openChat);

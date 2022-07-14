@@ -16,13 +16,13 @@
 
 @this()
 
-@(href: String = "#", attrs: Map[String, String] = Map.empty)(implicit messages: Messages)
+@(href: String = "#", backLinkID: Boolean = true, attrs: Map[String, String] = Map.empty)(implicit messages: Messages)
 
 @attrValues = @{
   attrs.map{
     case(key, value) => key + "=" + value
   }
 }
-    <a id="back-link" href="@href" class="govuk-back-link print-hidden" @attrValues>@messages("label.back")</a>
+    <a @if(backLinkID){id="back-link"} href="@href" class="govuk-back-link print-hidden" @attrValues>@messages("label.back")</a>
 
 
