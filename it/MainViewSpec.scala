@@ -244,7 +244,6 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
       "render the BTA link" when {
         "the user is GG and has SA enrolments" in new LocalSetup {
           assertContainsLink(doc, "Business tax account", "/business-account")
-          assert(doc.html().contains("/business-account"))
         }
       }
 
@@ -252,7 +251,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
         "the user is GG and not an SA user" in new LocalSetup {
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequestNoSA()
 
-          assert(!doc.html().contains("/business-account"))
+          assert(doc.getElementsContainingText("Business tax account").isEmpty)
         }
       }
 
