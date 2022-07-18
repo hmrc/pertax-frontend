@@ -56,9 +56,7 @@
     scripts: Option[Html] = None,
     accountHome: Boolean = false,
     messagesActive: Boolean = false,
-    checkProgressActive: Boolean = false,
     yourProfileActive: Boolean = false,
-    businessTaxAccountActive: Boolean = false,
     hideAccountMenu: Boolean = false,
     showChildBenefitBanner: Boolean = false,
     showUserResearchBanner: Boolean = false
@@ -115,10 +113,14 @@
     hmrcAccountMenu(AccountMenu(
         signOut = SignOut(href = controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
         language = if(messages.lang.code == "cy") Cy else En,
-        businessTaxAccount = Some(BusinessTaxAccount(href="#", active = businessTaxAccountActive)),
+        businessTaxAccount = request.saUserType match {
+                                case NonFilerSelfAssessmentUser => None
+                                case saWithActionNeeded =>
+                                    Some(BusinessTaxAccount(href="#"))
+                                case _ => None
+                            },
         accountHome = AccountHome(active = accountHome),
         messages = AccountMessages(active = messagesActive, messageCount = request.unreadMessageCount),
-        checkProgress = CheckProgress(active = checkProgressActive),
         yourProfile = YourProfile(active = yourProfileActive)
     ).withUrlsFromConfig())
 }

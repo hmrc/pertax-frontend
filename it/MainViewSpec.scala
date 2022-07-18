@@ -137,6 +137,33 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
         request
       )
 
+    def buildUserRequestNoSA[A](
+                             nino: Option[Nino] = Some(testNino),
+                             userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+                             saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
+                             credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
+                             confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
+                             personDetails: Option[PersonDetails] = Some(fakePersonDetails),
+                             trustedHelper: Option[TrustedHelper] = None,
+                             profile: Option[String] = None,
+                             messageCount: Option[Int] = None,
+                             request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+                           ): UserRequest[A] =
+      UserRequest(
+        nino,
+        userName,
+        saUser,
+        credentials,
+        confidenceLevel,
+        personDetails,
+        trustedHelper,
+        Set(),
+        profile,
+        messageCount,
+        None,
+        request
+      )
+
     implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest()
 
     def view: MainView = app.injector.instanceOf[MainView]
@@ -217,6 +244,14 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
       "render the BTA link" when {
         "the user is GG and has SA enrolments" in new LocalSetup {
           assertContainsLink(doc, "Business tax account", "/business-account")
+        }
+      }
+
+      "do not render the BTA link" when {
+        "the user is GG and not an SA user" in new LocalSetup {
+          override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequestNoSA()
+
+          assert(doc.getElementsContainingText("Business tax account").isEmpty)
         }
       }
 
