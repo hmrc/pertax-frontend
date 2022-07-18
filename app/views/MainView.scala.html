@@ -117,6 +117,7 @@
                                 case NonFilerSelfAssessmentUser => None
                                 case saWithActionNeeded =>
                                     Some(BusinessTaxAccount(href="#"))
+                                case _ => None
                             },
         accountHome = AccountHome(active = accountHome),
         messages = AccountMessages(active = messagesActive, messageCount = request.unreadMessageCount),
