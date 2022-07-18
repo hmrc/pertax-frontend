@@ -113,9 +113,11 @@
     hmrcAccountMenu(AccountMenu(
         signOut = SignOut(href = controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
         language = if(messages.lang.code == "cy") Cy else En,
-        businessTaxAccount = if(request.enrolments.find(_.key == "IR-SA").map(_.isActivated)) {
+        businessTaxAccount = request.saUserType match {
+                                case NonFilerSelfAssessmentUser => None
+                                case saWithActionNeeded =>
                                     Some(BusinessTaxAccount(href="#"))
-                                } else None,
+                            },
         accountHome = AccountHome(active = accountHome),
         messages = AccountMessages(active = messagesActive, messageCount = request.unreadMessageCount),
         yourProfile = YourProfile(active = yourProfileActive)
