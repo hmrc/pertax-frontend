@@ -136,12 +136,14 @@ class InterstitialController @Inject() (
       } yield Ok(
         selfAssessmentSummaryView(
           //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
-          formPartial = if (configDecorator.partialUpgradeEnabled)
-            FormPartialUpgrade.upgrade(formPartial successfulContentOrEmpty)
-          else formPartial successfulContentOrElse Html(""),
-          saPartial = if (configDecorator.partialUpgradeEnabled)
-            FormPartialUpgrade.upgrade(saPartial successfulContentOrEmpty)
-          else saPartial successfulContentOrElse Html("")
+          formPartial =
+            if (configDecorator.partialUpgradeEnabled)
+              FormPartialUpgrade.upgrade(formPartial successfulContentOrEmpty)
+            else formPartial successfulContentOrElse Html(""),
+          saPartial =
+            if (configDecorator.partialUpgradeEnabled)
+              FormPartialUpgrade.upgrade(saPartial successfulContentOrEmpty)
+            else saPartial successfulContentOrElse Html("")
         )
       )
     } else errorRenderer.futureError(UNAUTHORIZED)
