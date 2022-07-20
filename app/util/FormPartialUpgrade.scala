@@ -27,6 +27,8 @@ object FormPartialUpgrade {
     doc.getElementsByTag("a").addClass("govuk-link")
     doc.getElementsByTag("ul").removeClass("list-bullet").addClass("govuk-list govuk-list--bullet")
     doc.getElementsByTag("h2").addClass("govuk-heading-m")
+    doc.getElementsByTag("p").addClass("govuk-body")
+    doc.getElementsByClass("utr-heading").removeClass("utr-heading").addClass("govuk-inset-text")
     Html(doc.select("body").html)
   }
 }
