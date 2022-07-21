@@ -95,7 +95,7 @@ class ConfigDecorator @Inject() (
   lazy val isNewsAndUpdatesTileEnabled =
     runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
   lazy val isBreathingSpaceIndicatorEnabled =
-    servicesConfig.getBoolean("feature.breathing-space-indicator.enabled")
+    true
   lazy val annualTaxSaSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 

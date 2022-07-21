@@ -36,13 +36,13 @@
     accountHome = true
 ) {
 
-    @hmrcPageHeading(PageHeading(
-        text = request.name.fold(messages("label.your_account"))(upperCaseToTitleCase),
-        section = Some(messages("label.account_home"))
-    ))
+    <header class="hmrc-page-heading">
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
+        <p class="hmrc-caption govuk-caption-xl"><span class="govuk-visually-hidden">@messages("label.this.section.is") </span>@messages("label.account_home")</p>
+    </header>
 
             @if(viewModel.breathingSpaceIndicator) {
-            <div class="govuk-phase-banner">
+            <div class="govuk-!-padding-bottom-6 govuk-!-padding-top-2">
                 <p class="govuk-phase-banner__content">
                     <strong class="govuk-tag govuk-phase-banner__content__tag">
                         @messages("label.breathing_space")
