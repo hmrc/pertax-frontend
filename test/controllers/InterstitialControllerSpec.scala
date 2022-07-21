@@ -81,7 +81,7 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[EnrolmentsHelper],
         injected[SeissService],
         mockNewsAndTileConfig
-      )(config, templateRenderer, ec) {
+      )(config, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) {
             HtmlPartial.Failure()
@@ -376,7 +376,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig]
-        )(stubConfigDecorator, templateRenderer, ec) {
+        )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
           }
@@ -467,7 +467,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[EnrolmentsHelper],
           injected[SeissService],
           mockNewsAndTileConfig
-        )(stubConfigDecorator, templateRenderer, ec) {
+        )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
           }
@@ -534,7 +534,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig]
-        )(stubConfigDecorator, templateRenderer, ec)
+        )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -584,7 +584,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig]
-        )(stubConfigDecorator, templateRenderer, ec)
+        )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

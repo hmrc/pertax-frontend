@@ -15,12 +15,14 @@
  *@
 
 @import tags._
-@this()
+@import components.P
+
+@this(p: P)
 @(nino: Nino)(implicit messages: play.api.i18n.Messages)
 
     @cardContent = {
-        <p><strong>@formattedNino(nino)</strong></p>
-        <p>@messages("label.your_national_insurance_number_is_your_unique_identifier")</p>
+        @p(HtmlContent(s"<strong>${formattedNino(nino)}</strong>"))
+        @p(Text(messages("label.your_national_insurance_number_is_your_unique_identifier")))
     }
 
     @card(
@@ -30,9 +32,9 @@
         heading = messages("label.national_insurance"),
         bodyContent = Some(cardContent)
     ) {
-        <ul>
-            <li><a class="ga-track-anchor-click" href="@controllers.routes.NiLetterController.printNationalInsuranceNumber" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Print your National Insurance letter">@messages("label.view_your_national_insurance_letter")</a></li>
-            <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="View gaps in your record">@messages("label.view_gaps_in_your_record")</a></li>
-            <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Check your State Pension">@messages("label.check_your_state_pension")</a></li>
+        <ul class="govuk-list">
+            <li><a class="govuk-link ga-track-anchor-click " href="@controllers.routes.NiLetterController.printNationalInsuranceNumber" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Print your National Insurance letter">@messages("label.view_your_national_insurance_letter")</a></li>
+            <li><a class="govuk-link ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="View gaps in your record">@messages("label.view_gaps_in_your_record")</a></li>
+            <li><a class="govuk-link ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Check your State Pension">@messages("label.check_your_state_pension")</a></li>
         </ul>
     }

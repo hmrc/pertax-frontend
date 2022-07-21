@@ -35,7 +35,9 @@ GET         /personal-account/lang/enGb                                         
 GET         /personal-account/lang/cyGb                                                controllers.LanguageSwitchController.cyGb()
 
 GET         /personal-account/personal-details                                         controllers.address.PersonalDetailsController.redirectToYourProfile
-GET         /personal-account/your-profile                                             controllers.address.PersonalDetailsController.onPageLoad
+GET         /personal-account/your-profile                                             controllers.address.PersonalDetailsController.redirectToYourProfile
+GET         /personal-account/profile-and-settings                                     controllers.address.PersonalDetailsController.onPageLoad
+
 GET         /personal-account/update-your-address                                      controllers.RlsController.rlsInterruptOnPageLoad
 GET         /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onPageLoad
 POST        /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onSubmit

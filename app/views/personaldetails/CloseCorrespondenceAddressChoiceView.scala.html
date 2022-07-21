@@ -21,7 +21,7 @@
 @import components.{ErrorSummary, P, InputRadios, Button}
 
 @this(
-    main: newMain,
+    main: MainView,
     form: FormWithCSRF,
     errorSummary: ErrorSummary,
     p: P,
@@ -38,8 +38,12 @@
     @p(HtmlContent(s"""<span>${addressDto.mkString(",</span><br><span>")}</span>"""))
 }
 
+@title = {
+    @if(closePostalAddressChoiceForm.hasErrors){@messages("error.message.error") }@messages("label.do_you_want_all_your_letters_to_be_sent_")
+}
+
 @main(
-    pageTitle = messages("label.do_you_want_all_your_letters_to_be_sent_"),
+    pageTitle = title.toString,
     showBackLink = true,
     yourProfileActive = true
 ) {

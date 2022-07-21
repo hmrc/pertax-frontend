@@ -43,7 +43,6 @@ import repositories.EditAddressLockRepository
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
-import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
 import testUtils.UserRequestFixture.buildUserRequest
 
@@ -357,7 +356,6 @@ trait BaseSpec
   ): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
-        bind[TemplateRenderer].toInstance(MockTemplateRenderer),
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
         bind[EditAddressLockRepository].toInstance(mockEditAddressLockRepository),
         bind[AuthJourney].toInstance(new FakeAuthJourney(saUser, personDetails))
@@ -369,8 +367,6 @@ trait BaseSpec
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
 
   lazy val config = app.injector.instanceOf[ConfigDecorator]
-
-  implicit lazy val templateRenderer = app.injector.instanceOf[TemplateRenderer]
 
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
 

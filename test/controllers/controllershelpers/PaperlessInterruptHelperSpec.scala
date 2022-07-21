@@ -53,7 +53,6 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
     None,
     None,
     None,
-    None,
     FakeRequest()
   )
 

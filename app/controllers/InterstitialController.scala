@@ -29,7 +29,6 @@ import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
 import services.{PreferencesFrontendService, SeissService}
 import uk.gov.hmrc.play.partials.HtmlPartial
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
 import views.html.SelfAssessmentSummaryView
@@ -57,7 +56,7 @@ class InterstitialController @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig
-)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
 
   val saBreadcrumb: Breadcrumb =
@@ -136,8 +135,15 @@ class InterstitialController @Inject() (
         saPartial   <- saPartial
       } yield Ok(
         selfAssessmentSummaryView(
-          formPartial successfulContentOrElse Html(""),
-          saPartial successfulContentOrElse Html("")
+          //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
+          formPartial =
+            if (configDecorator.partialUpgradeEnabled)
+              FormPartialUpgrade.upgrade(formPartial successfulContentOrEmpty)
+            else formPartial successfulContentOrElse Html(""),
+          saPartial =
+            if (configDecorator.partialUpgradeEnabled)
+              FormPartialUpgrade.upgrade(saPartial successfulContentOrEmpty)
+            else saPartial successfulContentOrElse Html("")
         )
       )
     } else errorRenderer.futureError(UNAUTHORIZED)

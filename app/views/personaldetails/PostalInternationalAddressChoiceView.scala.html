@@ -15,15 +15,13 @@
  *@
 
 @import tags._
-
-@import views.html.back_link
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 @import components.{ErrorSummary, InputYesNo, Button}
 
 @this(
-    main: newMain,
+    main: MainView,
     formWithCSRF: FormWithCSRF,
     errorSummary: ErrorSummary,
     inputYesNo: InputYesNo,
@@ -32,8 +30,12 @@
 
 @(internationalAddressChoiceForm: Form[dto.InternationalAddressChoiceDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
+@title = {
+    @if(internationalAddressChoiceForm.hasErrors){@messages("error.message.error")  }@messages("label.is_your_postal_address_in_the_uk")
+}
+
 @main(
-    pageTitle = messages("label.is_your_postal_address_in_the_uk"),
+    pageTitle = title.toString,
     showBackLink = true,
     yourProfileActive = true
 ) {

@@ -1,18 +1,16 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import config.LocalTemplateRenderer
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.Application
 import play.api.http.Status.{BAD_REQUEST, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, OK, SEE_OTHER, SERVICE_UNAVAILABLE}
-import play.api.inject.bind
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, route, writeableOf_AnyContentAsEmpty}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import uk.gov.hmrc.http.SessionId
-import uk.gov.hmrc.renderer.TemplateRenderer
 import testUtils.{FileHelper, IntegrationSpec}
 
 class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
@@ -25,9 +23,6 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       "microservice.services.cachable.session-cache.port" -> server.port(),
       "microservice.services.cachable.session-cache.host" -> "127.0.0.1",
       "feature.address-change-tax-credits-question.enabled" -> false
-    )
-    .overrides(
-      bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
     )
     .configure(Map(
       "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
@@ -104,6 +99,73 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       result.get.futureValue.header.status mustBe SEE_OTHER
 
       result.get.futureValue.header.headers.get("Location") mustBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
+    }
+
+    "Show the tax credits question when the toggle is true" in {
+      lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+
+      lazy val app: Application = localGuiceApplicationBuilder()
+        .configure(
+          "microservice.services.auth.port" -> server.port(),
+          "microservice.services.citizen-details.port" -> server.port(),
+          "microservice.services.tcs-broker.port" -> server.port(),
+          "microservice.services.cachable.session-cache.port" -> server.port(),
+          "microservice.services.cachable.session-cache.host" -> "127.0.0.1"
+        )
+        .configure(Map(
+          "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
+          "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
+          "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
+          "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
+          "metrics.enabled"               -> false,
+          "feature.address-change-tax-credits-question.enabled" -> true
+        ))
+        .build()
+
+      server.stubFor(
+        get(urlEqualTo(citizenDetailsUrl))
+          .willReturn(ok(FileHelper.loadFile("./it/resources/citizen-details.json")))
+      )
+
+      server.stubFor(
+        get(urlEqualTo(personDetailsUrl))
+          .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
+      )
+
+      server.stubFor(
+        get(urlPathMatching(s"$cacheMap/.*"))
+          .willReturn(aResponse().withStatus(OK).withBody("""
+                                                            |{
+                                                            |	"id": "session-id",
+                                                            |	"data": {
+                                                            |   "addressPageVisitedDto": {
+                                                            |     "hasVisitedPage": true
+                                                            |   }
+                                                            |	},
+                                                            |	"modifiedDetails": {
+                                                            |		"createdAt": {
+                                                            |			"$date": 1400258561678
+                                                            |		},
+                                                            |		"lastUpdated": {
+                                                            |			"$date": 1400258561675
+                                                            |		}
+                                                            |	}
+                                                            |}
+                                                            |""".stripMargin)
+          )
+      )
+
+      server.stubFor(
+        get(urlEqualTo(tcsBrokerUrl))
+          .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
+      )
+
+      val request = FakeRequest(GET, url)
+      val result = route(app, request)
+
+      result.get.futureValue.header.status mustBe OK
+      contentAsString(result.get) must include(messages("label.do_you_get_tax_credits"))
     }
 
     "return a SEE_OTHER and redirect to PTA Address Change if the user is a non-TCS user" in {

@@ -1,63 +1,72 @@
-/* global $ */
 var card = (function () {
   // Capture when a user clicks
-  $('.card-body' && '.active').on('click', function () {
-    var url = $(this).find('a').attr('href');
-    if (url !== undefined) {
-      window.location.href = url;
-    }
-  });
+  const activeCards = document.querySelectorAll('.card-body' && '.active');
+  if(activeCards.length){
+       for (let i = 0; i < activeCards.length; i++) {
+            activeCards[i].addEventListener('click', function (e) {
+            let url = this.querySelector('.card-link').getAttribute('href');
+            if (url !== undefined) {
+              window.location.href = url;
+            }
+          });
+       }
 
+  }
   var checkSize = function () {
     var maxHeight = getMaxHeight('.card-body');
-    //tile height increased by 15px due to issue DDCNL-3530
-    setMaxheight('.card-body', maxHeight + 15);
+    setMaxheight('.card-body', maxHeight);
   };
 
   // Check each card. If the card does not contain a .card-action
   // make .card-body full height
   var fullHeight = function () {
-    var cardEle = $('.card').not(':has(.card-action)');
-    if (cardEle.length > 0) {
-      cardEle.each(function () {
-        var $cardBody = $(this).children('.card-body');
-        var maxHeight = getMaxHeight('.card');
-        var paddingTop = $cardBody.css('padding-top').replace('px', '');
-        var paddingBottom = $cardBody.css('padding-bottom').replace('px', '');
-        var totalHeight = maxHeight - paddingTop - paddingBottom;
-        $cardBody.css('border-bottom', '0');
-        setMaxheight($cardBody, totalHeight + 15);
-      });
+    const parent = document.querySelectorAll('.card');
+    for (let i = 0; i < parent.length; i++) {
+        if (parent[i].querySelectorAll('.card-action').length == 0) {
+            var cardBody = parent[i].querySelector('.card-body');
+            var maxHeight = getMaxHeight('.card');
+            var totalHeight = maxHeight;
+            cardBody.style.height = totalHeight + "px";
+            cardBody.style.borderBottom = 0;
+        }
     }
-  };
-
-  isNotMobile(checkSize);
-  $(window).resize(isNotMobile(checkSize));
-
-  isNotMobile(fullHeight);
-  $(window).resize(isNotMobile(fullHeight));
-
-  // set max height for any collection of elements
-  function setMaxheight(ele, maxHeight) {
-    $(ele).height(maxHeight);
   }
 
+  isNotMobile(checkSize);
+  window.addEventListener('resize', isNotMobile(checkSize));
+
+  isNotMobile(fullHeight);
+  window.addEventListener('resize', isNotMobile(fullHeight));
+
   // get max height for any collection of elements
-  function getMaxHeight(ele) {
+  function getMaxHeight(elem) {
     var height = [];
-    $(ele).each(function () {
-      if ($(this).height() > 0) height.push($(this).height());
+    var allElems = document.querySelectorAll(elem)
+    allElems.forEach(function (element, index) {
+      if (parseFloat(getComputedStyle(element, null).height.replace("px", "")) > 0) {height.push(parseFloat(getComputedStyle(element, null).height.replace("px", "")))};
     });
     return height.sort(function (a, b) {
       return b - a;
     })[0];
   }
 
+    // set max height for any collection of elements
+    function setMaxheight(ele, maxHeight) {
+
+      const allElems = document.querySelectorAll('.card-body');
+      allElems.forEach(function (element) {
+        element.style.height = maxHeight + "px";
+      })
+    }
+
   // Only run fucntion if the screen size is not mobile.
   function isNotMobile(func) {
     if (navigator.appVersion.indexOf('MSIE 10') === -1) {
-      if ($('.card').css('flex-basis') !== '100%') {
-        return func();
+      if (document.querySelector('.card')){
+          let flexbasis = window.getComputedStyle(document.querySelector('.card')).getPropertyValue('flex-basis');
+          if (flexbasis !== '100%') {
+            return func();
+          }
       }
     }
   }

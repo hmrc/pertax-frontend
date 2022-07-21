@@ -42,7 +42,6 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
       new AddressSelectorController(
         new AddressJourneyCachingHelper(mockLocalSessionCache),
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         errorRenderer,
         injected[AddressSelectorView],

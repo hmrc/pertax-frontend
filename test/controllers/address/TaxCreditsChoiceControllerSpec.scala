@@ -174,7 +174,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
       val result = controller.onPageLoad(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }

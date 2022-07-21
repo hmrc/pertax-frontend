@@ -55,7 +55,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
     None,
     None,
     None,
-    None,
     FakeRequest()
   )
 
@@ -85,7 +84,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
           None,
           None,
           None,
-          None,
           FakeRequest()
         )
 
@@ -108,7 +106,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
           ),
           None,
           Set(),
-          None,
           None,
           None,
           None,
@@ -140,7 +137,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
           None,
           None,
           None,
-          None,
           FakeRequest()
         )
 
@@ -161,7 +157,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakePersonDetails.copy(address = Some(buildFakeAddress.copy(isRls = true)))),
           None,
           Set(),
-          None,
           None,
           None,
           None,
@@ -187,7 +182,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
           ),
           None,
           Set(),
-          None,
           None,
           None,
           None,
@@ -219,7 +213,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
           None,
           None,
           None,
-          None,
           FakeRequest()
         )
 
@@ -248,7 +241,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
           None,
           None,
           None,
-          None,
           FakeRequest()
         )
 
@@ -274,7 +266,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
           ),
           None,
           Set(),
-          None,
           None,
           None,
           None,
@@ -307,7 +298,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
           ),
           None,
           Set(),
-          None,
           None,
           None,
           None,

@@ -23,7 +23,6 @@ import play.api.test.FakeRequest
 import testUtils.Fixtures
 import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.SaUtrGenerator
-import uk.gov.hmrc.renderer.TemplateRenderer
 import testUtils.UserRequestFixture.buildUserRequest
 import viewmodels.HomeViewModel
 

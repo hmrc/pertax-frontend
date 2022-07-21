@@ -16,16 +16,14 @@
 
 package views.html.cards
 
-import config.{ConfigDecorator, LocalTemplateRenderer}
+import config.ConfigDecorator
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
-import play.api.Application
 import play.api.i18n.Messages
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.ViewSpec
 import views.html.cards.home.LatestNewsAndUpdatesView
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 
 class LatestNewsAndUpdatesViewSpec extends ViewSpec {
   val latestNewsAndUpdatesView: LatestNewsAndUpdatesView = app.injector.instanceOf[LatestNewsAndUpdatesView]
@@ -39,9 +37,6 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
 
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
-      .overrides(
-        bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
-      )
       .configure(
         Map(
           "feature.news.nicSection.short-description-en" -> "1.25 percentage points uplift in National Insurance contributions",

@@ -19,13 +19,12 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
-import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.joda.time.LocalDate
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.BadRequestException
-import uk.gov.hmrc.renderer.{ActiveTabYourProfile, TemplateRenderer}
 import views.html.print._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,14 +38,12 @@ class NiLetterController @Inject() (
   errorRenderer: ErrorRenderer,
   printNiNumberView: PrintNationalInsuranceNumberView,
   pdfWrapperView: NiLetterPDfWrapperView,
-  niLetterView: NiLetterView,
-  withActiveTabAction: WithActiveTabAction
-)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
+  niLetterView: NiLetterView
+)(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def printNationalInsuranceNumber: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withActiveTabAction
-      .addActiveTab(ActiveTabYourProfile) andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
         if (request.personDetails.isDefined) {
           Future.successful(
@@ -69,10 +66,6 @@ class NiLetterController @Inject() (
       implicit request =>
         if (configDecorator.saveNiLetterAsPdfLinkEnabled) {
           if (request.personDetails.isDefined) {
-            val applicationMinCss =
-              Source
-                .fromURL(controllers.routes.AssetsController.versioned("css/applicationMin.css").absoluteURL(true))
-                .mkString
             val saveNiLetterAsPDFCss = Source
               .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL(true))
               .mkString
@@ -81,7 +74,7 @@ class NiLetterController @Inject() (
               niLetterView(request.personDetails.get, LocalDate.now.toString("MM/YY"), request.nino).toString()
             val htmlPayload = pdfWrapperView()
               .toString()
-              .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss$applicationMinCss")
+              .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss")
               .replace("<!-- niLetterPlaceHolder -->", niLetter)
               .filter(_ >= ' ')
               .trim

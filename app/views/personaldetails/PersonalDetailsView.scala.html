@@ -21,7 +21,7 @@
 @import components.{H1, H2, P}
 
 @this(
-    main: newMain,
+    main: MainView,
     h1: H1,
     h2: H2,
     p: P,
@@ -111,14 +111,11 @@
 
 
 @main(
-    pageTitle = messages("label.your_personal_details"),
+    pageTitle = messages("label.profile_and_settings"),
     yourProfileActive = true
 ) {
 
-    @hmrcPageHeading(PageHeading(
-        text = request.name.map(upperCaseToTitleCase).getOrElse(messages("label.your_account")),
-        section = Some(messages("label.profile_and_settings"))
-    ))
+        @h1("label.profile_and_settings", classes=Some("govuk-heading-xl"))
 
         @h2("label.profile")
         <dl class="govuk-summary-list">
