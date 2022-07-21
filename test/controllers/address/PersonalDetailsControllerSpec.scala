@@ -53,13 +53,13 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
   }
 
   "Calling AddressController.redirectToYourProfile" must {
-    "redirect to the your-profile page" in new LocalSetup {
+    "redirect to the profile-and-settings page" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] = None
 
       val result = controller.redirectToYourProfile()(FakeRequest())
 
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      status(result) mustBe MOVED_PERMANENTLY
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
   }
 

@@ -64,11 +64,11 @@ class PublicControllerSpec extends BaseSpec {
 
   "Calling PublicController.redirectToPersonalDetails" must {
 
-    "redirect to /your-profile page" in {
+    "redirect to /profile-and-settings page" in {
       val r = controller.redirectToYourProfile()(buildFakeRequestWithAuth("GET"))
 
       status(r) mustBe SEE_OTHER
-      redirectLocation(r) mustBe Some("/personal-account/your-profile")
+      redirectLocation(r) mustBe Some("/personal-account/profile-and-settings")
     }
   }
 
