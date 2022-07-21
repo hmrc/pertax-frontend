@@ -27,12 +27,9 @@
     fullWidth = true
 ) {
     <div class="summary-page">
-        <div class="govuk-grid-column-full">
             @saPartial
-        </div>
     </div>
     @if(request.nino.isDefined) {
-
         <div class="govuk-form-group" id="self-assessment-forms">
             @formPartial
         </div>

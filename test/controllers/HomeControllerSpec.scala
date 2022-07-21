@@ -527,7 +527,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           .index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe OK
-      println("bbbbbb" + configDecorator.bannerHomePageLinkUrl)
+
       contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkUrl)
       contentAsString(r) mustNot include(configDecorator.bannerHomePageHeadingEn)
       contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkTextEn)
