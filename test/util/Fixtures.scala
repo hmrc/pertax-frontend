@@ -295,18 +295,6 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
     FakeRequest(method, uri).withSession(session.toList: _*)
   }
 
-  def buildFakeRequestWithVerify(
-    method: String,
-    uri: String = "/personal-account"
-  ): FakeRequest[AnyContentAsEmpty.type] = {
-    val session = Map(
-      SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
-      SessionKeys.lastRequestTimestamp -> now.getMillis.toString
-    )
-
-    FakeRequest(method, uri).withSession(session.toList: _*)
-  }
-
   def buildUnusedAllowance = UnusedAllowance(BigDecimal(4000.00))
 
   def buildFakePersonDetails = PersonDetails(buildFakePerson, None, None)
