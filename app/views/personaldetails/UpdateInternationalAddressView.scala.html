@@ -22,7 +22,7 @@
 @import components.{ErrorSummary, InputValue, Button}
 
 @this(
-    main: newMain,
+    main: MainView,
     form: FormWithCSRF,
     errorSummary: ErrorSummary,
     inputValue: InputValue,
@@ -40,6 +40,10 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     postal = messages("label.enter_the_address"))
 }
 
+@stylesheet = {
+    <link rel="stylesheet" href='@routes.AssetsController.versioned("stylesheets/modules/accessible-autocomplete.min.css")'>
+}
+
 @scriptElems = {
     <script src='@controllers.routes.AssetsController.versioned("javascripts/accessible-autocomplete.min.js")'></script>
     <script>
@@ -55,10 +59,15 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message").mkString("").trim
 }
 
+@title = {
+    @if(updateAddressForm.hasErrors){@messages("error.message.error")  }@getYourAddressLabels.toString
+}
+
 @main(
-    pageTitle = getYourAddressLabels.toString,
+    pageTitle = title.toString,
     showBackLink = true,
     scripts = Some(scriptElems),
+    stylesheets = Some(stylesheet),
     yourProfileActive = true
 ) {
 

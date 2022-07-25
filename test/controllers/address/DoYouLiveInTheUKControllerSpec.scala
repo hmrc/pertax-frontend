@@ -36,7 +36,6 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       new DoYouLiveInTheUKController(
         addressJourneyCachingHelper,
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         injected[InternationalAddressChoiceView],
         displayAddressInterstitialView
@@ -64,7 +63,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
@@ -94,11 +93,10 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
         new DoYouLiveInTheUKController(
           addressJourneyCachingHelper,
           mockAuthJourney,
-          withActiveTabAction,
           cc,
           injected[InternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(mockConfigDecorator, templateRenderer, ec)
+        )(mockConfigDecorator, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

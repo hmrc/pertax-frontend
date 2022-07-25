@@ -18,14 +18,13 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator, RlsInterruptHelper}
 import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
 import services.AgentClientAuthorisationService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildPersonDetailsEvent
 import viewmodels.PersonalDetailsViewModel
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -39,7 +38,6 @@ class PersonalDetailsController @Inject() (
   val editAddressLockRepository: EditAddressLockRepository,
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
-  withActiveTabAction: WithActiveTabAction,
   auditConnector: AuditConnector,
   rlsInterruptHelper: RlsInterruptHelper,
   agentClientAuthorisationService: AgentClientAuthorisationService,
@@ -48,12 +46,11 @@ class PersonalDetailsController @Inject() (
   personalDetailsView: PersonalDetailsView
 )(implicit
   configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
   ec: ExecutionContext
-) extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+) extends AddressController(authJourney, cc, displayAddressInterstitialView) {
 
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>
-    Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad))
+    Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad, MOVED_PERMANENTLY))
   }
 
   def onPageLoad: Action[AnyContent] =

@@ -45,7 +45,6 @@ class StartDateControllerSpec extends AddressBaseSpec {
     def controller: StartDateController =
       new StartDateController(
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         addressJourneyCachingHelper,
         injected[LanguageUtils],

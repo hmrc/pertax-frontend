@@ -21,7 +21,7 @@
 @import components.{ErrorSummary, InputValue, Button}
 
 @this(
-    main: newMain,
+    main: MainView,
     form: FormWithCSRF,
     errorSummary: ErrorSummary,
     inputValue: InputValue,
@@ -49,8 +49,12 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
    updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message").mkString("").trim
 }
 
+@title = {
+    @if(updateAddressForm.hasErrors){@messages("error.message.error")  } @getYourAddressLabels.toString
+}
+
 @main(
-    pageTitle = getYourAddressLabels.toString,
+    pageTitle = title.toString,
     showBackLink = true,
     yourProfileActive = true
 ) {

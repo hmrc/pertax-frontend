@@ -14,152 +14,202 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
 @import config.ConfigDecorator
+@import uk.gov.hmrc.hmrcfrontend.config.AccountMenuConfig
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits.RichAccountMenu
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.{AccountMenu, SignOut, AccountHome, AccountMessages, CheckProgress, _}
+@import views.html.helper.CSPNonce
+@import components.{attorneyBanner, backLink, Link, FullWidthMainContent}
 @import controllers.auth.requests.UserRequest
-@import controllers.controllershelpers.WelshWarningHelper
-@import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-@import uk.gov.hmrc.play.views.helpers.AttorneyRegime
-@import uk.gov.hmrc.play.views.html.layouts.{Article, AttorneyBanner, TrackingConsentSnippet}
-@import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
-@import uk.gov.hmrc.renderer._
+@import uk.gov.hmrc.ptafrontend.views.html._
 
-@import scala.concurrent.ExecutionContext
+@this(
+    hmrcLayout: HmrcLayout,
+    hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
+    hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
+    twoThirdsMainContent: TwoThirdsMainContent,
+    fullWidthMainContent: FullWidthMainContent,
+    twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
+    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+    govukPhaseBanner: GovukPhaseBanner,
+    configDecorator: ConfigDecorator,
+    link: Link,
+    backLink: backLink,
+    hmrcAccountMenu: HmrcAccountMenu,
+    banner: attorneyBanner,
+    ptaHead: PtaHead,
+    ptaScripts: PtaScripts
+)(implicit accountMenuConfig: AccountMenuConfig)
 
-@this(attorneyBanner: AttorneyBanner, article: Article, trackingConsentSnippet: TrackingConsentSnippet, getHelpFormView: GetHelpFormView)
+@(
+    pageTitle: String,
+    serviceName: String = "label.your_personal_tax_account",
+    sidebarContent: Option[Html] = None,
+    beforeContentHtml: Option[Html] = None,
+    showBackLink: Boolean = false,
+    backLinkID: Boolean = true,
+    backLinkUrl: String = "#",
+    disableSessionExpired: Boolean = false,
+    fullWidth: Boolean = false,
+    stylesheets: Option[Html] = None,
+    scripts: Option[Html] = None,
+    accountHome: Boolean = false,
+    messagesActive: Boolean = false,
+    yourProfileActive: Boolean = false,
+    hideAccountMenu: Boolean = false,
+    showChildBenefitBanner: Boolean = false,
+    showUserResearchBanner: Boolean = false
+)(content: Html)(implicit request: UserRequest[_], messages: Messages)
 
-@(title: String,
-        pageName: Option[String] = None,
-        showUserResearchBanner: Boolean = false,
-        sidebarLinks: Option[Html] = None,
-        sidebarClass: Option[String] = None,
-        supportLinkEnabled: Boolean = true,
-        headScripts: Option[Html] = None,
-        scriptElement: Option[Html] = None,
-        backlinkUrl: Option[String] = None,
-        additionalGaCalls: Option[Html] = None,
-        printableDocument: Boolean = false,
-        displayTimeoutDialog: Boolean = true,
-        hideAccountMenu: Boolean = false
-)(mainContent: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
-       templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@headBlock = {
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
 
-    @links = @{
-        var seq = new scala.collection.mutable.MutableList[Map[String, Any]]()
+    @stylesheets
 
-        if(request.personDetails.isDefined) {
-            if(request.nino.isDefined) {
-                seq += Map("url" -> controllers.address.routes.PersonalDetailsController.onPageLoad.url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
-            }
-            seq += Map("url" -> configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
-            seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
-        }
-        seq
-    }
-
-    @actingAttorneyBanner = {
-        @{
-            request.trustedHelper.map { (helper: TrustedHelper) =>
-                attorneyBanner(Some(helper.principalName), helper.returnLinkUrl, AttorneyRegime.pertax)
-            }
-        }
-    }
-
-    @headInlineScript = {
-        @trackingConsentSnippet()
-    }
-
-    @inlineScript = {
-        @scriptElement
-
-        @if(displayTimeoutDialog) {
-            @views.html.scripts.timeout_dialog(configDecorator.sessionTimeoutInSeconds, configDecorator.sessionCountdownInSeconds, messages)
-        }
-    }
-
-    @printable = @{
-        if(printableDocument) {
-            "printable"
-        }
-    }
-
-
-    @accessibilityFooterUrl = {
-        @configDecorator.accessibilityStatementUrl(request.uri)
-    }
-
-
-
-    @{
-       val urBanner = {
-            if(showUserResearchBanner) {
-                Some(FullWidthBannerComponent(
-                    if (messages.lang.code == "cy") configDecorator.bannerHomePageHeadingCy else configDecorator.bannerHomePageHeadingEn,
-                    if (messages.lang.code == "cy") configDecorator.bannerHomePageLinkTextCy else configDecorator.bannerHomePageLinkTextEn,
-                    Some(configDecorator.bannerHomePageLinkUrl),
-                    Some(Messages("label.no_thanks")),
-                    Some("homepage UR banner")
-                ))
-            } else { None }
-        }
-
-        val isGG = request.trustedHelper match {
-            case Some(TrustedHelper(_,_,_,_)) => Map.empty[String, Any]
-            case _ => Map[String, Any](
-                "isGovernmentGateway" -> request.isGovernmentGateway,
-                "isSa" -> request.isSa
-            )
-        }
-
-        val arguments = TemplateArgumentsBuilder(
-
-            Some(AccountMenuStyleComponent(
-                langUrls = Some((
-                        controllers.routes.LanguageSwitchController.enGb.url,
-                        controllers.routes.LanguageSwitchController.cyGb.url
-                )),
-                signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
-                activeTab = request.activeTab,
-                profileUrl = request.profile,
-                hideAccountMenu = hideAccountMenu || request.personDetails.isEmpty
-            )),
-            Some(CssLinksComponent(
-                CssLinkElement(url = controllers.routes.AssetsController.versioned("css/ie.css").url, ieVersionCondition = Some("IE")),
-                CssLinkElement(controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css").url)
-            )),
-            Some(ScriptsComponent(
-                controllers.routes.AssetsController.versioned("javascripts/pertax.js").url,
-                controllers.routes.AssetsController.versioned("javascripts/webChat.js").url,
-                controllers.routes.AssetsController.versioned("javascripts/card.js").url,
-                controllers.routes.AssetsController.versioned("javascripts/polyfill.js").url,
-                controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js").url
-            )),
-            urBanner,
-            Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
-            Some(InlineScriptComponent(inlineScript.toString)),
-            configDecorator.ssoUrl.map(SsoUrlComponent),
-            Some(GetHelpFormComponent(getHelpFormView(supportLinkEnabled, false))),
-            backlinkUrl.map(BackLinkUrlComponent(_)),
-            Some(ActingAttorneyBannerComponent(actingAttorneyBanner)),
-            pageName.map(NavTitleComponent),
-            Some(BetaBannerComponent(configDecorator.deskproToken)),
-            Some(MessagesMenuItemComponent(request.unreadMessageCount))
-        ) ++ Map[String, Any](
-            "bodyClass" -> printable,
-            "headInlineScript" -> headInlineScript
-        ) ++ isGG
-
-        val extraArguments:Map[String,Any] = if(configDecorator.accessibilityStatementToggle) {
-            arguments ++ Map[String,Any](
-              "accessibilityFooterUrl" -> accessibilityFooterUrl
-            )
-        } else {
-            arguments
-        }
-
-        templateRenderer.renderDefaultTemplate(
-            configDecorator.frontendTemplatePath,
-            mainContent,
-            extraArguments
+    @if(!disableSessionExpired){
+        @hmrcTimeoutDialogHelper(
+            signOutUrl = controllers.routes.SessionManagementController.timeOut.url,
+            keepAliveUrl = Some(controllers.routes.SessionManagementController.keepAlive.url),
+            timeout = Some(configDecorator.sessionTimeoutInSeconds),
+            countdown = Some(configDecorator.sessionCountdownInSeconds)
         )
-
     }
+    @ptaHead()
+}
+
+
+@beforeContent = {
+    @if(!hideAccountMenu && request.personDetails.nonEmpty) { @accountMenu }
+
+    @if(showBackLink){
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+                @backLink(backLinkUrl, backLinkID)
+            </div>
+            <div class="govuk-grid-column-one-half">
+                @hmrcLanguageSelectHelper()
+            </div>
+        </div>
+    } else {
+        @hmrcLanguageSelectHelper()
+    }
+
+    @attorneyBanner
+
+    @if(beforeContentHtml.isDefined){
+        @beforeContentHtml
+    }
+}
+
+@attorneyBanner = @{
+    request.trustedHelper.map{ helper =>
+        banner(helper)
+    }
+}
+
+@accountMenu = @{
+    hmrcAccountMenu(AccountMenu(
+        signOut = SignOut(href = controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
+        language = if(messages.lang.code == "cy") Cy else En,
+        businessTaxAccount = request.saUserType match {
+                                case NonFilerSelfAssessmentUser => None
+                                case saWithActionNeeded =>
+                                    Some(BusinessTaxAccount(href="#"))
+                                case _ => None
+                            },
+        accountHome = AccountHome(active = accountHome),
+        messages = AccountMessages(active = messagesActive, messageCount = request.unreadMessageCount),
+        yourProfile = YourProfile(active = yourProfileActive)
+    ).withUrlsFromConfig())
+}
+
+@additionalScripts = {
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
+    @ptaScripts()
+    @scripts
+}
+
+@contentBlock = {
+    @content
+    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+    @hmrcReportTechnicalIssueHelper()
+    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
+    @govukPhaseBanner(PhaseBanner(
+        tag = Some(Tag(
+            content = Text(messages("label.beta"))
+        )),
+        content = HtmlContent(messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_before_link") + " " +
+                        link(link= configDecorator.betaFeedbackUnauthenticatedUrl(configDecorator.deskproToken),
+                            messageKey="global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text",
+                            inParagraph = true) + " " +
+                        messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_after_link")
+        )
+    ))
+}
+
+@fullPageTitle = @{
+    s"""$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"""
+}
+
+@childBenefitBanner = {
+    <div class="hmrc-user-research-banner" data-module="hmrc-user-research-banner">
+        <div class="hmrc-user-research-banner__container govuk-width-container">
+            <div class="hmrc-user-research-banner__text">
+                <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
+                    @messages("label.help_improve_gov_uk")
+                </div>
+                <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href=@configDecorator.childBenefitLinkUrl.getOrElse("") target="_blank">
+                    @messages("label.child_benefit_survey_text")
+                </a>
+            </div>
+            <button class="govuk-link hmrc-user-research-banner__close">
+                @messages("label.no_thanks")
+            </button>
+        </div>
+    </div>
+}
+
+@ptaHomeBanner = {
+    <div class="hmrc-user-research-banner" data-module="hmrc-user-research-banner">
+        <div class="hmrc-user-research-banner__container govuk-width-container">
+            <div class="hmrc-user-research-banner__text">
+                <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
+                    @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageHeadingCy} else {@configDecorator.bannerHomePageHeadingEn}
+                </div>
+                <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href="@configDecorator.bannerHomePageLinkUrl" target="_blank">
+                    @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageLinkTextCy }else {@configDecorator.bannerHomePageLinkTextEn}
+                </a>
+            </div>
+            <button class="govuk-link hmrc-user-research-banner__close">
+                @messages("label.no_thanks")
+            </button>
+        </div>
+    </div>
+}
+
+@hmrcLayout(
+    pageTitle = Some(fullPageTitle),
+    serviceName = Some(messages(serviceName)),
+    serviceUrl = Some(configDecorator.personalAccount),
+    nonce = CSPNonce.get,
+    isWelshTranslationAvailable = true,
+    accessibilityStatementUrl = Some(configDecorator.accessibilityStatementUrl(request.uri)),
+    displayHmrcBanner = false,
+    additionalHeadBlock = Some(headBlock),
+    beforeContentBlock = Some(beforeContent),
+    additionalScriptsBlock = Some(additionalScripts),
+    additionalBannersBlock = if(showChildBenefitBanner){Some(childBenefitBanner)}else if (showUserResearchBanner && configDecorator.bannerHomePageIsEnabled){Some(ptaHomeBanner)}else{None},
+    mainContentLayout = Some(sidebarContent match {
+        case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
+        case None =>
+            if(fullWidth) {
+                fullWidthMainContent(_)
+            } else {
+                twoThirdsMainContent(_)
+            }
+    })
+    )(contentBlock)

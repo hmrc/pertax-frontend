@@ -62,7 +62,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
 
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
 
-  val url = s"/personal-account/your-profile"
+  val url = s"/personal-account/profile-and-settings"
   val agentLink = "/manage-your-tax-agents"
 
   "your-profile" must {

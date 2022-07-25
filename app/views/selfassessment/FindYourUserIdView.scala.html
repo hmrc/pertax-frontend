@@ -16,27 +16,28 @@
 
 @import controllers.auth.requests.UserRequest
 @import config.ConfigDecorator
-@import uk.gov.hmrc.renderer.TemplateRenderer
-@import views.html.selfassessment.selfAssessmentHeading
-@import views.html.selfassessment.selfAssessmentUtr
+@import views.html.selfassessment.{selfAssessmentHeading, selfAssessmentUtr}
 @import scala.concurrent.ExecutionContext
+@import components.{P, Button}
 
-@this(mainView: MainView)
+@this(
+    main: MainView,
+    p: P,
+    button: Button,
+    selfAssessmentHeading: selfAssessmentHeading,
+    selfAssessmentUtr: selfAssessmentUtr
+)
 
-@(saUtr: Option[String], ggSignInUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(saUtr: Option[String], ggSignInUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("title.find_your_user_id.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowUserId.url)) {
-    <div class="grid-row">
-        <div class="column-two-thirds">
-
-            @selfAssessmentHeading("title.find_your_user_id.h1")
-            @selfAssessmentUtr(saUtr)
-
-            <p>
-            @messages("label.next_page_forgotten_userid")
-            </p>
-
-            <a href="@ggSignInUrl" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
-        </div>
-    </div>
+@main(
+    pageTitle = messages("title.find_your_user_id.h1"),
+    showBackLink = true,
+    backLinkID = false,
+    backLinkUrl = controllers.routes.SaWrongCredentialsController.doYouKnowUserId.url
+) {
+    @selfAssessmentHeading("title.find_your_user_id.h1")
+    @selfAssessmentUtr(saUtr)
+    @p(Text(messages("label.next_page_forgotten_userid")))
+    @button("global.label.continue_button", href=Some(ggSignInUrl), id="continue")
 }

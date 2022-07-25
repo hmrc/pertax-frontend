@@ -18,7 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -28,7 +28,6 @@ import play.api.test.Helpers._
 import services.partials.PreferencesFrontendPartialService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util._
 
@@ -46,12 +45,11 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
     new PaperlessPreferencesController(
       mockPreferencesFrontendPartialService,
       mockAuthJourney,
-      injected[WithActiveTabAction],
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
       injected[ErrorRenderer],
       injected[Tools]
-    )(config, templateRenderer, ec) {}
+    )(config, ec) {}
 
   "Calling PaperlessPreferencesController.managePreferences" must {
     "Redirect to  preferences-frontend manage paperless url when a user is logged in using GG" in {

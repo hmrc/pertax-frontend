@@ -283,9 +283,6 @@ class ConfigDecorator @Inject() (
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
-  lazy val assetsPrefix = runModeConfiguration.get[String](s"assets.url") + runModeConfiguration
-    .get[String](s"assets.version") + '/'
-
   lazy val sessionTimeoutInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.timeout").getOrElse(900)
   lazy val sessionTimeoutInMinutes = sessionTimeoutInSeconds / 60
   lazy val sessionCountdownInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.countdown").getOrElse(120)

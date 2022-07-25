@@ -20,7 +20,6 @@ import play.api.mvc.{MessagesControllerComponents, Session}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.BaseSpec
 import util.Fixtures._
 import views.html.public.SessionTimeoutView
@@ -29,11 +28,8 @@ import scala.concurrent.ExecutionContext
 
 class PublicControllerSpec extends BaseSpec {
 
-  private val mockTemplateRenderer = mock[TemplateRenderer]
-
   private def controller = new PublicController(injected[MessagesControllerComponents], injected[SessionTimeoutView])(
     config,
-    mockTemplateRenderer,
     ec
   )
 
@@ -68,11 +64,11 @@ class PublicControllerSpec extends BaseSpec {
 
   "Calling PublicController.redirectToPersonalDetails" must {
 
-    "redirect to /your-profile page" in {
+    "redirect to /profile-and-settings page" in {
       val r = controller.redirectToYourProfile()(buildFakeRequestWithAuth("GET"))
 
       status(r) mustBe SEE_OTHER
-      redirectLocation(r) mustBe Some("/personal-account/your-profile")
+      redirectLocation(r) mustBe Some("/personal-account/profile-and-settings")
     }
   }
 

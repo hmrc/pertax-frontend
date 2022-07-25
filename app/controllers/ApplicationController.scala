@@ -27,7 +27,6 @@ import services._
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl, SafeRedirectUrl}
-import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import views.html.iv.failure._
 import views.html.iv.success.SuccessView
@@ -44,7 +43,7 @@ class ApplicationController @Inject() (
   lockedOutView: LockedOutView,
   timeOutView: TimeOutView,
   technicalIssuesView: TechnicalIssuesView
-)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) with CurrentTaxYear {
 
   private val logger = Logger(this.getClass)

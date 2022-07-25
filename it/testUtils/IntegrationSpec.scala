@@ -9,7 +9,6 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.Generator
-import uk.gov.hmrc.renderer.TemplateRenderer
 import scala.concurrent.ExecutionContext
 
 trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with Matchers {
@@ -83,9 +82,7 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
         "microservice.services.agent-client-authorisation.port" -> server.port(),
         "microservice.services.cachable.session-cache.port" -> server.port(),
         "microservice.services.breathing-space-if-proxy.port" -> server.port()
-      ).overrides(
-      api.inject.bind[TemplateRenderer].to(testUtils.MockTemplateRenderer)
-    )
+      )
 
   override def beforeEach() = {
     super.beforeEach()
