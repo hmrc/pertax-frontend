@@ -50,7 +50,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
 }
 
 @title = {
-    @if(updateAddressForm.hasErrors){@messages("error.message.error")  }getYourAddressLabels.toString
+    @if(updateAddressForm.hasErrors){@messages("error.message.error")  } @getYourAddressLabels.toString
 }
 
 @main(

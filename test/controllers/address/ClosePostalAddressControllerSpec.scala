@@ -49,7 +49,12 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       closedPostalAddress = true,
       Some(fakeAddress.fullAddress),
       None
-    )(buildUserRequest(request = FakeRequest()), configDecorator, messages, ec).toString
+    )(
+      buildUserRequest(request = FakeRequest(), saUser = NonFilerSelfAssessmentUser),
+      configDecorator,
+      messages,
+      ec
+    ).toString
 
     def controller: ClosePostalAddressController =
       new ClosePostalAddressController(
@@ -152,7 +157,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {

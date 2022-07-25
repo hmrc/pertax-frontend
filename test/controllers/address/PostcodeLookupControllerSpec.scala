@@ -105,7 +105,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
     "redirect to the beginning of the journey when user has not visited your-address page on correspondence journey" in new LocalSetup {
@@ -115,7 +115,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
     "verify an audit event has been sent for a user clicking the change address link" in new LocalSetup {

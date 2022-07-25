@@ -50,7 +50,7 @@ class PersonalDetailsController @Inject() (
 ) extends AddressController(authJourney, cc, displayAddressInterstitialView) {
 
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>
-    Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad))
+    Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad, MOVED_PERMANENTLY))
   }
 
   def onPageLoad: Action[AnyContent] =
