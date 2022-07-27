@@ -16,7 +16,6 @@
 
 package controllers
 
-import config.ConfigDecorator
 import connectors._
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
@@ -30,11 +29,11 @@ import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
+import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec}
+import testUtils.UserRequestFixture.buildUserRequest
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 

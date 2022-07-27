@@ -28,7 +28,7 @@ case object AddressPageVisitedDtoId extends CacheIdentifier[AddressPageVisitedDt
   override val id: String = "addressPageVisitedDto"
 }
 
-case object SubmittedTaxCreditsChoiceId extends CacheIdentifier[TaxCreditsChoiceDto] {
+case object TaxCreditsChoiceId extends CacheIdentifier[TaxCreditsChoiceDto] {
   override val id: String = "taxCreditsChoiceDto"
 }
 

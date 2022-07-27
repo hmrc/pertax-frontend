@@ -16,7 +16,7 @@
 
 package models.dto
 
-import util.BaseSpec
+import testUtils.BaseSpec
 
 class AddressFinderDtoSpec extends BaseSpec {
 

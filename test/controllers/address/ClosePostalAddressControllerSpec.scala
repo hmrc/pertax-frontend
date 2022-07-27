@@ -31,9 +31,9 @@ import services._
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
-import util.Fixtures
-import util.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
-import util.UserRequestFixture.buildUserRequest
+import testUtils.{ActionBuilderFixture, Fixtures}
+import testUtils.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
 import java.time.Instant

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
-import com.codahale.metrics.MetricRegistry
-import com.kenshoo.play.metrics.Metrics
+import uk.gov.hmrc.auth.core.retrieve.~
 
-class NullMetrics extends Metrics {
-  override def defaultRegistry: MetricRegistry = new MetricRegistry
-  override def toJson: String = ""
+object RetrievalOps {
+  implicit class Ops[A](a: A) {
+    def ~[B](b: B): A ~ B = new ~(a, b)
+  }
 }

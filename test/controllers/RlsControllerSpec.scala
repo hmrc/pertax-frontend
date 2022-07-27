@@ -27,9 +27,9 @@ import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
+import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures}
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.InternalServerErrorView
 import views.html.personaldetails.CheckYourAddressInterruptView
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success

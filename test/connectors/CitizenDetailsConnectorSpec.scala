@@ -25,10 +25,11 @@ import org.mockito.Mockito._
 import play.api.http.Status._
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import services.http.FakeSimpleHttp
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.{BaseSpec, Fixtures}
+import testUtils.BaseSpec
 
 class CitizenDetailsConnectorSpec extends BaseSpec {
 

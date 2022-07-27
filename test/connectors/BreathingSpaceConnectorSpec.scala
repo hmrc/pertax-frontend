@@ -25,7 +25,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.{BAD_GATEWAY, BAD_REQUEST, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import util.{BaseSpec, Fixtures, WireMockHelper}
+import testUtils.{BaseSpec, Fixtures, WireMockHelper}
 
 class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 

@@ -26,7 +26,7 @@ import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.DateTimeTools.{current, previousAndCurrentTaxYear}
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 
 class ViewSaAndItsaMergePageViewSpec extends ViewSpec {

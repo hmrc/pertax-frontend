@@ -21,7 +21,7 @@ import controllers.address.routes
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import models.dto.AddressDto
 import play.api.test.FakeRequest
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.personaldetails.ReviewChangesView
 

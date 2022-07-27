@@ -23,7 +23,8 @@ object AppDependencies {
     "uk.gov.hmrc"         %% "play-frontend-hmrc"       % s"3.21.0-play-28",
     "uk.gov.hmrc"         %% "play-frontend-pta"        % "0.3.0",
     "org.jsoup"           % "jsoup"                     % "1.15.1",
-    "uk.gov.hmrc"         %% "reactive-circuit-breaker" % "3.5.0"
+    "uk.gov.hmrc"         %% "reactive-circuit-breaker" % "3.5.0",
+    "org.typelevel"       %% "cats-core"                % "2.6.1"
   )
 
   val test = Seq(

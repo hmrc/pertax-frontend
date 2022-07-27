@@ -20,9 +20,9 @@ import connectors.EnrolmentsConnector
 import models._
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import testUtils.BaseSpec
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
-import util.BaseSpec
 
 import scala.concurrent.Future
 

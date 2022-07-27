@@ -51,6 +51,7 @@ class ConfigDecorator @Inject() (
   private lazy val formFrontendService = servicesConfig.baseUrl("dfs-digital-forms-frontend")
   lazy val pertaxFrontendService = servicesConfig.baseUrl("pertax-frontend")
   lazy val businessTaxAccountService = servicesConfig.baseUrl("business-tax-account")
+  lazy val tcsBrokerHost = servicesConfig.baseUrl("tcs-broker")
 
   private lazy val payApiUrl = servicesConfig.baseUrl("pay-api")
 
@@ -254,6 +255,11 @@ class ConfigDecorator @Inject() (
 
   lazy val personDetailsMessageCountEnabled =
     runModeConfiguration.getOptional[String]("feature.person-details-message-count.enabled").getOrElse("true").toBoolean
+
+  lazy val addressChangeTaxCreditsQuestionEnabled = runModeConfiguration
+    .getOptional[String]("feature.address-change-tax-credits-question.enabled")
+    .getOrElse("false")
+    .toBoolean
 
   lazy val updateInternationalAddressInPta =
     runModeConfiguration

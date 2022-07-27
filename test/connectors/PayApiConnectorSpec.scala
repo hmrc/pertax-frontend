@@ -21,9 +21,9 @@ import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import play.api.http.Status._
 import play.api.libs.json.{JsResultException, Json}
+import testUtils.{BaseSpec, NullMetrics}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import util.{BaseSpec, NullMetrics}
 
 import scala.concurrent.Future
 

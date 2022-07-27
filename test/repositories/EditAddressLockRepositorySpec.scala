@@ -16,7 +16,7 @@
 
 package repositories
 
-import util.BaseSpec
+import testUtils.BaseSpec
 
 import java.time.{LocalDateTime, OffsetDateTime, ZoneOffset}
 import java.util.TimeZone

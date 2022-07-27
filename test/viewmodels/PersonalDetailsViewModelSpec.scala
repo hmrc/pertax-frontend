@@ -266,7 +266,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val details = exampleDetails.copy(address = Some(testAddress))
         val request = userRequest.copy(personDetails = Some(details))
 
-        val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val actual = personalDetailsViewModel.getAddressRow(List.empty, taxCreditsAvailable = true)(request, messages)
         val expected = PersonalDetailsTableRowModel(
           "main_address",
           "label.main_address",

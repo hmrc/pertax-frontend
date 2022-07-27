@@ -19,7 +19,7 @@ package views.html.address
 import config.ConfigDecorator
 import models.dto.InternationalAddressChoiceDto
 import play.api.test.FakeRequest
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.personaldetails.PostalInternationalAddressChoiceView
 

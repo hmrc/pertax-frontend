@@ -27,10 +27,11 @@ import play.api.test.Helpers.await
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, WireMockHelper}
+import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.BaseSpec
 import play.api.test.Helpers.defaultAwaitTimeout
 import play.api.libs.json.JsResultException
+import testUtils.{BaseSpec, WireMockHelper}
 
 import java.util.UUID
 

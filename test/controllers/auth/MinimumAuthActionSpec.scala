@@ -27,13 +27,14 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, _}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import util.RetrievalOps._
-import util.{BaseSpec, EnrolmentsHelper, Fixtures}
+import testUtils.RetrievalOps._
+import util.EnrolmentsHelper
 
 import scala.concurrent.Future
 import scala.language.postfixOps

@@ -17,7 +17,7 @@
 package models
 
 import play.api.libs.json.{JsResultException, JsValue, Json}
-import util.BaseSpec
+import testUtils.BaseSpec
 
 class EtagSpec extends BaseSpec {
 
