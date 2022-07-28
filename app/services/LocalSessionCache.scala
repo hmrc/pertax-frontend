@@ -20,9 +20,9 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.http.HttpClient
 
 @Singleton
 class LocalSessionCache @Inject() (

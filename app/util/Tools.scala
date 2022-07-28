@@ -16,10 +16,10 @@
 
 package util
 
-import java.net.{URI, URLEncoder}
-
 import com.google.inject.Inject
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+
+import java.net.{URI, URLEncoder}
 
 class Tools @Inject() (val applicationCrypto: ApplicationCrypto) {
   def urlEncode(u: String): String = URLEncoder.encode(u, "UTF-8")

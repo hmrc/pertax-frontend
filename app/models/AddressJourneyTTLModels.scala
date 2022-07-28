@@ -46,7 +46,7 @@ object EditedAddress extends MongoJavatimeFormats.Implicits {
   implicit val writes = new OWrites[EditedAddress] {
     def writes(model: EditedAddress): JsObject = Json.obj(
       addressType -> model.addressType,
-      expireAt    -> model.expireAt
+      expireAt -> model.expireAt
     )
   }
 
@@ -63,6 +63,5 @@ object EditedAddress extends MongoJavatimeFormats.Implicits {
 }
 
 object AddressJourneyTTLModel {
-
   implicit val format: OFormat[AddressJourneyTTLModel] = Json.format[AddressJourneyTTLModel]
 }

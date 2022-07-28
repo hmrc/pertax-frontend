@@ -20,12 +20,11 @@ import connectors.SelfAssessmentConnector
 import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentResponse, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.ScalaFutures
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
+import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import testUtils.UserRequestFixture.buildUserRequest
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -57,7 +56,7 @@ class SelfAssessmentServiceSpec extends BaseSpec {
 
           val redirectUrl = "/foo"
 
-          when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any(), any())) thenReturn Future.successful(
+          when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any())) thenReturn Future.successful(
             Some(SaEnrolmentResponse(redirectUrl))
           )
 
@@ -69,7 +68,7 @@ class SelfAssessmentServiceSpec extends BaseSpec {
 
         "the connector returns a failure response" in {
 
-          when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any(), any())) thenReturn Future.successful(
+          when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any())) thenReturn Future.successful(
             None
           )
 

@@ -23,8 +23,8 @@ import connectors.BreathingSpaceConnector
 import models.BreathingSpaceIndicatorResponse
 import play.api.http.Status._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
