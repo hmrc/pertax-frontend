@@ -16,7 +16,7 @@
 
 package models
 
-import org.joda.time.{DateTime, LocalDate}
+import java.time.LocalDate
 import play.api.data.Forms._
 import play.api.data.Mapping
 import java.text.{DateFormatSymbols => JDateFormatSymbols}
@@ -79,7 +79,7 @@ trait DateTuple {
               if (y.length != 4) {
                 throw new Exception("Year must be 4 digits")
               }
-              new LocalDate(
+              LocalDate.of(
                 y.toInt,
                 monthOption.getOrElse(throw new Exception("Month missing")).trim.toInt,
                 dayOption.getOrElse(throw new Exception("Day missing")).trim.toInt
@@ -97,7 +97,7 @@ trait DateTuple {
     ).transform(
       {
         case (Some(y), Some(m), Some(d)) =>
-          try Some(new LocalDate(y.trim.toInt, m.trim.toInt, d.trim.toInt))
+          try Some(LocalDate.of(y.toInt, m.toInt, d.toInt))
           catch {
             case e: Exception =>
               if (validate) {
@@ -110,7 +110,7 @@ trait DateTuple {
       },
       (date: Option[LocalDate]) =>
         date match {
-          case Some(d) => (Some(d.getYear.toString), Some(d.getMonthOfYear.toString), Some(d.getDayOfMonth.toString))
+          case Some(d) => (Some(d.getYear.toString), Some(d.getMonthValue.toString), Some(d.getDayOfMonth.toString))
           case _       => (None, None, None)
         }
     )

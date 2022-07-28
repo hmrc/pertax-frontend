@@ -23,7 +23,7 @@ import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.{AddressDto, DateDto}
 import models.{SubmittedAddressDtoId, SubmittedStartDateId}
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.interstitial.DisplayAddressInterstitialView

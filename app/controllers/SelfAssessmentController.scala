@@ -34,6 +34,7 @@ import util.DateTimeTools
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentController @Inject() (
@@ -49,7 +50,7 @@ class SelfAssessmentController @Inject() (
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) with CurrentTaxYear {
 
-  override def now: () => DateTime = () => DateTime.now()
+  override def now: () => LocalDate = () => LocalDate.now()
 
   def handleSelfAssessment: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)) {

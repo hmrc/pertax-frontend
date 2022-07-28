@@ -29,7 +29,7 @@ class ViewUtils @Inject() (languageUtils: LanguageUtils) {
   def fromMessage(message: Message)(implicit messages: Messages): String =
     message match {
       case Text(key, args)     => messages(key, args.map(fromMessage): _*)
-      case Date(date, default) => languageUtils.Dates.formatDate(date.map(_.toJavaLocalDate), default)
+      case Date(date, default) => languageUtils.Dates.formatDate(date, default)
       case Literal(value)      => value
     }
 

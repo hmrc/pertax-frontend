@@ -18,7 +18,7 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import controllers.routes
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.{Configuration, Play}
 import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.binders.Origin

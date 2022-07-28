@@ -27,7 +27,7 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.{ErrorRenderer, GenericErrors}
 import models.dto.AddressDto
 import models.{AddressJourneyData, ETag}
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository

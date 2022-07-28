@@ -19,8 +19,7 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
-import org.joda.time.DateTime
-import play.api.Logger
+import java.time.LocalDate
 import play.api.mvc._
 import services.IdentityVerificationSuccessResponse._
 import services._
@@ -48,7 +47,7 @@ class ApplicationController @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  override def now: () => DateTime = () => DateTime.now()
+  override def now: () => LocalDate = () => LocalDate.now()
 
   def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = Action.async {
     Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index.url)))

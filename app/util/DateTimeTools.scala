@@ -17,19 +17,18 @@
 package util
 
 import com.google.inject.{Inject, Singleton}
-import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
-import org.joda.time.{DateTime, _}
 import play.api.Logging
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.DateTimeTools.defaultTZ
 
+import java.time.format.DateTimeFormatter
 import scala.util.{Failure, Success, Try}
-
-import java.time.{LocalDateTime => JavaLDT}
+import java.time.{LocalDate, ZoneId, ZonedDateTime, LocalDateTime => JavaLDT}
 
 object DateTimeTools extends CurrentTaxYear with Logging {
 
   //Timezone causing problem on dev server
-  val defaultTZ = DateTimeZone.forID("Europe/London")
+  val defaultTZ = ZoneId.of("Europe/London")
   val unixDateFormat = "yyyy-MM-dd"
   val unixDateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"
   val humanDateFormat = "dd MMMMM yyyy"
@@ -43,12 +42,12 @@ object DateTimeTools extends CurrentTaxYear with Logging {
     (y - 1).toString.takeRight(2) + y.toString.takeRight(2)
   }
 
-  private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)
+  private def formatter(pattern: String): DateTimeFormatter = DateTimeFormatter.ofPattern(pattern).withZone(defaultTZ)
 
-  def short(dateTime: LocalDate) = formatter("dd/MM/yyy").print(dateTime)
+  def short(dateTime: LocalDate) = dateTime.format(formatter("dd/MM/yyy"))
 
   def asHumanDateFromUnixDate(unixDate: String): String =
-    Try(DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(unixDate))) match {
+    Try(ZonedDateTime.parse(unixDate).format(DateTimeFormatter.ofPattern(humanDateFormat))) match {
       case Success(v) => v
       case Failure(e) =>
         logger.warn("Invalid date parse in DateTimeTools.asHumanDateFromUnixDate: " + e)
@@ -56,9 +55,9 @@ object DateTimeTools extends CurrentTaxYear with Logging {
     }
 
   def toPaymentDate(dateTime: JavaLDT): LocalDate =
-    new LocalDate(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
+    LocalDate.of(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
 
-  override def now: () => DateTime = DateTime.now
+  override def now: () => LocalDate = LocalDate.now
 }
 
 @Singleton
@@ -66,8 +65,8 @@ class DateTimeTools @Inject() () {
 
   def showSendTaxReturnByPost = {
 
-    val start = new DateTime(s"${DateTime.now().getYear}-11-01T00:00:00Z")
-    val end = new DateTime(s"${DateTime.now().getYear + 1}-01-31T23:59:59Z")
-    !DateTime.now().isAfter(start) && DateTime.now().isBefore(end)
+    val start = ZonedDateTime.parse(s"${ZonedDateTime.now().getYear}-11-01T00:00:00Z")
+    val end = ZonedDateTime.parse(s"${ZonedDateTime.now().getYear + 1}-01-31T23:59:59Z")
+    !ZonedDateTime.now().isAfter(start) && ZonedDateTime.now().isBefore(end)
   }
 }

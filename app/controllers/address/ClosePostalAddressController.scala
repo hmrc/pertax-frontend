@@ -26,6 +26,7 @@ import controllers.controllershelpers.AddressJourneyAuditingHelper.auditForClosi
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.dto.ClosePostalAddressChoiceDto
+import java.time.LocalDate
 import models.{Address, EditCorrespondenceAddress, PersonDetails}
 import org.joda.time.LocalDate
 import play.api.Logging

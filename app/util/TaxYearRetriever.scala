@@ -17,7 +17,7 @@
 package util
 
 import com.google.inject.ImplementedBy
-import org.joda.time.DateTime
+import java.time.LocalDate
 import uk.gov.hmrc.time.CurrentTaxYear
 
 @ImplementedBy(classOf[TaxYearRetrieverImpl])
@@ -27,7 +27,7 @@ trait TaxYearRetriever {
 
 class TaxYearRetrieverImpl extends TaxYearRetriever with CurrentTaxYear {
 
-  override def now: () => DateTime = () => DateTime.now()
+  override def now: () => LocalDate = () => LocalDate.now()
 
   def currentYear: Int = current.currentYear
 

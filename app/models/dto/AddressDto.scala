@@ -19,7 +19,7 @@ package models.dto
 import controllers.controllershelpers.CountryHelper
 import models.addresslookup.AddressRecord
 import models.{Address, Country}
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json

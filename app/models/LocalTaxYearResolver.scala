@@ -23,6 +23,6 @@ import uk.gov.hmrc.time.CurrentTaxYear
 class LocalTaxYearResolver @Inject() (val configDecorator: ConfigDecorator) extends CurrentTaxYear {
 
   override lazy val now = () => {
-    configDecorator.currentLocalDate.toDateTimeAtStartOfDay
+    configDecorator.currentLocalDate
   }
 }

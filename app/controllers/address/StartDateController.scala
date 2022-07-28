@@ -81,7 +81,7 @@ class StartDateController @Inject() (
                   case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, status)) =>
                     if (!currentStartDate.isBefore(proposedStartDate)) {
                       BadRequest(
-                        cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate.toJavaLocalDate))
+                        cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate))
                       )
                     } else {
                       Redirect(routes.AddressSubmissionController.onPageLoad(typ))
