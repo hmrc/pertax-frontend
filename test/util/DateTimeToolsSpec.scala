@@ -25,7 +25,7 @@ class DateTimeToolsSpec extends BaseSpec {
   "Calling asHumanDateFromUnixDate" must {
 
     "return correctly formatted readable date when provided with a valid date" in {
-      DateTimeTools.asHumanDateFromUnixDate("2018-01-01") mustBe "1 January 2018"
+      DateTimeTools.asHumanDateFromUnixDate("2018-01-01") mustBe "01 January 2018"
     }
 
     "return passed date when provided with an invalid date" in {
