@@ -16,7 +16,7 @@
 
 package models
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.json._
 import uk.gov.hmrc.domain.Nino
 
@@ -41,11 +41,6 @@ case class Person(
 }
 
 object Person {
-
-  implicit val localdateFormatDefault = new Format[LocalDate] {
-    override def reads(json: JsValue): JsResult[LocalDate] = JodaReads.DefaultJodaLocalDateReads.reads(json)
-    override def writes(o: LocalDate): JsValue = JodaWrites.DefaultJodaLocalDateWrites.writes(o)
-  }
 
   implicit val formats = Json.format[Person]
 

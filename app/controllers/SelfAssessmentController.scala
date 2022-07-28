@@ -22,7 +22,6 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import org.joda.time.DateTime
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SelfAssessmentService
 import uk.gov.hmrc.http.HeaderCarrier

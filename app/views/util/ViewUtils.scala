@@ -20,7 +20,6 @@ import config.ConfigDecorator
 import play.api.i18n.Messages
 import uk.gov.hmrc.play.language.LanguageUtils
 import viewmodels._
-import util.DateHelper._
 
 import com.google.inject.Inject
 

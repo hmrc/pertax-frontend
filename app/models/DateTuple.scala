@@ -97,7 +97,7 @@ trait DateTuple {
     ).transform(
       {
         case (Some(y), Some(m), Some(d)) =>
-          try Some(LocalDate.of(y.toInt, m.toInt, d.toInt))
+          try Some(LocalDate.of(y.trim.toInt, m.trim.toInt, d.trim.toInt))
           catch {
             case e: Exception =>
               if (validate) {

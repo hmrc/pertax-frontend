@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
@@ -175,7 +175,7 @@ trait CitizenDetailsFixtures {
     None,
     Some("AA1 1AA"),
     None,
-    Some(new LocalDate(2015, 3, 15)),
+    Some(LocalDate.of(2015, 3, 15)),
     None,
     Some("Residential"),
     false
@@ -189,7 +189,7 @@ trait CitizenDetailsFixtures {
     None,
     Some("AA1 1AA"),
     None,
-    Some(new LocalDate(2015, 3, 15)),
+    Some(LocalDate.of(2015, 3, 15)),
     None,
     Some("Correspondence"),
     false
@@ -203,8 +203,8 @@ trait CitizenDetailsFixtures {
     None,
     Some("AA1 1AA"),
     None,
-    Some(new LocalDate(now)),
-    Some(new LocalDate(now)),
+    Some(LocalDate.now),
+    Some(LocalDate.now),
     Some("Correspondence"),
     false
   )

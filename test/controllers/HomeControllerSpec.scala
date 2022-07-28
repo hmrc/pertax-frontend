@@ -22,7 +22,6 @@ import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
-import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import play.api.Application
@@ -39,9 +38,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.time.CurrentTaxYear
 import testUtils.Fixtures._
-import testUtils.UserRequestFixture.buildUserRequest
-import views.html.HomeView
-
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
@@ -67,7 +64,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       mockHomePageCachingHelper
     )
 
-  override def now: () => DateTime = DateTime.now
+  override def now: () => LocalDate = LocalDate.now
 
   trait LocalSetup {
 

@@ -21,7 +21,6 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.CreatePayment
-import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
@@ -33,11 +32,12 @@ import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.time.CurrentTaxYear
 import testUtils.UserRequestFixture.buildUserRequest
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
-  override def now: () => DateTime = DateTime.now
+  override def now: () => LocalDate = LocalDate.now
 
   lazy val fakeRequest = FakeRequest("", "")
 

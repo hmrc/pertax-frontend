@@ -19,7 +19,6 @@ object AppDependencies {
     "uk.gov.hmrc"         %% "domain"                   % s"8.0.0-$playVersion",
     "uk.gov.hmrc.mongo"   %% s"hmrc-mongo-$playVersion" % "0.68.0",
     "io.lemonlabs"        %% "scala-uri"                % "2.2.3",
-    "com.typesafe.play"   %% "play-json-joda"           % "2.6.10",
     "uk.gov.hmrc"         %% "play-frontend-hmrc"       % s"3.21.0-play-28",
     "uk.gov.hmrc"         %% "play-frontend-pta"        % "0.3.0",
     "org.jsoup"           % "jsoup"                     % "1.15.1",

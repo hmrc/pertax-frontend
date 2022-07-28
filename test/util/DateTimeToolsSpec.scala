@@ -16,17 +16,16 @@
 
 package util
 
-import org.joda.time.{LocalDate => JodaLocalDate}
 import testUtils.BaseSpec
 
-import java.time.LocalDateTime
+import java.time.{LocalDate, LocalDateTime}
 
 class DateTimeToolsSpec extends BaseSpec {
 
   "Calling asHumanDateFromUnixDate" must {
 
     "return correctly formatted readable date when provided with a valid date" in {
-      DateTimeTools.asHumanDateFromUnixDate("2018-01-01") mustBe "01 January 2018"
+      DateTimeTools.asHumanDateFromUnixDate("2018-01-01") mustBe "1 January 2018"
     }
 
     "return passed date when provided with an invalid date" in {
@@ -39,7 +38,7 @@ class DateTimeToolsSpec extends BaseSpec {
     "return a correctly formatted date" in {
 
       DateTimeTools.toPaymentDate(LocalDateTime.parse("2019-11-25T13:13:51.755")) mustBe
-        new JodaLocalDate(2019, 11, 25)
+        LocalDate.of(2019, 11, 25)
     }
   }
 }

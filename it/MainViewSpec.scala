@@ -18,7 +18,7 @@ import config.ConfigDecorator
 import connectors.EnrolmentsConnector
 import controllers.auth.requests.UserRequest
 import models._
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
 import org.mockito.ArgumentMatchers.any
@@ -95,7 +95,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
       None,
       Some("AA1 1AA"),
       None,
-      Some(new LocalDate(2015, 3, 15)),
+      Some(LocalDate.of(2015, 3, 15)),
       None,
       Some("Residential"),
       false

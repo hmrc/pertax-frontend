@@ -21,9 +21,10 @@ import play.api.Logging
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.DateTimeTools.defaultTZ
 
-import java.time.format.DateTimeFormatter
+import java.time.format.{DateTimeFormatter, FormatStyle}
 import scala.util.{Failure, Success, Try}
 import java.time.{LocalDate, ZoneId, ZonedDateTime, LocalDateTime => JavaLDT}
+import java.util.Locale
 
 object DateTimeTools extends CurrentTaxYear with Logging {
 
@@ -47,13 +48,20 @@ object DateTimeTools extends CurrentTaxYear with Logging {
   def short(dateTime: LocalDate) = dateTime.format(formatter("dd/MM/yyy"))
 
   def asHumanDateFromUnixDate(unixDate: String): String =
-    Try(ZonedDateTime.parse(unixDate).format(DateTimeFormatter.ofPattern(humanDateFormat))) match {
+    Try(
+      LocalDate
+        .parse(unixDate)
+        .format(
+          DateTimeFormatter
+            .ofLocalizedDate(FormatStyle.LONG)
+            .withLocale(Locale.UK)
+        )
+    ) match {
       case Success(v) => v
       case Failure(e) =>
         logger.warn("Invalid date parse in DateTimeTools.asHumanDateFromUnixDate: " + e)
         unixDate
     }
-
   def toPaymentDate(dateTime: JavaLDT): LocalDate =
     LocalDate.of(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
 
@@ -65,8 +73,8 @@ class DateTimeTools @Inject() () {
 
   def showSendTaxReturnByPost = {
 
-    val start = ZonedDateTime.parse(s"${ZonedDateTime.now().getYear}-11-01T00:00:00Z")
-    val end = ZonedDateTime.parse(s"${ZonedDateTime.now().getYear + 1}-01-31T23:59:59Z")
-    !ZonedDateTime.now().isAfter(start) && ZonedDateTime.now().isBefore(end)
+    val start = LocalDate.parse(s"${LocalDate.now().getYear}-11-01T00:00:00Z")
+    val end = LocalDate.parse(s"${LocalDate.now().getYear + 1}-01-31T23:59:59Z")
+    !LocalDate.now().isAfter(start) && LocalDate.now().isBefore(end)
   }
 }

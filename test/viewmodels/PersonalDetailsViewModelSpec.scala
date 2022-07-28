@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -86,7 +86,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     None,
     Some("AA1 1AA"),
     None,
-    Some(new LocalDate(2015, 3, 15)),
+    Some(LocalDate.of(2015, 3, 15)),
     None,
     Some("Residential"),
     false
