@@ -23,10 +23,13 @@ import controllers.controllershelpers.CountryHelper
 import models._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.HeaderCarrier
 import util.RichOption.CondOpt
 import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
+
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class PersonalDetailsViewModel @Inject() (
@@ -38,7 +41,8 @@ class PersonalDetailsViewModel @Inject() (
 
   private def getMainAddress(
     personDetails: PersonDetails,
-    optionalEditAddress: List[EditedAddress]
+    optionalEditAddress: List[EditedAddress],
+    taxCreditsAvailable: Boolean
   )(implicit
     messages: play.api.i18n.Messages
   ) = {
@@ -59,7 +63,7 @@ class PersonalDetailsViewModel @Inject() (
       if (isMainAddressChangeLocked)
         createAddressRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
       else
-        createAddressRow("label.change", Some(AddressRowModel.changeMainAddressUrl(configDecorator)))
+        createAddressRow("label.change", Some(AddressRowModel.changeMainAddressUrl))
     }
   }
 
@@ -117,13 +121,13 @@ class PersonalDetailsViewModel @Inject() (
       }
     }
 
-  def getAddressRow(addressModel: List[AddressJourneyTTLModel])(implicit
+  def getAddressRow(addressModel: List[AddressJourneyTTLModel], taxCreditsAvailable: Boolean = false)(implicit
     request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): AddressRowModel = {
     val optionalEditAddress = addressModel.map(y => y.editedAddress)
     val mainAddressRow: Option[PersonalDetailsTableRowModel] = request.personDetails
-      .flatMap(getMainAddress(_, optionalEditAddress))
+      .flatMap(getMainAddress(_, optionalEditAddress, taxCreditsAvailable))
     val postalAddressRow: Option[PersonalDetailsTableRowModel] = request.personDetails
       .flatMap(getPostalAddress(_, optionalEditAddress))
 

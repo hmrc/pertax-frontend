@@ -21,11 +21,13 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.SubmittedTaxCreditsChoiceId
+import models.TaxCreditsChoiceId
 import models.dto.TaxCreditsChoiceDto
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
+import services.TaxCreditsService
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
 
@@ -36,18 +38,33 @@ class TaxCreditsChoiceController @Inject() (
   cc: MessagesControllerComponents,
   cachingHelper: AddressJourneyCachingHelper,
   editAddressLockRepository: EditAddressLockRepository,
-  taxCreditsChoiceView: TaxCreditsChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  taxCreditsService: TaxCreditsService,
+  internalServerErrorView: InternalServerErrorView,
+  taxCreditsChoiceView: TaxCreditsChoiceView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(authJourney, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
+    addressJourneyEnforcer { nino => _ =>
       cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
         cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-          Future.successful(
-            Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
-          )
+          if (configDecorator.addressChangeTaxCreditsQuestionEnabled) {
+            Future.successful(
+              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+            )
+          } else {
+            taxCreditsService.checkForTaxCredits(Some(nino)).map {
+              case Some(true) =>
+                cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
+                Redirect(configDecorator.tcsChangeAddressUrl)
+              case Some(false) =>
+                cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
+                Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+              case None =>
+                InternalServerError(internalServerErrorView())
+            }
+          }
         }
       }
     }
@@ -55,28 +72,32 @@ class TaxCreditsChoiceController @Inject() (
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        TaxCreditsChoiceDto.form.bindFromRequest.fold(
-          formWithErrors =>
-            Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
-          taxCreditsChoiceDto =>
-            cachingHelper.addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
-              if (taxCreditsChoiceDto.value) {
-                editAddressLockRepository
-                  .insert(
-                    request.nino.get.withoutSuffix,
-                    AddrType.apply("residential").get
-                  )
-                  .map {
-                    case true => logger.warn("Address locked for tcs users")
-                    case _    => logger.error(s"Could not insert address lock for user $request.nino.get.withoutSuffix")
-                  }
-                Redirect(configDecorator.tcsChangeAddressUrl)
-              } else {
-                Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+      if (configDecorator.addressChangeTaxCreditsQuestionEnabled) {
+        addressJourneyEnforcer { _ => _ =>
+          TaxCreditsChoiceDto.form.bindFromRequest.fold(
+            formWithErrors =>
+              Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
+            taxCreditsChoiceDto =>
+              cachingHelper.addToCache(TaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
+                if (taxCreditsChoiceDto.hasTaxCredits) {
+                  editAddressLockRepository
+                    .insert(
+                      request.nino.get.withoutSuffix,
+                      AddrType.apply("residential").get
+                    )
+                    .map {
+                      case true => logger.warn("Address locked for tcs users")
+                      case _    => logger.error(s"Could not insert address lock for user $request.nino.get.withoutSuffix")
+                    }
+                  Redirect(configDecorator.tcsChangeAddressUrl)
+                } else {
+                  Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                }
               }
-            }
-        )
+          )
+        }
+      } else {
+        Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
       }
     }
 }

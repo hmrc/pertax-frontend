@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import models.NewsAndContentModel
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 
 class ViewNewsAndUpdatesViewSpec extends ViewSpec {

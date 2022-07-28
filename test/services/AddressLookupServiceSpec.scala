@@ -24,8 +24,9 @@ import play.api.Application
 import play.api.http.Status.NOT_FOUND
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, Json}
-import util.Fixtures.{oneAndTwoOtherPlacePafRecordSet, twoOtherPlaceRecordSet}
-import util.{BaseSpec, WireMockHelper}
+import testUtils.Fixtures.{oneAndTwoOtherPlacePafRecordSet, twoOtherPlaceRecordSet}
+import testUtils.{BaseSpec, WireMockHelper}
+import testUtils.BaseSpec
 
 import scala.io.Source
 

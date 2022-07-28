@@ -22,9 +22,10 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.twirl.api.Html
 import services.partials.FormPartialService
+import testUtils.BaseSpec
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
-import util.{BaseSpec, EnhancedPartialRetriever}
-import util.Fixtures._
+import util.EnhancedPartialRetriever
+import testUtils.Fixtures._
 
 import scala.concurrent.Future
 

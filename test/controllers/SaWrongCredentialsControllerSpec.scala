@@ -21,8 +21,8 @@ import models.WrongCredentialsSelfAssessmentUser
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import testUtils.BaseSpec
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import util.BaseSpec
 import views.html.selfassessment._
 
 class SaWrongCredentialsControllerSpec extends BaseSpec {

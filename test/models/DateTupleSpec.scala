@@ -19,7 +19,7 @@ package models
 import org.joda.time.{DateTime, LocalDate}
 import play.api.data.FormError
 import models.DateFields._
-import util.BaseSpec
+import testUtils.BaseSpec
 
 class DateTupleSpec extends BaseSpec {
 

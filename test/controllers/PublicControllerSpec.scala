@@ -19,9 +19,9 @@ package controllers
 import play.api.mvc.{MessagesControllerComponents, Session}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import testUtils.BaseSpec
 import uk.gov.hmrc.play.binders.Origin
-import util.BaseSpec
-import util.Fixtures._
+import testUtils.Fixtures._
 import views.html.public.SessionTimeoutView
 
 import scala.concurrent.ExecutionContext

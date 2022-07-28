@@ -17,7 +17,7 @@
 package models.dto
 
 import org.joda.time.LocalDate
-import util.BaseSpec
+import testUtils.BaseSpec
 
 class DateDtoSpec extends BaseSpec {
 

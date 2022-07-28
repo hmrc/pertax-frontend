@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
 import controllers.auth.requests.UserRequest
 import models._

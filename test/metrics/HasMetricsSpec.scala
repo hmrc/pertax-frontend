@@ -21,7 +21,7 @@ import com.kenshoo.play.metrics.{Metrics => KenshooMetrics}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{times, when}
-import util.BaseSpec
+import testUtils.BaseSpec
 
 class HasMetricsSpec extends BaseSpec {
 

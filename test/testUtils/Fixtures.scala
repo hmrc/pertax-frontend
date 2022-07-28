@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, FakeAuthJourney}
+import controllers.auth.requests.UserRequest
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
@@ -36,13 +36,16 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc._
+import play.api.test.Helpers.stubControllerComponents
 import play.api.test.{FakeRequest, Helpers}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
+import services.AgentClientAuthorisationService
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
 import uk.gov.hmrc.time.DateTimeUtils._
+import testUtils.UserRequestFixture.buildUserRequest
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}

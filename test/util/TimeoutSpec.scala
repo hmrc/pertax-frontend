@@ -18,6 +18,7 @@ package util
 
 import akka.actor.ActorSystem
 import org.scalatest.concurrent.IntegrationPatience
+import testUtils.{BaseSpec, WireMockHelper}
 
 import scala.concurrent.Future
 import scala.concurrent.duration._

@@ -19,10 +19,10 @@ package config
 import java.net.{MalformedURLException, URL}
 import play.api.Configuration
 import play.api.i18n.Langs
+import testUtils.BaseSpec
 import play.api.i18n.Lang
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.BaseSpec
 
 class ConfigDecoratorSpec extends BaseSpec {
   val saUtr = new SaUtrGenerator().nextSaUtr.utr

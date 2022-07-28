@@ -24,8 +24,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, WireMockHelper}
+import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{BaseSpec, WireMockHelper}
+import testUtils.BaseSpec
 
 import java.util.UUID
 

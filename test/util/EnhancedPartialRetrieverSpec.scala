@@ -27,6 +27,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.twirl.api.Html
+import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
 class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with IntegrationPatience {

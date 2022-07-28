@@ -23,8 +23,8 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.JsBoolean
 import services.LocalSessionCache
+import testUtils.BaseSpec
 import uk.gov.hmrc.http.cache.client.CacheMap
-import util.BaseSpec
 
 import scala.concurrent.Future
 

@@ -18,6 +18,7 @@ package util
 
 import org.jsoup.Jsoup
 import play.twirl.api.Html
+import testUtils.BaseSpec
 
 //TODO: To be deleted. See DDCNL-6008
 class FormPartialUpgradeSpec extends BaseSpec {

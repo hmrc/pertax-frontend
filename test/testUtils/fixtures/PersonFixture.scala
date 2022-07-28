@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package util
+package testUtils.fixtures
 
-import org.scalactic._
-import org.scalatest.exceptions.{StackDepthException, TestFailedException}
+import models.Person
 
-object BetterOptionValues {
-  implicit class OptionOps[T](val opt: Option[T]) extends AnyVal {
+object PersonFixture {
 
-    def getValue(implicit pos: source.Position): T =
-      try opt.get
-      catch {
-        case cause: NoSuchElementException =>
-          throw new TestFailedException(
-            (_: StackDepthException) => Some("The Option on which value was invoked was not defined."),
-            Some(cause),
-            pos
-          )
-      }
-  }
+  def emptyPerson = Person(None, None, None, None, None, None, None, None, None)
+
 }

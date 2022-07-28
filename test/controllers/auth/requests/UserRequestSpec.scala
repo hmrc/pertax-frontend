@@ -18,9 +18,9 @@ package controllers.auth.requests
 
 import models._
 import play.api.test.FakeRequest
+import testUtils.BaseSpec
 import uk.gov.hmrc.domain.SaUtr
-import util.BaseSpec
-import util.UserRequestFixture._
+import testUtils.UserRequestFixture._
 
 class UserRequestSpec extends BaseSpec {
 

@@ -18,7 +18,7 @@ package models.dto
 
 import models.Address
 import org.joda.time.LocalDate
-import util.BaseSpec
+import testUtils.BaseSpec
 
 class AddressDtoSpec extends BaseSpec {
 

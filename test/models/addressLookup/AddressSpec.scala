@@ -17,7 +17,7 @@
 package models.addressLookup
 
 import models.addresslookup.{Address, Country}
-import util.BaseSpec
+import testUtils.BaseSpec
 
 class classAddressModelSpec extends BaseSpec {
 
