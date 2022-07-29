@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector, enrolmentsHelper: EnrolmentsHelper)(
+private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector, enrolmentsHelper: EnrolmentsHelper)(
   implicit ec: ExecutionContext
 ) extends AuditTags with Logging {
 
@@ -63,7 +63,7 @@ private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector, enr
 
         sendAuditEvent.map {
           case Success => result.addingToSession(sessionKey -> "true")(request)
-          case _ => result
+          case _       => result
         }
 
       case _ => Future.successful(result)
@@ -84,14 +84,14 @@ private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector, enr
 }
 
 case class UserSessionAuditEvent(
-                                  nino: Option[Nino],
-                                  credentials: Credentials,
-                                  confidenceLevel: ConfidenceLevel,
-                                  name: Option[String],
-                                  saUtr: Option[SaUtr],
-                                  allEnrolments: Set[Enrolment],
-                                  affinityGroup: Option[AffinityGroup]
-                                )
+  nino: Option[Nino],
+  credentials: Credentials,
+  confidenceLevel: ConfidenceLevel,
+  name: Option[String],
+  saUtr: Option[SaUtr],
+  allEnrolments: Set[Enrolment],
+  affinityGroup: Option[AffinityGroup]
+)
 
 object UserSessionAuditEvent {
   implicit val credentialsFormats: OFormat[Credentials] = Json.format[Credentials]
@@ -117,13 +117,13 @@ object UserSessionAuditEvent {
     removeNulls(
       flattenEnrolments.foldLeft(
         Json.obj(
-          "nino" -> model.nino,
-          "affinityGroup" -> model.affinityGroup.fold("None")(_.toString),
-          "credentials" -> model.credentials,
+          "nino"            -> model.nino,
+          "affinityGroup"   -> model.affinityGroup.fold("None")(_.toString),
+          "credentials"     -> model.credentials,
           "confidenceLevel" -> model.confidenceLevel,
-          "name" -> model.name,
-          "saUtr" -> model.saUtr,
-          "allEnrolments" -> model.allEnrolments
+          "name"            -> model.name,
+          "saUtr"           -> model.saUtr,
+          "allEnrolments"   -> model.allEnrolments
         )
       ) { (initialObject, currElement) =>
         val newElement = currElement match {
