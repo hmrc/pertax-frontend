@@ -16,7 +16,6 @@
 
 package controllers.address
 
-import controllers.auth.WithActiveTabAction
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.GenericErrors
@@ -32,10 +31,10 @@ import play.api.libs.json.Json
 import play.api.mvc.{MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import testUtils.Fixtures
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
-import util.Fixtures
-import util.Fixtures._
+import Fixtures._
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
 
@@ -54,7 +53,6 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         mockEditAddressLockRepository,
         mockAuthJourney,
         new AddressJourneyCachingHelper(mockLocalSessionCache),
-        injected[WithActiveTabAction],
         mockAuditConnector,
         injected[MessagesControllerComponents],
         errorRenderer,
@@ -62,7 +60,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         injected[ReviewChangesView],
         injected[DisplayAddressInterstitialView],
         injected[GenericErrors]
-      )(config, templateRenderer, ec)
+      )(config, ec)
   }
 
   "onPageLoad" must {
@@ -98,7 +96,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -113,7 +111,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
     "display the appropriate label for address when the residential address has changed" in new LocalSetup {
@@ -207,7 +205,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -234,7 +232,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -282,7 +280,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())

@@ -35,7 +35,6 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       new PostalDoYouLiveInTheUKController(
         addressJourneyCachingHelper,
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         injected[PostalInternationalAddressChoiceView],
         displayAddressInterstitialView
@@ -63,7 +62,7 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
@@ -106,11 +105,10 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
         new PostalDoYouLiveInTheUKController(
           addressJourneyCachingHelper,
           mockAuthJourney,
-          withActiveTabAction,
           cc,
           injected[PostalInternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(mockConfigDecorator, templateRenderer, ec)
+        )(mockConfigDecorator, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

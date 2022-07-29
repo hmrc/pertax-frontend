@@ -20,26 +20,23 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import models.PersonDetails
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.renderer.{ActiveTabYourProfile, TemplateRenderer}
 import views.html.interstitial.DisplayAddressInterstitialView
 
 import scala.concurrent.{ExecutionContext, Future}
 
 abstract class AddressController @Inject() (
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def authenticate: ActionBuilder[UserRequest, AnyContent] =
-    authJourney.authWithPersonalDetails andThen withActiveTabAction
-      .addActiveTab(ActiveTabYourProfile)
+    authJourney.authWithPersonalDetails
 
   def addressJourneyEnforcer(
     block: Nino => PersonDetails => Future[Result]

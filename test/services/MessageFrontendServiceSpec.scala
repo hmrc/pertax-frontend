@@ -24,7 +24,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
-import util.{BaseSpec, EnhancedPartialRetriever, WireMockHelper}
+import util.EnhancedPartialRetriever
 import org.mockito.ArgumentMatchers._
 import controllers.auth.requests.UserRequest
 import metrics.MetricsImpl
@@ -33,8 +33,9 @@ import play.api.mvc.AnyContentAsEmpty
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
-import util.Fixtures.buildFakeRequestWithAuth
-import util.UserRequestFixture.buildUserRequest
+import testUtils.Fixtures.buildFakeRequestWithAuth
+import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{BaseSpec, WireMockHelper}
 
 import scala.concurrent.Future
 

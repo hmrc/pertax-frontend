@@ -16,7 +16,6 @@
 
 package controllers
 
-import config.ConfigDecorator
 import connectors._
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
@@ -30,12 +29,11 @@ import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import uk.gov.hmrc.renderer.TemplateRenderer
+import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec}
+import testUtils.UserRequestFixture.buildUserRequest
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
@@ -59,7 +57,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
       injected[ErrorRenderer]
-    )(config, templateRenderer, ec)
+    )(config, ec)
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

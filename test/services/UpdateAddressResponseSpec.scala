@@ -25,11 +25,11 @@ import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, InternalServerError, Ok}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HttpResponse
-import util.UserRequestFixture.buildUserRequest
-import util.BaseSpec
+import testUtils.UserRequestFixture.buildUserRequest
 
 class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
 

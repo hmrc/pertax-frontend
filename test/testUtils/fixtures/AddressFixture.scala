@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package testUtils
+package testUtils.fixtures
 
-import play.api.i18n.Messages
-import play.twirl.api.Html
-import uk.gov.hmrc.renderer.TemplateRenderer
+import models.Address
+import org.joda.time.LocalDate
 
-import scala.concurrent.Future
-import scala.concurrent.duration._
+object AddressFixture {
 
-object MockTemplateRenderer extends TemplateRenderer {
-  override lazy val templateServiceBaseUrl = "http://example.com/template/mustache"
-  override val refreshAfter = 10 minutes
-  override def fetchTemplate(path: String): Future[String] = ???
-
-  override def renderDefaultTemplate(path: String, content: Html, extraArgs: Map[String, Any])(implicit
-    messages: Messages
+  def address(
+    line1: Option[String] = None,
+    line2: Option[String] = None,
+    line3: Option[String] = None,
+    line4: Option[String] = None,
+    line5: Option[String] = None,
+    postcode: Option[String] = None,
+    country: Option[String] = None,
+    startDate: Option[LocalDate] = None,
+    endDate: Option[LocalDate] = None,
+    `type`: Option[String] = None,
+    isRls: Boolean = false
   ) =
-    content
+    Address(line1, line2, line3, line4, line5, postcode, country, startDate, endDate, `type`, isRls)
 
 }

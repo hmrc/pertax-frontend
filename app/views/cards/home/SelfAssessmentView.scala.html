@@ -17,16 +17,19 @@
 @import tags._
 @import controllers.auth.requests.UserRequest
 @import config.ConfigDecorator
-@this()
+@import components.P
+
+@this(p: P)
+
 @(saActionNeeded: SelfAssessmentUserType, taxYear: String, nextDeadlineTaxYear: String)(implicit request: UserRequest[AnyContent], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @cardContent = {
 @saActionNeeded match {
     case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-        <p>@messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_") @messages("label.online_returns_deadline", nextDeadlineTaxYear)</p>
+        @p(Text(messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_") + " " + messages("label.online_returns_deadline", nextDeadlineTaxYear)))
     }
     case NotEnrolledSelfAssessmentUser(saUtr) => {
-        <p>@messages("label.not_enrolled.content")</p>
+        @p(Text(messages("label.not_enrolled.content")))
     }
     case _ => {}
 }
@@ -85,7 +88,7 @@
     headingTag = "h3",
     bodyContent = Some(cardContent)
 ) {
-    <ul>
-    @cardActions
+    <ul class="govuk-list">
+        @cardActions
     </ul>
 }

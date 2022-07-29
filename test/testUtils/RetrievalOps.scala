@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
-import org.scalactic._
-import org.scalatest.exceptions.{StackDepthException, TestFailedException}
+import uk.gov.hmrc.auth.core.retrieve.~
 
-object BetterOptionValues {
-  implicit class OptionOps[T](val opt: Option[T]) extends AnyVal {
-
-    def getValue(implicit pos: source.Position): T =
-      try opt.get
-      catch {
-        case cause: NoSuchElementException =>
-          throw new TestFailedException(
-            (_: StackDepthException) => Some("The Option on which value was invoked was not defined."),
-            Some(cause),
-            pos
-          )
-      }
+object RetrievalOps {
+  implicit class Ops[A](a: A) {
+    def ~[B](b: B): A ~ B = new ~(a, b)
   }
 }

@@ -79,7 +79,6 @@ class SelfAssessmentStatusAction @Inject() (
           request.profile,
           None,
           None,
-          None,
           request.request
         )
       )

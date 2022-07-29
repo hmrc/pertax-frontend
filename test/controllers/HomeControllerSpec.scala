@@ -31,15 +31,16 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.partials.MessageFrontendService
+import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import services._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.Fixtures._
-import util.{BaseSpec, Fixtures}
+import testUtils.Fixtures._
+import testUtils.UserRequestFixture.buildUserRequest
+import views.html.HomeView
 
 import scala.concurrent.Future
 
@@ -54,7 +55,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockAuthJourney = mock[AuthJourney]
-  val mockTemplateRenderer = mock[TemplateRenderer]
   val mockHomePageCachingHelper = mock[HomePageCachingHelper]
   val mockBreathingSpaceService = mock[BreathingSpaceService]
 
@@ -491,10 +491,12 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val configDecorator = injected[ConfigDecorator]
 
       val r: Future[Result] =
-        app.injector.instanceOf[HomeController].index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+        app.injector
+          .instanceOf[HomeController]
+          .index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe OK
-      contentAsString(r) must include(configDecorator.bannerHomePageLinkUrl)
+      contentAsString(r) must include(configDecorator.bannerHomePageLinkUrl.replaceAll("&", "&amp;"))
       contentAsString(r) must include(configDecorator.bannerHomePageHeadingEn)
       contentAsString(r) must include(configDecorator.bannerHomePageLinkTextEn)
     }
@@ -522,9 +524,12 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val configDecorator = injected[ConfigDecorator]
 
       val r: Future[Result] =
-        app.injector.instanceOf[HomeController].index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+        app.injector
+          .instanceOf[HomeController]
+          .index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
       status(r) mustBe OK
+
       contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkUrl)
       contentAsString(r) mustNot include(configDecorator.bannerHomePageHeadingEn)
       contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkTextEn)

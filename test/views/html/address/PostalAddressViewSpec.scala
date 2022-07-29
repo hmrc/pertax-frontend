@@ -20,9 +20,8 @@ import config.ConfigDecorator
 import controllers.address.routes
 import models.Country
 import play.api.test.FakeRequest
-import uk.gov.hmrc.renderer.TemplateRenderer
-import util.Fixtures
-import util.UserRequestFixture.buildUserRequest
+import testUtils.Fixtures
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.personaldetails.PostalAddressView
 

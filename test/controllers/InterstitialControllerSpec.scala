@@ -31,12 +31,13 @@ import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import services._
 import services.partials.{FormPartialService, SaPartialService}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
+import testUtils.{ActionBuilderFixture, BaseSpec}
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.{ViewBreathingSpaceView, ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
@@ -80,7 +81,7 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[EnrolmentsHelper],
         injected[SeissService],
         mockNewsAndTileConfig
-      )(config, templateRenderer, ec) {
+      )(config, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) {
             HtmlPartial.Failure()
@@ -375,7 +376,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig]
-        )(stubConfigDecorator, templateRenderer, ec) {
+        )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
           }
@@ -466,7 +467,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[EnrolmentsHelper],
           injected[SeissService],
           mockNewsAndTileConfig
-        )(stubConfigDecorator, templateRenderer, ec) {
+        )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
           }
@@ -533,7 +534,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig]
-        )(stubConfigDecorator, templateRenderer, ec)
+        )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -583,7 +584,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig]
-        )(stubConfigDecorator, templateRenderer, ec)
+        )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
-import play.api.i18n.Messages
-import play.twirl.api.Html
-import uk.gov.hmrc.renderer.TemplateRenderer
+import com.codahale.metrics.MetricRegistry
+import com.kenshoo.play.metrics.Metrics
 
-import scala.concurrent.Future
-import scala.concurrent.duration._
-
-object MockTemplateRenderer extends TemplateRenderer {
-  override lazy val templateServiceBaseUrl = "http://example.com/template/mustache"
-  override val refreshAfter = 10 minutes
-  override def fetchTemplate(path: String): Future[String] = ???
-
-  override def renderDefaultTemplate(path: String, content: Html, extraArgs: Map[String, Any])(implicit
-    messages: Messages
-  ) =
-    Html(content + extraArgs.toString)
-
+class NullMetrics extends Metrics {
+  override def defaultRegistry: MetricRegistry = new MetricRegistry
+  override def toJson: String = ""
 }

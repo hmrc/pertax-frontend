@@ -18,8 +18,8 @@ package models.addressLookup
 
 import models.addresslookup.RecordSet
 import play.api.libs.json.Json
-import util.BaseSpec
-import util.Fixtures._
+import testUtils.BaseSpec
+import testUtils.Fixtures._
 
 import scala.io.Source
 

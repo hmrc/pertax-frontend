@@ -29,6 +29,7 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
+import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
@@ -36,9 +37,8 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.{RedirectUrl, SafeRedirectUrl}
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.Fixtures._
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures}
+import testUtils.Fixtures._
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.iv.failure._
 import views.html.iv.success.SuccessView
 
@@ -98,7 +98,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[LockedOutView],
         injected[TimeOutView],
         injected[TechnicalIssuesView]
-      )(config, templateRenderer, ec)
+      )(config, ec)
 
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
       Future.successful(getIVJourneyStatusResponse)

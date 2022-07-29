@@ -14,12 +14,11 @@
  * limitations under the License.
  *@
 
+@this(hmrcPageHeading: HmrcPageHeading)
+
 @(title: String)(implicit messages: play.api.i18n.Messages)
 
-<header class="page-heading">
-    <h1 class="heading-xlarge">
-        @messages(title)
-    </h1>
-    <p class="heading-secondary"><span class="visuallyhidden">
-        @messages("label.this.section.is") </span>@messages("label.access_your_self_assessment")</p>
-</header>
+@hmrcPageHeading(PageHeading(
+    text = messages(title),
+    section = Some(messages("label.access_your_self_assessment"))
+))

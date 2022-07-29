@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package util.fixtures
+package testUtils
 
-import models.Person
+import scala.io.Source.fromFile
 
-object PersonFixture {
+object FileHelper {
 
-  def emptyPerson = Person(None, None, None, None, None, None, None, None, None)
-
+  def loadFile(name: String): String = {
+    val source = fromFile(name)
+    try source.mkString
+    finally source.close()
+  }
 }

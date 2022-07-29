@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
-import com.codahale.metrics.MetricRegistry
-import com.kenshoo.play.metrics.Metrics
+import org.scalactic.source
+import org.scalatest.exceptions.{StackDepthException, TestFailedException}
 
-class NullMetrics extends Metrics {
-  override def defaultRegistry: MetricRegistry = new MetricRegistry
-  override def toJson: String = ""
+object BetterOptionValues {
+  implicit class OptionOps[T](val opt: Option[T]) extends AnyVal {
+
+    def getValue(implicit pos: source.Position): T =
+      try opt.get
+      catch {
+        case cause: NoSuchElementException =>
+          throw new TestFailedException(
+            (_: StackDepthException) => Some("The Option on which value was invoked was not defined."),
+            Some(cause),
+            pos
+          )
+      }
+  }
 }

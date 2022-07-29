@@ -1,0 +1,13 @@
+{
+  "name": {
+    "current": {
+      "firstName": "John",
+      "lastName": "Smith"
+    },
+    "previous": []
+  },
+  "ids": {
+    "nino": "AA055075C"
+  },
+  "dateOfBirth": "11121971"
+}

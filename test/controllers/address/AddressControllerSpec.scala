@@ -22,7 +22,7 @@ import play.api.mvc.Request
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
 
@@ -31,7 +31,6 @@ class AddressControllerSpec extends AddressBaseSpec {
   object SUT
       extends AddressController(
         injected[AuthJourney],
-        withActiveTabAction,
         cc,
         displayAddressInterstitialView
       )

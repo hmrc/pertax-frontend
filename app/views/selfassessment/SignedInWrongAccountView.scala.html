@@ -16,24 +16,25 @@
 
 @import controllers.auth.requests.UserRequest
 @import config.ConfigDecorator
-
-@import uk.gov.hmrc.renderer.TemplateRenderer
 @import views.html.selfassessment.selfAssessmentHeading
 @import scala.concurrent.ExecutionContext
+@import components.{P, Button}
 
-@this(mainView: MainView)
+@this(main: MainView, selfAssessmentHeading: selfAssessmentHeading, p: P, button: Button)
 
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("title.signed_in_wrong_account.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(routes.HomeController.index.url)) {
- <div class="grid-row">
-   <div class="column-two-thirds">
+@main(
+ pageTitle = messages("title.signed_in_wrong_account.h1"),
+ showBackLink = true,
+ backLinkID = false,
+ backLinkUrl = routes.HomeController.index.url
+) {
 
     @selfAssessmentHeading("title.signed_in_wrong_account.h1")
 
-    <p>@messages("label.signed_in_wrong_account")</p>
+    @p(Text(messages("label.signed_in_wrong_account")))
 
-    <a href="@routes.SaWrongCredentialsController.doYouKnowOtherCredentials" class="button" role="button" id="continue">@messages("global.label.continue_button")</a>
-   </div>
-  </div>
+    @button("global.label.continue_button", href=Some(routes.SaWrongCredentialsController.doYouKnowOtherCredentials.url), id="continue")
+
 }

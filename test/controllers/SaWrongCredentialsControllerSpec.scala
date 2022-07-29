@@ -21,12 +21,9 @@ import models.WrongCredentialsSelfAssessmentUser
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import testUtils.BaseSpec
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.renderer.TemplateRenderer
-import util.BaseSpec
 import views.html.selfassessment._
-
-import scala.concurrent.ExecutionContext
 
 class SaWrongCredentialsControllerSpec extends BaseSpec {
 
@@ -44,7 +41,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
       injected[DoYouKnowUserIdView],
       injected[NeedToResetPasswordView],
       injected[FindYourUserIdView]
-    )(config, templateRenderer, ec)
+    )(config, ec)
 
   "processDoYouKnowOtherCredentials" must {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {

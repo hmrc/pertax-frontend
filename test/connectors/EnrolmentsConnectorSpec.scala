@@ -21,9 +21,9 @@ import org.mockito.Mockito.when
 import org.scalatest.EitherValues
 import play.api.http.Status._
 import play.api.libs.json.Json
+import testUtils.{BaseSpec, NullMetrics}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import util.{BaseSpec, NullMetrics}
 
 import scala.concurrent.Future
 

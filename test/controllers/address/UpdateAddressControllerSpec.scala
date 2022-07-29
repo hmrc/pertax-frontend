@@ -27,9 +27,9 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import testUtils.Fixtures
 import uk.gov.hmrc.http.cache.client.CacheMap
-import util.Fixtures
-import util.Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified}
+import Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified}
 import views.html.personaldetails.UpdateAddressView
 
 class UpdateAddressControllerSpec extends AddressBaseSpec {
@@ -40,7 +40,6 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       new UpdateAddressController(
         addressJourneyCachingHelper,
         mockAuthJourney,
-        withActiveTabAction,
         cc,
         injected[UpdateAddressView],
         displayAddressInterstitialView
@@ -59,7 +58,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -101,7 +100,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
     "redirect user to beginning of journey and return 303 for postal addressType and no pagevisitedDto in cache" in new LocalSetup {
@@ -112,7 +111,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
     "display edit address page and return 200 for postal addressType with pagevisitedDto and addressRecord in cache" in new LocalSetup {
@@ -152,7 +151,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 

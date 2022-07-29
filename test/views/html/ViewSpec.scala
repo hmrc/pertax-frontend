@@ -20,7 +20,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.compatible.Assertion
 import play.api.i18n._
-import util.BaseSpec
+import testUtils.BaseSpec
 
 trait ViewSpec extends BaseSpec {
 

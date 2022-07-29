@@ -28,8 +28,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import util.{BaseSpec, WireMockHelper}
+import testUtils.BaseSpec
 import cats.implicits._
+import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.mongo.cache.DataKey
 
 import scala.concurrent.Future

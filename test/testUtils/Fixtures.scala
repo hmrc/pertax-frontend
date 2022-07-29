@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, FakeAuthJourney}
@@ -24,7 +24,7 @@ import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAd
 import models.dto.AddressDto
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -40,13 +40,11 @@ import play.api.test.Helpers.stubControllerComponents
 import play.api.test.{FakeRequest, Helpers}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
-import services.AgentClientAuthorisationService
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
-import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -358,7 +356,6 @@ trait BaseSpec
   ): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
-        bind[TemplateRenderer].toInstance(MockTemplateRenderer),
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
         bind[EditAddressLockRepository].toInstance(mockEditAddressLockRepository),
         bind[AuthJourney].toInstance(new FakeAuthJourney(saUser, personDetails))
@@ -370,8 +367,6 @@ trait BaseSpec
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
 
   lazy val config = app.injector.instanceOf[ConfigDecorator]
-
-  implicit lazy val templateRenderer = app.injector.instanceOf[TemplateRenderer]
 
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
 

@@ -19,7 +19,7 @@ package connectors
 import config.ConfigDecorator
 import uk.gov.hmrc.circuitbreaker.CircuitBreakerConfig
 import uk.gov.hmrc.http.{HttpException, UpstreamErrorResponse}
-import util.BaseSpec
+import testUtils.BaseSpec
 
 class ServicesCircuitBreakerSpec extends BaseSpec with ServicesCircuitBreaker {
 

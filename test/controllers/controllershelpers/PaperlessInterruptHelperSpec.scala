@@ -26,9 +26,10 @@ import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import util.{BaseSpec, Fixtures}
+import testUtils.BaseSpec
 
 import scala.concurrent.Future
 
@@ -49,7 +50,6 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
     None,
     None,
     Set(),
-    None,
     None,
     None,
     None,
