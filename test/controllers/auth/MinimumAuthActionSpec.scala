@@ -27,13 +27,13 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
+import testUtils.RetrievalOps.Ops
 import testUtils.{BaseSpec, Fixtures}
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, _}
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments, InsufficientEnrolments, SessionRecordNotFound}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import testUtils.RetrievalOps._
 import util.EnrolmentsHelper
 
 import scala.concurrent.Future
@@ -45,22 +45,18 @@ class MinimumAuthActionSpec extends BaseSpec {
     .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
     .configure(Map("metrics.enabled" -> false))
     .build()
-
-  val cc = stubControllerComponents()
-  val mockAuthConnector = mock[AuthConnector]
-  val controllerComponents = app.injector.instanceOf[ControllerComponents]
+  type AuthRetrievals =
+    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[
+      UserName
+    ] ~ Option[
+      TrustedHelper
+    ] ~ Option[String]
+  val cc: ControllerComponents = stubControllerComponents()
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
   val sessionAuditor =
     new SessionAuditorFake(app.injector.instanceOf[AuditConnector], app.injector.instanceOf[EnrolmentsHelper])
-  val enrolmentsHelper = injected[EnrolmentsHelper]
-
-  class Harness(authAction: MinimumAuthAction) extends AbstractController(cc) {
-    def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
-      Ok(
-        s"Nino: ${request.nino.getOrElse("fail").toString}, Enrolments: ${request.enrolments.toString}," +
-          s"trustedHelper: ${request.trustedHelper}"
-      )
-    }
-  }
+  val enrolmentsHelper: EnrolmentsHelper = injected[EnrolmentsHelper]
 
   "A user with no active session must" must {
     "be redirected to the session timeout page" in {
@@ -103,16 +99,19 @@ class MinimumAuthActionSpec extends BaseSpec {
       }
     }
   }
-
-  type AuthRetrievals =
-    Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ Option[
-      TrustedHelper
-    ] ~ Option[String]
-
-  val fakeCredentials = Credentials("foo", "bar")
-  val fakeConfidenceLevel = ConfidenceLevel.L200
+  val fakeCredentials: Credentials = Credentials("foo", "bar")
+  val fakeConfidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
 
   def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
+
+  class Harness(authAction: MinimumAuthAction) extends AbstractController(cc) {
+    def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
+      Ok(
+        s"Nino: ${request.nino.getOrElse("fail").toString}, Enrolments: ${request.enrolments.toString}," +
+          s"trustedHelper: ${request.trustedHelper}"
+      )
+    }
+  }
 
   "A user with nino and no SA enrolment must" must {
     "create an authenticated request" in {
@@ -120,7 +119,7 @@ class MinimumAuthActionSpec extends BaseSpec {
       val nino = Fixtures.fakeNino.nino
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          Some(nino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None
+          Some(nino) ~ None ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None
         )
 
       when(
@@ -152,7 +151,9 @@ class MinimumAuthActionSpec extends BaseSpec {
 
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          None ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None
+          None ~ None ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(
+            fakeCredentials
+          ) ~ fakeConfidenceLevel ~ None ~ None ~ None
         )
 
       when(
@@ -185,7 +186,7 @@ class MinimumAuthActionSpec extends BaseSpec {
 
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          Some(nino) ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(
+          Some(nino) ~ None ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(
             fakeCredentials
           ) ~ fakeConfidenceLevel ~ None ~ None ~ None
         )
@@ -219,7 +220,7 @@ class MinimumAuthActionSpec extends BaseSpec {
       val fakePrincipalNino = Fixtures.fakeNino.toString()
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          Some(Fixtures.fakeNino.toString()) ~ Enrolments(Set.empty) ~ Some(
+          Some(Fixtures.fakeNino.toString()) ~ None ~ Enrolments(Set.empty) ~ Some(
             fakeCredentials
           ) ~ fakeConfidenceLevel ~ None ~ Some(
             TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)

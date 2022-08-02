@@ -50,6 +50,7 @@ class MinimumAuthAction @Inject() (
     authorised(ConfidenceLevel.L50)
       .retrieve(
         Retrievals.nino and
+          Retrievals.affinityGroup and
           Retrievals.allEnrolments and
           Retrievals.credentials and
           Retrievals.confidenceLevel and
@@ -57,9 +58,9 @@ class MinimumAuthAction @Inject() (
           Retrievals.trustedHelper and
           Retrievals.profile
       ) {
-        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ trustedHelper ~ profile =>
-          val saEnrolment = enrolmentsHelper.selfAssessmentStatus(enrolments, trustedHelper)
-
+        case nino ~ affinityGroup ~ Enrolments(enrolments) ~ Some(
+              credentials
+            ) ~ confidenceLevel ~ name ~ trustedHelper ~ profile =>
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>
@@ -79,7 +80,8 @@ class MinimumAuthAction @Inject() (
               trustedHelper,
               profile,
               enrolments,
-              trimmedRequest
+              trimmedRequest,
+              affinityGroup
             )
 
           for {

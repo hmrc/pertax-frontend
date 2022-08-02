@@ -16,11 +16,11 @@
 
 package controllers.auth.requests
 
-import models.{SelfAssessmentEnrolment, UserName}
+import models.UserName
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.domain.Nino
 
 case class AuthenticatedRequest[A](
@@ -31,5 +31,6 @@ case class AuthenticatedRequest[A](
   trustedHelper: Option[TrustedHelper],
   profile: Option[String],
   enrolments: Set[Enrolment],
-  request: Request[A]
+  request: Request[A],
+  affinityGroup: Option[AffinityGroup]
 ) extends WrappedRequest[A](request)
