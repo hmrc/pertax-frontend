@@ -18,14 +18,14 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import controllers.routes
-import java.time.LocalDate
-import play.api.{Configuration, Play}
+import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.{URL, URLEncoder}
+import java.time.LocalDate
 
 @Singleton
 class ConfigDecorator @Inject() (

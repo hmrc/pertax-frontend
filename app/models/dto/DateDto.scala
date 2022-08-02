@@ -16,11 +16,12 @@
 
 package models.dto
 
-import java.time.LocalDate
+import models.DateTuple._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import models.DateTuple._
+
+import java.time.LocalDate
 
 case class DateDto(
   startDate: LocalDate

@@ -17,8 +17,9 @@
 package util
 
 import com.google.inject.ImplementedBy
-import java.time.LocalDate
 import uk.gov.hmrc.time.CurrentTaxYear
+
+import java.time.LocalDate
 
 @ImplementedBy(classOf[TaxYearRetrieverImpl])
 trait TaxYearRetriever {

@@ -19,11 +19,12 @@ package models.dto
 import controllers.controllershelpers.CountryHelper
 import models.addresslookup.AddressRecord
 import models.{Address, Country}
-import java.time.LocalDate
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import util.PertaxValidators._
+
+import java.time.LocalDate
 
 case class AddressDto(
   line1: String,

@@ -19,12 +19,11 @@ package util
 import com.google.inject.{Inject, Singleton}
 import play.api.Logging
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.DateTimeTools.defaultTZ
 
 import java.time.format.{DateTimeFormatter, FormatStyle}
-import scala.util.{Failure, Success, Try}
-import java.time.{LocalDate, ZoneId, ZonedDateTime, LocalDateTime => JavaLDT}
+import java.time.{LocalDate, ZoneId, LocalDateTime => JavaLDT}
 import java.util.Locale
+import scala.util.{Failure, Success, Try}
 
 object DateTimeTools extends CurrentTaxYear with Logging {
 

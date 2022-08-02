@@ -17,10 +17,10 @@
 package util
 
 import com.google.common.util.concurrent.RateLimiter
+import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Logging}
 
 import scala.concurrent.Future
-import com.google.inject.{Inject, Singleton}
 
 @Singleton
 class Limiters @Inject() (configuration: Configuration) {

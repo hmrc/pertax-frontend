@@ -16,6 +16,7 @@
 
 package connectors
 
+import com.google.inject.Inject
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
@@ -23,7 +24,6 @@ import metrics.HasMetrics
 import models.{SaEnrolmentRequest, SaEnrolmentResponse}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
-import com.google.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)(

@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
-import java.time.LocalDate
+import play.api.Logger
 import play.api.mvc._
 import services.IdentityVerificationSuccessResponse._
 import services._
@@ -30,6 +30,7 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import views.html.iv.failure._
 import views.html.iv.success.SuccessView
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class ApplicationController @Inject() (

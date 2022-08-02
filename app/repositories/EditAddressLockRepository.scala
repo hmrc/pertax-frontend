@@ -16,24 +16,23 @@
 
 package repositories
 
-import java.time.zone.ZoneRules
-import java.time.{Instant, OffsetDateTime, ZoneId, ZoneOffset}
-import java.util.TimeZone
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.bindable.AddrType
-import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentialAddress, EditedAddress}
-import org.mongodb.scala.{DuplicateKeyException, MongoException}
+import models._
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import org.mongodb.scala.result.InsertOneResult
+import org.mongodb.scala.{DuplicateKeyException, MongoException}
 import play.api.Logging
-import uk.gov.hmrc.mongo.MongoComponent
 import repositories.EditAddressLockRepository.EXPIRE_AT
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import models.AddressesLock
 
+import java.time.zone.ZoneRules
+import java.time.{Instant, OffsetDateTime, ZoneId, ZoneOffset}
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
 

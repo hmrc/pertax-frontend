@@ -16,7 +16,6 @@
 
 package viewmodels
 
-import config.ConfigDecorator
 import play.api.i18n.Messages
 import viewmodels.AddressRowModel.closePostalAddressUrl
 

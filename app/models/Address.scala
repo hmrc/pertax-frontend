@@ -16,10 +16,11 @@
 
 package models
 
-import java.time.LocalDate
-import play.api.libs.json._
 import play.api.Logging
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
+
+import java.time.LocalDate
 
 case class Address(
   line1: Option[String],

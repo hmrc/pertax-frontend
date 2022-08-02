@@ -16,12 +16,11 @@
 
 package views.util
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import play.api.i18n.Messages
 import uk.gov.hmrc.play.language.LanguageUtils
 import viewmodels._
-
-import com.google.inject.Inject
 
 class ViewUtils @Inject() (languageUtils: LanguageUtils) {
 

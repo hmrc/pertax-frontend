@@ -16,14 +16,11 @@
 
 package models
 
-import java.time.LocalDate
 import play.api.data.Forms._
 import play.api.data.Mapping
+
 import java.text.{DateFormatSymbols => JDateFormatSymbols}
-
-import uk.gov.hmrc.play.mappers.DateTuple
-
-import scala.util.Try
+import java.time.LocalDate
 
 object DateTuple extends DateTuple
 

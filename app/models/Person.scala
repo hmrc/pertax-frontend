@@ -16,9 +16,10 @@
 
 package models
 
-import java.time.LocalDate
 import play.api.libs.json._
 import uk.gov.hmrc.domain.Nino
+
+import java.time.LocalDate
 
 case class Person(
   firstName: Option[String],

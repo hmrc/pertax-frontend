@@ -15,9 +15,8 @@
  */
 
 package models
-import config.ConfigDecorator
 import com.google.inject.{Inject, Singleton}
-import java.time.LocalDate
+import config.ConfigDecorator
 import util.DateTimeTools._
 
 import java.time.LocalDate

@@ -17,12 +17,11 @@
 package repositories
 
 import config.ConfigDecorator
-
-import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongo.cache.{SessionCacheRepository => CacheRepository}
 import uk.gov.hmrc.mongo.{CurrentTimestampSupport, MongoComponent}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 

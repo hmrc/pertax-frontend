@@ -16,7 +16,7 @@
 
 package viewmodels
 
-import models.{BreathingSpaceIndicatorResponse, SelfAssessmentUser, SelfAssessmentUserType}
+import models.{SelfAssessmentUser, SelfAssessmentUserType}
 import play.twirl.api.Html
 
 final case class HomeViewModel(
