@@ -18,15 +18,15 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.{CitizenDetailsConnector, UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressSuccessResponse, UpdateAddressUnexpectedResponse}
-import controllers.auth.requests.UserRequest
+import connectors._
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyAuditingHelper.auditForClosingPostalAddress
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
-import models.{Address, AddressJourneyTTLModel, EditCorrespondenceAddress, PersonDetails}
 import models.dto.ClosePostalAddressChoiceDto
+import models.{Address, EditCorrespondenceAddress, PersonDetails}
 import org.joda.time.LocalDate
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}

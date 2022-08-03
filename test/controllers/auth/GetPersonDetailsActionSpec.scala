@@ -57,7 +57,7 @@ class GetPersonDetailsActionSpec extends BaseSpec {
       Some(Fixtures.fakeNino),
       None,
       WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-      Credentials("", "Verify"),
+      Credentials("", "GovernmentGateway"),
       ConfidenceLevel.L50,
       None,
       None,

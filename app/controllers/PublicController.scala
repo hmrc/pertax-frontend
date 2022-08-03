@@ -29,14 +29,6 @@ class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeo
   ec: ExecutionContext
 ) extends PertaxBaseController(cc) {
 
-  def verifyEntryPoint: Action[AnyContent] = Action.async { implicit request =>
-    Future.successful {
-      Redirect(routes.HomeController.index).withNewSession.addingToSession(
-        configDecorator.authProviderKey -> configDecorator.authProviderVerify
-      )
-    }
-  }
-
   def governmentGatewayEntryPoint: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(routes.HomeController.index).withNewSession.addingToSession(

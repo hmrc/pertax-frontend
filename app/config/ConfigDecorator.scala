@@ -39,7 +39,6 @@ class ConfigDecorator @Inject() (
 
   val authProviderKey = "AuthProvider"
   val authProviderGG = "GovernmentGateway"
-  val authProviderVerify = "Verify"
 
   def currentLocalDate: LocalDate = LocalDate.now()
 

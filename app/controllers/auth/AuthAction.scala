@@ -30,8 +30,8 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -138,12 +138,6 @@ class AuthActionImpl @Inject() (
           .url
 
       request.session.get(configDecorator.authProviderKey) match {
-        case Some(configDecorator.authProviderVerify) =>
-          lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/ida/login"
-          Redirect(idaSignIn).withSession(
-            "loginOrigin"    -> configDecorator.defaultOrigin.origin,
-            "login_redirect" -> postSignInRedirectUrl(request)
-          )
         case Some(configDecorator.authProviderGG) =>
           lazy val ggSignIn = s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"
           Redirect(

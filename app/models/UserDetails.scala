@@ -20,10 +20,8 @@ import play.api.libs.json.Json
 
 case class UserDetails(authProviderType: String) {
   def hasGovernmentGatewayAuthProvider = authProviderType == UserDetails.GovernmentGatewayAuthProvider
-  def hasVerifyAuthProvider = authProviderType == UserDetails.VerifyAuthProvider
 }
 object UserDetails {
   implicit val formats = Json.format[UserDetails]
   val GovernmentGatewayAuthProvider = "GovernmentGateway"
-  val VerifyAuthProvider = "Verify"
 }

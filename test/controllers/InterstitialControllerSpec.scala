@@ -118,7 +118,7 @@ class InterstitialControllerSpec extends BaseSpec {
           block(
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "Verify"),
+              credentials = Credentials("", "GovernmentGateway"),
               request = request
             )
           )
@@ -153,7 +153,7 @@ class InterstitialControllerSpec extends BaseSpec {
           block(
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "Verify"),
+              credentials = Credentials("", "GovernmentGateway"),
               request = request
             )
           )
@@ -223,8 +223,8 @@ class InterstitialControllerSpec extends BaseSpec {
           block(
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
+              credentials = Credentials("", "GovernmentGateway"),
+              confidenceLevel = ConfidenceLevel.L200,
               request = request
             )
           )
@@ -299,7 +299,7 @@ class InterstitialControllerSpec extends BaseSpec {
           block(
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "Verify"),
+              credentials = Credentials("", "GovernmentGateway"),
               request = request
             )
           )
@@ -541,7 +541,7 @@ class InterstitialControllerSpec extends BaseSpec {
           block(
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "Verify"),
+              credentials = Credentials("", "GovernmentGateway"),
               request = request
             )
           )

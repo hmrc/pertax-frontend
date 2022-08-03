@@ -20,8 +20,8 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
 import org.joda.time.DateTime
+import play.api.Logger
 import play.api.mvc._
-import play.api.{Environment, Logger}
 import services.IdentityVerificationSuccessResponse._
 import services._
 import uk.gov.hmrc.play.binders.Origin

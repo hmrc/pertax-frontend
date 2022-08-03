@@ -40,6 +40,7 @@ import play.api.test.Helpers.stubControllerComponents
 import play.api.test.{FakeRequest, Helpers}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
+import services.AgentClientAuthorisationService
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
@@ -286,18 +287,6 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
     FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
 
   def buildFakeRequestWithAuth(
-    method: String,
-    uri: String = "/personal-account"
-  ): FakeRequest[AnyContentAsEmpty.type] = {
-    val session = Map(
-      SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
-      SessionKeys.lastRequestTimestamp -> now.getMillis.toString
-    )
-
-    FakeRequest(method, uri).withSession(session.toList: _*)
-  }
-
-  def buildFakeRequestWithVerify(
     method: String,
     uri: String = "/personal-account"
   ): FakeRequest[AnyContentAsEmpty.type] = {

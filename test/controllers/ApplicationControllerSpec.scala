@@ -294,24 +294,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         "http://localhost:9553/bas-gateway/sign-out-without-state?continue=/personal-account"
       )
     }
-    "redirect to verify sign-out link with correct continue url when signed in with verify, a continue URL and no origin" in new LocalSetup {
-
-      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
-            )
-          )
-      })
-
-      val result = controller.signout(Some(RedirectUrl("/personal-account")), None)(FakeRequest())
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("http://localhost:9949/ida/signout")
-      session(result).get("postLogoutPage") mustBe Some("/personal-account")
-    }
 
     "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with no continue URL but an origin" in new LocalSetup {
 
@@ -388,8 +370,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
+              credentials = Credentials("", ""),
+              confidenceLevel = ConfidenceLevel.L200,
               request = request
             )
           )

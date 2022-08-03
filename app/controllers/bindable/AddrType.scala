@@ -17,6 +17,7 @@
 package controllers.bindable
 
 import models.{EditCorrespondenceAddress, EditResidentialAddress, EditedAddress}
+
 import java.time.Instant
 
 object AddrType {

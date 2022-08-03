@@ -18,9 +18,9 @@ package controllers.controllershelpers
 
 import com.google.inject.{Inject, Singleton}
 import controllers.bindable.AddrType
+import models._
 import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
-import models._
 import play.api.Logging
 import play.api.libs.json.Writes
 import play.api.mvc.{Result, Results}
