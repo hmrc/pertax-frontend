@@ -25,7 +25,6 @@ import controllers.auth.requests.UserRequest
 import play.api.Logging
 import play.api.mvc.{MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,7 +38,6 @@ class RlsInterruptHelper @Inject() (
     block: => Future[Result]
   )(implicit
     request: UserRequest[_],
-    hc: HeaderCarrier,
     ec: ExecutionContext,
     configDecorator: ConfigDecorator
   ): Future[Result] =

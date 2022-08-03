@@ -19,13 +19,13 @@ package viewmodels
 import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
 import models._
-import java.time.LocalDate
 import org.jsoup.nodes.Document
 import testUtils.BetterOptionValues
 import uk.gov.hmrc.play.language.LanguageUtils
-import viewmodels.TaxCalculationViewModel
 import views.html.ViewSpec
 import views.html.cards.home.TaxCalculationView
+
+import java.time.LocalDate
 
 class TaxCalculationViewModelSpec extends ViewSpec {
 

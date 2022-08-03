@@ -17,14 +17,12 @@
 package connectors
 
 import cats.data.EitherT
-import cats.implicits.catsStdInstancesForFuture
 import com.codahale.metrics.Timer
 import com.google.inject.Inject
 import config.ConfigDecorator
 import metrics.{Metrics, MetricsEnumeration}
 import models.BreathingSpaceIndicator
 import play.api.Logging
-import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 import util.Timeout
@@ -79,7 +77,7 @@ class BreathingSpaceConnector @Inject() (
         timerContext.stop()
         throw error
     }
-    httpClientResponse.read(result, metricName)(hc).map(_.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
+    httpClientResponse.read(result, metricName).map(_.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
 
 }

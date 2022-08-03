@@ -29,15 +29,16 @@ import play.api.inject.bind
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.partials.MessageFrontendService
-import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import services._
+import services.partials.MessageFrontendService
+import testUtils.Fixtures._
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.time.CurrentTaxYear
-import testUtils.Fixtures._
+
 import java.time.LocalDate
 import scala.concurrent.Future
 
@@ -150,7 +151,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
 
-      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -289,7 +290,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return a 303 status when both the user's residential and postal addresses status are rls" in new LocalSetup {
 
-      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -311,7 +312,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 200 status when both the user's residential and postal addresses status are rls but both addresses have been updated" in new LocalSetup {
-      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(true, true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -333,7 +334,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 303 status when the user's residential address status is rls" in new LocalSetup {
-      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -355,7 +356,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 200 status when the user's residential address status is rls but address has been updated" in new LocalSetup {
-      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(true, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -377,7 +378,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 303 status when the user's postal address status is rls" in new LocalSetup {
-      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -399,7 +400,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 200 status when the user's postal address status is rls but address has been updated" in new LocalSetup {
-      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(false, true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -421,7 +422,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 303 status when the user's residential and postal address status is rls but residential address has been updated" in new LocalSetup {
-      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(true, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -443,7 +444,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 303 status when the user's residential and postal address status is rls but postal address has been updated" in new LocalSetup {
-      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(false, true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 

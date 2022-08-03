@@ -18,7 +18,7 @@ package services
 
 import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
-import metrics._
+import metrics.HasMetrics
 import models.{TaxCalculation, TaxYearReconciliation}
 import play.api.Logging
 import services.http.SimpleHttp

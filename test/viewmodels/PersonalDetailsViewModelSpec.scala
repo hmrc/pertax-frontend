@@ -20,7 +20,6 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
-import java.time.LocalDate
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -30,7 +29,7 @@ import views.html.ViewSpec
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
-import java.time.Instant
+import java.time.{Instant, LocalDate}
 import scala.util.Random
 
 class PersonalDetailsViewModelSpec extends ViewSpec {
@@ -141,7 +140,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     "return None" when {
       "user is not gg" in {
         val request = userRequest.copy(credentials = Credentials("", ""))
-        val actual = personalDetailsViewModel.getPaperlessSettingsRow(request, messages)
+        val actual = personalDetailsViewModel.getPaperlessSettingsRow(request)
         actual mustBe None
       }
     }
@@ -159,7 +158,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           )
         )
 
-        val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages)
+        val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest)
         actual mustBe expected
       }
     }
@@ -168,7 +167,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   "getTrustedHelpersRow" must {
     "return None" when {
       "user is not verify" in {
-        val actual = personalDetailsViewModel.getTrustedHelpersRow(userRequest, messages)
+        val actual = personalDetailsViewModel.getTrustedHelpersRow(messages)
         val expected = Some(
           PersonalDetailsTableRowModel(
             "trusted_helpers",
@@ -185,8 +184,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "return PersonalDetailsTableRowModel" when {
       "user is verify" in {
-        val request = userRequest.copy(credentials = Credentials("", "GovernmentGateway"))
-        val actual = personalDetailsViewModel.getTrustedHelpersRow(request, messages)
+        val actual = personalDetailsViewModel.getTrustedHelpersRow(messages)
         val expected = Some(
           PersonalDetailsTableRowModel(
             "trusted_helpers",

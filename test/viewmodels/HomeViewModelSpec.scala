@@ -16,10 +16,9 @@
 
 package viewmodels
 
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
+import models._
 import testUtils.BaseSpec
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import viewmodels.HomeViewModel
 
 class HomeViewModelSpec extends BaseSpec {
 

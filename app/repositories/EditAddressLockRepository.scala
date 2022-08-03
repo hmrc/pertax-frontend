@@ -20,13 +20,12 @@ import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.bindable.AddrType
 import models._
+import org.mongodb.scala.MongoException
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import org.mongodb.scala.result.InsertOneResult
-import org.mongodb.scala.{DuplicateKeyException, MongoException}
 import play.api.Logging
 import repositories.EditAddressLockRepository.EXPIRE_AT
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -75,15 +74,10 @@ class EditAddressLockRepository @Inject() (
 
     logger.info("Inserting address lock: " + AddressJourneyTTLModel(nino, record).toString)
 
-    insertCore(AddressJourneyTTLModel(nino, record)).map(_.wasAcknowledged()) recover {
-      case e: MongoException =>
-        val errorCode = e.getCode
-        logger.error(s"Edit address lock failure with error $errorCode")
-        false
-      case e: DuplicateKeyException =>
-        val errorCode = e.getCode
-        logger.error(s"Edit address lock failure with error $errorCode")
-        false
+    insertCore(AddressJourneyTTLModel(nino, record)).map(_.wasAcknowledged()) recover { case e: MongoException =>
+      val errorCode = e.getCode
+      logger.error(s"Edit address lock failure with error $errorCode")
+      false
     }
   }
 
@@ -100,7 +94,6 @@ class EditAddressLockRepository @Inject() (
     collection.insertOne(record).toFuture()
 
   def getAddressesLock(nino: String)(implicit
-    hc: HeaderCarrier = HeaderCarrier(),
     ec: ExecutionContext
   ): Future[AddressesLock] =
     get(nino).map { editAddressLockRepository =>

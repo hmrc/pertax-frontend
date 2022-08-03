@@ -169,7 +169,6 @@ class PersonalDetailsViewModel @Inject() (
   }
 
   def getTrustedHelpersRow(implicit
-    request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
     Some(
@@ -184,7 +183,6 @@ class PersonalDetailsViewModel @Inject() (
     )
 
   def getManageTaxAgentsRow(implicit
-    request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
     Some(
@@ -199,8 +197,7 @@ class PersonalDetailsViewModel @Inject() (
     )
 
   def getPaperlessSettingsRow(implicit
-    request: UserRequest[_],
-    messages: play.api.i18n.Messages
+    request: UserRequest[_]
   ): Option[PersonalDetailsTableRowModel] =
     PersonalDetailsTableRowModel(
       "paperless",

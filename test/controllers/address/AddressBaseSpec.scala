@@ -17,9 +17,9 @@
 package controllers.address
 
 import config.ConfigDecorator
-import connectors.{CitizenDetailsConnector, PersonDetailsResponse, PersonDetailsSuccessResponse, UpdateAddressResponse, UpdateAddressSuccessResponse}
-import controllers.auth.requests.UserRequest
+import connectors._
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models._
@@ -29,14 +29,14 @@ import org.mockito.Mockito.{reset, when}
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import services._
+import testUtils.Fixtures._
+import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
-import testUtils.Fixtures._
-import testUtils.UserRequestFixture.buildUserRequest
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateAddressConfirmationView
 
@@ -150,7 +150,7 @@ trait AddressBaseSpec extends BaseSpec {
     when(mockEditAddressLockRepository.get(any())) thenReturn {
       Future.successful(getEditedAddressIndicators)
     }
-    when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any())) thenReturn {
+    when(mockEditAddressLockRepository.getAddressesLock(any())(any())) thenReturn {
       Future.successful(getAddressesLockResponse)
     }
     when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())) thenReturn {
