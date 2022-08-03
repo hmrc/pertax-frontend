@@ -51,7 +51,7 @@ class PartialsController @Inject() (
       Ok(
         mainContentHeaderView(
           name,
-          lastLogin.map(x => LocalDateTime.ofInstant(Instant.ofEpochMilli(x), ZoneId.of("ECT"))),
+          lastLogin.map(x => LocalDateTime.ofInstant(Instant.ofEpochMilli(x), ZoneId.of("Europe/London"))),
           breadcrumb,
           showBetaBanner.getOrElse(false),
           deskProToken,

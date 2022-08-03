@@ -38,7 +38,6 @@ import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
-import services.AgentClientAuthorisationService
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
