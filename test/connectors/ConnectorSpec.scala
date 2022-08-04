@@ -1,9 +1,26 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package connectors
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import org.scalatest.Suite
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -11,22 +28,24 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.{HeaderNames, MimeTypes, Status}
 import play.api.inject.guice.GuiceApplicationBuilder
+import testUtils.WireMockHelper
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.language.implicitConversions
 
-trait ConnectorSpec extends AnyWordSpec with GuiceOneAppPerSuite with Status with HeaderNames with MimeTypes with Matchers with ScalaFutures {
+trait ConnectorSpec
+    extends AnyWordSpec with GuiceOneAppPerSuite with Status with HeaderNames with MimeTypes with Matchers
+    with ScalaFutures {
+
   implicit val hc: HeaderCarrier = HeaderCarrier()
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  protected val server: WireMockServer
+  val server: WireMockServer
 
-  implicit def app(confStrings: Map[String, String]): Application = new GuiceApplicationBuilder()
+  implicit def app(confStrings: Map[String, Any]): Application = new GuiceApplicationBuilder()
     .configure(confStrings)
     .build()
-
-  def mockConnector[A <: Connector](connector : Class[A]): A = app.injector.instanceOf(connector)
 
   def stubGet(url: String, responseStatus: Int, responseBody: Option[String]): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
@@ -35,21 +54,31 @@ trait ConnectorSpec extends AnyWordSpec with GuiceOneAppPerSuite with Status wit
     get(url).willReturn(response)
   }
 
-  def stubPut(url: String, responseStatus: Int, requestBody: Option[String], responseBody: Option[String]): StubMapping = server.stubFor{
+  def stubPut(
+    url: String,
+    responseStatus: Int,
+    requestBody: Option[String],
+    responseBody: Option[String]
+  ): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
     val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
-    requestBody.fold(put(url).willReturn(response))(
-      requestBody => put(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
+    requestBody.fold(put(url).willReturn(response))(requestBody =>
+      put(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
     )
   }
 
-  def stubPost(url: String, responseStatus: Int, requestBody: Option[String], responseBody: Option[String]): StubMapping = server.stubFor {
+  def stubPost(
+    url: String,
+    responseStatus: Int,
+    requestBody: Option[String],
+    responseBody: Option[String]
+  ): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
     val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
-    requestBody.fold(put(url).willReturn(response))(
-      requestBody => put(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
+    requestBody.fold(put(url).willReturn(response))(requestBody =>
+      put(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
     )
   }
 
@@ -57,7 +86,7 @@ trait ConnectorSpec extends AnyWordSpec with GuiceOneAppPerSuite with Status wit
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
     val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
-   delete(url).willReturn(response)
+    delete(url).willReturn(response)
   }
 
   def verifyCorrelationIdHeader(requestPattern: RequestPatternBuilder): Unit =

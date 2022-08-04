@@ -16,51 +16,40 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
-import play.api.http.Status._
-import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import testUtils.{FileHelper, WireMockHelper}
 import testUtils.Fixtures.fakeNino
-import testUtils.{BaseSpec, FileHelper, NullMetrics, WireMockHelper}
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
-class TaxCreditsConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
+class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience {
 
-  lazy val http = app.injector.instanceOf[DefaultHttpClient]
+  override lazy val app: Application = app(
+    Map("microservice.services.tcs-broker.port" -> server.port())
+  )
 
-  def connector: TaxCreditsConnector = new TaxCreditsConnector(http, config, new NullMetrics)
+  def connector: TaxCreditsConnector = app.injector.instanceOf[TaxCreditsConnector]
 
   lazy val url: String = s"/tcs/$fakeNino/dashboard-data"
-
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
-    .configure(
-      "microservice.services.tcs-broker.port" -> server.port()
-    )
-    .build()
 
   "TaxCreditsConnector" when {
     "checkForTaxCredits is called" must {
       "return a HttpResponse containing OK if tcs data for the given NINO is found" in {
+        val data = FileHelper.loadFile("./test/resources/tcs/dashboard-data.json")
+        stubGet(url, OK, Some(data))
+        val result = connector.checkForTaxCredits(fakeNino).value.futureValue
 
-        server.stubFor(
-          get(urlEqualTo(url)).willReturn(ok(FileHelper.loadFile("./test/resources/tcs/dashboard-data.json")))
-        )
-
-        val result = connector.checkForTaxCredits(fakeNino).value.futureValue.right.get
-
-        result.status mustBe OK
+        result mustBe a[Right[_, _]]
+        result.right.get mustBe HttpResponse(OK, _: String)
+        result.right.get.body mustBe data
       }
 
       "return a UpstreamErrorException containing NOT_FOUND if tcs data for the given isn't found" in {
+        stubGet(url, NOT_FOUND, None)
+        val result = connector.checkForTaxCredits(fakeNino).value.futureValue
 
-        server.stubFor(
-          get(urlEqualTo(url)).willReturn(aResponse().withStatus(NOT_FOUND))
-        )
-
-        val result = connector.checkForTaxCredits(fakeNino).value.futureValue.left.get
-
-        result.statusCode mustBe NOT_FOUND
+        result mustBe a[Left[_, _]]
+        result.left mustBe UpstreamErrorResponse(_: String, NOT_FOUND)
       }
 
       List(
@@ -70,14 +59,11 @@ class TaxCreditsConnectorSpec extends BaseSpec with WireMockHelper with Integrat
         SERVICE_UNAVAILABLE
       ).foreach { status =>
         s"return an UpstreamErrorException containing INTERNAL_SERVER_ERROR when $status is returned from TCS Broker" in {
+          stubGet(url, status, None)
+          val result = connector.checkForTaxCredits(fakeNino).value.futureValue
 
-          server.stubFor(
-            get(urlEqualTo(url)).willReturn(aResponse().withStatus(status))
-          )
-
-          val result = connector.checkForTaxCredits(fakeNino).value.futureValue.left.get
-
-          result.statusCode mustBe status
+          result mustBe a[Left[_, _]]
+          result.left mustBe UpstreamErrorResponse(_: String, status)
         }
       }
     }
