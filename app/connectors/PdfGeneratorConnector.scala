@@ -23,7 +23,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.Future
 
 @ImplementedBy(classOf[FrontendPdfGeneratorConnector])
-trait PdfGeneratorConnector {
+trait PdfGeneratorConnector extends Connector with {
   val serviceURL: String
   def getWsClient: WSClient
 

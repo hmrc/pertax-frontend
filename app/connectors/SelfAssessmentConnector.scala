@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)(
   implicit ec: ExecutionContext
-) extends HasMetrics {
+) extends Connector with HasMetrics {
 
   def enrolForSelfAssessment(
     saEnrolmentRequest: SaEnrolmentRequest

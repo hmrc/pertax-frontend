@@ -1,0 +1,3 @@
+package connectors
+
+trait Connector

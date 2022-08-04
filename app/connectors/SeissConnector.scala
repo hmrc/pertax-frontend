@@ -36,7 +36,7 @@ class SeissConnector @Inject() (
   httpClientResponse: HttpClientResponse,
   implicit val ec: ExecutionContext,
   configDecorator: ConfigDecorator
-) {
+) extends Connector {
 
   def getClaims(utr: String)(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, List[SeissModel]] = {
     val seissRequest = SeissRequest(utr)

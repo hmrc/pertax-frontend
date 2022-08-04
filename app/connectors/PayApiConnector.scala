@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.HttpClient
 import scala.concurrent.{ExecutionContext, Future}
 
 class PayApiConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)
-    extends HasMetrics {
+    extends Connector with HasMetrics {
 
   def createPayment(
     request: PaymentRequest
