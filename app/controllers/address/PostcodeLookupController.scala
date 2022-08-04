@@ -18,8 +18,8 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.addresslookup.RecordSet

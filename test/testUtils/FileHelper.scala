@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
-import uk.gov.hmrc.auth.core.retrieve.~
+import scala.io.Source.fromFile
 
-object RetrievalOps {
-  implicit class Ops[A](a: A) {
-    def ~[B](b: B): A ~ B = new ~(a, b)
+object FileHelper {
+
+  def loadFile(name: String): String = {
+    val source = fromFile(name)
+    try source.mkString
+    finally source.close()
   }
 }

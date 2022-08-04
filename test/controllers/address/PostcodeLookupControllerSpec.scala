@@ -18,7 +18,7 @@ package controllers.address
 
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.addresslookup.RecordSet
-import models.dto.{AddressFinderDto, AddressPageVisitedDto, ResidencyChoiceDto, TaxCreditsChoiceDto}
+import models.dto.{AddressFinderDto, AddressPageVisitedDto}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
@@ -28,10 +28,10 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
+import testUtils.Fixtures
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
-import util.Fixtures
-import util.Fixtures.{fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
+import Fixtures.{fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
 import views.html.personaldetails.PostcodeLookupView
 
 class PostcodeLookupControllerSpec extends AddressBaseSpec {
@@ -49,8 +49,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
         displayAddressInterstitialView
       )
 
-    def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(false)))))
+    def sessionCacheResponse: Option[CacheMap] = None
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 

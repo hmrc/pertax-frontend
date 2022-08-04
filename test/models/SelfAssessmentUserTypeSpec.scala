@@ -17,8 +17,8 @@
 package models
 
 import play.api.libs.json.{JsError, Json}
+import testUtils.BaseSpec
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import util.BaseSpec
 
 class SelfAssessmentUserTypeSpec extends BaseSpec {
 

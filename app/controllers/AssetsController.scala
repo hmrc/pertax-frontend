@@ -16,8 +16,8 @@
 
 package controllers
 
-import error.LocalErrorHandler
 import com.google.inject.Inject
+import error.LocalErrorHandler
 
 class AssetsController @Inject() (
   localErrorHandler: LocalErrorHandler,

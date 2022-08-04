@@ -18,8 +18,8 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._

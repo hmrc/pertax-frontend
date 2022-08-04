@@ -21,8 +21,8 @@ import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
 import models._
 import org.joda.time.LocalDate
 import org.jsoup.nodes.Document
+import testUtils.BetterOptionValues
 import uk.gov.hmrc.play.language.LanguageUtils
-import util.BetterOptionValues
 import viewmodels.TaxCalculationViewModel
 import views.html.ViewSpec
 import views.html.cards.home.TaxCalculationView

@@ -1,0 +1,134 @@
+{
+  "personalDetails": {
+    "forename": "Emma",
+    "surname": "Cowling",
+    "nino": "AA000003A",
+    "address": {
+      "addressLine1": "18 Road Street",
+      "addressLine2": "Hexham",
+      "addressLine3": "Northumberland",
+      "postCode": "NE43 8DZ"
+    },
+    "rls": false,
+    "wtcPaymentFrequency": "4 WEEKLY",
+    "ctcPaymentFrequency": "4 WEEKLY",
+    "dayPhoneNumber": "02903 9392 932",
+    "work": {
+      "numberOfPaidJobs": 2
+    },
+    "bankOrBuildingSociety": {
+      "accountName": "YYYYYYY",
+      "accountNumber": "99999999",
+      "sortCode": "602157",
+      "buildingSocietyReferenceNumber": "10382405",
+      "modifiedBacsAccountNumber": "73750158",
+      "modifiedBacsSortCode": "602157"
+    },
+    "dateOfBirth": "1991-08-21",
+    "title": "Miss"
+  },
+  "childrenDetails": {
+    "child": [
+      {
+        "firstNames": "Mary",
+        "surname": "Cowling",
+        "dateOfBirth": "2015-01-01",
+        "hasFTNAE": false,
+        "hasConnexions": false,
+        "isActive": true,
+        "isDropOff": true,
+        "isEligibleForChildcare": true,
+        "hasHadFtnaeOrConnexions": false
+      }
+    ]
+  },
+  "paymentSummary": {
+    "workingTaxCredit": {
+      "paymentSeq": [
+        {
+          "amount": 200.45,
+          "paymentDate": "2021-12-30T00:00:00.000Z",
+          "oneOffPayment": false
+        },
+        {
+          "amount": 200.45,
+          "paymentDate": "2022-01-27T00:00:00.000Z",
+          "oneOffPayment": false
+        },
+        {
+          "amount": 200.45,
+          "paymentDate": "2022-02-24T00:00:00.000Z",
+          "oneOffPayment": false
+        }
+      ],
+      "paymentFrequency": "4 WEEKS"
+    },
+    "childTaxCredit": {
+      "paymentSeq": [
+        {
+          "amount": 140.12,
+          "paymentDate": "2021-12-30T00:00:00.000Z",
+          "oneOffPayment": false
+        },
+        {
+          "amount": 140.12,
+          "paymentDate": "2022-01-27T00:00:00.000Z",
+          "oneOffPayment": false
+        },
+        {
+          "amount": 140.12,
+          "paymentDate": "2022-02-24T00:00:00.000Z",
+          "oneOffPayment": false
+        }
+      ],
+      "paymentFrequency": "4 WEEKS",
+      "previousPaymentSeq": [
+        {
+          "amount": 232.96,
+          "paymentDate": "2015-07-22T00:00:00.000+01:00",
+          "oneOffPayment": false
+        }
+      ]
+    },
+    "paymentEnabled": true
+  },
+  "actualIncomeStatus": {
+    "applicant1": "ApplicantExcluded",
+    "applicant2": "ApplicantExcluded"
+  },
+  "awardDetails": {
+    "applicationId": "000000000005678",
+    "isJoint": false,
+    "claimantNumber": 1,
+    "mainApplicantNino": "AA000003A",
+    "availableForCOCAutomation": false,
+    "renewalsJourney": false,
+    "additionalCocInformation": {
+      "contactInformation": {
+        "primaryApplicantRegularNumber": "02903 9392 932"
+      },
+      "complianceCase": false,
+      "houseHoldCreationDate": "2008-04-07",
+      "householdNotes": [
+        {
+          "contentType": "XX01",
+          "noteCreatedDate": "2008-11-19"
+        },
+        {
+          "contentType": "XD03",
+          "noteCreatedDate": "2008-11-19"
+        }
+      ],
+      "appealCase": false,
+      "dateOfBirth": "1991-08-21",
+      "title": "Miss",
+      "address": {
+        "addressLine1": "18 Road Street",
+        "addressLine2": "Hexham",
+        "addressLine3": "Northumberland",
+        "postCode": "NE43 8DZ"
+      },
+      "numberOfHours": 35
+    }
+  }
+}

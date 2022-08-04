@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package util
+package testUtils
 
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, FakeAuthJourney}
@@ -24,7 +24,7 @@ import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAd
 import models.dto.AddressDto
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -45,7 +45,7 @@ import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
 import uk.gov.hmrc.time.DateTimeUtils._
-import util.UserRequestFixture.buildUserRequest
+import testUtils.UserRequestFixture.buildUserRequest
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -287,18 +287,6 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
     FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
 
   def buildFakeRequestWithAuth(
-    method: String,
-    uri: String = "/personal-account"
-  ): FakeRequest[AnyContentAsEmpty.type] = {
-    val session = Map(
-      SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
-      SessionKeys.lastRequestTimestamp -> now.getMillis.toString
-    )
-
-    FakeRequest(method, uri).withSession(session.toList: _*)
-  }
-
-  def buildFakeRequestWithVerify(
     method: String,
     uri: String = "/personal-account"
   ): FakeRequest[AnyContentAsEmpty.type] = {

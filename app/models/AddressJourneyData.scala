@@ -21,6 +21,7 @@ import models.dto._
 
 case class AddressJourneyData(
   addressPageVisitedDto: Option[AddressPageVisitedDto],
+  taxCreditsChoiceDto: Option[TaxCreditsChoiceDto],
   residencyChoiceDto: Option[ResidencyChoiceDto],
   recordSet: Option[RecordSet],
   addressFinderDto: Option[AddressFinderDto],

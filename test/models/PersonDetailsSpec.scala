@@ -17,7 +17,8 @@
 package models
 
 import play.api.libs.json.Json
-import util.{BaseSpec, CitizenDetailsFixtures, Fixtures}
+import testUtils.{BaseSpec, CitizenDetailsFixtures, Fixtures}
+import testUtils.BaseSpec
 
 class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
 

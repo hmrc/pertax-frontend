@@ -28,7 +28,8 @@ import play.api.i18n.Langs
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.{BaseSpec, Fixtures, FutureEarlyTimeout, RateLimitedException}
+import testUtils.{BaseSpec, Fixtures}
+import util.FutureEarlyTimeout
 
 import scala.concurrent.Future
 

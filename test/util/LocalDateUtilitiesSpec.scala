@@ -16,6 +16,8 @@
 
 package util
 
+import testUtils.BaseSpec
+
 import java.time.LocalDate
 
 class LocalDateUtilitiesSpec extends BaseSpec {

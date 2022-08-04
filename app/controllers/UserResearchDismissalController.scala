@@ -23,10 +23,7 @@ import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import error.LocalErrorHandler
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services._
 import services.partials.MessageFrontendService
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import scala.concurrent.ExecutionContext
 

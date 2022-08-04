@@ -30,6 +30,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
 import play.api.test.{FakeHeaders, FakeRequest}
 import play.api.test.Helpers.{redirectLocation, _}
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
@@ -37,8 +38,8 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
-import util.RetrievalOps._
-import util.{BaseSpec, EnrolmentsHelper, Fixtures}
+import testUtils.RetrievalOps._
+import util.EnrolmentsHelper
 
 import scala.concurrent.Future
 
@@ -196,25 +197,6 @@ class AuthActionSpec extends BaseSpec {
       redirectLocation(result).get must endWith("/auth-login-stub")
     }
 
-    "be redirected to the IDA login page if Verify provider" in {
-      when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(SessionRecordNotFound()))
-      val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
-      val controller = new Harness(authAction)
-      val request =
-        FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderVerify)
-      val result = controller.onPageLoad(request)
-      status(result) mustBe SEE_OTHER
-      session(result) mustBe new Session(
-        Map(
-          "loginOrigin"    -> Origin("PERTAX").origin,
-          "login_redirect" -> "http://localhost:9232/personal-account/do-uplift?redirectUrl=http%3A%2F%2Flocalhost%3A9232%2Ffoo"
-        )
-      )
-      redirectLocation(result).get must endWith("/ida/login")
-    }
-
     "be redirected to the GG login page if GG provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
@@ -355,20 +337,5 @@ class AuthActionSpec extends BaseSpec {
     val result = controller.onPageLoad(FakeRequest("", ""))
     status(result) mustBe OK
     contentAsString(result) mustNot include(config.pertaxFrontendBackLink)
-  }
-
-  "A user that has logged in with Verify must" must {
-    "create an authenticated request" in {
-
-      val controller = retrievals(
-        credentialStrength = CredentialStrength.strong,
-        confidenceLevel = ConfidenceLevel.L500,
-        affinityGroup = None
-      )
-
-      val result = controller.onPageLoad(FakeRequest("", ""))
-      status(result) mustBe OK
-      contentAsString(result) must include(nino)
-    }
   }
 }

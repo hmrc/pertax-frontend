@@ -17,6 +17,7 @@
 package util
 
 import play.api.i18n.MessagesApi
+import testUtils.BaseSpec
 
 import scala.util.matching.Regex
 

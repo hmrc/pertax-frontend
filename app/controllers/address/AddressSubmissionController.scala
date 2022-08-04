@@ -19,8 +19,8 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.CitizenDetailsConnector
-import controllers.auth.requests.UserRequest
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper

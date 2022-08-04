@@ -34,19 +34,17 @@ import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.EnrolmentStoreCachingService
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 
 import scala.concurrent.Future
 
 class SelfAssessmentStatusActionSpec
     extends AnyFreeSpec with Matchers with MockitoSugar with BeforeAndAfterEach with GuiceOneAppPerSuite {
-
-  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-
   val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
-  val enrolmentsCachingService = mock[EnrolmentStoreCachingService]
+  private val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  private val enrolmentsCachingService = mock[EnrolmentStoreCachingService]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[CitizenDetailsConnector].toInstance(mockCitizenDetailsConnector))
@@ -78,20 +76,21 @@ class SelfAssessmentStatusActionSpec
   ): AuthenticatedRequest[AnyContent] =
     AuthenticatedRequest(
       nino,
-      Credentials("", "Verify"),
+      Credentials("", "GovernmentGateway"),
       ConfidenceLevel.L200,
       None,
       None,
       None,
       enrolments,
-      FakeRequest()
+      FakeRequest(),
+      Some(AffinityGroup.Agent)
     )
 
   "An SA user with an activated enrolment must" - {
     "return ActivatedOnlineFilerSelfAssessmentUser" in {
       val saEnrolment =
         Enrolment("IR-SA", identifiers = Seq(EnrolmentIdentifier("UTR", saUtr.utr)), state = "Activated")
-      implicit val request = createAuthenticatedRequest(Set(saEnrolment))
+      implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set(saEnrolment))
 
       val result = harness()(request)
       contentAsString(result) must include(s"ActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
@@ -103,7 +102,7 @@ class SelfAssessmentStatusActionSpec
     "return NotYetActivatedOnlineFilerSelfAssessmentUser" in {
       val saEnrolment =
         Enrolment("IR-SA", identifiers = Seq(EnrolmentIdentifier("UTR", saUtr.utr)), state = "NotYetActivated")
-      implicit val request = createAuthenticatedRequest(Set(saEnrolment))
+      implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set(saEnrolment))
 
       val result = harness()(request)
       contentAsString(result) must include(s"NotYetActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
@@ -122,7 +121,7 @@ class SelfAssessmentStatusActionSpec
         (NonFilerSelfAssessmentUser, "a Non Filer SA user")
       )
 
-      implicit val request = createAuthenticatedRequest(Set.empty)
+      implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set.empty)
 
       userTypeList.foreach { case (userType, key) =>
         s"return $key when the enrolments caching service returns ${userType.toString}" in {
@@ -142,7 +141,7 @@ class SelfAssessmentStatusActionSpec
 
   "when CitizenDetails has no matching SA account" - {
     "return NonFilerSelfAssessmentUser" in {
-      implicit val request = createAuthenticatedRequest()
+      implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest()
 
       when(mockCitizenDetailsConnector.getMatchingDetails(any())(any()))
         .thenReturn(Future.successful(MatchingDetailsNotFoundResponse))
@@ -154,7 +153,7 @@ class SelfAssessmentStatusActionSpec
 
   "when user has no Nino" - {
     "return NonFilerSelfAssessmentUser" in {
-      implicit val request = createAuthenticatedRequest(Set.empty, None)
+      implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set.empty, None)
 
       val result = harness()(request)
       contentAsString(result) must include("NonFilerSelfAssessmentUser")

@@ -17,7 +17,7 @@
 package models
 
 import play.api.libs.json.Json
-import util.BaseSpec
+import testUtils.BaseSpec
 
 class TaxComponentsSpec extends BaseSpec {
 

@@ -18,9 +18,9 @@ package controllers.controllershelpers
 
 import com.google.inject.{Inject, Singleton}
 import controllers.bindable.AddrType
+import models._
 import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
-import models._
 import play.api.Logging
 import play.api.libs.json.Writes
 import play.api.mvc.{Result, Results}
@@ -75,7 +75,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
     block: Option[TaxCreditsChoiceDto] => T
   )(implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() map { cacheMap =>
-      block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto](SubmittedTaxCreditsChoiceId.id)))
+      block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto](TaxCreditsChoiceId.id)))
     } recover {
       case e: KeyStoreEntryValidationException =>
         logger.error(s"Failed to read cached tax credits choice")
@@ -91,6 +91,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
         block(
           AddressJourneyData(
             cacheMap.getEntry[AddressPageVisitedDto](AddressPageVisitedDtoId.id),
+            cacheMap.getEntry[TaxCreditsChoiceDto](TaxCreditsChoiceId.id),
             cacheMap.getEntry[ResidencyChoiceDto](SubmittedResidencyChoiceDtoId(typ).id),
             cacheMap.getEntry[RecordSet](SelectedRecordSetId(typ).id),
             cacheMap.getEntry[AddressFinderDto](AddressFinderDtoId(typ).id),
@@ -102,11 +103,15 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
           )
         )
       case None =>
-        block(AddressJourneyData(None, None, None, None, None, None, None, None, addressLookupServiceDown = false))
+        block(
+          AddressJourneyData(None, None, None, None, None, None, None, None, None, addressLookupServiceDown = false)
+        )
     } recoverWith {
       case e: KeyStoreEntryValidationException =>
         logger.error(s"Failed to read cached address")
-        block(AddressJourneyData(None, None, None, None, None, None, None, None, addressLookupServiceDown = false))
+        block(
+          AddressJourneyData(None, None, None, None, None, None, None, None, None, addressLookupServiceDown = false)
+        )
       case NonFatal(e) => throw e
     }
 
@@ -119,5 +124,4 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
       case None =>
         Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad))
     }
-
 }
