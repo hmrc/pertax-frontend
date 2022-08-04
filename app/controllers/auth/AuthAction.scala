@@ -31,6 +31,7 @@ import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import util.EnrolmentsHelper
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,7 +40,8 @@ class AuthActionImpl @Inject() (
   val authConnector: AuthConnector,
   configDecorator: ConfigDecorator,
   sessionAuditor: SessionAuditor,
-  cc: ControllerComponents
+  cc: ControllerComponents,
+  enrolmentsHelper: EnrolmentsHelper
 )(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
@@ -126,7 +128,11 @@ class AuthActionImpl @Inject() (
           for {
             result        <- block(authenticatedRequest)
             updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
-          } yield updatedResult
+          } yield
+            if (configDecorator.singleAccountEnrolmentFeature) {
+              if (enrolmentsHelper.singleAccountEnrolmentPresent(enrolments)) updatedResult
+              else Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri))
+            } else updatedResult
 
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
