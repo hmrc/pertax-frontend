@@ -16,17 +16,13 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import controllers.auth.requests.UserRequest
-import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse, UserDetails}
+import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse}
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
-import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.WireMockHelper
-import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 
 import java.util.UUID
@@ -38,10 +34,9 @@ class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
   val providerId: String = UUID.randomUUID().toString
   val origin = "pta-sa"
 
-  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-    request = FakeRequest(),
-    saUser = NotEnrolledSelfAssessmentUser(utr),
-    credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = userRequest(
+    NotEnrolledSelfAssessmentUser(utr),
+    providerId
   )
 
   override implicit lazy val app: Application = app(

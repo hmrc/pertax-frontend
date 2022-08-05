@@ -22,13 +22,19 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import org.scalatest.concurrent.ScalaFutures
+import controllers.auth.requests.UserRequest
+import models.{SelfAssessmentUserType, UserDetails}
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.{HeaderNames, MimeTypes, Status}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
@@ -36,7 +42,7 @@ import scala.language.implicitConversions
 
 trait ConnectorSpec
     extends AnyWordSpec with GuiceOneAppPerSuite with Status with HeaderNames with MimeTypes with Matchers
-    with ScalaFutures {
+    with ScalaFutures with IntegrationPatience {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -46,6 +52,13 @@ trait ConnectorSpec
   implicit def app(confStrings: Map[String, Any]): Application = new GuiceApplicationBuilder()
     .configure(confStrings)
     .build()
+
+  def userRequest(saUserType: SelfAssessmentUserType, providerId: String): UserRequest[AnyContentAsEmpty.type] =
+    buildUserRequest(
+      request = FakeRequest(),
+      saUser = saUserType,
+      credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
+    )
 
   def stubGet(url: String, responseStatus: Int, responseBody: Option[String]): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
@@ -89,8 +102,23 @@ trait ConnectorSpec
     delete(url).willReturn(response)
   }
 
-  def stubWithFault(url: String, requestBody: Option[String], fault: Fault): MappingBuilder = {
+  def stubWithFault(url: String, requestBody: Option[String], fault: Fault): StubMapping = server.stubFor {
     val response = aResponse().withFault(fault)
+
+    requestBody.fold(any(urlEqualTo(url)).willReturn(response))(requestBody =>
+      any(urlEqualTo(url)).withRequestBody(equalToJson(requestBody)).willReturn(response)
+    )
+  }
+
+  def stubWithDelay(
+    url: String,
+    responseStatus: Int,
+    requestBody: Option[String],
+    responseBody: Option[String],
+    delay: Int
+  ): StubMapping = server.stubFor {
+    val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON).withFixedDelay(delay)
+    val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
     requestBody.fold(any(urlEqualTo(url)).willReturn(response))(requestBody =>
       any(urlEqualTo(url)).withRequestBody(equalToJson(requestBody)).willReturn(response)
