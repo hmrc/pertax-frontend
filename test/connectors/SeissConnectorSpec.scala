@@ -21,13 +21,15 @@ import models.{ActivatedOnlineFilerSelfAssessmentUser, SeissModel}
 import play.api.Application
 import play.api.libs.json.JsResultException
 import play.api.mvc.AnyContentAsEmpty
+import play.api.test.DefaultAwaitTimeout
+import play.api.test.Helpers.await
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import java.util.UUID
 
-class SeissConnectorSpec extends ConnectorSpec with WireMockHelper {
+class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout {
 
   val url = "/self-employed-income-support/get-claims"
   val utr: SaUtr = new SaUtrGenerator().nextSaUtr
@@ -146,9 +148,11 @@ class SeissConnectorSpec extends ConnectorSpec with WireMockHelper {
         "the response body is not valid" in {
           stubPost(url, OK, Some(requestBody), Some("""{"invalid":"invalid"}"""))
 
-          a[JsResultException] mustBe thrownBy(connector.getClaims(utr.toString()).value.futureValue)
+          lazy val result = await(connector.getClaims(utr.toString()).value) //TODO: Refactor this to not use await.
+          a[JsResultException] mustBe thrownBy(result)
         }
       }
     }
   }
+
 }
