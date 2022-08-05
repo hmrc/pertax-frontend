@@ -17,10 +17,11 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.http.Fault
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import org.scalatest.Suite
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -28,7 +29,6 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.{HeaderNames, MimeTypes, Status}
 import play.api.inject.guice.GuiceApplicationBuilder
-import testUtils.WireMockHelper
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
@@ -77,8 +77,8 @@ trait ConnectorSpec
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
     val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
-    requestBody.fold(put(url).willReturn(response))(requestBody =>
-      put(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
+    requestBody.fold(post(url).willReturn(response))(requestBody =>
+      post(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
     )
   }
 
@@ -87,6 +87,14 @@ trait ConnectorSpec
     val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
     delete(url).willReturn(response)
+  }
+
+  def stubWithFault(url: String, requestBody: Option[String], fault: Fault): MappingBuilder = {
+    val response = aResponse().withFault(fault)
+
+    requestBody.fold(any(urlEqualTo(url)).willReturn(response))(requestBody =>
+      any(urlEqualTo(url)).withRequestBody(equalToJson(requestBody)).willReturn(response)
+    )
   }
 
   def verifyCorrelationIdHeader(requestPattern: RequestPatternBuilder): Unit =

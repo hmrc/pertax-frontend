@@ -18,153 +18,130 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
+import controllers.auth.requests.UserRequest
 import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse, UserDetails}
 import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.WireMockHelper
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.{BaseSpec, WireMockHelper}
-import testUtils.BaseSpec
 
 import java.util.UUID
 
-class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
-
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
-    .configure(
-      "microservice.services.add-taxes-frontend.port" -> server.port()
-    )
-    .build()
-
-  def sut: SelfAssessmentConnector = injected[SelfAssessmentConnector]
+class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
 
   val url = "/internal/self-assessment/enrol-for-sa"
-
   val utr: SaUtr = new SaUtrGenerator().nextSaUtr
-
   val providerId: String = UUID.randomUUID().toString
-
   val origin = "pta-sa"
 
-  implicit val userRequest =
-    buildUserRequest(
-      request = FakeRequest(),
-      saUser = NotEnrolledSelfAssessmentUser(utr),
-      credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
-    )
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+    request = FakeRequest(),
+    saUser = NotEnrolledSelfAssessmentUser(utr),
+    credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
+  )
+
+  override implicit lazy val app: Application = app(
+    Map("microservice.services.add-taxes-frontend.port" -> server.port())
+  )
+
+  def connector: SelfAssessmentConnector = app.injector.instanceOf[SelfAssessmentConnector]
 
   "SelfAssessmentConnector" when {
-
     "enrolForSelfAssessment is called" must {
-
-      "return a redirect Url" when {
-
+      "return a redirect link" when {
         "the correct payload is submitted (including UTR)" in {
-
           val redirectUrl = "/foo"
 
           val response =
             s"""
                |{
                |  "redirectUrl": "$redirectUrl"
-               |}""".stripMargin
+               |}
+              """.stripMargin
 
-          server.stubFor(
-            post(urlEqualTo(url)).willReturn(ok(response))
-          )
+          val request: SaEnrolmentRequest = SaEnrolmentRequest(origin, Some(utr), providerId)
 
-          sut
-            .enrolForSelfAssessment(
-              SaEnrolmentRequest(origin, Some(utr), providerId)
-            )
-            .futureValue mustBe Some(SaEnrolmentResponse(redirectUrl))
+          stubPost(url, OK, Some(Json.toJson(request).toString()), Some(response))
+
+          val result = connector.enrolForSelfAssessment(request).futureValue
+          result mustBe Some(SaEnrolmentResponse(redirectUrl))
         }
 
         "the correct payload is submitted (excluding UTR)" in {
-
           val redirectUrl = "/foo"
+          val request = SaEnrolmentRequest(origin, None, providerId)
 
           val response =
             s"""
                |{
                |  "redirectUrl": "$redirectUrl"
-               |}""".stripMargin
+               |}
+              """.stripMargin
 
-          server.stubFor(
-            post(urlEqualTo(url)).willReturn(ok(response))
-          )
+          stubPost(url, OK, Some(Json.toJson(request).toString()), Some(response))
 
-          sut
-            .enrolForSelfAssessment(
-              SaEnrolmentRequest(origin, None, providerId)
-            )
-            .futureValue mustBe Some(SaEnrolmentResponse(redirectUrl))
+          val result = connector.enrolForSelfAssessment(request).futureValue
+          result mustBe Some(SaEnrolmentResponse(redirectUrl))
         }
       }
 
       "return None" when {
-
         "an invalid origin is submitted" in {
-
           val invalidOrigin = "an_invalid_origin"
+          val request = SaEnrolmentRequest(invalidOrigin, Some(utr), providerId)
 
-          server.stubFor(
-            post(urlEqualTo(url)).willReturn(badRequest().withBody(s"Invalid origin: $invalidOrigin"))
-          )
+          stubPost(url, BAD_REQUEST, Some(Json.toJson(request).toString()), Some(s"Invalid origin: $invalidOrigin"))
 
-          sut.enrolForSelfAssessment(SaEnrolmentRequest(invalidOrigin, Some(utr), providerId)).futureValue mustBe None
+          val result = connector.enrolForSelfAssessment(request).futureValue
+          result mustBe None
         }
 
         "an invalid utr is submitted" in {
-
           val invalidUtr = s"&${utr.utr}"
+          val request: SaEnrolmentRequest = SaEnrolmentRequest(origin, Some(SaUtr(invalidUtr)), providerId)
 
-          server.stubFor(
-            post(urlEqualTo(url)).willReturn(badRequest().withBody(s"Invalid utr: $invalidUtr"))
-          )
+          stubPost(url, BAD_REQUEST, Some(Json.toJson(request).toString()), Some(s"Invalid utr: $invalidUtr"))
 
-          sut
-            .enrolForSelfAssessment(
-              SaEnrolmentRequest(origin, Some(SaUtr(invalidUtr)), providerId)
-            )
-            .futureValue mustBe None
+          val result = connector.enrolForSelfAssessment(request).futureValue
+          result mustBe None
         }
 
         "multiple invalid fields are submitted" in {
-
           val invalidOrigin = "an_invalid_origin"
           val invalidUtr = s"&${utr.utr}"
+          val request: SaEnrolmentRequest = SaEnrolmentRequest(invalidOrigin, Some(SaUtr(invalidUtr)), providerId)
 
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(badRequest().withBody(s"Invalid origin: $invalidOrigin, Invalid utr: $invalidUtr"))
+          stubPost(
+            url,
+            BAD_REQUEST,
+            Some(Json.toJson(request).toString()),
+            Some(s"Invalid origin: $invalidOrigin, Invalid utr: $invalidUtr")
           )
 
-          sut
-            .enrolForSelfAssessment(
-              SaEnrolmentRequest(invalidOrigin, Some(SaUtr(invalidUtr)), providerId)
-            )
-            .futureValue mustBe None
+          val result = connector.enrolForSelfAssessment(request).futureValue
+          result mustBe None
         }
 
         "an upstream error occurs" in {
+          val request: SaEnrolmentRequest = SaEnrolmentRequest(origin, Some(utr), providerId)
 
-          server.stubFor(
-            post(urlEqualTo(url)).willReturn(serverError())
-          )
+          stubPost(url, INTERNAL_SERVER_ERROR, Some(Json.toJson(request).toString()), None)
 
-          sut.enrolForSelfAssessment(SaEnrolmentRequest(origin, Some(utr), providerId)).futureValue mustBe None
+          val result = connector.enrolForSelfAssessment(request).futureValue
+          result mustBe None
         }
 
         "an exception is thrown" in {
+          val request = SaEnrolmentRequest(origin, Some(utr), providerId)
 
-          server.stubFor(
-            post(urlEqualTo(url)).willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK))
-          )
+          stubWithFault(url, Some(Json.toJson(request).toString()), Fault.MALFORMED_RESPONSE_CHUNK)
 
-          sut.enrolForSelfAssessment(SaEnrolmentRequest(origin, Some(utr), providerId)).futureValue mustBe None
+          val result = connector.enrolForSelfAssessment(request).futureValue
+          result mustBe None
         }
       }
     }
