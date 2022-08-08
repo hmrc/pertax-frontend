@@ -16,17 +16,13 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
 import models.AgentClientStatus
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.test.FakeRequest
-import testUtils.BaseSpec
-import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.mvc.AnyContentAsEmpty
-import testUtils.{BaseSpec, WireMockHelper}
+import play.api.test.FakeRequest
+import testUtils.WireMockHelper
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class DefaultAgentClientAuthorisationConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience {
@@ -41,7 +37,8 @@ class DefaultAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Wi
     )
   )
 
-  def connector: DefaultAgentClientAuthorisationConnector = app.injector.instanceOf[DefaultAgentClientAuthorisationConnector]
+  def connector: DefaultAgentClientAuthorisationConnector =
+    app.injector.instanceOf[DefaultAgentClientAuthorisationConnector]
 
   val url = "/agent-client-authorisation/status"
 

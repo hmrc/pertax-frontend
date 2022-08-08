@@ -30,7 +30,6 @@ import services.partials.MessageFrontendService
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import testUtils.UserRequestFixture.buildUserRequest
-import util._
 import views.html.message.{MessageDetailView, MessageInboxView}
 
 import scala.concurrent.Future
