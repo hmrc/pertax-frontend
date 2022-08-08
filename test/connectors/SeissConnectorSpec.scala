@@ -148,7 +148,7 @@ class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
         "the response body is not valid" in {
           stubPost(url, OK, Some(requestBody), Some("""{"invalid":"invalid"}"""))
 
-          lazy val result = await(connector.getClaims(utr.toString()).value) //TODO: Refactor this to not use await.
+          lazy val result = await(connector.getClaims(utr.toString()).value)
           a[JsResultException] mustBe thrownBy(result)
         }
       }
