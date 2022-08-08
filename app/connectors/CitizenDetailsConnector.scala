@@ -49,7 +49,7 @@ class CitizenDetailsConnector @Inject() (
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
   servicesConfig: ServicesConfig
-) extends Connector with HasMetrics with Logging {
+) extends HasMetrics with Logging {
 
   lazy val citizenDetailsUrl = servicesConfig.baseUrl("citizen-details")
 

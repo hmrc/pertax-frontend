@@ -17,7 +17,6 @@
 package connectors
 
 import play.api.Application
-import play.api.libs.json.JsResultException
 import play.api.test.DefaultAwaitTimeout
 import play.api.test.Helpers.await
 import testUtils.WireMockHelper
@@ -38,7 +37,6 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
     "Return the error message for a BAD_REQUEST response" in {
-      //TODO: Check this scenario (it does not match the old test)
       stubGet(url, BAD_REQUEST, None)
       lazy val result = await(connector.getUserIdsWithEnrolments(utr))
       a[BadRequestException] mustBe thrownBy(result)

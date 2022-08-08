@@ -36,7 +36,7 @@ class TaxCreditsConnector @Inject() (
   configDecorator: ConfigDecorator,
   val metrics: Metrics
 )(implicit ec: ExecutionContext)
-    extends Connector with HasMetrics with Logging {
+    extends HasMetrics with Logging {
 
   lazy val taxCreditsUrl: String = configDecorator.tcsBrokerHost
 

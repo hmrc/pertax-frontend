@@ -38,7 +38,7 @@ class BreathingSpaceConnector @Inject() (
   val metrics: Metrics,
   httpClientResponse: HttpClientResponse,
   override val configDecorator: ConfigDecorator
-) extends Connector with Timeout with Logging with ServicesCircuitBreaker {
+) extends Timeout with Logging with ServicesCircuitBreaker {
 
   lazy val baseUrl = configDecorator.breathingSpcaeBaseUrl
   lazy val timeoutInSec =

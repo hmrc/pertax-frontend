@@ -40,7 +40,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
-trait AgentClientAuthorisationConnector extends Connector {
+trait AgentClientAuthorisationConnector {
   def getAgentClientStatus(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
