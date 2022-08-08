@@ -22,7 +22,7 @@ import testUtils.{FileHelper, WireMockHelper}
 import testUtils.Fixtures.fakeNino
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
-class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience {
+class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
 
   override lazy val app: Application = app(
     Map("microservice.services.tcs-broker.port" -> server.port())
