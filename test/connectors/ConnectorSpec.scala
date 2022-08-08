@@ -17,7 +17,6 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
@@ -67,20 +66,6 @@ trait ConnectorSpec
     get(url).willReturn(response)
   }
 
-  def stubPut(
-    url: String,
-    responseStatus: Int,
-    requestBody: Option[String],
-    responseBody: Option[String]
-  ): StubMapping = server.stubFor {
-    val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
-    val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
-
-    requestBody.fold(put(url).willReturn(response))(requestBody =>
-      put(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
-    )
-  }
-
   def stubPost(
     url: String,
     responseStatus: Int,
@@ -93,13 +78,6 @@ trait ConnectorSpec
     requestBody.fold(post(url).willReturn(response))(requestBody =>
       post(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
     )
-  }
-
-  def stubDelete(url: String, responseStatus: Int, responseBody: Option[String]): StubMapping = server.stubFor {
-    val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
-    val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
-
-    delete(url).willReturn(response)
   }
 
   def stubWithFault(url: String, requestBody: Option[String], fault: Fault): StubMapping = server.stubFor {

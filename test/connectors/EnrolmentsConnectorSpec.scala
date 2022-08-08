@@ -16,72 +16,81 @@
 
 package connectors
 
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.when
-import org.scalatest.EitherValues
-import play.api.http.Status._
-import play.api.libs.json.Json
-import testUtils.{BaseSpec, NullMetrics}
-import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import play.api.Application
+import play.api.libs.json.JsResultException
+import play.api.test.DefaultAwaitTimeout
+import play.api.test.Helpers.await
+import testUtils.WireMockHelper
+import uk.gov.hmrc.http.BadRequestException
 
-import scala.concurrent.Future
+class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout {
 
-class EnrolmentsConnectorSpec extends BaseSpec with EitherValues {
+  val baseUrl: String = "/enrolment-store-proxy"
 
-  val http = mock[DefaultHttpClient]
-  val connector = new EnrolmentsConnector(http, config, new NullMetrics)
-  val baseUrl = config.enrolmentStoreProxyUrl
+  override lazy val app: Application = app(
+    Map("microservice.services.enrolment-store-proxy.port" -> server.port())
+  )
+
+  def connector: EnrolmentsConnector = app.injector.instanceOf[EnrolmentsConnector]
 
   "getAssignedEnrolments" must {
     val utr = "1234500000"
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
     "Return the error message for a BAD_REQUEST response" in {
-      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
-
-      connector.getUserIdsWithEnrolments(utr).futureValue.left.value must include(BAD_REQUEST.toString)
+      //TODO: Check this scenario (it does not match the old test)
+      stubGet(url, BAD_REQUEST, None)
+      lazy val result = await(connector.getUserIdsWithEnrolments(utr))
+      a[BadRequestException] mustBe thrownBy(result)
     }
 
     "NO_CONTENT response should return no enrolments" in {
-      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
+      stubGet(url, NO_CONTENT, None)
+      val result = connector.getUserIdsWithEnrolments(utr).futureValue
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe Seq.empty
+      result mustBe a[Right[_, _]]
+      result.right.get mustBe empty
     }
 
     "query users with no principal enrolment returns empty enrolments" in {
-      val json = Json.parse("""
-                              |{
-                              |    "principalUserIds": [],
-                              |     "delegatedUserIds": []
-                              |}""".stripMargin)
+      val json =
+        """
+          |{
+          |    "principalUserIds": [],
+          |     "delegatedUserIds": []
+          |}
+        """.stripMargin
 
-      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
+      stubGet(url, OK, Some(json))
+      val result = connector.getUserIdsWithEnrolments(utr).futureValue
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe Seq.empty
+      result mustBe a[Right[_, _]]
+      result.right.get mustBe empty
     }
 
     "query users with assigned enrolment return two principleIds" in {
-      val json = Json.parse("""
-                              |{
-                              |    "principalUserIds": [
-                              |       "ABCEDEFGI1234567",
-                              |       "ABCEDEFGI1234568"
-                              |    ],
-                              |    "delegatedUserIds": [
-                              |     "dont care"
-                              |    ]
-                              |}""".stripMargin)
+      val json =
+        """
+          |{
+          |    "principalUserIds": [
+          |       "ABCEDEFGI1234567",
+          |       "ABCEDEFGI1234568"
+          |    ],
+          |    "delegatedUserIds": [
+          |     "dont care"
+          |    ]
+          |}
+        """.stripMargin
 
-      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
+      stubGet(url, OK, Some(json))
 
       val expected = Seq("ABCEDEFGI1234567", "ABCEDEFGI1234568")
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe expected
+      stubGet(url, OK, Some(json))
+      val result = connector.getUserIdsWithEnrolments(utr).futureValue
+
+      result mustBe a[Right[_, _]]
+      result.right.get must contain.allElementsOf(expected)
     }
   }
 }
