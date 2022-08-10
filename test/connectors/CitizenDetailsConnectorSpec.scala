@@ -22,66 +22,53 @@ import models._
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import play.api.http.Status._
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.Application
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
-import services.http.FakeSimpleHttp
-import testUtils.{BaseSpec, Fixtures}
-import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.HttpResponse
+import play.api.test.DefaultAwaitTimeout
+import play.api.test.Helpers.await
+import services.http.SimpleHttp
+import testUtils.{Fixtures, WireMockHelper}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.{GatewayTimeoutException, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import testUtils.BaseSpec
 
-class CitizenDetailsConnectorSpec extends BaseSpec {
+import scala.util.Random
+
+class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with MockitoSugar with DefaultAwaitTimeout {
+
+  override implicit lazy val app: Application = app(
+    Map("microservice.services.citizen-details.port" -> server.port())
+  )
+
+  val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
 
   trait SpecSetup {
 
-    def httpResponse: HttpResponse
-    def simulateCitizenDetailsServiceIsDown: Boolean
+    def url: String
 
-    val personDetails = Fixtures.buildPersonDetails
-    val jsonPersonDetails = Json.toJson(personDetails)
-    val address = Address(
-      Some("1 Fake Street"),
-      Some("Fake Town"),
-      Some("Fake City"),
-      Some("Fake Region"),
-      None,
-      None,
-      Some("AA1 1AA"),
-      Some(new LocalDate(2015, 3, 15)),
-      None,
-      Some("Residential"),
-      false
+    val personDetails: PersonDetails = Fixtures.buildPersonDetails
+
+    val address: Address = Address(
+      line1 = Some("1 Fake Street"),
+      line2 = Some("Fake Town"),
+      line3 = Some("Fake City"),
+      line4 = Some("Fake Region"),
+      line5 = None,
+      postcode = None,
+      country = Some("AA1 1AA"),
+      startDate = Some(new LocalDate(2015, 3, 15)),
+      endDate = None,
+      `type` = Some("Residential"),
+      isRls = false
     )
-
-    val correspondenceAddress = Address(
-      Some("3 Fake Street"),
-      Some("Fake Town"),
-      Some("FakeShire"),
-      Some("Fake Region"),
-      None,
-      None,
-      Some("AA1 2AA"),
-      Some(new LocalDate(2015, 3, 15)),
-      Some(LocalDate.now),
-      Some("Correspondence"),
-      false
-    )
-
-    val jsonAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(address))
-    val jsonCorrespondenceAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(correspondenceAddress))
-    val nino: Nino = Fixtures.fakeNino
-    val anException = new RuntimeException("Any")
 
     lazy val (service, met, timer) = {
 
-      val fakeSimpleHttp = {
-        if (simulateCitizenDetailsServiceIsDown) new FakeSimpleHttp(Right(anException))
-        else new FakeSimpleHttp(Left(httpResponse))
-      }
+      val fakeSimpleHttp = app.injector.instanceOf[SimpleHttp]
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
-
       val timer = mock[Timer.Context]
+
       val citizenDetailsConnector: CitizenDetailsConnector =
         new CitizenDetailsConnector(fakeSimpleHttp, mock[Metrics], serviceConfig) {
           override val metricsOperator: MetricsOperator = mock[MetricsOperator]
@@ -90,79 +77,66 @@ class CitizenDetailsConnectorSpec extends BaseSpec {
 
       (citizenDetailsConnector, citizenDetailsConnector.metricsOperator, timer)
     }
+
+    def verifyMetricsSuccess(metricId: String): Any = {
+      verify(met, times(1)).startTimer(metricId)
+      verify(met, times(1)).incrementSuccessCounter(metricId)
+      verify(timer, times(1)).stop()
+    }
+
+    def verifyMetricsFailure(metricId: String): Any = {
+      verify(met, times(1)).startTimer(metricId)
+      verify(met, times(1)).incrementFailedCounter(metricId)
+      verify(timer, times(1)).stop()
+    }
   }
 
   "Calling CitizenDetailsService.fakePersonDetails" must {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "get-person-details"
+      def url: String = s"/citizen-details/$nino/designatory-details"
     }
 
     "return a PersonDetailsSuccessResponse when called with an existing nino" in new LocalSetup {
+      stubGet(url, OK, Some(Json.toJson(personDetails).toString()))
 
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(OK, Some(jsonPersonDetails))
-
-      val result = service.personDetails(nino).futureValue
-
+      val result: PersonDetailsResponse = service.personDetails(nino).futureValue
       result mustBe PersonDetailsSuccessResponse(personDetails)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
+      verifyMetricsSuccess(metricId)
     }
 
     "return PersonDetailsNotFoundResponse when called with an unknown nino" in new LocalSetup {
+      stubGet(url, NOT_FOUND, None)
 
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(NOT_FOUND)
-
-      val result = service.personDetails(nino).futureValue
-
+      val result: PersonDetailsResponse = service.personDetails(nino).futureValue
       result mustBe PersonDetailsNotFoundResponse
-
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      verifyMetricsFailure(metricId)
     }
 
     "return PersonDetailsHiddenResponse when a locked hidden record (MCI) is asked for" in new LocalSetup {
+      stubGet(url, LOCKED, None)
 
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(LOCKED)
-
-      val result = service.personDetails(nino).futureValue
-
+      val result: PersonDetailsResponse = service.personDetails(nino).futureValue
       result mustBe PersonDetailsHiddenResponse
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      verifyMetricsFailure(metricId)
     }
 
     "return PersonDetailsUnexpectedResponse when an unexpected status is returned" in new LocalSetup {
+      stubGet(url, SEE_OTHER, None)
 
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      val seeOtherResponse = HttpResponse(SEE_OTHER)
-      override lazy val httpResponse = seeOtherResponse //For example
-
-      val result = service.personDetails(nino).futureValue
-
-      result mustBe PersonDetailsUnexpectedResponse(seeOtherResponse)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      val result: PersonDetailsResponse = service.personDetails(nino).futureValue
+      result mustBe PersonDetailsUnexpectedResponse(HttpResponse(SEE_OTHER, ""))
+      verifyMetricsFailure(metricId)
     }
 
     "return PersonDetailsErrorResponse when hod call results in an exception" in new LocalSetup {
+      val delay: Int = 5000
+      stubWithDelay(url, OK, None, None, delay)
 
-      override lazy val simulateCitizenDetailsServiceIsDown = true
-      override lazy val httpResponse = ???
-
-      val result = service.personDetails(nino).futureValue
-
-      result mustBe PersonDetailsErrorResponse(anException)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      val result: PersonDetailsResponse = service.personDetails(nino).futureValue
+      result mustBe PersonDetailsErrorResponse(_: GatewayTimeoutException)
+      verifyMetricsFailure(metricId)
     }
   }
 
@@ -170,71 +144,71 @@ class CitizenDetailsConnectorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "update-address"
+      def url: String = s"/citizen-details/$nino/designatory-details/address"
+      val etag: String = "115"
+      val requestBody: String = Json.obj("etag" -> etag, "address" -> Json.toJson(address)).toString()
     }
 
     "return UpdateAddressSuccessResponse when called with valid Nino and address data" in new LocalSetup {
+      stubPost(url, CREATED, Some(requestBody), None)
 
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(CREATED)
-
-      val result = service.updateAddress(nino, "115", address).futureValue
-
+      val result: UpdateAddressResponse = service.updateAddress(nino, etag, address).futureValue
       result mustBe UpdateAddressSuccessResponse
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
+      verifyMetricsSuccess(metricId)
     }
 
     "return UpdateAddressSuccessResponse when called with a valid Nino and valid correspondence address with an end date" in new LocalSetup {
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(CREATED)
+      val correspondenceAddress: Address = Address(
+        line1 = Some("3 Fake Street"),
+        line2 = Some("Fake Town"),
+        line3 = Some("FakeShire"),
+        line4 = Some("Fake Region"),
+        line5 = None,
+        postcode = None,
+        country = Some("AA1 2AA"),
+        startDate = Some(LocalDate.parse("2015-03-15")),
+        endDate = Some(LocalDate.now),
+        `type` = Some("Correspondence"),
+        isRls = false
+      )
 
-      val result = service.updateAddress(nino, "115", correspondenceAddress).futureValue
+      override val requestBody: String = Json
+        .obj(
+          "etag"    -> etag,
+          "address" -> Json.toJson(correspondenceAddress)
+        )
+        .toString()
 
+      stubPost(url, CREATED, Some(requestBody), None)
+
+      val result: UpdateAddressResponse = service.updateAddress(nino, etag, correspondenceAddress).futureValue
       result mustBe UpdateAddressSuccessResponse
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
+      verifyMetricsSuccess(metricId)
     }
 
     "return UpdateAddressBadRequestResponse when Citizen Details service returns BAD_REQUEST" in new LocalSetup {
+      stubPost(url, BAD_REQUEST, Some(requestBody), None)
 
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(BAD_REQUEST)
-
-      val result = service.updateAddress(nino, "115", address).futureValue
-
+      val result: UpdateAddressResponse = service.updateAddress(nino, etag, address).futureValue
       result mustBe UpdateAddressBadRequestResponse
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      verifyMetricsFailure(metricId)
     }
 
     "return UpdateAddressUnexpectedResponse when an unexpected status is returned" in new LocalSetup {
+      stubPost(url, SEE_OTHER, Some(requestBody), None)
 
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      val seeOtherResponse = HttpResponse(SEE_OTHER)
-      override lazy val httpResponse = seeOtherResponse //For example
-
-      val result = service.updateAddress(nino, "115", address).futureValue
-
-      result mustBe UpdateAddressUnexpectedResponse(seeOtherResponse)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      val result: UpdateAddressResponse = service.updateAddress(nino, etag, address).futureValue
+      result mustBe UpdateAddressUnexpectedResponse(HttpResponse(SEE_OTHER, ""))
+      verifyMetricsFailure(metricId)
     }
 
     "return UpdateAddressErrorResponse when Citizen Details service returns an exception" in new LocalSetup {
+      val delay: Int = 5000
+      stubWithDelay(url, OK, None, None, delay)
 
-      override lazy val simulateCitizenDetailsServiceIsDown = true
-      override lazy val httpResponse = ???
-
-      val result = service.updateAddress(nino, "115", address).futureValue
-
-      result mustBe UpdateAddressErrorResponse(anException)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      val result: UpdateAddressResponse = service.updateAddress(nino, etag, address).futureValue
+      result mustBe UpdateAddressErrorResponse(_: GatewayTimeoutException)
+      verifyMetricsFailure(metricId)
     }
   }
 
@@ -242,149 +216,99 @@ class CitizenDetailsConnectorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "get-matching-details"
+      def url: String = s"/citizen-details/nino/$nino"
     }
 
     "return MatchingDetailsSuccessResponse containing an SAUTR when the service returns an SAUTR" in new LocalSetup {
+      val saUtr: String = new SaUtrGenerator().nextSaUtr.utr
+      stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr)).toString()))
 
-      val saUtr = new SaUtrGenerator().nextSaUtr.utr
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr))))
-
-      val result = service.getMatchingDetails(nino).futureValue
-
+      val result: MatchingDetailsResponse = service.getMatchingDetails(nino).futureValue
       result mustBe MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr(saUtr))))
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
+      verifyMetricsSuccess(metricId)
     }
 
     "return MatchingDetailsSuccessResponse containing no SAUTR when the service does not return an SAUTR" in new LocalSetup {
+      stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> JsNull)).toString()))
 
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(OK, Some(Json.obj("ids" -> Json.obj("sautr" -> JsNull))))
-
-      val result = service.getMatchingDetails(nino).futureValue
-
+      val result: MatchingDetailsResponse = service.getMatchingDetails(nino).futureValue
       result mustBe MatchingDetailsSuccessResponse(MatchingDetails(None))
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
+      verifyMetricsSuccess(metricId)
     }
 
     "return MatchingDetailsNotFoundResponse when citizen-details returns an 404" in new LocalSetup {
+      stubGet(url, NOT_FOUND, None)
 
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(NOT_FOUND)
-
-      val result = service.getMatchingDetails(nino).futureValue
-
+      val result: MatchingDetailsResponse = service.getMatchingDetails(nino).futureValue
       result mustBe MatchingDetailsNotFoundResponse
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      verifyMetricsFailure(metricId)
     }
 
     "return MatchingDetailsUnexpectedResponse when citizen-details returns an unexpected response code" in new LocalSetup {
+      stubGet(url, SEE_OTHER, None)
 
-      override lazy val simulateCitizenDetailsServiceIsDown = false
-      val seeOtherResponse = HttpResponse(SEE_OTHER)
-      override lazy val httpResponse = seeOtherResponse //For example
-
-      val result = service.getMatchingDetails(nino).futureValue
-
-      result mustBe MatchingDetailsUnexpectedResponse(seeOtherResponse)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      val result: MatchingDetailsResponse = service.getMatchingDetails(nino).futureValue
+      result mustBe MatchingDetailsUnexpectedResponse(HttpResponse(SEE_OTHER, ""))
+      verifyMetricsFailure(metricId)
     }
 
     "return MatchingDetailsErrorResponse when hod call results in another exception" in new LocalSetup {
+      val delay: Int = 5000
+      stubWithDelay(url, OK, None, None, delay)
 
-      override lazy val simulateCitizenDetailsServiceIsDown = true
-      override lazy val httpResponse = ???
-
-      val result = service.getMatchingDetails(nino).futureValue
-
-      result mustBe MatchingDetailsErrorResponse(anException)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      val result: MatchingDetailsResponse = await(service.getMatchingDetails(nino))
+      result mustBe MatchingDetailsErrorResponse(_: GatewayTimeoutException)
+      verifyMetricsFailure(metricId)
     }
-
   }
 
   "Calling CitizenDetailsService.getEtag" must {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "get-etag"
+      def url: String = s"/citizen-details/$nino/etag"
     }
 
     "return an etag when citizen-details returns 200" in new LocalSetup {
-      override def httpResponse: HttpResponse =
-        HttpResponse(OK, Some(JsObject(Seq(("etag", JsString("115"))))))
+      stubGet(url, OK, Some(JsObject(Seq(("etag", JsString("115")))).toString()))
 
-      override def simulateCitizenDetailsServiceIsDown: Boolean = false
-
-      val result = service.getEtag(nino.nino).futureValue
-
+      val result: Option[ETag] = service.getEtag(nino.nino).futureValue
       result mustBe Some(ETag("115"))
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
+      verifyMetricsSuccess(metricId)
     }
 
     "return None" when {
-
       "citizen-details returns 404" in new LocalSetup {
-        override def httpResponse: HttpResponse = HttpResponse(NOT_FOUND)
+        stubGet(url, NOT_FOUND, None)
 
-        override def simulateCitizenDetailsServiceIsDown: Boolean = false
-
-        val result = service.getEtag(nino.nino).futureValue
-
+        val result: Option[ETag] = service.getEtag(nino.nino).futureValue
         result mustBe None
-        verify(met, times(1)).startTimer(metricId)
-        verify(met, times(1)).incrementFailedCounter(metricId)
-        verify(timer, times(1)).stop()
+        verifyMetricsFailure(metricId)
       }
 
       "citizen-details returns 423" in new LocalSetup {
-        override def httpResponse: HttpResponse = HttpResponse(LOCKED)
+        stubGet(url, LOCKED, None)
 
-        override def simulateCitizenDetailsServiceIsDown: Boolean = false
-
-        val result = service.getEtag(nino.nino).futureValue
-
+        val result: Option[ETag] = service.getEtag(nino.nino).futureValue
         result mustBe None
-        verify(met, times(1)).startTimer(metricId)
-        verify(met, times(1)).incrementFailedCounter(metricId)
-        verify(timer, times(1)).stop()
+        verifyMetricsFailure(metricId)
       }
 
       "citizen-details returns 500" in new LocalSetup {
-        override def httpResponse: HttpResponse = HttpResponse(INTERNAL_SERVER_ERROR)
+        stubGet(url, INTERNAL_SERVER_ERROR, None)
 
-        override def simulateCitizenDetailsServiceIsDown: Boolean = false
-
-        val result = service.getEtag(nino.nino).futureValue
-
+        val result: Option[ETag] = service.getEtag(nino.nino).futureValue
         result mustBe None
-        verify(met, times(1)).startTimer(metricId)
-        verify(met, times(1)).incrementFailedCounter(metricId)
-        verify(timer, times(1)).stop()
+        verifyMetricsFailure(metricId)
       }
 
       "the call to citizen-details throws an exception" in new LocalSetup {
-        override def httpResponse: HttpResponse = HttpResponse(INTERNAL_SERVER_ERROR)
+        val delay: Int = 5000
+        stubWithDelay(url, OK, None, None, delay)
 
-        override def simulateCitizenDetailsServiceIsDown: Boolean = true
-
-        val result = service.getEtag(nino.nino).futureValue
-
+        val result: Option[ETag] = service.getEtag(nino.nino).futureValue
         result mustBe None
-        verify(met, times(1)).startTimer(metricId)
-        verify(met, times(1)).incrementFailedCounter(metricId)
-        verify(timer, times(1)).stop()
+        verifyMetricsFailure(metricId)
       }
     }
   }

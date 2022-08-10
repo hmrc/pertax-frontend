@@ -29,7 +29,8 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.{HeaderNames, MimeTypes, Status}
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.BindingKey
+import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
@@ -44,13 +45,16 @@ trait ConnectorSpec
     with ScalaFutures with IntegrationPatience {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  implicit lazy val ec: ExecutionContext =
+    scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
 
   val server: WireMockServer
 
-  implicit def app(confStrings: Map[String, Any]): Application = new GuiceApplicationBuilder()
-    .configure(confStrings)
-    .build()
+  implicit def app(confStrings: Map[String, Any], overrides: GuiceableModule*): Application =
+    new GuiceApplicationBuilder()
+      .configure(confStrings)
+      .overrides(overrides: _*)
+      .build()
 
   def userRequest(saUserType: SelfAssessmentUserType, providerId: String): UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(

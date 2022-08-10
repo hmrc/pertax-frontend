@@ -17,116 +17,115 @@
 package connectors
 
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock.{get, serverError, urlEqualTo}
-import play.api.inject.bind
+import cats.implicits._
 import models.AgentClientStatus
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.bind
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import repositories.SessionCacheRepository
-import uk.gov.hmrc.http.UpstreamErrorResponse
-import testUtils.BaseSpec
-import cats.implicits._
 import testUtils.{BaseSpec, WireMockHelper}
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class CachingAgentClientAuthorisationConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
-  val mockAgentClientAuthorisationConnector: AgentClientAuthorisationConnector =
-    mock[AgentClientAuthorisationConnector]
+class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with BaseSpec with WireMockHelper {
+
+  val mockAgentClientAuthorisationConnector: AgentClientAuthorisationConnector = mock[AgentClientAuthorisationConnector]
   val mockSessionCacheRepository: SessionCacheRepository = mock[SessionCacheRepository]
 
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
-    .overrides(
-      bind(classOf[AgentClientAuthorisationConnector])
-        .qualifiedWith("default")
-        .toInstance(mockAgentClientAuthorisationConnector),
-      bind[SessionCacheRepository].toInstance(mockSessionCacheRepository)
-    )
-    .configure(
-      "microservice.services.agent-client-authorisation.port" -> server.port()
-    )
-    .build()
+  override implicit val hc: HeaderCarrier = HeaderCarrier()
+  override implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  override def beforeEach: Unit =
-    reset(mockAgentClientAuthorisationConnector, mockSessionCacheRepository)
+  override implicit lazy val app: Application = app(
+    Map("microservice.services.agent-client-authorisation.port" -> server.port()),
+    bind(classOf[AgentClientAuthorisationConnector])
+      .qualifiedWith("default")
+      .toInstance(mockAgentClientAuthorisationConnector),
+    bind[SessionCacheRepository].toInstance(mockSessionCacheRepository)
+  )
 
-  def sut: CachingAgentClientAuthorisationConnector = injected[CachingAgentClientAuthorisationConnector]
+  override def beforeEach(): Unit = reset(mockAgentClientAuthorisationConnector, mockSessionCacheRepository)
 
+  def connector: CachingAgentClientAuthorisationConnector = injected[CachingAgentClientAuthorisationConnector]
   val url = "/agent-client-authorisation/status"
 
-  implicit val userRequest = FakeRequest()
+  implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
   "Calling CachingAgentClientAuthorisationConnector.getAgentClientStatus" must {
     "return a Right AgentClientStatus object" when {
       "no value is cached" in {
-        val expected = AgentClientStatus(true, true, true)
+        val expected = AgentClientStatus(
+          hasPendingInvitations = true,
+          hasInvitationsHistory = true,
+          hasExistingRelationships = true
+        )
+
         when(mockSessionCacheRepository.getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any()))
-          .thenReturn(
-            Future.successful(None)
-          )
+          .thenReturn(Future.successful(None))
+
         when(
           mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
         )
-          .thenReturn(
-            Future.successful(("", ""))
-          )
+          .thenReturn(Future.successful(("", "")))
 
-        when(mockAgentClientAuthorisationConnector.getAgentClientStatus).thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](expected)
-        )
+        when(mockAgentClientAuthorisationConnector.getAgentClientStatus)
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](expected))
 
-        val result = sut.getAgentClientStatus.value.futureValue
+        val result = connector.getAgentClientStatus.value.futureValue
 
         result mustBe Right(expected)
+
         verify(mockSessionCacheRepository, times(1))
           .getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any())
+
         verify(mockSessionCacheRepository, times(1))
           .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
+
         verify(mockAgentClientAuthorisationConnector, times(1)).getAgentClientStatus
       }
 
       "a value is cached" in {
-        val expected = AgentClientStatus(true, true, true)
-        when(mockSessionCacheRepository.getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any()))
-          .thenReturn(
-            Future.successful(Some(expected))
-          )
-
-        when(mockAgentClientAuthorisationConnector.getAgentClientStatus).thenReturn(
-          null
+        val expected = AgentClientStatus(
+          hasPendingInvitations = true,
+          hasInvitationsHistory = true,
+          hasExistingRelationships = true
         )
+
+        when(mockSessionCacheRepository.getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any()))
+          .thenReturn(Future.successful(Some(expected)))
+
+        when(mockAgentClientAuthorisationConnector.getAgentClientStatus)
+          .thenReturn(null)
+
         when(
           mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
         )
-          .thenReturn(
-            null
-          )
+          .thenReturn(null)
 
-        val result = sut.getAgentClientStatus.value.futureValue
+        val result = connector.getAgentClientStatus.value.futureValue
 
         result mustBe Right(expected)
+
         verify(mockSessionCacheRepository, times(1))
           .getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any())
+
         verify(mockSessionCacheRepository, times(0))
           .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
+
         verify(mockAgentClientAuthorisationConnector, times(0)).getAgentClientStatus
       }
     }
 
     "return a Left UpstreamErrorResponse object" ignore {
-      server.stubFor(
-        get(urlEqualTo(url)).willReturn(serverError)
-      )
+      stubGet(url, INTERNAL_SERVER_ERROR, None)
 
-      val result = sut.getAgentClientStatus.value.futureValue
-
-      result.left.get mustBe a[UpstreamErrorResponse]
+      val result = connector.getAgentClientStatus.value.futureValue
+      result mustBe a[Left[_, _]]
+      result.left.get mustBe an[UpstreamErrorResponse]
     }
-
   }
 }

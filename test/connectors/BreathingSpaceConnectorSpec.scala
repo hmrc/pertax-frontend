@@ -97,7 +97,6 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
       UNPROCESSABLE_ENTITY
     ).foreach { httpResponse =>
       s"return a $httpResponse when $httpResponse status is received" in {
-
         stubGet(url, httpResponse, None)
 
         val result = connector.getBreathingSpaceIndicator(nino).value.futureValue

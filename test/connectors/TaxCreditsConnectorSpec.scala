@@ -16,7 +16,6 @@
 
 package connectors
 
-import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import testUtils.{FileHelper, WireMockHelper}
 import testUtils.Fixtures.fakeNino
