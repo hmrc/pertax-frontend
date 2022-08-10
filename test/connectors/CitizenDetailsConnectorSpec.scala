@@ -30,7 +30,7 @@ import play.api.test.Helpers.await
 import services.http.SimpleHttp
 import testUtils.{Fixtures, WireMockHelper}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.{GatewayTimeoutException, HttpResponse}
+import uk.gov.hmrc.http.GatewayTimeoutException
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.util.Random
@@ -123,10 +123,11 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
 
     "return PersonDetailsUnexpectedResponse when an unexpected status is returned" in new LocalSetup {
-      stubGet(url, SEE_OTHER, None)
+      stubGet(url, IM_A_TEAPOT, None)
 
       val result: PersonDetailsResponse = service.personDetails(nino).futureValue
-      result mustBe PersonDetailsUnexpectedResponse(HttpResponse(SEE_OTHER, ""))
+      result mustBe a[PersonDetailsUnexpectedResponse]
+      result.toString mustBe "PersonDetailsUnexpectedResponse(HttpResponse status=418)"
       verifyMetricsFailure(metricId)
     }
 
@@ -195,10 +196,11 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
 
     "return UpdateAddressUnexpectedResponse when an unexpected status is returned" in new LocalSetup {
-      stubPost(url, SEE_OTHER, Some(requestBody), None)
+      stubPost(url, IM_A_TEAPOT, Some(requestBody), None)
 
       val result: UpdateAddressResponse = service.updateAddress(nino, etag, address).futureValue
-      result mustBe UpdateAddressUnexpectedResponse(HttpResponse(SEE_OTHER, ""))
+      result mustBe a[UpdateAddressUnexpectedResponse]
+      result.toString mustBe "UpdateAddressUnexpectedResponse(HttpResponse status=418)"
       verifyMetricsFailure(metricId)
     }
 
@@ -245,10 +247,11 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
 
     "return MatchingDetailsUnexpectedResponse when citizen-details returns an unexpected response code" in new LocalSetup {
-      stubGet(url, SEE_OTHER, None)
+      stubGet(url, IM_A_TEAPOT, None)
 
       val result: MatchingDetailsResponse = service.getMatchingDetails(nino).futureValue
-      result mustBe MatchingDetailsUnexpectedResponse(HttpResponse(SEE_OTHER, ""))
+      result mustBe a[MatchingDetailsUnexpectedResponse]
+      result.toString mustBe "MatchingDetailsUnexpectedResponse(HttpResponse status=418)"
       verifyMetricsFailure(metricId)
     }
 
