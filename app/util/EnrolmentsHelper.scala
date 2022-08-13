@@ -16,7 +16,7 @@
 
 package util
 
-import models.{Activated, EnrolmentStatus, ItsaEnrolment, ItsaEnrolmentEnrolled, NotYetActivated, SelfAssessmentEnrolment}
+import models._
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.SaUtr

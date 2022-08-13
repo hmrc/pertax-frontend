@@ -1,11 +1,9 @@
 package address
 
-import com.github.tomakehurst.wiremock.client.WireMock.{status => _}
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, status => _}
 import play.api.Application
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, route}
-import play.api.test.Helpers.{status => getStatus, _}
+import play.api.test.Helpers.{GET, route, status => getStatus, _}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.HeaderNames
 

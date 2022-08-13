@@ -18,7 +18,7 @@ package models
 
 import controllers.bindable.AddrType
 import models.addresslookup.{AddressRecord, RecordSet}
-import models.dto.{AddressDto, AddressFinderDto, AddressPageVisitedDto, DateDto, InternationalAddressChoiceDto, ResidencyChoiceDto, TaxCreditsChoiceDto}
+import models.dto._
 
 trait CacheIdentifier[A] {
   val id: String

@@ -18,7 +18,7 @@ package models
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.Mockito.{mock, when}
 import play.api.Application
 import play.api.inject.bind
@@ -72,13 +72,13 @@ class TaxCalculationStateSpec extends BaseSpec {
       val taxCalculation =
         TaxCalculation("Overpaid", 1000.0, 2015, Some("PAYMENT_PAID"), Some("2016-05-19"), None, None)
       val result = factory.buildFromTaxCalculation(Some(taxCalculation))
-      result mustBe TaxCalculationOverpaidPaymentPaidState(1000.0, Some(new LocalDate("2016-05-19")))
+      result mustBe TaxCalculationOverpaidPaymentPaidState(1000.0, Some(LocalDate.parse("2016-05-19")))
     }
 
     "return a TaxCalculationPaymentChequeSentState when called with a TaxCalculation with a P800 status of Overpaid and paymentStatus of CHEQUE_SENT" in new TaxCalculationStateSimpleSpecSetup {
       val taxCalculation = TaxCalculation("Overpaid", 1000.0, 2015, Some("CHEQUE_SENT"), Some("2016-05-19"), None, None)
       val result = factory.buildFromTaxCalculation(Some(taxCalculation))
-      result mustBe TaxCalculationOverpaidPaymentChequeSentState(1000.0, Some(new LocalDate("2016-05-19")))
+      result mustBe TaxCalculationOverpaidPaymentChequeSentState(1000.0, Some(LocalDate.parse("2016-05-19")))
     }
 
     "return a TaxCalculation not found when called without a TaxCalculation" in new TaxCalculationStateSimpleSpecSetup {
@@ -139,7 +139,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2018-01-31")),
+          Some(LocalDate.parse("2018-01-31")),
           None
         )
       }
@@ -156,7 +156,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2018-01-31")),
+          Some(LocalDate.parse("2018-01-31")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -173,7 +173,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2018-01-31")),
+          Some(LocalDate.parse("2018-01-31")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -186,7 +186,13 @@ class TaxCalculationStateSpec extends BaseSpec {
         override lazy val paymentStatus = "PAID_PART"
         override lazy val dueDate = "2018-01-31"
 
-        result mustBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), None)
+        result mustBe TaxCalculationUnderpaidPartPaidState(
+          1000.0,
+          2017,
+          2018,
+          Some(LocalDate.parse("2018-01-31")),
+          None
+        )
       }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date when\n" +
@@ -201,7 +207,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2018-01-31")),
+          Some(LocalDate.parse("2018-01-31")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -218,7 +224,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2018-01-31")),
+          Some(LocalDate.parse("2018-01-31")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -235,7 +241,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2017-11-30")),
+          Some(LocalDate.parse("2017-11-30")),
           None
         )
       }
@@ -252,7 +258,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2017-11-30")),
+          Some(LocalDate.parse("2017-11-30")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -269,7 +275,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2017-11-30")),
+          Some(LocalDate.parse("2017-11-30")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -282,7 +288,13 @@ class TaxCalculationStateSpec extends BaseSpec {
         override lazy val paymentStatus = "PAID_PART"
         override lazy val dueDate = "2017-11-30"
 
-        result mustBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), None)
+        result mustBe TaxCalculationUnderpaidPartPaidState(
+          1000.0,
+          2017,
+          2018,
+          Some(LocalDate.parse("2017-11-30")),
+          None
+        )
       }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date when-\n" +
@@ -297,7 +309,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2017-11-30")),
+          Some(LocalDate.parse("2017-11-30")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -314,7 +326,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2017-11-30")),
+          Some(LocalDate.parse("2017-11-30")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -331,7 +343,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2018-01-31")),
+          Some(LocalDate.parse("2018-01-31")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -348,7 +360,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2017-11-30")),
+          Some(LocalDate.parse("2017-11-30")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -365,7 +377,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2018-01-31")),
+          Some(LocalDate.parse("2018-01-31")),
           Some(SaDeadlinePassedStatus)
         )
       }
@@ -382,7 +394,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2018-01-31")),
+          Some(LocalDate.parse("2018-01-31")),
           Some(SaDeadlinePassedStatus)
         )
       }
@@ -399,7 +411,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2018-01-31")),
+          Some(LocalDate.parse("2018-01-31")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -416,7 +428,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2017-11-30")),
+          Some(LocalDate.parse("2017-11-30")),
           Some(SaDeadlineApproachingStatus)
         )
       }
@@ -433,7 +445,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2018-01-31")),
+          Some(LocalDate.parse("2018-01-31")),
           Some(SaDeadlinePassedStatus)
         )
       }
@@ -450,7 +462,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2018-01-31")),
+          Some(LocalDate.parse("2018-01-31")),
           Some(SaDeadlinePassedStatus)
         )
       }
@@ -467,7 +479,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2017-11-30")),
+          Some(LocalDate.parse("2017-11-30")),
           Some(SaDeadlinePassedStatus)
         )
       }
@@ -484,7 +496,7 @@ class TaxCalculationStateSpec extends BaseSpec {
           1000.0,
           2017,
           2018,
-          Some(new LocalDate("2017-11-30")),
+          Some(LocalDate.parse("2017-11-30")),
           Some(SaDeadlinePassedStatus)
         )
       }
@@ -497,7 +509,7 @@ class TaxCalculationStateSpec extends BaseSpec {
         override lazy val paymentStatus = "PAID_ALL"
         override lazy val dueDate = "2018-01-31"
 
-        result mustBe TaxCalculationUnderpaidPaidAllState(2017, 2018, Some(new LocalDate("2018-01-31")))
+        result mustBe TaxCalculationUnderpaidPaidAllState(2017, 2018, Some(LocalDate.parse("2018-01-31")))
       }
   }
 }

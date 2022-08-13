@@ -27,7 +27,6 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.dto.ClosePostalAddressChoiceDto
 import models.{Address, EditCorrespondenceAddress, PersonDetails}
-import org.joda.time.LocalDate
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
@@ -38,6 +37,7 @@ import util.AuditServiceTools.buildEvent
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class ClosePostalAddressController @Inject() (
