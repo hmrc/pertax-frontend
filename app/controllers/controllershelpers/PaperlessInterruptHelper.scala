@@ -22,6 +22,7 @@ import models.ActivatePaperlessRequiresUserActionResponse
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import services.PreferencesFrontendService
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -32,7 +33,7 @@ trait PaperlessInterruptHelper {
 
   def enforcePaperlessPreference(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], configDecorator: ConfigDecorator): Future[Result] =
+  )(implicit request: UserRequest[_], hc: HeaderCarrier, configDecorator: ConfigDecorator): Future[Result] =
     if (configDecorator.enforcePaperlessPreferenceEnabled) {
       preferencesFrontendService.getPaperlessPreference().flatMap {
         case ActivatePaperlessRequiresUserActionResponse(redirectUrl) => Future.successful(Redirect(redirectUrl))

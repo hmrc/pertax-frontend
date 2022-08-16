@@ -19,13 +19,14 @@ package viewmodels
 import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
 import models._
+import org.joda.time.LocalDate
 import org.jsoup.nodes.Document
 import testUtils.BetterOptionValues
 import uk.gov.hmrc.play.language.LanguageUtils
+import viewmodels.TaxCalculationViewModel
 import views.html.ViewSpec
 import views.html.cards.home.TaxCalculationView
-
-import java.time.LocalDate
+import util.DateHelper.JodaTimeConverters
 
 class TaxCalculationViewModelSpec extends ViewSpec {
 
@@ -40,7 +41,7 @@ class TaxCalculationViewModelSpec extends ViewSpec {
     }
 
   def formatDate(date: LocalDate) =
-    injected[LanguageUtils].Dates.formatDate(Some(date), "dd MMMM yyyy")(messages)
+    injected[LanguageUtils].Dates.formatDate(Some(date.toJavaLocalDate), "dd MMMM yyyy")(messages)
 
   "taxCalculation" should {
 

@@ -16,10 +16,10 @@
 
 package models.addresslookup
 
+import java.util.regex.Pattern
+
 import com.fasterxml.jackson.annotation.JsonIgnore
 import play.api.libs.json.Json
-
-import java.util.regex.Pattern
 
 /** Address typically represents a postal address.
   * For UK addresses, 'town' will always be present.

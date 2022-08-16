@@ -16,13 +16,14 @@
 
 package connectors
 
-import com.google.inject.Inject
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import metrics.HasMetrics
 import models.{SaEnrolmentRequest, SaEnrolmentResponse}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
+import com.google.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)(
@@ -31,7 +32,7 @@ class SelfAssessmentConnector @Inject() (http: HttpClient, configDecorator: Conf
 
   def enrolForSelfAssessment(
     saEnrolmentRequest: SaEnrolmentRequest
-  )(implicit hc: HeaderCarrier): Future[Option[SaEnrolmentResponse]] = {
+  )(implicit request: UserRequest[_], hc: HeaderCarrier): Future[Option[SaEnrolmentResponse]] = {
     val url = s"${configDecorator.addTaxesFrontendUrl}/internal/self-assessment/enrol-for-sa"
     withMetricsTimer("enrol-for-self-assessment") { timer =>
       http.POST[SaEnrolmentRequest, Option[SaEnrolmentResponse]](url, saEnrolmentRequest) map {

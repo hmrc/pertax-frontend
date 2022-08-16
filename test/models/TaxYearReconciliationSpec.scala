@@ -18,7 +18,7 @@ package models
 
 import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
-import java.time.LocalDate
+import org.joda.time.LocalDate
 import play.api.libs.json.{JsError, JsString, Json}
 import testUtils.BaseSpec
 
@@ -57,7 +57,7 @@ class TaxYearReconciliationSpec extends BaseSpec {
       val rec =
         Json.parse("""{"_type": "underpaid", "amount": 100, "dueDate": "2019-10-10", "status": "payment_due"}""")
 
-      rec.as[Reconciliation] mustBe Underpaid(Some(100), Some(LocalDate.of(2019, 10, 10)), PaymentDue)
+      rec.as[Reconciliation] mustBe Underpaid(Some(100), Some(new LocalDate(2019, 10, 10)), PaymentDue)
     }
 
     "fail to deserialise another value" in {

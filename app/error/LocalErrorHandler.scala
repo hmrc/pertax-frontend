@@ -22,7 +22,7 @@ import config.ConfigDecorator
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.twirl.api.Html
-import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
+import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 import views.html.{InternalServerErrorView, UnauthenticatedErrorView}
 
 import scala.concurrent.ExecutionContext

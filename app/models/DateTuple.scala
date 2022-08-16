@@ -16,11 +16,14 @@
 
 package models
 
+import org.joda.time.{DateTime, LocalDate}
 import play.api.data.Forms._
 import play.api.data.Mapping
-
 import java.text.{DateFormatSymbols => JDateFormatSymbols}
-import java.time.LocalDate
+
+import uk.gov.hmrc.play.mappers.DateTuple
+
+import scala.util.Try
 
 object DateTuple extends DateTuple
 
@@ -76,7 +79,7 @@ trait DateTuple {
               if (y.length != 4) {
                 throw new Exception("Year must be 4 digits")
               }
-              LocalDate.of(
+              new LocalDate(
                 y.toInt,
                 monthOption.getOrElse(throw new Exception("Month missing")).trim.toInt,
                 dayOption.getOrElse(throw new Exception("Day missing")).trim.toInt
@@ -94,7 +97,7 @@ trait DateTuple {
     ).transform(
       {
         case (Some(y), Some(m), Some(d)) =>
-          try Some(LocalDate.of(y.trim.toInt, m.trim.toInt, d.trim.toInt))
+          try Some(new LocalDate(y.trim.toInt, m.trim.toInt, d.trim.toInt))
           catch {
             case e: Exception =>
               if (validate) {
@@ -107,7 +110,7 @@ trait DateTuple {
       },
       (date: Option[LocalDate]) =>
         date match {
-          case Some(d) => (Some(d.getYear.toString), Some(d.getMonthValue.toString), Some(d.getDayOfMonth.toString))
+          case Some(d) => (Some(d.getYear.toString), Some(d.getMonthOfYear.toString), Some(d.getDayOfMonth.toString))
           case _       => (None, None, None)
         }
     )

@@ -16,9 +16,9 @@
 
 package models.dto
 
+import play.api.libs.json.Json
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
 
 case class TaxCreditsChoiceDto(hasTaxCredits: Boolean)
 

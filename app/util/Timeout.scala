@@ -16,11 +16,10 @@
 
 package util
 
-import akka.actor.ActorSystem
-import play.api.Logging
-
 import scala.concurrent._
 import scala.concurrent.duration._
+import akka.actor.ActorSystem
+import play.api.Logging
 
 case object FutureEarlyTimeout extends RuntimeException
 

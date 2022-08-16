@@ -20,7 +20,7 @@ import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.PersonDetails
 import models.dto.{AddressPageVisitedDto, DateDto}
-import java.time.LocalDate
+import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
@@ -234,7 +234,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
             buildUserRequest(
               request = currentRequest,
               personDetails = Some(
-                PersonDetails(emptyPerson, Some(addressFixture(startDate = Some(LocalDate.of(2016, 11, 22)))), None)
+                PersonDetails(emptyPerson, Some(addressFixture(startDate = Some(new LocalDate(2016, 11, 22)))), None)
               )
             ).asInstanceOf[UserRequest[A]]
           )

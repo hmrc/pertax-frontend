@@ -5,13 +5,13 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.Application
-import play.api.http.Status._
+import play.api.http.Status.{BAD_REQUEST, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, OK, SEE_OTHER, SERVICE_UNAVAILABLE}
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
-import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionId
+import testUtils.{FileHelper, IntegrationSpec}
 
 class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 

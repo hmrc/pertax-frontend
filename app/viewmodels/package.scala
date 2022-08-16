@@ -16,7 +16,7 @@
 
 package viewmodels
 
-import java.time.LocalDate
+import org.joda.time.LocalDate
 
 case class Heading(label: Message, url: Url)
 

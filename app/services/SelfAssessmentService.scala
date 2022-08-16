@@ -16,10 +16,10 @@
 
 package services
 
-import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.SelfAssessmentConnector
 import controllers.auth.requests.UserRequest
+import com.google.inject.Inject
 import models.{SaEnrolmentRequest, SelfAssessmentUser}
 import uk.gov.hmrc.http.HeaderCarrier
 

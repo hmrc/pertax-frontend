@@ -27,6 +27,7 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.{ErrorRenderer, GenericErrors}
 import models.dto.AddressDto
 import models.{AddressJourneyData, ETag}
+import org.joda.time.LocalDate
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
@@ -37,7 +38,6 @@ import util.AuditServiceTools.buildEvent
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
 
-import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class AddressSubmissionController @Inject() (

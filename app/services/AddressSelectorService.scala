@@ -16,9 +16,10 @@
 
 package services
 
-import models.addresslookup.{Address, AddressRecord}
+import models.addresslookup.{Address, AddressRecord, RecordSet}
 
 import javax.inject.Inject
+import scala.collection.SeqLike
 import scala.util.Try
 
 class AddressSelectorService @Inject() () {

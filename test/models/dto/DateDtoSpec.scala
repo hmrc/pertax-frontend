@@ -16,7 +16,7 @@
 
 package models.dto
 
-import java.time.LocalDate
+import org.joda.time.LocalDate
 import testUtils.BaseSpec
 
 class DateDtoSpec extends BaseSpec {
@@ -27,10 +27,10 @@ class DateDtoSpec extends BaseSpec {
       val formData = Map(
         "startDate.day"   -> "1",
         "startDate.month" -> "1",
-        "startDate.year"  -> LocalDate.now.minusYears(1).getYear.toString
+        "startDate.year"  -> new LocalDate().minusYears(1).getYear.toString
       )
 
-      val previousYear = LocalDate.of(LocalDate.now.minusYears(1).getYear, 1, 1)
+      val previousYear = new LocalDate(new LocalDate().minusYears(1).getYear, 1, 1)
 
       DateDto
         .form(LocalDate.now())
@@ -47,7 +47,7 @@ class DateDtoSpec extends BaseSpec {
       val formData = Map(
         "startDate.day"   -> "1",
         "startDate.month" -> "1",
-        "startDate.year"  -> LocalDate.now.plusYears(1).getYear.toString
+        "startDate.year"  -> new LocalDate().plusYears(1).getYear.toString
       )
 
       DateDto

@@ -22,11 +22,11 @@ import connectors.PayApiConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.{NonFilerSelfAssessmentUser, PaymentRequest, SelfAssessmentUser}
+import org.joda.time.DateTime
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.time.CurrentTaxYear
 
-import java.time.LocalDate
 import scala.concurrent.ExecutionContext
 
 class PaymentsController @Inject() (
@@ -38,7 +38,7 @@ class PaymentsController @Inject() (
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) with CurrentTaxYear with Logging {
 
-  override def now: () => LocalDate = () => LocalDate.now()
+  override def now: () => DateTime = () => DateTime.now()
 
   def makePayment: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {

@@ -18,6 +18,7 @@
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.language.LanguageUtils
 @import scala.concurrent.ExecutionContext
+@import util.DateHelper._
 @import components.{H1, Link, Button}
 
 @this(
@@ -89,7 +90,7 @@ displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDeco
                 <dt class="govuk-summary-list__key">
                   @typ.ifIs(residential = messages("label.when_you_started_living_here"), postal = "")
                 </dt>
-                <dd class="govuk-summary-list__value">@languageUtils.Dates.formatDate(startDateDto.startDate)</dd>
+                <dd class="govuk-summary-list__value">@languageUtils.Dates.formatDate(startDateDto.startDate.toJavaLocalDate)</dd>
                 <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.StartDateController.onPageLoad(typ)">@messages("label.change") <span class="govuk-visually-hidden">@messages("label.when_you_started_living_here.change")</span></a></dd>
               }
             </div>

@@ -19,7 +19,9 @@ package connectors
 import config.ConfigDecorator
 import play.api.http.Status.TOO_MANY_REQUESTS
 import uk.gov.hmrc.circuitbreaker.{CircuitBreakerConfig, UsingCircuitBreaker}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HttpException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HttpReads.is5xx
+import uk.gov.hmrc.http.UpstreamErrorResponse.{Upstream4xxResponse, Upstream5xxResponse}
 
 trait ServicesCircuitBreaker extends UsingCircuitBreaker {
 

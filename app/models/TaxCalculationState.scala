@@ -15,11 +15,11 @@
  */
 
 package models
-import com.google.inject.{Inject, Singleton}
-import config.ConfigDecorator
-import util.DateTimeTools._
 
-import java.time.LocalDate
+import config.ConfigDecorator
+import com.google.inject.{Inject, Singleton}
+import org.joda.time.LocalDate
+import util.DateTimeTools._
 
 trait SaDeadlineStatus
 object SaDeadlineApproachingStatus extends SaDeadlineStatus
@@ -77,8 +77,8 @@ class TaxCalculationStateFactory @Inject() (implicit
           amount,
           taxYear,
           taxYear + 1,
-          Some(LocalDate.parse(dueDate)),
-          SaDeadlineStatusCalculator.getSaDeadlineStatus(LocalDate.parse(dueDate))
+          Some(new LocalDate(dueDate)),
+          SaDeadlineStatusCalculator.getSaDeadlineStatus(new LocalDate(dueDate))
         )
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"), _, _, None)), _) =>
@@ -89,8 +89,8 @@ class TaxCalculationStateFactory @Inject() (implicit
           amount,
           taxYear,
           taxYear + 1,
-          Some(LocalDate.parse(dueDate)),
-          SaDeadlineStatusCalculator.getSaDeadlineStatus(LocalDate.parse(dueDate))
+          Some(new LocalDate(dueDate)),
+          SaDeadlineStatusCalculator.getSaDeadlineStatus(new LocalDate(dueDate))
         )
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"), _, Some("P302"), _)), _) =>
@@ -100,7 +100,7 @@ class TaxCalculationStateFactory @Inject() (implicit
         TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, None)
 
       case (Some(TaxCalculation("Underpaid", _, taxYear, Some("PAID_ALL"), _, _, Some(dueDate))), _) =>
-        TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, Some(LocalDate.parse(dueDate)))
+        TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, Some(new LocalDate(dueDate)))
 
       case (Some(TaxCalculation("Underpaid", _, taxYear, Some("PAYMENTS_DOWN"), _, _, _)), _) =>
         TaxCalculationUnderpaidPaymentsDownState(taxYear, taxYear + 1)
@@ -112,13 +112,13 @@ class TaxCalculationStateFactory @Inject() (implicit
         TaxCalculationOverpaidPaymentProcessingState(amount)
 
       case (Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PAID"), Some(datePaid), _, _)), true) =>
-        TaxCalculationOverpaidPaymentPaidState(amount, Some(LocalDate.parse(datePaid)))
+        TaxCalculationOverpaidPaymentPaidState(amount, Some(new LocalDate(datePaid)))
 
       case (Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PAID"), _, _, _)), true) =>
         TaxCalculationOverpaidPaymentPaidState(amount, None)
 
       case (Some(TaxCalculation("Overpaid", amount, _, Some("CHEQUE_SENT"), Some(datePaid), _, _)), true) =>
-        TaxCalculationOverpaidPaymentChequeSentState(amount, Some(LocalDate.parse(datePaid)))
+        TaxCalculationOverpaidPaymentChequeSentState(amount, Some(new LocalDate(datePaid)))
 
       case _ => TaxCalculationUnkownState
     }
@@ -128,11 +128,11 @@ object SaDeadlineStatusCalculator {
 
   def getSaDeadlineStatus(dueDate: LocalDate)(implicit configDecorator: ConfigDecorator): Option[SaDeadlineStatus] = {
 
-    val now = configDecorator.currentLocalDate
-    val dueDateEquals31stJanuary = dueDate.getMonthValue == 1 && dueDate.getDayOfMonth == 31
+    val now = new LocalDate(configDecorator.currentLocalDate)
+    val dueDateEquals31stJanuary = dueDate.getMonthOfYear == 1 && dueDate.getDayOfMonth == 31
     val dueDatePassed = now.isAfter(dueDate)
     val datePassed14thDec =
-      now.isAfter(LocalDate.of(taxYearFor(configDecorator.currentLocalDate).currentYear, 12, 14))
+      now.isAfter(new LocalDate(taxYearFor(configDecorator.currentLocalDate).currentYear + "-12-14"))
     val dateWithin30DaysOfDueDate = now.isAfter(dueDate.minusDays(31))
 
     (dueDateEquals31stJanuary, dueDatePassed, datePassed14thDec, dateWithin30DaysOfDueDate) match {

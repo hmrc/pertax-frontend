@@ -17,23 +17,22 @@
 package util
 
 import com.codahale.metrics.Timer
-import com.github.tomakehurst.wiremock.client.WireMock._
-import metrics.MetricsImpl
+import com.github.tomakehurst.wiremock.client.WireMock.{get, notFound, ok, serverError, urlEqualTo}
+import metrics.{Metrics, MetricsImpl}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, verify, _}
+import org.mockito.Mockito._
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import testUtils.{BaseSpec, WireMockHelper}
-import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
 class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
-  lazy implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
+  lazy implicit val fakeRequest = FakeRequest("", "")
 
   val mockMetrics: MetricsImpl = mock[MetricsImpl]
 
@@ -55,7 +54,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     )
     .build()
 
-  val sut: EnhancedPartialRetriever = injected[EnhancedPartialRetriever]
+  val sut = injected[EnhancedPartialRetriever]
 
   "Calling EnhancedPartialRetriever.loadPartial" must {
 

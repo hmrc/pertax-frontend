@@ -18,13 +18,14 @@ package services
 
 import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
-import metrics.HasMetrics
+import metrics._
 import models.{TaxCalculation, TaxYearReconciliation}
 import play.api.Logging
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal

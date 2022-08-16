@@ -23,10 +23,13 @@ import controllers.controllershelpers.CountryHelper
 import models._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.HeaderCarrier
 import util.RichOption.CondOpt
 import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
+
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class PersonalDetailsViewModel @Inject() (
@@ -169,6 +172,7 @@ class PersonalDetailsViewModel @Inject() (
   }
 
   def getTrustedHelpersRow(implicit
+    request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
     Some(
@@ -183,6 +187,7 @@ class PersonalDetailsViewModel @Inject() (
     )
 
   def getManageTaxAgentsRow(implicit
+    request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
     Some(
@@ -197,7 +202,8 @@ class PersonalDetailsViewModel @Inject() (
     )
 
   def getPaperlessSettingsRow(implicit
-    request: UserRequest[_]
+    request: UserRequest[_],
+    messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
     PersonalDetailsTableRowModel(
       "paperless",

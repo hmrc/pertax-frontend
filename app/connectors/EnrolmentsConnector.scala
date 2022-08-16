@@ -21,7 +21,8 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics.HasMetrics
 import play.api.http.Status._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
