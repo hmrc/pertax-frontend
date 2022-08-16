@@ -55,7 +55,7 @@ class RateLimiterSpec extends BaseSpec with WireMockHelper with IntegrationPatie
         true
       }
 
-      val waitTime = 10.seconds
+      val waitTime = 10 seconds
 
       val result = withThrottle {
         workFuture

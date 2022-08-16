@@ -17,7 +17,7 @@
 package testUtils.fixtures
 
 import models.Address
-import java.time.LocalDate
+import org.joda.time.LocalDate
 
 object AddressFixture {
 

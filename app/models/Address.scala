@@ -16,11 +16,10 @@
 
 package models
 
+import org.joda.time.LocalDate
+import play.api.libs.json._
 import play.api.Logging
 import play.api.libs.functional.syntax._
-import play.api.libs.json._
-
-import java.time.LocalDate
 
 case class Address(
   line1: Option[String],
@@ -60,6 +59,10 @@ case class Address(
 }
 
 object Address extends Logging {
+  implicit val localdateFormatDefault = new Format[LocalDate] {
+    override def reads(json: JsValue): JsResult[LocalDate] = JodaReads.DefaultJodaLocalDateReads.reads(json)
+    override def writes(o: LocalDate): JsValue = JodaWrites.DefaultJodaLocalDateWrites.writes(o)
+  }
 
   implicit val writes: Writes[Address] = new Writes[Address] {
     override def writes(o: Address): JsValue =
@@ -87,8 +90,8 @@ object Address extends Logging {
       (JsPath \ "line5").readNullable[String] and
       (JsPath \ "postcode").readNullable[String] and
       (JsPath \ "country").readNullable[String] and
-      (JsPath \ "startDate").readNullable[LocalDate] and
-      (JsPath \ "endDate").readNullable[LocalDate] and
+      (JsPath \ "startDate").readNullable[LocalDate](localdateFormatDefault) and
+      (JsPath \ "endDate").readNullable[LocalDate](localdateFormatDefault) and
       (JsPath \ "type").readNullable[String] and
       (JsPath \ "status").readNullable[Int].map(isRls)
   )(Address.apply _)

@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json._
+import play.api.libs.json.{JsDefined, JsError, JsResult, JsString, JsSuccess, JsValue, Json, Reads, Writes}
 import uk.gov.hmrc.domain.SaUtr
 
 sealed trait SelfAssessmentUserType

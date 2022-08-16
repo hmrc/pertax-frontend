@@ -17,7 +17,7 @@
 package models.dto
 
 import models.Address
-import java.time.LocalDate
+import org.joda.time.LocalDate
 import testUtils.BaseSpec
 
 class AddressDtoSpec extends BaseSpec {
@@ -851,7 +851,7 @@ class AddressDtoSpec extends BaseSpec {
           None
         )
       val addressTye = "residential"
-      val startDate = LocalDate.of(2019, 1, 1)
+      val startDate = new LocalDate(2019, 1, 1)
 
       addressDto.toAddress(addressTye, startDate) mustBe Address(
         Some("Line 1"),
@@ -871,7 +871,7 @@ class AddressDtoSpec extends BaseSpec {
     "return address with country when postcode does not exist" in {
       val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, None, Some("UK"), None)
       val addressTye = "residential"
-      val startDate = LocalDate.of(2019, 1, 1)
+      val startDate = new LocalDate(2019, 1, 1)
 
       addressDto.toAddress(addressTye, startDate) mustBe Address(
         Some("Line 1"),
@@ -895,7 +895,7 @@ class AddressDtoSpec extends BaseSpec {
       val addressDto =
         AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA9A9AA"), Some("UK"), None)
       val addressTye = "residential"
-      val startDate = LocalDate.of(2019, 1, 1)
+      val startDate = new LocalDate(2019, 1, 1)
 
       addressDto.toAddress(addressTye, startDate) mustBe Address(
         Some("Line 1"),
@@ -916,7 +916,7 @@ class AddressDtoSpec extends BaseSpec {
       val addressDto =
         AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("A9A9AA"), Some("UK"), None)
       val addressTye = "residential"
-      val startDate = LocalDate.of(2019, 1, 1)
+      val startDate = new LocalDate(2019, 1, 1)
 
       addressDto.toAddress(addressTye, startDate) mustBe Address(
         Some("Line 1"),
@@ -937,7 +937,7 @@ class AddressDtoSpec extends BaseSpec {
       val addressDto =
         AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("A99AA"), Some("UK"), None)
       val addressTye = "residential"
-      val startDate = LocalDate.of(2019, 1, 1)
+      val startDate = new LocalDate(2019, 1, 1)
 
       addressDto.toAddress(addressTye, startDate) mustBe Address(
         Some("Line 1"),

@@ -20,6 +20,7 @@ import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}
 import models._
+import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.Application
@@ -40,7 +41,7 @@ import testUtils.Fixtures._
 import testUtils.UserRequestFixture.buildUserRequest
 import views.html.iv.failure._
 import views.html.iv.success.SuccessView
-import java.time.LocalDate
+
 import scala.concurrent.Future
 
 class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
@@ -384,5 +385,5 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     }
   }
 
-  override def now: () => LocalDate = LocalDate.now
+  override def now: () => DateTime = DateTime.now
 }

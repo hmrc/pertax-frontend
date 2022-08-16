@@ -17,9 +17,8 @@
 package views.html.integration
 
 import config.ConfigDecorator
+import org.joda.time.DateTime
 import views.html.ViewSpec
-
-import java.time.{LocalDateTime, ZonedDateTime}
 
 class MainContentHeaderSpec extends ViewSpec {
 
@@ -30,13 +29,13 @@ class MainContentHeaderSpec extends ViewSpec {
   "Rendering mainContentHeader.scala.html" must {
 
     "show last logged in details with name when a name is present and a lastLogin is supplied" in {
-      val millis = ZonedDateTime.parse("1982-04-30T00:00:00.000+01:00").toLocalDateTime
+      val millis = DateTime.parse("1982-04-30T00:00:00.000+01:00")
       val document = asDocument(view(Some("Firstname"), Some(millis), Nil, false, None, None).toString)
       document.select(".last-login > p").text mustBe "Firstname, you last signed in 12:00am, Friday 30 April 1982"
     }
 
     "show last logged in details without name when no name is present and a lastLogin is supplied" in {
-      val millis = ZonedDateTime.parse("1982-04-30T00:00:00.000+01:00").toLocalDateTime
+      val millis = DateTime.parse("1982-04-30T00:00:00.000+01:00")
       val document = asDocument(view(None, Some(millis), Nil, false, None, None).toString)
       document.select(".last-login > p").text mustBe "You last signed in 12:00am, Friday 30 April 1982"
     }

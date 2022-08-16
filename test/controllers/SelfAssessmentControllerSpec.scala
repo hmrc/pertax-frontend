@@ -16,10 +16,12 @@
 
 package controllers
 
+import config.ConfigDecorator
 import connectors.PayApiConnector
 import controllers.auth._
 import error.ErrorRenderer
 import models._
+import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -38,11 +40,10 @@ import testUtils.Fixtures.buildFakeRequestWithAuth
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
-import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
-  override def now: () => LocalDate = LocalDate.now
+  override def now: () => DateTime = DateTime.now
 
   val mockAuditConnector = mock[AuditConnector]
   val mockAuthAction = mock[AuthAction]

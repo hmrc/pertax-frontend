@@ -26,6 +26,7 @@ import models.{Address, SubmittedStartDateId}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.language.LanguageUtils
+import util.DateHelper.JodaTimeConverters
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
 
@@ -77,10 +78,10 @@ class StartDateController @Inject() (
                 val proposedStartDate = dateDto.startDate
 
                 personDetails.address match {
-                  case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
+                  case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, status)) =>
                     if (!currentStartDate.isBefore(proposedStartDate)) {
                       BadRequest(
-                        cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate))
+                        cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate.toJavaLocalDate))
                       )
                     } else {
                       Redirect(routes.AddressSubmissionController.onPageLoad(typ))

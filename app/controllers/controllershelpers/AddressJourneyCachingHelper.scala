@@ -117,7 +117,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
 
   def enforceDisplayAddressPageVisited(
     addressPageVisitedDto: Option[AddressPageVisitedDto]
-  )(block: => Future[Result]): Future[Result] =
+  )(block: => Future[Result])(implicit hc: HeaderCarrier): Future[Result] =
     addressPageVisitedDto match {
       case Some(_) =>
         block

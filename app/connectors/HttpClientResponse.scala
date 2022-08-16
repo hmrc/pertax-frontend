@@ -21,7 +21,7 @@ import com.google.inject.Inject
 import metrics.{Metrics, MetricsEnumeration}
 import play.api.Logging
 import play.api.http.Status.{BAD_GATEWAY, LOCKED, NOT_FOUND, TOO_MANY_REQUESTS}
-import uk.gov.hmrc.http.{HttpException, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -30,7 +30,7 @@ class HttpClientResponse @Inject() (metrics: Metrics)(implicit ec: ExecutionCont
   def read(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]],
     metricName: MetricsEnumeration.Value
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+  )(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     EitherT(response.map {
       case Right(response) =>
         metrics.incrementSuccessCounter(metricName)

@@ -20,7 +20,7 @@ import controllers.address
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.DateDto
-import java.time.LocalDate
+import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}

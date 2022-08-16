@@ -19,10 +19,14 @@ package repositories
 import config.ConfigDecorator
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentialAddress}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito._
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport

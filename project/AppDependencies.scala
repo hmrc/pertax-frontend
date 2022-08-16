@@ -6,7 +6,7 @@ object AppDependencies {
 
   private val playVersion = "play-28"
 
-  val compile: Seq[ModuleID] = Seq(
+  val compile = Seq(
     ws,
     "uk.gov.hmrc"         %% s"bootstrap-frontend-$playVersion"        % "5.20.0",
     "uk.gov.hmrc"         %% "play-partials"            % s"8.3.0-$playVersion",
@@ -14,11 +14,12 @@ object AppDependencies {
     "uk.gov.hmrc"         %% "http-caching-client"      % s"9.6.0-$playVersion",
     "uk.gov.hmrc"         %% "play-language"            % s"4.13.0-$playVersion",
     "uk.gov.hmrc"         %% "play-ui"                  % s"9.8.0-$playVersion",
-    "uk.gov.hmrc"         %% "tax-year"                 % "3.0.0",
+    "uk.gov.hmrc"         %% "tax-year"                 % "1.1.0",
     "uk.gov.hmrc"         %% "time"                     % "3.19.0",
     "uk.gov.hmrc"         %% "domain"                   % s"8.0.0-$playVersion",
     "uk.gov.hmrc.mongo"   %% s"hmrc-mongo-$playVersion" % "0.68.0",
     "io.lemonlabs"        %% "scala-uri"                % "2.2.3",
+    "com.typesafe.play"   %% "play-json-joda"           % "2.6.10",
     "uk.gov.hmrc"         %% "play-frontend-hmrc"       % s"3.21.0-play-28",
     "uk.gov.hmrc"         %% "play-frontend-pta"        % "0.3.0",
     "org.jsoup"           % "jsoup"                     % "1.15.1",
@@ -26,7 +27,7 @@ object AppDependencies {
     "org.typelevel"       %% "cats-core"                % "2.6.1"
   )
 
-  val test: Seq[ModuleID] = Seq(
+  val test = Seq(
     "org.scalatest"           %% "scalatest"                      % "3.2.8",
     "com.typesafe.play"       %% "play-test"                      % current,
     "org.scalatestplus.play"  %% "scalatestplus-play"             % "4.0.3",

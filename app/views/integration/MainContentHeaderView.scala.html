@@ -16,11 +16,12 @@
 
 @import config.ConfigDecorator
 @import uk.gov.hmrc.play.language.LanguageUtils
+@import util.DateHelper._
 
 @this(languageUtils: LanguageUtils)
 
 @(name: Option[String],
-        lastLogin: Option[java.time.LocalDateTime],
+        lastLogin: Option[org.joda.time.DateTime],
         breadcrumb: Breadcrumb,
         showBetaBanner: Boolean,
         deskProToken: Option[String],
@@ -51,9 +52,9 @@
         <div class="last-login mobile-hidden">
             <p class="service-info-p">
             @name.map { name =>
-                @messages("global.label._last_signed_in", name, languageUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
+                @messages("global.label._last_signed_in", name, languageUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin.toJavaLocalDateTime), ""))
             }.getOrElse {
-                @messages("global.label.you_last_signed_in", languageUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
+                @messages("global.label.you_last_signed_in", languageUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin.toJavaLocalDateTime), ""))
             }
             </p>
         </div>

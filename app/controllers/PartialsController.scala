@@ -20,10 +20,10 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import error.LocalErrorHandler
 import models.Breadcrumb
+import org.joda.time.DateTime
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.integration.MainContentHeaderView
 
-import java.time.{Instant, LocalDateTime, ZoneId}
 import scala.concurrent.{ExecutionContext, Future}
 
 class PartialsController @Inject() (
@@ -51,7 +51,7 @@ class PartialsController @Inject() (
       Ok(
         mainContentHeaderView(
           name,
-          lastLogin.map(x => LocalDateTime.ofInstant(Instant.ofEpochMilli(x), ZoneId.of("Europe/London"))),
+          lastLogin.map(new DateTime(_)),
           breadcrumb,
           showBetaBanner.getOrElse(false),
           deskProToken,

@@ -16,19 +16,15 @@
 
 package util
 
-import com.google.inject.ImplementedBy
-import org.joda.time.DateTime
-import uk.gov.hmrc.time.CurrentTaxYear
+object DateHelper {
 
-@ImplementedBy(classOf[TaxYearRetrieverImpl])
-trait TaxYearRetriever {
-  def currentYear: Int
-}
+  implicit class JodaTimeConverters(val jodaLocalDate: org.joda.time.LocalDate) extends AnyVal {
+    def toJavaLocalDate: java.time.LocalDate = java.time.LocalDate.parse(jodaLocalDate.toString)
+  }
 
-class TaxYearRetrieverImpl extends TaxYearRetriever with CurrentTaxYear {
+  implicit class JodaDateTimeConverters(val jodaDateTime: org.joda.time.DateTime) extends AnyVal {
+    def toJavaLocalDateTime: java.time.LocalDateTime =
+      java.time.ZonedDateTime.parse(jodaDateTime.toString).toLocalDateTime
 
-  override def now: () => DateTime = () => DateTime.now()
-
-  def currentYear: Int = current.currentYear
-
+  }
 }

@@ -17,11 +17,12 @@
 package testUtils
 
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, FakeAuthJourney}
+import controllers.auth.requests.UserRequest
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
+import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
@@ -35,15 +36,17 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc._
+import play.api.test.Helpers.stubControllerComponents
 import play.api.test.{FakeRequest, Helpers}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
+import services.AgentClientAuthorisationService
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
 import uk.gov.hmrc.time.DateTimeUtils._
+import testUtils.UserRequestFixture.buildUserRequest
 
-import java.time.LocalDate
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
@@ -172,7 +175,7 @@ trait CitizenDetailsFixtures {
     None,
     Some("AA1 1AA"),
     None,
-    Some(LocalDate.of(2015, 3, 15)),
+    Some(new LocalDate(2015, 3, 15)),
     None,
     Some("Residential"),
     false
@@ -186,7 +189,7 @@ trait CitizenDetailsFixtures {
     None,
     Some("AA1 1AA"),
     None,
-    Some(LocalDate.of(2015, 3, 15)),
+    Some(new LocalDate(2015, 3, 15)),
     None,
     Some("Correspondence"),
     false
@@ -200,8 +203,8 @@ trait CitizenDetailsFixtures {
     None,
     Some("AA1 1AA"),
     None,
-    Some(LocalDate.now),
-    Some(LocalDate.now),
+    Some(new LocalDate(now)),
+    Some(new LocalDate(now)),
     Some("Correspondence"),
     false
   )

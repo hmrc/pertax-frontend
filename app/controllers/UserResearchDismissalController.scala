@@ -17,6 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
+import config.ConfigDecorator
 import connectors.CitizenDetailsConnector
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
@@ -33,7 +34,7 @@ class UserResearchDismissalController @Inject() (
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents
-)(implicit ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>

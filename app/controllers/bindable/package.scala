@@ -23,7 +23,7 @@ import uk.gov.hmrc.play.bootstrap.binders._
 
 package object bindable {
 
-  implicit def addrTypeBinder: PathBindable[AddrType] = new PathBindable[AddrType] {
+  implicit def addrTypeBinder(implicit stringBinder: PathBindable[String]) = new PathBindable[AddrType] {
 
     def bind(key: String, value: String): Either[String, AddrType] =
       AddrType(value).map(Right(_)).getOrElse(Left("Invalid address type in path"))

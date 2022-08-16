@@ -19,7 +19,7 @@ package connectors
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import models._
-import java.time.LocalDate
+import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.http.Status._
@@ -48,7 +48,7 @@ class CitizenDetailsConnectorSpec extends BaseSpec {
       None,
       None,
       Some("AA1 1AA"),
-      Some(LocalDate.of(2015, 3, 15)),
+      Some(new LocalDate(2015, 3, 15)),
       None,
       Some("Residential"),
       false
@@ -62,7 +62,7 @@ class CitizenDetailsConnectorSpec extends BaseSpec {
       None,
       None,
       Some("AA1 2AA"),
-      Some(LocalDate.of(2015, 3, 15)),
+      Some(new LocalDate(2015, 3, 15)),
       Some(LocalDate.now),
       Some("Correspondence"),
       false

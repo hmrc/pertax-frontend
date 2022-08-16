@@ -17,17 +17,17 @@
 package connectors
 
 import cats.data.EitherT
-import cats.implicits._
 import com.codahale.metrics.Timer
 import com.google.inject.Inject
 import config.ConfigDecorator
 import metrics.{Metrics, MetricsEnumeration}
 import models.{SeissModel, SeissRequest}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import cats.implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 
 import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 @Singleton
 class SeissConnector @Inject() (

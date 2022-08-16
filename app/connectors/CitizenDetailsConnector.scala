@@ -23,6 +23,7 @@ import models._
 import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
+import services._
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
