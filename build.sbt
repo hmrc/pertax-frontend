@@ -60,7 +60,6 @@ lazy val microservice = Project(appName, file("."))
     PlayKeys.playDefaultPort := 9232,
     scalafmtOnCompile := true,
     resolvers += Resolver.jcenterRepo,
-    resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/",
     majorVersion := 1,
     scalacOptions += "-P:silencer:pathFilters=views;routes",
     libraryDependencies ++= Seq(

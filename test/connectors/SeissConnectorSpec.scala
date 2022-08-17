@@ -16,58 +16,47 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import models.{ActivatedOnlineFilerSelfAssessmentUser, SeissModel, UserDetails}
-import org.scalatest.concurrent.IntegrationPatience
+import controllers.auth.requests.UserRequest
+import models.{ActivatedOnlineFilerSelfAssessmentUser, SeissModel}
 import play.api.Application
-import play.api.http.Status._
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.FakeRequest
+import play.api.libs.json.JsResultException
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.DefaultAwaitTimeout
 import play.api.test.Helpers.await
-import uk.gov.hmrc.auth.core.retrieve.Credentials
+import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.BaseSpec
-import play.api.test.Helpers.defaultAwaitTimeout
-import play.api.libs.json.JsResultException
-import testUtils.{BaseSpec, WireMockHelper}
 
 import java.util.UUID
 
-class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
-
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
-    .configure(
-      "microservice.services.self-employed-income-support.port" -> server.port()
-    )
-    .build()
-
-  def sut: SeissConnector = injected[SeissConnector]
+class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout {
 
   val url = "/self-employed-income-support/get-claims"
-
   val utr: SaUtr = new SaUtrGenerator().nextSaUtr
-
   val providerId: String = UUID.randomUUID().toString
 
-  val origin = "pta-sa"
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = userRequest(
+    ActivatedOnlineFilerSelfAssessmentUser(utr),
+    providerId
+  )
 
-  implicit val userRequest =
-    buildUserRequest(
-      request = FakeRequest(),
-      saUser = ActivatedOnlineFilerSelfAssessmentUser(utr),
-      credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
-    )
+  override implicit lazy val app: Application = app(
+    Map("microservice.services.self-employed-income-support.port" -> server.port())
+  )
+
+  def connector: SeissConnector = app.injector.instanceOf[SeissConnector]
 
   "SeissConnector" when {
+    val requestBody: String =
+      s"""
+         |{
+         |   "utr": "$utr"
+         |}
+      """.stripMargin
 
     "getClaims is called" must {
-
       "return list of claims" when {
-
         "the user has seiss data" in {
-
           val response =
             s"""
                |[
@@ -107,82 +96,63 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
                |            "multiplier": 0.3
                |        }
                |    }
-               |]""".stripMargin
+               |]
+            """.stripMargin
 
-          server.stubFor(
-            post(urlEqualTo(url)).willReturn(ok(response))
-          )
+          stubPost(url, OK, Some(requestBody), Some(response))
 
-          sut
-            .getClaims(utr.toString())
-            .value
-            .futureValue mustBe Right(List(SeissModel("1234567890")))
+          val result = connector.getClaims(utr.toString()).value.futureValue
+          result mustBe a[Right[_, _]]
+          result.right.get mustBe List(SeissModel("1234567890"))
         }
       }
+
       "return empty list" when {
         "the user has no seiss data" in {
-
           val response =
             s"""
                |[
-               |]""".stripMargin
+               |]
+            """.stripMargin
 
-          server.stubFor(
-            post(urlEqualTo(url)).willReturn(ok(response))
-          )
+          stubPost(url, OK, Some(requestBody), Some(response))
 
-          sut
-            .getClaims(utr.toString())
-            .value
-            .futureValue mustBe Right(List())
-
+          val result = connector.getClaims(utr.toString()).value.futureValue
+          result mustBe a[Right[_, _]]
+          result.right.get mustBe empty
         }
       }
 
-      "return Left(UpstreamErrorResponse)" when {
+      "return an UpstreamErrorResponse" when {
         List(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND).foreach(statusCode =>
           s"a status $statusCode is returned" in {
-            server.stubFor(
-              post(urlEqualTo(url)).willReturn(aResponse().withStatus(statusCode))
-            )
+            stubPost(url, statusCode, Some(requestBody), None)
 
-            sut
-              .getClaims(utr.toString())
-              .value
-              .futureValue
-              .left
-              .get mustBe a[UpstreamErrorResponse]
-
+            val result = connector.getClaims(utr.toString()).value.futureValue
+            result mustBe a[Left[_, _]]
+            result.left mustBe UpstreamErrorResponse(_: String, statusCode)
           }
         )
+
+        "there is a timeout" in {
+          val delay: Int = 5000
+          stubWithDelay(url, OK, Some(requestBody), None, delay)
+
+          val result = connector.getClaims(utr.toString()).value.futureValue
+          result mustBe a[Left[_, _]]
+          result.left.get mustBe UpstreamErrorResponse(_: String, INTERNAL_SERVER_ERROR)
+        }
       }
-    }
 
-    "return Left(UpstreamErrorResponse)" when {
-      "there is a timeout" in {
-        server.stubFor(
-          post(urlEqualTo(url)).willReturn(ok("{}").withFixedDelay(5000))
-        )
+      "return an exception" when {
+        "the response body is not valid" in {
+          stubPost(url, OK, Some(requestBody), Some("""{"invalid":"invalid"}"""))
 
-        sut
-          .getClaims(utr.toString())
-          .value
-          .futureValue
-          .left
-          .get mustBe a[UpstreamErrorResponse]
-      }
-    }
-
-    "return an exception" when {
-      "json is invalid" in {
-        server.stubFor(
-          post(urlEqualTo(url)).willReturn(ok("""{"invalid":"invalid"}"""))
-        )
-
-        a[JsResultException] mustBe thrownBy(
-          await(sut.getClaims(utr.toString()).value)
-        )
+          lazy val result = await(connector.getClaims(utr.toString()).value)
+          a[JsResultException] mustBe thrownBy(result)
+        }
       }
     }
   }
+
 }
