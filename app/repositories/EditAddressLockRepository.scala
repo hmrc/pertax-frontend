@@ -106,12 +106,10 @@ class EditAddressLockRepository @Inject() (
     }
 
   def dropCollection() =
-    Await.result(
-      collection
-        .drop()
-        .toFuture(),
-      Duration.Inf
-    )
+    collection
+      .drop()
+      .toFuture()
+      .map(x => x)
 }
 
 object EditAddressLockRepository {
