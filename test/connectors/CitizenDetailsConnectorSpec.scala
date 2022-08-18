@@ -57,7 +57,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
       line5 = None,
       postcode = None,
       country = Some("AA1 1AA"),
-      startDate = Some(new LocalDate(2015, 3, 15)),
+      startDate = Some(LocalDate.of(2015, 3, 15)),
       endDate = None,
       `type` = Some("Residential"),
       isRls = false

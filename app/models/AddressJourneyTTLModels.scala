@@ -43,23 +43,20 @@ object EditedAddress extends MongoJavatimeFormats.Implicits {
   val addressType = "addressType"
   val expireAt = "expireAt"
 
-  implicit val writes = new OWrites[EditedAddress] {
-    def writes(model: EditedAddress): JsObject = Json.obj(
+  implicit val writes: OWrites[EditedAddress] = (model: EditedAddress) =>
+    Json.obj(
       addressType -> model.addressType,
-      expireAt -> model.expireAt
+      expireAt    -> model.expireAt
     )
-  }
 
-  implicit val reads = new Reads[EditedAddress] {
-    override def reads(json: JsValue): JsResult[EditedAddress] =
-      for {
-        addressType <- (json \ addressType).validate[String]
-        expireAt    <- (json \ expireAt).validate[Instant]
-      } yield addressType match {
-        case `editResidentialAddress`    => EditResidentialAddress(expireAt)
-        case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
-      }
-  }
+  implicit val reads: Reads[EditedAddress] = (json: JsValue) =>
+    for {
+      addressType <- (json \ addressType).validate[String]
+      expireAt    <- (json \ expireAt).validate[Instant]
+    } yield addressType match {
+      case `editResidentialAddress`    => EditResidentialAddress(expireAt)
+      case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
+    }
 }
 
 object AddressJourneyTTLModel {
