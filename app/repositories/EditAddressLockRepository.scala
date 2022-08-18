@@ -33,7 +33,8 @@ import java.time.zone.ZoneRules
 import java.time.{Instant, OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 @Singleton
 class EditAddressLockRepository @Inject() (
@@ -104,9 +105,13 @@ class EditAddressLockRepository @Inject() (
       AddressesLock(residentialLock, postalLock)
     }
 
-  def dropCollection(): SingleObservable[Void] =
-    collection
-      .drop()
+  def dropCollection() =
+    Await.result(
+      collection
+        .drop()
+        .toFuture(),
+      Duration.Inf
+    )
 }
 
 object EditAddressLockRepository {
