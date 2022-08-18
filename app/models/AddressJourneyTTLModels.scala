@@ -17,6 +17,7 @@
 package models
 
 import play.api.libs.json._
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
 
@@ -34,7 +35,7 @@ case class EditCorrespondenceAddress(expireAt: Instant) extends EditedAddress {
   override def addressType: String = EditedAddress.editCorrespondenceAddress
 }
 
-object EditedAddress {
+object EditedAddress extends MongoJavatimeFormats.Implicits {
 
   val editResidentialAddress: String = "EditResidentialAddress"
   val editCorrespondenceAddress: String = "EditCorrespondenceAddress"
@@ -42,20 +43,23 @@ object EditedAddress {
   val addressType = "addressType"
   val expireAt = "expireAt"
 
-  implicit val writes: OWrites[EditedAddress] = (model: EditedAddress) =>
-    Json.obj(
+  implicit val writes = new OWrites[EditedAddress] {
+    def writes(model: EditedAddress): JsObject = Json.obj(
       addressType -> model.addressType,
-      expireAt    -> model.expireAt
+      expireAt -> model.expireAt
     )
+  }
 
-  implicit val reads: Reads[EditedAddress] = (json: JsValue) =>
-    for {
-      addressType <- (json \ addressType).validate[String]
-      expireAt    <- (json \ expireAt).validate[Instant]
-    } yield addressType match {
-      case `editResidentialAddress`    => EditResidentialAddress(expireAt)
-      case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
-    }
+  implicit val reads = new Reads[EditedAddress] {
+    override def reads(json: JsValue): JsResult[EditedAddress] =
+      for {
+        addressType <- (json \ addressType).validate[String]
+        expireAt    <- (json \ expireAt).validate[Instant]
+      } yield addressType match {
+        case `editResidentialAddress`    => EditResidentialAddress(expireAt)
+        case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
+      }
+  }
 }
 
 object AddressJourneyTTLModel {
