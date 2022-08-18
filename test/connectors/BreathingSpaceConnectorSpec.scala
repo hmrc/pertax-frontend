@@ -18,104 +18,71 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
-import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
-import play.api.http.Status._
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.Helpers.{BAD_GATEWAY, BAD_REQUEST, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
-import uk.gov.hmrc.domain.Nino
+import testUtils.WireMockHelper
+import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import testUtils.{BaseSpec, Fixtures, WireMockHelper}
 
-class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
+import scala.util.Random
 
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
-    .configure(
-      "microservice.services.breathing-space-if-proxy.port" -> server.port()
-    )
-    .build()
+class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
 
-  def sut: BreathingSpaceConnector = injected[BreathingSpaceConnector]
-  val nino: Nino = Fixtures.fakeNino
+  override implicit lazy val app: Application = app(
+    Map("microservice.services.breathing-space-if-proxy.port" -> server.port())
+  )
 
+  val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
   val url = s"/$nino/memorandum"
 
-  def verifyHeader(requestPattern: RequestPatternBuilder): Unit =
-    server.verify(
-      requestPattern
-        .withHeader(
-          "Correlation-Id",
-          matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
-        )
-    )
+  def connector: BreathingSpaceConnector = app.injector.instanceOf[BreathingSpaceConnector]
 
-  val breathingSpaceTrueResponse =
+  def verifyHeader(requestPattern: RequestPatternBuilder): Unit = server.verify(
+    requestPattern.withHeader(
+      "Correlation-Id",
+      matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
+    )
+  )
+
+  val breathingSpaceTrueResponse: String =
     s"""
        |{
        |    "breathingSpaceIndicator": true
        |}
-       |""".stripMargin
+    """.stripMargin
 
-  val breathingSpaceFalseResponse =
+  val breathingSpaceFalseResponse: String =
     s"""
        |{
        |    "breathingSpaceIndicator": false
        |}
-       |""".stripMargin
+    """.stripMargin
 
   "getBreathingSpaceIndicator is called" must {
-
     "return a true right response" in {
+      stubGet(url, OK, Some(breathingSpaceTrueResponse))
 
-      server.stubFor(
-        get(urlPathEqualTo(url))
-          .willReturn(ok(breathingSpaceTrueResponse))
-      )
-
-      sut
-        .getBreathingSpaceIndicator(nino)
-        .value
-        .futureValue
-        .right
-        .get mustBe true
-
+      val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
+      result mustBe a[Right[_, _]]
+      result.right.get mustBe true
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
     "return a false right response" in {
+      stubGet(url, OK, Some(breathingSpaceFalseResponse))
 
-      server.stubFor(
-        get(urlPathEqualTo(url))
-          .willReturn(ok(breathingSpaceFalseResponse))
-      )
-
-      sut
-        .getBreathingSpaceIndicator(nino)
-        .value
-        .futureValue
-        .right
-        .get mustBe false
-
+      val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
+      result mustBe a[Right[_, _]]
+      result.right.get mustBe false
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
     "return a BAD_GATEWAY for timeout response" in {
+      val delay: Int = 5000
+      stubWithDelay(url, OK, None, Some(breathingSpaceTrueResponse), delay)
 
-      server.stubFor(
-        get(urlPathEqualTo(url))
-          .willReturn(ok(breathingSpaceTrueResponse).withFixedDelay(5000))
-      )
-
-      val result = sut
-        .getBreathingSpaceIndicator(nino)
-        .value
-        .futureValue
-        .left
-        .get
-
-      result mustBe an[UpstreamErrorResponse]
-      result.statusCode mustBe BAD_GATEWAY
-
+      val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
+      result mustBe a[Left[_, _]]
+      result.left.get mustBe UpstreamErrorResponse(_: String, BAD_REQUEST)
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
@@ -130,25 +97,13 @@ class BreathingSpaceConnectorSpec extends BaseSpec with WireMockHelper with Inte
       UNPROCESSABLE_ENTITY
     ).foreach { httpResponse =>
       s"return a $httpResponse when $httpResponse status is received" in {
+        stubGet(url, httpResponse, None)
 
-        server.stubFor(
-          get(urlPathEqualTo(url))
-            .willReturn(aResponse.withStatus(httpResponse))
-        )
-
-        val result = sut
-          .getBreathingSpaceIndicator(nino)
-          .value
-          .futureValue
-          .left
-          .get
-
-        result mustBe an[UpstreamErrorResponse]
-        result.statusCode mustBe httpResponse
+        val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
+        result mustBe a[Left[_, _]]
+        result mustBe UpstreamErrorResponse(_: String, httpResponse)
         verifyHeader(getRequestedFor(urlEqualTo(url)))
       }
     }
-
   }
-
 }

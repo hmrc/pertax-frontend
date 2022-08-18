@@ -16,16 +16,19 @@
 
 package controllers.auth
 
+import controllers.address
 import controllers.auth.requests.AuthenticatedRequest
+import controllers.bindable.ResidentialAddrType
 import models.UserName
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
+import play.api.http.HeaderNames
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
-import play.api.test.FakeRequest
+import play.api.test.{FakeHeaders, FakeRequest}
 import play.api.test.Helpers.{redirectLocation, _}
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
@@ -49,8 +52,9 @@ class AuthActionSpec extends BaseSpec {
 
   val mockAuthConnector = mock[AuthConnector]
   def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
+  val enrolmentsHelper: EnrolmentsHelper = app.injector.instanceOf[EnrolmentsHelper]
   val sessionAuditor =
-    new SessionAuditorFake(app.injector.instanceOf[AuditConnector], app.injector.instanceOf[EnrolmentsHelper])
+    new SessionAuditorFake(app.injector.instanceOf[AuditConnector], enrolmentsHelper)
 
   class Harness(authAction: AuthAction) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -72,12 +76,17 @@ class AuthActionSpec extends BaseSpec {
   val fakeConfidenceLevel = ConfidenceLevel.L200
   val enrolmentHelper = injected[EnrolmentsHelper]
 
-  def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
+  def fakeEnrolments(utr: String) = Set(
+    Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
+    Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.toString)), "None", None)
+  )
 
   def retrievals(
     nino: Option[String] = Some(nino.toString),
     affinityGroup: Option[AffinityGroup] = Some(Individual),
-    saEnrolments: Enrolments = Enrolments(Set.empty),
+    saEnrolments: Enrolments = Enrolments(
+      Set(Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.toString)), "None", None))
+    ),
     credentialStrength: String = CredentialStrength.strong,
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
     trustedHelper: Option[TrustedHelper] = None,
@@ -91,7 +100,7 @@ class AuthActionSpec extends BaseSpec {
     )
 
     val authAction =
-      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
 
     new Harness(authAction)
   }
@@ -168,7 +177,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(IncorrectCredentialStrength()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -181,7 +190,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -192,7 +201,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
@@ -210,7 +219,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
 
@@ -236,7 +245,7 @@ class AuthActionSpec extends BaseSpec {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
-      val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeSaEnrolments(utr)))
+      val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeEnrolments(utr)))
 
       val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
@@ -249,7 +258,7 @@ class AuthActionSpec extends BaseSpec {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
-      val controller = retrievals(saEnrolments = Enrolments(fakeSaEnrolments(utr)))
+      val controller = retrievals(saEnrolments = Enrolments(fakeEnrolments(utr)))
 
       val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
@@ -280,6 +289,38 @@ class AuthActionSpec extends BaseSpec {
     val result = controller.onPageLoad(FakeRequest("", ""))
     status(result) mustBe OK
     contentAsString(result) must include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
+  }
+
+  "A user with a no SingleAccount enrolment should redirect" in {
+
+    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
+      Some(nino) ~
+        Some(Individual) ~
+        Enrolments(Set.empty) ~
+        Some(fakeCredentials) ~
+        Some(CredentialStrength.strong) ~
+        ConfidenceLevel.L200 ~
+        None ~
+        None ~
+        None
+    )
+
+    val authAction =
+      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentsHelper)
+
+    val controller = new Harness(authAction)
+
+    val result = controller.onPageLoad(
+      FakeRequest(
+        method = "GET",
+        uri = "https://example.com",
+        headers = FakeHeaders(Seq(HeaderNames.HOST -> "localhost")),
+        body = AnyContentAsEmpty
+      )
+    )
+
+    status(result) mustBe SEE_OTHER
+    redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=https%3A%2F%2Fexample.com")
   }
 
   "A user without a SCP Profile Url must continue to not have one" in {
