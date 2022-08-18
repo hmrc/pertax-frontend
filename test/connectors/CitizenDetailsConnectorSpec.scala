@@ -19,7 +19,7 @@ package connectors
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import models._
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -57,7 +57,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
       line5 = None,
       postcode = None,
       country = Some("AA1 1AA"),
-      startDate = Some(new LocalDate(2015, 3, 15)),
+      startDate = Some(LocalDate.of(2015, 3, 15)),
       endDate = None,
       `type` = Some("Residential"),
       isRls = false

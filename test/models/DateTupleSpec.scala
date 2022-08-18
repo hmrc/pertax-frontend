@@ -16,10 +16,10 @@
 
 package models
 
-import org.joda.time.{DateTime, LocalDate}
 import play.api.data.FormError
 import models.DateFields._
 import testUtils.BaseSpec
+import java.time.LocalDate
 
 class DateTupleSpec extends BaseSpec {
 
@@ -108,14 +108,14 @@ class DateTupleSpec extends BaseSpec {
       val dateFields = Map(day -> "1", month -> "2", year -> "2014")
       val result = mandatoryDateTuple(errorKey).bind(dateFields)
       result.isRight mustBe true
-      result.right.get mustBe (new LocalDate(2014, 2, 1))
+      result.right.get mustBe (LocalDate.of(2014, 2, 1))
     }
 
     "create a mapping for an invalid date (with space after month, day and year)" in {
       val dateFields = Map(day -> "1 ", month -> "2 ", year -> "2014 ")
       val result = mandatoryDateTuple(errorKey).bind(dateFields)
       result.isRight mustBe true
-      result.right.get mustBe (new LocalDate(2014, 2, 1))
+      result.right.get mustBe (LocalDate.of(2014, 2, 1))
     }
 
     "return error when all the fields are empty" in {

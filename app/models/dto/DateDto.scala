@@ -16,13 +16,12 @@
 
 package models.dto
 
-import org.joda.time.LocalDate
+import models.DateTuple._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import models.DateTuple._
-import play.api.libs.json.JodaWrites._
-import play.api.libs.json.JodaReads._
+
+import java.time.LocalDate
 
 case class DateDto(
   startDate: LocalDate
@@ -32,13 +31,13 @@ object DateDto {
 
   implicit val formats = Json.format[DateDto]
 
-  def build(day: Int, month: Int, year: Int) = DateDto(new LocalDate(year, month, day))
+  def build(day: Int, month: Int, year: Int) = DateDto(LocalDate.of(year, month, day))
 
   def form(today: LocalDate) = Form(
     mapping(
       "startDate" -> mandatoryDateTuple("error.enter_a_date")
         .verifying("error.date_in_future", !_.isAfter(today))
-        .verifying("error.enter_valid_date", !_.isBefore(new LocalDate("1000-01-01")))
+        .verifying("error.enter_valid_date", !_.isBefore(LocalDate.of(1000, 1, 1)))
     )(DateDto.apply)(DateDto.unapply)
   )
 }

@@ -16,9 +16,8 @@
 
 package controllers.controllershelpers
 
-import org.mockito.ArgumentMatchers.{any, eq => meq, _}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatest.concurrent.ScalaFutures
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.JsBoolean

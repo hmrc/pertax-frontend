@@ -17,7 +17,6 @@
 package connectors
 
 import cats.data.EitherT
-import cats.implicits.catsStdInstancesForFuture
 import com.codahale.metrics.Timer
 import com.google.inject.Inject
 import config.ConfigDecorator
@@ -79,7 +78,7 @@ class BreathingSpaceConnector @Inject() (
         timerContext.stop()
         throw error
     }
-    httpClientResponse.read(result, metricName)(hc).map(_.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
+    httpClientResponse.read(result, metricName).map(_.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
 
 }

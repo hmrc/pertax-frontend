@@ -1,20 +1,18 @@
 package address
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, getRequestedFor, ok, put, urlEqualTo, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => getStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => getStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
 
 import java.util.UUID
-import scala.collection.parallel.immutable.ParSeq
-import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 class PersonalDetailsControllerSpec extends IntegrationSpec {

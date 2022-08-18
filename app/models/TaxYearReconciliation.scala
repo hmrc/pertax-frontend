@@ -18,10 +18,9 @@ package models
 
 import config.ConfigDecorator
 import models.SaDeadlineStatusCalculator._
-import org.joda.time.LocalDate
 import play.api.libs.json._
-import play.api.libs.json.JodaWrites._
-import play.api.libs.json.JodaReads._
+
+import java.time.LocalDate
 
 case class TaxYearReconciliation(taxYear: Int, reconciliation: Reconciliation)
 
