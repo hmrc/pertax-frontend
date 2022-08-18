@@ -17,10 +17,13 @@
 package modules
 
 import com.google.inject.AbstractModule
+import repositories.DropCollection
 import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.SessionCache
 
 class LocalGuiceModule extends AbstractModule {
-  override def configure() =
+  override def configure() = {
     bind(classOf[SessionCache]).to(classOf[LocalSessionCache])
+    bind(classOf[DropCollection]).asEagerSingleton()
+  }
 }

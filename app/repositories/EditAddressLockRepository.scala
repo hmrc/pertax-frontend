@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.bindable.AddrType
 import models._
-import org.mongodb.scala.MongoException
+import org.mongodb.scala.{MongoException, SingleObservable}
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import org.mongodb.scala.result.InsertOneResult
@@ -103,6 +103,10 @@ class EditAddressLockRepository @Inject() (
         editAddressLockRepository.exists(_.editedAddress.isInstanceOf[EditCorrespondenceAddress])
       AddressesLock(residentialLock, postalLock)
     }
+
+  def dropCollection(): SingleObservable[Void] =
+    collection
+      .drop()
 }
 
 object EditAddressLockRepository {
