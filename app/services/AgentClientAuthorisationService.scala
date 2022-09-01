@@ -20,6 +20,7 @@ import cats.implicits._
 import com.google.inject.Inject
 import connectors.AgentClientAuthorisationConnector
 import models.AgentClientStatus
+import play.api.Logging
 import play.api.mvc.Request
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -30,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AgentClientAuthorisationService @Inject() (
   servicesConfig: ServicesConfig,
   agentClientAuthorisationConnector: AgentClientAuthorisationConnector
-) {
+) extends Logging {
 
   lazy private val agentClientAuthorisationEnabled =
     servicesConfig.getBoolean("feature.agent-client-authorisation.enabled")
@@ -47,7 +48,9 @@ class AgentClientAuthorisationService @Inject() (
         )
         .merge
         .recover {
-          case FutureEarlyTimeout   => false
+          case FutureEarlyTimeout =>
+            logger.error(FutureEarlyTimeout.getMessage)
+            false
           case RateLimitedException => false
         }
     } else {
