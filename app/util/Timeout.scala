@@ -30,8 +30,6 @@ trait Timeout extends Logging {
   def withTimeout[A](timeoutDuration: FiniteDuration)(block: => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     val delayedFuture =
       akka.pattern.after(timeoutDuration, system.scheduler) {
-        val exception = new RuntimeException(s"Future took longer than ${timeoutDuration.toSeconds}s")
-        logger.error(exception.getMessage + "\n" + exception.getStackTrace.mkString("\n"))
         Future.failed(FutureEarlyTimeout)
       }
 
