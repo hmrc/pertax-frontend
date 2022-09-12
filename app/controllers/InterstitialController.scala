@@ -122,7 +122,7 @@ class InterstitialController @Inject() (
   }
 
   def displaySelfAssessment: Action[AnyContent] = authenticate.async { implicit request =>
-    if (request.isSaUserLoggedIntoCorrectAccount && request.isGovernmentGateway) {
+    if (request.isSaUserLoggedIntoCorrectAccount) {
       val formPartial = formPartialService.getSelfAssessmentPartial recoverWith { case _ =>
         Future.successful(HtmlPartial.Failure(None, ""))
       }

@@ -43,8 +43,6 @@ final case class UserRequest[+A](
     case _                   => retrievedName.map(_.toString)
   }
 
-  def isGovernmentGateway: Boolean = credentials.providerType == "GovernmentGateway"
-
   def isSa: Boolean = saUserType != NonFilerSelfAssessmentUser
 
   def isSaUserLoggedIntoCorrectAccount: Boolean = saUserType match {
