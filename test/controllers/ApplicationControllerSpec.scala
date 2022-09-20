@@ -326,25 +326,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     }
 
-    "redirect to verify sign-out link with correct continue url when signed in with verify, with no continue URL and but an origin" in new LocalSetup {
-
-      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
-            )
-          )
-      })
-
-      val result = controller.signout(None, Some(Origin("PERTAX")))(FakeRequest())
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("http://localhost:9949/ida/signout")
-      session(result).get("postLogoutPage") mustBe Some("http://localhost:9514/feedback/PERTAX")
-    }
-
     "return 'Bad Request' when signed in with verify and supplied no continue URL and no origin" in new LocalSetup {
 
       when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
@@ -376,11 +357,14 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result = controller.signout(Some(RedirectUrl("http://example.com&origin=PERTAX")), None)(FakeRequest())
+      val sentLocation = "http://example.com&origin=PERTAX"
+      val result = controller.signout(Some(RedirectUrl(sentLocation)), None)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(config.citizenAuthFrontendSignOut)
-      session(result).get("postLogoutPage") mustBe Some("http://localhost:9514/feedback/PERTAX")
+      redirectLocation(result) mustBe Some(
+        config.getBasGatewayFrontendSignOutUrl("http://localhost:9514/feedback/PERTAX")
+      )
+      session(result).get("postLogoutPage") mustBe None
     }
   }
 
