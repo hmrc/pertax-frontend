@@ -52,7 +52,6 @@ class EnhancedPartialRetriever @Inject() (
     } recover { case e =>
       timerContext.stop()
       metrics.incrementFailedCounter(MetricsEnumeration.LOAD_PARTIAL)
-      logger.error(s"Failed to load partial from $url", e)
       e match {
         case ex: HttpException =>
           HtmlPartial.Failure(Some(ex.responseCode))
