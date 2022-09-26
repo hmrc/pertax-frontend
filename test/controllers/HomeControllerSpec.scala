@@ -132,7 +132,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(
       mockConfigDecorator.getBasGatewayFrontendSignOutUrl("/feedback/PERTAX")
     ) thenReturn "/bas-gateway/sign-out-without-state?continue=/feedback/PERTAX"
-    when(mockConfigDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
     when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
     when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
     when(

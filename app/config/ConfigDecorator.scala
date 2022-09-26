@@ -227,9 +227,6 @@ class ConfigDecorator @Inject() (
   lazy val pertaxFrontendBackLink = runModeConfiguration
     .get[String]("external-url.pertax-frontend.host") + routes.HomeController.index.url
 
-  // Links to sign out
-  lazy val citizenAuthFrontendSignOut = citizenAuthHost + "/ida/signout"
-
   lazy val welshLangEnabled = langs.availables.exists(l => l.code == "cy")
   lazy val taxCreditsEnabled =
     runModeConfiguration.getOptional[String]("feature.tax-credits.enabled").getOrElse("true").toBoolean
