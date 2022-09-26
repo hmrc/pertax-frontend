@@ -10,7 +10,7 @@ import play.api.http.Status.{OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{BAD_GATEWAY, BAD_REQUEST, GET, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => getStatus}
+import play.api.test.Helpers.{BAD_GATEWAY, BAD_REQUEST, GET, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => getStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -55,7 +55,7 @@ class testSpec extends IntegrationSpec with AccessibilityMatchers {
        |""".stripMargin
 
   "personal-account" must {
-    "show BreathingSpaceIndicator when receive true response from BreathingSpaceIfProxy" in {
+    "pass accessibility validation" in {
 
       server.stubFor(put(urlMatching(s"/keystore/pertax-frontend/.*"))
         .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString)))
@@ -65,6 +65,7 @@ class testSpec extends IntegrationSpec with AccessibilityMatchers {
       )
 
       val result: Future[Result] = route(app, request).get
+      getStatus(result) mustBe OK
       contentAsString(result) must passAccessibilityChecks
     }
   }
