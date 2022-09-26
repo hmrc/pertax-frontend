@@ -14,6 +14,7 @@ import play.api.test.Helpers.{BAD_GATEWAY, BAD_REQUEST, GET, IM_A_TEAPOT, INTERN
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.scalatestaccessibilitylinter.domain.OutputFormat
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -66,7 +67,8 @@ class testSpec extends IntegrationSpec with AccessibilityMatchers {
 
       val result: Future[Result] = route(app, request).get
       getStatus(result) mustBe OK
-      contentAsString(result) must passAccessibilityChecks
+      println(contentAsString(result))
+      contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)
     }
   }
 }
