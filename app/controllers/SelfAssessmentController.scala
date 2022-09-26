@@ -54,18 +54,14 @@ class SelfAssessmentController @Inject() (
   def handleSelfAssessment: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)) {
       implicit request =>
-        if (request.isGovernmentGateway) {
-          request.saUserType match {
-            case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-              Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
-            case WrongCredentialsSelfAssessmentUser(_) =>
-              Redirect(routes.SaWrongCredentialsController.landingPage)
-            case NotEnrolledSelfAssessmentUser(_) =>
-              Redirect(routes.SelfAssessmentController.requestAccess)
-            case _ => Redirect(routes.HomeController.index)
-          }
-        } else {
-          errorRenderer.error(INTERNAL_SERVER_ERROR)
+        request.saUserType match {
+          case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
+            Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
+          case WrongCredentialsSelfAssessmentUser(_) =>
+            Redirect(routes.SaWrongCredentialsController.landingPage)
+          case NotEnrolledSelfAssessmentUser(_) =>
+            Redirect(routes.SelfAssessmentController.requestAccess)
+          case _ => Redirect(routes.HomeController.index)
         }
     }
 

@@ -74,11 +74,7 @@ class PreferencesFrontendService @Inject() (
         }
       }
 
-    if (request.isGovernmentGateway) {
-      activatePaperless
-    } else {
-      Future.successful(ActivatePaperlessNotAllowedResponse)
-    }
+    activatePaperless
   }
 
 }
