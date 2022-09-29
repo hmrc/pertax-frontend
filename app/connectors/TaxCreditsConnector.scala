@@ -58,7 +58,6 @@ class TaxCreditsConnector @Inject() (
               Left(UpstreamErrorResponse(error.message, error.statusCode))
             case Left(error) =>
               timer.completeTimerAndIncrementFailedCounter()
-              logger.error(error.message, error)
               Left(UpstreamErrorResponse(error.message, error.statusCode))
           }
           .recover { case exception: HttpException =>
