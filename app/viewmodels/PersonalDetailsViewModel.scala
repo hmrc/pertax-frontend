@@ -23,13 +23,9 @@ import controllers.controllershelpers.CountryHelper
 import models._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
-import util.RichOption.CondOpt
 import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
-
-import scala.concurrent.ExecutionContext
 
 @Singleton
 class PersonalDetailsViewModel @Inject() (
@@ -172,7 +168,6 @@ class PersonalDetailsViewModel @Inject() (
   }
 
   def getTrustedHelpersRow(implicit
-    request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
     Some(
@@ -187,7 +182,6 @@ class PersonalDetailsViewModel @Inject() (
     )
 
   def getManageTaxAgentsRow(implicit
-    request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
     Some(
@@ -202,24 +196,25 @@ class PersonalDetailsViewModel @Inject() (
     )
 
   def getPaperlessSettingsRow(implicit
-    request: UserRequest[_],
-    messages: play.api.i18n.Messages
+    request: UserRequest[_]
   ): Option[PersonalDetailsTableRowModel] =
-    PersonalDetailsTableRowModel(
-      "paperless",
-      "label.paperless_settings",
-      HtmlFormat.raw(""),
-      "label.change",
-      "label.your_paperless_settings",
-      Some(controllers.routes.PaperlessPreferencesController.managePreferences.url),
-      displayChangelink = request.trustedHelper.isEmpty
-    ) onlyIf request.isGovernmentGateway
+    Some(
+      PersonalDetailsTableRowModel(
+        "paperless",
+        "label.paperless_settings",
+        HtmlFormat.raw(""),
+        "label.change",
+        "label.your_paperless_settings",
+        Some(controllers.routes.PaperlessPreferencesController.managePreferences.url),
+        displayChangelink = request.trustedHelper.isEmpty
+      )
+    )
 
   def getSignInDetailsRow(implicit
     request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
-    request.profile.flatMap { profileUrl =>
+    request.profile.map { profileUrl =>
       PersonalDetailsTableRowModel(
         "sign_in_details",
         "label.sign_in_details",
@@ -228,6 +223,6 @@ class PersonalDetailsViewModel @Inject() (
         "label.your_gg_details",
         Some(profileUrl),
         displayChangelink = request.trustedHelper.isEmpty
-      ) onlyIf request.isGovernmentGateway
+      )
     }
 }

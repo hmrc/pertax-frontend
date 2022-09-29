@@ -18,9 +18,9 @@ package controllers.auth.requests
 
 import models._
 import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.domain.Nino
 
 final case class UserRequest[+A](
@@ -42,10 +42,6 @@ final case class UserRequest[+A](
     case Some(personDetails) => personDetails.person.shortName
     case _                   => retrievedName.map(_.toString)
   }
-
-  def isGovernmentGateway: Boolean = credentials.providerType == "GovernmentGateway"
-
-  def isVerify: Boolean = credentials.providerType == "Verify"
 
   def isSa: Boolean = saUserType != NonFilerSelfAssessmentUser
 

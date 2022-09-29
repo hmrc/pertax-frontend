@@ -16,12 +16,10 @@
 
 package controllers
 
-import config.ConfigDecorator
 import connectors.PayApiConnector
 import controllers.auth._
 import error.ErrorRenderer
 import models._
-import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -33,17 +31,17 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
 import services.SelfAssessmentService
 import testUtils.BaseSpec
+import testUtils.Fixtures.buildFakeRequestWithAuth
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.time.CurrentTaxYear
-import testUtils.Fixtures.buildFakeRequestWithAuth
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
-
-import scala.concurrent.{ExecutionContext, Future}
+import java.time.LocalDate
+import scala.concurrent.Future
 
 class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
-  override def now: () => DateTime = DateTime.now
+  override def now: () => LocalDate = LocalDate.now
 
   val mockAuditConnector = mock[AuditConnector]
   val mockAuthAction = mock[AuthAction]

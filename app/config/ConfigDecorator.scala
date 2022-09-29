@@ -18,14 +18,14 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import controllers.routes
-import org.joda.time.LocalDate
-import play.api.{Configuration, Play}
+import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.{URL, URLEncoder}
+import java.time.LocalDate
 
 @Singleton
 class ConfigDecorator @Inject() (
@@ -39,7 +39,6 @@ class ConfigDecorator @Inject() (
 
   val authProviderKey = "AuthProvider"
   val authProviderGG = "GovernmentGateway"
-  val authProviderVerify = "Verify"
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
@@ -75,6 +74,7 @@ class ConfigDecorator @Inject() (
   lazy val identityVerificationHost = getExternalUrl(s"identity-verification.host").getOrElse("")
   lazy val identityVerificationPrefix = getExternalUrl(s"identity-verification.prefix").getOrElse("mdtp")
   lazy val basGatewayFrontendHost = getExternalUrl(s"bas-gateway-frontend.host").getOrElse("")
+  lazy val taxEnrolmentAssignmentFrontendHost = getExternalUrl(s"tax-enrolment-assignment-frontend.host").getOrElse("")
   lazy val pertaxFrontendHost = getExternalUrl(s"pertax-frontend.host").getOrElse("")
   lazy val pertaxFrontendForAuthHost = getExternalUrl(s"pertax-frontend.auth-host").getOrElse("")
   lazy val feedbackSurveyFrontendHost = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
@@ -181,6 +181,9 @@ class ConfigDecorator @Inject() (
     if (lang.code equals "en") { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax" }
     else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
+  def taxEnrolmentDeniedRedirect(url: String): String =
+    s"$taxEnrolmentAssignmentFrontendHost/protect-tax-info?redirectUrl=${SafeRedirectUrl(url).encodedUrl}"
+
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
   lazy val selfAssessmentFormPartialLinkUrl =
@@ -224,9 +227,6 @@ class ConfigDecorator @Inject() (
   lazy val pertaxFrontendBackLink = runModeConfiguration
     .get[String]("external-url.pertax-frontend.host") + routes.HomeController.index.url
 
-  // Links to sign out
-  lazy val citizenAuthFrontendSignOut = citizenAuthHost + "/ida/signout"
-
   lazy val welshLangEnabled = langs.availables.exists(l => l.code == "cy")
   lazy val taxCreditsEnabled =
     runModeConfiguration.getOptional[String]("feature.tax-credits.enabled").getOrElse("true").toBoolean
@@ -237,6 +237,8 @@ class ConfigDecorator @Inject() (
   lazy val ltaEnabled = runModeConfiguration.getOptional[String]("feature.lta.enabled").getOrElse("true").toBoolean
   lazy val allowSaPreview =
     runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
+  lazy val singleAccountEnrolmentFeature =
+    runModeConfiguration.getOptional[String]("feature.single-account-enrolment.enabled").getOrElse("false").toBoolean
 
   lazy val taxcalcEnabled =
     runModeConfiguration.getOptional[String]("feature.taxcalc.enabled").getOrElse("true").toBoolean

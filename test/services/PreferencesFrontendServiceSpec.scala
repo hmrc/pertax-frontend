@@ -103,8 +103,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = NonFilerSelfAssessmentUser,
-          credentials = Credentials("", "Verify"),
-          confidenceLevel = ConfidenceLevel.L500,
+          credentials = Credentials("", "GovernmentGateway"),
+          confidenceLevel = ConfidenceLevel.L200,
           request = FakeRequest()
         )
 
@@ -120,8 +120,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = NonFilerSelfAssessmentUser,
-          credentials = Credentials("", "Verify"),
-          confidenceLevel = ConfidenceLevel.L500,
+          credentials = Credentials("", "GovernmentGateway"),
+          confidenceLevel = ConfidenceLevel.L200,
           request = FakeRequest()
         )
 
@@ -147,8 +147,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = NonFilerSelfAssessmentUser,
-          credentials = Credentials("", "Verify"),
-          confidenceLevel = ConfidenceLevel.L500,
+          credentials = Credentials("", "GovernmentGateway"),
+          confidenceLevel = ConfidenceLevel.L200,
           request = FakeRequest()
         )
 
@@ -206,8 +206,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = NonFilerSelfAssessmentUser,
-          credentials = Credentials("", "Verify"),
-          confidenceLevel = ConfidenceLevel.L500,
+          credentials = Credentials("", "GovernmentGateway"),
+          confidenceLevel = ConfidenceLevel.L200,
           request = FakeRequest()
         )
 

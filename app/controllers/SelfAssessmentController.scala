@@ -22,7 +22,6 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import org.joda.time.DateTime
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SelfAssessmentService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -34,6 +33,7 @@ import util.DateTimeTools
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentController @Inject() (
@@ -49,23 +49,19 @@ class SelfAssessmentController @Inject() (
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) with CurrentTaxYear {
 
-  override def now: () => DateTime = () => DateTime.now()
+  override def now: () => LocalDate = () => LocalDate.now()
 
   def handleSelfAssessment: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)) {
       implicit request =>
-        if (request.isGovernmentGateway) {
-          request.saUserType match {
-            case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-              Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
-            case WrongCredentialsSelfAssessmentUser(_) =>
-              Redirect(routes.SaWrongCredentialsController.landingPage)
-            case NotEnrolledSelfAssessmentUser(_) =>
-              Redirect(routes.SelfAssessmentController.requestAccess)
-            case _ => Redirect(routes.HomeController.index)
-          }
-        } else {
-          errorRenderer.error(INTERNAL_SERVER_ERROR)
+        request.saUserType match {
+          case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
+            Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
+          case WrongCredentialsSelfAssessmentUser(_) =>
+            Redirect(routes.SaWrongCredentialsController.landingPage)
+          case NotEnrolledSelfAssessmentUser(_) =>
+            Redirect(routes.SelfAssessmentController.requestAccess)
+          case _ => Redirect(routes.HomeController.index)
         }
     }
 

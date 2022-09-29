@@ -16,56 +16,55 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
 import models.AgentClientStatus
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import testUtils.BaseSpec
-import com.github.tomakehurst.wiremock.client.WireMock._
-import testUtils.{BaseSpec, WireMockHelper}
+import testUtils.WireMockHelper
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
-class DefaultAgentClientAuthorisationConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
-    .configure(
+class DefaultAgentClientAuthorisationConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience {
+
+  override implicit lazy val app: Application = app(
+    Map(
       "microservice.services.agent-client-authorisation.port" -> server.port(),
       "feature.agent-client-authorisation.maxTps"             -> 100,
       "feature.agent-client-authorisation.cache"              -> true,
       "feature.agent-client-authorisation.enabled"            -> true,
       "feature.agent-client-authorisation.timeoutInSec"       -> 1
     )
-    .build()
+  )
 
-  def sut: DefaultAgentClientAuthorisationConnector = injected[DefaultAgentClientAuthorisationConnector]
+  def connector: DefaultAgentClientAuthorisationConnector =
+    app.injector.instanceOf[DefaultAgentClientAuthorisationConnector]
 
   val url = "/agent-client-authorisation/status"
 
-  implicit val userRequest = FakeRequest()
+  implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
   "Calling DefaultAgentClientAuthorisationConnector.getAgentClientStatus" must {
     "return a Right AgentClientStatus object" in {
-      val expected = AgentClientStatus(true, true, true)
-      val response = Json.toJson(expected).toString
-
-      server.stubFor(
-        get(urlEqualTo(url)).willReturn(ok(response))
+      val expected = AgentClientStatus(
+        hasPendingInvitations = true,
+        hasInvitationsHistory = true,
+        hasExistingRelationships = true
       )
 
-      val result = sut.getAgentClientStatus.value.futureValue
+      val response = Json.toJson(expected).toString
+
+      stubGet(url, OK, Some(response))
+      val result = connector.getAgentClientStatus.value.futureValue
 
       result mustBe Right(expected)
     }
 
     "return a Left UpstreamErrorResponse object" in {
-      server.stubFor(
-        get(urlEqualTo(url)).willReturn(serverError)
-      )
+      stubGet(url, INTERNAL_SERVER_ERROR, None)
+      val result = connector.getAgentClientStatus.value.futureValue
 
-      val result = sut.getAgentClientStatus.value.futureValue
-
+      result mustBe a[Left[_, _]]
       result.left.get mustBe a[UpstreamErrorResponse]
     }
   }

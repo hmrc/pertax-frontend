@@ -67,22 +67,5 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
       val redirectUrl = redirectLocation(r).getValue
       redirectUrl must include regex s"${config.preferencesFrontendService}/paperless/check-settings\\?returnUrl=.*\\&returnLinkText=.*"
     }
-
-    "Return 400 for Verify users" in {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
-            )
-          )
-      })
-
-      val r = controller.managePreferences(FakeRequest())
-      status(r) mustBe BAD_REQUEST
-    }
   }
 }

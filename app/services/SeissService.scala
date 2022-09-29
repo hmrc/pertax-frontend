@@ -16,6 +16,7 @@
 
 package services
 
+import cats.implicits._
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.SeissConnector
@@ -23,7 +24,6 @@ import models.{SelfAssessmentUser, SelfAssessmentUserType}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-import cats.implicits._
 
 class SeissService @Inject() (seissConnector: SeissConnector, appConfig: ConfigDecorator)(implicit
   ec: ExecutionContext

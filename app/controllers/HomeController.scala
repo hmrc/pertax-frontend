@@ -18,12 +18,11 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
-import org.joda.time.DateTime
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
@@ -33,6 +32,7 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import viewmodels.HomeViewModel
 import views.html.HomeView
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
@@ -50,7 +50,7 @@ class HomeController @Inject() (
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with CurrentTaxYear {
 
-  override def now: () => DateTime = () => DateTime.now()
+  override def now: () => LocalDate = () => LocalDate.now()
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails

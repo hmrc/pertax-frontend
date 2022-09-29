@@ -16,7 +16,7 @@
 
 package util
 
-import models.{Activated, EnrolmentStatus, ItsaEnrolment, ItsaEnrolmentEnrolled, NotYetActivated, SelfAssessmentEnrolment}
+import models._
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.SaUtr
@@ -49,4 +49,13 @@ class EnrolmentsHelper {
           .find(id => id.key == "UTR")
           .map(key => SelfAssessmentEnrolment(SaUtr(key.value), fromString(enrolment.state)))
       }
+
+  def singleAccountEnrolmentPresent(enrolments: Set[Enrolment]): Boolean =
+    enrolments
+      .find(_.key == "HMRC-PT")
+      .flatMap { enrolment =>
+        enrolment.identifiers
+          .find(id => id.key == "NINO")
+      }
+      .nonEmpty
 }

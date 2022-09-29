@@ -1,15 +1,13 @@
 package testUtils
 
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.Generator
-import scala.concurrent.ExecutionContext
 
 trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with Matchers {
 
@@ -40,7 +38,17 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
        |        "ggCredId": "xyz"
        |    },
        |    "externalId": "testExternalId",
-       |    "allEnrolments": [],
+       |    "allEnrolments": [
+       |       {
+       |          "key":"HMRC-PT",
+       |          "identifiers": [
+       |             {
+       |                "key":"NINO",
+       |                "value": "$generatedNino"
+       |             }
+       |          ]
+       |       }
+       |    ],
        |    "affinityGroup": "Individual",
        |    "credentialStrength": "strong"
        |}

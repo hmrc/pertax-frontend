@@ -30,8 +30,9 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import util.EnrolmentsHelper
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,7 +40,8 @@ class AuthActionImpl @Inject() (
   val authConnector: AuthConnector,
   configDecorator: ConfigDecorator,
   sessionAuditor: SessionAuditor,
-  cc: ControllerComponents
+  cc: ControllerComponents,
+  enrolmentsHelper: EnrolmentsHelper
 )(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
@@ -92,7 +94,9 @@ class AuthActionImpl @Inject() (
         case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
-        case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GTOE200(
+        case nino ~ affinityGroup ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(
+              CredentialStrength.strong
+            ) ~ GTOE200(
               confidenceLevel
             ) ~ name ~ trustedHelper ~ profile =>
           val trimmedRequest: Request[A] = request
@@ -117,13 +121,18 @@ class AuthActionImpl @Inject() (
             trustedHelper,
             addRedirect(profile),
             enrolments,
-            trimmedRequest
+            trimmedRequest,
+            affinityGroup
           )
 
           for {
             result        <- block(authenticatedRequest)
             updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
-          } yield updatedResult
+          } yield
+            if (configDecorator.singleAccountEnrolmentFeature) {
+              if (enrolmentsHelper.singleAccountEnrolmentPresent(enrolments)) updatedResult
+              else Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri))
+            } else updatedResult
 
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
@@ -135,12 +144,6 @@ class AuthActionImpl @Inject() (
           .url
 
       request.session.get(configDecorator.authProviderKey) match {
-        case Some(configDecorator.authProviderVerify) =>
-          lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/ida/login"
-          Redirect(idaSignIn).withSession(
-            "loginOrigin"    -> configDecorator.defaultOrigin.origin,
-            "login_redirect" -> postSignInRedirectUrl(request)
-          )
         case Some(configDecorator.authProviderGG) =>
           lazy val ggSignIn = s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"
           Redirect(

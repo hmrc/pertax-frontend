@@ -19,15 +19,14 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.address
-import controllers.auth.requests.UserRequest
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.addresslookup.RecordSet
 import models.dto.{AddressDto, AddressSelectorDto, DateDto}
 import models.{SelectedAddressRecordId, SubmittedAddressDtoId, SubmittedStartDateId}
-import org.joda.time.LocalDate
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.AddressSelectorService
@@ -35,6 +34,7 @@ import util.PertaxSessionKeys.{filter, postcode}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.AddressSelectorView
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class AddressSelectorController @Inject() (

@@ -17,16 +17,12 @@
 package controllers
 
 import com.google.inject.Inject
-import config.ConfigDecorator
 import connectors.CitizenDetailsConnector
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import error.LocalErrorHandler
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services._
 import services.partials.MessageFrontendService
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import scala.concurrent.ExecutionContext
 
@@ -37,7 +33,7 @@ class UserResearchDismissalController @Inject() (
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+)(implicit ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>

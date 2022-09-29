@@ -19,15 +19,14 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.CitizenDetailsConnector
-import controllers.auth.requests.UserRequest
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.{ErrorRenderer, GenericErrors}
 import models.dto.AddressDto
 import models.{AddressJourneyData, ETag}
-import org.joda.time.LocalDate
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
@@ -38,6 +37,7 @@ import util.AuditServiceTools.buildEvent
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class AddressSubmissionController @Inject() (

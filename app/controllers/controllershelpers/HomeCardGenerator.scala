@@ -92,7 +92,7 @@ class HomeCardGenerator @Inject() (
     request: UserRequest[AnyContent],
     messages: Messages
   ): Option[HtmlFormat.Appendable] =
-    if (!request.isVerify && !configDecorator.saItsaTileEnabled) {
+    if (!configDecorator.saItsaTileEnabled) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
         case saWithActionNeeded =>
@@ -152,7 +152,7 @@ class HomeCardGenerator @Inject() (
 
   def getBenefitCards(
     taxComponents: Option[TaxComponents]
-  )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
+  )(implicit messages: Messages): Seq[Html] =
     List(
       getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
       getChildBenefitCard(),

@@ -16,6 +16,7 @@
 
 package controllers.auth
 
+import controllers.auth.UserSessionAuditEvent.writes
 import controllers.auth.requests.AuthenticatedRequest
 import org.hamcrest.CustomMatcher
 import org.mockito.ArgumentMatchers.any
@@ -23,7 +24,7 @@ import org.mockito.Mockito._
 import org.mockito.hamcrest.MockitoHamcrest.argThat
 import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -37,23 +38,22 @@ import scala.concurrent.Future
 
 class SessionAuditorSpec extends BaseSpec with AuditTags {
 
+  val auditConnector: AuditConnector = mock[AuditConnector]
+  val enrolmentsHelper: EnrolmentsHelper = injected[EnrolmentsHelper]
+  val sessionAuditor = new SessionAuditor(auditConnector, enrolmentsHelper)
+  val testRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(auditConnector)
   }
-
-  val auditConnector = mock[AuditConnector]
-  val enrolmentsHelper = injected[EnrolmentsHelper]
-  val sessionAuditor = new SessionAuditor(auditConnector, enrolmentsHelper)
 
   def originalResult[A]: Result = Ok
 
   def mockSendExtendedEvent(result: Future[AuditResult]): Unit =
     when(auditConnector.sendExtendedEvent(any())(any(), any())).thenReturn(result)
 
-  val testRequest = FakeRequest()
-
-  def authenticatedRequest[A](request: Request[A]) = AuthenticatedRequest[A](
+  def authenticatedRequest[A](request: Request[A]): AuthenticatedRequest[A] = AuthenticatedRequest[A](
     Some(Fixtures.fakeNino),
     Credentials("foo", "bar"),
     ConfidenceLevel.L200,
@@ -61,11 +61,12 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
     None,
     None,
     Set.empty,
-    request
+    request,
+    None
   )
 
   def eqExtendedDataEvent[A](authenticatedRequest: AuthenticatedRequest[A]): ExtendedDataEvent = {
-    val detailsJson = Json.toJson(sessionAuditor.userSessionAuditEventFromRequest(authenticatedRequest))
+    val detailsJson = Json.toJson(writes(sessionAuditor.userSessionAuditEventFromRequest(authenticatedRequest)))
     val tags = buildTags(authenticatedRequest)
     argThat[ExtendedDataEvent](new CustomMatcher[ExtendedDataEvent]("eq expected ExtendedDataEvent") {
       override def matches(o: Any): Boolean = o match {

@@ -21,12 +21,13 @@ import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
-import org.joda.time.LocalDate
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.BadRequestException
 import views.html.print._
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.concurrent.{ExecutionContext, Future}
 import scala.io.Source
 
@@ -50,7 +51,7 @@ class NiLetterController @Inject() (
             Ok(
               printNiNumberView(
                 request.personDetails.get,
-                LocalDate.now.toString("MM/YY"),
+                LocalDate.now.format(DateTimeFormatter.ofPattern("MM/YY")),
                 configDecorator.saveNiLetterAsPdfLinkEnabled,
                 request.nino
               )
@@ -71,7 +72,11 @@ class NiLetterController @Inject() (
               .mkString
 
             val niLetter =
-              niLetterView(request.personDetails.get, LocalDate.now.toString("MM/YY"), request.nino).toString()
+              niLetterView(
+                request.personDetails.get,
+                LocalDate.now.format(DateTimeFormatter.ofPattern("MM/YY")),
+                request.nino
+              ).toString()
             val htmlPayload = pdfWrapperView()
               .toString()
               .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss")

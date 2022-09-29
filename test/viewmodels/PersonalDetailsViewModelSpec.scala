@@ -20,7 +20,6 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
-import org.joda.time.LocalDate
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -30,7 +29,7 @@ import views.html.ViewSpec
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
-import java.time.Instant
+import java.time.{Instant, LocalDate}
 import scala.util.Random
 
 class PersonalDetailsViewModelSpec extends ViewSpec {
@@ -86,7 +85,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     None,
     Some("AA1 1AA"),
     None,
-    Some(new LocalDate(2015, 3, 15)),
+    Some(LocalDate.of(2015, 3, 15)),
     None,
     Some("Residential"),
     false
@@ -97,23 +96,10 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
   "getSignInDetailsRow" must {
     "return None" when {
-      "user is not GG and profile URL is defined" in {
-        val request = userRequest.copy(credentials = Credentials("", "Verify"), profile = Some("example.com"))
-        val actual = personalDetailsViewModel.getSignInDetailsRow(request, messages)
-        actual mustBe None
-      }
-
       "user is GG and profile URL is not defined" in {
         val actual = personalDetailsViewModel.getSignInDetailsRow(userRequest, messages)
         actual mustBe None
       }
-
-      "user is not GG and profile URL is not defined" in {
-        val request = userRequest.copy(credentials = Credentials("", "Verify"))
-        val actual = personalDetailsViewModel.getSignInDetailsRow(request, messages)
-        actual mustBe None
-      }
-
     }
 
     "return PersonalDetailsTableRowModel" when {
@@ -137,37 +123,27 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   }
 
   "getPaperlessSettingsRow" must {
-    "return None" when {
-      "user is not gg" in {
-        val request = userRequest.copy(credentials = Credentials("", "Verify"))
-        val actual = personalDetailsViewModel.getPaperlessSettingsRow(request, messages)
-        actual mustBe None
-      }
-    }
-
-    "return PersonalDetailsTableRowModel" when {
-      "user is gg" in {
-        val expected = Some(
-          PersonalDetailsTableRowModel(
-            "paperless",
-            "label.paperless_settings",
-            HtmlFormat.raw(""),
-            "label.change",
-            "label.your_paperless_settings",
-            Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
-          )
+    "return PersonalDetailsTableRowModel" in {
+      val expected = Some(
+        PersonalDetailsTableRowModel(
+          "paperless",
+          "label.paperless_settings",
+          HtmlFormat.raw(""),
+          "label.change",
+          "label.your_paperless_settings",
+          Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
         )
+      )
 
-        val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages)
-        actual mustBe expected
-      }
+      val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest)
+      actual mustBe expected
     }
   }
 
   "getTrustedHelpersRow" must {
     "return None" when {
       "user is not verify" in {
-        val actual = personalDetailsViewModel.getTrustedHelpersRow(userRequest, messages)
+        val actual = personalDetailsViewModel.getTrustedHelpersRow(messages)
         val expected = Some(
           PersonalDetailsTableRowModel(
             "trusted_helpers",
@@ -184,8 +160,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "return PersonalDetailsTableRowModel" when {
       "user is verify" in {
-        val request = userRequest.copy(credentials = Credentials("", "Verify"))
-        val actual = personalDetailsViewModel.getTrustedHelpersRow(request, messages)
+        val actual = personalDetailsViewModel.getTrustedHelpersRow(messages)
         val expected = Some(
           PersonalDetailsTableRowModel(
             "trusted_helpers",

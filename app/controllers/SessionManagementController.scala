@@ -15,9 +15,10 @@
  */
 
 package controllers
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+
 import com.google.inject.Inject
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 class SessionManagementController @Inject() (mcc: MessagesControllerComponents) extends FrontendController(mcc) {
 

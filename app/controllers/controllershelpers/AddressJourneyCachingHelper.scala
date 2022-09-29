@@ -18,9 +18,9 @@ package controllers.controllershelpers
 
 import com.google.inject.{Inject, Singleton}
 import controllers.bindable.AddrType
+import models._
 import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
-import models._
 import play.api.Logging
 import play.api.libs.json.Writes
 import play.api.mvc.{Result, Results}
@@ -117,7 +117,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
 
   def enforceDisplayAddressPageVisited(
     addressPageVisitedDto: Option[AddressPageVisitedDto]
-  )(block: => Future[Result])(implicit hc: HeaderCarrier): Future[Result] =
+  )(block: => Future[Result]): Future[Result] =
     addressPageVisitedDto match {
       case Some(_) =>
         block

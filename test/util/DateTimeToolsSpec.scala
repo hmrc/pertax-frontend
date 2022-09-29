@@ -16,30 +16,15 @@
 
 package util
 
-import org.joda.time.{LocalDate => JodaLocalDate}
 import testUtils.BaseSpec
-
-import java.time.LocalDateTime
+import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
 
 class DateTimeToolsSpec extends BaseSpec {
-
-  "Calling asHumanDateFromUnixDate" must {
-
-    "return correctly formatted readable date when provided with a valid date" in {
-      DateTimeTools.asHumanDateFromUnixDate("2018-01-01") mustBe "01 January 2018"
-    }
-
-    "return passed date when provided with an invalid date" in {
-      DateTimeTools.asHumanDateFromUnixDate("INVALID DATE FORMAT") mustBe "INVALID DATE FORMAT"
-    }
-  }
-
-  "Calling toPaymentDate" must {
-
-    "return a correctly formatted date" in {
-
-      DateTimeTools.toPaymentDate(LocalDateTime.parse("2019-11-25T13:13:51.755")) mustBe
-        new JodaLocalDate(2019, 11, 25)
+  "previousAndCurrentTaxYearFromGivenYear" when {
+    "provided with a year" must {
+      "return the expected result" in {
+        previousAndCurrentTaxYearFromGivenYear(2022) mustBe "2122"
+      }
     }
   }
 }

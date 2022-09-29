@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewBreathingSpaceView, ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
+import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -122,7 +122,7 @@ class InterstitialController @Inject() (
   }
 
   def displaySelfAssessment: Action[AnyContent] = authenticate.async { implicit request =>
-    if (request.isSaUserLoggedIntoCorrectAccount && request.isGovernmentGateway) {
+    if (request.isSaUserLoggedIntoCorrectAccount) {
       val formPartial = formPartialService.getSelfAssessmentPartial recoverWith { case _ =>
         Future.successful(HtmlPartial.Failure(None, ""))
       }

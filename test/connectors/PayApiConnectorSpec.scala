@@ -17,56 +17,49 @@
 package connectors
 
 import models.{CreatePayment, PaymentRequest}
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.when
-import play.api.http.Status._
+import play.api.Application
 import play.api.libs.json.{JsResultException, Json}
-import testUtils.{BaseSpec, NullMetrics}
-import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import play.api.test.DefaultAwaitTimeout
+import play.api.test.Helpers.await
+import testUtils.WireMockHelper
 
-import scala.concurrent.Future
+class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout {
 
-class PayApiConnectorSpec extends BaseSpec {
+  override lazy val app: Application = app(
+    Map("microservice.services.pay-api.port" -> server.port())
+  )
 
-  val http = mock[DefaultHttpClient]
-  val connector = new PayApiConnector(http, config, new NullMetrics)
-  val paymentRequest = PaymentRequest(config, "some utr")
-  val postUrl = config.makeAPaymentUrl
+  def connector: PayApiConnector = app.injector.instanceOf[PayApiConnector]
+
+  val paymentRequest: PaymentRequest = PaymentRequest("some utr", "", "")
+  val url: String = "/pay-api/pta/sa/journey/start"
 
   "createPayment" should {
+    val json = Json.obj(
+      "journeyId" -> "exampleJourneyId",
+      "nextUrl"   -> "testNextUrl"
+    )
+
     "parse the json load for a successful CREATED response" in {
-      val json = Json.obj(
-        "journeyId" -> "exampleJourneyId",
-        "nextUrl"   -> "testNextUrl"
-      )
+      stubPost(url, CREATED, Some(Json.toJson(paymentRequest).toString()), Some(json.toString()))
+      val result = connector.createPayment(paymentRequest).futureValue
 
-      when(
-        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any())
-      ).thenReturn(Future.successful(HttpResponse(CREATED, Some(json))))
-
-      connector.createPayment(paymentRequest).futureValue mustBe Some(CreatePayment("exampleJourneyId", "testNextUrl"))
+      result mustBe Some(CreatePayment("exampleJourneyId", "testNextUrl"))
     }
 
     "Returns a None when the status code is not CREATED" in {
-      when(
-        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any())
-      ).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
+      stubPost(url, NO_CONTENT, Some(Json.toJson(paymentRequest).toString()), Some(json.toString()))
+      val result = connector.createPayment(paymentRequest).futureValue
 
-      connector.createPayment(paymentRequest).futureValue mustBe None
+      result mustBe None
     }
 
     "Throws a JsResultException when given bad json" in {
       val badJson = Json.obj("abc" -> "invalidData")
 
-      when(
-        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any())
-      ).thenReturn(Future.successful(HttpResponse(CREATED, Some(badJson))))
-
-      val f = connector.createPayment(paymentRequest)
-      whenReady(f.failed) { e =>
-        e mustBe a[JsResultException]
-      }
+      stubPost(url, CREATED, Some(Json.toJson(paymentRequest).toString()), Some(badJson.toString()))
+      lazy val result = await(connector.createPayment(paymentRequest))
+      a[JsResultException] mustBe thrownBy(result)
     }
   }
 }

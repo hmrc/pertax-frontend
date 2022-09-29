@@ -16,58 +16,20 @@
 
 package util
 
-import com.google.inject.{Inject, Singleton}
-import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
-import org.joda.time.{DateTime, _}
 import play.api.Logging
 import uk.gov.hmrc.time.CurrentTaxYear
 
-import scala.util.{Failure, Success, Try}
-
-import java.time.{LocalDateTime => JavaLDT}
+import java.time.LocalDate
 
 object DateTimeTools extends CurrentTaxYear with Logging {
 
-  //Timezone causing problem on dev server
-  val defaultTZ = DateTimeZone.forID("Europe/London")
-  val unixDateFormat = "yyyy-MM-dd"
-  val unixDateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"
-  val humanDateFormat = "dd MMMMM yyyy"
-
   //Returns for example 1516 in March 2016
-  def previousAndCurrentTaxYear = previousAndCurrentTaxYearFromGivenYear(current.currentYear)
+  def previousAndCurrentTaxYear: String = previousAndCurrentTaxYearFromGivenYear(current.currentYear)
 
-  def previousAndCurrentTaxYearFromGivenYear(year: Int) = {
+  def previousAndCurrentTaxYearFromGivenYear(year: Int): String = {
     def y = year
-
     (y - 1).toString.takeRight(2) + y.toString.takeRight(2)
   }
 
-  private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)
-
-  def short(dateTime: LocalDate) = formatter("dd/MM/yyy").print(dateTime)
-
-  def asHumanDateFromUnixDate(unixDate: String): String =
-    Try(DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(unixDate))) match {
-      case Success(v) => v
-      case Failure(e) =>
-        logger.warn("Invalid date parse in DateTimeTools.asHumanDateFromUnixDate: " + e)
-        unixDate
-    }
-
-  def toPaymentDate(dateTime: JavaLDT): LocalDate =
-    new LocalDate(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
-
-  override def now: () => DateTime = DateTime.now
-}
-
-@Singleton
-class DateTimeTools @Inject() () {
-
-  def showSendTaxReturnByPost = {
-
-    val start = new DateTime(s"${DateTime.now().getYear}-11-01T00:00:00Z")
-    val end = new DateTime(s"${DateTime.now().getYear + 1}-01-31T23:59:59Z")
-    !DateTime.now().isAfter(start) && DateTime.now().isBefore(end)
-  }
+  override def now: () => LocalDate = LocalDate.now
 }

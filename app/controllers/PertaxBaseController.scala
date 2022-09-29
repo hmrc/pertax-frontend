@@ -19,7 +19,7 @@ package controllers
 import models.Breadcrumb
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,5 +36,3 @@ abstract class PertaxBaseController(cc: MessagesControllerComponents)(implicit e
     List("label.account_home" -> routes.HomeController.index.url)
 
 }
-
-trait PertaxBaseControllerTrait extends PertaxBaseController
