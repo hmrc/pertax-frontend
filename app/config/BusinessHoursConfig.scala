@@ -17,12 +17,14 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
+import com.typesafe.config.ConfigException
 import play.api.{Configuration, Logging}
 
 import java.time.{DayOfWeek, LocalTime}
-import java.time.format.DateTimeFormatter
+import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.util.TimeZone
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 class BusinessHoursConfig @Inject() (configuration: Configuration) extends Logging {
@@ -52,11 +54,45 @@ class BusinessHoursConfig @Inject() (configuration: Configuration) extends Loggi
         .map { case (dayOfWeek, _) =>
           val formatter = DateTimeFormatter.ofPattern("H:m").withZone(TimeZone.getTimeZone("Europe/London").toZoneId)
           val localStartTime =
-            LocalTime.parse(configuration.get[String](s"feature.business-hours.$dayOfWeek.start-time"), formatter)
-          val localEndTime =
-            LocalTime.parse(configuration.get[String](s"feature.business-hours.$dayOfWeek.end-time"), formatter)
+            Try(
+              LocalTime.parse(configuration.get[String](s"feature.business-hours.$dayOfWeek.start-time"), formatter)
+            ) match {
+              case Success(localTime) => Some(localTime)
+              case Failure(exception: DateTimeParseException) =>
+                logger.error(exception.getMessage, exception)
+                None
+              case Failure(exception: ConfigException) =>
+                logger.error(exception.getMessage, exception)
+                None
+              case Failure(error) => throw error
+            }
 
-          stringToDayOfWeek(dayOfWeek).map(_ -> (localStartTime, localEndTime))
+          val localEndTime =
+            Try(
+              LocalTime.parse(configuration.get[String](s"feature.business-hours.$dayOfWeek.end-time"), formatter)
+            ) match {
+              case Success(localTime) => Some(localTime)
+              case Failure(exception: DateTimeParseException) =>
+                logger.error(exception.getMessage, exception)
+                None
+              case Failure(exception: ConfigException) =>
+                logger.error(exception.getMessage, exception)
+                None
+              case Failure(error) => throw error
+            }
+
+          (localStartTime, localEndTime) match {
+            case (Some(start), Some(end)) =>
+              if (end.isBefore(start)) {
+                val ex = new RuntimeException(s"End time cannot be before start time")
+                logger.error(ex.getMessage, ex)
+                None
+              } else {
+                stringToDayOfWeek(dayOfWeek).map(_ -> (start, end))
+              }
+
+            case _ => None
+          }
         }
         .flatten
         .toMap
