@@ -32,16 +32,6 @@ lazy val scoverageSettings = {
   )
 }
 
-val wartRemovedExcludedClasses = Seq(
-  "app.Routes",
-  "pertax.Routes",
-  "prod.Routes",
-  "uk.gov.hmrc.BuildInfo",
-  "controllers.routes",
-  "controllers.javascript",
-  "controllers.ref"
-)
-
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(plugins: _*)
   .disablePlugins(JUnitXmlReportPlugin)
@@ -59,7 +49,6 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= AppDependencies.all,
     PlayKeys.playDefaultPort := 9232,
     scalafmtOnCompile := true,
-    resolvers += Resolver.jcenterRepo,
     majorVersion := 1,
     scalacOptions += "-P:silencer:pathFilters=views;routes",
     libraryDependencies ++= Seq(
