@@ -25,22 +25,12 @@ lazy val playSettings: Seq[Setting[_]] = Seq(
 
 lazy val scoverageSettings = {
   Seq(
-    ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;models/.data/..*;view.*;models.*;uk.gov.hmrc.pertax.auth.*;.*(AuthService|BuildInfo|Routes).*;config/*",
+    ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;models/.data/..*;view.*;models.*;.*(AuthService|BuildInfo|Routes).*",
     ScoverageKeys.coverageMinimumStmtTotal := 80,
     ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true
   )
 }
-
-val wartRemovedExcludedClasses = Seq(
-  "app.Routes",
-  "pertax.Routes",
-  "prod.Routes",
-  "uk.gov.hmrc.BuildInfo",
-  "controllers.routes",
-  "controllers.javascript",
-  "controllers.ref"
-)
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(plugins: _*)
@@ -59,7 +49,6 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= AppDependencies.all,
     PlayKeys.playDefaultPort := 9232,
     scalafmtOnCompile := true,
-    resolvers += Resolver.jcenterRepo,
     majorVersion := 1,
     scalacOptions += "-P:silencer:pathFilters=views;routes",
     libraryDependencies ++= Seq(
