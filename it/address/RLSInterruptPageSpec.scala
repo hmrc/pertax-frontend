@@ -1,6 +1,6 @@
 package address
 
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, status => _}
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, urlMatching, status => _}
 import play.api.Application
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, status => getStatus, _}

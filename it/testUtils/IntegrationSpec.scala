@@ -69,8 +69,6 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
        |}
        |""".stripMargin
 
-  val designatoryDetailsResponse = s"""{"person":{"firstName":"John","middleName":"","lastName":"Smith","initials":"JS","title":"Dr","honours":"Phd.","sex":"M","dateOfBirth":"1945-03-18","nino":"$generatedNino"},"address":{"line1":"1 Fake Street","line2":"Fake Town","line3":"Fake City","line4":"Fake Region","postcode":"AA1 1AA","startDate":"2015-03-15","type":"Residential"}}"""
-
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .configure(
@@ -87,8 +85,6 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
-    server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details")).willReturn(ok(designatoryDetailsResponse)))
-    server.stubFor(put(urlMatching("/keystore/pertax-frontend/.*")).willReturn(ok("{}")))
-    server.stubFor(get(urlMatching("/keystore/pertax-frontend/.*")).willReturn(ok("{}")))
+    //server.stubFor(put(urlMatching("/keystore/pertax-frontend/.*")).willReturn(ok("{}")))
   }
 }

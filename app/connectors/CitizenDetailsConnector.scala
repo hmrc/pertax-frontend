@@ -73,7 +73,9 @@ class CitizenDetailsConnector @Inject() (
           case response =>
             timer.completeTimerAndIncrementFailedCounter()
             if (response.status >= INTERNAL_SERVER_ERROR) {
-              logger.warn(s"Unexpected ${response.status} response getting personal details record from citizen-details")
+              logger.warn(
+                s"Unexpected ${response.status} response getting personal details record from citizen-details"
+              )
             }
             PersonDetailsUnexpectedResponse(response)
         },

@@ -15,26 +15,21 @@
  */
 
 import config.ConfigDecorator
-import connectors.EnrolmentsConnector
 import controllers.auth.requests.UserRequest
 import models._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.{Assertion, BeforeAndAfterEach}
+import org.mockito.Mockito.reset
+import org.scalatest.Assertion
 import org.scalatestplus.mockito.MockitoSugar.mock
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, Request}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
 import play.twirl.api.Html
-import services.{EnrolmentStoreCachingService, LocalSessionCache}
+import services.LocalSessionCache
+import testUtils.IntegrationSpec
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
@@ -45,31 +40,23 @@ import views.html.MainView
 
 import java.time.LocalDate
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.util.Random
 
-class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuite with BeforeAndAfterEach {
+class MainViewSpec extends IntegrationSpec {
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
 
-
-    override def beforeEach(): Unit = {
-      super.beforeEach()
-      cache.remove()
-    }
-
-  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
-    GuiceApplicationBuilder()
-      .configure(Map(
-        "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "metrics.enabled"               -> false
-      ))
-
-  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .configure(Map(
+      "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "metrics.enabled"               -> false
+    ))
+    .build()
 
   private val generator = new Generator(new Random())
 
@@ -104,8 +91,8 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
 
   lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
 
-  implicit val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
-  implicit val messages: Messages = MessagesImpl(Lang("en"), messagesApi).messages
+  implicit lazy val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi).messages
 
   trait LocalSetup {
 
@@ -297,32 +284,6 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
 
       "render given content" in new LocalSetup {
         assertContainsText(doc, content)
-      }
-    }
-  }
-
-
-  val cache: LocalSessionCache = app.injector.instanceOf[LocalSessionCache]
-  val mockConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
-
-  val service = new EnrolmentStoreCachingService(cache, mockConnector)
-
-  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-
-  "EnrolmentStoreCachingService" when {
-
-    "getSaUserTypeFromCache is called" should {
-
-      "only call the connector once" in {
-
-        when(mockConnector.getUserIdsWithEnrolments(any())(any(), any())
-        ) thenReturn Future.successful(Right(Seq[String]()))
-
-        await(service.getSaUserTypeFromCache(saUtr))
-
-        await(service.getSaUserTypeFromCache(saUtr))
-
-        verify(mockConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
       }
     }
   }
