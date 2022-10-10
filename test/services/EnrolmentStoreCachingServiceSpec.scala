@@ -20,6 +20,7 @@ import connectors.EnrolmentsConnector
 import models._
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import play.api.libs.json.Json
 import testUtils.BaseSpec
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -28,10 +29,15 @@ import scala.concurrent.Future
 
 class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
-  trait LocalSetup {
+  val mockSessionCache: LocalSessionCache = mock[LocalSessionCache]
+  val mockEnrolmentsConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
 
-    val mockSessionCache: LocalSessionCache = mock[LocalSessionCache]
-    val mockEnrolmentsConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockSessionCache, mockEnrolmentsConnector)
+  }
+
+  trait LocalSetup {
 
     val cacheResult: CacheMap = CacheMap("", Map.empty)
     val fetchResult: Option[SelfAssessmentUserType] = None
@@ -81,6 +87,30 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
         sut.getSaUserTypeFromCache(saUtr).futureValue mustBe WrongCredentialsSelfAssessmentUser(saUtr)
       }
+    }
+
+    "only call the connector once" in {
+      lazy val sut: EnrolmentStoreCachingService =
+        new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector)
+
+      val cacheMap =
+        CacheMap("id", Map("id" -> Json.toJson(NotEnrolledSelfAssessmentUser(saUtr): SelfAssessmentUserType)))
+
+      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())) thenReturn Future.successful(
+        Right(Seq[String]())
+      )
+
+      when(mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())) thenReturn (Future
+        .successful(None), Future.successful(Some(NotEnrolledSelfAssessmentUser(saUtr))))
+
+      when(mockSessionCache.cache[SelfAssessmentUserType](any(), any())(any(), any(), any())) thenReturn Future
+        .successful(cacheMap)
+
+      sut.getSaUserTypeFromCache(saUtr).futureValue
+
+      sut.getSaUserTypeFromCache(saUtr).futureValue
+
+      verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
     }
   }
 }
