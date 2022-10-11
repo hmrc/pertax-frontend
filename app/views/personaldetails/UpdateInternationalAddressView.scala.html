@@ -41,6 +41,11 @@
 @(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, countries: List[Country])(implicit request: UserRequest[_],
 configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
+@scriptElems = {
+    @autocompleteJavascript(CSPNonce.get)
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/autocompletePolyfill.js")'></script>
+}
+
 @getYourAddressLabels = {
     @typ.ifIs(
     residential = messages("label.enter_your_address"),
@@ -61,7 +66,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     showBackLink = true,
     yourProfileActive = true,
     stylesheets = Some(autocompleteCss(CSPNonce.get)),
-    scripts = Some(autocompleteJavascript(CSPNonce.get))
+    scripts = Some(scriptElems)
 ) {
 
 
@@ -153,7 +158,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
         )
     ).asAccessibleAutocomplete(Some(
         AccessibleAutocomplete(
-            showAllValues = true,
-            autoSelect = false)
+            showAllValues = false,
+            autoSelect = true)
     )))
 }
