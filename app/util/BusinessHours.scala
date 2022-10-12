@@ -25,7 +25,7 @@ class BusinessHours @Inject() (businessHoursConfig: BusinessHoursConfig) {
 
   def isTrue(dateTime: LocalDateTime): Boolean = {
     val dayOfWeek: DayOfWeek = dateTime.getDayOfWeek
-    val time: LocalTime = dateTime.toLocalTime
+    val time: LocalTime      = dateTime.toLocalTime
 
     businessHoursConfig.get.get(dayOfWeek).exists { case (start, end) =>
       time.compareTo(start) >= 0 && time.compareTo(end) <= 0

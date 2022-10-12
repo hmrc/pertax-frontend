@@ -41,7 +41,10 @@ class PreferencesFrontendService @Inject() (
   val tools: Tools,
   servicesConfig: ServicesConfig
 )(implicit ec: ExecutionContext)
-    extends HeaderCarrierForPartialsConverter with HasMetrics with I18nSupport with Logging {
+    extends HeaderCarrierForPartialsConverter
+    with HasMetrics
+    with I18nSupport
+    with Logging {
 
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 

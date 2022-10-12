@@ -32,7 +32,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
   )
 
   val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
-  val url = s"/$nino/memorandum"
+  val url        = s"/$nino/memorandum"
 
   def connector: BreathingSpaceConnector = app.injector.instanceOf[BreathingSpaceConnector]
 

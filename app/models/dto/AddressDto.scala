@@ -52,7 +52,7 @@ case class AddressDto(
           Some(`type`),
           false
         )
-      case None =>
+      case None           =>
         Address(
           Some(line1),
           Some(line2),
@@ -76,7 +76,7 @@ case class AddressDto(
 
   def formatMandatoryPostCode(postCode: String): String = {
     val trimmedPostcode = postCode.replaceAll(" ", "").toUpperCase()
-    val postCodeSplit = trimmedPostcode splitAt (trimmedPostcode.length - 3)
+    val postCodeSplit   = trimmedPostcode splitAt (trimmedPostcode.length - 3)
     postCodeSplit._1 + " " + postCodeSplit._2
   }
 }
@@ -103,7 +103,7 @@ object AddressDto extends CountryHelper {
 
   def fromAddressRecord(addressRecord: AddressRecord): AddressDto = {
 
-    val address = addressRecord.address
+    val address                                 = addressRecord.address
     val List(line1, line2, line3, line4, line5) =
       (address.lines.map(s => Option(s).filter(_.trim.nonEmpty)) ++ Seq(address.town)).padTo(5, None)
 
@@ -121,24 +121,24 @@ object AddressDto extends CountryHelper {
 
   val ukForm = Form(
     mapping(
-      "line1" -> text
+      "line1"         -> text
         .verifying("error.line1_required", _.nonEmpty)
         .verifying("error.line1_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line1_invalid_characters", e => validateAddressLineCharacters(Some(e))),
-      "line2" -> text
+      "line2"         -> text
         .verifying("error.line2_required", _.nonEmpty)
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
-      "line3" -> optional(text)
+      "line3"         -> optional(text)
         .verifying("error.line3_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line3_invalid_characters", e => validateAddressLineCharacters(e)),
-      "line4" -> optional(text)
+      "line4"         -> optional(text)
         .verifying("error.line4_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line4_invalid_characters", e => validateAddressLineCharacters(e)),
-      "line5" -> optional(text)
+      "line5"         -> optional(text)
         .verifying("error.line5_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line5_invalid_characters", e => validateAddressLineCharacters(e)),
-      "postcode" -> optional(text)
+      "postcode"      -> optional(text)
         .verifying(
           "error.enter_a_valid_uk_postcode",
           e =>
@@ -154,25 +154,25 @@ object AddressDto extends CountryHelper {
 
   val internationalForm = Form(
     mapping(
-      "line1" -> text
+      "line1"         -> text
         .verifying("error.line1_required", _.nonEmpty)
         .verifying("error.line1_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line1_invalid_characters", e => validateAddressLineCharacters(Some(e))),
-      "line2" -> text
+      "line2"         -> text
         .verifying("error.line2_required", _.nonEmpty)
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
-      "line3" -> optional(text)
+      "line3"         -> optional(text)
         .verifying("error.line3_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line3_invalid_characters", e => validateAddressLineCharacters(e)),
-      "line4" -> optional(text)
+      "line4"         -> optional(text)
         .verifying("error.line4_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line4_invalid_characters", e => validateAddressLineCharacters(e)),
-      "line5" -> optional(text)
+      "line5"         -> optional(text)
         .verifying("error.line5_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line5_invalid_characters", e => validateAddressLineCharacters(e)),
-      "postcode" -> optional(text),
-      "country" -> optional(text)
+      "postcode"      -> optional(text),
+      "country"       -> optional(text)
         .verifying("error.country_required", (e => countries.contains(Country(e.getOrElse(""))) && (e.isDefined))),
       "propertyRefNo" -> optional(nonEmptyText)
     )(AddressDto.apply)(AddressDto.unapply)

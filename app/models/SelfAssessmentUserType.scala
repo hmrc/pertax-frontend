@@ -28,23 +28,23 @@ sealed trait SelfAssessmentUser extends SelfAssessmentUserType {
 object SelfAssessmentUserType {
   val cacheId = "SelfAssessmentUser"
 
-  val activatedSa = ActivatedOnlineFilerSelfAssessmentUser.toString
+  val activatedSa    = ActivatedOnlineFilerSelfAssessmentUser.toString
   val notActivatedSa = NotYetActivatedOnlineFilerSelfAssessmentUser.toString
-  val wrongCredsSa = WrongCredentialsSelfAssessmentUser.toString
-  val notEnrolledSa = NotEnrolledSelfAssessmentUser.toString
-  val nonFilerSa = NonFilerSelfAssessmentUser.toString
+  val wrongCredsSa   = WrongCredentialsSelfAssessmentUser.toString
+  val notEnrolledSa  = NotEnrolledSelfAssessmentUser.toString
+  val nonFilerSa     = NonFilerSelfAssessmentUser.toString
 
   implicit val writes = new Writes[SelfAssessmentUserType] {
     override def writes(o: SelfAssessmentUserType): JsValue = o match {
-      case ActivatedOnlineFilerSelfAssessmentUser(utr) =>
+      case ActivatedOnlineFilerSelfAssessmentUser(utr)       =>
         Json.obj("_type" -> JsString(activatedSa), "utr" -> JsString(utr.toString))
       case NotYetActivatedOnlineFilerSelfAssessmentUser(utr) =>
         Json.obj("_type" -> JsString(notActivatedSa), "utr" -> JsString(utr.toString))
-      case WrongCredentialsSelfAssessmentUser(utr) =>
+      case WrongCredentialsSelfAssessmentUser(utr)           =>
         Json.obj("_type" -> JsString(wrongCredsSa), "utr" -> JsString(utr.toString))
-      case NotEnrolledSelfAssessmentUser(utr) =>
+      case NotEnrolledSelfAssessmentUser(utr)                =>
         Json.obj("_type" -> JsString(notEnrolledSa), "utr" -> JsString(utr.toString))
-      case NonFilerSelfAssessmentUser =>
+      case NonFilerSelfAssessmentUser                        =>
         Json.obj("_type" -> JsString(nonFilerSa))
     }
   }
@@ -53,17 +53,17 @@ object SelfAssessmentUserType {
     override def reads(json: JsValue): JsResult[SelfAssessmentUserType] =
       (json \ "_type", json \ "utr") match {
 
-        case (JsDefined(JsString(`activatedSa`)), JsDefined(JsString(utr))) =>
+        case (JsDefined(JsString(`activatedSa`)), JsDefined(JsString(utr)))    =>
           JsSuccess(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr)))
         case (JsDefined(JsString(`notActivatedSa`)), JsDefined(JsString(utr))) =>
           JsSuccess(NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr)))
-        case (JsDefined(JsString(`wrongCredsSa`)), JsDefined(JsString(utr))) =>
+        case (JsDefined(JsString(`wrongCredsSa`)), JsDefined(JsString(utr)))   =>
           JsSuccess(WrongCredentialsSelfAssessmentUser(SaUtr(utr)))
-        case (JsDefined(JsString(`notEnrolledSa`)), JsDefined(JsString(utr))) =>
+        case (JsDefined(JsString(`notEnrolledSa`)), JsDefined(JsString(utr)))  =>
           JsSuccess(NotEnrolledSelfAssessmentUser(SaUtr(utr)))
-        case (JsDefined(JsString(`nonFilerSa`)), _) =>
+        case (JsDefined(JsString(`nonFilerSa`)), _)                            =>
           JsSuccess(NonFilerSelfAssessmentUser)
-        case _ => JsError("Could not read SelfAssessmentUserType")
+        case _                                                                 => JsError("Could not read SelfAssessmentUserType")
       }
   }
 }

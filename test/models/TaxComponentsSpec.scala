@@ -92,7 +92,7 @@ class TaxComponentsSpec extends BaseSpec {
                                            |  "links" : [ ]
                                            |}""".stripMargin)
 
-      val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
+      val tc               = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       val isCompanyBenefit = tc.isCompanyBenefitRecipient
       isCompanyBenefit mustBe true
     }
@@ -116,7 +116,7 @@ class TaxComponentsSpec extends BaseSpec {
                                            |   "links" : [ ]
                                            |}""".stripMargin)
 
-      val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
+      val tc               = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       val isCompanyBenefit = tc.isCompanyBenefitRecipient
       isCompanyBenefit mustBe false
     }
@@ -140,7 +140,7 @@ class TaxComponentsSpec extends BaseSpec {
                                            |  "links" : [ ]
                                            |}""".stripMargin)
 
-      val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
+      val tc               = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       val isCompanyBenefit = tc.isCompanyBenefitRecipient
       isCompanyBenefit mustBe true
     }
@@ -164,7 +164,7 @@ class TaxComponentsSpec extends BaseSpec {
                                            |  "links" : [ ]
                                            |}""".stripMargin)
 
-      val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
+      val tc               = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       val isCompanyBenefit = tc.isCompanyBenefitRecipient
       isCompanyBenefit mustBe true
     }

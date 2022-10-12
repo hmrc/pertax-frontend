@@ -43,14 +43,16 @@ case class TaxCalculationUnderpaidPaymentDueState(
   endOfTaxYear: Int,
   dueDate: Option[LocalDate],
   saDeadLineStatus: Option[SaDeadlineStatus]
-) extends TaxCalculationUnderpaidState with SaDeadlineStatus
+) extends TaxCalculationUnderpaidState
+    with SaDeadlineStatus
 case class TaxCalculationUnderpaidPartPaidState(
   amount: BigDecimal,
   startOfTaxYear: Int,
   endOfTaxYear: Int,
   dueDate: Option[LocalDate],
   saDeadlineStatus: Option[SaDeadlineStatus]
-) extends TaxCalculationUnderpaidState with SaDeadlineStatus
+) extends TaxCalculationUnderpaidState
+    with SaDeadlineStatus
 case class TaxCalculationUnderpaidPaidAllState(startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[LocalDate])
     extends TaxCalculationUnderpaidState
 case class TaxCalculationUnderpaidPaymentsDownState(startOfTaxYear: Int, endOfTaxYear: Int)
@@ -128,10 +130,10 @@ object SaDeadlineStatusCalculator {
 
   def getSaDeadlineStatus(dueDate: LocalDate)(implicit configDecorator: ConfigDecorator): Option[SaDeadlineStatus] = {
 
-    val now = configDecorator.currentLocalDate
-    val dueDateEquals31stJanuary = dueDate.getMonthValue == 1 && dueDate.getDayOfMonth == 31
-    val dueDatePassed = now.isAfter(dueDate)
-    val datePassed14thDec =
+    val now                       = configDecorator.currentLocalDate
+    val dueDateEquals31stJanuary  = dueDate.getMonthValue == 1 && dueDate.getDayOfMonth == 31
+    val dueDatePassed             = now.isAfter(dueDate)
+    val datePassed14thDec         =
       now.isAfter(LocalDate.of(taxYearFor(configDecorator.currentLocalDate).currentYear, 12, 14))
     val dateWithin30DaysOfDueDate = now.isAfter(dueDate.minusDays(31))
 

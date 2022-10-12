@@ -33,8 +33,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class SimpleHttpSpec extends BaseSpec with WireMockHelper with Injecting with IntegrationPatience {
 
   lazy val simpleHttp = inject[SimpleHttp]
-  lazy val url = s"http://localhost:${server.port}"
-  val magicErrorCode = 123456789
+  lazy val url        = s"http://localhost:${server.port}"
+  val magicErrorCode  = 123456789
 
   "Calling SimpleHttpSpec.get" must {
     List(OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE).foreach { httpStatus =>
@@ -144,7 +144,7 @@ class FakeSimpleHttp(response: Either[HttpResponse, Exception])(implicit ec: Exe
     extends SimpleHttp(mock[HttpClient]) {
 
   private val headerCarrierQueue = new LinkedBlockingQueue[HeaderCarrier]
-  def getLastHeaderCarrier = headerCarrierQueue.take
+  def getLastHeaderCarrier       = headerCarrierQueue.take
 
   override def get[T](
     url: String

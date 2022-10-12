@@ -45,14 +45,14 @@ import scala.concurrent.Future
 
 class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
-  val mockAuditConnector = mock[AuditConnector]
+  val mockAuditConnector                      = mock[AuditConnector]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
-  val mockAuthAction = mock[AuthAction]
-  val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
-  val mockAuthJourney = mock[AuthJourney]
-  val mockInterstitialController = mock[InterstitialController]
-  val mockHomeController = mock[HomeController]
-  val mockRlsConfirmAddressController = mock[RlsController]
+  val mockAuthAction                          = mock[AuthAction]
+  val mockSelfAssessmentStatusAction          = mock[SelfAssessmentStatusAction]
+  val mockAuthJourney                         = mock[AuthJourney]
+  val mockInterstitialController              = mock[InterstitialController]
+  val mockHomeController                      = mock[HomeController]
+  val mockRlsConfirmAddressController         = mock[RlsController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -75,13 +75,13 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   trait LocalSetup {
 
-    lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
-    lazy val nino: Nino = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
-    lazy val withPaye: Boolean = true
-    lazy val year = current.currentYear
+    lazy val authProviderType: String                                 = UserDetails.GovernmentGatewayAuthProvider
+    lazy val nino: Nino                                               = Fixtures.fakeNino
+    lazy val personDetailsResponse: PersonDetailsResponse             = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
+    lazy val withPaye: Boolean                                        = true
+    lazy val year                                                     = current.currentYear
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
-    lazy val getCitizenDetailsResponse = true
+    lazy val getCitizenDetailsResponse                                = true
     lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr(new SaUtrGenerator().nextSaUtr.utr)
     )
@@ -358,7 +358,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       })
 
       val sentLocation = "http://example.com&origin=PERTAX"
-      val result = controller.signout(Some(RedirectUrl(sentLocation)), None)(FakeRequest())
+      val result       = controller.signout(Some(RedirectUrl(sentLocation)), None)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(

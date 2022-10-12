@@ -22,8 +22,8 @@ import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import java.net.{URI, URLEncoder}
 
 class Tools @Inject() (val applicationCrypto: ApplicationCrypto) {
-  def urlEncode(u: String): String = URLEncoder.encode(u, "UTF-8")
+  def urlEncode(u: String): String        = URLEncoder.encode(u, "UTF-8")
   def encryptAndEncode(s: String): String =
     urlEncode(applicationCrypto.QueryParameterCrypto.encrypt(PlainText(s)).value)
-  def isRelative(url: String): Boolean = !new URI(url).isAbsolute && url.take(2) != "//"
+  def isRelative(url: String): Boolean    = !new URI(url).isAbsolute && url.take(2) != "//"
 }

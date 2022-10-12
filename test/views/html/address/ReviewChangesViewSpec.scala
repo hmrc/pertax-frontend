@@ -31,8 +31,8 @@ class ReviewChangesViewSpec extends ViewSpec {
   lazy val view = injected[ReviewChangesView]
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val userRequest = buildUserRequest(request = FakeRequest())
-  val address =
+  implicit val userRequest                      = buildUserRequest(request = FakeRequest())
+  val address                                   =
     AddressDto("AddressLine1", "AddressLine2", None, None, None, Some("TestPostcode"), None, None)
 
   def result(addressType: AddrType) = asDocument(view(addressType, address, "yes.label", true, None, false).toString)

@@ -61,11 +61,11 @@ class CachingAgentClientAuthorisationConnector @Inject() (
     def fetchAndCache: EitherT[Future, L, A] =
       for {
         result <- f
-        _ <- EitherT[Future, L, (String, String)](
-               sessionCacheRepository
-                 .putSession[A](DataKey[A](key), result)
-                 .map(Right(_))
-             )
+        _      <- EitherT[Future, L, (String, String)](
+                    sessionCacheRepository
+                      .putSession[A](DataKey[A](key), result)
+                      .map(Right(_))
+                  )
       } yield result
 
     EitherT(
@@ -100,10 +100,13 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
   servicesConfig: ServicesConfig,
   httpClientResponse: HttpClientResponse,
   limiters: Limiters
-) extends AgentClientAuthorisationConnector with Throttle with Timeout with Logging {
+) extends AgentClientAuthorisationConnector
+    with Throttle
+    with Timeout
+    with Logging {
   val rateLimiter: RateLimiter = limiters.rateLimiterForGetClientStatus
-  lazy val baseUrl = servicesConfig.baseUrl("agent-client-authorisation")
-  lazy val timeoutInSec =
+  lazy val baseUrl             = servicesConfig.baseUrl("agent-client-authorisation")
+  lazy val timeoutInSec        =
     servicesConfig.getInt("feature.agent-client-authorisation.timeoutInSec")
 
   override def getAgentClientStatus(implicit

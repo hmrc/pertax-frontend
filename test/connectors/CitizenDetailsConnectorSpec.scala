@@ -66,8 +66,8 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     lazy val (service, met, timer) = {
 
       val fakeSimpleHttp = app.injector.instanceOf[SimpleHttp]
-      val serviceConfig = app.injector.instanceOf[ServicesConfig]
-      val timer = mock[Timer.Context]
+      val serviceConfig  = app.injector.instanceOf[ServicesConfig]
+      val timer          = mock[Timer.Context]
 
       val citizenDetailsConnector: CitizenDetailsConnector =
         new CitizenDetailsConnector(fakeSimpleHttp, mock[Metrics], serviceConfig) {
@@ -94,7 +94,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
   "Calling CitizenDetailsService.fakePersonDetails" must {
 
     trait LocalSetup extends SpecSetup {
-      val metricId = "get-person-details"
+      val metricId    = "get-person-details"
       def url: String = s"/citizen-details/$nino/designatory-details"
     }
 
@@ -144,9 +144,9 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
   "calling CitizenDetailsService.updateAddress" must {
 
     trait LocalSetup extends SpecSetup {
-      val metricId = "update-address"
-      def url: String = s"/citizen-details/$nino/designatory-details/address"
-      val etag: String = "115"
+      val metricId            = "update-address"
+      def url: String         = s"/citizen-details/$nino/designatory-details/address"
+      val etag: String        = "115"
       val requestBody: String = Json.obj("etag" -> etag, "address" -> Json.toJson(address)).toString()
     }
 
@@ -217,12 +217,12 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
   "Calling CitizenDetailsService.getMatchingDetails" must {
 
     trait LocalSetup extends SpecSetup {
-      val metricId = "get-matching-details"
+      val metricId    = "get-matching-details"
       def url: String = s"/citizen-details/nino/$nino"
     }
 
     "return MatchingDetailsSuccessResponse containing an SAUTR when the service returns an SAUTR" in new LocalSetup {
-      val saUtr: String = new SaUtrGenerator().nextSaUtr.utr
+      val saUtr: String                   = new SaUtrGenerator().nextSaUtr.utr
       stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr)).toString()))
 
       val result: MatchingDetailsResponse = service.getMatchingDetails(nino).futureValue
@@ -268,7 +268,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
   "Calling CitizenDetailsService.getEtag" must {
 
     trait LocalSetup extends SpecSetup {
-      val metricId = "get-etag"
+      val metricId    = "get-etag"
       def url: String = s"/citizen-details/$nino/etag"
     }
 

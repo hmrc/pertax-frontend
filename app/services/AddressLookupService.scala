@@ -42,7 +42,8 @@ class AddressLookupService @Inject() (
   val metrics: Metrics,
   val tools: Tools,
   servicesConfig: ServicesConfig
-) extends HasMetrics with Logging {
+) extends HasMetrics
+    with Logging {
 
   lazy val addressLookupUrl = servicesConfig.baseUrl("address-lookup")
 
@@ -50,7 +51,7 @@ class AddressLookupService @Inject() (
     hc: HeaderCarrier
   ): Future[AddressLookupResponse] =
     withMetricsTimer("address-lookup") { t =>
-      val pc = postcode.replaceAll(" ", "")
+      val pc    = postcode.replaceAll(" ", "")
       val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
 
       val addressRequestBody = AddressLookup(pc, filter)

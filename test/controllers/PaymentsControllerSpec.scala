@@ -42,7 +42,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
   lazy val fakeRequest = FakeRequest("", "")
 
   val mockPayConnector = mock[PayApiConnector]
-  val mockAuthJourney = mock[AuthJourney]
+  val mockAuthJourney  = mock[AuthJourney]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -71,7 +71,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
   "makePayment" must {
     "redirect to the response's nextUrl" in {
 
-      val expectedNextUrl = "someNextUrl"
+      val expectedNextUrl       = "someNextUrl"
       val createPaymentResponse = CreatePayment("someJourneyId", expectedNextUrl)
 
       when(mockPayConnector.createPayment(any())(any(), any()))

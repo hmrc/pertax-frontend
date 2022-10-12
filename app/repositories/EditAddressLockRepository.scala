@@ -58,7 +58,8 @@ class EditAddressLockRepository @Inject() (
             .name("nino_1_editedAddress.addressType_1")
         )
       )
-    ) with Logging {
+    )
+    with Logging {
 
   import EditAddressLockRepository._
 
@@ -99,18 +100,18 @@ class EditAddressLockRepository @Inject() (
     get(nino).map { editAddressLockRepository =>
       val residentialLock =
         editAddressLockRepository.exists(_.editedAddress.isInstanceOf[EditResidentialAddress])
-      val postalLock =
+      val postalLock      =
         editAddressLockRepository.exists(_.editedAddress.isInstanceOf[EditCorrespondenceAddress])
       AddressesLock(residentialLock, postalLock)
     }
 }
 
 object EditAddressLockRepository {
-  val EXPIRE_AT = "editedAddress.expireAt"
-  val UK_TIME_ZONE: ZoneId = TimeZone.getTimeZone("Europe/London").toZoneId
+  val EXPIRE_AT                = "editedAddress.expireAt"
+  val UK_TIME_ZONE: ZoneId     = TimeZone.getTimeZone("Europe/London").toZoneId
   val UK_ZONE_Rules: ZoneRules = UK_TIME_ZONE.getRules
-  val GMT_OFFSET: ZoneOffset = ZoneOffset.ofHours(0)
-  val BST_OFFSET: ZoneOffset = ZoneOffset.ofHours(1)
+  val GMT_OFFSET: ZoneOffset   = ZoneOffset.ofHours(0)
+  val BST_OFFSET: ZoneOffset   = ZoneOffset.ofHours(1)
 
   private def nextUTCMidnightInUKDateTime(offsetDateTime: OffsetDateTime): OffsetDateTime = {
     val utcNextDay = offsetDateTime.withOffsetSameInstant(GMT_OFFSET).plusDays(1)
@@ -122,7 +123,7 @@ object EditAddressLockRepository {
   // A safe guard is put in place so that if the user comes in between 11 UTC+0 and midnight UTC+0 we would lock them till
   // midnight UTC+0 of the next day in case NPS resets at midnight UTC+1 instead of midnight UTC+0.
   def getNextMidnight(offsetDateTime: OffsetDateTime): OffsetDateTime = {
-    val ukDateTime = offsetDateTime.atZoneSameInstant(UK_TIME_ZONE)
+    val ukDateTime              = offsetDateTime.atZoneSameInstant(UK_TIME_ZONE)
     val utcMidnightInUkDateTime = nextUTCMidnightInUKDateTime(offsetDateTime)
     ukDateTime.getOffset match {
       case BST_OFFSET if ukDateTime.getHour == 0 =>
@@ -130,12 +131,12 @@ object EditAddressLockRepository {
           case GMT_OFFSET => utcMidnightInUkDateTime
           case _          => utcMidnightInUkDateTime.plusDays(1).withOffsetSameInstant(BST_OFFSET)
         }
-      case BST_OFFSET =>
+      case BST_OFFSET                            =>
         utcMidnightInUkDateTime.getOffset match {
           case GMT_OFFSET => utcMidnightInUkDateTime
           case _          => utcMidnightInUkDateTime.plusHours(1).withOffsetSameInstant(BST_OFFSET)
         }
-      case _ =>
+      case _                                     =>
         utcMidnightInUkDateTime
     }
   }

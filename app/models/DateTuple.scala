@@ -66,10 +66,10 @@ trait DateTuple {
       "error.invalid.date.format",
       data =>
         (data._1, data._2, data._3) match {
-          case (None, None, None) => true
-          case (None, _, _)       => true
-          case (_, None, _)       => true
-          case (_, _, None)       => true
+          case (None, None, None)                   => true
+          case (None, _, _)                         => true
+          case (_, None, _)                         => true
+          case (_, _, None)                         => true
           case (yearOption, monthOption, dayOption) =>
             try {
               val y = yearOption.getOrElse(throw new Exception("Year missing")).trim
@@ -103,7 +103,7 @@ trait DateTuple {
                 None
               }
           }
-        case (a, b, c) => None
+        case (a, b, c)                   => None
       },
       (date: Option[LocalDate]) =>
         date match {
@@ -114,9 +114,9 @@ trait DateTuple {
 }
 
 object DateFields {
-  val day = "day"
+  val day   = "day"
   val month = "month"
-  val year = "year"
+  val year  = "year"
 }
 
 object DateFormatSymbols {

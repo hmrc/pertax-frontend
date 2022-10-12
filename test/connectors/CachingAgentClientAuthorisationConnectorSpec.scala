@@ -35,9 +35,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with BaseSpec with WireMockHelper {
 
   val mockAgentClientAuthorisationConnector: AgentClientAuthorisationConnector = mock[AgentClientAuthorisationConnector]
-  val mockSessionCacheRepository: SessionCacheRepository = mock[SessionCacheRepository]
+  val mockSessionCacheRepository: SessionCacheRepository                       = mock[SessionCacheRepository]
 
-  override implicit val hc: HeaderCarrier = HeaderCarrier()
+  override implicit val hc: HeaderCarrier         = HeaderCarrier()
   override implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   override implicit lazy val app: Application = app(
@@ -51,7 +51,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
   override def beforeEach(): Unit = reset(mockAgentClientAuthorisationConnector, mockSessionCacheRepository)
 
   def connector: CachingAgentClientAuthorisationConnector = injected[CachingAgentClientAuthorisationConnector]
-  val url = "/agent-client-authorisation/status"
+  val url                                                 = "/agent-client-authorisation/status"
 
   implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 

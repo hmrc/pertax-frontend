@@ -41,28 +41,28 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator: ConfigDecorator = config
 
-  private val payAsYouEarn = injected[PayAsYouEarnView]
-  private val taxCalculation = injected[TaxCalculationView]
-  private val selfAssessment = injected[SelfAssessmentView]
-  private val nationalInsurance = injected[NationalInsuranceView]
-  private val taxCredits = injected[TaxCreditsView]
-  private val childBenefit = injected[ChildBenefitView]
-  private val marriageAllowance = injected[MarriageAllowanceView]
-  private val statePension = injected[StatePensionView]
-  private val taxSummaries = injected[TaxSummariesView]
-  private val seissView = injected[SeissView]
+  private val payAsYouEarn             = injected[PayAsYouEarnView]
+  private val taxCalculation           = injected[TaxCalculationView]
+  private val selfAssessment           = injected[SelfAssessmentView]
+  private val nationalInsurance        = injected[NationalInsuranceView]
+  private val taxCredits               = injected[TaxCreditsView]
+  private val childBenefit             = injected[ChildBenefitView]
+  private val marriageAllowance        = injected[MarriageAllowanceView]
+  private val statePension             = injected[StatePensionView]
+  private val taxSummaries             = injected[TaxSummariesView]
+  private val seissView                = injected[SeissView]
   private val latestNewsAndUpdatesView = injected[LatestNewsAndUpdatesView]
-  private val saAndItsaMergeView = injected[SaAndItsaMergeView]
-  private val enrolmentsHelper = injected[EnrolmentsHelper]
-  private val newsAndTilesConfig = mock[NewsAndTilesConfig]
-  private val stubConfigDecorator = new ConfigDecorator(
+  private val saAndItsaMergeView       = injected[SaAndItsaMergeView]
+  private val enrolmentsHelper         = injected[EnrolmentsHelper]
+  private val newsAndTilesConfig       = mock[NewsAndTilesConfig]
+  private val stubConfigDecorator      = new ConfigDecorator(
     injected[Configuration],
     injected[Langs],
     injected[ServicesConfig]
   ) {
     override lazy val saItsaTileEnabled: Boolean = false
   }
-  private val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  private val testUtr                  = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   private val homeCardGenerator =
     new HomeCardGenerator(
@@ -302,7 +302,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "Calling getSelfAssessmentCard" must {
-    val taxYear = previousAndCurrentTaxYear
+    val taxYear             = previousAndCurrentTaxYear
     val nextDeadlineTaxYear = 2019
 
     "return None if saItsaTileEnabled is true" in {
@@ -421,7 +421,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         injected[ServicesConfig]
       ) {
         override lazy val isNationalInsuranceCardEnabled: Boolean = false
-        override lazy val saItsaTileEnabled: Boolean = false
+        override lazy val saItsaTileEnabled: Boolean              = false
       }
 
       def sut: HomeCardGenerator =
@@ -476,7 +476,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getMarriageAllowanceCard" must {
     "return correct markup when called with a user who has tax summary and receives Marriage Allowance" in {
       val hasTaxComponents: Boolean = true
-      val taxComponents = Seq("MarriageAllowanceReceived")
+      val taxComponents             = Seq("MarriageAllowanceReceived")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -488,7 +488,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return nothing when called with a user who has tax summary and transfers Marriage Allowance" in {
       val hasTaxComponents: Boolean = true
-      val taxComponents = Seq("MarriageAllowanceTransferred")
+      val taxComponents             = Seq("MarriageAllowanceTransferred")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -500,7 +500,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return correct markup when called with a user who has no tax summary" in {
       val hasTaxComponents = false
-      val taxComponents = Seq()
+      val taxComponents    = Seq()
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -512,7 +512,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return correct markup when called with a user who has tax summary but no marriage allowance" in {
       val hasTaxComponents = true
-      val taxComponents = Seq("MedicalInsurance")
+      val taxComponents    = Seq("MedicalInsurance")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -547,7 +547,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         cardBody mustBe Some(taxSummaries(configDecorator.annualTaxSaSummariesTileLink))
       }
 
-      val saUtr: SaUtr = SaUtr("test utr")
+      val saUtr: SaUtr     = SaUtr("test utr")
       val incorrectSaUsers = Seq(
         NonFilerSelfAssessmentUser,
         NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),

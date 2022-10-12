@@ -39,7 +39,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   val mockPreferencesFrontendPartialService = mock[PreferencesFrontendPartialService]
-  val mockAuthJourney = mock[AuthJourney]
+  val mockAuthJourney                       = mock[AuthJourney]
 
   def controller: PaperlessPreferencesController =
     new PaperlessPreferencesController(

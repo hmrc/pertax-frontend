@@ -47,7 +47,8 @@ class SelfAssessmentController @Inject() (
   cannotConfirmIdentityView: CannotConfirmIdentityView,
   requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear {
+    extends PertaxBaseController(cc)
+    with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
 
@@ -57,11 +58,11 @@ class SelfAssessmentController @Inject() (
         request.saUserType match {
           case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
             Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
-          case WrongCredentialsSelfAssessmentUser(_) =>
+          case WrongCredentialsSelfAssessmentUser(_)           =>
             Redirect(routes.SaWrongCredentialsController.landingPage)
-          case NotEnrolledSelfAssessmentUser(_) =>
+          case NotEnrolledSelfAssessmentUser(_)                =>
             Redirect(routes.SelfAssessmentController.requestAccess)
-          case _ => Redirect(routes.HomeController.index)
+          case _                                               => Redirect(routes.HomeController.index)
         }
     }
 
@@ -70,19 +71,19 @@ class SelfAssessmentController @Inject() (
       val retryUrl = routes.ApplicationController.uplift(continueUrl).url
 
       request.saUserType match {
-        case ActivatedOnlineFilerSelfAssessmentUser(x) =>
+        case ActivatedOnlineFilerSelfAssessmentUser(x)       =>
           handleIvExemptAuditing("Activated online SA filer")
           Redirect(configDecorator.ssoToSaAccountSummaryUrl(x.toString, DateTimeTools.previousAndCurrentTaxYear))
         case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Not yet activated SA filer")
           Ok(failedIvContinueToActivateSaView())
-        case WrongCredentialsSelfAssessmentUser(_) =>
+        case WrongCredentialsSelfAssessmentUser(_)           =>
           handleIvExemptAuditing("Wrong credentials SA filer")
           Redirect(routes.SaWrongCredentialsController.landingPage)
-        case NotEnrolledSelfAssessmentUser(_) =>
+        case NotEnrolledSelfAssessmentUser(_)                =>
           handleIvExemptAuditing("Never enrolled SA filer")
           Redirect(routes.SelfAssessmentController.requestAccess)
-        case NonFilerSelfAssessmentUser =>
+        case NonFilerSelfAssessmentUser                      =>
           Ok(cannotConfirmIdentityView(retryUrl))
       }
     }
@@ -111,7 +112,7 @@ class SelfAssessmentController @Inject() (
         case NotEnrolledSelfAssessmentUser(_) =>
           val deadlineYear = current.finishYear.toString
           Ok(requestAccessToSelfAssessmentView(deadlineYear))
-        case _ => Redirect(routes.HomeController.index)
+        case _                                => Redirect(routes.HomeController.index)
       }
     }
 }

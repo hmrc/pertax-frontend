@@ -32,14 +32,14 @@ class HttpClientResponse @Inject() (metrics: Metrics)(implicit ec: ExecutionCont
     metricName: MetricsEnumeration.Value
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     EitherT(response.map {
-      case Right(response) =>
+      case Right(response)                                                                 =>
         metrics.incrementSuccessCounter(metricName)
         Right(response)
-      case Left(error) if error.statusCode == NOT_FOUND =>
+      case Left(error) if error.statusCode == NOT_FOUND                                    =>
         metrics.incrementFailedCounter(metricName)
         logger.info(error.message)
         Left(error)
-      case Left(error) if error.statusCode == LOCKED =>
+      case Left(error) if error.statusCode == LOCKED                                       =>
         metrics.incrementFailedCounter(metricName)
         logger.warn(error.message)
         Left(error)
@@ -47,7 +47,7 @@ class HttpClientResponse @Inject() (metrics: Metrics)(implicit ec: ExecutionCont
         metrics.incrementFailedCounter(metricName)
         logger.error(error.message)
         Left(error)
-      case Left(error) =>
+      case Left(error)                                                                     =>
         metrics.incrementFailedCounter(metricName)
         logger.error(error.message, error)
         Left(error)
@@ -56,7 +56,7 @@ class HttpClientResponse @Inject() (metrics: Metrics)(implicit ec: ExecutionCont
         metrics.incrementFailedCounter(metricName)
         logger.error(exception.message)
         Left(UpstreamErrorResponse(exception.message, BAD_GATEWAY, BAD_GATEWAY))
-      case exception: Exception =>
+      case exception: Exception     =>
         metrics.incrementFailedCounter(metricName)
         throw exception
     })

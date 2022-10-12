@@ -14,7 +14,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeControllerISpec extends IntegrationSpec {
 
-
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
       "feature.breathing-space-indicator.enabled" -> true,
@@ -30,7 +29,6 @@ class HomeControllerISpec extends IntegrationSpec {
   }
 
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
-
 
   val breathingSpaceUrl = s"/$generatedNino/memorandum"
 

@@ -71,7 +71,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result                                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -81,7 +81,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(false)))))
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result                                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -91,7 +91,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result                                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -143,7 +143,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result                                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -218,10 +218,10 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
     "redirect to the edit-address page for a non postal address type and log a addressLookupResults audit event when a single record is returned by the address lookup service" in new LocalSetup {
       override def addressLookupResponse: AddressLookupResponse =
         AddressLookupSuccessResponse(RecordSet(List(fakeStreetPafAddressRecord)))
-      override def sessionCacheResponse: Option[CacheMap] =
+      override def sessionCacheResponse: Option[CacheMap]       =
         Some(CacheMap("id", Map("residentialAddressFinderDto" -> Json.toJson(AddressFinderDto("AA1 1AA", None)))))
 
-      override def currentRequest[A]: Request[A] =
+      override def currentRequest[A]: Request[A]                =
         FakeRequest("POST", "/test")
           .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
@@ -268,7 +268,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
 
     "return Not Found when an empty recordset is returned by the address lookup service and back = true" in new LocalSetup {
       override def addressLookupResponse: AddressLookupResponse = AddressLookupSuccessResponse(RecordSet(List()))
-      override def sessionCacheResponse: Option[CacheMap] =
+      override def sessionCacheResponse: Option[CacheMap]       =
         Some(
           CacheMap(
             "id",

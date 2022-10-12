@@ -95,7 +95,7 @@ class HomeCardGenerator @Inject() (
     if (!configDecorator.saItsaTileEnabled) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
-        case saWithActionNeeded =>
+        case saWithActionNeeded         =>
           Some(selfAssessmentView(saWithActionNeeded, previousAndCurrentTaxYear, (current.currentYear + 1).toString))
       }
     } else {

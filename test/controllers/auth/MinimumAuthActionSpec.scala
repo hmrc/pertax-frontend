@@ -41,7 +41,7 @@ import scala.language.postfixOps
 
 class MinimumAuthActionSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = GuiceApplicationBuilder()
+  override implicit lazy val app: Application    = GuiceApplicationBuilder()
     .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
     .configure(Map("metrics.enabled" -> false))
     .build()
@@ -51,12 +51,12 @@ class MinimumAuthActionSpec extends BaseSpec {
     ] ~ Option[
       TrustedHelper
     ] ~ Option[String]
-  val cc: ControllerComponents = stubControllerComponents()
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val cc: ControllerComponents                   = stubControllerComponents()
+  val mockAuthConnector: AuthConnector           = mock[AuthConnector]
   val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
-  val sessionAuditor =
+  val sessionAuditor                             =
     new SessionAuditorFake(app.injector.instanceOf[AuditConnector], app.injector.instanceOf[EnrolmentsHelper])
-  val enrolmentsHelper: EnrolmentsHelper = injected[EnrolmentsHelper]
+  val enrolmentsHelper: EnrolmentsHelper         = injected[EnrolmentsHelper]
 
   "A user with no active session must" must {
     "be redirected to the session timeout page" in {
@@ -72,7 +72,7 @@ class MinimumAuthActionSpec extends BaseSpec {
           enrolmentsHelper
         )
       val controller = new Harness(authAction)
-      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
+      val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
       redirectLocation(result).get must endWith("/personal-account/signin")
     }
@@ -92,7 +92,7 @@ class MinimumAuthActionSpec extends BaseSpec {
           enrolmentsHelper
         )
       val controller = new Harness(authAction)
-      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
+      val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
 
       whenReady(result.failed) { ex =>
         ex mustBe an[InsufficientEnrolments]
@@ -116,7 +116,7 @@ class MinimumAuthActionSpec extends BaseSpec {
   "A user with nino and no SA enrolment must" must {
     "create an authenticated request" in {
 
-      val nino = Fixtures.fakeNino.nino
+      val nino                                    = Fixtures.fakeNino.nino
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
           Some(nino) ~ None ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None
@@ -182,7 +182,7 @@ class MinimumAuthActionSpec extends BaseSpec {
     "create an authenticated request" in {
 
       val nino = Fixtures.fakeNino.nino
-      val utr = new SaUtrGenerator().nextSaUtr.utr
+      val utr  = new SaUtrGenerator().nextSaUtr.utr
 
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
@@ -217,7 +217,7 @@ class MinimumAuthActionSpec extends BaseSpec {
   "A user with trustedHelper must" must {
     "create an authenticated request containing the trustedHelper" in {
 
-      val fakePrincipalNino = Fixtures.fakeNino.toString()
+      val fakePrincipalNino                       = Fixtures.fakeNino.toString()
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
           Some(Fixtures.fakeNino.toString()) ~ None ~ Enrolments(Set.empty) ~ Some(

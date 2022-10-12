@@ -35,7 +35,7 @@ trait PdfGeneratorConnector {
 class FrontendPdfGeneratorConnector @Inject() (wsClient: WSClient, servicesConfig: ServicesConfig)
     extends PdfGeneratorConnector {
   val pdfServiceUrl: String = servicesConfig.baseUrl("pdf-generator-service")
-  val serviceURL = pdfServiceUrl + "/pdf-generator-service/generate"
+  val serviceURL            = pdfServiceUrl + "/pdf-generator-service/generate"
 
   override def getWsClient: WSClient = wsClient
 }

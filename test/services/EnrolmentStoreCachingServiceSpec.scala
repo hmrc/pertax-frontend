@@ -29,7 +29,7 @@ import scala.concurrent.Future
 
 class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
-  val mockSessionCache: LocalSessionCache = mock[LocalSessionCache]
+  val mockSessionCache: LocalSessionCache          = mock[LocalSessionCache]
   val mockEnrolmentsConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
 
   override def beforeEach(): Unit = {
@@ -39,8 +39,8 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
   trait LocalSetup {
 
-    val cacheResult: CacheMap = CacheMap("", Map.empty)
-    val fetchResult: Option[SelfAssessmentUserType] = None
+    val cacheResult: CacheMap                        = CacheMap("", Map.empty)
+    val fetchResult: Option[SelfAssessmentUserType]  = None
     val connectorResult: Either[String, Seq[String]] = Right(Seq[String]())
 
     lazy val sut: EnrolmentStoreCachingService = {

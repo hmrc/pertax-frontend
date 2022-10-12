@@ -29,10 +29,10 @@ import java.util.UUID
 
 class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
 
-  val url = "/internal/self-assessment/enrol-for-sa"
-  val utr: SaUtr = new SaUtrGenerator().nextSaUtr
+  val url                = "/internal/self-assessment/enrol-for-sa"
+  val utr: SaUtr         = new SaUtrGenerator().nextSaUtr
   val providerId: String = UUID.randomUUID().toString
-  val origin = "pta-sa"
+  val origin             = "pta-sa"
 
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = userRequest(
     NotEnrolledSelfAssessmentUser(utr),
@@ -68,7 +68,7 @@ class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
 
         "the correct payload is submitted (excluding UTR)" in {
           val redirectUrl = "/foo"
-          val request = SaEnrolmentRequest(origin, None, providerId)
+          val request     = SaEnrolmentRequest(origin, None, providerId)
 
           val response =
             s"""
@@ -87,7 +87,7 @@ class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
       "return None" when {
         "an invalid origin is submitted" in {
           val invalidOrigin = "an_invalid_origin"
-          val request = SaEnrolmentRequest(invalidOrigin, Some(utr), providerId)
+          val request       = SaEnrolmentRequest(invalidOrigin, Some(utr), providerId)
 
           stubPost(url, BAD_REQUEST, Some(Json.toJson(request).toString()), Some(s"Invalid origin: $invalidOrigin"))
 
@@ -96,7 +96,7 @@ class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
         }
 
         "an invalid utr is submitted" in {
-          val invalidUtr = s"&${utr.utr}"
+          val invalidUtr                  = s"&${utr.utr}"
           val request: SaEnrolmentRequest = SaEnrolmentRequest(origin, Some(SaUtr(invalidUtr)), providerId)
 
           stubPost(url, BAD_REQUEST, Some(Json.toJson(request).toString()), Some(s"Invalid utr: $invalidUtr"))
@@ -106,8 +106,8 @@ class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
         }
 
         "multiple invalid fields are submitted" in {
-          val invalidOrigin = "an_invalid_origin"
-          val invalidUtr = s"&${utr.utr}"
+          val invalidOrigin               = "an_invalid_origin"
+          val invalidUtr                  = s"&${utr.utr}"
           val request: SaEnrolmentRequest = SaEnrolmentRequest(invalidOrigin, Some(SaUtr(invalidUtr)), providerId)
 
           stubPost(

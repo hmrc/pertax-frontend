@@ -38,10 +38,10 @@ import scala.concurrent.Future
 
 class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDetailsFixtures {
 
-  val mockPdfGeneratorConnector = mock[PdfGeneratorConnector]
-  val mockAuthJourney = mock[AuthJourney]
-  val mockInterstitialController = mock[InterstitialController]
-  val mockHomeController = mock[HomeController]
+  val mockPdfGeneratorConnector       = mock[PdfGeneratorConnector]
+  val mockAuthJourney                 = mock[AuthJourney]
+  val mockInterstitialController      = mock[InterstitialController]
+  val mockHomeController              = mock[HomeController]
   val mockRlsConfirmAddressController = mock[RlsController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()

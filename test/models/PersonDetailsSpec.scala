@@ -35,7 +35,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
     "Produce firstname lastname when someone has both" in new LocalSetup {
 
       val firstName = Some("Firstname")
-      val lastName = Some("Lastname")
+      val lastName  = Some("Lastname")
 
       pd.shortName mustBe Some("Firstname Lastname")
     }
@@ -43,7 +43,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
     "Produce nothing when only lastname is present" in new LocalSetup {
 
       val firstName = None
-      val lastName = Some("Lastname")
+      val lastName  = Some("Lastname")
 
       pd.shortName mustBe None
     }
@@ -51,7 +51,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
     "Produce nothing when only firstname is present" in new LocalSetup {
 
       val firstName = Some("Firstname")
-      val lastName = None
+      val lastName  = None
 
       pd.shortName mustBe None
     }
@@ -59,7 +59,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
     "Produce nothing when no firstname or lastname is present" in new LocalSetup {
 
       val firstName = None
-      val lastName = None
+      val lastName  = None
 
       pd.shortName mustBe None
     }

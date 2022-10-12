@@ -37,7 +37,7 @@ object AddressFinderDto {
               case _                 => false
             }
         ),
-      "filter" -> optional(nonEmptyText)
+      "filter"   -> optional(nonEmptyText)
         .verifying("error.enter_valid_characters", e => validateAddressLineCharacters(e))
     )(AddressFinderDto.apply)(AddressFinderDto.unapply)
   )

@@ -109,7 +109,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     def sessionCacheResponse: Option[CacheMap] =
       Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
 
-    def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+    def currentRequest[A]: Request[A]          = FakeRequest().asInstanceOf[Request[A]]
   }
 
   "onPageLoad" must {
@@ -225,7 +225,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
       contentAsString(result) mustBe expectedAddressConfirmationView
 
-      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
@@ -239,7 +239,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditCorrespondenceAddress(Instant.now())))
-      val result = controller.confirmSubmit(FakeRequest())
+      val result                                                            = controller.confirmSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad.url)
@@ -250,7 +250,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "render the thank you page upon successful submission of closing the correspondence address and only a lock on the residential address" in new LocalSetup {
-      override def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A]                            = FakeRequest().asInstanceOf[Request[A]]
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditResidentialAddress(Instant.now())))
 
@@ -259,7 +259,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
       contentAsString(result) mustBe expectedAddressConfirmationView
 
-      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
@@ -312,7 +312,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe INTERNAL_SERVER_ERROR
 
-      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
@@ -334,7 +334,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     "throw an Exception when person details does not contain a correspondence address" in new LocalSetup {
       override def personDetailsForRequest: Option[PersonDetails] =
         Some(buildPersonDetailsCorrespondenceAddress.copy(correspondenceAddress = None))
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A]                  = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
       the[Exception] thrownBy {
         await(controller.confirmSubmit(currentRequest))
