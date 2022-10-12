@@ -80,7 +80,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
       val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
-      val result = controller.processDoYouKnowUserId(request)
+      val result  = controller.processDoYouKnowUserId(request)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.findYourUserId.url)
@@ -88,7 +88,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
 
     "return a bad request when supplied no value" in {
       val request = FakeRequest("POST", "")
-      val result = controller.processDoYouKnowUserId(request)
+      val result  = controller.processDoYouKnowUserId(request)
       status(result) mustBe BAD_REQUEST
     }
   }

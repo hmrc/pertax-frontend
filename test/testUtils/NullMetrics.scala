@@ -21,5 +21,5 @@ import com.kenshoo.play.metrics.Metrics
 
 class NullMetrics extends Metrics {
   override def defaultRegistry: MetricRegistry = new MetricRegistry
-  override def toJson: String = ""
+  override def toJson: String                  = ""
 }

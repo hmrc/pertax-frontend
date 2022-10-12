@@ -27,12 +27,12 @@ class FormPartialUpgradeSpec extends BaseSpec {
 
     "return HTML with the heading classes added to an h2" in {
       val heading = Html("<h2>Heading</h2>")
-      val result = FormPartialUpgrade.upgrade(heading)
+      val result  = FormPartialUpgrade.upgrade(heading)
       result mustBe Html("<h2 class=\"govuk-heading-m\">Heading</h2>")
     }
 
     "return HTML with the bulleted list classes added to a list" in {
-      val list = Html("<ul><li>List</li></ul>")
+      val list   = Html("<ul><li>List</li></ul>")
       val result = FormPartialUpgrade.upgrade(list)
       result mustBe Html(
         Jsoup
@@ -43,13 +43,13 @@ class FormPartialUpgradeSpec extends BaseSpec {
     }
 
     "return HTML with the govuk-link class added to a link" in {
-      val link = Html("<a href=\"link\">Link</a>")
+      val link   = Html("<a href=\"link\">Link</a>")
       val result = FormPartialUpgrade.upgrade(link)
       result mustBe Html("<a href=\"link\" class=\"govuk-link\">Link</a>")
     }
 
     "return HTML with the govuk classes added to all expected elements" in {
-      val list = Html("<h2>Heading</h2><ul><li><a href=\"link\">Link</a></li><li><a href=\"link\">Link2</a></li></ul>")
+      val list   = Html("<h2>Heading</h2><ul><li><a href=\"link\">Link</a></li><li><a href=\"link\">Link2</a></li></ul>")
       val result = FormPartialUpgrade.upgrade(list)
       result mustBe
         Html(

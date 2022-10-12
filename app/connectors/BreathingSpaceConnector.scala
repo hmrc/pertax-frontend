@@ -37,25 +37,27 @@ class BreathingSpaceConnector @Inject() (
   val metrics: Metrics,
   httpClientResponse: HttpClientResponse,
   override val configDecorator: ConfigDecorator
-) extends Timeout with Logging with ServicesCircuitBreaker {
+) extends Timeout
+    with Logging
+    with ServicesCircuitBreaker {
 
-  lazy val baseUrl = configDecorator.breathingSpcaeBaseUrl
+  lazy val baseUrl      = configDecorator.breathingSpcaeBaseUrl
   lazy val timeoutInSec =
     configDecorator.breathingSpcaeTimeoutInSec
-  val metricName = MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR
+  val metricName        = MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR
 
   override val externalServiceName = configDecorator.breathingSpaceAppName
 
   def getBreathingSpaceIndicator(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Boolean] = {
-    val timerContext: Timer.Context = metrics.startTimer(metricName)
-    val url = s"$baseUrl/$nino/memorandum"
+    val timerContext: Timer.Context             = metrics.startTimer(metricName)
+    val url                                     = s"$baseUrl/$nino/memorandum"
     implicit val bsHeaderCarrier: HeaderCarrier = hc
       .withExtraHeaders(
         "Correlation-Id" -> randomUUID.toString
       )
-    val result = withTimeout(timeoutInSec seconds) {
+    val result                                  = withTimeout(timeoutInSec seconds) {
       withCircuitBreaker(
         httpClient
           .GET[HttpResponse](url)(HttpReadsLegacyRawReads.readRaw, bsHeaderCarrier, ec)
@@ -65,16 +67,16 @@ class BreathingSpaceConnector @Inject() (
           Right(response)
         }
     } recover {
-      case notFound: NotFoundException =>
+      case notFound: NotFoundException     =>
         timerContext.stop()
         Left(UpstreamErrorResponse(notFound.getMessage, notFound.responseCode, notFound.responseCode))
       case badRequest: BadRequestException =>
         timerContext.stop()
         Left(UpstreamErrorResponse(badRequest.getMessage, badRequest.responseCode, badRequest.responseCode))
-      case error: UpstreamErrorResponse =>
+      case error: UpstreamErrorResponse    =>
         timerContext.stop()
         Left(error)
-      case error =>
+      case error                           =>
         timerContext.stop()
         throw error
     }

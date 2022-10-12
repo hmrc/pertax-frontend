@@ -25,7 +25,7 @@ class MessagesSpec extends BaseSpec {
 
   lazy val messagesAPI = app.injector.instanceOf[MessagesApi]
 
-  val matchSingleQuoteOnly: Regex = """\w+'{1}\w+""".r
+  val matchSingleQuoteOnly: Regex   = """\w+'{1}\w+""".r
   val matchBacktickQuoteOnly: Regex = """`+""".r
 
   "Application" must {
@@ -73,9 +73,9 @@ class MessagesSpec extends BaseSpec {
     }
     "have a resolvable message for keys which take args" in {
       val englishWithArgsMsgKeys = defaultMessages collect { case (key, value) if countArgs(value) > 0 => key }
-      val welshWithArgsMsgKeys = welshMessages collect { case (key, value) if countArgs(value) > 0 => key }
-      val missingFromEnglish = englishWithArgsMsgKeys.toList diff welshWithArgsMsgKeys.toList
-      val missingFromWelsh = welshWithArgsMsgKeys.toList diff englishWithArgsMsgKeys.toList
+      val welshWithArgsMsgKeys   = welshMessages collect { case (key, value) if countArgs(value) > 0 => key }
+      val missingFromEnglish     = englishWithArgsMsgKeys.toList diff welshWithArgsMsgKeys.toList
+      val missingFromWelsh       = welshWithArgsMsgKeys.toList diff englishWithArgsMsgKeys.toList
       missingFromEnglish foreach { key =>
         println(s"Key which has arguments in English but not in Welsh: $key")
       }
@@ -88,10 +88,10 @@ class MessagesSpec extends BaseSpec {
       val englishWithArgsMsgKeysAndArgList = defaultMessages collect {
         case (key, value) if countArgs(value) > 0 => (key, listArgs(value))
       }
-      val welshWithArgsMsgKeysAndArgList = welshMessages collect {
+      val welshWithArgsMsgKeysAndArgList   = welshMessages collect {
         case (key, value) if countArgs(value) > 0 => (key, listArgs(value))
       }
-      val mismatchedArgSequences = englishWithArgsMsgKeysAndArgList collect {
+      val mismatchedArgSequences           = englishWithArgsMsgKeysAndArgList collect {
         case (key, engArgSeq) if engArgSeq != welshWithArgsMsgKeysAndArgList(key) =>
           (key, engArgSeq, welshWithArgsMsgKeysAndArgList(key))
       }

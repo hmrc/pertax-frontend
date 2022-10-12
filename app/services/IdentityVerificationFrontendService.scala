@@ -34,22 +34,23 @@ case class IdentityVerificationUnexpectedResponse(r: HttpResponse) extends Ident
 case class IdentityVerificationErrorResponse(cause: Exception) extends IdentityVerificationResponse
 
 object IdentityVerificationSuccessResponse {
-  val Success = "Success"
-  val Incomplete = "Incomplete"
-  val FailedMatching = "FailedMatching"
+  val Success              = "Success"
+  val Incomplete           = "Incomplete"
+  val FailedMatching       = "FailedMatching"
   val InsufficientEvidence = "InsufficientEvidence"
-  val LockedOut = "LockedOut"
-  val UserAborted = "UserAborted"
-  val Timeout = "Timeout"
-  val TechnicalIssue = "TechnicalIssue"
-  val PrecondFailed = "PreconditionFailed"
+  val LockedOut            = "LockedOut"
+  val UserAborted          = "UserAborted"
+  val Timeout              = "Timeout"
+  val TechnicalIssue       = "TechnicalIssue"
+  val PrecondFailed        = "PreconditionFailed"
 }
 @Singleton
 class IdentityVerificationFrontendService @Inject() (
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
   servicesConfig: ServicesConfig
-) extends HasMetrics with Logging {
+) extends HasMetrics
+    with Logging {
 
   lazy val identityVerificationFrontendUrl: String = servicesConfig.baseUrl("identity-verification-frontend")
 

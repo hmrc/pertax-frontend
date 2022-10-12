@@ -37,11 +37,11 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
         .getObject("feature.news")
         .asScala
         .map { case (newsSection, _) =>
-          val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-          val localStartDate =
+          val formatter       = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+          val localStartDate  =
             LocalDate.parse(configuration.get[String](s"feature.news.$newsSection.start-date"), formatter)
           val optionalEndDate = configuration.getOptional[String](s"feature.news.$newsSection.end-date")
-          val localEndDate = optionalEndDate match {
+          val localEndDate    = optionalEndDate match {
             case Some(endDate) => LocalDate.parse(endDate, formatter)
             case None          => LocalDate.MAX
           }
@@ -50,13 +50,13 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
             val isDynamicOptional = configuration.getOptional[Boolean](s"feature.news.$newsSection.dynamic-content")
             isDynamicOptional match {
               case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true))
-              case None =>
+              case None    =>
                 val shortDescription = if (messages.lang.code equals "en") {
                   configuration.get[String](s"feature.news.$newsSection.short-description-en")
                 } else {
                   configuration.get[String](s"feature.news.$newsSection.short-description-cy")
                 }
-                val content = if (messages.lang.code equals "en") {
+                val content          = if (messages.lang.code equals "en") {
                   configuration.get[String](s"feature.news.$newsSection.content-en")
                 } else {
                   configuration.get[String](s"feature.news.$newsSection.content-cy")

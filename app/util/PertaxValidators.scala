@@ -32,7 +32,7 @@ object PertaxValidators {
         val anyCheckedFieldContainsData =
           fieldsToCheck.foldLeft[Boolean](false)((dataFound, rf) => dataFound || !formData.getOrElse(rf, "").isEmpty)
         if (anyCheckedFieldContainsData) Seq(FormError(key, s"error.${key}_required")) else Nil
-      case _ =>
+      case _  =>
         Nil
     }
 
@@ -60,7 +60,7 @@ object PertaxValidators {
     })
 
   private val AddressLineRegex = """^[A-Za-z0-9 \-,.&'\/]+""".r
-  val PostcodeRegex =
+  val PostcodeRegex            =
     """^(GIR ?0AA|[A-PR-UWYZa-pr-uwyz]([0-9]{1,2}|([A-HK-Ya-jk-y][0-9]([0-9ABEHMNPRV-Yabehmnprv-y])?)|[0-9][A-HJKPS-UWa-hjkps-u])\s?[0-9][ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2})$""".r
 
   def validateAddressLineCharacters(addressLine: Option[String]) = addressLine match {
@@ -70,7 +70,7 @@ object PertaxValidators {
         case ""                 => true
         case _                  => false
       }
-    case None => true
+    case None       => true
   }
 
 }

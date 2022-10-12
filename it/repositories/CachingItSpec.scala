@@ -31,13 +31,13 @@ import java.time.{Instant, OffsetDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
-class CachingItSpec extends AnyWordSpecLike with Matchers
-  with DefaultPlayMongoRepositorySupport[AddressJourneyTTLModel]
-  with PatienceConfiguration  {
-
+class CachingItSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with DefaultPlayMongoRepositorySupport[AddressJourneyTTLModel]
+    with PatienceConfiguration {
 
   lazy val config = mock[ConfigDecorator]
-
 
   override lazy val repository = new EditAddressLockRepository(
     config,
@@ -51,14 +51,16 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
     @scala.annotation.tailrec
     def next(): Nino = generator.nextNino match {
       case `testNino` => next()
-      case newNino => newNino
+      case newNino    => newNino
     }
 
     next()
   }
 
-  val addedSeconds = 546
-  def editedAddressAddedSeconds(): EditResidentialAddress = EditResidentialAddress(Instant.now().plusSeconds(addedSeconds))
+  val addedSeconds                                        = 546
+  def editedAddressAddedSeconds(): EditResidentialAddress = EditResidentialAddress(
+    Instant.now().plusSeconds(addedSeconds)
+  )
 
   "editAddressLockRepository" when {
 
@@ -88,7 +90,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
 
           val fGet = repository.get(nino).futureValue
 
-         fGet shouldBe List.empty
+          fGet shouldBe List.empty
         }
       }
 
@@ -97,9 +99,9 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
 
           val nino = testNino.withoutSuffix
 
-
           val address1 = AddressJourneyTTLModel(nino, editedAddressAddedSeconds)
-          val address2 = AddressJourneyTTLModel(nino, EditCorrespondenceAddress(Instant.now().plusSeconds(addedSeconds)))
+          val address2 =
+            AddressJourneyTTLModel(nino, EditCorrespondenceAddress(Instant.now().plusSeconds(addedSeconds)))
 
           await(repository.insertCore(address1))
           await(repository.insertCore(address2))
@@ -126,7 +128,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
 
           val inserted = await(repository.get(nino))
 
-          inserted.head.nino shouldBe nino
+          inserted.head.nino                                shouldBe nino
           inserted.head.editedAddress.expireAt.toEpochMilli shouldBe midnight
         }
       }
@@ -145,6 +147,5 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
       }
     }
   }
-
 
 }

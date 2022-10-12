@@ -38,7 +38,7 @@ class BusinessHoursConfig @Inject() (configuration: Configuration) extends Loggi
       case "FRIDAY"    => Some(DayOfWeek.FRIDAY)
       case "SATURDAY"  => Some(DayOfWeek.SATURDAY)
       case "SUNDAY"    => Some(DayOfWeek.SUNDAY)
-      case weekDay =>
+      case weekDay     =>
         val ex = new RuntimeException(s"Invalid day of week `$weekDay`. Check `app-config-*`")
         logger.error(ex.getMessage, ex)
         None
@@ -52,33 +52,33 @@ class BusinessHoursConfig @Inject() (configuration: Configuration) extends Loggi
         .getObject("feature.business-hours")
         .asScala
         .map { case (dayOfWeek, _) =>
-          val formatter = DateTimeFormatter.ofPattern("H:m").withZone(TimeZone.getTimeZone("Europe/London").toZoneId)
+          val formatter      = DateTimeFormatter.ofPattern("H:m").withZone(TimeZone.getTimeZone("Europe/London").toZoneId)
           val localStartTime =
             Try(
               LocalTime.parse(configuration.get[String](s"feature.business-hours.$dayOfWeek.start-time"), formatter)
             ) match {
-              case Success(localTime) => Some(localTime)
+              case Success(localTime)                         => Some(localTime)
               case Failure(exception: DateTimeParseException) =>
                 logger.error(exception.getMessage, exception)
                 None
-              case Failure(exception: ConfigException) =>
+              case Failure(exception: ConfigException)        =>
                 logger.error(exception.getMessage, exception)
                 None
-              case Failure(error) => throw error
+              case Failure(error)                             => throw error
             }
 
           val localEndTime =
             Try(
               LocalTime.parse(configuration.get[String](s"feature.business-hours.$dayOfWeek.end-time"), formatter)
             ) match {
-              case Success(localTime) => Some(localTime)
+              case Success(localTime)                         => Some(localTime)
               case Failure(exception: DateTimeParseException) =>
                 logger.error(exception.getMessage, exception)
                 None
-              case Failure(exception: ConfigException) =>
+              case Failure(exception: ConfigException)        =>
                 logger.error(exception.getMessage, exception)
                 None
-              case Failure(error) => throw error
+              case Failure(error)                             => throw error
             }
 
           (localStartTime, localEndTime) match {

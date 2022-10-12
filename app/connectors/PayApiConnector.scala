@@ -40,7 +40,7 @@ class PayApiConnector @Inject() (http: HttpClient, configDecorator: ConfigDecora
           case CREATED =>
             timer.completeTimerAndIncrementSuccessCounter()
             Future.successful(Some(response.json.as[CreatePayment]))
-          case _ =>
+          case _       =>
             timer.completeTimerAndIncrementFailedCounter()
             Future.successful(None)
         }

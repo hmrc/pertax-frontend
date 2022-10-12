@@ -41,8 +41,8 @@ import scala.concurrent.Future
 
 class GetPersonDetailsActionSpec extends BaseSpec {
 
-  val mockMessageFrontendService = mock[MessageFrontendService]
-  val mockCitizenDetailsConnector = mock[CitizenDetailsConnector]
+  val mockMessageFrontendService       = mock[MessageFrontendService]
+  val mockCitizenDetailsConnector      = mock[CitizenDetailsConnector]
   val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   override lazy val app: Application = GuiceApplicationBuilder()
@@ -76,7 +76,7 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     val person = userRequest.personDetails match {
       case Some(PersonDetails(Person(Some(firstName), None, None, None, None, None, None, None, None), None, None)) =>
         firstName
-      case _ => "No Person Details Defined"
+      case _                                                                                                        => "No Person Details Defined"
     }
 
     Future.successful(Ok(s"Person Details: $person"))

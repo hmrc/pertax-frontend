@@ -38,7 +38,7 @@ import scala.concurrent.Future
 
 class RlsControllerSpec extends BaseSpec {
 
-  val mockAuthJourney = mock[AuthJourney]
+  val mockAuthJourney    = mock[AuthJourney]
   val mockAuditConnector = mock[AuditConnector]
 
   when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
@@ -74,7 +74,7 @@ class RlsControllerSpec extends BaseSpec {
 
     "redirect to home page" when {
       "there is no residential and postal address" in {
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, None)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -93,8 +93,8 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "residential address is rls and residential address has been updated" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, None)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -113,8 +113,8 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "postal address is rls and postal address has been updated" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -133,9 +133,9 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "postal and main addresses are rls and both addresses have been updated" in {
-        val mainAddress = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val mainAddress   = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val postalAddress = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, mainAddress, postalAddress)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -156,8 +156,8 @@ class RlsControllerSpec extends BaseSpec {
 
     "return ok" when {
       "residential address is rls" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, None)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -178,8 +178,8 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "postal address is rls" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -200,8 +200,8 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "postal and residential address are rls" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -222,8 +222,8 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "residential address is rls and postal address has been updated" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, None)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -244,8 +244,8 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "postal and residential address is rls and residential address has been updated" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -266,8 +266,8 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "postal and residential address is rls and correspondence address has been updated" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -288,8 +288,8 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "postal address is rls and residential address has been updated" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -310,8 +310,8 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "return a 200 status when accessing index page with good nino and a non sa User" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -334,8 +334,8 @@ class RlsControllerSpec extends BaseSpec {
 
     "show the remove postal address" when {
       "a residential address exists" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, Fixtures.buildPersonDetailsCorrespondenceAddress.address, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -359,8 +359,8 @@ class RlsControllerSpec extends BaseSpec {
 
     "hide the remove postal address" when {
       "a residential address does not exist" in {
-        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))

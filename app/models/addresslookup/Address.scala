@@ -71,8 +71,8 @@ case class Address(
 }
 
 object Address {
-  implicit val formats = Json.format[Address]
-  val maxLineLength = 35
+  implicit val formats        = Json.format[Address]
+  val maxLineLength           = 35
   val danglingLetter: Pattern = Pattern.compile(".* [A-Z0-9]$")
 
   private def limit(str: String, max: Int): String = {

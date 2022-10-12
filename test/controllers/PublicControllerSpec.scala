@@ -76,7 +76,7 @@ class PublicControllerSpec extends BaseSpec {
 
     "redirect to /personal-account page with GG auth provider" in {
       val request = FakeRequest("GET", "/personal-account/start-government-gateway")
-      val r = controller.governmentGatewayEntryPoint()(request)
+      val r       = controller.governmentGatewayEntryPoint()(request)
 
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("/personal-account")

@@ -30,7 +30,7 @@ class SaPartialService @Inject() (
   enhancedPartialRetriever: EnhancedPartialRetriever
 )(implicit executionContext: ExecutionContext) {
 
-  private val returnUrl = configDecorator.pertaxFrontendHomeUrl
+  private val returnUrl      = configDecorator.pertaxFrontendHomeUrl
   private val returnLinkText = configDecorator.saPartialReturnLinkText
 
   def getSaAccountSummary(implicit request: RequestHeader): Future[HtmlPartial] =

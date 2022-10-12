@@ -37,11 +37,11 @@ case class EditCorrespondenceAddress(expireAt: Instant) extends EditedAddress {
 
 object EditedAddress extends MongoJavatimeFormats.Implicits {
 
-  val editResidentialAddress: String = "EditResidentialAddress"
+  val editResidentialAddress: String    = "EditResidentialAddress"
   val editCorrespondenceAddress: String = "EditCorrespondenceAddress"
 
   val addressType = "addressType"
-  val expireAt = "expireAt"
+  val expireAt    = "expireAt"
 
   implicit val writes: OWrites[EditedAddress] = (model: EditedAddress) =>
     Json.obj(

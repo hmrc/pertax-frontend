@@ -32,7 +32,8 @@ class RlsInterruptHelper @Inject() (
   cc: MessagesControllerComponents,
   editAddressLockRepository: EditAddressLockRepository
 )(implicit ec: ExecutionContext)
-    extends PertaxBaseController(cc) with Logging {
+    extends PertaxBaseController(cc)
+    with Logging {
 
   def enforceByRlsStatus(
     block: => Future[Result]

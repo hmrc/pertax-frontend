@@ -34,7 +34,7 @@ case class AddressJourneyData(
   def getAddressToDisplay: Option[AddressDto] =
     submittedAddressDto match {
       case Some(s) => Some(s)
-      case None =>
+      case None    =>
         selectedAddressRecord match {
           case Some(y) => Some(AddressDto.fromAddressRecord(y))
           case None    => None

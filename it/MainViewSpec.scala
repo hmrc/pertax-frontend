@@ -46,16 +46,18 @@ import scala.util.Random
 class MainViewSpec extends IntegrationSpec {
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-  implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
+  implicit val hc                        = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .configure(Map(
-      "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "metrics.enabled"               -> false
-    ))
+    .configure(
+      Map(
+        "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "metrics.enabled"               -> false
+      )
+    )
     .build()
 
   private val generator = new Generator(new Random())
@@ -72,42 +74,47 @@ class MainViewSpec extends IntegrationSpec {
       None,
       Some("M"),
       Some(LocalDate.parse("1975-12-03")),
-      Some(testNino)),
-    Some(Address(
-      Some("1 Fake Street"),
-      Some("Fake Town"),
-      Some("Fake City"),
-      Some("Fake Region"),
-      None,
-      Some("AA1 1AA"),
-      None,
-      Some(LocalDate.of(2015, 3, 15)),
-      None,
-      Some("Residential"),
-      false
-    )),
+      Some(testNino)
+    ),
+    Some(
+      Address(
+        Some("1 Fake Street"),
+        Some("Fake Town"),
+        Some("Fake City"),
+        Some("Fake Region"),
+        None,
+        Some("AA1 1AA"),
+        None,
+        Some(LocalDate.of(2015, 3, 15)),
+        None,
+        Some("Residential"),
+        false
+      )
+    ),
     None
   )
 
   lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
 
   implicit lazy val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi).messages
+  implicit lazy val messages: Messages               = MessagesImpl(Lang("en"), messagesApi).messages
 
   trait LocalSetup {
 
     def buildUserRequest[A](
-                          nino: Option[Nino] = Some(testNino),
-                          userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-                          saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-                          credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
-                          confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-                          personDetails: Option[PersonDetails] = Some(fakePersonDetails),
-                          trustedHelper: Option[TrustedHelper] = None,
-                          profile: Option[String] = None,
-                          messageCount: Option[Int] = None,
-                          request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-                        ): UserRequest[A] =
+      nino: Option[Nino] = Some(testNino),
+      userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+      saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
+        SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+      ),
+      credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
+      confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
+      personDetails: Option[PersonDetails] = Some(fakePersonDetails),
+      trustedHelper: Option[TrustedHelper] = None,
+      profile: Option[String] = None,
+      messageCount: Option[Int] = None,
+      request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+    ): UserRequest[A] =
       UserRequest(
         nino,
         userName,
@@ -124,17 +131,17 @@ class MainViewSpec extends IntegrationSpec {
       )
 
     def buildUserRequestNoSA[A](
-                             nino: Option[Nino] = Some(testNino),
-                             userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-                             saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
-                             credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
-                             confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-                             personDetails: Option[PersonDetails] = Some(fakePersonDetails),
-                             trustedHelper: Option[TrustedHelper] = None,
-                             profile: Option[String] = None,
-                             messageCount: Option[Int] = None,
-                             request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-                           ): UserRequest[A] =
+      nino: Option[Nino] = Some(testNino),
+      userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+      saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
+      credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
+      confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
+      personDetails: Option[PersonDetails] = Some(fakePersonDetails),
+      trustedHelper: Option[TrustedHelper] = None,
+      profile: Option[String] = None,
+      messageCount: Option[Int] = None,
+      request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+    ): UserRequest[A] =
       UserRequest(
         nino,
         userName,
@@ -154,12 +161,12 @@ class MainViewSpec extends IntegrationSpec {
 
     def view: MainView = app.injector.instanceOf[MainView]
 
-    val title = "Fake page title"
-    val heading = "Fake page heading"
+    val title       = "Fake page title"
+    val heading     = "Fake page heading"
     val backLinkUrl = "/personal-details/test"
-    val content = "Main page content"
+    val content     = "Main page content"
 
-    def main: Html = {
+    def main: Html =
       view(
         pageTitle = title,
         serviceName = heading,
@@ -168,7 +175,6 @@ class MainViewSpec extends IntegrationSpec {
         showBackLink = true,
         backLinkUrl = backLinkUrl
       )(Html(content))
-    }
 
     def doc: Document = Jsoup.parse(main.toString)
 
@@ -178,7 +184,8 @@ class MainViewSpec extends IntegrationSpec {
     def assertContainsLink(doc: Document, text: String, href: String): Assertion =
       assert(
         doc.getElementsContainingText(text).attr("href").contains(href),
-        s"\n\nLink $href was not rendered on the page\n")
+        s"\n\nLink $href was not rendered on the page\n"
+      )
   }
 
   "Main" when {
@@ -210,12 +217,11 @@ class MainViewSpec extends IntegrationSpec {
       "show the number of unread messages in the Messages link" when {
 
         "unread message count is populated in the request" in new LocalSetup {
-          val msgCount = 21
+          val msgCount                                                           = 21
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(request = FakeRequest(), messageCount = Some(msgCount))
 
-          doc.getElementsByClass("hmrc-notification-badge").first().text() must include(
-            msgCount.toString)
+          doc.getElementsByClass("hmrc-notification-badge").first().text() must include(msgCount.toString)
         }
       }
 
@@ -264,9 +270,9 @@ class MainViewSpec extends IntegrationSpec {
       "render the trusted helpers banner" when {
 
         "a trusted helper is set in the request" in new LocalSetup {
-          val principalName = "John Doe"
-          val url = "/return-url"
-          val helper = TrustedHelper(
+          val principalName                                                      = "John Doe"
+          val url                                                                = "/return-url"
+          val helper                                                             = TrustedHelper(
             principalName,
             "Attorney name",
             url,

@@ -41,10 +41,14 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import scala.concurrent.Future
 
 class SelfAssessmentStatusActionSpec
-    extends AnyFreeSpec with Matchers with MockitoSugar with BeforeAndAfterEach with GuiceOneAppPerSuite {
+    extends AnyFreeSpec
+    with Matchers
+    with MockitoSugar
+    with BeforeAndAfterEach
+    with GuiceOneAppPerSuite {
   val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
-  private val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-  private val enrolmentsCachingService = mock[EnrolmentStoreCachingService]
+  private val saUtr                                        = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  private val enrolmentsCachingService                     = mock[EnrolmentStoreCachingService]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[CitizenDetailsConnector].toInstance(mockCitizenDetailsConnector))
@@ -88,7 +92,7 @@ class SelfAssessmentStatusActionSpec
 
   "An SA user with an activated enrolment must" - {
     "return ActivatedOnlineFilerSelfAssessmentUser" in {
-      val saEnrolment =
+      val saEnrolment                                        =
         Enrolment("IR-SA", identifiers = Seq(EnrolmentIdentifier("UTR", saUtr.utr)), state = "Activated")
       implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set(saEnrolment))
 
@@ -100,7 +104,7 @@ class SelfAssessmentStatusActionSpec
 
   "An SA user with a not yet activated enrolment must" - {
     "return NotYetActivatedOnlineFilerSelfAssessmentUser" in {
-      val saEnrolment =
+      val saEnrolment                                        =
         Enrolment("IR-SA", identifiers = Seq(EnrolmentIdentifier("UTR", saUtr.utr)), state = "NotYetActivated")
       implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set(saEnrolment))
 

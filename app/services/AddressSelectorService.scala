@@ -28,9 +28,9 @@ class AddressSelectorService @Inject() () {
       def sort(zipped: Seq[(Option[Int], Option[Int])]): Boolean = zipped match {
         case (Some(nA), Some(nB)) :: tail =>
           if (nA == nB) sort(tail) else nA < nB
-        case (Some(_), None) :: _ => true
-        case (None, Some(_)) :: _ => false
-        case _                    => mkString(a.address) < mkString(b.address)
+        case (Some(_), None) :: _         => true
+        case (None, Some(_)) :: _         => false
+        case _                            => mkString(a.address) < mkString(b.address)
       }
 
       sort(numbersIn(a.address).zipAll(numbersIn(b.address), None, None).toList)

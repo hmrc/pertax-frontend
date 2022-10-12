@@ -57,7 +57,7 @@ class RlsController @Inject() (
         val residentialDetail =
           if (residentialLock) "residentialAddressUpdated" -> Some("true")
           else "residentialRLS"                            -> Some(mainAddress.exists(_.isRls).toString)
-        val postalDetail =
+        val postalDetail      =
           if (postalLock) "postalAddressUpdated" -> Some("true")
           else "postalRLS"                       -> Some(postalAddress.exists(_.isRls).toString)
 
@@ -66,7 +66,7 @@ class RlsController @Inject() (
             "RLSInterrupt",
             "user_shown_rls_interrupt_page",
             Map(
-              "nino" -> Some(request.nino.getOrElse("NoNino").toString),
+              "nino"               -> Some(request.nino.getOrElse("NoNino").toString),
               residentialDetail,
               postalDetail,
               "residentialAddress" -> mainAddress.map(_.fullAddress.mkString(";")),
@@ -82,7 +82,7 @@ class RlsController @Inject() (
         case AddressesLock(residentialLock, postalLock) =>
           request.personDetails
             .map { personDetails =>
-              val mainAddress =
+              val mainAddress   =
                 personDetails.address.map { address =>
                   if (address.isRls && !residentialLock)
                     address

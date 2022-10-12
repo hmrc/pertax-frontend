@@ -34,7 +34,7 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
   "TaxCreditsConnector" when {
     "checkForTaxCredits is called" must {
       "return a HttpResponse containing OK if tcs data for the given NINO is found" in {
-        val data = FileHelper.loadFile("./test/resources/tcs/dashboard-data.json")
+        val data   = FileHelper.loadFile("./test/resources/tcs/dashboard-data.json")
         stubGet(url, OK, Some(data))
         val result = connector.checkForTaxCredits(fakeNino).value.futureValue
 

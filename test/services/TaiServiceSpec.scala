@@ -61,8 +61,8 @@ class TaiServiceSpec extends BaseSpec {
         else new FakeSimpleHttp(Left(httpResponse))
       }
 
-      val timer = mock[Timer.Context]
-      val serviceConfig = app.injector.instanceOf[ServicesConfig]
+      val timer                       = mock[Timer.Context]
+      val serviceConfig               = app.injector.instanceOf[ServicesConfig]
       lazy val taiService: TaiService =
         new TaiService(fakeSimpleHttp, mock[Metrics], serviceConfig) {
 
@@ -83,7 +83,7 @@ class TaiServiceSpec extends BaseSpec {
     "return a TaxComponentsSuccessResponse containing a TaxSummaryDetails object when called with an existing nino and year" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(OK, Some(taxComponentsJson))
+      override lazy val httpResponse             = HttpResponse(OK, Some(taxComponentsJson))
 
       val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 
@@ -98,8 +98,8 @@ class TaiServiceSpec extends BaseSpec {
     "return TaxComponentsUnexpectedResponse when an unexpected status is returned" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = false
-      val seeOtherResponse = HttpResponse(SEE_OTHER)
-      override lazy val httpResponse = seeOtherResponse //For example
+      val seeOtherResponse                       = HttpResponse(SEE_OTHER)
+      override lazy val httpResponse             = seeOtherResponse //For example
 
       val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 
@@ -112,7 +112,7 @@ class TaiServiceSpec extends BaseSpec {
     "return TaxComponentsUnavailableResponse when called with a nino that returns 404" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(NOT_FOUND)
+      override lazy val httpResponse             = HttpResponse(NOT_FOUND)
 
       val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 
@@ -125,7 +125,7 @@ class TaiServiceSpec extends BaseSpec {
     "return TaxComponentsUnavailableResponse when called with a nino that returns 400" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(BAD_REQUEST)
+      override lazy val httpResponse             = HttpResponse(BAD_REQUEST)
 
       val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 
@@ -138,7 +138,7 @@ class TaiServiceSpec extends BaseSpec {
     "return TaxComponentsErrorResponse when called and service is down" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = true
-      override lazy val httpResponse = ???
+      override lazy val httpResponse             = ???
 
       val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 

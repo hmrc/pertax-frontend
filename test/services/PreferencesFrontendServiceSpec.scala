@@ -41,11 +41,11 @@ import testUtils.BaseSpec
 
 class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
-  val mockMetrics = mock[Metrics]
+  val mockMetrics        = mock[Metrics]
   val mockMetricRegistry = mock[MetricRegistry]
-  val mockTimer = mock[Timer]
-  val mockContext = mock[Context]
-  val mockCounter = mock[Counter]
+  val mockTimer          = mock[Timer]
+  val mockContext        = mock[Context]
+  val mockCounter        = mock[Counter]
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[Metrics].toInstance(mockMetrics))

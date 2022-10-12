@@ -23,7 +23,7 @@ case class RecordSet(addresses: Seq[AddressRecord])
 object RecordSet {
   def fromJsonAddressLookupService(addressListAsJson: JsValue): RecordSet = {
     val addresses: Seq[AddressRecord] = addressListAsJson.as[Seq[AddressRecord]]
-    val validAddresses = removeInvalidAddresses(addresses)
+    val validAddresses                = removeInvalidAddresses(addresses)
     RecordSet(validAddresses)
   }
 

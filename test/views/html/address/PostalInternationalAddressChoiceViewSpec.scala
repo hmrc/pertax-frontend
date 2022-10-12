@@ -28,7 +28,7 @@ class PostalInternationalAddressChoiceViewSpec extends ViewSpec {
   lazy val view = injected[PostalInternationalAddressChoiceView]
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val userRequest = buildUserRequest(request = FakeRequest())
+  implicit val userRequest                      = buildUserRequest(request = FakeRequest())
 
   "rendering PostalInternationalAddressChoiceView" must {
     "must render the correct h1 appropriate to postal address when form has the default error message" in {

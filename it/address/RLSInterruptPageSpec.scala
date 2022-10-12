@@ -44,9 +44,10 @@ class RLSInterruptPageSpec extends IntegrationSpec {
              |}
              |""".stripMargin
 
-
-        server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-          .willReturn(ok(designatoryDetails)))
+        server.stubFor(
+          get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+            .willReturn(ok(designatoryDetails))
+        )
 
         val request = FakeRequest(GET, url).withHeaders(HeaderNames.authorisation -> "Bearer 1")
 
@@ -85,9 +86,10 @@ class RLSInterruptPageSpec extends IntegrationSpec {
              |}
              |""".stripMargin
 
-
-        server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-          .willReturn(ok(designatoryDetails)))
+        server.stubFor(
+          get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+            .willReturn(ok(designatoryDetails))
+        )
 
         val request = FakeRequest(GET, url)
 
@@ -136,9 +138,10 @@ class RLSInterruptPageSpec extends IntegrationSpec {
              |}
              |""".stripMargin
 
-
-        server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-          .willReturn(ok(designatoryDetails)))
+        server.stubFor(
+          get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+            .willReturn(ok(designatoryDetails))
+        )
 
         val request = FakeRequest(GET, url)
 
@@ -191,9 +194,10 @@ class RLSInterruptPageSpec extends IntegrationSpec {
            |}
            |""".stripMargin
 
-
-      server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-        .willReturn(ok(designatoryDetails)))
+      server.stubFor(
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+          .willReturn(ok(designatoryDetails))
+      )
 
       val request = FakeRequest(GET, url)
 

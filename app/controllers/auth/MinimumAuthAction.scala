@@ -41,7 +41,8 @@ class MinimumAuthAction @Inject() (
   cc: ControllerComponents,
   enrolmentsHelper: EnrolmentsHelper
 )(implicit ec: ExecutionContext)
-    extends AuthAction with AuthorisedFunctions {
+    extends AuthAction
+    with AuthorisedFunctions {
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
@@ -67,7 +68,7 @@ class MinimumAuthAction @Inject() (
                 AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
                   (key, vals.map(_.trim))
                 })
-              case b => b
+              case b                                => b
             }
             .asInstanceOf[Request[A]]
 

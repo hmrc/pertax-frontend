@@ -56,9 +56,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
     super.beforeEach()
   }
 
-  def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+  def currentRequest[A]: Request[A]                  = FakeRequest().asInstanceOf[Request[A]]
   def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
-  def saUserType: SelfAssessmentUserType = NonFilerSelfAssessmentUser
+  def saUserType: SelfAssessmentUserType             = NonFilerSelfAssessmentUser
 
   val sessionCacheResponse: Option[CacheMap] =
     Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))

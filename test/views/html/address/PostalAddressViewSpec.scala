@@ -31,8 +31,8 @@ class PostalAddressViewSpec extends ViewSpec {
   lazy val view = injected[PostalAddressView]
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val userRequest = buildUserRequest(request = FakeRequest())
-  val result = asDocument(view(Fixtures.buildFakePersonDetails, false, List[Country](), true).toString)
+  implicit val userRequest                      = buildUserRequest(request = FakeRequest())
+  val result                                    = asDocument(view(Fixtures.buildFakePersonDetails, false, List[Country](), true).toString)
 
   "when on Postal address change PostalAddress points to InternationalPostalAddressChoiceController" in {
 

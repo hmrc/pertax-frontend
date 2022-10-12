@@ -34,7 +34,7 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
     def simulateIdentityVerificationFrontendIsDown: Boolean
 
     val anException = new RuntimeException("Any")
-    val metricId = "get-iv-journey-status"
+    val metricId    = "get-iv-journey-status"
 
     lazy val (service, metrics, timer) = {
       val fakeSimpleHttp = {
@@ -42,8 +42,8 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
         else new FakeSimpleHttp(Left(httpResponse))
       }
 
-      val serviceConfig = app.injector.instanceOf[ServicesConfig]
-      val timer = mock[Timer.Context]
+      val serviceConfig                                                            = app.injector.instanceOf[ServicesConfig]
+      val timer                                                                    = mock[Timer.Context]
       val identityVerificationFrontendService: IdentityVerificationFrontendService =
         new IdentityVerificationFrontendService(fakeSimpleHttp, mock[Metrics], serviceConfig) {
 
@@ -58,7 +58,7 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
   "Calling IdentityVerificationFrontend.getIVJourneyStatus" must {
 
     "return an IdentityVerificationSuccessResponse containing a journey status object when called with a journeyId" in new SpecSetup {
-      override lazy val httpResponse = HttpResponse(OK, Some(Json.obj("token" -> "1234", "result" -> "LockedOut")))
+      override lazy val httpResponse                               = HttpResponse(OK, Some(Json.obj("token" -> "1234", "result" -> "LockedOut")))
       override lazy val simulateIdentityVerificationFrontendIsDown = false
 
       val result = service.getIVJourneyStatus("1234").futureValue
@@ -70,7 +70,7 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
     }
 
     "return IdentityVerificationNotFoundResponse when called with a journeyId that causes a NOT FOUND response" in new SpecSetup {
-      override lazy val httpResponse = HttpResponse(NOT_FOUND)
+      override lazy val httpResponse                               = HttpResponse(NOT_FOUND)
       override lazy val simulateIdentityVerificationFrontendIsDown = false
 
       val result = service.getIVJourneyStatus("4321").futureValue
@@ -82,8 +82,8 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
     }
 
     "return TaxCalculationUnexpectedResponse when an unexpected status is returned" in new SpecSetup {
-      val seeOtherResponse = HttpResponse(SEE_OTHER)
-      override lazy val httpResponse = seeOtherResponse
+      val seeOtherResponse                                         = HttpResponse(SEE_OTHER)
+      override lazy val httpResponse                               = seeOtherResponse
       override lazy val simulateIdentityVerificationFrontendIsDown = false
 
       val result = service.getIVJourneyStatus("1234").futureValue
@@ -95,7 +95,7 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
     }
 
     "return IdentityVerificationErrorResponse when called and service is down" in new SpecSetup {
-      override lazy val httpResponse = ???
+      override lazy val httpResponse                               = ???
       override lazy val simulateIdentityVerificationFrontendIsDown = true
 
       val result = service.getIVJourneyStatus("1234").futureValue

@@ -34,7 +34,7 @@ import testUtils.UserRequestFixture.buildUserRequest
 class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  lazy val genericErrors = injected[GenericErrors]
+  lazy val genericErrors                        = injected[GenericErrors]
 
   override def messagesApi: MessagesApi = injected[MessagesApi]
 
@@ -61,13 +61,13 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressUnexpectedResponse" in {
       val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(123, ""))
-      val result = updateAddressResponse.response(genericErrors, genericFunc)
+      val result                = updateAddressResponse.response(genericErrors, genericFunc)
       result.header.status mustBe INTERNAL_SERVER_ERROR
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressErrorResponse" in {
       val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("not used"))
-      val result = updateAddressResponse.response(genericErrors, genericFunc)
+      val result                = updateAddressResponse.response(genericErrors, genericFunc)
       result.header.status mustBe INTERNAL_SERVER_ERROR
     }
   }

@@ -44,7 +44,8 @@ class ApplicationController @Inject() (
   timeOutView: TimeOutView,
   technicalIssuesView: TechnicalIssuesView
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear {
+    extends PertaxBaseController(cc)
+    with CurrentTaxYear {
 
   private val logger = Logger(this.getClass)
 
@@ -103,7 +104,7 @@ class ApplicationController @Inject() (
               logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
               InternalServerError(technicalIssuesView(retryUrl))
           }
-        case None =>
+        case None      =>
           logger.error(s"No journeyId present when displaying IV uplift journey outcome")
           Future.successful(BadRequest(technicalIssuesView(retryUrl)))
       }

@@ -27,7 +27,7 @@ class HasMetricsSpec extends BaseSpec {
 
   trait SetUp {
     class TestHasMetrics extends HasMetrics {
-      val timer = mock[Timer.Context]
+      val timer    = mock[Timer.Context]
       val metricId = "test"
 
       override def metrics: KenshooMetrics = mock[KenshooMetrics]

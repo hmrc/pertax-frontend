@@ -34,7 +34,7 @@ class SeissServiceSpec extends BaseSpec {
   val mockConfig = mock[ConfigDecorator]
 
   val mockSeissConnector: SeissConnector = mock[SeissConnector]
-  val sut = new SeissService(mockSeissConnector, mockConfig)
+  val sut                                = new SeissService(mockSeissConnector, mockConfig)
 
   when(mockConfig.isSeissTileEnabled).thenReturn(true)
 

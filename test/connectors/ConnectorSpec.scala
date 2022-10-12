@@ -41,10 +41,16 @@ import scala.concurrent.ExecutionContext
 import scala.language.implicitConversions
 
 trait ConnectorSpec
-    extends AnyWordSpec with GuiceOneAppPerSuite with Status with HeaderNames with MimeTypes with Matchers
-    with ScalaFutures with IntegrationPatience {
+    extends AnyWordSpec
+    with GuiceOneAppPerSuite
+    with Status
+    with HeaderNames
+    with MimeTypes
+    with Matchers
+    with ScalaFutures
+    with IntegrationPatience {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  implicit val hc: HeaderCarrier         = HeaderCarrier()
   implicit lazy val ec: ExecutionContext =
     scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
 
@@ -65,7 +71,7 @@ trait ConnectorSpec
 
   def stubGet(url: String, responseStatus: Int, responseBody: Option[String]): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
-    val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
+    val response     = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
     get(url).willReturn(response)
   }
@@ -77,7 +83,7 @@ trait ConnectorSpec
     responseBody: Option[String]
   ): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
-    val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
+    val response     = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
     requestBody.fold(post(url).willReturn(response))(requestBody =>
       post(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
@@ -100,7 +106,7 @@ trait ConnectorSpec
     delay: Int
   ): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON).withFixedDelay(delay)
-    val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
+    val response     = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
     requestBody.fold(any(urlEqualTo(url)).willReturn(response))(requestBody =>
       any(urlEqualTo(url)).withRequestBody(equalToJson(requestBody)).willReturn(response)
