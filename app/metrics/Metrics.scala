@@ -37,39 +37,39 @@ trait Metrics {
 class MetricsImpl @Inject() (metrics: com.kenshoo.play.metrics.Metrics) extends Metrics {
 
   val timers = Map(
-    MetricsEnumeration.GET_AGENT_CLIENT_STATUS -> metrics.defaultRegistry
+    MetricsEnumeration.GET_AGENT_CLIENT_STATUS       -> metrics.defaultRegistry
       .timer("get-agent-client-status-timer"),
-    MetricsEnumeration.GET_SEISS_CLAIMS -> metrics.defaultRegistry
+    MetricsEnumeration.GET_SEISS_CLAIMS              -> metrics.defaultRegistry
       .timer("get-seiss-claims-timer"),
-    MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT -> metrics.defaultRegistry
+    MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT      -> metrics.defaultRegistry
       .timer("get-unread-message-count-timer"),
-    MetricsEnumeration.LOAD_PARTIAL -> metrics.defaultRegistry
+    MetricsEnumeration.LOAD_PARTIAL                  -> metrics.defaultRegistry
       .timer("load-partial-timer"),
     MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR -> metrics.defaultRegistry
       .timer("get-breathing-space-indicator-timer")
   )
 
   val successCounters = Map(
-    MetricsEnumeration.GET_AGENT_CLIENT_STATUS -> metrics.defaultRegistry
+    MetricsEnumeration.GET_AGENT_CLIENT_STATUS       -> metrics.defaultRegistry
       .counter("get-agent-client-status-success-counter"),
-    MetricsEnumeration.GET_SEISS_CLAIMS -> metrics.defaultRegistry
+    MetricsEnumeration.GET_SEISS_CLAIMS              -> metrics.defaultRegistry
       .counter("get-seiss-claims-success-counter"),
-    MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT -> metrics.defaultRegistry
+    MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT      -> metrics.defaultRegistry
       .counter("get-unread-message-count-success-counter"),
-    MetricsEnumeration.LOAD_PARTIAL -> metrics.defaultRegistry
+    MetricsEnumeration.LOAD_PARTIAL                  -> metrics.defaultRegistry
       .counter("load-partial-success-counter"),
     MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR -> metrics.defaultRegistry
       .counter("get-breathing-space-indicator-success-counter")
   )
 
   val failedCounters = Map(
-    MetricsEnumeration.GET_AGENT_CLIENT_STATUS -> metrics.defaultRegistry
+    MetricsEnumeration.GET_AGENT_CLIENT_STATUS       -> metrics.defaultRegistry
       .counter("get-agent-client-status-failed-counter"),
-    MetricsEnumeration.GET_SEISS_CLAIMS -> metrics.defaultRegistry
+    MetricsEnumeration.GET_SEISS_CLAIMS              -> metrics.defaultRegistry
       .counter("get-seiss-claims-failed-counter"),
-    MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT -> metrics.defaultRegistry
+    MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT      -> metrics.defaultRegistry
       .counter("get-unread-message-count-failed-counter"),
-    MetricsEnumeration.LOAD_PARTIAL -> metrics.defaultRegistry
+    MetricsEnumeration.LOAD_PARTIAL                  -> metrics.defaultRegistry
       .counter("load-partial-failed-counter"),
     MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR -> metrics.defaultRegistry
       .counter("get-breathing-space-indicator-failed-counter")

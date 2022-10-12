@@ -36,7 +36,9 @@ class PaymentsController @Inject() (
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear with Logging {
+    extends PertaxBaseController(cc)
+    with CurrentTaxYear
+    with Logging {
 
   override def now: () => LocalDate = () => LocalDate.now()
 

@@ -106,14 +106,14 @@ class DateTupleSpec extends BaseSpec {
 
     "create a mapping for a valid date" in {
       val dateFields = Map(day -> "1", month -> "2", year -> "2014")
-      val result = mandatoryDateTuple(errorKey).bind(dateFields)
+      val result     = mandatoryDateTuple(errorKey).bind(dateFields)
       result.isRight mustBe true
       result.right.get mustBe (LocalDate.of(2014, 2, 1))
     }
 
     "create a mapping for an invalid date (with space after month, day and year)" in {
       val dateFields = Map(day -> "1 ", month -> "2 ", year -> "2014 ")
-      val result = mandatoryDateTuple(errorKey).bind(dateFields)
+      val result     = mandatoryDateTuple(errorKey).bind(dateFields)
       result.isRight mustBe true
       result.right.get mustBe (LocalDate.of(2014, 2, 1))
     }

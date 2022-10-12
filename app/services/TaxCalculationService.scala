@@ -41,7 +41,8 @@ class TaxCalculationService @Inject() (
   val http: HttpClient,
   servicesConfig: ServicesConfig
 )(implicit ec: ExecutionContext)
-    extends HasMetrics with Logging {
+    extends HasMetrics
+    with Logging {
 
   lazy val taxCalcUrl = servicesConfig.baseUrl("taxcalc")
 

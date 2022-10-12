@@ -17,29 +17,32 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
-      "microservice.services.auth.port" -> server.port(),
-      "microservice.services.citizen-details.port" -> server.port(),
-      "microservice.services.tcs-broker.port" -> server.port(),
-      "microservice.services.cachable.session-cache.port" -> server.port(),
-      "microservice.services.cachable.session-cache.host" -> "127.0.0.1",
+      "microservice.services.auth.port"                     -> server.port(),
+      "microservice.services.citizen-details.port"          -> server.port(),
+      "microservice.services.tcs-broker.port"               -> server.port(),
+      "microservice.services.cachable.session-cache.port"   -> server.port(),
+      "microservice.services.cachable.session-cache.host"   -> "127.0.0.1",
       "feature.address-change-tax-credits-question.enabled" -> false
     )
-    .configure(Map(
-      "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "metrics.enabled"               -> false
-    ))
+    .configure(
+      Map(
+        "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "metrics.enabled"               -> false
+      )
+    )
     .build()
 
-  val sessionId = Some(SessionId("session-00000000-0000-0000-0000-000000000000"))
+  val sessionId                        = Some(SessionId("session-00000000-0000-0000-0000-000000000000"))
   lazy val addressJourneyCachingHelper = app.injector.instanceOf[AddressJourneyCachingHelper]
 
   def assertContainsLink(doc: Document, text: String, href: String): Assertion =
     assert(
       doc.getElementsContainingText(text).attr("href").contains(href),
-      s"\n\nLink $href was not rendered on the page\n")
+      s"\n\nLink $href was not rendered on the page\n"
+    )
 
   "/personal-account/your-address/tax-credits-choice" must {
     val url = "/personal-account/your-address/tax-credits-choice"
@@ -66,7 +69,10 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
       server.stubFor(
         get(urlPathMatching(s"$cacheMap/.*"))
-          .willReturn(aResponse().withStatus(OK).withBody("""
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody("""
                                                             |{
                                                             |	"id": "session-id",
                                                             |	"data": {
@@ -98,29 +104,33 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
       result.get.futureValue.header.status mustBe SEE_OTHER
 
-      result.get.futureValue.header.headers.get("Location") mustBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
+      result.get.futureValue.header.headers.get("Location") mustBe Some(
+        "http://localhost:9362/tax-credits-service/personal/change-address"
+      )
     }
 
     "Show the tax credits question when the toggle is true" in {
-      lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      lazy val messagesApi                 = app.injector.instanceOf[MessagesApi]
       implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .configure(
-          "microservice.services.auth.port" -> server.port(),
-          "microservice.services.citizen-details.port" -> server.port(),
-          "microservice.services.tcs-broker.port" -> server.port(),
+          "microservice.services.auth.port"                   -> server.port(),
+          "microservice.services.citizen-details.port"        -> server.port(),
+          "microservice.services.tcs-broker.port"             -> server.port(),
           "microservice.services.cachable.session-cache.port" -> server.port(),
           "microservice.services.cachable.session-cache.host" -> "127.0.0.1"
         )
-        .configure(Map(
-          "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
-          "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
-          "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
-          "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
-          "metrics.enabled"               -> false,
-          "feature.address-change-tax-credits-question.enabled" -> true
-        ))
+        .configure(
+          Map(
+            "cookie.encryption.key"                               -> "gvBoGdgzqG1AarzF1LY0zQ==",
+            "sso.encryption.key"                                  -> "gvBoGdgzqG1AarzF1LY0zQ==",
+            "queryParameter.encryption.key"                       -> "gvBoGdgzqG1AarzF1LY0zQ==",
+            "json.encryption.key"                                 -> "gvBoGdgzqG1AarzF1LY0zQ==",
+            "metrics.enabled"                                     -> false,
+            "feature.address-change-tax-credits-question.enabled" -> true
+          )
+        )
         .build()
 
       server.stubFor(
@@ -135,7 +145,10 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
       server.stubFor(
         get(urlPathMatching(s"$cacheMap/.*"))
-          .willReturn(aResponse().withStatus(OK).withBody("""
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody("""
                                                             |{
                                                             |	"id": "session-id",
                                                             |	"data": {
@@ -162,7 +175,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       )
 
       val request = FakeRequest(GET, url)
-      val result = route(app, request)
+      val result  = route(app, request)
 
       result.get.futureValue.header.status mustBe OK
       contentAsString(result.get) must include(messages("label.do_you_get_tax_credits"))
@@ -182,7 +195,10 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
       server.stubFor(
         get(urlPathMatching(s"$cacheMap/.*"))
-          .willReturn(aResponse().withStatus(OK).withBody("""
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody("""
                                                             |{
                                                             |	"id": "session-id",
                                                             |	"data": {
@@ -214,7 +230,9 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
       result.get.futureValue.header.status mustBe SEE_OTHER
 
-      result.get.futureValue.header.headers.get("Location") mustBe Some("/personal-account/your-address/residential/do-you-live-in-the-uk")
+      result.get.futureValue.header.headers.get("Location") mustBe Some(
+        "/personal-account/your-address/residential/do-you-live-in-the-uk"
+      )
     }
 
     "return a SEE_OTHER and redirect to the beginning of the PTA address change journey if the user skipped to tax credits url" in {
@@ -231,7 +249,10 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
       server.stubFor(
         get(urlPathMatching(s"$cacheMap/.*"))
-          .willReturn(aResponse().withStatus(OK).withBody("""
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody("""
                                                             |{
                                                             |	"id": "session-id",
                                                             |	"data": {
@@ -263,7 +284,9 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
       result.get.futureValue.header.status mustBe SEE_OTHER
 
-      result.get.futureValue.header.headers.get("Location") mustBe Some("/personal-account/your-address/residential/do-you-live-in-the-uk")
+      result.get.futureValue.header.headers.get("Location") mustBe Some(
+        "/personal-account/your-address/residential/do-you-live-in-the-uk"
+      )
     }
 
     List(
@@ -286,7 +309,10 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
         server.stubFor(
           get(urlPathMatching(s"$cacheMap/.*"))
-            .willReturn(aResponse().withStatus(OK).withBody("""
+            .willReturn(
+              aResponse()
+                .withStatus(OK)
+                .withBody("""
                                                               |{
                                                               |	"id": "session-id",
                                                               |	"data": {

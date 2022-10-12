@@ -30,13 +30,13 @@ class MainContentHeaderSpec extends ViewSpec {
   "Rendering mainContentHeader.scala.html" must {
 
     "show last logged in details with name when a name is present and a lastLogin is supplied" in {
-      val millis = ZonedDateTime.parse("1982-04-30T00:00:00.000+01:00").toLocalDateTime
+      val millis   = ZonedDateTime.parse("1982-04-30T00:00:00.000+01:00").toLocalDateTime
       val document = asDocument(view(Some("Firstname"), Some(millis), Nil, false, None, None).toString)
       document.select(".last-login > p").text mustBe "Firstname, you last signed in 12:00am, Friday 30 April 1982"
     }
 
     "show last logged in details without name when no name is present and a lastLogin is supplied" in {
-      val millis = ZonedDateTime.parse("1982-04-30T00:00:00.000+01:00").toLocalDateTime
+      val millis   = ZonedDateTime.parse("1982-04-30T00:00:00.000+01:00").toLocalDateTime
       val document = asDocument(view(None, Some(millis), Nil, false, None, None).toString)
       document.select(".last-login > p").text mustBe "You last signed in 12:00am, Friday 30 April 1982"
     }
@@ -49,7 +49,7 @@ class MainContentHeaderSpec extends ViewSpec {
     "show breadcrumb when one is passed" in {
       val document =
         asDocument(view(None, None, List(("/url", "Link Text"), ("/url2", "Link Text 2")), true, None, None).toString)
-      val doc = asDocument(document.select("#global-breadcrumb").toString)
+      val doc      = asDocument(document.select("#global-breadcrumb").toString)
 
       doc.select("a").size() mustBe 2
       document.select("#global-breadcrumb").isEmpty mustBe false

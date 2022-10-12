@@ -35,7 +35,7 @@ case class Address(
   `type`: Option[String],
   isRls: Boolean
 ) {
-  lazy val lines = List(line1, line2, line3, line4, line5).flatten
+  lazy val lines       = List(line1, line2, line3, line4, line5).flatten
   lazy val fullAddress =
     List(line1, line2, line3, line4, line5, postcode.map(_.toUpperCase), internationalAddressCountry(country)).flatten
 
@@ -95,7 +95,7 @@ object Address extends Logging {
 
   private def removeNulls(jsObject: JsObject): JsValue =
     JsObject(jsObject.fields.collect {
-      case (s, j: JsObject) =>
+      case (s, j: JsObject)            =>
         (s, removeNulls(j))
       case other if other._2 != JsNull =>
         other
@@ -108,8 +108,8 @@ object Address extends Logging {
 
       case Some(status) =>
         status match {
-          case 0 => false
-          case 1 => true
+          case 0       => false
+          case 1       => true
           case invalid =>
             val ex = new IllegalArgumentException(s"Status $invalid is not a valid value for the RLS indicator")
             logger.error(ex.getMessage, ex)

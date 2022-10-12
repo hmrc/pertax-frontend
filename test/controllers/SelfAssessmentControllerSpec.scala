@@ -43,13 +43,13 @@ import scala.concurrent.Future
 class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   override def now: () => LocalDate = LocalDate.now
 
-  val mockAuditConnector = mock[AuditConnector]
-  val mockAuthAction = mock[AuthAction]
+  val mockAuditConnector             = mock[AuditConnector]
+  val mockAuthAction                 = mock[AuthAction]
   val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
-  val mockPayApiConnector = mock[PayApiConnector]
-  val mockSelfAssessmentService = mock[SelfAssessmentService]
+  val mockPayApiConnector            = mock[PayApiConnector]
+  val mockSelfAssessmentService      = mock[SelfAssessmentService]
 
-  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  val saUtr                  = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
   val defaultFakeAuthJourney = new FakeAuthJourney(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -130,7 +130,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
         new FakeAuthJourney(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
-      val doc = Jsoup.parse(contentAsString(result))
+      val doc    = Jsoup.parse(contentAsString(result))
       status(result) mustBe OK
 
       doc
@@ -143,7 +143,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(WrongCredentialsSelfAssessmentUser(saUtr))
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
-      val doc = Jsoup.parse(contentAsString(result))
+      val doc    = Jsoup.parse(contentAsString(result))
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage.url)
     }
@@ -160,7 +160,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NonFilerSelfAssessmentUser)
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
-      val doc = Jsoup.parse(contentAsString(result))
+      val doc    = Jsoup.parse(contentAsString(result))
       status(result) mustBe OK
     }
 

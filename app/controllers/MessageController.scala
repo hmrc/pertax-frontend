@@ -63,9 +63,9 @@ class MessageController @Inject() (
       messageFrontendService.getMessageDetailPartial(messageToken).map {
         case HtmlPartial.Success(Some(title), content) =>
           Ok(messageDetailView(message = content, title = title))
-        case HtmlPartial.Success(None, content) =>
+        case HtmlPartial.Success(None, content)        =>
           Ok(messageDetailView(message = content, title = Messages("label.message")))
-        case HtmlPartial.Failure(_, _) =>
+        case HtmlPartial.Failure(_, _)                 =>
           Ok(
             messageDetailView(
               message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")),

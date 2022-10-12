@@ -42,8 +42,8 @@ import scala.concurrent.Future
 class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   val mockHeaderCarrierForPartialsConverter: HeaderCarrierForPartialsConverter = mock[HeaderCarrierForPartialsConverter]
-  val mockEnhancedPartialRetriever: EnhancedPartialRetriever = mock[EnhancedPartialRetriever]
-  val mockMetrics: MetricsImpl = mock[MetricsImpl]
+  val mockEnhancedPartialRetriever: EnhancedPartialRetriever                   = mock[EnhancedPartialRetriever]
+  val mockMetrics: MetricsImpl                                                 = mock[MetricsImpl]
 
   override def beforeEach(): Unit = {
     super.beforeEach()

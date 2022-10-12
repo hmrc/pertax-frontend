@@ -48,7 +48,8 @@ class CitizenDetailsConnector @Inject() (
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
   servicesConfig: ServicesConfig
-) extends HasMetrics with Logging {
+) extends HasMetrics
+    with Logging {
 
   lazy val citizenDetailsUrl = servicesConfig.baseUrl("citizen-details")
 
@@ -131,11 +132,11 @@ class CitizenDetailsConnector @Inject() (
           case response if response.status >= 200 && response.status < 300 =>
             timer.completeTimerAndIncrementSuccessCounter()
             MatchingDetailsSuccessResponse(MatchingDetails.fromJsonMatchingDetails(response.json))
-          case response if response.status == NOT_FOUND =>
+          case response if response.status == NOT_FOUND                    =>
             timer.completeTimerAndIncrementFailedCounter()
             logger.warn("Unable to find matching details in citizen-details")
             MatchingDetailsNotFoundResponse
-          case response =>
+          case response                                                    =>
             timer.completeTimerAndIncrementFailedCounter()
             logger.warn(s"Unexpected ${response.status} response getting matching details from citizen-details")
             MatchingDetailsUnexpectedResponse(response)
@@ -155,7 +156,7 @@ class CitizenDetailsConnector @Inject() (
           case response: HttpResponse if response.status == OK =>
             timer.completeTimerAndIncrementSuccessCounter()
             response.json.asOpt[ETag]
-          case response =>
+          case response                                        =>
             auditEtagFailure(
               timer,
               s"[CitizenDetailsService.getEtag] failed to find etag in citizen-details: ${response.status}"

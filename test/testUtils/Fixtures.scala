@@ -51,7 +51,7 @@ import scala.util.Random
 
 trait PafFixtures {
   val exampleCountryUK = Country("UK", "United Kingdom")
-  val subDivision = Some(Country("GB-ENG", "England"))
+  val subDivision      = Some(Country("GB-ENG", "England"))
 
   val fakeStreetPafAddressRecord = AddressRecord(
     "GB101",
@@ -66,7 +66,7 @@ trait PafFixtures {
     "en"
   )
 
-  val oneOtherPlacePafAddress =
+  val oneOtherPlacePafAddress               =
     PafAddress(
       List("2 Other Place", "Some District"),
       Some("Anytown"),
@@ -75,7 +75,7 @@ trait PafFixtures {
       subDivision,
       exampleCountryUK
     )
-  val twoOtherPlacePafAddress =
+  val twoOtherPlacePafAddress               =
     PafAddress(
       List("3 Other Place", "Some District"),
       Some("Anytown"),
@@ -94,8 +94,8 @@ trait PafFixtures {
       exampleCountryUK
     )
 
-  val oneOtherPlacePafAddressRecord = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
-  val twoOtherPlacePafAddressRecord = AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
+  val oneOtherPlacePafAddressRecord               = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
+  val twoOtherPlacePafAddressRecord               = AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
   val otherPlacePafDifferentPostcodeAddressRecord =
     AddressRecord("GB990091234516", otherPlacePafDifferentPostcodeAddress, "en")
 
@@ -315,8 +315,13 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 }
 
 trait BaseSpec
-    extends AnyWordSpec with GuiceOneAppPerSuite with Matchers with PatienceConfiguration with BeforeAndAfterEach
-    with MockitoSugar with ScalaFutures {
+    extends AnyWordSpec
+    with GuiceOneAppPerSuite
+    with Matchers
+    with PatienceConfiguration
+    with BeforeAndAfterEach
+    with MockitoSugar
+    with ScalaFutures {
   this: Suite =>
 
   implicit val hc = HeaderCarrier()
@@ -361,6 +366,6 @@ trait BaseSpec
 }
 trait ActionBuilderFixture extends ActionBuilder[UserRequest, AnyContent] {
   override def invokeBlock[A](a: Request[A], block: UserRequest[A] => Future[Result]): Future[Result]
-  override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser()
+  override def parser: BodyParser[AnyContent]               = Helpers.stubBodyParser()
   override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 }

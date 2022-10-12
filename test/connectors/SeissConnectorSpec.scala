@@ -31,8 +31,8 @@ import java.util.UUID
 
 class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout {
 
-  val url = "/self-employed-income-support/get-claims"
-  val utr: SaUtr = new SaUtrGenerator().nextSaUtr
+  val url                = "/self-employed-income-support/get-claims"
+  val utr: SaUtr         = new SaUtrGenerator().nextSaUtr
   val providerId: String = UUID.randomUUID().toString
 
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = userRequest(

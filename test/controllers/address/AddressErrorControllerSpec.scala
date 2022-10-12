@@ -32,7 +32,7 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
     def sessionCacheResponse: Option[CacheMap] =
       Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-    def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+    def currentRequest[A]: Request[A]          = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
     def controller: AddressErrorController =
       new AddressErrorController(

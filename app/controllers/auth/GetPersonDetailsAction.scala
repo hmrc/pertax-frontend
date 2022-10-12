@@ -38,14 +38,16 @@ class GetPersonDetailsAction @Inject() (
   val messagesApi: MessagesApi,
   manualCorrespondenceView: ManualCorrespondenceView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] with I18nSupport {
+    extends ActionRefiner[UserRequest, UserRequest]
+    with ActionFunction[UserRequest, UserRequest]
+    with I18nSupport {
 
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
       if (!request.uri.contains("/signout")) {
         getPersonDetails()(request).map {
           case Left(error) => Left(error)
-          case Right(pd) =>
+          case Right(pd)   =>
             Right(
               UserRequest(
                 request.nino,
@@ -101,11 +103,11 @@ class GetPersonDetailsAction @Inject() (
         citizenDetailsConnector.personDetails(nino).map {
           case PersonDetailsSuccessResponse(pd) =>
             Right(Some(pd))
-          case PersonDetailsHiddenResponse =>
+          case PersonDetailsHiddenResponse      =>
             Left(Locked(manualCorrespondenceView()))
-          case _ => Right(None)
+          case _                                => Right(None)
         }
-      case _ => Future.successful(Right(None))
+      case _          => Future.successful(Right(None))
     }
   }
 

@@ -48,7 +48,9 @@ class HomeController @Inject() (
   seissService: SeissService,
   rlsInterruptHelper: RlsInterruptHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with PaperlessInterruptHelper with CurrentTaxYear {
+    extends PertaxBaseController(cc)
+    with PaperlessInterruptHelper
+    with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
 
@@ -70,13 +72,13 @@ class HomeController @Inject() (
           for {
             (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
             showSeissCard                                                                   <- seissService.hasClaims(saUserType)
-            breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.nino).map {
-                                         case WithinPeriod => true
-                                         case _            => false
-                                       }
+            breathingSpaceIndicator                                                         <- breathingSpaceService.getBreathingSpaceIndicator(request.nino).map {
+                                                                                                 case WithinPeriod => true
+                                                                                                 case _            => false
+                                                                                               }
           } yield {
 
-            val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
+            val incomeCards: Seq[Html]  = homeCardGenerator.getIncomeCards(
               taxSummaryState,
               taxCalculationStateCyMinusOne,
               taxCalculationStateCyMinusTwo,
@@ -129,7 +131,7 @@ class HomeController @Inject() (
             TaxComponentsAvailableState(ts)
           case TaxComponentsUnavailableResponse =>
             TaxComponentsNotAvailableState
-          case _ =>
+          case _                                =>
             TaxComponentsUnreachableState
         }
       } else {

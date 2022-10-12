@@ -38,13 +38,13 @@ class EnrolmentsConnector @Inject() (http: HttpClient, configDecorator: ConfigDe
     withMetricsTimer("get-user-ids-with-enrolments") { timer =>
       http.GET[HttpResponse](url) map { response =>
         response.status match {
-          case OK =>
+          case OK         =>
             timer.completeTimerAndIncrementSuccessCounter()
             Right((response.json \ "principalUserIds").as[Seq[String]])
           case NO_CONTENT =>
             timer.completeTimerAndIncrementSuccessCounter()
             Right(Seq.empty)
-          case errorCode =>
+          case errorCode  =>
             timer.completeTimerAndIncrementFailedCounter()
             Left(s"HttpError: $errorCode. Invalid call for getUserIdsWithEnrolments: $response")
         }

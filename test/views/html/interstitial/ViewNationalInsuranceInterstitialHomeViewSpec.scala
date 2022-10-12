@@ -27,7 +27,7 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
   lazy val view = injected[ViewNationalInsuranceInterstitialHomeView]
 
   lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val userRequest = buildUserRequest(request = FakeRequest())
+  implicit val userRequest                           = buildUserRequest(request = FakeRequest())
 
   "Rendering ViewNationalInsuranceInterstitialHomeView.scala.html" must {
 

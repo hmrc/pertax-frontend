@@ -71,7 +71,7 @@ class NiLetterController @Inject() (
               .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL(true))
               .mkString
 
-            val niLetter =
+            val niLetter    =
               niLetterView(
                 request.personDetails.get,
                 LocalDate.now.format(DateTimeFormatter.ofPattern("MM/YY")),
@@ -93,7 +93,7 @@ class NiLetterController @Inject() (
                     "Content-Disposition" -> s"attachment; filename=${Messages("label.your_national_insurance_letter")
                       .replaceAll(" ", "-")}.pdf"
                   )
-              case response =>
+              case response                          =>
                 throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
             }
           } else {

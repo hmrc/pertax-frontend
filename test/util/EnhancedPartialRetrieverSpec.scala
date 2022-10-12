@@ -62,7 +62,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     "return a successful partial and log the right metrics" in {
 
       val returnPartial: HtmlPartial = HtmlPartial.Success.apply(None, Html("my body content"))
-      val url = s"http://localhost:${server.port()}/"
+      val url                        = s"http://localhost:${server.port()}/"
       server.stubFor(
         get(urlEqualTo("/")).willReturn(ok("my body content"))
       )
@@ -79,7 +79,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     "return a failed partial and log the right metrics" in {
 
       val returnPartial: HtmlPartial = HtmlPartial.Failure(Some(404), "Not Found")
-      val url = s"http://localhost:${server.port()}/"
+      val url                        = s"http://localhost:${server.port()}/"
       server.stubFor(
         get(urlEqualTo("/")).willReturn(notFound.withBody("Not Found"))
       )
@@ -97,7 +97,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     "when the call to the service fails log the right metrics" in {
 
       val returnPartial: HtmlPartial = HtmlPartial.Failure(Some(500), "Error")
-      val url = s"http://localhost:${server.port()}/"
+      val url                        = s"http://localhost:${server.port()}/"
       server.stubFor(
         get(urlEqualTo("/")).willReturn(serverError.withBody("Error"))
       )

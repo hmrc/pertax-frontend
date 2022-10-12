@@ -32,7 +32,7 @@ class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with Default
   def connector: PayApiConnector = app.injector.instanceOf[PayApiConnector]
 
   val paymentRequest: PaymentRequest = PaymentRequest("some utr", "", "")
-  val url: String = "/pay-api/pta/sa/journey/start"
+  val url: String                    = "/pay-api/pta/sa/journey/start"
 
   "createPayment" should {
     val json = Json.obj(

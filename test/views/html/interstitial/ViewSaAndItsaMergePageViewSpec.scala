@@ -34,13 +34,13 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
   lazy val viewSaAndItsaMergePageView = injected[ViewSaAndItsaMergePageView]
 
   lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val userRequest = buildUserRequest(request = FakeRequest())
+  implicit val userRequest                           = buildUserRequest(request = FakeRequest())
 
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
     document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
   val nextDeadlineTaxYear = (current.currentYear + 1).toString
-  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  val saUtr               = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   trait SelfAssessmentLocalSetup {
 

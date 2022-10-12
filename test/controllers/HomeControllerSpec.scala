@@ -44,17 +44,17 @@ import scala.concurrent.Future
 
 class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
-  val mockConfigDecorator = mock[ConfigDecorator]
-  val mockTaxCalculationService = mock[TaxCalculationService]
-  val mockTaiService = mock[TaiService]
-  val mockSeissService = mock[SeissService]
-  val mockMessageFrontendService = mock[MessageFrontendService]
-  val mockPreferencesFrontendService = mock[PreferencesFrontendService]
+  val mockConfigDecorator                     = mock[ConfigDecorator]
+  val mockTaxCalculationService               = mock[TaxCalculationService]
+  val mockTaiService                          = mock[TaiService]
+  val mockSeissService                        = mock[SeissService]
+  val mockMessageFrontendService              = mock[MessageFrontendService]
+  val mockPreferencesFrontendService          = mock[PreferencesFrontendService]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
-  val mockLocalSessionCache = mock[LocalSessionCache]
-  val mockAuthJourney = mock[AuthJourney]
-  val mockHomePageCachingHelper = mock[HomePageCachingHelper]
-  val mockBreathingSpaceService = mock[BreathingSpaceService]
+  val mockLocalSessionCache                   = mock[LocalSessionCache]
+  val mockAuthJourney                         = mock[AuthJourney]
+  val mockHomePageCachingHelper               = mock[HomePageCachingHelper]
+  val mockBreathingSpaceService               = mock[BreathingSpaceService]
 
   override def beforeEach: Unit =
     reset(
@@ -69,22 +69,22 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   trait LocalSetup {
 
-    lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
-    lazy val nino: Nino = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
-    lazy val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
-    lazy val withPaye: Boolean = true
-    lazy val year = 2017
-    lazy val getTaxCalculationResponse: TaxCalculationResponse = TaxCalculationSuccessResponse(
+    lazy val authProviderType: String                                  = UserDetails.GovernmentGatewayAuthProvider
+    lazy val nino: Nino                                                = Fixtures.fakeNino
+    lazy val personDetailsResponse: PersonDetailsResponse              = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
+    lazy val confidenceLevel: ConfidenceLevel                          = ConfidenceLevel.L200
+    lazy val withPaye: Boolean                                         = true
+    lazy val year                                                      = 2017
+    lazy val getTaxCalculationResponse: TaxCalculationResponse         = TaxCalculationSuccessResponse(
       TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
     )
     lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
-    lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
-    lazy val getCitizenDetailsResponse = true
-    lazy val selfAssessmentUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
+    lazy val getIVJourneyStatusResponse: IdentityVerificationResponse  = IdentityVerificationSuccessResponse("Success")
+    lazy val getCitizenDetailsResponse                                 = true
+    lazy val selfAssessmentUserType: SelfAssessmentUserType            = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr(new SaUtrGenerator().nextSaUtr.utr)
     )
-    lazy val getLtaServiceResponse = Future.successful(true)
+    lazy val getLtaServiceResponse                                     = Future.successful(true)
 
     lazy val allowLowConfidenceSA = false
 

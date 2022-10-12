@@ -44,22 +44,22 @@ import scala.concurrent.Future
 
 trait AddressBaseSpec extends BaseSpec {
 
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
+  val mockAuthJourney: AuthJourney                         = mock[AuthJourney]
+  val mockLocalSessionCache: LocalSessionCache             = mock[LocalSessionCache]
+  val mockAddressLookupService: AddressLookupService       = mock[AddressLookupService]
   val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
-  val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
-  val mockAuditConnector: AuditConnector = mock[AuditConnector]
-  val mockAgentClientAuthorisationService = mock[AgentClientAuthorisationService]
+  val mockAddressMovedService: AddressMovedService         = mock[AddressMovedService]
+  val mockAuditConnector: AuditConnector                   = mock[AuditConnector]
+  val mockAgentClientAuthorisationService                  = mock[AgentClientAuthorisationService]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
 
   lazy val messagesApi: MessagesApi = injected[MessagesApi]
 
-  lazy val cc: MessagesControllerComponents = injected[MessagesControllerComponents]
-  lazy val errorRenderer: ErrorRenderer = injected[ErrorRenderer]
+  lazy val cc: MessagesControllerComponents                               = injected[MessagesControllerComponents]
+  lazy val errorRenderer: ErrorRenderer                                   = injected[ErrorRenderer]
   lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = injected[DisplayAddressInterstitialView]
-  lazy val updateAddressConfirmationView: UpdateAddressConfirmationView = injected[UpdateAddressConfirmationView]
+  lazy val updateAddressConfirmationView: UpdateAddressConfirmationView   = injected[UpdateAddressConfirmationView]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 

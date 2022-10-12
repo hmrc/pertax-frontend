@@ -45,7 +45,8 @@ class AuthActionImpl @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   businessHours: BusinessHours
 )(implicit ec: ExecutionContext)
-    extends AuthAction with AuthorisedFunctions {
+    extends AuthAction
+    with AuthorisedFunctions {
 
   def addRedirect(profileUrl: Option[String]): Option[String] =
     for {
@@ -107,7 +108,7 @@ class AuthActionImpl @Inject() (
                 AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
                   (key, vals.map(_.trim))
                 })
-              case b => b
+              case b                                => b
             }
             .asInstanceOf[Request[A]]
 
@@ -127,14 +128,16 @@ class AuthActionImpl @Inject() (
             affinityGroup
           )
 
-          for {
+          lazy val updatedResult = for {
             result        <- block(authenticatedRequest)
             updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
-          } yield (configDecorator.singleAccountEnrolmentFeature, businessHours.isTrue(LocalDateTime.now())) match {
+          } yield updatedResult
+
+          (configDecorator.singleAccountEnrolmentFeature, businessHours.isTrue(LocalDateTime.now())) match {
             case (true, true) =>
               if (enrolmentsHelper.singleAccountEnrolmentPresent(enrolments)) updatedResult
-              else Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri))
-            case _ => updatedResult
+              else Future.successful(Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri)))
+            case _            => updatedResult
           }
 
         case _ => throw new RuntimeException("Can't find credentials for user")
@@ -157,7 +160,7 @@ class AuthActionImpl @Inject() (
               "origin"       -> Seq(configDecorator.defaultOrigin.origin)
             )
           )
-        case _ => Redirect(configDecorator.authProviderChoice)
+        case _                                    => Redirect(configDecorator.authProviderChoice)
       }
 
     case _: IncorrectCredentialStrength => Redirect(configDecorator.authProviderChoice)
@@ -183,11 +186,11 @@ class AuthActionImpl @Inject() (
         Map(
           "origin"          -> Seq(configDecorator.origin),
           "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
-          "completionURL" -> Seq(
+          "completionURL"   -> Seq(
             configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
               .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri)))
           ),
-          "failureURL" -> Seq(
+          "failureURL"      -> Seq(
             configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
               .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri)))
           )
@@ -202,4 +205,5 @@ class AuthActionImpl @Inject() (
 
 @ImplementedBy(classOf[AuthActionImpl])
 trait AuthAction
-    extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
+    extends ActionBuilder[AuthenticatedRequest, AnyContent]
+    with ActionFunction[Request, AuthenticatedRequest]

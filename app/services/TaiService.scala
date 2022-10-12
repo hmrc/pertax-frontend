@@ -36,7 +36,8 @@ case class TaxComponentsUnexpectedResponse(r: HttpResponse) extends TaxComponent
 case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsResponse
 @Singleton
 class TaiService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
-    extends HasMetrics with Logging {
+    extends HasMetrics
+    with Logging {
 
   lazy val taiUrl = servicesConfig.baseUrl("tai")
 

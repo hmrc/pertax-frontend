@@ -35,10 +35,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector, enrolmentsHelper: EnrolmentsHelper)(
   implicit ec: ExecutionContext
-) extends AuditTags with Logging {
+) extends AuditTags
+    with Logging {
 
   val sessionKey = "sessionAudited"
-  val auditType = "user-session-visit"
+  val auditType  = "user-session-visit"
 
   def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(implicit hc: HeaderCarrier): Future[Result] =
     request.session.get(sessionKey) match {
@@ -70,13 +71,13 @@ private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector, en
     }
 
   def userSessionAuditEventFromRequest(request: AuthenticatedRequest[_]): UserSessionAuditEvent = {
-    val nino = request.nino
-    val credentials = request.credentials
+    val nino            = request.nino
+    val credentials     = request.credentials
     val confidenceLevel = request.confidenceLevel
-    val name = request.name map (_.toString)
-    val saUtr = enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper) map (_.saUtr)
-    val enrolments = request.enrolments
-    val affinityGroup = request.affinityGroup
+    val name            = request.name map (_.toString)
+    val saUtr           = enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper) map (_.saUtr)
+    val enrolments      = request.enrolments
+    val affinityGroup   = request.affinityGroup
 
     UserSessionAuditEvent(nino, credentials, confidenceLevel, name, saUtr, enrolments, affinityGroup)
 
@@ -95,11 +96,11 @@ case class UserSessionAuditEvent(
 
 object UserSessionAuditEvent {
   implicit val credentialsFormats: OFormat[Credentials] = Json.format[Credentials]
-  implicit val formats: Format[UserSessionAuditEvent] = Json.format[UserSessionAuditEvent]
+  implicit val formats: Format[UserSessionAuditEvent]   = Json.format[UserSessionAuditEvent]
 
   def removeNulls(jsObject: JsObject): JsObject =
     JsObject(jsObject.fields.collect {
-      case (s, j: JsObject) =>
+      case (s, j: JsObject)            =>
         (s, removeNulls(j))
       case other if other._2 != JsNull =>
         other
@@ -107,7 +108,7 @@ object UserSessionAuditEvent {
 
   def writes(model: UserSessionAuditEvent): JsObject = {
     implicit val credentialsFormats: OFormat[Credentials] = Json.format[Credentials]
-    val flattenEnrolments = model.allEnrolments.flatMap { enrolment =>
+    val flattenEnrolments                                 = model.allEnrolments.flatMap { enrolment =>
       val key = enrolment.key
       enrolment.identifiers.map { identifier =>
         s"$key-${identifier.key}" -> Json.toJson(identifier.value)

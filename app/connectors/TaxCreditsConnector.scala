@@ -34,7 +34,8 @@ class TaxCreditsConnector @Inject() (
   configDecorator: ConfigDecorator,
   val metrics: Metrics
 )(implicit ec: ExecutionContext)
-    extends HasMetrics with Logging {
+    extends HasMetrics
+    with Logging {
 
   lazy val taxCreditsUrl: String = configDecorator.tcsBrokerHost
 
@@ -46,17 +47,17 @@ class TaxCreditsConnector @Inject() (
         http
           .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taxCreditsUrl/tcs/$nino/dashboard-data")
           .map {
-            case response @ Right(_) =>
+            case response @ Right(_)                                      =>
               timer.completeTimerAndIncrementSuccessCounter()
               response
-            case Left(error) if error.statusCode == NOT_FOUND =>
+            case Left(error) if error.statusCode == NOT_FOUND             =>
               timer.completeTimerAndIncrementSuccessCounter()
               Left(UpstreamErrorResponse(error.message, error.statusCode))
             case Left(error) if error.statusCode >= INTERNAL_SERVER_ERROR =>
               timer.completeTimerAndIncrementFailedCounter()
               logger.error(error.message)
               Left(UpstreamErrorResponse(error.message, error.statusCode))
-            case Left(error) =>
+            case Left(error)                                              =>
               timer.completeTimerAndIncrementFailedCounter()
               Left(UpstreamErrorResponse(error.message, error.statusCode))
           }

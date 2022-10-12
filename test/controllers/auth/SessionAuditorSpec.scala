@@ -38,9 +38,9 @@ import scala.concurrent.Future
 
 class SessionAuditorSpec extends BaseSpec with AuditTags {
 
-  val auditConnector: AuditConnector = mock[AuditConnector]
-  val enrolmentsHelper: EnrolmentsHelper = injected[EnrolmentsHelper]
-  val sessionAuditor = new SessionAuditor(auditConnector, enrolmentsHelper)
+  val auditConnector: AuditConnector                   = mock[AuditConnector]
+  val enrolmentsHelper: EnrolmentsHelper               = injected[EnrolmentsHelper]
+  val sessionAuditor                                   = new SessionAuditor(auditConnector, enrolmentsHelper)
   val testRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
   override def beforeEach(): Unit = {
@@ -67,12 +67,12 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
 
   def eqExtendedDataEvent[A](authenticatedRequest: AuthenticatedRequest[A]): ExtendedDataEvent = {
     val detailsJson = Json.toJson(writes(sessionAuditor.userSessionAuditEventFromRequest(authenticatedRequest)))
-    val tags = buildTags(authenticatedRequest)
+    val tags        = buildTags(authenticatedRequest)
     argThat[ExtendedDataEvent](new CustomMatcher[ExtendedDataEvent]("eq expected ExtendedDataEvent") {
       override def matches(o: Any): Boolean = o match {
         case ExtendedDataEvent(AuditServiceTools.auditSource, sessionAuditor.auditType, _, `tags`, `detailsJson`, _) =>
           true
-        case _ => false
+        case _                                                                                                       => false
       }
     })
   }

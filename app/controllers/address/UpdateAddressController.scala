@@ -61,7 +61,7 @@ class UpdateAddressController @Inject() (
                   )
                 )
               }
-            case _ =>
+            case _              =>
               cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
                 val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
                 Future.successful(
@@ -111,12 +111,12 @@ class UpdateAddressController @Inject() (
                       typ,
                       Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                     )
-                  case (_, false) =>
+                  case (_, false)          =>
                     cacheStartDate(
                       typ,
                       Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                     )
-                  case (_, true) =>
+                  case (_, true)           =>
                     Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
                 }
               }

@@ -41,7 +41,7 @@ class PersonalDetailsCardGenerator @Inject() (
 
     val optionalEditAddress = changedAddressIndicator.map(y => y.editedAddress)
 
-    val mainAddressChangeIndicator = optionalEditAddress.exists(_.isInstanceOf[EditResidentialAddress])
+    val mainAddressChangeIndicator           = optionalEditAddress.exists(_.isInstanceOf[EditResidentialAddress])
     val correspondenceAddressChangeIndicator =
       optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
 
@@ -75,7 +75,7 @@ class PersonalDetailsCardGenerator @Inject() (
             countryHelper.excludedCountries
           )
         )
-      case _ => None
+      case _                   => None
     }
 
   def getPostalAddressCard(
@@ -93,9 +93,9 @@ class PersonalDetailsCardGenerator @Inject() (
                 configDecorator.closePostalAddressEnabled
               )
             )
-          case _ => None
+          case _                                                                          => None
         }
-      case _ => None
+      case _                   => None
     }
 
   def getNationalInsuranceCard(

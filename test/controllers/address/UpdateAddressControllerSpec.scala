@@ -48,7 +48,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
     def sessionCacheResponse: Option[CacheMap] =
       Some(CacheMap("id", Map("residentialSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord))))
 
-    def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+    def currentRequest[A]: Request[A]          = FakeRequest().asInstanceOf[Request[A]]
   }
 
   "onPageLoad" must {
@@ -86,7 +86,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result                                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -138,7 +138,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result                                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -199,7 +199,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result                                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -212,7 +212,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result                                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -270,7 +270,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("selectedAddressRecord" -> Json.toJson(""))))
 
-      val result = controller.onSubmit(PostalAddrType)(FakeRequest("POST", ""))
+      val result                                          = controller.onSubmit(PostalAddrType)(FakeRequest("POST", ""))
 
       status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -281,7 +281,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
 
-      override def currentRequest[A]: Request[A] =
+      override def currentRequest[A]: Request[A]          =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified: _*)
           .asInstanceOf[Request[A]]
@@ -302,7 +302,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
 
-      override def currentRequest[A]: Request[A] =
+      override def currentRequest[A]: Request[A]          =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified: _*)
           .asInstanceOf[Request[A]]

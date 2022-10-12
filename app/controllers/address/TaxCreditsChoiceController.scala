@@ -43,7 +43,8 @@ class TaxCreditsChoiceController @Inject() (
   internalServerErrorView: InternalServerErrorView,
   taxCreditsChoiceView: TaxCreditsChoiceView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView) with Logging {
+    extends AddressController(authJourney, cc, displayAddressInterstitialView)
+    with Logging {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { nino => _ =>
@@ -55,13 +56,13 @@ class TaxCreditsChoiceController @Inject() (
             )
           } else {
             taxCreditsService.checkForTaxCredits(Some(nino)).map {
-              case Some(true) =>
+              case Some(true)  =>
                 cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
                 Redirect(configDecorator.tcsChangeAddressUrl)
               case Some(false) =>
                 cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
                 Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
-              case None =>
+              case None        =>
                 InternalServerError(internalServerErrorView())
             }
           }

@@ -35,7 +35,8 @@ class SelfAssessmentStatusAction @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
-    extends ActionRefiner[AuthenticatedRequest, UserRequest] with ActionFunction[AuthenticatedRequest, UserRequest] {
+    extends ActionRefiner[AuthenticatedRequest, UserRequest]
+    with ActionFunction[AuthenticatedRequest, UserRequest] {
 
   private def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
     citizenDetailsConnector.getMatchingDetails(nino) map {
@@ -49,15 +50,15 @@ class SelfAssessmentStatusAction @Inject() (
   ): Future[SelfAssessmentUserType] =
     request.nino.fold[Future[SelfAssessmentUserType]](Future.successful(NonFilerSelfAssessmentUser)) { nino =>
       enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper) match {
-        case Some(SelfAssessmentEnrolment(saUtr, Activated)) =>
+        case Some(SelfAssessmentEnrolment(saUtr, Activated))       =>
           Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
         case Some(SelfAssessmentEnrolment(saUtr, NotYetActivated)) =>
           Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
-        case None =>
+        case None                                                  =>
           getSaUtrFromCitizenDetailsService(nino).flatMap {
             case Some(saUtr) =>
               enrolmentsCachingService.getSaUserTypeFromCache(saUtr)
-            case None => Future.successful(NonFilerSelfAssessmentUser)
+            case None        => Future.successful(NonFilerSelfAssessmentUser)
           }
       }
     }

@@ -37,7 +37,7 @@ class AddressMovedService @Inject() (addressLookupService: AddressLookupService)
       } yield (fromResponse, toResponse) match {
         case (AddressLookupSuccessResponse(fromRecordSet), AddressLookupSuccessResponse(toRecordSet)) =>
           val fromSubdivision = fromRecordSet.addresses.headOption.flatMap(_.address.subdivision)
-          val toSubdivision = toRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+          val toSubdivision   = toRecordSet.addresses.headOption.flatMap(_.address.subdivision)
 
           if (hasMovedFromScotland(fromSubdivision, toSubdivision))
             MovedFromScotland
@@ -45,7 +45,7 @@ class AddressMovedService @Inject() (addressLookupService: AddressLookupService)
             MovedToScotland
           else
             AnyOtherMove
-        case _ =>
+        case _                                                                                        =>
           AnyOtherMove
       }
     }

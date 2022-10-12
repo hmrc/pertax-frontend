@@ -26,7 +26,7 @@ final case class AddressRowModel(
 ) {
   def extraPostalAddressLink(): Option[ExtraLinks] = {
     def showRemoveLink(address: PersonalDetailsTableRowModel) = {
-      val hasSameAddress = address.isPostalAddressSame
+      val hasSameAddress   = address.isPostalAddressSame
       val canRemoveAddress = address.linkUrl.isDefined
 
       !hasSameAddress && canRemoveAddress
@@ -45,6 +45,6 @@ object AddressRowModel {
   def changeMainAddressUrl: String =
     controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url
 
-  val closePostalAddressUrl = controllers.address.routes.ClosePostalAddressController.onPageLoad.url
+  val closePostalAddressUrl  = controllers.address.routes.ClosePostalAddressController.onPageLoad.url
   val changePostalAddressUrl = controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url
 }

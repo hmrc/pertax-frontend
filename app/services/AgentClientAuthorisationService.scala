@@ -48,7 +48,7 @@ class AgentClientAuthorisationService @Inject() (
         )
         .merge
         .recover {
-          case FutureEarlyTimeout =>
+          case FutureEarlyTimeout   =>
             logger.error(FutureEarlyTimeout.getMessage)
             false
           case RateLimitedException => false
