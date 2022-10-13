@@ -85,7 +85,7 @@ class StartDateController @Inject() (
                     } else {
                       Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                     }
-                  case _ => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                  case _                                                                   => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                 }
               }
           )
@@ -98,7 +98,7 @@ class StartDateController @Inject() (
   private def nonPostalJourneyEnforcer(typ: AddrType)(block: => Future[Result]): Future[Result] =
     typ match {
       case ResidentialAddrType => block
-      case PostalAddrType =>
+      case PostalAddrType      =>
         Future.successful(Redirect(controllers.address.routes.UpdateAddressController.onPageLoad(typ)))
     }
 }

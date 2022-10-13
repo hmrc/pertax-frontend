@@ -23,14 +23,13 @@ lazy val playSettings: Seq[Setting[_]] = Seq(
   pipelineStages := Seq(digest)
 )
 
-lazy val scoverageSettings = {
+lazy val scoverageSettings =
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;models/.data/..*;view.*;models.*;.*(AuthService|BuildInfo|Routes).*",
     ScoverageKeys.coverageMinimumStmtTotal := 80,
     ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true
   )
-}
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(plugins: _*)
@@ -58,7 +57,8 @@ lazy val microservice = Project(appName, file("."))
     routesImport ++= Seq(
       "uk.gov.hmrc.play.bootstrap.binders._",
       "controllers.bindable._",
-      "uk.gov.hmrc.play.binders._"),
+      "uk.gov.hmrc.play.binders._"
+    ),
     TwirlKeys.templateImports ++= Seq(
       "models._",
       "models.dto._",
@@ -88,3 +88,7 @@ lazy val itSettings = Defaults.itSettings ++ Seq(
   parallelExecution := false,
   fork := true
 )
+
+addCommandAlias("scalafmtAll", "all scalafmtSbt scalafmt test:scalafmt it:scalafmt")
+addCommandAlias("testAll", ";coverage ;test ;it:test ;coverageReport")
+addCommandAlias("testAllWithScalafmt", ";scalafmtAll ;testAll")

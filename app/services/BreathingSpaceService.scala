@@ -47,7 +47,7 @@ class BreathingSpaceService @Inject() (
             )
             .merge
             .recover { case _ => BreathingSpaceIndicatorResponse.StatusUnknown }
-        case _ => Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)
+        case _          => Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)
       }
     } else {
       Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)

@@ -27,36 +27,36 @@ class LocalDateUtilitiesSpec extends BaseSpec {
   "Calling isBetween" must {
 
     "return true if the date is more than start date and less then end date" in {
-      val startDate = LocalDate.MIN
-      val endDate = LocalDate.MAX
+      val startDate   = LocalDate.MIN
+      val endDate     = LocalDate.MAX
       val dateToCheck = LocalDate.now()
       localDateUtilities.isBetween(dateToCheck, startDate, endDate) mustBe true
     }
 
     "return true if the date is equal to start date and less then end date" in {
-      val startDate = LocalDate.MIN
-      val endDate = LocalDate.MAX
+      val startDate   = LocalDate.MIN
+      val endDate     = LocalDate.MAX
       val dateToCheck = startDate
       localDateUtilities.isBetween(dateToCheck, startDate, endDate) mustBe true
     }
 
     "return true if the date is equal to end date and more then start date" in {
-      val startDate = LocalDate.MIN
-      val endDate = LocalDate.MAX
+      val startDate   = LocalDate.MIN
+      val endDate     = LocalDate.MAX
       val dateToCheck = endDate
       localDateUtilities.isBetween(dateToCheck, startDate, endDate) mustBe true
     }
 
     "return false if the date is before the start date" in {
-      val startDate = LocalDate.now()
-      val endDate = LocalDate.MAX
+      val startDate   = LocalDate.now()
+      val endDate     = LocalDate.MAX
       val dateToCheck = LocalDate.MIN
       localDateUtilities.isBetween(dateToCheck, startDate, endDate) mustBe false
     }
 
     "return false if the date is after the end date" in {
-      val startDate = LocalDate.MIN
-      val endDate = LocalDate.now()
+      val startDate   = LocalDate.MIN
+      val endDate     = LocalDate.now()
       val dateToCheck = LocalDate.MAX
       localDateUtilities.isBetween(dateToCheck, startDate, endDate) mustBe false
     }

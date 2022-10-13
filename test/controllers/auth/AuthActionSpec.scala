@@ -50,10 +50,10 @@ class AuthActionSpec extends BaseSpec {
     .configure(Map("metrics.enabled" -> false))
     .build()
 
-  val mockAuthConnector = mock[AuthConnector]
+  val mockAuthConnector                          = mock[AuthConnector]
   def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
-  val enrolmentsHelper: EnrolmentsHelper = app.injector.instanceOf[EnrolmentsHelper]
-  val sessionAuditor =
+  val enrolmentsHelper: EnrolmentsHelper         = app.injector.instanceOf[EnrolmentsHelper]
+  val sessionAuditor                             =
     new SessionAuditorFake(app.injector.instanceOf[AuditConnector], enrolmentsHelper)
 
   class Harness(authAction: AuthAction) extends InjectedController {
@@ -75,12 +75,12 @@ class AuthActionSpec extends BaseSpec {
       String
     ] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~ Option[String]
 
-  val nino = Fixtures.fakeNino.nino
-  val fakeCredentials = Credentials("foo", "bar")
+  val nino                   = Fixtures.fakeNino.nino
+  val fakeCredentials        = Credentials("foo", "bar")
   val fakeCredentialStrength = CredentialStrength.strong
-  val fakeConfidenceLevel = ConfidenceLevel.L200
-  val enrolmentHelper = injected[EnrolmentsHelper]
-  val fakeBusinessHours = new FakeBusinessHours(injected[BusinessHoursConfig])
+  val fakeConfidenceLevel    = ConfidenceLevel.L200
+  val enrolmentHelper        = injected[EnrolmentsHelper]
+  val fakeBusinessHours      = new FakeBusinessHours(injected[BusinessHoursConfig])
 
   def fakeEnrolments(utr: String) = Set(
     Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
@@ -126,7 +126,7 @@ class AuthActionSpec extends BaseSpec {
       "the user is an Individual" in {
 
         val controller = retrievals(confidenceLevel = ConfidenceLevel.L50)
-        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
+        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
       }
@@ -134,7 +134,7 @@ class AuthActionSpec extends BaseSpec {
       "the user is an Organisation" in {
 
         val controller = retrievals(affinityGroup = Some(Organisation), confidenceLevel = ConfidenceLevel.L50)
-        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
+        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
       }
@@ -142,7 +142,7 @@ class AuthActionSpec extends BaseSpec {
       "the user is an Agent" in {
 
         val controller = retrievals(affinityGroup = Some(Agent), confidenceLevel = ConfidenceLevel.L50)
-        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
+        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
       }
@@ -160,7 +160,7 @@ class AuthActionSpec extends BaseSpec {
       "the user in an Individual" in {
 
         val controller = retrievals(credentialStrength = CredentialStrength.weak)
-        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
+        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe mfaRedirectUrl
       }
@@ -168,7 +168,7 @@ class AuthActionSpec extends BaseSpec {
       "the user in an Organisation" in {
 
         val controller = retrievals(affinityGroup = Some(Organisation), credentialStrength = CredentialStrength.weak)
-        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
+        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
           mfaRedirectUrl
@@ -177,7 +177,7 @@ class AuthActionSpec extends BaseSpec {
       "the user in an Agent" in {
 
         val controller = retrievals(affinityGroup = Some(Agent), credentialStrength = CredentialStrength.weak)
-        val result = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
+        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
           mfaRedirectUrl
@@ -199,7 +199,7 @@ class AuthActionSpec extends BaseSpec {
           fakeBusinessHours
         )
       val controller = new Harness(authAction)
-      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
+      val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
       redirectLocation(result).get must endWith("/auth-login-stub")
     }
@@ -219,7 +219,7 @@ class AuthActionSpec extends BaseSpec {
           fakeBusinessHours
         )
       val controller = new Harness(authAction)
-      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
+      val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
       redirectLocation(result).get must endWith("/auth-login-stub")
     }
@@ -237,9 +237,9 @@ class AuthActionSpec extends BaseSpec {
           fakeBusinessHours
         )
       val controller = new Harness(authAction)
-      val request =
+      val request    =
         FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
-      val result = controller.onPageLoad(request)
+      val result     = controller.onPageLoad(request)
       status(result) mustBe SEE_OTHER
 
       redirectLocation(result).get must endWith(
@@ -262,7 +262,7 @@ class AuthActionSpec extends BaseSpec {
           fakeBusinessHours
         )
       val controller = new Harness(authAction)
-      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
+      val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
 
       whenReady(result.failed) { ex =>
         ex mustBe an[InsufficientEnrolments]

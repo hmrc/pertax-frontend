@@ -97,7 +97,7 @@ class UpdateInternationalAddressController @Inject() (
                   case PostalAddrType =>
                     cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
                     Future.successful(Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
-                  case _ =>
+                  case _              =>
                     Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
                 }
               }

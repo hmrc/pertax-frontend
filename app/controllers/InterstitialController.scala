@@ -57,12 +57,14 @@ class InterstitialController @Inject() (
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
+    extends PertaxBaseController(cc)
+    with PaperlessInterruptHelper
+    with Logging {
 
   val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
-  private val authenticate: ActionBuilder[UserRequest, AnyContent] =
+  private val authenticate: ActionBuilder[UserRequest, AnyContent]   =
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)
   private val authenticateSa: ActionBuilder[UserRequest, AnyContent] =
@@ -126,7 +128,7 @@ class InterstitialController @Inject() (
       val formPartial = formPartialService.getSelfAssessmentPartial recoverWith { case _ =>
         Future.successful(HtmlPartial.Failure(None, ""))
       }
-      val saPartial = saPartialService.getSaAccountSummary recoverWith { case _ =>
+      val saPartial   = saPartialService.getSaAccountSummary recoverWith { case _ =>
         Future.successful(HtmlPartial.Failure(None, ""))
       }
 
@@ -154,7 +156,7 @@ class InterstitialController @Inject() (
     request.saUserType match {
       case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
         Ok(sa302InterruptView(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUtr))
-      case _ =>
+      case _                                             =>
         logger.warn("User had no sa account when one was required")
         errorRenderer.error(UNAUTHORIZED)
     }

@@ -20,5 +20,5 @@ object PertaxSessionKeys {
   val dontUplift = "dontUplift"
 
   val postcode = "postcode"
-  val filter = "filter"
+  val filter   = "filter"
 }

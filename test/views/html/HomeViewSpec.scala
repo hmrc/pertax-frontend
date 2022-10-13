@@ -79,8 +79,8 @@ class HomeViewSpec extends ViewSpec {
 
     "must show the UTR if the user is a self assessment user" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
-      val utr = new SaUtrGenerator().nextSaUtr.utr
-      val view = home(homeViewModel.copy(saUtr = Some(utr))).toString
+      val utr                  = new SaUtrGenerator().nextSaUtr.utr
+      val view                 = home(homeViewModel.copy(saUtr = Some(utr))).toString
 
       view must include(messages("label.home_page.utr"))
       view must include(utr)

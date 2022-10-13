@@ -71,12 +71,12 @@ class PersonalDetailsViewModel @Inject() (
   ) = {
     val isCorrespondenceChangeLocked =
       optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
-    val postalAddress =
+    val postalAddress                =
       getPostalAddressIfExists(personDetails, isCorrespondenceChangeLocked)
 
     postalAddress match {
       case Some(address) => Some(address)
-      case _ =>
+      case _             =>
         personDetails.address.map { address =>
           PersonalDetailsTableRowModel(
             "postal_address",
@@ -121,8 +121,8 @@ class PersonalDetailsViewModel @Inject() (
     request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): AddressRowModel = {
-    val optionalEditAddress = addressModel.map(y => y.editedAddress)
-    val mainAddressRow: Option[PersonalDetailsTableRowModel] = request.personDetails
+    val optionalEditAddress                                    = addressModel.map(y => y.editedAddress)
+    val mainAddressRow: Option[PersonalDetailsTableRowModel]   = request.personDetails
       .flatMap(getMainAddress(_, optionalEditAddress, taxCreditsAvailable))
     val postalAddressRow: Option[PersonalDetailsTableRowModel] = request.personDetails
       .flatMap(getPostalAddress(_, optionalEditAddress))

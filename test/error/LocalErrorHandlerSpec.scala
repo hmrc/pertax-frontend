@@ -24,10 +24,10 @@ import views.html.{InternalServerErrorView, UnauthenticatedErrorView, ViewSpec}
 class LocalErrorHandlerSpec extends ViewSpec {
 
   lazy val internalServerError = injected[InternalServerErrorView]
-  lazy val standardError = injected[UnauthenticatedErrorView]
+  lazy val standardError       = injected[UnauthenticatedErrorView]
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val userRequest = buildUserRequest(request = FakeRequest())
+  implicit val userRequest                      = buildUserRequest(request = FakeRequest())
 
   "standardErrorTemplate" in {
     val doc =
@@ -40,7 +40,7 @@ class LocalErrorHandlerSpec extends ViewSpec {
       )
 
     doc.getElementsByTag("h1").toString must include(messages("label.service_unavailable"))
-    doc.getElementsByTag("p").toString must include(
+    doc.getElementsByTag("p").toString  must include(
       messages("label.sorry_we_are_currently_experiencing_technical_issues")
     )
 
@@ -49,7 +49,7 @@ class LocalErrorHandlerSpec extends ViewSpec {
   "internalServerErrorTemplate" in {
     val doc = asDocument(internalServerError().toString())
     doc.getElementsByTag("h1").toString must include(messages("global.error.InternalServerError500.pta.title"))
-    doc.getElementsByTag("p").toString must include(
+    doc.getElementsByTag("p").toString  must include(
       messages(
         "global.error.InternalServerError500.pta.message.you.can"
       ) + " <a href=\"https://www.gov.uk/contact-hmrc\" class=\"govuk-link\">" + messages(

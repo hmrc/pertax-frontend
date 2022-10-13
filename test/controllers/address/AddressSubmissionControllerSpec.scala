@@ -120,7 +120,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           CacheMap(
             "id",
             Map(
-              "residentialSubmittedAddressDto" -> Json.toJson(
+              "residentialSubmittedAddressDto"   -> Json.toJson(
                 asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)
               ),
               "residentialSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
@@ -239,7 +239,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     }
 
     "render the thank-you page if postalSubmittedStartDateDto is not in the cache, and the journey type is PostalAddrType" in new LocalSetup {
-      override lazy val fakeAddress =
+      override lazy val fakeAddress                       =
         buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
@@ -304,7 +304,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
-      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) mustBe comparatorDataEvent(dataEvent, "postcodeAddressSubmitted", Some("GB101"), false)
@@ -313,7 +313,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     }
 
     "render the thank you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address, this time using postal type and having no postalSubmittedStartDateDto in the cache " in new LocalSetup {
-      override lazy val fakeAddress =
+      override lazy val fakeAddress                       =
         buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
@@ -334,7 +334,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
-      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) mustBe comparatorDataEvent(
@@ -354,7 +354,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           CacheMap(
             "id",
             Map(
-              "residentialSubmittedAddressDto" -> Json.toJson(
+              "residentialSubmittedAddressDto"   -> Json.toJson(
                 asAddressDto(fakeStreetTupleListAddressForManualyEntered)
               ),
               "residentialSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
@@ -369,7 +369,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
-      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) mustBe comparatorDataEvent(dataEvent, "manualAddressSubmitted", None, false)
@@ -378,7 +378,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     }
 
     "render the thank you page and log a postcodeAddressModifiedSubmitted audit event upon successful of a modified address" in new LocalSetup {
-      override lazy val fakeAddress = buildFakeAddress.copy(line1 = Some("11 Fake Street"), isRls = false)
+      override lazy val fakeAddress                       = buildFakeAddress.copy(line1 = Some("11 Fake Street"), isRls = false)
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
@@ -398,7 +398,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
-      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) mustBe comparatorDataEvent(
@@ -416,7 +416,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       override def eTagResponse: Option[ETag] = None
 
-      override lazy val fakeAddress =
+      override lazy val fakeAddress                       =
         buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
       override def sessionCacheResponse: Option[CacheMap] =
         Some(

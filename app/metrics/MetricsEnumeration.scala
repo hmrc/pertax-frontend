@@ -19,9 +19,9 @@ package metrics
 object MetricsEnumeration extends Enumeration {
 
   type MetricsEnumeration = Value
-  val GET_AGENT_CLIENT_STATUS = Value
-  val GET_SEISS_CLAIMS = Value
-  val GET_UNREAD_MESSAGE_COUNT = Value
-  val LOAD_PARTIAL = Value
+  val GET_AGENT_CLIENT_STATUS       = Value
+  val GET_SEISS_CLAIMS              = Value
+  val GET_UNREAD_MESSAGE_COUNT      = Value
+  val LOAD_PARTIAL                  = Value
   val GET_BREATHING_SPACE_INDICATOR = Value
 }

@@ -38,11 +38,11 @@ class TaxCalculationServiceSpec extends BaseSpec {
     def httpResponse: HttpResponse
     def simulateTaxCalculationServiceIsDown: Boolean
 
-    val taxCalcDetails = Fixtures.buildTaxCalculation
+    val taxCalcDetails     = Fixtures.buildTaxCalculation
     val jsonTaxCalcDetails = Json.toJson(taxCalcDetails)
-    val anException = new RuntimeException("Any")
-    val metricId = "get-taxcalc-summary"
-    val mockHttp = mock[DefaultHttpClient]
+    val anException        = new RuntimeException("Any")
+    val metricId           = "get-taxcalc-summary"
+    val mockHttp           = mock[DefaultHttpClient]
 
     lazy val (service, metrics, timer) = {
       val fakeSimpleHttp = {
@@ -51,7 +51,7 @@ class TaxCalculationServiceSpec extends BaseSpec {
       }
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
-      val timer = mock[Timer.Context]
+      val timer                                        = mock[Timer.Context]
       val taxCalculationService: TaxCalculationService =
         new TaxCalculationService(fakeSimpleHttp, mock[Metrics], mockHttp, serviceConfig) {
 
@@ -66,7 +66,7 @@ class TaxCalculationServiceSpec extends BaseSpec {
   "Calling TaxCalculationService.getTaxYearReconciliations" must {
 
     "return a list of TaxYearReconciliations when given a valid nino" in new SpecSetup {
-      override def httpResponse: HttpResponse = HttpResponse(OK, Some(jsonTaxCalcDetails))
+      override def httpResponse: HttpResponse                   = HttpResponse(OK, Some(jsonTaxCalcDetails))
       override def simulateTaxCalculationServiceIsDown: Boolean = false
 
       val expectedTaxYearList =
@@ -86,7 +86,7 @@ class TaxCalculationServiceSpec extends BaseSpec {
     }
 
     "return nil when unable to get a list of TaxYearReconciliation" in new SpecSetup {
-      override def httpResponse: HttpResponse = HttpResponse(OK, Some(jsonTaxCalcDetails))
+      override def httpResponse: HttpResponse                   = HttpResponse(OK, Some(jsonTaxCalcDetails))
       override def simulateTaxCalculationServiceIsDown: Boolean = false
 
       val expectedTaxYearList = Nil

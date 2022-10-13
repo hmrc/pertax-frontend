@@ -54,13 +54,14 @@ class AddressSubmissionController @Inject() (
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   genericErrors: GenericErrors
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView) with Logging {
+    extends AddressController(authJourney, cc, displayAddressInterstitialView)
+    with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-          val isUkAddress: Boolean = journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
+          val isUkAddress: Boolean     = journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
           val doYouLiveInTheUK: String =
             if (journeyData.submittedInternationalAddressChoiceDto.forall(_.value)) {
               "label.yes"

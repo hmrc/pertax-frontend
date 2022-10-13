@@ -46,9 +46,9 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.agent-client-authorisation.maxTps" -> 100,
-      "feature.agent-client-authorisation.cache" -> true,
-      "feature.agent-client-authorisation.enabled" -> true,
+      "feature.agent-client-authorisation.maxTps"       -> 100,
+      "feature.agent-client-authorisation.cache"        -> true,
+      "feature.agent-client-authorisation.enabled"      -> true,
       "feature.agent-client-authorisation.timeoutInSec" -> 1
     )
     .build()
@@ -60,18 +60,24 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
 
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
 
-  val url = s"/personal-account/profile-and-settings"
+  val url       = s"/personal-account/profile-and-settings"
   val agentLink = "/manage-your-tax-agents"
 
   "your-profile" must {
     "show manage your agent link successfully" in {
 
-      server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-        .willReturn(ok(designatoryDetails)))
-      server.stubFor(put(urlMatching(s"/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString)))
-      server.stubFor(get(urlEqualTo(s"/agent-client-authorisation/status"))
-        .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString)))
+      server.stubFor(
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+          .willReturn(ok(designatoryDetails))
+      )
+      server.stubFor(
+        put(urlMatching(s"/keystore/pertax-frontend/.*"))
+          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+      )
+      server.stubFor(
+        get(urlEqualTo(s"/agent-client-authorisation/status"))
+          .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString))
+      )
 
       val result: Future[Result] = route(app, request).get
       contentAsString(result).contains(agentLink)
@@ -80,12 +86,18 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
 
     "show manage your agent link in 2 request but only one request to backend due to cache" in {
 
-      server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-        .willReturn(ok(designatoryDetails)))
-      server.stubFor(put(urlMatching(s"/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString)))
-      server.stubFor(get(urlEqualTo(s"/agent-client-authorisation/status"))
-        .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString)))
+      server.stubFor(
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+          .willReturn(ok(designatoryDetails))
+      )
+      server.stubFor(
+        put(urlMatching(s"/keystore/pertax-frontend/.*"))
+          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+      )
+      server.stubFor(
+        get(urlEqualTo(s"/agent-client-authorisation/status"))
+          .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString))
+      )
 
       val repeatRequest = request
 
@@ -102,21 +114,27 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
 
     "loads between 1sec and 3sec due to early timeout on agent link" in {
 
-      server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-        .willReturn(ok(designatoryDetails)))
-      server.stubFor(put(urlMatching(s"/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString)))
-      server.stubFor(get(urlEqualTo(s"/agent-client-authorisation/status"))
-        .willReturn(
-          aResponse()
-            .withStatus(OK)
-            .withBody(Json.toJson(AgentClientStatus(true, true, true)).toString)
-            .withFixedDelay(5000)
-        ))
+      server.stubFor(
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+          .willReturn(ok(designatoryDetails))
+      )
+      server.stubFor(
+        put(urlMatching(s"/keystore/pertax-frontend/.*"))
+          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+      )
+      server.stubFor(
+        get(urlEqualTo(s"/agent-client-authorisation/status"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(AgentClientStatus(true, true, true)).toString)
+              .withFixedDelay(5000)
+          )
+      )
 
-      val startTime = System.nanoTime
+      val startTime                      = System.nanoTime
       val result: Future[(Result, Long)] = route(app, request).get.map { result =>
-        (result, (System.nanoTime - startTime)/1000000.toLong)
+        (result, (System.nanoTime - startTime) / 1000000.toLong)
       }
 
       val duration = result.map(_._2).futureValue

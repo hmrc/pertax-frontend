@@ -46,7 +46,8 @@ class AddressSelectorController @Inject() (
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   addressSelectorService: AddressSelectorService
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView) with Logging {
+    extends AddressController(authJourney, cc, displayAddressInterstitialView)
+    with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -65,7 +66,7 @@ class AddressSelectorController @Inject() (
                 )
               )
             )
-          case _ => Future.successful(Redirect(address.routes.PostcodeLookupController.onPageLoad(typ)))
+          case _         => Future.successful(Redirect(address.routes.PostcodeLookupController.onPageLoad(typ)))
         }
       }
     }
@@ -91,7 +92,7 @@ class AddressSelectorController @Inject() (
                       )
                     )
                   )
-                case _ =>
+                case _         =>
                   logger.warn("Failed to retrieve Address Record Set from cache")
                   errorRenderer.futureError(INTERNAL_SERVER_ERROR)
               },
@@ -111,13 +112,13 @@ class AddressSelectorController @Inject() (
                     (typ, postCodeHasChanged) match {
                       case (PostalAddrType, false) =>
                         Redirect(routes.UpdateAddressController.onPageLoad(typ))
-                      case (_, true) => Redirect(routes.StartDateController.onPageLoad(typ))
-                      case (_, false) =>
+                      case (_, true)               => Redirect(routes.StartDateController.onPageLoad(typ))
+                      case (_, false)              =>
                         cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
                         Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                     }
                   }
-                case _ =>
+                case _                   =>
                   logger.warn("Address selector was unable to find address using the id returned by a previous request")
                   errorRenderer.futureError(INTERNAL_SERVER_ERROR)
               }

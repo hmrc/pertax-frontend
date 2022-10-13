@@ -38,7 +38,7 @@ class SelfAssessmentConnector @Inject() (http: HttpClient, configDecorator: Conf
         case res @ Some(_) =>
           timer.completeTimerAndIncrementSuccessCounter()
           res
-        case res =>
+        case res           =>
           timer.completeTimerAndIncrementFailedCounter()
           res
       } recover { case _: Exception =>

@@ -24,7 +24,7 @@ import testUtils.BaseSpec
 
 class ServicesCircuitBreakerSpec extends BaseSpec with ServicesCircuitBreaker with Status {
 
-  val CLIENT_CLOSED_REQUEST: Int = 499
+  val CLIENT_CLOSED_REQUEST: Int       = 499
   val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   override protected val externalServiceName: String = configDecorator.breathingSpaceAppName

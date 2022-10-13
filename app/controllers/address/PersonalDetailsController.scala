@@ -59,13 +59,13 @@ class PersonalDetailsController @Inject() (
 
       rlsInterruptHelper.enforceByRlsStatus(for {
         agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
-        addressModel <- request.nino
-                          .map { nino =>
-                            editAddressLockRepository.get(nino.withoutSuffix)
-                          }
-                          .getOrElse(
-                            Future.successful(List[AddressJourneyTTLModel]())
-                          )
+        addressModel      <- request.nino
+                               .map { nino =>
+                                 editAddressLockRepository.get(nino.withoutSuffix)
+                               }
+                               .getOrElse(
+                                 Future.successful(List[AddressJourneyTTLModel]())
+                               )
 
         _ <- request.personDetails
                .map { details =>
@@ -81,13 +81,13 @@ class PersonalDetailsController @Inject() (
                .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
       } yield {
-        val personalDetails = personalDetailsViewModel
+        val personalDetails      = personalDetailsViewModel
           .getPersonDetailsTable(request.nino)
-        val addressDetails = personalDetailsViewModel.getAddressRow(addressModel)
-        val trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
-        val paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
+        val addressDetails       = personalDetailsViewModel.getAddressRow(addressModel)
+        val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow
+        val paperlessHelpers     = personalDetailsViewModel.getPaperlessSettingsRow
         val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
-        val manageTaxAgent = if (agentClientStatus) personalDetailsViewModel.getManageTaxAgentsRow else None
+        val manageTaxAgent       = if (agentClientStatus) personalDetailsViewModel.getManageTaxAgentsRow else None
 
         Ok(
           personalDetailsView(

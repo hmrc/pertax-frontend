@@ -39,7 +39,7 @@ class MessageControllerSpec extends BaseSpec {
   override def beforeEach: Unit =
     reset(mockMessageFrontendService, mock[CitizenDetailsConnector])
 
-  val mockAuthJourney = mock[AuthJourney]
+  val mockAuthJourney            = mock[AuthJourney]
   val mockMessageFrontendService = mock[MessageFrontendService]
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
@@ -76,7 +76,7 @@ class MessageControllerSpec extends BaseSpec {
         Future(HtmlPartial.Success(Some("Success"), Html("<title>Message List</title>")))
       }
 
-      val r = controller.messageList(FakeRequest())
+      val r    = controller.messageList(FakeRequest())
       val body = contentAsString(r)
 
       status(r) mustBe OK
@@ -120,7 +120,7 @@ class MessageControllerSpec extends BaseSpec {
         Future(HtmlPartial.Success(None, Html("List")))
       }
 
-      val r = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
+      val r    = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
       val body = contentAsString(r)
 
       status(r) mustBe OK
@@ -141,9 +141,9 @@ class MessageControllerSpec extends BaseSpec {
         Future(HtmlPartial.Failure(None, ""))
       }
 
-      val r = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
+      val r    = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
       val body = contentAsString(r)
-      val doc = Jsoup.parse(body)
+      val doc  = Jsoup.parse(body)
 
       Option(doc.text()).get must include(
         "Sorry, there has been a technical problem retrieving your message"

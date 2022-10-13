@@ -44,7 +44,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
     def sessionCacheResponse: Option[CacheMap] =
       Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-    def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+    def currentRequest[A]: Request[A]          = FakeRequest().asInstanceOf[Request[A]]
   }
 
   "onPageLoad" must {

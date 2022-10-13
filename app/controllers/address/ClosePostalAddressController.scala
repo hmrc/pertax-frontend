@@ -54,7 +54,8 @@ class ClosePostalAddressController @Inject() (
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView) with Logging {
+    extends AddressController(authJourney, cc, displayAddressInterstitialView)
+    with Logging {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -97,7 +98,7 @@ class ClosePostalAddressController @Inject() (
       addressJourneyEnforcer { nino => personDetails =>
         for {
           addressChanges <- editAddressLockRepository.get(nino.withoutSuffix)
-          result <- {
+          result         <- {
             if (addressChanges.map(_.editedAddress).exists(_.isInstanceOf[EditCorrespondenceAddress])) {
               Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
             } else {
@@ -113,7 +114,7 @@ class ClosePostalAddressController @Inject() (
     request: UserRequest[_]
   ): Future[Result] = {
 
-    val address = getAddress(personDetails.correspondenceAddress)
+    val address        = getAddress(personDetails.correspondenceAddress)
     val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
 
     citizenDetailsConnector.getEtag(nino.nino) flatMap {
@@ -124,39 +125,39 @@ class ClosePostalAddressController @Inject() (
       case Some(version) =>
         for {
           response <- citizenDetailsConnector.updateAddress(nino, version.etag, closingAddress)
-          action <- response match {
-                      case UpdateAddressBadRequestResponse =>
-                        errorRenderer.futureError(BAD_REQUEST)
-                      case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
-                        errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-                      case UpdateAddressSuccessResponse =>
-                        for {
-                          _ <- auditConnector.sendEvent(
-                                 buildEvent(
-                                   "closedAddressSubmitted",
-                                   "closure_of_correspondence",
-                                   auditForClosingPostalAddress(closingAddress, version.etag, "correspondence")
-                                 )
-                               )
-                          _ <- cachingHelper
-                                 .clearCache() //This clears ENTIRE session cache, no way to target individual keys
-                          inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
-                          _ <- addressMovedService
-                                 .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
-                        } yield
-                          if (inserted) {
-                            Ok(
-                              updateAddressConfirmationView(
-                                PostalAddrType,
-                                closedPostalAddress = true,
-                                Some(getAddress(personDetails.address).fullAddress),
-                                None
+          action   <- response match {
+                        case UpdateAddressBadRequestResponse                                    =>
+                          errorRenderer.futureError(BAD_REQUEST)
+                        case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
+                          errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+                        case UpdateAddressSuccessResponse                                       =>
+                          for {
+                            _        <- auditConnector.sendEvent(
+                                          buildEvent(
+                                            "closedAddressSubmitted",
+                                            "closure_of_correspondence",
+                                            auditForClosingPostalAddress(closingAddress, version.etag, "correspondence")
+                                          )
+                                        )
+                            _        <- cachingHelper
+                                          .clearCache() //This clears ENTIRE session cache, no way to target individual keys
+                            inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
+                            _        <- addressMovedService
+                                          .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
+                          } yield
+                            if (inserted) {
+                              Ok(
+                                updateAddressConfirmationView(
+                                  PostalAddrType,
+                                  closedPostalAddress = true,
+                                  Some(getAddress(personDetails.address).fullAddress),
+                                  None
+                                )
                               )
-                            )
-                          } else {
-                            errorRenderer.error(INTERNAL_SERVER_ERROR)
-                          }
-                    }
+                            } else {
+                              errorRenderer.error(INTERNAL_SERVER_ERROR)
+                            }
+                      }
         } yield action
     }
   }

@@ -34,11 +34,11 @@ case class Person(
 ) {
   lazy val initialsName =
     initials.getOrElse(List(title, firstName.map(_.take(1)), middleName.map(_.take(1)), lastName).flatten.mkString(" "))
-  lazy val shortName = for {
+  lazy val shortName    = for {
     f <- firstName
     l <- lastName
   } yield List(f, l).mkString(" ")
-  lazy val fullName = List(title, firstName, middleName, lastName, honours).flatten.mkString(" ")
+  lazy val fullName     = List(title, firstName, middleName, lastName, honours).flatten.mkString(" ")
 }
 
 object Person {
