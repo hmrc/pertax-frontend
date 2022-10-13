@@ -128,14 +128,16 @@ class AuthActionImpl @Inject() (
             affinityGroup
           )
 
-          for {
+          lazy val updatedResult = for {
             result        <- block(authenticatedRequest)
             updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
-          } yield (configDecorator.singleAccountEnrolmentFeature, businessHours.isTrue(LocalDateTime.now())) match {
+          } yield updatedResult
+
+          (configDecorator.singleAccountEnrolmentFeature, businessHours.isTrue(LocalDateTime.now())) match {
             case (true, true) =>
               if (enrolmentsHelper.singleAccountEnrolmentPresent(enrolments)) updatedResult
-              else Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri))
-            case _ => updatedResult
+              else Future.successful(Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri)))
+            case _            => updatedResult
           }
 
         case _ => throw new RuntimeException("Can't find credentials for user")
