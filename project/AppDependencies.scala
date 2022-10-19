@@ -1,6 +1,7 @@
 import play.core.PlayVersion.current
 import play.sbt.PlayImport._
 import sbt._
+import play.sbt.PlayImport.ehcache
 
 object AppDependencies {
 
@@ -17,13 +18,15 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "tax-year"                         % "3.0.0",
     "uk.gov.hmrc"       %% "time"                             % "3.19.0",
     "uk.gov.hmrc"       %% "domain"                           % s"8.0.0-$playVersion",
-    "uk.gov.hmrc.mongo" %% s"hmrc-mongo-$playVersion"         % "0.68.0",
+    "uk.gov.hmrc.mongo" %% s"hmrc-mongo-$playVersion"         % "0.71.0",
     "io.lemonlabs"      %% "scala-uri"                        % "2.2.3",
     "uk.gov.hmrc"       %% "play-frontend-hmrc"               % s"3.21.0-play-28",
     "uk.gov.hmrc"       %% "play-frontend-pta"                % "0.3.0",
-    "org.jsoup"          % "jsoup"                            % "1.15.1",
+    "org.jsoup"          % "jsoup"                            % "1.15.3",
     "uk.gov.hmrc"       %% "reactive-circuit-breaker"         % "3.5.0",
-    "org.typelevel"     %% "cats-core"                        % "2.6.1"
+    "org.typelevel"     %% "cats-core"                        % "2.8.0",
+    "uk.gov.hmrc"       %% s"internal-auth-client-$playVersion" % "1.2.0",
+    ehcache
   )
 
   val test: Seq[ModuleID] = Seq(

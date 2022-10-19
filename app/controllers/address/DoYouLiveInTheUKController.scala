@@ -16,14 +16,16 @@
 
 package controllers.address
 
+import cats.data.OptionT
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.ResidentialAddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.SubmittedInternationalAddressChoiceId
-import models.dto.InternationalAddressChoiceDto
+import models.{AddressPageVisitedDtoId, SubmittedInternationalAddressChoiceId}
+import models.dto.{AddressPageVisitedDto, InternationalAddressChoiceDto}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.cache.client.SessionCache
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.InternationalAddressChoiceView
 
@@ -34,20 +36,15 @@ class DoYouLiveInTheUKController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   internationalAddressChoiceView: InternationalAddressChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  val sessionCache: SessionCache
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(authJourney, cc, displayAddressInterstitialView) {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-          cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-            Future.successful(
-              Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form(), ResidentialAddrType))
-            )
-          }
-        }
+        cachingHelper.enforceDisplayAddressPageVisitedNew(Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form(), ResidentialAddrType)))
       }
     }
 

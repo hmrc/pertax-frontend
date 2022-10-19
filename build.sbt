@@ -49,7 +49,7 @@ lazy val microservice = Project(appName, file("."))
     PlayKeys.playDefaultPort := 9232,
     scalafmtOnCompile := true,
     majorVersion := 1,
-    scalacOptions += "-P:silencer:pathFilters=views;routes",
+    scalacOptions ++= Seq("-P:silencer:pathFilters=views;routes", "-Ypartial-unification"),
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
       "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
