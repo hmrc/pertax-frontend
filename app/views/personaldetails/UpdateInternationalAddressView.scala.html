@@ -20,6 +20,11 @@
 @import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF, Input, _}
 @import scala.concurrent.ExecutionContext
 @import components.{ErrorSummary, InputValue, Button}
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteCss
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteJavascript
+@import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
+@import views.html.helper.CSPNonce
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
 
 @this(
     main: MainView,
@@ -28,11 +33,18 @@
     inputValue: InputValue,
     button: Button,
     govukFieldset: GovukFieldset,
-    govukSelect : GovukSelect
+    govukSelect : GovukSelect,
+    autocompleteCss : HmrcAccessibleAutocompleteCss,
+    autocompleteJavascript : HmrcAccessibleAutocompleteJavascript
 )
 
 @(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, countries: List[Country])(implicit request: UserRequest[_],
 configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+
+@scriptElems = {
+    @autocompleteJavascript(CSPNonce.get)
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/autocompletePolyfill.js")'></script>
+}
 
 @getYourAddressLabels = {
     @typ.ifIs(
@@ -40,20 +52,6 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     postal = messages("label.enter_the_address"))
 }
 
-@stylesheet = {
-    <link rel="stylesheet" href='@routes.AssetsController.versioned("stylesheets/modules/accessible-autocomplete.min.css")'>
-}
-
-@scriptElems = {
-    <script src='@controllers.routes.AssetsController.versioned("javascripts/accessible-autocomplete.min.js")'></script>
-    <script>
-        accessibleAutocomplete.enhanceSelectElement({
-            selectElement: document.querySelector('#country'),
-            showAllValues: false,
-            autoselect: true
-        });
-    </script>
-}
 
 @fieldsetDescribedBy = @{
     updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message").mkString("").trim
@@ -66,9 +64,9 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
 @main(
     pageTitle = title.toString,
     showBackLink = true,
-    scripts = Some(scriptElems),
-    stylesheets = Some(stylesheet),
-    yourProfileActive = true
+    yourProfileActive = true,
+    stylesheets = Some(autocompleteCss(CSPNonce.get)),
+    scripts = Some(scriptElems)
 ) {
 
 
@@ -143,6 +141,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
         autocomplete = Some("address-level3")
     )
 
+
     @govukSelect(Select(
         id = "country",
         name = "country",
@@ -157,5 +156,9 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
         label = Label(
             content = Text(messages("label.country"))
         )
-    ))
+    ).asAccessibleAutocomplete(Some(
+        AccessibleAutocomplete(
+            showAllValues = false,
+            autoSelect = true)
+    )))
 }
