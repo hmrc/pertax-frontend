@@ -20,7 +20,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class ClosePostalAddressChoiceDto(value: Boolean)
+case class ClosePostalAddressChoiceDto(value: Boolean) extends Dto
 
 object ClosePostalAddressChoiceDto {
 

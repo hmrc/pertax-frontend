@@ -41,13 +41,9 @@ class DoYouLiveInTheUKController @Inject() (
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-          cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-            Future.successful(
-              Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form(), ResidentialAddrType))
-            )
-          }
-        }
+        cachingHelper.enforceDisplayAddressPageVisited(
+          Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form(), ResidentialAddrType))
+        )
       }
     }
 

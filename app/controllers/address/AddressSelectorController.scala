@@ -16,6 +16,7 @@
 
 package controllers.address
 
+import cats.data.OptionT
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.address
@@ -26,10 +27,10 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.addresslookup.RecordSet
 import models.dto.{AddressDto, AddressSelectorDto, DateDto}
-import models.{SelectedAddressRecordId, SubmittedAddressDtoId, SubmittedStartDateId}
+import models.{SelectedAddressRecordId, SelectedRecordSetId, SubmittedAddressDtoId, SubmittedStartDateId}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.AddressSelectorService
+import services.{AddressSelectorService, LocalSessionCache}
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.AddressSelectorView
@@ -39,6 +40,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AddressSelectorController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
+  localSessionCache: LocalSessionCache,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
@@ -51,24 +53,20 @@ class AddressSelectorController @Inject() (
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-        journeyData.recordSet match {
-          case Some(set) =>
-            val orderedSet = RecordSet(addressSelectorService.orderSet(set.addresses))
-            Future.successful(
-              Ok(
-                addressSelectorView(
-                  AddressSelectorDto.form,
-                  orderedSet,
-                  typ,
-                  postcodeFromRequest,
-                  filterFromRequest
-                )
-              )
+      OptionT(localSessionCache.fetchAndGetEntry[RecordSet](SelectedRecordSetId(typ).id))
+        .map { recordSet =>
+          val orderedSet = RecordSet(addressSelectorService.orderSet(recordSet.addresses))
+          Ok(
+            addressSelectorView(
+              AddressSelectorDto.form,
+              orderedSet,
+              typ,
+              postcodeFromRequest,
+              filterFromRequest
             )
-          case _         => Future.successful(Redirect(address.routes.PostcodeLookupController.onPageLoad(typ)))
+          )
         }
-      }
+        .getOrElse(Redirect(address.routes.PostcodeLookupController.onPageLoad(typ)))
     }
 
   def onSubmit(typ: AddrType): Action[AnyContent] =
