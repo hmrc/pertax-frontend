@@ -18,7 +18,7 @@ package controllers.address
 
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.addresslookup.RecordSet
-import models.dto.{AddressFinderDto, AddressPageVisitedDto}
+import models.dto.{AddressFinderDto, AddressPageVisitedDto, Dto}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
@@ -68,32 +68,41 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
   "onPageLoad" must {
 
     "return 200 if the user has entered a residency choice on the previous page" in new LocalSetup {
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
       val result                                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 303 if the user has entered a residency choice on the previous page" in new LocalSetup {
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(false)))))
 
       val result                                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 200 if the user is on correspondence address journey and has postal address type" in new LocalSetup {
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
       val result                                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -103,7 +112,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
@@ -113,11 +122,12 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
     "verify an audit event has been sent for a user clicking the change address link" in new LocalSetup {
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
@@ -132,6 +142,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
@@ -139,6 +150,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
     }
 
     "verify an audit event has been sent for a user clicking the change postal address link" in new LocalSetup {
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -149,6 +161,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
   }

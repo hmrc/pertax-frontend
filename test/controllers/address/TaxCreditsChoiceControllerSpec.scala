@@ -82,8 +82,8 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
   "onPageLoad" must {
 
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in {
-      when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
-        Future.successful(sessionCacheResponse)
+      when(mockLocalSessionCache.fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())) thenReturn {
+        Future.successful(Some(AddressPageVisitedDto(true)))
       }
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
@@ -91,7 +91,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
       val result = controller.onPageLoad(currentRequest)
 
       status(result) mustBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
     }
 
     "return SEE_OTHER and the correct redirect if the user has tax credits" in {
@@ -101,15 +101,16 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
       val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
       when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(Some(true)))
-      when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
-        Future.successful(sessionCacheResponse)
+      when(mockLocalSessionCache.fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())) thenReturn {
+        Future.successful(Some(AddressPageVisitedDto(true)))
       }
 
       val result = controller.onPageLoad(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
     }
 
     "return SEE_OTHER and the correct redirect if the user hasn't got tax credits" in {
@@ -119,15 +120,16 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
       val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
       when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(Some(false)))
-      when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
-        Future.successful(sessionCacheResponse)
+      when(mockLocalSessionCache.fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())) thenReturn {
+        Future.successful(Some(AddressPageVisitedDto(true)))
       }
 
       val result = controller.onPageLoad(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/do-you-live-in-the-uk")
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
     }
 
     "return INTERNAL_SERVER_ERROR and no redirect URL if the service returns None" in {
@@ -137,19 +139,20 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
       val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
       when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(None))
-      when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
-        Future.successful(sessionCacheResponse)
+      when(mockLocalSessionCache.fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())) thenReturn {
+        Future.successful(Some(AddressPageVisitedDto(true)))
       }
 
       val result = controller.onPageLoad(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       redirectLocation(result) mustBe None
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
     }
 
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in {
-      when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
+      when(mockLocalSessionCache.fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())) thenReturn {
         Future.successful(None)
       }
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
@@ -161,7 +164,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
     }
   }
 

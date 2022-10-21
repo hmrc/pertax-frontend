@@ -45,38 +45,18 @@ class UpdateAddressController @Inject() (
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
         val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
         addressJourneyEnforcer { _ => _ =>
-          typ match {
-            case PostalAddrType =>
-              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
-                Future.successful(
-                  Ok(
-                    updateAddressView(
-                      addressForm.discardingErrors,
-                      typ,
-                      journeyData.addressFinderDto,
-                      journeyData.addressLookupServiceDown,
-                      showEnterAddressHeader
-                    )
-                  )
-                )
-              }
-            case _              =>
-              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
-                Future.successful(
-                  Ok(
-                    updateAddressView(
-                      addressForm.discardingErrors,
-                      typ,
-                      journeyData.addressFinderDto,
-                      journeyData.addressLookupServiceDown,
-                      showEnterAddressHeader
-                    )
-                  )
-                )
-              }
-          }
+          val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
+          cachingHelper.enforceDisplayAddressPageVisited(
+            Ok(
+              updateAddressView(
+                addressForm.discardingErrors,
+                typ,
+                journeyData.addressFinderDto,
+                journeyData.addressLookupServiceDown,
+                showEnterAddressHeader
+              )
+            )
+          )
         }
       }
     }

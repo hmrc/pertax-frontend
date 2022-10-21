@@ -20,7 +20,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-final case class SAWrongCredentialsDto(value: Boolean)
+final case class SAWrongCredentialsDto(value: Boolean) extends Dto
 
 object SAWrongCredentialsDto {
 
