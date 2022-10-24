@@ -149,6 +149,7 @@ label.address_line_three=Address line 3 (optional)
 label.address_line_four=Address line 4 (optional)
 label.address_line_five=Address line 5 (optional)
 label.country=Country
+country.select=Select a country
 label.change=Change
 label.manage=Manage
 label.telephone_0300_200_3300=Telephone: 0300 200 3300
