@@ -16,14 +16,16 @@
 
 package controllers.auth
 
+import cats.data.EitherT
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.{CitizenDetailsConnector, PersonDetailsHiddenResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
+import play.api.http.Status.LOCKED
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
+import services.CitizenDetailsService
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -32,11 +34,11 @@ import views.html.ManualCorrespondenceView
 import scala.concurrent.{ExecutionContext, Future}
 
 class GetPersonDetailsAction @Inject() (
-  citizenDetailsConnector: CitizenDetailsConnector,
-  messageFrontendService: MessageFrontendService,
-  cc: ControllerComponents,
-  val messagesApi: MessagesApi,
-  manualCorrespondenceView: ManualCorrespondenceView
+                                         citizenDetailsService: CitizenDetailsService,
+                                         messageFrontendService: MessageFrontendService,
+                                         cc: ControllerComponents,
+                                         val messagesApi: MessagesApi,
+                                         manualCorrespondenceView: ManualCorrespondenceView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends ActionRefiner[UserRequest, UserRequest]
     with ActionFunction[UserRequest, UserRequest]
@@ -44,11 +46,9 @@ class GetPersonDetailsAction @Inject() (
 
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
-      if (!request.uri.contains("/signout")) {
         getPersonDetails()(request).map {
-          case Left(error) => Left(error)
-          case Right(pd)   =>
-            Right(
+          personalDetails =>
+            val pd = if (!request.uri.contains("/signout")) personalDetails else None
               UserRequest(
                 request.nino,
                 request.retrievedName,
@@ -63,28 +63,7 @@ class GetPersonDetailsAction @Inject() (
                 request.breadcrumb,
                 request.request
               )
-            )
-        }
-      } else {
-        Future.successful(
-          Right(
-            UserRequest(
-              request.nino,
-              request.retrievedName,
-              request.saUserType,
-              request.credentials,
-              request.confidenceLevel,
-              None,
-              request.trustedHelper,
-              request.enrolments,
-              request.profile,
-              messageCount,
-              request.breadcrumb,
-              request.request
-            )
-          )
-        )
-      }
+        }.value
     }
 
   def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
@@ -93,21 +72,18 @@ class GetPersonDetailsAction @Inject() (
     else
       Future.successful(None)
 
-  private def getPersonDetails()(implicit request: UserRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
+  private def getPersonDetails()(implicit request: UserRequest[_]): EitherT[Future, Result, Option[PersonDetails]] = {
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     request.nino match {
       case Some(nino) =>
-        citizenDetailsConnector.personDetails(nino).map {
-          case PersonDetailsSuccessResponse(pd) =>
-            Right(Some(pd))
-          case PersonDetailsHiddenResponse      =>
-            Left(Locked(manualCorrespondenceView()))
-          case _                                => Right(None)
+        citizenDetailsService.personDetails(nino).transform {
+          case Right(response) => Right(Some(response))
+          case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
+          case _ => Right(None)
         }
-      case _          => Future.successful(Right(None))
     }
   }
 

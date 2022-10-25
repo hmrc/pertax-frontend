@@ -27,6 +27,7 @@ import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 import util.Timeout
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import java.util.UUID.randomUUID
 import scala.concurrent.duration._
@@ -60,7 +61,7 @@ class BreathingSpaceConnector @Inject() (
     val result                                  = withTimeout(timeoutInSec seconds) {
       withCircuitBreaker(
         httpClient
-          .GET[HttpResponse](url)(HttpReadsLegacyRawReads.readRaw, bsHeaderCarrier, ec)
+          .GET[HttpResponse](url)(HttpReadsLegacyRawReads.readRaw, bsHeaderCarrier, ec) // TODO
       )(bsHeaderCarrier)
         .map { response =>
           timerContext.stop()

@@ -24,4 +24,9 @@ object MetricsEnumeration extends Enumeration {
   val GET_UNREAD_MESSAGE_COUNT      = Value
   val LOAD_PARTIAL                  = Value
   val GET_BREATHING_SPACE_INDICATOR = Value
+  val GET_PERSONAL_DETAILS = Value
+  val UPDATE_ADDRESS = Value
+  val GET_MATCHING_DETAILS = Value
+  val GET_ETAG = Value
+
 }
