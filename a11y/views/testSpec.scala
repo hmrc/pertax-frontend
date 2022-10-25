@@ -1,16 +1,12 @@
 package views
 
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.scalatestaccessibilitylinter.AccessibilityMatchers
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.AgentClientStatus
 import play.api.Application
-import play.api.http.Status.{OK, TOO_MANY_REQUESTS}
+import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{BAD_GATEWAY, BAD_REQUEST, GET, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => getStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => getStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -19,7 +15,7 @@ import uk.gov.hmrc.scalatestaccessibilitylinter.domain.OutputFormat
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class testSpec extends IntegrationSpec with AccessibilityMatchers {
+class testSpec extends IntegrationSpec {
 
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -67,7 +63,6 @@ class testSpec extends IntegrationSpec with AccessibilityMatchers {
 
       val result: Future[Result] = route(app, request).get
       getStatus(result) mustBe OK
-      println(contentAsString(result))
       contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)
     }
   }
