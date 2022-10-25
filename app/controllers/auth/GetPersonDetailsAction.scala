@@ -34,11 +34,11 @@ import views.html.ManualCorrespondenceView
 import scala.concurrent.{ExecutionContext, Future}
 
 class GetPersonDetailsAction @Inject() (
-                                         citizenDetailsService: CitizenDetailsService,
-                                         messageFrontendService: MessageFrontendService,
-                                         cc: ControllerComponents,
-                                         val messagesApi: MessagesApi,
-                                         manualCorrespondenceView: ManualCorrespondenceView
+  citizenDetailsService: CitizenDetailsService,
+  messageFrontendService: MessageFrontendService,
+  cc: ControllerComponents,
+  val messagesApi: MessagesApi,
+  manualCorrespondenceView: ManualCorrespondenceView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends ActionRefiner[UserRequest, UserRequest]
     with ActionFunction[UserRequest, UserRequest]
@@ -46,24 +46,23 @@ class GetPersonDetailsAction @Inject() (
 
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
-        getPersonDetails()(request).map {
-          personalDetails =>
-            val pd = if (!request.uri.contains("/signout")) personalDetails else None
-              UserRequest(
-                request.nino,
-                request.retrievedName,
-                request.saUserType,
-                request.credentials,
-                request.confidenceLevel,
-                pd,
-                request.trustedHelper,
-                request.enrolments,
-                request.profile,
-                messageCount,
-                request.breadcrumb,
-                request.request
-              )
-        }.value
+      getPersonDetails()(request).map { personalDetails =>
+        val pd = if (!request.uri.contains("/signout")) personalDetails else None
+        UserRequest(
+          request.nino,
+          request.retrievedName,
+          request.saUserType,
+          request.credentials,
+          request.confidenceLevel,
+          pd,
+          request.trustedHelper,
+          request.enrolments,
+          request.profile,
+          messageCount,
+          request.breadcrumb,
+          request.request
+        )
+      }.value
     }
 
   def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
@@ -80,9 +79,9 @@ class GetPersonDetailsAction @Inject() (
     request.nino match {
       case Some(nino) =>
         citizenDetailsService.personDetails(nino).transform {
-          case Right(response) => Right(Some(response))
+          case Right(response)                           => Right(Some(response))
           case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
-          case _ => Right(None)
+          case _                                         => Right(None)
         }
     }
   }

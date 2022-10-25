@@ -16,11 +16,4 @@
 
 package util
 
-import models.MatchingDetails
-import uk.gov.hmrc.http.HttpResponse
-
-sealed trait MatchingDetailsResponse
-case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails) extends MatchingDetailsResponse
-case object MatchingDetailsNotFoundResponse extends MatchingDetailsResponse
-case class MatchingDetailsUnexpectedResponse(r: HttpResponse) extends MatchingDetailsResponse
-case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetailsResponse
+class ErrorHandler {}
