@@ -27,7 +27,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TaxCreditsService @Inject() (taxCreditsConnector: TaxCreditsConnector)(implicit ec: ExecutionContext) {
 
-  def checkForTaxCredits(nino: Option[Nino])(implicit headerCarrier: HeaderCarrier): Future[Option[Boolean]] =
+  def checkForTaxCredits(nino: Option[Nino])(implicit headerCarrier: HeaderCarrier): Future[Option[Boolean]] = {
+    println("PPP333: " + "checkForTaxCredits")
     if (nino.isEmpty) {
       Future.successful(Some(false))
     } else {
@@ -38,4 +39,5 @@ class TaxCreditsService @Inject() (taxCreditsConnector: TaxCreditsConnector)(imp
         }
       )
     }.merge
+  }
 }

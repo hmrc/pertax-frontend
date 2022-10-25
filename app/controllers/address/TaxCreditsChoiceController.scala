@@ -23,6 +23,7 @@ import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.TaxCreditsChoiceId
+import models.admin.{AddressTaxCreditsBrokerCallToggle, NationalInsuranceTileToggle}
 import models.dto.{AddressFinderDto, TaxCreditsChoiceDto}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -53,23 +54,29 @@ class TaxCreditsChoiceController @Inject() (
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { nino => _ =>
-      val result = if (configDecorator.addressChangeTaxCreditsQuestionEnabled) {
-        Future.successful(
-          Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
-        )
-      } else {
-        taxCreditsService.checkForTaxCredits(Some(nino)).map {
-          case Some(true)  =>
-            cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
-            Redirect(configDecorator.tcsChangeAddressUrl)
-          case Some(false) =>
-            cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
-            Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
-          case None        =>
-            InternalServerError(internalServerErrorView())
+      featureFlagService
+        .get(AddressTaxCreditsBrokerCallToggle)
+        .flatMap { toggle =>
+          println("PPPPP: " + toggle)
+          if (toggle.isEnabled) {
+            println("PPPPP2222: " + toggle.isEnabled)
+            taxCreditsService.checkForTaxCredits(Some(nino)).map {
+              case Some(true)  =>
+                cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
+                Redirect(configDecorator.tcsChangeAddressUrl)
+              case Some(false) =>
+                cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
+                Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+              case None        =>
+                InternalServerError(internalServerErrorView())
+            }
+          } else {
+            Future.successful(
+              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+            )
+          }
         }
-      }
-      result.flatMap(cachingHelper.enforceDisplayAddressPageVisited(_))
+        .flatMap(cachingHelper.enforceDisplayAddressPageVisited)
     }
   }
 

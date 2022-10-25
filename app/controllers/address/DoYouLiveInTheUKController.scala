@@ -22,10 +22,9 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.ResidentialAddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.{AddressPageVisitedDtoId, SubmittedInternationalAddressChoiceId}
-import models.dto.{AddressPageVisitedDto, InternationalAddressChoiceDto}
+import models.SubmittedInternationalAddressChoiceId
+import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.http.cache.client.SessionCache
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.InternationalAddressChoiceView
 
@@ -36,8 +35,7 @@ class DoYouLiveInTheUKController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   internationalAddressChoiceView: InternationalAddressChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
-  val sessionCache: SessionCache
+  displayAddressInterstitialView: DisplayAddressInterstitialView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(authJourney, cc, displayAddressInterstitialView) {
 
