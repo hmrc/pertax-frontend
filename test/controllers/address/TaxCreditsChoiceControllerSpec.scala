@@ -58,7 +58,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
     .build()
 
   override def beforeEach(): Unit = {
-    reset(mockLocalSessionCache, mockTaxCreditsService, mockFeatureFlagService)
+    reset(mockLocalSessionCache, mockTaxCreditsService, mockFeatureFlagService, mockAddressJourneyCachingHelper)
     super.beforeEach()
   }
 
@@ -82,106 +82,96 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
 
   "onPageLoad" when {
     "Tax-credit-broker call is used" must {
-      "return OK if the user does not receive tax credits" in {
+      "return SEE OTHER to `do-you-live-in-the-uk` if the user does not receives tax credits" in {
         val arg = ArgumentCaptor.forClass(classOf[Result])
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
         when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(Some(false)))
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-          .thenReturn(Future.successful(Ok("Page")))
+          .thenReturn(Future.successful(Ok("Fake Page")))
 
-        controller.onPageLoad(currentRequest)
+        val result = controller.onPageLoad(currentRequest)
 
+        status(result) mustBe OK
+        verify(mockFeatureFlagService, times(1)).get(any())
         verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
         verify(mockTaxCreditsService, times(1)).checkForTaxCredits(any())(any())
         val argCaptorValue: Result = arg.getValue
-        argCaptorValue.header.status mustBe OK
+        argCaptorValue.header.status mustBe SEE_OTHER
+        redirectLocation(Future.successful(argCaptorValue)) mustBe Some(
+          "/personal-account/your-address/residential/do-you-live-in-the-uk"
+        )
       }
 
-      "return SEE_OTHER and the correct redirect if the user hasn't got tax credits" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
-        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(Some(false)))
-        when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-          .thenReturn(Future.successful(Ok("Page")))
+      "return SEE_OTHER to `tax-credits-service/personal/change-address` if the user receives tax credits" in {
+        val arg = ArgumentCaptor.forClass(classOf[Result])
 
-        val controller = app.injector.instanceOf[TaxCreditsChoiceController]
-
-        val result = controller.onPageLoad(currentRequest)
-
-        contentAsString(result) mustBe ""
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some("/personal-account/your-address/residential/do-you-live-in-the-uk")
-
-        verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
-        verify(mockTaxCreditsService, times(1)).checkForTaxCredits(any())(any())
-      }
-
-      "return INTERNAL_SERVER_ERROR and no redirect URL if the service returns None" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
-        when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-          .thenReturn(Future.successful(Ok("Page")))
-
-        val controller = app.injector.instanceOf[TaxCreditsChoiceController]
-
-        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(None))
-        when(mockLocalSessionCache.fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())) thenReturn {
-          Future.successful(Some(AddressPageVisitedDto(true)))
-        }
-
-        val result = controller.onPageLoad(currentRequest)
-
-        status(result) mustBe INTERNAL_SERVER_ERROR
-        redirectLocation(result) mustBe None
-
-        verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
-      }
-
-      "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in {
-        when(mockLocalSessionCache.fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())) thenReturn {
-          Future.successful(None)
-        }
-        when(mockAddressJourneyCachingHelper.addToCache(any(), any())(any(), any())) thenReturn {
-          Future.successful(CacheMap("id", Map.empty))
-        }
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
         when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(Some(true)))
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-          .thenReturn(Future.successful(Ok("Page")))
+          .thenReturn(Future.successful(Ok("Fake Page")))
+
+        val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
         val result = controller.onPageLoad(currentRequest)
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
-        verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
+        status(result) mustBe OK
+        verify(mockFeatureFlagService, times(1)).get(any())
+        verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
+        verify(mockTaxCreditsService, times(1)).checkForTaxCredits(any())(any())
+        val argCaptorValue: Result = arg.getValue
+        argCaptorValue.header.status mustBe SEE_OTHER
+        redirectLocation(Future.successful(argCaptorValue)).get must include(
+          "tax-credits-service/personal/change-address"
+        )
+      }
+
+      "return INTERNAL_SERVER_ERROR and no redirect URL if the tax credits service returns None" in {
+        val arg = ArgumentCaptor.forClass(classOf[Result])
+
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
+          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
+        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(None))
+        when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
+          .thenReturn(Future.successful(Ok("Fake Page")))
+
+        val controller = app.injector.instanceOf[TaxCreditsChoiceController]
+
+        val result = controller.onPageLoad(currentRequest)
+
+        status(result) mustBe OK
+        verify(mockFeatureFlagService, times(1)).get(any())
+        verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
+        verify(mockTaxCreditsService, times(1)).checkForTaxCredits(any())(any())
+        val argCaptorValue: Result = arg.getValue
+        argCaptorValue.header.status mustBe INTERNAL_SERVER_ERROR
       }
     }
 
-    "Tax-credit-broker call is not used and the question ask to the user" in {
+    "Tax-credit-broker call is not used and the question ask to the user" must {
       "return SEE_OTHER and the correct redirect if the user has tax credits" in {
+        val arg = ArgumentCaptor.forClass(classOf[Result])
+
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
-        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(Some(true)))
-        when(mockLocalSessionCache.fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())) thenReturn {
-          Future.successful(Some(AddressPageVisitedDto(true)))
-        }
+        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(null)
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-          .thenReturn(Future.successful(Ok("Page")))
+          .thenReturn(Future.successful(Ok("Fake Page")))
 
         val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
         val result = controller.onPageLoad(currentRequest)
 
-        contentAsString(result) mustBe ""
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
-
-        verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
+        status(result) mustBe OK
+        verify(mockFeatureFlagService, times(1)).get(any())
+        verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
+        verify(mockTaxCreditsService, times(0)).checkForTaxCredits(any())(any())
+        val argCaptorValue: Result = arg.getValue
+        argCaptorValue.header.status mustBe OK
+        contentAsString(Future.successful(argCaptorValue)) must include("Do you get tax credits?")
       }
-
     }
   }
 

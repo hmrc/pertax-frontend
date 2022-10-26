@@ -16,21 +16,19 @@
 
 package controllers.address
 
-import cats.data.{EitherT, OptionT}
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.TaxCreditsChoiceId
-import models.admin.{AddressTaxCreditsBrokerCallToggle, NationalInsuranceTileToggle}
-import models.dto.{AddressFinderDto, TaxCreditsChoiceDto}
+import models.admin.AddressTaxCreditsBrokerCallToggle
+import models.dto.TaxCreditsChoiceDto
 import play.api.Logging
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
-import services.{LocalSessionCache, TaxCreditsService}
 import services.admin.FeatureFlagService
-import uk.gov.hmrc.http.cache.client.CacheMap
+import services.{LocalSessionCache, TaxCreditsService}
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
@@ -57,9 +55,7 @@ class TaxCreditsChoiceController @Inject() (
       featureFlagService
         .get(AddressTaxCreditsBrokerCallToggle)
         .flatMap { toggle =>
-          println("PPPPP: " + toggle)
           if (toggle.isEnabled) {
-            println("PPPPP2222: " + toggle.isEnabled)
             taxCreditsService.checkForTaxCredits(Some(nino)).map {
               case Some(true)  =>
                 cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))

@@ -19,7 +19,7 @@ package controllers.controllershelpers
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.{FeatureFlag, NationalInsuranceTileToggle}
+import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, NationalInsuranceTileToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -100,6 +100,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         )
 
         when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
+        when(mockFeatureFlagService.get(NationalInsuranceTileToggle))
+          .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
@@ -154,6 +156,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         }
 
         when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
+        when(mockFeatureFlagService.get(NationalInsuranceTileToggle))
+          .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
@@ -206,6 +210,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         }
 
         when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
+        when(mockFeatureFlagService.get(NationalInsuranceTileToggle))
+          .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
@@ -424,45 +430,21 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   "Calling getNationalInsuranceCard" must {
     "return NI Card when toggled on" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
 
-      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard()
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
       cardBody mustBe Some(nationalInsurance())
     }
 
-    "return nothing when toggled off" in {
-      val stubConfigDecorator = new ConfigDecorator(
-        injected[Configuration],
-        injected[Langs],
-        injected[ServicesConfig]
-      ) {
-        override lazy val saItsaTileEnabled: Boolean = false
-      }
+    "return None when toggled off" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, false)))
 
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, false)
-      )
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
-      def sut: HomeCardGenerator =
-        new HomeCardGenerator(
-          mockFeatureFlagService,
-          payAsYouEarn,
-          taxCalculation,
-          selfAssessment,
-          nationalInsurance,
-          taxCredits,
-          childBenefit,
-          marriageAllowance,
-          statePension,
-          taxSummaries,
-          seissView,
-          latestNewsAndUpdatesView,
-          saAndItsaMergeView,
-          enrolmentsHelper,
-          newsAndTilesConfig
-        )(stubConfigDecorator, ec)
-
-      sut.getNationalInsuranceCard() mustBe None
+      cardBody mustBe None
     }
   }
 

@@ -27,17 +27,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TaxCreditsService @Inject() (taxCreditsConnector: TaxCreditsConnector)(implicit ec: ExecutionContext) {
 
-  def checkForTaxCredits(nino: Option[Nino])(implicit headerCarrier: HeaderCarrier): Future[Option[Boolean]] = {
-    println("PPP333: " + "checkForTaxCredits")
+  def checkForTaxCredits(nino: Option[Nino])(implicit headerCarrier: HeaderCarrier): Future[Option[Boolean]] =
     if (nino.isEmpty) {
       Future.successful(Some(false))
-    } else {
-      taxCreditsConnector.checkForTaxCredits(nino.get) bimap (
-        error => if (error.statusCode == NOT_FOUND) Some(false) else None,
-        result => {
-          if (result.status == OK) Some(true) else Some(false)
-        }
-      )
-    }.merge
-  }
+    } else
+      taxCreditsConnector
+        .checkForTaxCredits(nino.get)
+        .bimap(
+          error => if (error.statusCode == NOT_FOUND) Some(false) else None,
+          result =>
+            if (result.status == OK) Some(true)
+            else Some(false)
+        )
+        .merge
 }
