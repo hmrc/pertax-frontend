@@ -62,8 +62,23 @@ address {
   margin-right: 5px;
 }
 
-input[type="text"].autocomplete__input {
-  width: 75%;
+// Constrain the input (and drop-down) so they site with the other address inputs
+// important to do this on the wrapper rather than the input itself otherwise the down-arrow will be floating by itself
+@media (min-width: 40.0625em){
+  .autocomplete__wrapper {
+      width: 75%!important;
+  }
+}
+
+// Ensure the error styling is presented (powered by adding the govuk-input-error class in js)
+// This can't be done just by adding the class due to conflicting specificity
+.autocomplete__input.govuk-input--error {
+  border-color: #d4351c;
+}
+// Ensure the down arrow for 'show all' option sits above the input so it is visible
+// (there was a change - possibly either input or page background which effectively hid the arrow due to its z-index)
+.autocomplete__dropdown-arrow-down {
+  z-index: 0;
 }
 
 .address-line {
