@@ -41,9 +41,9 @@ class SelfAssessmentStatusAction @Inject() (
   private def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
     CitizenDetailsService
       .getMatchingDetails(nino)
-      .foldF(
-        _ => Future.successful(None),
-        matchingDetails => Future.successful((matchingDetails.saUtr))
+      .fold(
+        _ => None,
+        matchingDetails => matchingDetails.saUtr
       )
 
   private def getSelfAssessmentUserType[A](implicit
