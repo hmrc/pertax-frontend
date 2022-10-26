@@ -23,9 +23,10 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models._
-import models.dto.AddressDto
+import models.dto.{AddressDto, AddressPageVisitedDto, Dto}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
+import org.mockito.stubbing.OngoingStubbing
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import services._
@@ -117,8 +118,13 @@ trait AddressBaseSpec extends BaseSpec {
 
     def getEditedAddressIndicators: List[AddressJourneyTTLModel] = List.empty
 
+    def fetchAndGetEntryDto: Option[Dto] = None
+
     when(mockAgentClientAuthorisationService.getAgentClientStatus(any(), any(), any())).thenReturn(
       Future.successful(true)
+    )
+    when(mockLocalSessionCache.fetchAndGetEntry[Dto](any())(any(), any(), any())).thenReturn(
+      Future.successful(fetchAndGetEntryDto: Option[Dto])
     )
     when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
       Future.successful(CacheMap("id", Map.empty))

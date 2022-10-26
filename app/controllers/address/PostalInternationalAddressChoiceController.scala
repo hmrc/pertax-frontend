@@ -19,7 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import controllers.bindable.PostalAddrType
+import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedInternationalAddressChoiceId
 import models.dto.InternationalAddressChoiceDto
@@ -41,17 +41,13 @@ class PostalDoYouLiveInTheUKController @Inject() (
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-          cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-            Future.successful(
-              Ok(
-                postalInternationalAddressChoiceView(
-                  InternationalAddressChoiceDto.form(Some("error.postal_address_uk_select"))
-                )
-              )
+        cachingHelper.enforceDisplayAddressPageVisited(
+          Ok(
+            postalInternationalAddressChoiceView(
+              InternationalAddressChoiceDto.form(Some("error.postal_address_uk_select"))
             )
-          }
-        }
+          )
+        )
       }
     }
 

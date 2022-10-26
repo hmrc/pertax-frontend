@@ -35,7 +35,7 @@ case class AddressDto(
   postcode: Option[String],
   country: Option[String],
   propertyRefNo: Option[String]
-) {
+) extends Dto {
   def toAddress(`type`: String, startDate: LocalDate): Address =
     postcode match {
       case Some(postcode) =>

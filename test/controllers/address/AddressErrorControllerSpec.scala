@@ -50,7 +50,7 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
     "display the cannot use this service page" in new LocalSetup {
       val result = controller.cannotUseThisService(ResidentialAddrType)(currentRequest)
 
-      status(result) mustBe OK
+      status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsString(result) must include("You cannot use this service to update your address")
     }
   }

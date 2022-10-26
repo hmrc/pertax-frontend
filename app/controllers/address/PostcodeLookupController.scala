@@ -59,16 +59,12 @@ class PostcodeLookupController @Inject() (
               auditConnector.sendEvent(
                 buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails, isInternationalAddress = false)
               )
-              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                Future.successful(Ok(postcodeLookupView(AddressFinderDto.form, typ)))
-              }
+              cachingHelper.enforceDisplayAddressPageVisited(Ok(postcodeLookupView(AddressFinderDto.form, typ)))
             case _              =>
               auditConnector.sendEvent(
                 buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = false)
               )
-              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                Future.successful(Ok(postcodeLookupView(AddressFinderDto.form, typ)))
-              }
+              cachingHelper.enforceDisplayAddressPageVisited(Ok(postcodeLookupView(AddressFinderDto.form, typ)))
           }
         }
       }

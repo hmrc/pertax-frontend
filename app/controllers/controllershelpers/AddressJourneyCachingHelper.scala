@@ -16,6 +16,7 @@
 
 package controllers.controllershelpers
 
+import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
 import controllers.bindable.AddrType
 import models._
@@ -116,13 +117,10 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
       case NonFatal(e)                         => throw e
     }
 
-  def enforceDisplayAddressPageVisited(
-    addressPageVisitedDto: Option[AddressPageVisitedDto]
-  )(block: => Future[Result]): Future[Result] =
-    addressPageVisitedDto match {
-      case Some(_) =>
-        block
-      case None    =>
-        Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad))
-    }
+  def enforceDisplayAddressPageVisited(result: Result)(implicit hc: HeaderCarrier): Future[Result] =
+    OptionT(sessionCache.fetchAndGetEntry[AddressPageVisitedDto](AddressPageVisitedDtoId.id))
+      .map { _ =>
+        result
+      }
+      .getOrElse(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad))
 }

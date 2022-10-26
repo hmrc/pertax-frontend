@@ -24,6 +24,10 @@ trait CacheIdentifier[A] {
   val id: String
 }
 
+case object AddressLookupServiceDown extends CacheIdentifier[Boolean] {
+  override val id: String = "addressLookupServiceDown"
+}
+
 case object AddressPageVisitedDtoId extends CacheIdentifier[AddressPageVisitedDto] {
   override val id: String = "addressPageVisitedDto"
 }

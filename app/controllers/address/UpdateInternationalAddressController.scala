@@ -52,31 +52,27 @@ class UpdateInternationalAddressController @Inject() (
               auditConnector.sendEvent(
                 buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails, isInternationalAddress = true)
               )
-              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                Future.successful(
-                  Ok(
-                    updateInternationalAddressView(
-                      journeyData.submittedAddressDto.fold(AddressDto.internationalForm)(
-                        AddressDto.internationalForm.fill
-                      ),
-                      typ,
-                      countryHelper.countries
-                    )
+              cachingHelper.enforceDisplayAddressPageVisited(
+                Ok(
+                  updateInternationalAddressView(
+                    journeyData.submittedAddressDto.fold(AddressDto.internationalForm)(
+                      AddressDto.internationalForm.fill
+                    ),
+                    typ,
+                    countryHelper.countries
                   )
                 )
-              }
+              )
 
             case _ =>
               auditConnector.sendEvent(
                 buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = true)
               )
-              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                Future.successful(
-                  Ok(
-                    updateInternationalAddressView(AddressDto.internationalForm, typ, countryHelper.countries)
-                  )
+              cachingHelper.enforceDisplayAddressPageVisited(
+                Ok(
+                  updateInternationalAddressView(AddressDto.internationalForm, typ, countryHelper.countries)
                 )
-              }
+              )
           }
         }
       }
