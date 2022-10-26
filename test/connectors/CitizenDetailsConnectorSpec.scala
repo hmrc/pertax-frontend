@@ -36,7 +36,12 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.util.Random
 
-class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with MockitoSugar with DefaultAwaitTimeout with Injecting {
+class CitizenDetailsConnectorSpec
+    extends ConnectorSpec
+    with WireMockHelper
+    with MockitoSugar
+    with DefaultAwaitTimeout
+    with Injecting {
 
   override implicit lazy val app: Application = app(
     Map("microservice.services.citizen-details.port" -> server.port())
@@ -102,7 +107,8 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     "return a PersonDetailsSuccessResponse when called with an existing nino" in new LocalSetup {
       stubGet(url, OK, Some(Json.toJson(personDetails).toString()))
 
-      val result: HttpResponse = connector.personDetails(nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, ""))
+      val result: HttpResponse =
+        connector.personDetails(nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, ""))
       result mustBe personDetails
       verifyMetricsSuccess(metricId)
     }
@@ -151,11 +157,12 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
       val requestBody: String = Json.obj("etag" -> etag, "address" -> Json.toJson(address)).toString()
     }
 
-    "return UpdateAddressSuccessResponse when called with valid Nino and address data" in new LocalSetup {
+    "return CREATED when called with valid Nino and address data" in new LocalSetup {
       stubPost(url, CREATED, Some(requestBody), None)
 
-      val result: UpdateAddressResponse = connector.updateAddress(nino, etag, address).futureValue
-      result mustBe UpdateAddressSuccessResponse
+      val result: HttpResponse =
+        connector.updateAddress(nino, etag, address).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, ""))
+      result mustBe HttpResponse(CREATED, "")
       verifyMetricsSuccess(metricId)
     }
 
@@ -183,25 +190,27 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
 
       stubPost(url, CREATED, Some(requestBody), None)
 
-      val result: UpdateAddressResponse = connector.updateAddress(nino, etag, correspondenceAddress).futureValue
-      result mustBe UpdateAddressSuccessResponse
+      val result: HttpResponse =
+        connector.updateAddress(nino, etag, address).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, ""))
+      result mustBe HttpResponse(CREATED, "")
       verifyMetricsSuccess(metricId)
     }
 
     "return UpdateAddressBadRequestResponse when Citizen Details service returns BAD_REQUEST" in new LocalSetup {
       stubPost(url, BAD_REQUEST, Some(requestBody), None)
 
-      val result: UpdateAddressResponse = connector.updateAddress(nino, etag, address).futureValue
-      result mustBe UpdateAddressBadRequestResponse
+      val result: UpstreamErrorResponse =
+        connector.updateAddress(nino, etag, address).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK))
+      result mustBe UpstreamErrorResponse("", BAD_REQUEST)
       verifyMetricsFailure(metricId)
     }
 
     "return UpdateAddressUnexpectedResponse when an unexpected status is returned" in new LocalSetup {
       stubPost(url, IM_A_TEAPOT, Some(requestBody), None)
 
-      val result: UpdateAddressResponse = connector.updateAddress(nino, etag, address).futureValue
-      result mustBe a[UpdateAddressUnexpectedResponse]
-      result.toString mustBe "UpdateAddressUnexpectedResponse(HttpResponse status=418)"
+      val result: UpstreamErrorResponse =
+        connector.updateAddress(nino, etag, address).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK))
+      result mustBe UpstreamErrorResponse("", IM_A_TEAPOT)
       verifyMetricsFailure(metricId)
     }
 
@@ -209,8 +218,9 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
       val delay: Int = 5000
       stubWithDelay(url, OK, None, None, delay)
 
-      val result: UpdateAddressResponse = connector.updateAddress(nino, etag, address).futureValue
-      result mustBe UpdateAddressErrorResponse(_: GatewayTimeoutException)
+      intercept[GatewayTimeoutException] {
+        connector.updateAddress(nino, etag, address).value.futureValue
+      }
       verifyMetricsFailure(metricId)
     }
   }
@@ -222,37 +232,40 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
       def url: String = s"/citizen-details/nino/$nino"
     }
 
-    "return MatchingDetailsSuccessResponse containing an SAUTR when the service returns an SAUTR" in new LocalSetup {
-      val saUtr: String                   = new SaUtrGenerator().nextSaUtr.utr
+    "return OK containing an SAUTR when the service returns an SAUTR" in new LocalSetup {
+      val saUtr: String        = new SaUtrGenerator().nextSaUtr.utr
       stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr)).toString()))
 
-      val result: MatchingDetailsResponse = connector.getMatchingDetails(nino).futureValue
-      result mustBe MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr(saUtr))))
+      val result: HttpResponse =
+        connector.getMatchingDetails(nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, ""))
+      result mustBe HttpResponse(OK, "")
       verifyMetricsSuccess(metricId)
     }
 
-    "return MatchingDetailsSuccessResponse containing no SAUTR when the service does not return an SAUTR" in new LocalSetup {
+    "return OK containing no SAUTR when the service does not return an SAUTR" in new LocalSetup {
       stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> JsNull)).toString()))
 
-      val result: MatchingDetailsResponse = connector.getMatchingDetails(nino).futureValue
-      result mustBe MatchingDetailsSuccessResponse(MatchingDetails(None))
+      val result: HttpResponse =
+        connector.getMatchingDetails(nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, ""))
+      result mustBe HttpResponse(OK, "")
       verifyMetricsSuccess(metricId)
     }
 
-    "return MatchingDetailsNotFoundResponse when citizen-details returns an 404" in new LocalSetup {
+    "return NOT_FOUND when citizen-details returns an 404" in new LocalSetup {
       stubGet(url, NOT_FOUND, None)
 
-      val result: MatchingDetailsResponse = connector.getMatchingDetails(nino).futureValue
-      result mustBe MatchingDetailsNotFoundResponse
+      val result: UpstreamErrorResponse =
+        connector.getMatchingDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", NOT_FOUND))
+      result mustBe UpstreamErrorResponse("", NOT_FOUND)
       verifyMetricsFailure(metricId)
     }
 
     "return MatchingDetailsUnexpectedResponse when citizen-details returns an unexpected response code" in new LocalSetup {
       stubGet(url, IM_A_TEAPOT, None)
 
-      val result: MatchingDetailsResponse = connector.getMatchingDetails(nino).futureValue
-      result mustBe a[MatchingDetailsUnexpectedResponse]
-      result.toString mustBe "MatchingDetailsUnexpectedResponse(HttpResponse status=418)"
+      val result: UpstreamErrorResponse =
+        connector.getMatchingDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", NOT_FOUND))
+      result mustBe UpstreamErrorResponse("", IM_A_TEAPOT)
       verifyMetricsFailure(metricId)
     }
 
@@ -260,8 +273,9 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
       val delay: Int = 5000
       stubWithDelay(url, OK, None, None, delay)
 
-      val result: MatchingDetailsResponse = await(connector.getMatchingDetails(nino))
-      result mustBe MatchingDetailsErrorResponse(_: GatewayTimeoutException)
+      intercept[GatewayTimeoutException] {
+        connector.getMatchingDetails(nino).value.futureValue
+      }
       verifyMetricsFailure(metricId)
     }
   }
@@ -276,8 +290,9 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     "return an etag when citizen-details returns 200" in new LocalSetup {
       stubGet(url, OK, Some(JsObject(Seq(("etag", JsString("115")))).toString()))
 
-      val result: Option[ETag] = connector.getEtag(nino.nino).futureValue
-      result mustBe Some(ETag("115"))
+      val result: HttpResponse =
+        connector.getEtag(nino.nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, ""))
+      result mustBe HttpResponse(OK, "")
       verifyMetricsSuccess(metricId)
     }
 
@@ -285,24 +300,31 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
       "citizen-details returns 404" in new LocalSetup {
         stubGet(url, NOT_FOUND, None)
 
-        val result: Option[ETag] = connector.getEtag(nino.nino).futureValue
-        result mustBe None
+        val result: UpstreamErrorResponse =
+          connector.getEtag(nino.nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", NOT_FOUND))
+        result mustBe UpstreamErrorResponse("", NOT_FOUND)
         verifyMetricsFailure(metricId)
       }
 
       "citizen-details returns 423" in new LocalSetup {
         stubGet(url, LOCKED, None)
 
-        val result: Option[ETag] = connector.getEtag(nino.nino).futureValue
-        result mustBe None
+        val result: UpstreamErrorResponse =
+          connector.getEtag(nino.nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", LOCKED))
+        result mustBe UpstreamErrorResponse("", LOCKED)
         verifyMetricsFailure(metricId)
       }
 
       "citizen-details returns 500" in new LocalSetup {
         stubGet(url, INTERNAL_SERVER_ERROR, None)
 
-        val result: Option[ETag] = connector.getEtag(nino.nino).futureValue
-        result mustBe None
+        val result: UpstreamErrorResponse = connector
+          .getEtag(nino.nino)
+          .value
+          .futureValue
+          .left
+          .getOrElse(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR))
+        result mustBe UpstreamErrorResponse("", LOCKED)
         verifyMetricsFailure(metricId)
       }
 
@@ -310,8 +332,9 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
         val delay: Int = 5000
         stubWithDelay(url, OK, None, None, delay)
 
-        val result: Option[ETag] = connector.getEtag(nino.nino).futureValue
-        result mustBe None
+        intercept[GatewayTimeoutException] {
+          connector.getEtag(nino.nino).value.futureValue
+        }
         verifyMetricsFailure(metricId)
       }
     }
