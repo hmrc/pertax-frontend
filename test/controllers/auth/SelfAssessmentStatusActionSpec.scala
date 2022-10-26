@@ -16,7 +16,8 @@
 
 package controllers.auth
 
-import connectors.{CitizenDetailsConnector, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse}
+import cats.data.EitherT
+import connectors.CitizenDetailsConnector
 import controllers.auth.requests._
 import models._
 import org.mockito.ArgumentMatchers.any
@@ -33,10 +34,11 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.EnrolmentStoreCachingService
+import services.{CitizenDetailsService, EnrolmentStoreCachingService}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
@@ -46,18 +48,18 @@ class SelfAssessmentStatusActionSpec
     with MockitoSugar
     with BeforeAndAfterEach
     with GuiceOneAppPerSuite {
-  val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
-  private val saUtr                                        = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-  private val enrolmentsCachingService                     = mock[EnrolmentStoreCachingService]
+  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
+  private val saUtr                                    = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  private val enrolmentsCachingService                 = mock[EnrolmentStoreCachingService]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[CitizenDetailsConnector].toInstance(mockCitizenDetailsConnector))
+    .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
     .overrides(bind[EnrolmentStoreCachingService].toInstance(enrolmentsCachingService))
     .configure(Map("metrics.enabled" -> false))
     .build()
 
   override def beforeEach: Unit =
-    reset(mockCitizenDetailsConnector)
+    reset(mockCitizenDetailsService)
 
   def harness[A]()(implicit request: AuthenticatedRequest[A]): Future[Result] = {
 
@@ -98,7 +100,7 @@ class SelfAssessmentStatusActionSpec
 
       val result = harness()(request)
       contentAsString(result) must include(s"ActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
-      verify(mockCitizenDetailsConnector, times(0)).getMatchingDetails(any())(any())
+      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any(), any())
     }
   }
 
@@ -110,7 +112,7 @@ class SelfAssessmentStatusActionSpec
 
       val result = harness()(request)
       contentAsString(result) must include(s"NotYetActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
-      verify(mockCitizenDetailsConnector, times(0)).getMatchingDetails(any())(any())
+      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any(), any())
     }
   }
 
@@ -130,8 +132,12 @@ class SelfAssessmentStatusActionSpec
       userTypeList.foreach { case (userType, key) =>
         s"return $key when the enrolments caching service returns ${userType.toString}" in {
 
-          when(mockCitizenDetailsConnector.getMatchingDetails(any())(any()))
-            .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
+          when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
+            .thenReturn(
+              EitherT[Future, UpstreamErrorResponse, MatchingDetails](
+                Future.successful(Right(MatchingDetails(Some(saUtr))))
+              )
+            )
 
           when(enrolmentsCachingService.getSaUserTypeFromCache(any())(any(), any()))
             .thenReturn(Future.successful(userType))
@@ -147,11 +153,15 @@ class SelfAssessmentStatusActionSpec
     "return NonFilerSelfAssessmentUser" in {
       implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest()
 
-      when(mockCitizenDetailsConnector.getMatchingDetails(any())(any()))
-        .thenReturn(Future.successful(MatchingDetailsNotFoundResponse))
+      when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, MatchingDetails](
+            Future.successful(Left(UpstreamErrorResponse("", NOT_FOUND)))
+          )
+        )
       val result = harness()(request)
       contentAsString(result) must include("NonFilerSelfAssessmentUser")
-      verify(mockCitizenDetailsConnector, times(1)).getMatchingDetails(any())(any())
+      verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
     }
   }
 
@@ -161,7 +171,7 @@ class SelfAssessmentStatusActionSpec
 
       val result = harness()(request)
       contentAsString(result) must include("NonFilerSelfAssessmentUser")
-      verify(mockCitizenDetailsConnector, times(0)).getMatchingDetails(any())(any())
+      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any(), any())
     }
   }
 }

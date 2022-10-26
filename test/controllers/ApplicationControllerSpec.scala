@@ -16,7 +16,6 @@
 
 package controllers
 
-import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}
 import models._
@@ -28,6 +27,8 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
+import testUtils.Fixtures._
+import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -36,10 +37,9 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.{RedirectUrl, SafeRedirectUrl}
 import uk.gov.hmrc.time.CurrentTaxYear
-import testUtils.Fixtures._
-import testUtils.UserRequestFixture.buildUserRequest
 import views.html.iv.failure._
 import views.html.iv.success.SuccessView
+
 import java.time.LocalDate
 import scala.concurrent.Future
 
@@ -77,7 +77,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     lazy val authProviderType: String                                 = UserDetails.GovernmentGatewayAuthProvider
     lazy val nino: Nino                                               = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetailsResponse             = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
+    lazy val personDetailsResponse: PersonDetails                     = Fixtures.buildPersonDetails
     lazy val withPaye: Boolean                                        = true
     lazy val year                                                     = current.currentYear
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")

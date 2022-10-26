@@ -17,7 +17,6 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
@@ -71,7 +70,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     lazy val authProviderType: String                                  = UserDetails.GovernmentGatewayAuthProvider
     lazy val nino: Nino                                                = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetailsResponse              = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
+    lazy val personDetailsResponse: PersonDetails                      = Fixtures.buildPersonDetails
     lazy val confidenceLevel: ConfidenceLevel                          = ConfidenceLevel.L200
     lazy val withPaye: Boolean                                         = true
     lazy val year                                                      = 2017
