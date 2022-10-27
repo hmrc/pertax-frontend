@@ -35,6 +35,7 @@ import org.mockito.Mockito.{reset, when}
 import play.api.Configuration
 import play.api.i18n.Langs
 import uk.gov.hmrc.internalauth.client.{IAAction, Resource, ResourceLocation, ResourceType, Retrieval}
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.Future
@@ -53,26 +54,26 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
 
   lazy val mockStubBehaviour      = mock[StubBehaviour]
   lazy val mockFeatureFlagService = mock[FeatureFlagService]
+  lazy val mockAuditConnector     = mock[AuditConnector]
   lazy val fakeInternalAuthAction =
     new InternalAuthAction(
       new ConfigDecorator(injected[Configuration], injected[Langs], injected[ServicesConfig]),
       BackendAuthComponentsStub(mockStubBehaviour)
     )
 
-  val sut = new FeatureFlagsAdminController(fakeInternalAuthAction, mockFeatureFlagService, cc)(ec)
+  val sut = new FeatureFlagsAdminController(fakeInternalAuthAction, mockFeatureFlagService, cc, mockAuditConnector)(ec)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockStubBehaviour)
-    reset(mockFeatureFlagService)
+    reset(mockStubBehaviour, mockFeatureFlagService, mockAuditConnector)
+    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+    when(mockStubBehaviour.stubAuth(Some(expectedPermission), Retrieval.username))
+      .thenReturn(Future.successful(Retrieval.Username("Test")))
   }
 
   "GET /get" must {
     "returns a list of toggles" when {
       "all is well" in {
-        when(mockStubBehaviour.stubAuth[Unit](Some(expectedPermission), Retrieval.EmptyRetrieval))
-          .thenReturn(Future.successful(()))
-
         when(mockFeatureFlagService.getAll).thenReturn(Future.successful(List(FeatureFlag(TaxcalcToggle, true))))
 
         val result = sut.get(
@@ -86,7 +87,8 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
 
     "returns an exception" when {
       "The user is not authorised" in {
-        when(mockStubBehaviour.stubAuth[Unit](Some(expectedPermission), Retrieval.EmptyRetrieval))
+        reset(mockStubBehaviour)
+        when(mockStubBehaviour.stubAuth(Some(expectedPermission), Retrieval.username))
           .thenReturn(Future.failed(UpstreamErrorResponse("Unauthorized", Status.UNAUTHORIZED)))
 
         when(mockFeatureFlagService.getAll).thenReturn(Future.successful(List(FeatureFlag(TaxcalcToggle, true))))
@@ -105,9 +107,6 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
   "PUT /put" must {
     "returns no content" when {
       "all is well" in {
-        when(mockStubBehaviour.stubAuth[Unit](Some(expectedPermission), Retrieval.EmptyRetrieval))
-          .thenReturn(Future.successful(()))
-
         when(mockFeatureFlagService.set(any(), any())).thenReturn(Future.successful(true))
 
         val result = sut.put(TaxcalcToggle)(
@@ -125,9 +124,6 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
   "PUT /puAll" must {
     "returns no content" when {
       "all is well" in {
-        when(mockStubBehaviour.stubAuth[Unit](Some(expectedPermission), Retrieval.EmptyRetrieval))
-          .thenReturn(Future.successful(()))
-
         when(mockFeatureFlagService.set(any(), any())).thenReturn(Future.successful(true))
 
         val result = sut.putAll(
@@ -144,9 +140,6 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
 
     "returns internal server error" when {
       "there is an error" in {
-        when(mockStubBehaviour.stubAuth[Unit](Some(expectedPermission), Retrieval.EmptyRetrieval))
-          .thenReturn(Future.successful(()))
-
         when(mockFeatureFlagService.set(any(), any())).thenReturn(Future.successful(false))
 
         val result = sut.putAll(

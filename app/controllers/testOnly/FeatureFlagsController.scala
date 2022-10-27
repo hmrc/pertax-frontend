@@ -31,7 +31,7 @@ class FeatureFlagsController @Inject() (
 )(implicit ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
-  def setFlag(featureFlagName: FeatureFlagName, isEnabled: Boolean): Action[AnyContent] = Action.async {
+  def setFlag(featureFlagName: FeatureFlagName, isEnabled: Boolean): Action[AnyContent] = Action.async { request =>
     featureFlagService.set(featureFlagName, isEnabled).map {
       case true  => Ok(s"Flag $featureFlagName set to $isEnabled")
       case false => InternalServerError(s"Error while setting flag $featureFlagName to $isEnabled")

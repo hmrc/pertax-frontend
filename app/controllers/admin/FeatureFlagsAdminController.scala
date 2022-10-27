@@ -21,6 +21,10 @@ import models.admin.{FeatureFlag, FeatureFlagName}
 import play.api.libs.json.{JsBoolean, Json}
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import services.admin.FeatureFlagService
+import uk.gov.hmrc.internalauth.client.{AuthenticatedRequest, Retrieval}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import util.AuditServiceTools
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,7 +32,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class FeatureFlagsAdminController @Inject() (
   val auth: InternalAuthAction,
   featureFlagService: FeatureFlagService,
-  cc: ControllerComponents
+  cc: ControllerComponents,
+  auditConnector: AuditConnector
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc) {
 
@@ -38,11 +43,21 @@ class FeatureFlagsAdminController @Inject() (
   }
 
   def put(flagName: FeatureFlagName): Action[AnyContent] = auth().async { request =>
+    val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     request.body.asJson match {
       case Some(JsBoolean(enabled)) =>
         featureFlagService
           .set(flagName, enabled)
-          .map(_ => NoContent)
+          .map { _ =>
+            auditConnector.sendEvent(
+              AuditServiceTools.buildAdminEvent(
+                "adminEvent",
+                "changedToggleState",
+                Map(flagName.toString -> Some(enabled.toString))
+              )(hc, request)
+            )
+            NoContent
+          }
       case _                        =>
         Future.successful(BadRequest)
     }

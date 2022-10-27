@@ -19,13 +19,19 @@ package models.admin
 import play.api.libs.json._
 import play.api.mvc.PathBindable
 
-case class FeatureFlag(name: FeatureFlagName, isEnabled: Boolean)
+case class FeatureFlag(
+  name: FeatureFlagName,
+  isEnabled: Boolean,
+  description: Option[String] = None
+)
 
 object FeatureFlag {
   implicit val format: OFormat[FeatureFlag] = Json.format[FeatureFlag]
 }
 
-sealed trait FeatureFlagName
+sealed trait FeatureFlagName {
+  val description: Option[String] = None
+}
 
 object FeatureFlagName {
   implicit val writes: Writes[FeatureFlagName] = new Writes[FeatureFlagName] {
@@ -65,14 +71,17 @@ object FeatureFlagName {
 
 case object AddressTaxCreditsBrokerCallToggle extends FeatureFlagName {
   override def toString: String = "address-tax-credits-broker-call"
+  override val description      = Some("If enabled do not ask tax credits question but call tax-credits-broker instead")
 }
 
 case object TaxcalcToggle extends FeatureFlagName {
-  override def toString: String = "taxcalc"
+  override def toString: String            = "taxcalc"
+  override val description: Option[String] = Some("Enable/disable the tile for payments and repayments")
 }
 
 case object NationalInsuranceTileToggle extends FeatureFlagName {
-  override def toString: String = "national-insurance-tile"
+  override def toString: String            = "national-insurance-tile"
+  override val description: Option[String] = Some("Enable/disable the tile for check your state pension")
 }
 
 object FeatureFlagMongoFormats {

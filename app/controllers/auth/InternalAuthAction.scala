@@ -41,5 +41,5 @@ class InternalAuthAction @Inject() (
     )
 
   def apply() =
-    internalAuth.authorizedAction[Unit](permission)
+    internalAuth.authorizedAction(permission, Retrieval.username)
 }

@@ -60,7 +60,7 @@ class FeatureFlagRepository @Inject() (
     collection
       .replaceOne(
         filter = equal("name", name),
-        replacement = FeatureFlag(name, enabled),
+        replacement = FeatureFlag(name, enabled, name.description),
         options = ReplaceOptions().upsert(true)
       )
       .map(_.wasAcknowledged())
