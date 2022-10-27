@@ -29,8 +29,8 @@ import play.api.mvc.Result
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.CitizenDetailsService
 import services.partials.MessageFrontendService
+import services.{CitizenDetailsService, CitizenDetailsServiceSpec}
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials

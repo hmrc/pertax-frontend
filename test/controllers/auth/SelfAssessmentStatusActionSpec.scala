@@ -17,7 +17,6 @@
 package controllers.auth
 
 import cats.data.EitherT
-import connectors.CitizenDetailsConnector
 import controllers.auth.requests._
 import models._
 import org.mockito.ArgumentMatchers.any
@@ -38,7 +37,7 @@ import services.{CitizenDetailsService, EnrolmentStoreCachingService}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
 
