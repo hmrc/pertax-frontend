@@ -44,42 +44,90 @@ class CitizenDetailsConnector @Inject() (
   def personDetails(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse.read(
-      httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
-        s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
-      ),
-      MetricsEnumeration.GET_PERSONAL_DETAILS
-    )
+    withMetricsTimer("get-person-details") { timer =>
+      httpClientResponse
+        .read(
+          httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
+            s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
+          )
+        )
+        .bimap(
+          error => {
+            timer.completeTimerAndIncrementFailedCounter()
+            error
+          },
+          response => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            response
+          }
+        )
+    }
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
     ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
-    httpClientResponse.read(
-      httpClient.POST[JsObject, Either[UpstreamErrorResponse, HttpResponse]](
-        s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address",
-        body
-      ),
-      MetricsEnumeration.UPDATE_ADDRESS
-    )
+    withMetricsTimer("update-address") { timer =>
+      httpClientResponse
+        .read(
+          httpClient.POST[JsObject, Either[UpstreamErrorResponse, HttpResponse]](
+            s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address",
+            body
+          )
+        )
+        .bimap(
+          error => {
+            timer.completeTimerAndIncrementFailedCounter()
+            error
+          },
+          response => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            response
+          }
+        )
+    }
   }
 
   def getMatchingDetails(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse.read(
-      httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$citizenDetailsUrl/citizen-details/nino/$nino"),
-      MetricsEnumeration.GET_MATCHING_DETAILS
-    )
+    withMetricsTimer("get-matching-details") { timer =>
+      httpClientResponse
+        .read(
+          httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$citizenDetailsUrl/citizen-details/nino/$nino")
+        )
+        .bimap(
+          error => {
+            timer.completeTimerAndIncrementFailedCounter()
+            error
+          },
+          response => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            response
+          }
+        )
+    }
 
   def getEtag(
     nino: String
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse.read(
-      httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$citizenDetailsUrl/citizen-details/$nino/etag"),
-      MetricsEnumeration.GET_ETAG
-    )
+    withMetricsTimer("get-etag") { timer =>
+      httpClientResponse
+        .read(
+          httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$citizenDetailsUrl/citizen-details/$nino/etag")
+        )
+        .bimap(
+          error => {
+            timer.completeTimerAndIncrementFailedCounter()
+            error
+          },
+          response => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            response
+          }
+        )
+    }
 
 //  def getEtag(nino: String)(implicit hc: HeaderCarrier): Future[Option[ETag]] =
 //    withMetricsTimer("get-etag") { timer =>

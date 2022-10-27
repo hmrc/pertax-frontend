@@ -81,7 +81,7 @@ class BreathingSpaceConnector @Inject() (
         timerContext.stop()
         throw error
     }
-    httpClientResponse.read(result, metricName).map(_.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
+    httpClientResponse.read(result, Some(metricName)).map(_.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
 
 }
