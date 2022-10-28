@@ -64,17 +64,21 @@ class FeatureFlagsAdminController @Inject() (
   }
 
   def putAll: Action[AnyContent] = auth().async { request =>
-    val flags = request.body.asJson.map(_.as[Seq[FeatureFlag]]).getOrElse(Seq.empty)
-    Future
-      .sequence(flags.map { flag =>
-        featureFlagService.set(flag.name, flag.isEnabled)
-      })
-      .map(_.foldLeft(NoContent) { (acc, value) =>
-        if (acc.header.status == INTERNAL_SERVER_ERROR)
-          acc
-        else {
-          if (value) NoContent else InternalServerError("Error while setting flags")
-        }
-      })
+    val hc    = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    val flags = request.body.asJson
+      .map(_.as[Seq[FeatureFlag]])
+      .getOrElse(Seq.empty)
+      .map(flag => (flag.name -> flag.isEnabled))
+      .toMap
+    featureFlagService.setAll(flags).map { _ =>
+      auditConnector.sendEvent(
+        AuditServiceTools.buildAdminEvent(
+          "adminEvent",
+          "changedToggleState",
+          flags.map { case (flag, status) => flag.toString -> Some(status.toString) }
+        )(hc, request)
+      )
+      NoContent
+    }
   }
 }

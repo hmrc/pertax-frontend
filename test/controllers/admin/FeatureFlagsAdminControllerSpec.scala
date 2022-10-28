@@ -24,7 +24,7 @@ import play.api.http.Status._
 import play.api.libs.json.{JsBoolean, Json}
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
+import play.api.test.Helpers.{await, contentAsString, defaultAwaitTimeout, status}
 import services.admin.FeatureFlagService
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.UpstreamErrorResponse
@@ -124,7 +124,7 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
   "PUT /puAll" must {
     "returns no content" when {
       "all is well" in {
-        when(mockFeatureFlagService.set(any(), any())).thenReturn(Future.successful(true))
+        when(mockFeatureFlagService.setAll(any())).thenReturn(Future.successful(()))
 
         val result = sut.putAll(
           FakeRequest()
@@ -140,17 +140,22 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
 
     "returns internal server error" when {
       "there is an error" in {
-        when(mockFeatureFlagService.set(any(), any())).thenReturn(Future.successful(false))
+        when(mockFeatureFlagService.setAll(any())).thenReturn(Future.failed(new RuntimeException("Random exception")))
 
-        val result = sut.putAll(
-          FakeRequest()
-            .withHeaders("Authorization" -> "Token some-token")
-            .withJsonBody(
-              Json.toJson(List(FeatureFlag(TaxcalcToggle, true), FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
+        val result = intercept[RuntimeException] {
+          await(
+            sut.putAll(
+              FakeRequest()
+                .withHeaders("Authorization" -> "Token some-token")
+                .withJsonBody(
+                  Json.toJson(
+                    List(FeatureFlag(TaxcalcToggle, true), FeatureFlag(AddressTaxCreditsBrokerCallToggle, false))
+                  )
+                )
             )
-        )
-
-        status(result) mustBe INTERNAL_SERVER_ERROR
+          )
+        }
+        result.getMessage mustBe "Random exception"
       }
     }
   }

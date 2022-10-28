@@ -16,18 +16,20 @@
 
 package repositories.admin
 
-import models.admin.{FeatureFlag, FeatureFlagName}
+import models.admin.FeatureFlagName.allFeatureFlags
+import models.admin.{FeatureFlag, FeatureFlagName, TaxcalcToggle}
 import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model._
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class FeatureFlagRepository @Inject() (
-  mongoComponent: MongoComponent
+  val mongoComponent: MongoComponent
 )(implicit
   ec: ExecutionContext
 ) extends PlayMongoRepository[FeatureFlag](
@@ -43,7 +45,10 @@ class FeatureFlagRepository @Inject() (
         )
       ),
       extraCodecs = Codecs.playFormatSumCodecs(FeatureFlagName.formats)
-    ) {
+    )
+    with Transactions {
+
+  private implicit val tc = TransactionConfiguration.strict
 
   def getFeatureFlag(name: FeatureFlagName): Future[Option[FeatureFlag]] =
     collection
@@ -66,4 +71,16 @@ class FeatureFlagRepository @Inject() (
       .map(_.wasAcknowledged())
       .toSingle()
       .toFuture()
+
+  def setFeatureFlags(flags: Map[FeatureFlagName, Boolean]): Future[Unit] = {
+    val featureFlags = flags.map { case (flag, status) =>
+      FeatureFlag(flag, status, flag.description)
+    }.toList
+    withSessionAndTransaction(session =>
+      for {
+        _ <- collection.deleteMany(session, filter = in("name", flags.keys.toSeq: _*)).toFuture()
+        _ <- collection.insertMany(session, featureFlags).toFuture()
+      } yield ()
+    )
+  }
 }

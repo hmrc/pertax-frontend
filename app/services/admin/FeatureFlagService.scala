@@ -64,4 +64,10 @@ class FeatureFlagService @Inject() (
           .reverse
       }
     }
+
+  def setAll(flags: Map[FeatureFlagName, Boolean]): Future[Unit] =
+    Future.sequence(flags.keys.map(flag => cache.remove(flag.toString))).flatMap { _ =>
+      cache.remove(allFeatureFlagsCacheKey)
+      featureFlagRepository.setFeatureFlags(flags)
+    }
 }
