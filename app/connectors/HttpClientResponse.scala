@@ -33,31 +33,31 @@ class HttpClientResponse @Inject() (metrics: Metrics)(implicit ec: ExecutionCont
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     EitherT(response.map {
       case Right(response)                                                                 =>
-        metricName.foreach(metric => metrics.incrementFailedCounter(metric)) // TODO - Verify this solution works
+        metricName.map(metric => metrics.incrementSuccessCounter(metric)) // TODO - Verify this solution works
         Right(response)
       case Left(error) if error.statusCode == NOT_FOUND                                    =>
-        metricName.foreach(metric => metrics.incrementFailedCounter(metric))
+        metricName.map(metric => metrics.incrementFailedCounter(metric))
         logger.info(error.message)
         Left(error)
       case Left(error) if error.statusCode == LOCKED                                       =>
-        metricName.foreach(metric => metrics.incrementFailedCounter(metric))
+        metricName.map(metric => metrics.incrementFailedCounter(metric))
         logger.warn(error.message)
         Left(error)
       case Left(error) if error.statusCode >= 499 || error.statusCode == TOO_MANY_REQUESTS =>
-        metricName.foreach(metric => metrics.incrementFailedCounter(metric))
+        metricName.map(metric => metrics.incrementFailedCounter(metric))
         logger.error(error.message)
         Left(error)
       case Left(error)                                                                     =>
-        metricName.foreach(metric => metrics.incrementFailedCounter(metric))
+        metricName.map(metric => metrics.incrementFailedCounter(metric))
         logger.error(error.message, error)
         Left(error)
     } recover {
       case exception: HttpException =>
-        metricName.foreach(metric => metrics.incrementFailedCounter(metric))
+        metricName.map(metric => metrics.incrementFailedCounter(metric))
         logger.error(exception.message)
         Left(UpstreamErrorResponse(exception.message, BAD_GATEWAY, BAD_GATEWAY))
       case exception: Exception     =>
-        metricName.foreach(metric => metrics.incrementFailedCounter(metric))
+        metricName.map(metric => metrics.incrementFailedCounter(metric))
         throw exception
     })
 }
