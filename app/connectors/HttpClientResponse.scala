@@ -33,7 +33,7 @@ class HttpClientResponse @Inject() (metrics: Metrics)(implicit ec: ExecutionCont
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     EitherT(response.map {
       case Right(response)                                                                 =>
-        metricName.map(metric => metrics.incrementSuccessCounter(metric)) // TODO - Verify this solution works
+        metricName.map(metric => metrics.incrementSuccessCounter(metric))
         Right(response)
       case Left(error) if error.statusCode == NOT_FOUND                                    =>
         metricName.map(metric => metrics.incrementFailedCounter(metric))
