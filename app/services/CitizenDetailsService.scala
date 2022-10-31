@@ -49,7 +49,16 @@ class CitizenDetailsService @Inject() (
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, MatchingDetails] =
     citizenDetailsConnector
       .getMatchingDetails(nino)
-      .map(response => MatchingDetails.fromJsonMatchingDetails(response.json))
+      .map { response =>
+        println("*" * 100)
+        println(response)
+        println(response.json)
+
+        println(MatchingDetails.fromJsonMatchingDetails(response.json))
+        println("*" * 100)
+
+        MatchingDetails.fromJsonMatchingDetails(response.json)
+      }
 
   def getEtag(
     nino: String

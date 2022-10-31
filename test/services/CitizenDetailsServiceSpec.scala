@@ -24,7 +24,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.http.Status._
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OWrites}
 import play.api.test.Injecting
 import testUtils.BaseSpec
 import testUtils.Fixtures._
@@ -124,16 +124,20 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
     }
 
     "getMatchingDetails is called" must {
+      implicit val matchingDetailsWrites: OWrites[MatchingDetails] = Json.writes[MatchingDetails]
+
       "return matching details when connector returns and OK status with body" in {
         when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
             Future.successful(
               Right(
-                HttpResponse(OK, MatchingDetails.fromJsonMatchingDetails(Json.toJson(saUtr.utr)).toString)
+                HttpResponse(OK, Json.obj("ids" -> Json.obj("sautr" -> saUtr.utr)).toString)
               )
             )
           )
         )
+
+        println("1" * 100)
 
         val result =
           sut
@@ -142,6 +146,8 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .futureValue
             .right
             .get
+
+        println("1" * 100)
 
         result mustBe MatchingDetails(Some(saUtr))
       }
@@ -188,10 +194,12 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
     }
 
     "getEtag is called" must {
+      implicit val etagWrites: OWrites[ETag] = Json.writes[ETag]
+
       "return etag when connector returns and OK status with body" in {
         when(mockConnector.getEtag(any())(any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
-            Future.successful(Right(HttpResponse(OK, Json.toJson("1").toString)))
+            Future.successful(Right(HttpResponse(OK, Json.toJson(ETag("1")).toString)))
           )
         )
 
