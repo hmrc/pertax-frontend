@@ -16,35 +16,45 @@
 
 package connectors
 
+import cats.data.EitherT
 import com.google.inject.Inject
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics.HasMetrics
 import models.{SaEnrolmentRequest, SaEnrolmentResponse}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SelfAssessmentConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)(
-  implicit ec: ExecutionContext
+class SelfAssessmentConnector @Inject() (
+  http: HttpClient,
+  configDecorator: ConfigDecorator,
+  val metrics: Metrics,
+  httpClientResponse: HttpClientResponse
+)(implicit
+  ec: ExecutionContext
 ) extends HasMetrics {
 
   def enrolForSelfAssessment(
     saEnrolmentRequest: SaEnrolmentRequest
-  )(implicit hc: HeaderCarrier): Future[Option[SaEnrolmentResponse]] = {
+  )(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val url = s"${configDecorator.addTaxesFrontendUrl}/internal/self-assessment/enrol-for-sa"
     withMetricsTimer("enrol-for-self-assessment") { timer =>
-      http.POST[SaEnrolmentRequest, Option[SaEnrolmentResponse]](url, saEnrolmentRequest) map {
-        case res @ Some(_) =>
-          timer.completeTimerAndIncrementSuccessCounter()
-          res
-        case res           =>
-          timer.completeTimerAndIncrementFailedCounter()
-          res
-      } recover { case _: Exception =>
-        timer.completeTimerAndIncrementFailedCounter()
-        None
-      }
+      httpClientResponse
+        .read(
+          http.POST[SaEnrolmentRequest, Either[UpstreamErrorResponse, HttpResponse]](url, saEnrolmentRequest)
+        )
+        .bimap(
+          error => {
+            timer.completeTimerAndIncrementFailedCounter()
+            error
+          },
+          response => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            response
+          }
+        )
     }
   }
 }

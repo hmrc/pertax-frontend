@@ -125,7 +125,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
 
       val result = connector.getAgentClientStatus.value.futureValue
       result mustBe a[Left[_, _]]
-      result.left.get mustBe an[UpstreamErrorResponse]
+      result.swap.getOrElse(UpstreamErrorResponse("", OK)) mustBe an[UpstreamErrorResponse]
     }
   }
 }

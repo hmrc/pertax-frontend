@@ -89,10 +89,10 @@ class SelfAssessmentController @Inject() (
     }
 
   def redirectToEnrolForSa: Action[AnyContent] = authJourney.authWithSelfAssessment.async { implicit request =>
-    selfAssessmentService.getSaEnrolmentUrl map {
-      case Some(redirectUrl) => Redirect(redirectUrl)
-      case _                 => errorRenderer.error(INTERNAL_SERVER_ERROR)
-    }
+    selfAssessmentService.getSaEnrolmentUrl.fold(
+      _ => errorRenderer.error(INTERNAL_SERVER_ERROR),
+      response => response.map(url => Redirect(url)).getOrElse(errorRenderer.error(INTERNAL_SERVER_ERROR))
+    )
   }
 
   private def handleIvExemptAuditing(

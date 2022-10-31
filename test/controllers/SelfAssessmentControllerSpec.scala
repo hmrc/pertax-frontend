@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import connectors.PayApiConnector
 import controllers.auth._
 import error.ErrorRenderer
@@ -25,6 +26,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.exceptions.TestFailedException
 import play.api.Application
+import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, REQUEST_TIMEOUT, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
@@ -33,10 +35,12 @@ import services.SelfAssessmentService
 import testUtils.BaseSpec
 import testUtils.Fixtures.buildFakeRequestWithAuth
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.time.CurrentTaxYear
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
+
 import java.time.LocalDate
 import scala.concurrent.Future
 
@@ -178,19 +182,46 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   "redirectToEnrolForSa" must {
 
     "redirect to the url returned by the SelfAssessmentService" in new LocalSetup {
-
       val redirectUrl = "/foo"
 
-      when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())) thenReturn Future.successful(Some(redirectUrl))
-
+      when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[String]](
+          Future.successful(Right(Some(redirectUrl)))
+        )
+      )
       redirectLocation(controller.redirectToEnrolForSa(FakeRequest())) mustBe Some(redirectUrl)
     }
 
     "show an error page if no url is returned" in new LocalSetup {
 
-      when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())) thenReturn Future.successful(None)
+      when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[String]](
+          Future.successful(Right(None))
+        )
+      )
 
       status(controller.redirectToEnrolForSa(FakeRequest())) mustBe INTERNAL_SERVER_ERROR
+    }
+
+    List(
+      BAD_REQUEST,
+      NOT_FOUND,
+      REQUEST_TIMEOUT,
+      UNPROCESSABLE_ENTITY,
+      INTERNAL_SERVER_ERROR,
+      BAD_GATEWAY,
+      SERVICE_UNAVAILABLE
+    ).foreach { error =>
+      s"show an error page if the service returns a $error response" in new LocalSetup {
+
+        when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[String]](
+            Future.successful(Left(UpstreamErrorResponse("", error)))
+          )
+        )
+
+        status(controller.redirectToEnrolForSa(FakeRequest())) mustBe INTERNAL_SERVER_ERROR
+      }
     }
   }
 }

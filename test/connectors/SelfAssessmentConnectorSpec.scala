@@ -18,12 +18,13 @@ package connectors
 
 import com.github.tomakehurst.wiremock.http.Fault
 import controllers.auth.requests.UserRequest
-import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse}
+import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentRequest}
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import java.util.UUID
 
@@ -62,8 +63,10 @@ class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
 
           stubPost(url, OK, Some(Json.toJson(request).toString()), Some(response))
 
-          val result = connector.enrolForSelfAssessment(request).futureValue
-          result mustBe Some(SaEnrolmentResponse(redirectUrl))
+          val result =
+            connector.enrolForSelfAssessment(request).value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
+          result.status mustBe OK
+          result.body mustBe response
         }
 
         "the correct payload is submitted (excluding UTR)" in {
@@ -79,8 +82,10 @@ class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
 
           stubPost(url, OK, Some(Json.toJson(request).toString()), Some(response))
 
-          val result = connector.enrolForSelfAssessment(request).futureValue
-          result mustBe Some(SaEnrolmentResponse(redirectUrl))
+          val result =
+            connector.enrolForSelfAssessment(request).value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
+          result.status mustBe OK
+          result.body mustBe response
         }
       }
 
@@ -91,8 +96,9 @@ class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
 
           stubPost(url, BAD_REQUEST, Some(Json.toJson(request).toString()), Some(s"Invalid origin: $invalidOrigin"))
 
-          val result = connector.enrolForSelfAssessment(request).futureValue
-          result mustBe None
+          val result =
+            connector.enrolForSelfAssessment(request).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
+          result.statusCode mustBe BAD_REQUEST
         }
 
         "an invalid utr is submitted" in {
@@ -101,8 +107,9 @@ class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
 
           stubPost(url, BAD_REQUEST, Some(Json.toJson(request).toString()), Some(s"Invalid utr: $invalidUtr"))
 
-          val result = connector.enrolForSelfAssessment(request).futureValue
-          result mustBe None
+          val result =
+            connector.enrolForSelfAssessment(request).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
+          result.statusCode mustBe BAD_REQUEST
         }
 
         "multiple invalid fields are submitted" in {
@@ -117,8 +124,9 @@ class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
             Some(s"Invalid origin: $invalidOrigin, Invalid utr: $invalidUtr")
           )
 
-          val result = connector.enrolForSelfAssessment(request).futureValue
-          result mustBe None
+          val result =
+            connector.enrolForSelfAssessment(request).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
+          result.statusCode mustBe BAD_REQUEST
         }
 
         "an upstream error occurs" in {
@@ -126,17 +134,21 @@ class SelfAssessmentConnectorSpec extends ConnectorSpec with WireMockHelper {
 
           stubPost(url, INTERNAL_SERVER_ERROR, Some(Json.toJson(request).toString()), None)
 
-          val result = connector.enrolForSelfAssessment(request).futureValue
-          result mustBe None
+          val result =
+            connector.enrolForSelfAssessment(request).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
+          result.statusCode mustBe INTERNAL_SERVER_ERROR
         }
 
-        "an exception is thrown" in {
+        "a BAD_GATEWHEN when a HttpException is thrown" in {
+          val delay: Int = 5000
+
           val request = SaEnrolmentRequest(origin, Some(utr), providerId)
 
-          stubWithFault(url, Some(Json.toJson(request).toString()), Fault.MALFORMED_RESPONSE_CHUNK)
+          stubWithDelay(url, OK, Some(Json.toJson(request).toString()), None, delay)
 
-          val result = connector.enrolForSelfAssessment(request).futureValue
-          result mustBe None
+          val result =
+            connector.enrolForSelfAssessment(request).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
+          result.statusCode mustBe BAD_GATEWAY
         }
       }
     }

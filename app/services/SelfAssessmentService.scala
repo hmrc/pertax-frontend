@@ -16,12 +16,13 @@
 
 package services
 
+import cats.data.EitherT
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.SelfAssessmentConnector
 import controllers.auth.requests.UserRequest
-import models.{SaEnrolmentRequest, SelfAssessmentUser}
-import uk.gov.hmrc.http.HeaderCarrier
+import models.{SaEnrolmentRequest, SaEnrolmentResponse, SelfAssessmentUser}
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -30,14 +31,16 @@ class SelfAssessmentService @Inject() (
   configDecorator: ConfigDecorator
 )(implicit ec: ExecutionContext) {
 
-  def getSaEnrolmentUrl(implicit request: UserRequest[_], hc: HeaderCarrier): Future[Option[String]] = {
+  def getSaEnrolmentUrl(implicit
+    request: UserRequest[_],
+    hc: HeaderCarrier
+  ): EitherT[Future, UpstreamErrorResponse, Option[String]] = {
     def saEnrolmentRequest: SaEnrolmentRequest = request.saUserType match {
       case saEnrolment: SelfAssessmentUser =>
         SaEnrolmentRequest(configDecorator.addTaxesPtaOrigin, Some(saEnrolment.saUtr), request.credentials.providerId)
     }
-    selfAssessmentConnector.enrolForSelfAssessment(saEnrolmentRequest) map {
-      case Some(response) => Some(response.redirectUrl)
-      case _              => None
+    selfAssessmentConnector.enrolForSelfAssessment(saEnrolmentRequest).map { response =>
+      response.json.asOpt[SaEnrolmentResponse].map(_.redirectUrl)
     }
   }
 }

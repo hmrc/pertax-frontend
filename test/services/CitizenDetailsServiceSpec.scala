@@ -115,7 +115,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
               .updateAddress(fakeNino, etag, buildFakeAddress)
               .value
               .futureValue
-              .left
+              .swap
               .getOrElse(UpstreamErrorResponse("", OK))
               .statusCode
           result mustBe errorResponse
