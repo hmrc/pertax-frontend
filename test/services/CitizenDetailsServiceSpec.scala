@@ -137,8 +137,6 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
           )
         )
 
-        println("1" * 100)
-
         val result =
           sut
             .getMatchingDetails(fakeNino)
@@ -147,28 +145,26 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .right
             .get
 
-        println("1" * 100)
-
         result mustBe MatchingDetails(Some(saUtr))
       }
 
-//      "return error when connector returns and OK status with no body" in {
-//        when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
-//          EitherT[Future, UpstreamErrorResponse, HttpResponse](
-//            Future.successful(Right(HttpResponse(OK, "")))
-//          )
-//        )
-//
-//        val result =
-//          sut
-//            .getMatchingDetails(fakeNino)
-//            .value
-//            .futureValue
-//            .right
-//            .get
-//            .saUtr
-//        result mustBe None
-//      }
+      "return error when connector returns and OK status with no body" in {
+        when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            Future.successful(Right(HttpResponse(OK, Json.obj("ids" -> "").toString)))
+          )
+        )
+
+        val result =
+          sut
+            .getMatchingDetails(fakeNino)
+            .value
+            .futureValue
+            .right
+            .get
+            .saUtr
+        result mustBe None
+      }
 
       List(
         BAD_REQUEST,

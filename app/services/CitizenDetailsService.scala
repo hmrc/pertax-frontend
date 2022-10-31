@@ -50,13 +50,6 @@ class CitizenDetailsService @Inject() (
     citizenDetailsConnector
       .getMatchingDetails(nino)
       .map { response =>
-        println("*" * 100)
-        println(response)
-        println(response.json)
-
-        println(MatchingDetails.fromJsonMatchingDetails(response.json))
-        println("*" * 100)
-
         MatchingDetails.fromJsonMatchingDetails(response.json)
       }
 
