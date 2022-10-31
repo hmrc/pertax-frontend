@@ -16,12 +16,14 @@
 
 package connectors
 
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post}
 import models.{CreatePayment, PaymentRequest}
 import play.api.Application
 import play.api.libs.json.{JsResultException, Json}
 import play.api.test.DefaultAwaitTimeout
 import play.api.test.Helpers.await
 import testUtils.WireMockHelper
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout {
 
@@ -42,24 +44,42 @@ class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with Default
 
     "parse the json load for a successful CREATED response" in {
       stubPost(url, CREATED, Some(Json.toJson(paymentRequest).toString()), Some(json.toString()))
-      val result = connector.createPayment(paymentRequest).futureValue
+      val result = connector.createPayment(paymentRequest).value.futureValue.getOrElse(None)
 
       result mustBe Some(CreatePayment("exampleJourneyId", "testNextUrl"))
     }
 
-    "Returns a None when the status code is not CREATED" in {
-      stubPost(url, NO_CONTENT, Some(Json.toJson(paymentRequest).toString()), Some(json.toString()))
-      val result = connector.createPayment(paymentRequest).futureValue
+    "returns a None when the status code is not CREATED" in {
+      server.stubFor(
+        post(url).willReturn(
+          aResponse().withStatus(CREATED).withBody(Json.obj("unrelatedField" -> "").toString)
+        )
+      )
+      val result = connector
+        .createPayment(paymentRequest)
+        .value
+        .futureValue
+        .getOrElse(Some(CreatePayment("exampleJourneyId", "testNextUrl")))
 
       result mustBe None
     }
 
-    "Throws a JsResultException when given bad json" in {
-      val badJson = Json.obj("abc" -> "invalidData")
+    List(
+      BAD_REQUEST,
+      NOT_FOUND,
+      REQUEST_TIMEOUT,
+      UNPROCESSABLE_ENTITY,
+      INTERNAL_SERVER_ERROR,
+      BAD_GATEWAY,
+      SERVICE_UNAVAILABLE
+    ).foreach { error =>
+      s"Returns an UpstreamErrorResponse when the status code is $error" in {
+        stubPost(url, error, Some(Json.toJson(paymentRequest).toString()), Some(json.toString()))
+        val result =
+          connector.createPayment(paymentRequest).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
 
-      stubPost(url, CREATED, Some(Json.toJson(paymentRequest).toString()), Some(badJson.toString()))
-      lazy val result = await(connector.createPayment(paymentRequest))
-      a[JsResultException] mustBe thrownBy(result)
+        result.statusCode mustBe error
+      }
     }
   }
 }
