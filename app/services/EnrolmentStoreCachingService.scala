@@ -21,7 +21,7 @@ import connectors.EnrolmentsConnector
 import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUserType, WrongCredentialsSelfAssessmentUser}
 import play.api.Logging
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,20 +45,14 @@ class EnrolmentStoreCachingService @Inject() (
       case _ =>
         enrolmentsConnector
           .getUserIdsWithEnrolments(saUtr.utr)
-          .flatMap[SelfAssessmentUserType]((response: Either[String, Seq[String]]) =>
-            response.fold(
-              error => {
-                logger.warn(error)
-                addSaUserTypeToCache(NonFilerSelfAssessmentUser)
-              },
-              ids =>
-                if (ids.nonEmpty) {
-                  addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
-                } else {
-                  addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
-                }
-            )
+          .foldF(
+            _ => addSaUserTypeToCache(NonFilerSelfAssessmentUser),
+            response =>
+              if (response.nonEmpty) {
+                addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
+              } else {
+                addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
+              }
           )
     }
-
 }
