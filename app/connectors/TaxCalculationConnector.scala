@@ -45,7 +45,7 @@ class TaxCalculationConnector @Inject() (
 
   def getTaxYearReconciliations(
     nino: Nino
-  )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, List[TaxCalculation]] =
+  )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, List[TaxYearReconciliation]] =
     withMetricsTimer("get-tax-year-reconciliations") { t =>
       httpClientResponse
         .read(
@@ -58,7 +58,7 @@ class TaxCalculationConnector @Inject() (
           },
           response => {
             t.completeTimerAndIncrementSuccessCounter()
-            response.json.as[List[TaxCalculation]]
+            response.json.as[List[TaxYearReconciliation]]
           }
         )
     }

@@ -16,8 +16,9 @@
 
 package controllers
 
+import cats.data.EitherT
 import config.ConfigDecorator
-import connectors.{TaxCalculationConnector, TaxCalculationNotFoundResponse, TaxCalculationResponse, TaxCalculationSuccessResponse}
+import connectors.TaxCalculationConnector
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
@@ -35,7 +36,7 @@ import testUtils.Fixtures._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.time.CurrentTaxYear
 
@@ -69,15 +70,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   trait LocalSetup {
 
-    lazy val authProviderType: String                                  = UserDetails.GovernmentGatewayAuthProvider
-    lazy val nino: Nino                                                = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetails                      = Fixtures.buildPersonDetails
-    lazy val confidenceLevel: ConfidenceLevel                          = ConfidenceLevel.L200
-    lazy val withPaye: Boolean                                         = true
-    lazy val year                                                      = 2017
-    lazy val getTaxCalculationResponse: TaxCalculationResponse         = TaxCalculationSuccessResponse(
-      TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
-    )
+    lazy val authProviderType: String             = UserDetails.GovernmentGatewayAuthProvider
+    lazy val nino: Nino                           = Fixtures.fakeNino
+    lazy val personDetailsResponse: PersonDetails = Fixtures.buildPersonDetails
+    lazy val confidenceLevel: ConfidenceLevel     = ConfidenceLevel.L200
+    lazy val withPaye: Boolean                    = true
+    lazy val year                                 = 2017
+
     lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse  = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse                                 = true
@@ -102,9 +101,12 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockSeissService.hasClaims(NotEnrolledSelfAssessmentUser(any()))(any())) thenReturn Future.successful(true)
     when(mockSeissService.hasClaims(NonFilerSelfAssessmentUser)) thenReturn Future.successful(false)
 
-    when(mockTaxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])) thenReturn {
-      Future.successful(buildTaxYearReconciliations)
-    }
+    when(mockTaxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])).thenReturn(
+      EitherT[Future, UpstreamErrorResponse, List[TaxYearReconciliation]](
+        Future.successful(Right(buildTaxYearReconciliations))
+      )
+    )
+
     when(mockPreferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
       Future.successful(getPaperlessPreferenceResponse)
     }
@@ -265,8 +267,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .build()
 
       val controller = app.injector.instanceOf[HomeController]
-
-      override lazy val getTaxCalculationResponse = TaxCalculationNotFoundResponse
 
       val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
@@ -679,7 +679,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       resultCYm2 mustBe None
     }
 
-    "return only  CY-1 None and CY-2 None when get TaxYearReconcillation returns Nil" in new LocalSetup {
+    "return only  CY-1 None and CY-2 None when get TaxYearReconcillation returns Left" in new LocalSetup {
 
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -694,7 +694,11 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller = app.injector.instanceOf[HomeController]
 
-      when(mockTaxCalculationService.getTaxYearReconciliations(any())(any())) thenReturn Future.successful(Nil)
+      when(mockTaxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, List[TaxYearReconciliation]](
+          Future.successful(Left(UpstreamErrorResponse("", NOT_FOUND)))
+        )
+      )
 
       val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
 

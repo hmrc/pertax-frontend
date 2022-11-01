@@ -37,17 +37,17 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
-                                 val preferencesFrontendService: PreferencesFrontendService,
-                                 taiService: TaiService,
-                                 taxCalculationConnector: TaxCalculationConnector,
-                                 breathingSpaceService: BreathingSpaceService,
-                                 homeCardGenerator: HomeCardGenerator,
-                                 homePageCachingHelper: HomePageCachingHelper,
-                                 authJourney: AuthJourney,
-                                 cc: MessagesControllerComponents,
-                                 homeView: HomeView,
-                                 seissService: SeissService,
-                                 rlsInterruptHelper: RlsInterruptHelper
+  val preferencesFrontendService: PreferencesFrontendService,
+  taiService: TaiService,
+  taxCalculationConnector: TaxCalculationConnector,
+  breathingSpaceService: BreathingSpaceService,
+  homeCardGenerator: HomeCardGenerator,
+  homePageCachingHelper: HomePageCachingHelper,
+  authJourney: AuthJourney,
+  cc: MessagesControllerComponents,
+  homeView: HomeView,
+  seissService: SeissService,
+  rlsInterruptHelper: RlsInterruptHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with PaperlessInterruptHelper
@@ -118,9 +118,9 @@ class HomeController @Inject() (
       Future.successful((TaxComponentsDisabledState, None, None))
     ) { nino =>
       val taxYr = if (configDecorator.taxcalcEnabled) {
-        taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxCalculation]).merge
+        taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxYearReconciliation]).merge
       } else {
-        Future.successful(List.empty[TaxCalculation])
+        Future.successful(List.empty[TaxYearReconciliation])
       }
 
       val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
