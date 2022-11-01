@@ -12,7 +12,6 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "play-partials"                    % s"8.3.0-$playVersion",
     "uk.gov.hmrc"       %% "url-builder"                      % s"3.6.0-$playVersion",
     "uk.gov.hmrc"       %% "http-caching-client"              % s"9.6.0-$playVersion",
-    "uk.gov.hmrc"       %% "play-language"                    % s"4.13.0-$playVersion",
     "uk.gov.hmrc"       %% "play-ui"                          % s"9.8.0-$playVersion",
     "uk.gov.hmrc"       %% "tax-year"                         % "3.0.0",
     "uk.gov.hmrc"       %% "time"                             % "3.19.0",
