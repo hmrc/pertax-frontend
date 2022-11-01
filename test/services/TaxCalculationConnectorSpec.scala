@@ -18,6 +18,7 @@ package services
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
+import connectors.TaxCalculationConnector
 import models.{OverpaidStatus, Reconciliation, TaxYearReconciliation}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -32,7 +33,7 @@ import testUtils.BaseSpec
 
 import scala.concurrent.Future
 
-class TaxCalculationServiceSpec extends BaseSpec {
+class TaxCalculationConnectorSpec extends BaseSpec {
 
   trait SpecSetup {
     def httpResponse: HttpResponse
@@ -51,9 +52,9 @@ class TaxCalculationServiceSpec extends BaseSpec {
       }
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
-      val timer                                        = mock[Timer.Context]
-      val taxCalculationService: TaxCalculationService =
-        new TaxCalculationService(fakeSimpleHttp, mock[Metrics], mockHttp, serviceConfig) {
+      val timer                                          = mock[Timer.Context]
+      val taxCalculationService: TaxCalculationConnector =
+        new TaxCalculationConnector(fakeSimpleHttp, mock[Metrics], mockHttp, serviceConfig) {
 
           override val metricsOperator: MetricsOperator = mock[MetricsOperator]
           when(metricsOperator.startTimer(any())) thenReturn timer

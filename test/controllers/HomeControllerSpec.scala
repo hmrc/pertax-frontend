@@ -17,6 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
+import connectors.{TaxCalculationConnector, TaxCalculationNotFoundResponse, TaxCalculationResponse, TaxCalculationSuccessResponse}
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
@@ -44,7 +45,7 @@ import scala.concurrent.Future
 class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   val mockConfigDecorator                     = mock[ConfigDecorator]
-  val mockTaxCalculationService               = mock[TaxCalculationService]
+  val mockTaxCalculationService               = mock[TaxCalculationConnector]
   val mockTaiService                          = mock[TaiService]
   val mockSeissService                        = mock[SeissService]
   val mockMessageFrontendService              = mock[MessageFrontendService]
@@ -156,7 +157,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[TaiService].toInstance(mockTaiService),
-          bind[TaxCalculationService].toInstance(mockTaxCalculationService)
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
         )
         .configure(
           "feature.tax-components.enabled" -> true,
@@ -179,7 +180,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
         .overrides(
           bind[TaiService].toInstance(mockTaiService),
-          bind[TaxCalculationService].toInstance(mockTaxCalculationService)
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
         )
         .configure(
           "feature.tax-components.enabled" -> true,
@@ -202,7 +203,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
         .overrides(
           bind[TaiService].toInstance(mockTaiService),
-          bind[TaxCalculationService].toInstance(mockTaxCalculationService)
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
         )
         .configure(
           "feature.tax-components.enabled" -> false,
@@ -258,7 +259,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationService].toInstance(mockTaxCalculationService)
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
         )
         .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
@@ -568,7 +569,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockTaiService.taxComponents(any(), any())(any())).thenReturn(null)
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiService].toInstance(mockTaiService)
         )
         .configure(
@@ -588,7 +589,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     "return TaxCalculationAvailable status when data returned from TaxCalculation" in new LocalSetup {
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiService].toInstance(mockTaiService)
         )
         .configure(
@@ -611,7 +612,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiService].toInstance(mockTaiService)
         )
         .configure(
@@ -637,7 +638,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiService].toInstance(mockTaiService)
         )
         .configure(
@@ -661,7 +662,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiService].toInstance(mockTaiService)
         )
         .configure(
@@ -682,7 +683,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiService].toInstance(mockTaiService)
         )
         .configure(
@@ -705,7 +706,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationService].toInstance(mockTaxCalculationService),
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiService].toInstance(mockTaiService)
         )
         .configure(
