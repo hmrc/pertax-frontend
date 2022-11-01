@@ -35,9 +35,9 @@
 
 @if(!inParagraph) {
 <p class="govuk-body govuk-!-margin-bottom-3">
-    <a href="@link" class=@classes.getOrElse("govuk-link") @id.map(x => s"id=$x") @if(attrTarget) {target="_blank" rel="noopener noreferrer"} @attrValues>@Html(messages(messageKey, messageArgs:_*))</a>@if(comma){,}@if(fullStop) {.}
+    <a href="@link" class="@classes.getOrElse("govuk-link")" @id.map(x => s"id=$x") @if(attrTarget) {target="_blank" rel="noopener noreferrer"} @attrValues>@Html(messages(messageKey, messageArgs:_*))</a>@if(comma){,}@if(fullStop) {.}
 </p>
 } else {
-    <a href="@link" class=@classes.getOrElse("govuk-link") @id.map(x => s"id=$x") @if(attrTarget) {target="_blank" rel="noopener noreferrer"} @attrValues>@Html(messages(messageKey, messageArgs:_*))</a>@if(comma){,}@if(fullStop) {.}
+    <a href="@link" class="@classes.getOrElse("govuk-link")" @id.map(x => s"id=$x") @if(attrTarget) {target="_blank" rel="noopener noreferrer"} @attrValues>@Html(messages(messageKey, messageArgs:_*))</a>@if(comma){,}@if(fullStop) {.}
 }
 

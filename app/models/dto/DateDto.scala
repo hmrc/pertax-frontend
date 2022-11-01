@@ -25,7 +25,7 @@ import java.time.LocalDate
 
 case class DateDto(
   startDate: LocalDate
-)
+) extends Dto
 
 object DateDto {
 

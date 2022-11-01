@@ -110,6 +110,7 @@ label.address_line_three=Llinell cyfeiriad 3 (dewisol)
 label.address_line_four=Llinell cyfeiriad 4 (dewisol)
 label.address_line_five=Llinell cyfeiriad 5 (dewisol)
 label.country=Gwlad
+country.select=Dewiswch wlad
 label.change=Newid
 label.manage=Rheoli
 label.telephone_0300_200_3300=Ffôn: 0300 200 1900

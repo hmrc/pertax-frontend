@@ -19,7 +19,9 @@ package controllers.address
 import controllers.address
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.dto.DateDto
+import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
+import models.dto.{AddressPageVisitedDto, DateDto, Dto}
+
 import java.time.LocalDate
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
@@ -41,6 +43,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
     def controller: AddressSelectorController =
       new AddressSelectorController(
         new AddressJourneyCachingHelper(mockLocalSessionCache),
+        mockLocalSessionCache,
         mockAuthJourney,
         cc,
         errorRenderer,
@@ -70,10 +73,14 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
             .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
             .asInstanceOf[Request[A]]
 
+        override def fetchAndGetEntryDto: Option[Dto] = Some(
+          RecordSet(Seq(AddressRecord("id", Address(List("line"), None, None, "AA1 1AA", None, Country.UK), "en")))
+        )
+
         val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
         status(result) mustBe OK
-        verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+        verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       }
     }
 
@@ -92,7 +99,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
         redirectLocation(result) mustBe Some(
           address.routes.PostcodeLookupController.onPageLoad(ResidentialAddrType).url
         )
-        verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+        verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       }
     }
   }

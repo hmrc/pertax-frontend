@@ -18,7 +18,7 @@ package controllers.address
 
 import config.ConfigDecorator
 import controllers.bindable.ResidentialAddrType
-import models.dto.AddressPageVisitedDto
+import models.dto.{AddressPageVisitedDto, Dto}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
@@ -50,11 +50,12 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
   "onPageLoad" must {
 
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
 
       val result = controller.onPageLoad(currentRequest)
 
       status(result) mustBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
     }
 
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
@@ -64,7 +65,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
     }
   }
 

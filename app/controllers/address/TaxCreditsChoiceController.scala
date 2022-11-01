@@ -22,7 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.TaxCreditsChoiceId
-import models.dto.TaxCreditsChoiceDto
+import models.dto.{AddressFinderDto, TaxCreditsChoiceDto}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
@@ -48,26 +48,23 @@ class TaxCreditsChoiceController @Inject() (
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { nino => _ =>
-      cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-        cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-          if (configDecorator.addressChangeTaxCreditsQuestionEnabled) {
-            Future.successful(
-              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
-            )
-          } else {
-            taxCreditsService.checkForTaxCredits(Some(nino)).map {
-              case Some(true)  =>
-                cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
-                Redirect(configDecorator.tcsChangeAddressUrl)
-              case Some(false) =>
-                cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
-                Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
-              case None        =>
-                InternalServerError(internalServerErrorView())
-            }
-          }
+      val result = if (configDecorator.addressChangeTaxCreditsQuestionEnabled) {
+        Future.successful(
+          Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+        )
+      } else {
+        taxCreditsService.checkForTaxCredits(Some(nino)).map {
+          case Some(true)  =>
+            cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
+            Redirect(configDecorator.tcsChangeAddressUrl)
+          case Some(false) =>
+            cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
+            Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+          case None        =>
+            InternalServerError(internalServerErrorView())
         }
       }
+      result.flatMap(cachingHelper.enforceDisplayAddressPageVisited(_))
     }
   }
 

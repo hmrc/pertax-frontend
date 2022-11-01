@@ -146,7 +146,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
         id = "country",
         name = "country",
         errorMessage = updateAddressForm("country").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
-        items = Seq(SelectItem(value=None,text="")) ++ countries.map{ c =>
+        items = Seq(SelectItem(text="", attributes=Map("label" -> messages("country.select")))) ++ countries.map{ c =>
             SelectItem(
                 value = Some(c.countryName),
                 text = c.countryName,

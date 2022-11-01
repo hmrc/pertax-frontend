@@ -20,7 +20,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import util.PertaxValidators._
-case class AddressFinderDto(postcode: String, filter: Option[String])
+case class AddressFinderDto(postcode: String, filter: Option[String]) extends Dto
 
 object AddressFinderDto {
 

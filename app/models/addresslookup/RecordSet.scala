@@ -16,9 +16,10 @@
 
 package models.addresslookup
 
+import models.dto.Dto
 import play.api.libs.json._
 
-case class RecordSet(addresses: Seq[AddressRecord])
+case class RecordSet(addresses: Seq[AddressRecord]) extends Dto
 
 object RecordSet {
   def fromJsonAddressLookupService(addressListAsJson: JsValue): RecordSet = {

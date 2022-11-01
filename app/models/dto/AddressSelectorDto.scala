@@ -19,7 +19,7 @@ package models.dto
 import play.api.data.Form
 import play.api.data.Forms._
 
-case class AddressSelectorDto(addressId: Option[String])
+case class AddressSelectorDto(addressId: Option[String]) extends Dto
 
 object AddressSelectorDto {
   val form = Form(
