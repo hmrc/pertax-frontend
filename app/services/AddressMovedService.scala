@@ -16,60 +16,60 @@
 
 package services
 
+import cats.data.EitherT
 import com.google.inject.Inject
-import models.addresslookup.Country
+import connectors.{AddressLookupConnector, AddressLookupSuccessResponse}
+import models.addresslookup.{Country, RecordSet}
 import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressMovedService @Inject() (addressLookupService: AddressLookupService) {
+class AddressMovedService @Inject() (addressLookupService: AddressLookupConnector) {
 
   def moved(fromAddressId: String, toAddressId: String)(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): Future[AddressChanged] =
+                                                        hc: HeaderCarrier,
+                                                        ec: ExecutionContext
+  ): EitherT[Future, UpstreamErrorResponse, AddressChanged] =
     withAddressExists(fromAddressId, toAddressId) {
 
       for {
         fromResponse <- addressLookupService.lookup(fromAddressId)
-        toResponse   <- addressLookupService.lookup(toAddressId)
-      } yield (fromResponse, toResponse) match {
-        case (AddressLookupSuccessResponse(fromRecordSet), AddressLookupSuccessResponse(toRecordSet)) =>
-          val fromSubdivision = fromRecordSet.addresses.headOption.flatMap(_.address.subdivision)
-          val toSubdivision   = toRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+        toResponse <- addressLookupService.lookup(toAddressId)
+      } yield {
+        val fromSubdivision = fromResponse.json.as[RecordSet].addresses.headOption.flatMap(_.address.subdivision)
+        val toSubdivision = toResponse.json.as[RecordSet].addresses.headOption.flatMap(_.address.subdivision)
 
-          if (hasMovedFromScotland(fromSubdivision, toSubdivision))
-            MovedFromScotland
-          else if (hasMovedToScotland(fromSubdivision, toSubdivision))
-            MovedToScotland
-          else
-            AnyOtherMove
-        case _                                                                                        =>
+        if (hasMovedFromScotland(fromSubdivision, toSubdivision))
+          MovedFromScotland
+        else if (hasMovedToScotland(fromSubdivision, toSubdivision))
+          MovedToScotland
+        else
           AnyOtherMove
       }
     }
 
-  def toMessageKey(addressChanged: AddressChanged): Option[String] =
-    addressChanged match {
-      case MovedFromScotland => Some("label.moved_from_scotland")
-      case MovedToScotland   => Some("label.moved_to_scotland")
-      case AnyOtherMove      => None
-    }
+      def toMessageKey(addressChanged: AddressChanged): Option[String] =
+        addressChanged match {
+          case MovedFromScotland => Some("label.moved_from_scotland")
+          case MovedToScotland => Some("label.moved_to_scotland")
+          case AnyOtherMove => None
+        }
 
-  private val scottishSubdivision = "GB-SCT"
+      private val scottishSubdivision = "GB-SCT"
 
-  private def hasMovedFromScotland(fromSubdivision: Option[Country], toSubdivision: Option[Country]): Boolean =
-    containsScottishSubdivision(fromSubdivision) && !containsScottishSubdivision(toSubdivision)
+      private def hasMovedFromScotland(fromSubdivision: Option[Country], toSubdivision: Option[Country]): Boolean =
+        containsScottishSubdivision(fromSubdivision) && !containsScottishSubdivision(toSubdivision)
 
-  private def hasMovedToScotland(fromSubdivision: Option[Country], toSubdivision: Option[Country]): Boolean =
-    !containsScottishSubdivision(fromSubdivision) && containsScottishSubdivision(toSubdivision)
+      private def hasMovedToScotland(fromSubdivision: Option[Country], toSubdivision: Option[Country]): Boolean =
+        !containsScottishSubdivision(fromSubdivision) && containsScottishSubdivision(toSubdivision)
 
-  private def withAddressExists(fromAddressId: String, toAddressId: String)(
-    f: => Future[AddressChanged]
-  ): Future[AddressChanged] =
-    if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty) Future.successful(AnyOtherMove) else f
+      private def withAddressExists(fromAddressId: String, toAddressId: String)(
+        f: => EitherT[Future, UpstreamErrorResponse, AddressChanged]
+      ): EitherT[Future, UpstreamErrorResponse, AddressChanged] =
+        if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty) EitherT[Future, UpstreamErrorResponse, AddressChanged](Future.successful(Right(AnyOtherMove))) else f
 
-  private def containsScottishSubdivision(subdivision: Option[Country]): Boolean =
-    subdivision.fold(false)(_.code.contains(scottishSubdivision))
+      private def containsScottishSubdivision(subdivision: Option[Country]): Boolean =
+        subdivision.fold(false)(_.code.contains(scottishSubdivision))
+
 }

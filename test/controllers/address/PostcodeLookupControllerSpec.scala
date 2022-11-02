@@ -32,6 +32,7 @@ import testUtils.Fixtures
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
 import Fixtures.{fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
+import connectors.{AddressLookupErrorResponse, AddressLookupResponse, AddressLookupSuccessResponse}
 import views.html.personaldetails.PostcodeLookupView
 
 class PostcodeLookupControllerSpec extends AddressBaseSpec {

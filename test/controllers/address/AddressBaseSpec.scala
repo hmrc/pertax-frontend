@@ -18,6 +18,7 @@ package controllers.address
 
 import cats.data.EitherT
 import config.ConfigDecorator
+import connectors.{AddressLookupConnector, AddressLookupResponse, AddressLookupSuccessResponse}
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
@@ -48,7 +49,7 @@ trait AddressBaseSpec extends BaseSpec {
 
   val mockAuthJourney: AuthJourney                     = mock[AuthJourney]
   val mockLocalSessionCache: LocalSessionCache         = mock[LocalSessionCache]
-  val mockAddressLookupService: AddressLookupService   = mock[AddressLookupService]
+  val mockAddressLookupService: AddressLookupConnector   = mock[AddressLookupConnector]
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
   val mockAddressMovedService: AddressMovedService     = mock[AddressMovedService]
   val mockAuditConnector: AuditConnector               = mock[AuditConnector]

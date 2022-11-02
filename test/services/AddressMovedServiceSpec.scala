@@ -16,6 +16,7 @@
 
 package services
 
+import connectors.{AddressLookupConnector, AddressLookupErrorResponse, AddressLookupSuccessResponse, AddressLookupUnexpectedResponse}
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import models.{AnyOtherMove, MovedFromScotland, MovedToScotland}
 import org.mockito.Mockito.{mock, when}
@@ -29,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AddressMovedServiceSpec extends BaseSpec {
 
   implicit val executionContext = injected[ExecutionContext]
-  val addressLookupService      = mock[AddressLookupService]
+  val addressLookupService      = mock[AddressLookupConnector]
   val fromPostcode              = "AA1 1AA"
   val toPostcode                = "AA1 2AA"
 

@@ -140,8 +140,10 @@ class AddressSubmissionController @Inject() (
 
                         val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
 
-                        addressMovedService.moved(originalPostcode, address.postcode.getOrElse("")).flatMap {
-                          addressChanged =>
+                        addressMovedService.moved(originalPostcode, address.postcode.getOrElse("")).foldF(
+                          _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
+                          addressChanged => {
+
                             def successResponseBlock(): Result = {
                               val originalAddressDto: Option[AddressDto] =
                                 journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
@@ -167,20 +169,20 @@ class AddressSubmissionController @Inject() (
                             }
 
                             for {
-                              _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
+                              _ <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
                               result <- citizenDetailsService
-                                          .updateAddress(nino, version.etag, address)
-                                          .foldF(
-                                            _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
-                                            _ => Future.successful(successResponseBlock)
-                                          )
+                                .updateAddress(nino, version.etag, address)
+                                .foldF(
+                                  _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
+                                  _ => Future.successful(successResponseBlock)
+                                )
                             } yield result
-                        }
+                          }
+                        )
                       }
                     }
                   }
-                }
-                .getOrElse(errorRenderer.futureError(INTERNAL_SERVER_ERROR))
+                }.getOrElse(errorRenderer.futureError(INTERNAL_SERVER_ERROR))
           )
       }
     }

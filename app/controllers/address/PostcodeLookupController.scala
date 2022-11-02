@@ -18,6 +18,7 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import connectors.{AddressLookupConnector, AddressLookupErrorResponse, AddressLookupResponse, AddressLookupSuccessResponse, AddressLookupUnexpectedResponse}
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType}
@@ -38,13 +39,13 @@ import views.html.personaldetails.PostcodeLookupView
 import scala.concurrent.{ExecutionContext, Future}
 
 class PostcodeLookupController @Inject() (
-  val addressLookupService: AddressLookupService,
-  cachingHelper: AddressJourneyCachingHelper,
-  auditConnector: AuditConnector,
-  authJourney: AuthJourney,
-  cc: MessagesControllerComponents,
-  postcodeLookupView: PostcodeLookupView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+                                           val addressLookupService: AddressLookupConnector,
+                                           cachingHelper: AddressJourneyCachingHelper,
+                                           auditConnector: AuditConnector,
+                                           authJourney: AuthJourney,
+                                           cc: MessagesControllerComponents,
+                                           postcodeLookupView: PostcodeLookupView,
+                                           displayAddressInterstitialView: DisplayAddressInterstitialView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(authJourney, cc, displayAddressInterstitialView)
     with Logging {

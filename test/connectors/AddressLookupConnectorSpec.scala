@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package services
+package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
@@ -26,11 +26,10 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, Json}
 import testUtils.Fixtures.{oneAndTwoOtherPlacePafRecordSet, twoOtherPlaceRecordSet}
 import testUtils.{BaseSpec, WireMockHelper}
-import testUtils.BaseSpec
 
 import scala.io.Source
 
-class AddressLookupServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
+class AddressLookupConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
@@ -39,7 +38,7 @@ class AddressLookupServiceSpec extends BaseSpec with WireMockHelper with Integra
     )
     .build()
 
-  def addressLookupService: AddressLookupService = injected[AddressLookupService]
+  def addressLookupService: AddressLookupConnector = injected[AddressLookupConnector]
 
   val urlPost = "/lookup"
 
