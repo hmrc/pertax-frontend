@@ -31,16 +31,17 @@ class AuthJourneyImpl @Inject() (
   authAction: AuthAction,
   minimumAuthAction: MinimumAuthAction,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
-  getPersonDetailsAction: GetPersonDetailsAction
+  getPersonDetailsAction: GetPersonDetailsAction,
+  pertaxAuthAction: PertaxAuthAction
 ) extends AuthJourney {
 
   override val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
-    authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
+    authAction andThen pertaxAuthAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
 
   override val authWithSelfAssessment: ActionBuilder[UserRequest, AnyContent] =
-    authAction andThen selfAssessmentStatusAction
+    authAction andThen pertaxAuthAction andThen selfAssessmentStatusAction
 
   override val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest, AnyContent] =
-    minimumAuthAction andThen selfAssessmentStatusAction
+    minimumAuthAction andThen pertaxAuthAction andThen selfAssessmentStatusAction
 
 }
