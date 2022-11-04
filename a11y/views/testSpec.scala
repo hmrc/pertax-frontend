@@ -21,7 +21,8 @@ class testSpec extends IntegrationSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
       "feature.breathing-space-indicator.enabled" -> true,
-      "feature.breathing-space-indicator.timeoutInSec" -> 4
+      "feature.breathing-space-indicator.timeoutInSec" -> 4,
+      "microservice.services.pertax.port"              -> server.port()
     )
     .build()
 
@@ -59,6 +60,10 @@ class testSpec extends IntegrationSpec {
       server.stubFor(
         get(urlPathEqualTo(breathingSpaceUrl))
           .willReturn(ok(breathingSpaceTrueResponse))
+      )
+      server.stubFor(
+        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
       )
 
       val result: Future[Result] = route(app, request).get
