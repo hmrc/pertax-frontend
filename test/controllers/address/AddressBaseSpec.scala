@@ -24,12 +24,14 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models._
+import models.addresslookup.RecordSet
 import models.dto.{AddressDto, AddressPageVisitedDto, Dto}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
-import play.api.http.Status.NO_CONTENT
+import play.api.http.Status.{NO_CONTENT, OK}
 import org.mockito.stubbing.OngoingStubbing
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import services._
 import testUtils.Fixtures._
@@ -47,13 +49,13 @@ import scala.concurrent.Future
 
 trait AddressBaseSpec extends BaseSpec {
 
-  val mockAuthJourney: AuthJourney                     = mock[AuthJourney]
-  val mockLocalSessionCache: LocalSessionCache         = mock[LocalSessionCache]
-  val mockAddressLookupService: AddressLookupConnector   = mock[AddressLookupConnector]
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
-  val mockAddressMovedService: AddressMovedService     = mock[AddressMovedService]
-  val mockAuditConnector: AuditConnector               = mock[AuditConnector]
-  val mockAgentClientAuthorisationService              = mock[AgentClientAuthorisationService]
+  val mockAuthJourney: AuthJourney                       = mock[AuthJourney]
+  val mockLocalSessionCache: LocalSessionCache           = mock[LocalSessionCache]
+  val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
+  val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
+  val mockAddressMovedService: AddressMovedService       = mock[AddressMovedService]
+  val mockAuditConnector: AuditConnector                 = mock[AuditConnector]
+  val mockAgentClientAuthorisationService                = mock[AgentClientAuthorisationService]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
 
@@ -72,7 +74,7 @@ trait AddressBaseSpec extends BaseSpec {
     reset(
       mockAuthJourney,
       mockLocalSessionCache,
-      mockAddressLookupService,
+      mockAddressLookupConnector,
       mockCitizenDetailsService,
       mockAddressMovedService,
       mockEditAddressLockRepository,
@@ -110,12 +112,12 @@ trait AddressBaseSpec extends BaseSpec {
 
     def eTagResponse: Option[ETag] = Some(ETag("115"))
 
-    def updateAddressResponse =
+    def updateAddressResponse() =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(NO_CONTENT, ""))))
 
     def getAddressesLockResponse: AddressesLock = AddressesLock(false, false)
 
-    def addressLookupResponse: AddressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+    def addressLookupResponse: RecordSet = oneAndTwoOtherPlacePafRecordSet
 
     def isInsertCorrespondenceAddressLockSuccessful: Boolean = true
 
@@ -137,9 +139,6 @@ trait AddressBaseSpec extends BaseSpec {
     }
     when(mockLocalSessionCache.remove()(any(), any())) thenReturn {
       Future.successful(mock[HttpResponse])
-    }
-    when(mockAddressLookupService.lookup(any(), any())(any())) thenReturn {
-      Future.successful(addressLookupResponse)
     }
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
       Future.successful(AuditResult.Success)

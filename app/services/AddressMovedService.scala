@@ -28,17 +28,17 @@ import scala.concurrent.{ExecutionContext, Future}
 class AddressMovedService @Inject() (addressLookupService: AddressLookupConnector) {
 
   def moved(fromAddressId: String, toAddressId: String)(implicit
-                                                        hc: HeaderCarrier,
-                                                        ec: ExecutionContext
-  ): EitherT[Future, UpstreamErrorResponse, AddressChanged] =
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[AddressChanged] =
     withAddressExists(fromAddressId, toAddressId) {
 
       for {
         fromResponse <- addressLookupService.lookup(fromAddressId)
-        toResponse <- addressLookupService.lookup(toAddressId)
+        toResponse   <- addressLookupService.lookup(toAddressId)
       } yield {
-        val fromSubdivision = fromResponse.json.as[RecordSet].addresses.headOption.flatMap(_.address.subdivision)
-        val toSubdivision = toResponse.json.as[RecordSet].addresses.headOption.flatMap(_.address.subdivision)
+        val fromSubdivision = fromResponse.addresses.headOption.flatMap(_.address.subdivision)
+        val toSubdivision   = toResponse.addresses.headOption.flatMap(_.address.subdivision)
 
         if (hasMovedFromScotland(fromSubdivision, toSubdivision))
           MovedFromScotland
@@ -47,29 +47,31 @@ class AddressMovedService @Inject() (addressLookupService: AddressLookupConnecto
         else
           AnyOtherMove
       }
+    }.getOrElse(AnyOtherMove)
+
+  def toMessageKey(addressChanged: AddressChanged): Option[String] =
+    addressChanged match {
+      case MovedFromScotland => Some("label.moved_from_scotland")
+      case MovedToScotland   => Some("label.moved_to_scotland")
+      case AnyOtherMove      => None
     }
 
-      def toMessageKey(addressChanged: AddressChanged): Option[String] =
-        addressChanged match {
-          case MovedFromScotland => Some("label.moved_from_scotland")
-          case MovedToScotland => Some("label.moved_to_scotland")
-          case AnyOtherMove => None
-        }
+  private val scottishSubdivision = "GB-SCT"
 
-      private val scottishSubdivision = "GB-SCT"
+  private def hasMovedFromScotland(fromSubdivision: Option[Country], toSubdivision: Option[Country]): Boolean =
+    containsScottishSubdivision(fromSubdivision) && !containsScottishSubdivision(toSubdivision)
 
-      private def hasMovedFromScotland(fromSubdivision: Option[Country], toSubdivision: Option[Country]): Boolean =
-        containsScottishSubdivision(fromSubdivision) && !containsScottishSubdivision(toSubdivision)
+  private def hasMovedToScotland(fromSubdivision: Option[Country], toSubdivision: Option[Country]): Boolean =
+    !containsScottishSubdivision(fromSubdivision) && containsScottishSubdivision(toSubdivision)
 
-      private def hasMovedToScotland(fromSubdivision: Option[Country], toSubdivision: Option[Country]): Boolean =
-        !containsScottishSubdivision(fromSubdivision) && containsScottishSubdivision(toSubdivision)
+  private def withAddressExists(fromAddressId: String, toAddressId: String)(
+    f: => EitherT[Future, UpstreamErrorResponse, AddressChanged]
+  ): EitherT[Future, UpstreamErrorResponse, AddressChanged] =
+    if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty)
+      EitherT[Future, UpstreamErrorResponse, AddressChanged](Future.successful(Right(AnyOtherMove)))
+    else f
 
-      private def withAddressExists(fromAddressId: String, toAddressId: String)(
-        f: => EitherT[Future, UpstreamErrorResponse, AddressChanged]
-      ): EitherT[Future, UpstreamErrorResponse, AddressChanged] =
-        if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty) EitherT[Future, UpstreamErrorResponse, AddressChanged](Future.successful(Right(AnyOtherMove))) else f
-
-      private def containsScottishSubdivision(subdivision: Option[Country]): Boolean =
-        subdivision.fold(false)(_.code.contains(scottishSubdivision))
+  private def containsScottishSubdivision(subdivision: Option[Country]): Boolean =
+    subdivision.fold(false)(_.code.contains(scottishSubdivision))
 
 }

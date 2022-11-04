@@ -48,7 +48,6 @@ class PreferencesFrontendService @Inject() (
 
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
-
   // TODO
   def getPaperlessPreference()(implicit request: UserRequest[_]): Future[ActivatePaperlessResponse] = {
 

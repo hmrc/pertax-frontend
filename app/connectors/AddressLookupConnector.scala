@@ -37,7 +37,7 @@ final case class AddressLookupUnexpectedResponse(r: HttpResponse) extends Addres
 final case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
 
 @Singleton
-class AddressLookupConnector @Inject()(
+class AddressLookupConnector @Inject() (
   configDecorator: ConfigDecorator,
   val http: HttpClient,
   val metrics: Metrics,
@@ -50,22 +50,30 @@ class AddressLookupConnector @Inject()(
   lazy val addressLookupUrl = servicesConfig.baseUrl("address-lookup")
 
   def lookup(postcode: String, filter: Option[String] = None)(implicit
-    hc: HeaderCarrier, ec: ExecutionContext
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): EitherT[Future, UpstreamErrorResponse, RecordSet] =
     withMetricsTimer("address-lookup") { t =>
-      val pc    = postcode.replaceAll(" ", "")
-      val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
+      val pc                 = postcode.replaceAll(" ", "")
+      val newHc              = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
       val addressRequestBody = AddressLookup(pc, filter)
 
-      httpClientResponse.read(http.POST[AddressLookup, Either[UpstreamErrorResponse, HttpResponse]](s"$addressLookupUrl/lookup", addressRequestBody)).bimap(
-        error => {
-          t.completeTimerAndIncrementFailedCounter()
-          error
-        },
-        response => {
-          t.completeTimerAndIncrementSuccessCounter()
-          response
-        }
-      )
+      httpClientResponse
+        .read(
+          http.POST[AddressLookup, Either[UpstreamErrorResponse, HttpResponse]](
+            s"$addressLookupUrl/lookup",
+            addressRequestBody
+          )(implicitly, implicitly, newHc, implicitly)
+        )
+        .bimap(
+          error => {
+            t.completeTimerAndIncrementFailedCounter()
+            error
+          },
+          response => {
+            t.completeTimerAndIncrementSuccessCounter()
+            RecordSet.fromJsonAddressLookupService(response.json)
+          }
+        )
     }
 }

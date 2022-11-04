@@ -140,16 +140,16 @@ class AddressSubmissionController @Inject() (
 
                         val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
 
-                        addressMovedService.moved(originalPostcode, address.postcode.getOrElse("")).foldF(
-                          _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
-                          addressChanged => {
-
+                        addressMovedService
+                          .moved(originalPostcode, address.postcode.getOrElse(""))
+                          .flatMap { addressChanged =>
                             def successResponseBlock(): Result = {
                               val originalAddressDto: Option[AddressDto] =
                                 journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
 
                               val addressDtowithFormattedPostCode =
-                                addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode))
+                                addressDto
+                                  .copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode))
                               handleAddressChangeAuditing(
                                 originalAddressDto,
                                 addressDtowithFormattedPostCode,
@@ -169,35 +169,23 @@ class AddressSubmissionController @Inject() (
                             }
 
                             for {
-                              _ <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
+                              _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
                               result <- citizenDetailsService
-                                .updateAddress(nino, version.etag, address)
-                                .foldF(
-                                  _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
-                                  _ => Future.successful(successResponseBlock)
-                                )
+                                          .updateAddress(nino, version.etag, address)
+                                          .foldF(
+                                            _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
+                                            _ => Future.successful(successResponseBlock)
+                                          )
                             } yield result
                           }
-                        )
                       }
                     }
                   }
-                }.getOrElse(errorRenderer.futureError(INTERNAL_SERVER_ERROR))
+                }
+                .getOrElse(errorRenderer.futureError(INTERNAL_SERVER_ERROR))
           )
       }
     }
-
-//  def response(genericErrors: GenericErrors, successResponseBlock: () => Result)(implicit
-//                                                                                 request: UserRequest[_],
-//                                                                                 configDecorator: ConfigDecorator,
-//                                                                                 messages: Messages
-//  ): Result =
-//    this match {
-//      case UpdateAddressBadRequestResponse => genericErrors.badRequest
-//      case UpdateAddressSuccessResponse    => successResponseBlock()
-//      case _                               => genericErrors.internalServerError
-//    }
-//}
 
   private def mapAddressType(typ: AddrType) = typ match {
     case PostalAddrType => "Correspondence"
