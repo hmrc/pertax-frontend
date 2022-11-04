@@ -18,7 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.TaxCalculationConnector
+import connectors.{TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
@@ -38,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   val preferencesFrontendService: PreferencesFrontendService,
-  taiService: TaiService,
+  taiConnector: TaiConnector,
   taxCalculationConnector: TaxCalculationConnector,
   breathingSpaceService: BreathingSpaceService,
   homeCardGenerator: HomeCardGenerator,
@@ -127,14 +127,17 @@ class HomeController @Inject() (
       val taxCalculationStateCyMinusTwo = taxYr.map(_.find(_.taxYear == year - 2))
 
       val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
-        taiService.taxComponents(nino, year) map {
-          case TaxComponentsSuccessResponse(ts) =>
-            TaxComponentsAvailableState(ts)
-          case TaxComponentsUnavailableResponse =>
-            TaxComponentsNotAvailableState
-          case _                                =>
-            TaxComponentsUnreachableState
-        }
+        taiConnector
+          .taxComponents(nino, year)
+          .fold(
+            error =>
+              if (error.statusCode == BAD_REQUEST || error.statusCode == NOT_FOUND) {
+                TaxComponentsNotAvailableState
+              } else {
+                TaxComponentsUnreachableState
+              },
+            result => TaxComponentsAvailableState(TaxComponents.fromJsonTaxComponents(result.json))
+          )
       } else {
         Future.successful(TaxComponentsDisabledState)
       }

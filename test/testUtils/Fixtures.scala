@@ -35,7 +35,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc._
-import play.api.test.{FakeRequest, Helpers}
+import play.api.test.{FakeRequest, Helpers, Injecting}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
@@ -325,7 +325,8 @@ trait BaseSpec
     with PatienceConfiguration
     with BeforeAndAfterEach
     with MockitoSugar
-    with ScalaFutures {
+    with ScalaFutures
+    with Injecting {
   this: Suite =>
 
   implicit val hc = HeaderCarrier()

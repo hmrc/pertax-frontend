@@ -16,23 +16,14 @@
 
 package connectors
 
-import com.codahale.metrics.Timer
-import com.kenshoo.play.metrics.Metrics
-import models.{Balanced, Overpaid, OverpaidStatus, Reconciliation, TaxYearReconciliation, Underpaid, UnderpaidStatus}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import models._
 import play.api.Application
-import play.api.http.Status._
-import play.api.libs.json.{Json, Reads, Writes}
+import play.api.libs.json.Json
 import play.api.test.Injecting
-import services.http.FakeSimpleHttp
-import testUtils.{BaseSpec, Fixtures, WireMockHelper}
+import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import scala.concurrent.Future
 import scala.util.Random
 
 class TaxCalculationConnectorSpec extends ConnectorSpec with WireMockHelper with Injecting {
@@ -126,7 +117,7 @@ class TaxCalculationConnectorSpec extends ConnectorSpec with WireMockHelper with
         BAD_GATEWAY,
         SERVICE_UNAVAILABLE
       ).foreach { statusCode =>
-        s"return an UpstreamErrorResponse containing $statusCode if the sasme response is retrieved" in {
+        s"return an UpstreamErrorResponse containing $statusCode if the same response is retrieved" in {
           stubGet(url, statusCode, None)
 
           val result =

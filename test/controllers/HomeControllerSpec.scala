@@ -18,7 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import config.ConfigDecorator
-import connectors.TaxCalculationConnector
+import connectors.{TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
@@ -27,6 +27,7 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import play.api.Application
 import play.api.inject.bind
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -47,7 +48,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   val mockConfigDecorator                     = mock[ConfigDecorator]
   val mockTaxCalculationService               = mock[TaxCalculationConnector]
-  val mockTaiService                          = mock[TaiService]
+  val mockTaiService                          = mock[TaiConnector]
   val mockSeissService                        = mock[SeissService]
   val mockMessageFrontendService              = mock[MessageFrontendService]
   val mockPreferencesFrontendService          = mock[PreferencesFrontendService]
@@ -87,8 +88,28 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     lazy val allowLowConfidenceSA = false
 
-    when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
-      Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
+    val taxComponentsJson: String =
+      """{
+        |   "data" : [ {
+        |      "componentType" : "EmployerProvidedServices",
+        |      "employmentId" : 12,
+        |      "amount" : 12321,
+        |      "description" : "Some Description",
+        |      "iabdCategory" : "Benefit"
+        |   }, {
+        |      "componentType" : "PersonalPensionPayments",
+        |      "employmentId" : 31,
+        |      "amount" : 12345,
+        |      "description" : "Some Description Some",
+        |      "iabdCategory" : "Allowance"
+        |   } ],
+        |   "links" : [ ]
+        |}""".stripMargin
+
+    when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier], any())) thenReturn {
+      EitherT[Future, UpstreamErrorResponse, HttpResponse](
+        Future.successful(Right(HttpResponse(OK, taxComponentsJson)))
+      )
     }
     when(mockSeissService.hasClaims(ActivatedOnlineFilerSelfAssessmentUser(any()))(any())) thenReturn Future.successful(
       true
@@ -158,7 +179,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaiService].toInstance(mockTaiService),
+          bind[TaiConnector].toInstance(mockTaiService),
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
         )
         .configure(
@@ -173,7 +194,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
-      verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any(), any())
       verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
@@ -181,7 +202,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
         .overrides(
-          bind[TaiService].toInstance(mockTaiService),
+          bind[TaiConnector].toInstance(mockTaiService),
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
         )
         .configure(
@@ -196,7 +217,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
-      verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any(), any())
       verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
@@ -204,7 +225,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
         .overrides(
-          bind[TaiService].toInstance(mockTaiService),
+          bind[TaiConnector].toInstance(mockTaiService),
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
         )
         .configure(
@@ -219,7 +240,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
-      verify(mockTaiService, times(0)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      verify(mockTaiService, times(0)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any(), any())
       verify(mockTaxCalculationService, times(0)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
@@ -566,11 +587,11 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     val userNino = Some(fakeNino)
 
     "return TaxComponentsDisabled where taxComponents is not enabled" in new LocalSetup {
-      when(mockTaiService.taxComponents(any(), any())(any())).thenReturn(null)
+      when(mockTaiService.taxComponents(any(), any())(any(), any())).thenReturn(null)
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[TaiService].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService)
         )
         .configure(
           "feature.tax-components.enabled" -> false,
@@ -583,14 +604,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
       result mustBe TaxComponentsDisabledState
-      verify(mockTaiService, times(0)).taxComponents(any(), any())(any())
+      verify(mockTaiService, times(0)).taxComponents(any(), any())(any(), any())
     }
 
     "return TaxCalculationAvailable status when data returned from TaxCalculation" in new LocalSetup {
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[TaiService].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService)
         )
         .configure(
           "feature.tax-components.enabled" -> true,
@@ -604,7 +625,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       result mustBe TaxComponentsAvailableState(
         TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
       )
-      verify(mockTaiService, times(1)).taxComponents(any(), any())(any())
+      verify(mockTaiService, times(1)).taxComponents(any(), any())(any(), any())
 
     }
 
@@ -613,7 +634,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[TaiService].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService)
         )
         .configure(
           "feature.tax-components.enabled" -> true,
@@ -623,14 +644,16 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller = app.injector.instanceOf[HomeController]
 
-      when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
-        Future.successful(TaxComponentsUnavailableResponse)
+      when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier], any())) thenReturn {
+        EitherT[Future, UpstreamErrorResponse, HttpResponse](
+          Future.successful(Left(UpstreamErrorResponse("", BAD_REQUEST)))
+        )
       }
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
       result mustBe TaxComponentsNotAvailableState
-      verify(mockTaiService, times(1)).taxComponents(any(), any())(any())
+      verify(mockTaiService, times(1)).taxComponents(any(), any())(any(), any())
       verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(any())(any())
     }
 
@@ -639,7 +662,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[TaiService].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService)
         )
         .configure(
           "feature.tax-components.enabled" -> true,
@@ -649,8 +672,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller = app.injector.instanceOf[HomeController]
 
-      when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
-        Future.successful(TaxComponentsUnexpectedResponse(HttpResponse(INTERNAL_SERVER_ERROR)))
+      when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier], any())) thenReturn {
+        EitherT[Future, UpstreamErrorResponse, HttpResponse](
+          Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
+        )
       }
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
@@ -663,7 +688,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[TaiService].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService)
         )
         .configure(
           "feature.tax-components.enabled" -> true,
@@ -684,7 +709,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[TaiService].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService)
         )
         .configure(
           "feature.tax-components.enabled" -> true,
@@ -711,7 +736,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[TaiService].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService)
         )
         .configure(
           "feature.tax-components.enabled" -> true,
