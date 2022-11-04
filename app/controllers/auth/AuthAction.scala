@@ -97,11 +97,23 @@ class AuthActionImpl @Inject() (
         case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
-        case nino ~ affinityGroup ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(
-              CredentialStrength.strong
-            ) ~ GTOE200(
-              confidenceLevel
-            ) ~ name ~ trustedHelper ~ profile =>
+        case None ~ affinityGroup ~ _ ~ _ ~ credentialStrength ~ confidenceLevel ~ _ ~ _ ~ _ =>
+          // After the uplifts required above a nino should always be present
+          val affinityGroupText      = affinityGroup.map("an " + _).getOrElse("a user without affinity group")
+          val credentialStrengthText = credentialStrength.map(_ + " credentials").getOrElse("no credential strength")
+          throw new RuntimeException(
+            s"No nino found in session for $affinityGroupText with confidence level ${confidenceLevel.toString} and $credentialStrengthText"
+          )
+
+        case Some(nino) ~
+            affinityGroup ~
+            Enrolments(enrolments) ~
+            Some(credentials) ~
+            Some(CredentialStrength.strong) ~
+            GTOE200(confidenceLevel) ~
+            name ~
+            trustedHelper ~
+            profile =>
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>
@@ -113,7 +125,7 @@ class AuthActionImpl @Inject() (
             .asInstanceOf[Request[A]]
 
           val authenticatedRequest = AuthenticatedRequest[A](
-            trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
+            Some(trustedHelper.fold(domain.Nino(nino))(helper => domain.Nino(helper.principalNino))),
             credentials,
             confidenceLevel,
             Some(
