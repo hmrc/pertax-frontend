@@ -49,6 +49,11 @@ class RLSInterruptPageSpec extends IntegrationSpec {
             .willReturn(ok(designatoryDetails))
         )
 
+        server.stubFor(
+          get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+            .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
+        )
+
         val request = FakeRequest(GET, url).withHeaders(HeaderNames.authorisation -> "Bearer 1")
 
         val result = route(app, request)
@@ -89,6 +94,11 @@ class RLSInterruptPageSpec extends IntegrationSpec {
         server.stubFor(
           get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
             .willReturn(ok(designatoryDetails))
+        )
+
+        server.stubFor(
+          get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+            .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
         )
 
         val request = FakeRequest(GET, url)
@@ -141,6 +151,11 @@ class RLSInterruptPageSpec extends IntegrationSpec {
         server.stubFor(
           get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
             .willReturn(ok(designatoryDetails))
+        )
+
+        server.stubFor(
+          get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+            .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
         )
 
         val request = FakeRequest(GET, url)
@@ -197,6 +212,11 @@ class RLSInterruptPageSpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
           .willReturn(ok(designatoryDetails))
+      )
+
+      server.stubFor(
+        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
       )
 
       val request = FakeRequest(GET, url)

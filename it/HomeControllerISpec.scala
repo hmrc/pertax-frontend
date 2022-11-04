@@ -35,7 +35,8 @@ class HomeControllerISpec extends IntegrationSpec {
       "feature.business-hours.Saturday.start-time"     -> "0:00",
       "feature.business-hours.Saturday.end-time"       -> "23:59",
       "feature.business-hours.Sunday.start-time"       -> "0:00",
-      "feature.business-hours.sunday.end-time"         -> "23:59"
+      "feature.business-hours.sunday.end-time"         -> "23:59",
+      "microservice.services.pertax.port"              -> server.port()
     )
     .build()
 
@@ -87,6 +88,11 @@ class HomeControllerISpec extends IntegrationSpec {
           .willReturn(ok(breathingSpaceTrueResponse))
       )
 
+      server.stubFor(
+        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
+      )
+
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
       contentAsString(result).contains("BREATHING SPACE") mustBe true
@@ -109,6 +115,10 @@ class HomeControllerISpec extends IntegrationSpec {
       server.stubFor(
         get(urlPathEqualTo(breathingSpaceUrl))
           .willReturn(ok(breathingSpaceFalseResponse))
+      )
+      server.stubFor(
+        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
       )
 
       val result: Future[Result] = route(app, request).get
@@ -142,6 +152,11 @@ class HomeControllerISpec extends IntegrationSpec {
         server.stubFor(
           get(urlPathEqualTo(breathingSpaceUrl))
             .willReturn(aResponse.withStatus(httpResponse))
+        )
+
+        server.stubFor(
+          get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+            .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
         )
 
         val result: Future[Result] = route(app, request).get
@@ -193,6 +208,10 @@ class HomeControllerISpec extends IntegrationSpec {
       server.stubFor(
         get(urlPathEqualTo(breathingSpaceUrl))
           .willReturn(ok(breathingSpaceTrueResponse))
+      )
+      server.stubFor(
+        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
       )
 
       val result: Future[Result] = route(app, request).get

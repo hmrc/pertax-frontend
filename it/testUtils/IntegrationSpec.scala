@@ -77,7 +77,8 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
         "microservice.services.message-frontend.port"           -> server.port(),
         "microservice.services.agent-client-authorisation.port" -> server.port(),
         "microservice.services.cachable.session-cache.port"     -> server.port(),
-        "microservice.services.breathing-space-if-proxy.port"   -> server.port()
+        "microservice.services.breathing-space-if-proxy.port"   -> server.port(),
+        "microservice.services.pertax.port"                     -> server.port()
       )
 
   override def beforeEach() = {
@@ -85,5 +86,9 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
+    server.stubFor(
+      get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+        .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
+    )
   }
 }

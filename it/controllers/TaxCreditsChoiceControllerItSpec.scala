@@ -22,7 +22,8 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       "microservice.services.tcs-broker.port"               -> server.port(),
       "microservice.services.cachable.session-cache.port"   -> server.port(),
       "microservice.services.cachable.session-cache.host"   -> "127.0.0.1",
-      "feature.address-change-tax-credits-question.enabled" -> false
+      "feature.address-change-tax-credits-question.enabled" -> false,
+      "microservice.services.pertax.port"                   -> server.port()
     )
     .configure(
       Map(
@@ -98,6 +99,11 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
       )
 
+      server.stubFor(
+        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
+      )
+
       val request = FakeRequest(GET, url)
 
       val result = route(app, request)
@@ -119,7 +125,8 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           "microservice.services.citizen-details.port"        -> server.port(),
           "microservice.services.tcs-broker.port"             -> server.port(),
           "microservice.services.cachable.session-cache.port" -> server.port(),
-          "microservice.services.cachable.session-cache.host" -> "127.0.0.1"
+          "microservice.services.cachable.session-cache.host" -> "127.0.0.1",
+          "microservice.services.pertax.port"                 -> server.port()
         )
         .configure(
           Map(
@@ -174,6 +181,11 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
       )
 
+      server.stubFor(
+        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
+      )
+
       val request = FakeRequest(GET, url)
       val result  = route(app, request)
 
@@ -222,6 +234,11 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(tcsBrokerUrl))
           .willReturn(aResponse().withStatus(NOT_FOUND))
+      )
+
+      server.stubFor(
+        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
       )
 
       val request = FakeRequest(GET, url)
@@ -276,6 +293,11 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(tcsBrokerUrl))
           .willReturn(aResponse().withStatus(NOT_FOUND))
+      )
+
+      server.stubFor(
+        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
       )
 
       val request = FakeRequest(GET, url)
@@ -336,6 +358,11 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
         server.stubFor(
           get(urlEqualTo(tcsBrokerUrl))
             .willReturn(aResponse().withStatus(response))
+        )
+
+        server.stubFor(
+          get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+            .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
         )
 
         val request = FakeRequest(GET, url)
