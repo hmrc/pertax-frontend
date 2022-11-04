@@ -18,7 +18,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "time"                             % "3.19.0",
     "uk.gov.hmrc"       %% "domain"                           % s"8.0.0-$playVersion",
     "uk.gov.hmrc.mongo" %% s"hmrc-mongo-$playVersion"         % hmrcMongoVersion,
-    "io.lemonlabs"      %% "scala-uri"                        % "2.2.3",
+    "io.lemonlabs"      %% "scala-uri"                        % "4.0.2",
     "uk.gov.hmrc"       %% "play-frontend-hmrc"               % s"3.32.0-$playVersion",
     "uk.gov.hmrc"       %% "play-frontend-pta"                % "0.3.0",
     "org.jsoup"          % "jsoup"                            % "1.15.3",
@@ -29,15 +29,15 @@ object AppDependencies {
   )
 
   val test: Seq[ModuleID] = Seq(
-    "org.scalatest"          %% "scalatest"                     % "3.2.8",
+    "org.scalatest"          %% "scalatest"                     % "3.2.14",
     "com.typesafe.play"      %% "play-test"                     % current,
-    "org.scalatestplus.play" %% "scalatestplus-play"            % "4.0.3",
+    "org.scalatestplus.play" %% "scalatestplus-play"            % "5.1.0",
     "uk.gov.hmrc.mongo"      %% s"hmrc-mongo-test-$playVersion" % hmrcMongoVersion,
-    "org.scalatestplus"      %% "mockito-3-4"                   % "3.2.3.0",
-    "org.mockito"             % "mockito-core"                  % "3.6.28",
-    "org.scalacheck"         %% "scalacheck"                    % "1.15.1",
+    "org.scalatestplus"      %% "mockito-3-4"                   % "3.2.10.0",
+    "org.mockito"             % "mockito-core"                  % "4.8.0",
+    "org.scalacheck"         %% "scalacheck"                    % "1.17.0",
     "com.github.tomakehurst"  % "wiremock-standalone"           % "2.27.2",
-    "com.vladsch.flexmark"    % "flexmark-all"                  % "0.36.8"
+    "com.vladsch.flexmark"    % "flexmark-all"                  % "0.62.0"
   ).map(_ % "test,it")
 
   val all: Seq[ModuleID]  = compile ++ test
