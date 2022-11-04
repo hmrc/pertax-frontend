@@ -17,7 +17,6 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import config.BusinessHoursConfig
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
 import org.mockito.ArgumentMatchers.any
@@ -38,7 +37,7 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import testUtils.RetrievalOps._
-import util.{BusinessHours, EnrolmentsHelper}
+import util.EnrolmentsHelper
 
 import java.time.LocalDateTime
 import scala.concurrent.Future
@@ -65,11 +64,6 @@ class AuthActionSpec extends BaseSpec {
     }
   }
 
-  class FakeBusinessHours @Inject() (businessHoursConfig: BusinessHoursConfig)
-      extends BusinessHours(businessHoursConfig) {
-    override def isTrue(dateTime: LocalDateTime): Boolean = true
-  }
-
   type AuthRetrievals =
     Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
       String
@@ -80,7 +74,6 @@ class AuthActionSpec extends BaseSpec {
   val fakeCredentialStrength = CredentialStrength.strong
   val fakeConfidenceLevel    = ConfidenceLevel.L200
   val enrolmentHelper        = injected[EnrolmentsHelper]
-  val fakeBusinessHours      = new FakeBusinessHours(injected[BusinessHoursConfig])
 
   def fakeEnrolments(utr: String) = Set(
     Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
@@ -111,8 +104,7 @@ class AuthActionSpec extends BaseSpec {
         config,
         sessionAuditor,
         controllerComponents,
-        enrolmentsHelper,
-        fakeBusinessHours
+        enrolmentsHelper
       )
 
     new Harness(authAction)
@@ -195,8 +187,7 @@ class AuthActionSpec extends BaseSpec {
           config,
           sessionAuditor,
           controllerComponents,
-          enrolmentsHelper,
-          fakeBusinessHours
+          enrolmentsHelper
         )
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
@@ -215,8 +206,7 @@ class AuthActionSpec extends BaseSpec {
           config,
           sessionAuditor,
           controllerComponents,
-          enrolmentsHelper,
-          fakeBusinessHours
+          enrolmentsHelper
         )
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
@@ -233,8 +223,7 @@ class AuthActionSpec extends BaseSpec {
           config,
           sessionAuditor,
           controllerComponents,
-          enrolmentsHelper,
-          fakeBusinessHours
+          enrolmentsHelper
         )
       val controller = new Harness(authAction)
       val request    =
@@ -258,8 +247,7 @@ class AuthActionSpec extends BaseSpec {
           config,
           sessionAuditor,
           controllerComponents,
-          enrolmentsHelper,
-          fakeBusinessHours
+          enrolmentsHelper
         )
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
@@ -330,45 +318,6 @@ class AuthActionSpec extends BaseSpec {
     val result = controller.onPageLoad(FakeRequest("", ""))
     status(result) mustBe OK
     contentAsString(result) must include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
-  }
-
-  "A user with a no SingleAccount enrolment should redirect" in {
-
-    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
-      Some(nino) ~
-        Some(Individual) ~
-        Enrolments(Set.empty) ~
-        Some(fakeCredentials) ~
-        Some(CredentialStrength.strong) ~
-        ConfidenceLevel.L200 ~
-        None ~
-        None ~
-        None
-    )
-
-    val authAction =
-      new AuthActionImpl(
-        mockAuthConnector,
-        config,
-        sessionAuditor,
-        controllerComponents,
-        enrolmentsHelper,
-        fakeBusinessHours
-      )
-
-    val controller = new Harness(authAction)
-
-    val result = controller.onPageLoad(
-      FakeRequest(
-        method = "GET",
-        uri = "https://example.com",
-        headers = FakeHeaders(Seq(HeaderNames.HOST -> "localhost")),
-        body = AnyContentAsEmpty
-      )
-    )
-
-    status(result) mustBe SEE_OTHER
-    redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=https%3A%2F%2Fexample.com")
   }
 
   "A user without a SCP Profile Url must continue to not have one" in {
