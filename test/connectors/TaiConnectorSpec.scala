@@ -44,8 +44,6 @@ class TaiConnectorSpec
   )
 
   trait SpecSetup {
-    def simulateTaiServiceIsDown: Boolean
-
     val taxComponentsJson: JsValue = Json.parse("""{
                                          |   "data" : [ {
                                          |      "componentType" : "EmployerProvidedServices",
@@ -80,10 +78,6 @@ class TaiConnectorSpec
     }
   }
 
-//  verify(metrics, times(1)).startTimer(metricId)
-//  verify(metrics, times(1)).incrementFailedCounter(metricId)
-//  verify(timer, times(1)).stop()
-
   "Calling TaiService.taxSummary" must {
     trait LocalSetup extends SpecSetup {
       val metricId = "get-tax-components"
@@ -96,8 +90,6 @@ class TaiConnectorSpec
     val url = s"/tai/$nino/tax-account/$taxYear/tax-components"
 
     "return OK on success" in new LocalSetup {
-      override def simulateTaiServiceIsDown: Boolean = false
-
       stubGet(url, OK, Some(taxComponentsJson.toString))
 
       val result: HttpResponse =
@@ -111,8 +103,6 @@ class TaiConnectorSpec
     }
 
     "return __ on success" in new LocalSetup {
-      override def simulateTaiServiceIsDown: Boolean = true
-
       stubGet(url, OK, Some(taxComponentsJson.toString))
 
       val result: HttpResponse =
@@ -136,8 +126,6 @@ class TaiConnectorSpec
       UNPROCESSABLE_ENTITY
     ).foreach { statusCode =>
       s"return an UpstreamErrorResponse containing $statusCode if the same response is retrieved" in new LocalSetup {
-        override def simulateTaiServiceIsDown: Boolean = false
-
         stubGet(url, statusCode, None)
 
         val result: UpstreamErrorResponse =
