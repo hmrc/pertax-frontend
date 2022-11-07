@@ -16,12 +16,20 @@
 
 package util
 
+import com.google.inject.Inject
+import config.ConfigDecorator
 import models._
-import uk.gov.hmrc.auth.core.Enrolment
+import play.api.i18n.Messages
+import play.api.mvc.{Request, Result}
+import play.api.mvc.Results.InternalServerError
+import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{Nino, SaUtr}
+import views.html.InternalServerErrorView
 
-class EnrolmentsHelper {
+import scala.concurrent.ExecutionContext
+
+class EnrolmentsHelper @Inject() (internalServerErrorView: InternalServerErrorView) {
 
   private def fromString(value: String): EnrolmentStatus = value match {
     case "Activated"       => Activated
@@ -50,12 +58,25 @@ class EnrolmentsHelper {
           .map(key => SelfAssessmentEnrolment(SaUtr(key.value), fromString(enrolment.state)))
       }
 
-  def singleAccountEnrolmentPresent(enrolments: Set[Enrolment]): Boolean =
+  def singleAccountEnrolmentPresent(enrolments: Set[Enrolment], sessionNino: Nino)(implicit
+    request: Request[_],
+    configDecorator: ConfigDecorator,
+    messages: Messages,
+    ec: ExecutionContext
+  ): Either[Result, Boolean] =
     enrolments
       .find(_.key == "HMRC-PT")
       .flatMap { enrolment =>
         enrolment.identifiers
           .find(id => id.key == "NINO")
       }
-      .nonEmpty
+      .headOption
+      .map { enrolmentIdentifier: EnrolmentIdentifier =>
+        if (Nino(enrolmentIdentifier.value) == sessionNino) {
+          Right(true)
+        } else {
+          Left(InternalServerError(internalServerErrorView()))
+        }
+      }
+      .getOrElse(Right(false))
 }
