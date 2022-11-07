@@ -211,12 +211,16 @@ class HomeControllerISpec extends IntegrationSpec {
       )
       server.stubFor(
         get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
-          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
+          .willReturn(
+            ok(
+              "{\"code\": \"NO_HMRC_PT_ENROLMENT\", \"message\": \"Access granted\", \"redirect\": \"http://localhost:7750/protect-tax-info\"}"
+            )
+          )
       )
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=%2Fpersonal-account")
+      redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info/?redirectUrl=%2Fpersonal-account")
       server.verify(0, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
       server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
     }
