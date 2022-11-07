@@ -42,7 +42,16 @@ class EnrolmentsHelperSpec extends BaseSpec {
     "enrolment is present and nino matches" must {
       "returns Right(true)" in {
         val result = sut.singleAccountEnrolmentPresent(
-          Set(Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.nino)), "Activated")),
+          Set(
+            Enrolment(
+              "HMRC-PT",
+              Seq(
+                EnrolmentIdentifier("NINO", nino.nino),
+                EnrolmentIdentifier("NINO", new Generator(new Random()).nextNino.nino)
+              ),
+              "Activated"
+            )
+          ),
           nino
         )
 

@@ -19,6 +19,7 @@ package util
 import com.google.inject.Inject
 import config.ConfigDecorator
 import models._
+import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.{Request, Result}
 import play.api.mvc.Results.InternalServerError
@@ -29,7 +30,7 @@ import views.html.InternalServerErrorView
 
 import scala.concurrent.ExecutionContext
 
-class EnrolmentsHelper @Inject() (internalServerErrorView: InternalServerErrorView) {
+class EnrolmentsHelper @Inject() (internalServerErrorView: InternalServerErrorView) extends Logging {
 
   private def fromString(value: String): EnrolmentStatus = value match {
     case "Activated"       => Activated
@@ -65,18 +66,17 @@ class EnrolmentsHelper @Inject() (internalServerErrorView: InternalServerErrorVi
     ec: ExecutionContext
   ): Either[Result, Boolean] =
     enrolments
-      .find(_.key == "HMRC-PT")
+      .filter(_.key == "HMRC-PT")
       .flatMap { enrolment =>
         enrolment.identifiers
-          .find(id => id.key == "NINO")
-      }
-      .headOption
-      .map { enrolmentIdentifier: EnrolmentIdentifier =>
-        if (Nino(enrolmentIdentifier.value) == sessionNino) {
-          Right(true)
-        } else {
-          Left(InternalServerError(internalServerErrorView()))
-        }
-      }
-      .getOrElse(Right(false))
+          .filter(id => id.key == "NINO")
+      } match {
+      case enrolmentIdentifiers if enrolmentIdentifiers.isEmpty => Right(false)
+      case enrolmentIdentifiers
+          if enrolmentIdentifiers.exists(enrolmentIdentifier => Nino(enrolmentIdentifier.value) == sessionNino) =>
+        Right(true)
+      case _                                                    =>
+        logger.error("The nino in HMRC-PT enrolment does not match the one from the user session")
+        Left(InternalServerError(internalServerErrorView()))
+    }
 }
