@@ -18,7 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import config.ConfigDecorator
-import connectors.{TaiConnector, TaxCalculationConnector}
+import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
@@ -51,7 +51,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockTaiService                          = mock[TaiConnector]
   val mockSeissService                        = mock[SeissService]
   val mockMessageFrontendService              = mock[MessageFrontendService]
-  val mockPreferencesFrontendService          = mock[PreferencesFrontendService]
+  val mockPreferencesFrontendService          = mock[PreferencesFrontendConnector]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
   val mockLocalSessionCache                   = mock[LocalSessionCache]
   val mockAuthJourney                         = mock[AuthJourney]
@@ -263,7 +263,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[PreferencesFrontendService].toInstance(mockPreferencesFrontendService)
+          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendService)
         )
         .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()

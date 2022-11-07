@@ -17,6 +17,7 @@
 package controllers
 
 import config.{ConfigDecorator, NewsAndTilesConfig}
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
@@ -66,7 +67,7 @@ class InterstitialControllerSpec extends BaseSpec {
       new InterstitialController(
         mock[FormPartialService],
         mock[SaPartialService],
-        mock[PreferencesFrontendService],
+        mock[PreferencesFrontendConnector],
         mockAuthJourney,
         injected[WithBreadcrumbAction],
         injected[MessagesControllerComponents],
@@ -361,7 +362,7 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendService],
+          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -452,7 +453,7 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendService],
+          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -519,7 +520,7 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendService],
+          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -569,7 +570,7 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendService],
+          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],

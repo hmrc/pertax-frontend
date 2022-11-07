@@ -18,7 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.{TaiConnector, TaxCalculationConnector}
+import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
@@ -37,17 +37,17 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
-  val preferencesFrontendService: PreferencesFrontendService,
-  taiConnector: TaiConnector,
-  taxCalculationConnector: TaxCalculationConnector,
-  breathingSpaceService: BreathingSpaceService,
-  homeCardGenerator: HomeCardGenerator,
-  homePageCachingHelper: HomePageCachingHelper,
-  authJourney: AuthJourney,
-  cc: MessagesControllerComponents,
-  homeView: HomeView,
-  seissService: SeissService,
-  rlsInterruptHelper: RlsInterruptHelper
+                                 val preferencesFrontendService: PreferencesFrontendConnector,
+                                 taiConnector: TaiConnector,
+                                 taxCalculationConnector: TaxCalculationConnector,
+                                 breathingSpaceService: BreathingSpaceService,
+                                 homeCardGenerator: HomeCardGenerator,
+                                 homePageCachingHelper: HomePageCachingHelper,
+                                 authJourney: AuthJourney,
+                                 cc: MessagesControllerComponents,
+                                 homeView: HomeView,
+                                 seissService: SeissService,
+                                 rlsInterruptHelper: RlsInterruptHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with PaperlessInterruptHelper

@@ -20,6 +20,7 @@ import com.codahale.metrics.Timer.Context
 import com.codahale.metrics.{Counter, MetricRegistry, Timer}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.kenshoo.play.metrics.Metrics
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models._
 import org.mockito.ArgumentMatchers._
@@ -39,7 +40,7 @@ import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, WireMockHelper}
 import testUtils.BaseSpec
 
-class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
+class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   val mockMetrics        = mock[Metrics]
   val mockMetricRegistry = mock[MetricRegistry]
@@ -73,7 +74,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
           request = FakeRequest()
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
+      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/activate"
 
@@ -108,7 +109,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
           request = FakeRequest()
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
+      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val result = service.getPaperlessPreference().futureValue
 
@@ -125,7 +126,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
           request = FakeRequest()
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
+      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/activate"
 
@@ -152,7 +153,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
           request = FakeRequest()
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
+      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/activate"
 
@@ -177,7 +178,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
           request = FakeRequest()
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
+      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/activate"
 
@@ -211,7 +212,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
           request = FakeRequest()
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
+      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/activate"
 

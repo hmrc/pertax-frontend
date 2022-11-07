@@ -17,6 +17,7 @@
 package controllers.controllershelpers
 
 import config.ConfigDecorator
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, NonFilerSelfAssessmentUser, UserName}
 import org.mockito.ArgumentMatchers.any
@@ -36,7 +37,7 @@ import scala.concurrent.Future
 class PaperlessInterruptHelperSpec extends BaseSpec {
 
   val paperlessInterruptHelper = new PaperlessInterruptHelper {
-    override val preferencesFrontendService: PreferencesFrontendService = mock[PreferencesFrontendService]
+    override val preferencesFrontendService: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
   }
 
   val okBlock: Result = Ok("Block")

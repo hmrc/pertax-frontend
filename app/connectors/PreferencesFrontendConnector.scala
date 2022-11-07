@@ -14,71 +14,70 @@
  * limitations under the License.
  */
 
-package services
+package connectors
 
+import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import metrics.HasMetrics
-import models.{ActivatePaperlessActivatedResponse, ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, ActivatePaperlessResponse}
 import play.api.Logging
+import play.api.http.Status.PRECONDITION_FAILED
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
+import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class PreferencesFrontendService @Inject() (
-  val simpleHttp: DefaultHttpClient,
+class PreferencesFrontendConnector @Inject()(
+                                             httpClient: HttpClient,
   val messagesApi: MessagesApi,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   val tools: Tools,
-  servicesConfig: ServicesConfig
+  servicesConfig: ServicesConfig,
+                                             httpClientResponse: HttpClientResponse
 )(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter
+      with CustomError
     with HasMetrics
     with I18nSupport
     with Logging {
 
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
-  // TODO
-  def getPaperlessPreference()(implicit request: UserRequest[_]): Future[ActivatePaperlessResponse] = {
+  def getPaperlessPreference()(implicit request: UserRequest[_]): EitherT[Future, UpstreamErrorResponse, Option[String]] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
 
-    def activatePaperless: Future[ActivatePaperlessResponse] =
       withMetricsTimer("get-activate-paperless") { timer =>
         val url =
-          s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
-            .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
-        simpleHttp.PUT[JsObject, ActivatePaperlessResponse](url, Json.obj("active" -> true)) map {
+          s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${
+            tools
+              .encryptAndEncode(Messages("label.continue"))
+          }" //TODO remove ref to Messages
 
-          case ActivatePaperlessActivatedResponse =>
+        httpClientResponse
+          .read(
+            httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))
+          ).transform {
+          case Left(response) if response.statusCode == PRECONDITION_FAILED => {
             timer.completeTimerAndIncrementSuccessCounter()
-            ActivatePaperlessActivatedResponse
-
-          case response: ActivatePaperlessRequiresUserActionResponse =>
+            val redirectUrl = (Json.parse(response.message) \ "redirectUserTo").as[String]
+            Right(Some(redirectUrl))
+          }
+          case Right(_) =>
             timer.completeTimerAndIncrementSuccessCounter()
-            response
-
-          case ActivatePaperlessNotAllowedResponse =>
+            Right(None)
+          case Left(error) =>
             timer.completeTimerAndIncrementFailedCounter()
-            ActivatePaperlessNotAllowedResponse
-        } recover { case e =>
-          timer.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
-          ActivatePaperlessNotAllowedResponse
+            Left(error)
         }
       }
-
-    activatePaperless
   }
-
 }
