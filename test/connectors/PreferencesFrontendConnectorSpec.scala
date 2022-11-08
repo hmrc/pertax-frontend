@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package services
+package connectors
 
 import com.codahale.metrics.Timer.Context
 import com.codahale.metrics.{Counter, MetricRegistry, Timer}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.kenshoo.play.metrics.Metrics
-import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models._
 import org.mockito.ArgumentMatchers._
