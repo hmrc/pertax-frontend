@@ -289,8 +289,11 @@ class AuthActionSpec extends BaseSpec {
       val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeEnrolments(utr)))
 
       val result = controller.onPageLoad(FakeRequest("", ""))
-      status(result) mustBe OK
-      contentAsString(result) must include(utr)
+
+      whenReady(result.failed) { ex =>
+        ex mustBe an[RuntimeException]
+        ex.getMessage mustBe "No nino found in session for an Individual with confidence level 200 and strong credentials"
+      }
     }
   }
 
