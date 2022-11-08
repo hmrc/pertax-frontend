@@ -34,11 +34,11 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.CONTENT_TYPE
-import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Credentials
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, WireMockHelper}
-import testUtils.BaseSpec
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
@@ -66,7 +66,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
   //TODO: Find a way to mock metrics in a testable way
   "PreferencesFrontend" must {
 
-    "return ActivatePaperlessActivatedResponse if it is successful, and user is Government GateWay" in {
+    "return None if an OK status is retrieved, and user is Government GateWay" in {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
@@ -94,84 +94,13 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           )
       )
 
-      val result = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference().value.futureValue.getOrElse(Some("testUrl"))
 
-      result.futureValue mustBe ActivatePaperlessActivatedResponse
-
-    }
-
-    "return ActivatePaperlessNotAllowedResponse if user is not Government Gateway" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(
-          saUser = NonFilerSelfAssessmentUser,
-          credentials = Credentials("", "GovernmentGateway"),
-          confidenceLevel = ConfidenceLevel.L200,
-          request = FakeRequest()
-        )
-
-      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
-
-      val result = service.getPaperlessPreference().futureValue
-
-      result mustBe ActivatePaperlessNotAllowedResponse
+      result mustBe None
 
     }
 
-    "return ActivatePaperlessNotAllowedResponse if any upstream exceptions are thrown" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(
-          saUser = NonFilerSelfAssessmentUser,
-          credentials = Credentials("", "GovernmentGateway"),
-          confidenceLevel = ConfidenceLevel.L200,
-          request = FakeRequest()
-        )
-
-      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
-
-      val url = "/paperless/activate"
-
-      server.stubFor(
-        put(urlMatching(s"$url.*"))
-          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
-          .willReturn(
-            aResponse()
-              .withStatus(303)
-          )
-      )
-
-      val result = service.getPaperlessPreference().futureValue
-
-      result mustBe ActivatePaperlessNotAllowedResponse
-    }
-
-    "return ActivatePaperlessNotAllowedResponse if BadRequestException is thrown" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(
-          saUser = NonFilerSelfAssessmentUser,
-          credentials = Credentials("", "GovernmentGateway"),
-          confidenceLevel = ConfidenceLevel.L200,
-          request = FakeRequest()
-        )
-
-      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
-
-      val url = "/paperless/activate"
-
-      server.stubFor(
-        put(urlMatching(s"$url.*"))
-          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
-          .willReturn(
-            aResponse()
-              .withStatus(400)
-          )
-      )
-
-      val result = service.getPaperlessPreference().futureValue
-
-      result mustBe ActivatePaperlessNotAllowedResponse
-    }
-
-    "return ActivatePaperlessRequiresUserActionResponse if Precondition failed with 412 response" in {
+    "return a redirectUrl if Precondition failed with 412 response" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = NonFilerSelfAssessmentUser,
@@ -198,36 +127,50 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           )
       )
 
-      val result = service.getPaperlessPreference().futureValue
+      val result = service.getPaperlessPreference().value.futureValue.getOrElse(None)
 
-      result mustBe ActivatePaperlessRequiresUserActionResponse("http://www.testurl.com")
+      result mustBe Some("http://www.testurl.com")
     }
 
-    "return ActivatePaperlessNotAllowedResponse when called and service is down" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(
-          saUser = NonFilerSelfAssessmentUser,
-          credentials = Credentials("", "GovernmentGateway"),
-          confidenceLevel = ConfidenceLevel.L200,
-          request = FakeRequest()
+    List(
+      BAD_REQUEST,
+      NOT_FOUND,
+      TOO_MANY_REQUESTS,
+      REQUEST_TIMEOUT,
+      INTERNAL_SERVER_ERROR,
+      SERVICE_UNAVAILABLE,
+      BAD_GATEWAY
+    ).foreach { errorResponse =>
+      s"return UpstreamErrorResponse when the connector retrieves a $errorResponse status" in {
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(
+            saUser = NonFilerSelfAssessmentUser,
+            credentials = Credentials("", "GovernmentGateway"),
+            confidenceLevel = ConfidenceLevel.L200,
+            request = FakeRequest()
+          )
+
+        implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+
+        val url = "/paperless/activate"
+
+        val jsonBody =
+          """{}""".stripMargin
+
+        server.stubFor(
+          put(urlMatching(s"$url.*"))
+            .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
+            .willReturn(
+              aResponse()
+                .withStatus(errorResponse)
+                .withBody(jsonBody)
+            )
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+        val result = service.getPaperlessPreference().value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
 
-      val url = "/paperless/activate"
-
-      server.stubFor(
-        put(urlMatching(s"$url.*"))
-          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
-          .willReturn(
-            aResponse()
-              .withStatus(500)
-          )
-      )
-
-      val result = service.getPaperlessPreference().futureValue
-
-      result mustBe ActivatePaperlessNotAllowedResponse
+        result.statusCode mustBe errorResponse
+      }
     }
   }
 }

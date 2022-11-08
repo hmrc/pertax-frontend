@@ -37,17 +37,17 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
-                                 val preferencesFrontendService: PreferencesFrontendConnector,
-                                 taiConnector: TaiConnector,
-                                 taxCalculationConnector: TaxCalculationConnector,
-                                 breathingSpaceService: BreathingSpaceService,
-                                 homeCardGenerator: HomeCardGenerator,
-                                 homePageCachingHelper: HomePageCachingHelper,
-                                 authJourney: AuthJourney,
-                                 cc: MessagesControllerComponents,
-                                 homeView: HomeView,
-                                 seissService: SeissService,
-                                 rlsInterruptHelper: RlsInterruptHelper
+  val preferencesFrontendService: PreferencesFrontendConnector,
+  taiConnector: TaiConnector,
+  taxCalculationConnector: TaxCalculationConnector,
+  breathingSpaceService: BreathingSpaceService,
+  homeCardGenerator: HomeCardGenerator,
+  homePageCachingHelper: HomePageCachingHelper,
+  authJourney: AuthJourney,
+  cc: MessagesControllerComponents,
+  homeView: HomeView,
+  seissService: SeissService,
+  rlsInterruptHelper: RlsInterruptHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with PaperlessInterruptHelper

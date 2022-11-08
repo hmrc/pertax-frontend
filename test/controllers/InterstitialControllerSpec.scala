@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
@@ -39,6 +40,7 @@ import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import util._
 import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.{ViewBreathingSpaceView, ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
@@ -105,7 +107,7 @@ class InterstitialControllerSpec extends BaseSpec {
         }
 
         when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          Future.successful(paperlessResponse)
+          EitherT[Future, UpstreamErrorResponse, Option[String]](Future.successful(Right(None)))
         }
       }
   }
@@ -390,7 +392,9 @@ class InterstitialControllerSpec extends BaseSpec {
           }
 
           when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-            Future.successful(ActivatePaperlessNotAllowedResponse)
+            EitherT[Future, UpstreamErrorResponse, Option[String]](
+              Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
+            )
           }
         }
 
@@ -480,7 +484,9 @@ class InterstitialControllerSpec extends BaseSpec {
           }
 
           when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-            Future.successful(ActivatePaperlessNotAllowedResponse)
+            EitherT[Future, UpstreamErrorResponse, Option[String]](
+              Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
+            )
           }
         }
 

@@ -16,6 +16,7 @@
 
 package controllers.controllershelpers
 
+import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
@@ -31,6 +32,7 @@ import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import testUtils.BaseSpec
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
@@ -63,7 +65,7 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
     "the enforce paperless preference toggle is set to true" must {
       "Redirect to paperless interupt page for a user who has no enrolments" in {
         when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          Future.successful(ActivatePaperlessRequiresUserActionResponse("/activate-paperless"))
+          EitherT[Future, UpstreamErrorResponse, Option[String]](Future.successful(Right(Some("/activate-paperless"))))
         }
 
         when(mockConfigDecorator.enforcePaperlessPreferenceEnabled).thenReturn(true)
@@ -73,9 +75,22 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
         redirectLocation(r) mustBe Some("/activate-paperless")
       }
 
-      "Return the result of the block when getPaperlessPreference does not return ActivatePaperlessRequiresUserActionResponse" in {
+      "return the result of a passed in block" in {
         when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          Future.successful(ActivatePaperlessNotAllowedResponse)
+          EitherT[Future, UpstreamErrorResponse, Option[String]](Future.successful(Right(None)))
+        }
+
+        when(mockConfigDecorator.enforcePaperlessPreferenceEnabled).thenReturn(false)
+
+        val result = paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock))
+        result.futureValue mustBe okBlock
+      }
+
+      "Return the result of the block when getPaperlessPreference does not return Right" in {
+        when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+          EitherT[Future, UpstreamErrorResponse, Option[String]](
+            Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
+          )
         }
 
         val result = paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock)).futureValue

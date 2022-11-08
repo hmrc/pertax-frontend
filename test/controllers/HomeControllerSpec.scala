@@ -27,7 +27,6 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import play.api.Application
 import play.api.inject.bind
-import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -51,7 +50,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockTaiService                          = mock[TaiConnector]
   val mockSeissService                        = mock[SeissService]
   val mockMessageFrontendService              = mock[MessageFrontendService]
-  val mockPreferencesFrontendService          = mock[PreferencesFrontendConnector]
+  val mockPreferencesFrontendConnector        = mock[PreferencesFrontendConnector]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
   val mockLocalSessionCache                   = mock[LocalSessionCache]
   val mockAuthJourney                         = mock[AuthJourney]
@@ -78,13 +77,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val withPaye: Boolean                    = true
     lazy val year                                 = 2017
 
-    lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
-    lazy val getIVJourneyStatusResponse: IdentityVerificationResponse  = IdentityVerificationSuccessResponse("Success")
-    lazy val getCitizenDetailsResponse                                 = true
-    lazy val selfAssessmentUserType: SelfAssessmentUserType            = ActivatedOnlineFilerSelfAssessmentUser(
+    lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, Option[String]] =
+      EitherT[Future, UpstreamErrorResponse, Option[String]](Future.successful(Right(None)))
+    lazy val getIVJourneyStatusResponse: IdentityVerificationResponse                               = IdentityVerificationSuccessResponse("Success")
+    lazy val getCitizenDetailsResponse                                                              = true
+    lazy val selfAssessmentUserType: SelfAssessmentUserType                                         = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr(new SaUtrGenerator().nextSaUtr.utr)
     )
-    lazy val getLtaServiceResponse                                     = Future.successful(true)
+    lazy val getLtaServiceResponse                                                                  = Future.successful(true)
 
     lazy val allowLowConfidenceSA = false
 
@@ -128,8 +128,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       )
     )
 
-    when(mockPreferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-      Future.successful(getPaperlessPreferenceResponse)
+    when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn {
+      getPaperlessPreferenceResponse
     }
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
       Future.successful(getIVJourneyStatusResponse)
@@ -252,7 +252,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller = app.injector.instanceOf[HomeController]
 
-      override lazy val getPaperlessPreferenceResponse = ActivatePaperlessNotAllowedResponse
+      override lazy val getPaperlessPreferenceResponse =
+        EitherT[Future, UpstreamErrorResponse, Option[String]](
+          Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
+        )
 
       val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
@@ -263,7 +266,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendService)
+          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
         )
         .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
@@ -271,7 +274,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val controller = app.injector.instanceOf[HomeController]
 
       override lazy val getPaperlessPreferenceResponse =
-        ActivatePaperlessRequiresUserActionResponse("http://www.example.com")
+        EitherT[Future, UpstreamErrorResponse, Option[String]](Future.successful(Right(Some("http://www.example.com"))))
 
       val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe SEE_OTHER

@@ -40,23 +40,23 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
 class InterstitialController @Inject() (
-                                         val formPartialService: FormPartialService,
-                                         val saPartialService: SaPartialService,
-                                         val preferencesFrontendService: PreferencesFrontendConnector,
-                                         authJourney: AuthJourney,
-                                         withBreadcrumbAction: WithBreadcrumbAction,
-                                         cc: MessagesControllerComponents,
-                                         errorRenderer: ErrorRenderer,
-                                         viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
-                                         viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
-                                         selfAssessmentSummaryView: SelfAssessmentSummaryView,
-                                         sa302InterruptView: Sa302InterruptView,
-                                         viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
-                                         viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
-                                         viewBreathingSpaceView: ViewBreathingSpaceView,
-                                         enrolmentsHelper: EnrolmentsHelper,
-                                         seissService: SeissService,
-                                         newsAndTilesConfig: NewsAndTilesConfig
+  val formPartialService: FormPartialService,
+  val saPartialService: SaPartialService,
+  val preferencesFrontendService: PreferencesFrontendConnector,
+  authJourney: AuthJourney,
+  withBreadcrumbAction: WithBreadcrumbAction,
+  cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
+  viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
+  viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
+  selfAssessmentSummaryView: SelfAssessmentSummaryView,
+  sa302InterruptView: Sa302InterruptView,
+  viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
+  viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
+  viewBreathingSpaceView: ViewBreathingSpaceView,
+  enrolmentsHelper: EnrolmentsHelper,
+  seissService: SeissService,
+  newsAndTilesConfig: NewsAndTilesConfig
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with PaperlessInterruptHelper

@@ -35,10 +35,12 @@ trait PaperlessInterruptHelper {
     block: => Future[Result]
   )(implicit request: UserRequest[_], configDecorator: ConfigDecorator): Future[Result] =
     if (configDecorator.enforcePaperlessPreferenceEnabled) {
-      preferencesFrontendService.getPaperlessPreference().foldF(
-        _ => block,
-        redirectFuture => redirectFuture.map(redirectUrl => Future.successful(Redirect(redirectUrl))).getOrElse(block)
-      )
+      preferencesFrontendService
+        .getPaperlessPreference()
+        .foldF(
+          _ => block,
+          redirectFuture => redirectFuture.map(redirectUrl => Future.successful(Redirect(redirectUrl))).getOrElse(block)
+        )
     } else {
       block
     }

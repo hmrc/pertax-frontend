@@ -34,50 +34,50 @@ import util.Tools
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class PreferencesFrontendConnector @Inject()(
-                                             httpClient: HttpClient,
+class PreferencesFrontendConnector @Inject() (
+  httpClient: HttpClient,
   val messagesApi: MessagesApi,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   val tools: Tools,
   servicesConfig: ServicesConfig,
-                                             httpClientResponse: HttpClientResponse
+  httpClientResponse: HttpClientResponse
 )(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter
-      with CustomError
+    with CustomError
     with HasMetrics
     with I18nSupport
     with Logging {
 
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
-  def getPaperlessPreference()(implicit request: UserRequest[_]): EitherT[Future, UpstreamErrorResponse, Option[String]] = {
+  def getPaperlessPreference()(implicit
+    request: UserRequest[_]
+  ): EitherT[Future, UpstreamErrorResponse, Option[String]] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
 
-      withMetricsTimer("get-activate-paperless") { timer =>
-        val url =
-          s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${
-            tools
-              .encryptAndEncode(Messages("label.continue"))
-          }" //TODO remove ref to Messages
+    withMetricsTimer("get-activate-paperless") { timer =>
+      val url =
+        s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
+          .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
 
-        httpClientResponse
-          .read(
-            httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))
-          ).transform {
-          case Left(response) if response.statusCode == PRECONDITION_FAILED => {
+      httpClientResponse
+        .read(
+          httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))
+        )
+        .transform {
+          case Left(response) if response.statusCode == PRECONDITION_FAILED =>
             timer.completeTimerAndIncrementSuccessCounter()
-            val redirectUrl = (Json.parse(response.message) \ "redirectUserTo").as[String]
-            Right(Some(redirectUrl))
-          }
-          case Right(_) =>
+            val redirectUrl = (Json.parse(response.message) \ "redirectUserTo").asOpt[String]
+            Right(redirectUrl)
+          case Right(_)                                                     =>
             timer.completeTimerAndIncrementSuccessCounter()
             Right(None)
-          case Left(error) =>
+          case Left(error)                                                  =>
             timer.completeTimerAndIncrementFailedCounter()
             Left(error)
         }
-      }
+    }
   }
 }
