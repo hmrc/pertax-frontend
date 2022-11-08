@@ -18,7 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import config.ConfigDecorator
-import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
+import connectors.{IdentityVerificationFrontendService, IdentityVerificationResponse, IdentityVerificationSuccessResponse, PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import models.BreathingSpaceIndicatorResponse.WithinPeriod

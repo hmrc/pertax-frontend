@@ -21,7 +21,6 @@ import config.ConfigDecorator
 import controllers.auth._
 import play.api.Logger
 import play.api.mvc._
-import services.IdentityVerificationSuccessResponse._
 import services._
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
@@ -66,47 +65,44 @@ class ApplicationController @Inject() (
         case Some(jid) =>
           identityVerificationFrontendService.getIVJourneyStatus(jid).map {
 
-            case IdentityVerificationSuccessResponse(Success) =>
+            case Success =>
               Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
 
-            case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
+            case InsufficientEvidence =>
               Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
 
-            case IdentityVerificationSuccessResponse(UserAborted) =>
-              logErrorMessage(UserAborted)
+            case UserAborted =>
+              logErrorMessage(UserAborted.toString)
               Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(FailedMatching) =>
-              logErrorMessage(FailedMatching)
+            case FailedMatching =>
+              logErrorMessage(FailedMatching.toString)
               Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(Incomplete) =>
-              logErrorMessage(Incomplete)
+            case Incomplete =>
+              logErrorMessage(Incomplete.toString)
               Unauthorized(failedIvIncompleteView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(PrecondFailed) =>
-              logErrorMessage(PrecondFailed)
+            case PrecondFailed =>
+              logErrorMessage(PrecondFailed.toString)
               Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(LockedOut) =>
-              logErrorMessage(LockedOut)
+            case LockedOut =>
+              logErrorMessage(LockedOut.toString)
               Unauthorized(lockedOutView(allowContinue = false))
 
-            case IdentityVerificationSuccessResponse(Timeout) =>
-              logErrorMessage(Timeout)
+            case Timeout =>
+              logErrorMessage(Timeout.toString)
               InternalServerError(timeOutView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(TechnicalIssue) =>
+            case TechnicalIssue =>
               logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
               InternalServerError(technicalIssuesView(retryUrl))
 
             case r =>
               logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
               InternalServerError(technicalIssuesView(retryUrl))
-          }
-        case None      =>
-          logger.error(s"No journeyId present when displaying IV uplift journey outcome")
-          Future.successful(BadRequest(technicalIssuesView(retryUrl)))
+          }.getOrElse(Future.successful(BadRequest(technicalIssuesView(retryUrl))))
       }
     }
 

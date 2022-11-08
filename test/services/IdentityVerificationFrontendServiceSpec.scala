@@ -18,6 +18,7 @@ package services
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
+import connectors.{IdentityVerificationErrorResponse, IdentityVerificationFrontendService, IdentityVerificationNotFoundResponse, IdentityVerificationSuccessResponse, IdentityVerificationUnexpectedResponse}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.http.Status._

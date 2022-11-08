@@ -16,6 +16,7 @@
 
 package controllers
 
+import connectors.{IdentityVerificationFrontendService, IdentityVerificationResponse, IdentityVerificationSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}
 import models._

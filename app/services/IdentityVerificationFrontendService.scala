@@ -1,93 +1,53 @@
-/*
- * Copyright 2022 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package services
 
-import com.google.inject.{Inject, Singleton}
-import com.kenshoo.play.metrics.Metrics
-import metrics.HasMetrics
-import play.api.Logging
-import play.api.http.Status._
-import services.http.SimpleHttp
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import cats.data.EitherT
+import com.google.inject.Inject
+import connectors.IdentityVerificationFrontendConnector
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-trait IdentityVerificationResponse
-case class IdentityVerificationSuccessResponse(result: String) extends IdentityVerificationResponse
-case object IdentityVerificationNotFoundResponse extends IdentityVerificationResponse
-case class IdentityVerificationUnexpectedResponse(r: HttpResponse) extends IdentityVerificationResponse
-case class IdentityVerificationErrorResponse(cause: Exception) extends IdentityVerificationResponse
+sealed trait IdentityVerificationResponse
 
-object IdentityVerificationSuccessResponse {
-  val Success              = "Success"
-  val Incomplete           = "Incomplete"
-  val FailedMatching       = "FailedMatching"
-  val InsufficientEvidence = "InsufficientEvidence"
-  val LockedOut            = "LockedOut"
-  val UserAborted          = "UserAborted"
-  val Timeout              = "Timeout"
-  val TechnicalIssue       = "TechnicalIssue"
-  val PrecondFailed        = "PreconditionFailed"
-}
-@Singleton
-class IdentityVerificationFrontendService @Inject() (
-  val simpleHttp: SimpleHttp,
-  val metrics: Metrics,
-  servicesConfig: ServicesConfig
-) extends HasMetrics
-    with Logging {
+case object Success extends IdentityVerificationResponse {
+  override def toString: String = "Success"}
+case object Incomplete extends IdentityVerificationResponse {
+  override def toString: String = "Incomplete"}
+case object FailedMatching extends IdentityVerificationResponse {
+  override def toString: String = "FailedMatching"}
+case object InsufficientEvidence extends IdentityVerificationResponse {
+  override def toString: String = "InsufficientEvidence"}
+case object LockedOut extends IdentityVerificationResponse {
+  override def toString: String = "LockedOut"}
+case object UserAborted extends IdentityVerificationResponse {
+  override def toString: String = "UserAborted"}
+case object Timeout extends IdentityVerificationResponse {
+  override def toString: String = "Timeout"}
+case object TechnicalIssue extends IdentityVerificationResponse {
+  override def toString: String = "TechnicalIssue"}
+case object PrecondFailed extends IdentityVerificationResponse {
+  override def toString: String = "PreconditionFailed"}
 
-  lazy val identityVerificationFrontendUrl: String = servicesConfig.baseUrl("identity-verification-frontend")
+class IdentityVerificationFrontendService @Inject()(identityVerificationFrontendConnector: IdentityVerificationFrontendConnector) {
 
-  //TODO
-  def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier): Future[IdentityVerificationResponse] =
-    withMetricsTimer("get-iv-journey-status") { t =>
-      simpleHttp.get[IdentityVerificationResponse](
-        s"$identityVerificationFrontendUrl/mdtp/journey/journeyId/$journeyId"
-      )(
-        onComplete = {
-          case r if r.status >= 200 && r.status < 300 =>
-            t.completeTimerAndIncrementSuccessCounter()
-            val result =
-              List(
-                (r.json \ "journeyResult").asOpt[String],
-                (r.json \ "result").asOpt[String]
-              ).flatten.head //FIXME - dont use head
-            IdentityVerificationSuccessResponse(result)
-
-          case r if r.status == NOT_FOUND =>
-            t.completeTimerAndIncrementFailedCounter()
-            logger.warn("Unable to get IV journey status from identity-verification-frontend-service")
-            IdentityVerificationNotFoundResponse
-
-          case r =>
-            t.completeTimerAndIncrementFailedCounter()
-            logger.warn(
-              s"Unexpected ${r.status} response getting IV journey status from identity-verification-frontend-service"
-            )
-            IdentityVerificationUnexpectedResponse(r)
-        },
-        onError = { case e =>
-          t.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error getting IV journey status from identity-verification-frontend-service", e)
-          IdentityVerificationErrorResponse(e)
-        }
-      )
-
+  def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] = {
+    identityVerificationFrontendConnector.getIVJourneyStatus(journeyId).map { response =>
+      val status = List(
+                      (response.json \ "journeyResult").asOpt[String],
+                      (response.json \ "result").asOpt[String]
+                    ).flatten.head //FIXME - dont use head
+      status match {
+        case "Success" => Success
+        case "Incomplete" => Incomplete
+        case "FailedMatching" => FailedMatching
+        case "InsufficientEvidence" => InsufficientEvidence
+        case "LockedOut" => LockedOut
+        case "UserAborted" => UserAborted
+        case "Timeout" => Timeout
+        case "TechnicalIssue" => TechnicalIssue
+        case "PreconditionFailed" => PrecondFailed
+      }
     }
+  }
+
 }
