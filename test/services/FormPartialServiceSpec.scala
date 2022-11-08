@@ -17,15 +17,14 @@
 package services
 
 import config.ConfigDecorator
-import metrics.Metrics
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.twirl.api.Html
 import services.partials.FormPartialService
 import testUtils.BaseSpec
-import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
-import util.EnhancedPartialRetriever
 import testUtils.Fixtures._
+import uk.gov.hmrc.play.partials.HtmlPartial
+import util.EnhancedPartialRetriever
 
 import scala.concurrent.Future
 

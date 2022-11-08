@@ -18,9 +18,8 @@ package connectors
 
 import play.api.Application
 import play.api.test.DefaultAwaitTimeout
-import play.api.test.Helpers.await
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.{BadRequestException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout {
 

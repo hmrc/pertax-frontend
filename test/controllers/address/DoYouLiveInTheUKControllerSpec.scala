@@ -17,7 +17,6 @@
 package controllers.address
 
 import config.ConfigDecorator
-import controllers.bindable.ResidentialAddrType
 import models.dto.{AddressPageVisitedDto, Dto}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}

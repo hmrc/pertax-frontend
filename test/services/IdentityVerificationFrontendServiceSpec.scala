@@ -73,7 +73,6 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
         }
       }
 
-
       List(
         TOO_MANY_REQUESTS,
         INTERNAL_SERVER_ERROR,

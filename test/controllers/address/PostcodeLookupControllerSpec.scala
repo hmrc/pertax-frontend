@@ -16,6 +16,7 @@
 
 package controllers.address
 
+import cats.data.EitherT
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.addresslookup.RecordSet
 import models.dto.{AddressFinderDto, AddressPageVisitedDto, Dto}
@@ -27,14 +28,11 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services._
 import testUtils.Fixtures
+import testUtils.Fixtures.{fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
-import Fixtures.{fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
-import cats.data.EitherT
-import connectors.{AddressLookupErrorResponse, AddressLookupResponse, AddressLookupSuccessResponse}
-import uk.gov.hmrc.http.UpstreamErrorResponse
 import views.html.personaldetails.PostcodeLookupView
 
 import scala.concurrent.Future

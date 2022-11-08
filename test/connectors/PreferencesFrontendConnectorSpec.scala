@@ -96,7 +96,6 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
       val result = service.getPaperlessPreference().value.futureValue.getOrElse(Some("testUrl"))
 
       result mustBe None
-
     }
 
     "return a redirectUrl if Precondition failed with 412 response" in {

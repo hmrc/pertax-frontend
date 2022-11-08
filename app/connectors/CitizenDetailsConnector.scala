@@ -128,28 +128,4 @@ class CitizenDetailsConnector @Inject() (
           }
         )
     }
-
-  /// TODO - Uncomment
-
-//  def getEtag(nino: String)(implicit hc: HeaderCarrier): Future[Option[ETag]] =
-//    withMetricsTimer("get-etag") { timer =>
-//      simpleHttp.get[Option[ETag]](s"$citizenDetailsUrl/citizen-details/$nino/etag")(
-//        onComplete = {
-//          case response: HttpResponse if response.status == OK =>
-//            timer.completeTimerAndIncrementSuccessCounter()
-//            response.json.asOpt[ETag]
-//          case response                                        =>
-//            auditEtagFailure(
-//              timer,
-//              s"[CitizenDetailsService.getEtag] failed to find etag in citizen-details: ${response.status}"
-//            )
-//        },
-//        onError = { e: Exception =>
-//          auditEtagFailure(
-//            timer,
-//            s"[CitizenDetailsService.getEtag] returned an Exception: ${e.getMessage}"
-//          )
-//        }
-//      )
-//    }
 }

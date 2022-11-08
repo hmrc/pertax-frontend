@@ -16,12 +16,11 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post}
 import models.{CreatePayment, PaymentRequest}
 import play.api.Application
-import play.api.libs.json.{JsResultException, Json}
+import play.api.libs.json.Json
 import play.api.test.DefaultAwaitTimeout
-import play.api.test.Helpers.await
 import testUtils.WireMockHelper
 import uk.gov.hmrc.http.UpstreamErrorResponse
 

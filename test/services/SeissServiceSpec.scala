@@ -17,17 +17,17 @@
 package services
 
 import cats.data.EitherT
+import cats.implicits._
 import config.ConfigDecorator
 import connectors.SeissConnector
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, SeissModel}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import testUtils.BaseSpec
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
-import cats.implicits._
-import testUtils.BaseSpec
 
 class SeissServiceSpec extends BaseSpec {
 

@@ -22,7 +22,6 @@ import config.ConfigDecorator
 import connectors.CitizenDetailsConnector
 import models.{Address, ETag, MatchingDetails, PersonDetails}
 import play.api.Logging
-import play.api.http.Status._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 

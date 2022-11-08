@@ -20,7 +20,6 @@ import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.PersonDetails
 import models.dto.{AddressPageVisitedDto, DateDto}
-import java.time.LocalDate
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
@@ -31,11 +30,12 @@ import testUtils.ActionBuilderFixture
 import testUtils.Fixtures.fakeStreetTupleListAddressForUnmodified
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fixtures.AddressFixture.{address => addressFixture}
+import testUtils.fixtures.PersonFixture._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.language.LanguageUtils
-import testUtils.fixtures.PersonFixture._
 import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class StartDateControllerSpec extends AddressBaseSpec {

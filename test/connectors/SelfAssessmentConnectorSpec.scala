@@ -16,7 +16,6 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.http.Fault
 import controllers.auth.requests.UserRequest
 import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentRequest}
 import play.api.Application

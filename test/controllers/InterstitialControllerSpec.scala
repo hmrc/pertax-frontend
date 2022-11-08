@@ -33,17 +33,17 @@ import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import services._
 import services.partials.{FormPartialService, SaPartialService}
+import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
-import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.http.UpstreamErrorResponse
 import util._
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewBreathingSpaceView, ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
+import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.Future

@@ -18,9 +18,9 @@ package connectors
 
 import config.ConfigDecorator
 import play.api.http.Status
+import testUtils.BaseSpec
 import uk.gov.hmrc.circuitbreaker.CircuitBreakerConfig
 import uk.gov.hmrc.http.{HttpException, UpstreamErrorResponse}
-import testUtils.BaseSpec
 
 class ServicesCircuitBreakerSpec extends BaseSpec with ServicesCircuitBreaker with Status {
 

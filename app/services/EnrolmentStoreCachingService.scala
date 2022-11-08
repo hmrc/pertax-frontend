@@ -21,7 +21,7 @@ import connectors.EnrolmentsConnector
 import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUserType, WrongCredentialsSelfAssessmentUser}
 import play.api.Logging
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 

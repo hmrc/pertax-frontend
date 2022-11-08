@@ -28,8 +28,9 @@ import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
-import play.api.test.{FakeHeaders, FakeRequest}
 import play.api.test.Helpers.{redirectLocation, _}
+import play.api.test.{FakeHeaders, FakeRequest}
+import testUtils.RetrievalOps._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
@@ -37,7 +38,6 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import testUtils.RetrievalOps._
 import util.{BusinessHours, EnrolmentsHelper}
 
 import java.time.LocalDateTime

@@ -18,8 +18,8 @@ package services
 
 import cats.data.EitherT
 import com.google.inject.Inject
-import connectors.{AddressLookupConnector, AddressLookupSuccessResponse}
-import models.addresslookup.{Country, RecordSet}
+import connectors.AddressLookupConnector
+import models.addresslookup.Country
 import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 

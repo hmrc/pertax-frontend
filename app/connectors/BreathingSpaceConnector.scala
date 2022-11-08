@@ -27,7 +27,6 @@ import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 import util.Timeout
-import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import java.util.UUID.randomUUID
 import scala.concurrent.duration._

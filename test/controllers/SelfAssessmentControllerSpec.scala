@@ -35,7 +35,7 @@ import services.SelfAssessmentService
 import testUtils.BaseSpec
 import testUtils.Fixtures.buildFakeRequestWithAuth
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.time.CurrentTaxYear
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}

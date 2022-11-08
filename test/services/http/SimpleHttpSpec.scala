@@ -16,7 +16,7 @@
 
 package services.http
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, post, put, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -25,7 +25,6 @@ import play.api.libs.json.Writes
 import play.api.test.Injecting
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
-import testUtils.BaseSpec
 
 import java.util.concurrent.LinkedBlockingQueue
 import scala.concurrent.{ExecutionContext, Future}

@@ -17,15 +17,13 @@
 package services
 
 import cats.data.EitherT
-import connectors.{AddressLookupConnector, AddressLookupErrorResponse, AddressLookupSuccessResponse, AddressLookupUnexpectedResponse}
+import connectors.AddressLookupConnector
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import models.{AnyOtherMove, MovedFromScotland, MovedToScotland}
-import org.mockito.Mockito.{mock, when}
-import org.scalatest.concurrent.ScalaFutures
+import org.mockito.Mockito.when
 import play.api.http.Status._
-import play.api.libs.json.Json
 import testUtils.BaseSpec
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.{ExecutionContext, Future}
 

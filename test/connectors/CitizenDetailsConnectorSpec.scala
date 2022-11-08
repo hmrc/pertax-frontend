@@ -27,7 +27,7 @@ import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.{Fixtures, WireMockHelper}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
-import uk.gov.hmrc.http.{GatewayTimeoutException, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.time.LocalDate

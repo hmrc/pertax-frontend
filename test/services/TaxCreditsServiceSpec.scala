@@ -22,8 +22,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status._
 import testUtils.BaseSpec
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import testUtils.Fixtures.fakeNino
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 

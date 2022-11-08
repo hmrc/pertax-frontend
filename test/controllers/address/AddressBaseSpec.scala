@@ -18,20 +18,18 @@ package controllers.address
 
 import cats.data.EitherT
 import config.ConfigDecorator
-import connectors.{AddressLookupConnector, AddressLookupResponse, AddressLookupSuccessResponse}
+import connectors.AddressLookupConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models._
 import models.addresslookup.RecordSet
-import models.dto.{AddressDto, AddressPageVisitedDto, Dto}
+import models.dto.{AddressDto, Dto}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
-import play.api.http.Status.{NO_CONTENT, OK}
-import org.mockito.stubbing.OngoingStubbing
+import play.api.http.Status.NO_CONTENT
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
-import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import services._
 import testUtils.Fixtures._

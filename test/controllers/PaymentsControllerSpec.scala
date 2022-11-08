@@ -29,10 +29,10 @@ import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import testUtils.{ActionBuilderFixture, BaseSpec}
-import uk.gov.hmrc.time.CurrentTaxYear
 import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.time.CurrentTaxYear
 
 import java.time.LocalDate
 import scala.concurrent.Future

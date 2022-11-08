@@ -21,7 +21,6 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.GenericErrors
 import models.ETag
 import models.dto.DateDto
-import java.time.LocalDate
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
@@ -32,11 +31,13 @@ import play.api.mvc.{MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.Fixtures
+import testUtils.Fixtures._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
-import Fixtures._
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
+
+import java.time.LocalDate
 
 class AddressSubmissionControllerSpec extends AddressBaseSpec {
 

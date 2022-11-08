@@ -20,19 +20,17 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, NonFilerSelfAssessmentUser, UserName}
+import models.{NonFilerSelfAssessmentUser, UserName}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import testUtils.BaseSpec
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
 

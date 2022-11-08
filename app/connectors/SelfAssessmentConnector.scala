@@ -21,9 +21,9 @@ import com.google.inject.Inject
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics.HasMetrics
-import models.{SaEnrolmentRequest, SaEnrolmentResponse}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import models.SaEnrolmentRequest
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
