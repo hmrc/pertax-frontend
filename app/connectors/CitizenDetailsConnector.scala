@@ -129,6 +129,8 @@ class CitizenDetailsConnector @Inject() (
         )
     }
 
+  /// TODO - Uncomment
+
 //  def getEtag(nino: String)(implicit hc: HeaderCarrier): Future[Option[ETag]] =
 //    withMetricsTimer("get-etag") { timer =>
 //      simpleHttp.get[Option[ETag]](s"$citizenDetailsUrl/citizen-details/$nino/etag")(

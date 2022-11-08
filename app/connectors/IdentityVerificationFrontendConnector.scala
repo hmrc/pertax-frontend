@@ -38,15 +38,17 @@ class IdentityVerificationFrontendConnector @Inject() (
 
   lazy val identityVerificationFrontendUrl: String = servicesConfig.baseUrl("identity-verification-frontend")
 
-  //TODO
-  def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+  def getIVJourneyStatus(
+    journeyId: String
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     withMetricsTimer("get-iv-journey-status") { t =>
       httpClientResponse
         .read(
           httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
             s"$identityVerificationFrontendUrl/mdtp/journey/journeyId/$journeyId"
           )
-        ).bimap(
+        )
+        .bimap(
           error => {
             t.completeTimerAndIncrementFailedCounter()
             error
@@ -55,9 +57,7 @@ class IdentityVerificationFrontendConnector @Inject() (
             t.completeTimerAndIncrementSuccessCounter()
             response
           }
-      )
-
-
+        )
 
 //      (
 //        onComplete = {

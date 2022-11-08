@@ -18,7 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import config.ConfigDecorator
-import connectors.{IdentityVerificationFrontendService, IdentityVerificationResponse, IdentityVerificationSuccessResponse, PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
+import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
@@ -77,14 +77,15 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val withPaye: Boolean                    = true
     lazy val year                                 = 2017
 
-    lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, Option[String]] =
+    lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, Option[String]]           =
       EitherT[Future, UpstreamErrorResponse, Option[String]](Future.successful(Right(None)))
-    lazy val getIVJourneyStatusResponse: IdentityVerificationResponse                               = IdentityVerificationSuccessResponse("Success")
-    lazy val getCitizenDetailsResponse                                                              = true
-    lazy val selfAssessmentUserType: SelfAssessmentUserType                                         = ActivatedOnlineFilerSelfAssessmentUser(
+    lazy val getIVJourneyStatusResponse: EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+      EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(Success)))
+    lazy val getCitizenDetailsResponse                                                                        = true
+    lazy val selfAssessmentUserType: SelfAssessmentUserType                                                   = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr(new SaUtrGenerator().nextSaUtr.utr)
     )
-    lazy val getLtaServiceResponse                                                                  = Future.successful(true)
+    lazy val getLtaServiceResponse                                                                            = Future.successful(true)
 
     lazy val allowLowConfidenceSA = false
 
@@ -131,8 +132,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn {
       getPaperlessPreferenceResponse
     }
-    when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
-      Future.successful(getIVJourneyStatusResponse)
+    when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any(), any())) thenReturn {
+      getIVJourneyStatusResponse
     }
 
     when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(false))

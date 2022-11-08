@@ -63,46 +63,48 @@ class ApplicationController @Inject() (
 
       journeyId match {
         case Some(jid) =>
-          identityVerificationFrontendService.getIVJourneyStatus(jid).map {
+          identityVerificationFrontendService
+            .getIVJourneyStatus(jid)
+            .map {
 
-            case Success =>
-              Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
+              case Success =>
+                Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
 
-            case InsufficientEvidence =>
-              Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
+              case InsufficientEvidence =>
+                Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
 
-            case UserAborted =>
-              logErrorMessage(UserAborted.toString)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
+              case UserAborted =>
+                logErrorMessage(UserAborted.toString)
+                Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case FailedMatching =>
-              logErrorMessage(FailedMatching.toString)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
+              case FailedMatching =>
+                logErrorMessage(FailedMatching.toString)
+                Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case Incomplete =>
-              logErrorMessage(Incomplete.toString)
-              Unauthorized(failedIvIncompleteView(retryUrl))
+              case Incomplete =>
+                logErrorMessage(Incomplete.toString)
+                Unauthorized(failedIvIncompleteView(retryUrl))
 
-            case PrecondFailed =>
-              logErrorMessage(PrecondFailed.toString)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
+              case PrecondFailed =>
+                logErrorMessage(PrecondFailed.toString)
+                Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case LockedOut =>
-              logErrorMessage(LockedOut.toString)
-              Unauthorized(lockedOutView(allowContinue = false))
+              case LockedOut =>
+                logErrorMessage(LockedOut.toString)
+                Unauthorized(lockedOutView(allowContinue = false))
 
-            case Timeout =>
-              logErrorMessage(Timeout.toString)
-              InternalServerError(timeOutView(retryUrl))
+              case Timeout =>
+                logErrorMessage(Timeout.toString)
+                InternalServerError(timeOutView(retryUrl))
 
-            case TechnicalIssue =>
-              logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
-              InternalServerError(technicalIssuesView(retryUrl))
+              case TechnicalIssue =>
+                logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
+                InternalServerError(technicalIssuesView(retryUrl))
 
-            case r =>
-              logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
-              InternalServerError(technicalIssuesView(retryUrl))
-          }.getOrElse(Future.successful(BadRequest(technicalIssuesView(retryUrl))))
+              case _ =>
+                InternalServerError(technicalIssuesView(retryUrl))
+            }
+            .getOrElse(BadRequest(technicalIssuesView(retryUrl)))
       }
     }
 
