@@ -21,21 +21,6 @@ class HomeControllerISpec extends IntegrationSpec {
       "feature.breathing-space-indicator.timeoutInSec" -> 4,
       "microservice.services.taxcalc.port"             -> server.port(),
       "microservice.services.tai.port"                 -> server.port(),
-      "feature.single-account-enrolment.enabled"       -> true,
-      "feature.business-hours.Monday.start-time"       -> "0:00",
-      "feature.business-hours.Monday.end-time"         -> "23:59",
-      "feature.business-hours.Tuesday.start-time"      -> "0:00",
-      "feature.business-hours.Tuesday.end-time"        -> "23:59",
-      "feature.business-hours.Wednesday.start-time"    -> "0:00",
-      "feature.business-hours.Wednesday.end-time"      -> "23:59",
-      "feature.business-hours.Thursday.start-time"     -> "0:00",
-      "feature.business-hours.Thursday.end-time"       -> "23:59",
-      "feature.business-hours.Friday.start-time"       -> "0:00",
-      "feature.business-hours.Friday.end-time"         -> "23:59",
-      "feature.business-hours.Saturday.start-time"     -> "0:00",
-      "feature.business-hours.Saturday.end-time"       -> "23:59",
-      "feature.business-hours.Sunday.start-time"       -> "0:00",
-      "feature.business-hours.sunday.end-time"         -> "23:59",
       "microservice.services.pertax.port"              -> server.port()
     )
     .build()
