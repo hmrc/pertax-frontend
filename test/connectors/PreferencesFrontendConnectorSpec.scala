@@ -30,6 +30,7 @@ import play.api.http.ContentTypes
 import play.api.http.Status._
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.CONTENT_TYPE
@@ -37,7 +38,7 @@ import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
@@ -88,14 +89,14 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
           .willReturn(
             aResponse()
-              .withStatus(200)
+              .withStatus(OK)
               .withBody(jsonBody)
           )
       )
 
-      val result = service.getPaperlessPreference().value.futureValue.getOrElse(Some("testUrl"))
+      val result = service.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
 
-      result mustBe None
+      result.status mustBe OK
     }
 
     "return a redirectUrl if Precondition failed with 412 response" in {
@@ -125,9 +126,10 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           )
       )
 
-      val result = service.getPaperlessPreference().value.futureValue.getOrElse(None)
+      val result = service.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, jsonBody))
 
-      result mustBe Some("http://www.testurl.com")
+      result.status mustBe PRECONDITION_FAILED
+      result.body must include("http://www.testurl.com")
     }
 
     List(
