@@ -65,8 +65,6 @@ class PreferencesFrontendConnector @Inject() (
         .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
 
     withMetricsTimer("get-activate-paperless") { timer =>
-      println("0" * 100)
-
       httpClientResponse
         .read(
           httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))
