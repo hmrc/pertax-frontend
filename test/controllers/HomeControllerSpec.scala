@@ -27,6 +27,7 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import play.api.Application
 import play.api.inject.bind
+import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -36,7 +37,7 @@ import testUtils.Fixtures._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.time.CurrentTaxYear
 
@@ -77,8 +78,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val withPaye: Boolean                    = true
     lazy val year                                 = 2017
 
-    lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, Option[String]]           =
-      EitherT[Future, UpstreamErrorResponse, Option[String]](Future.successful(Right(None)))
+    lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse]             =
+      EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
     lazy val getIVJourneyStatusResponse: EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
       EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(Success)))
     lazy val getCitizenDetailsResponse                                                                        = true
@@ -254,7 +255,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val controller = app.injector.instanceOf[HomeController]
 
       override lazy val getPaperlessPreferenceResponse =
-        EitherT[Future, UpstreamErrorResponse, Option[String]](
+        EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
         )
 
@@ -275,7 +276,11 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val controller = app.injector.instanceOf[HomeController]
 
       override lazy val getPaperlessPreferenceResponse =
-        EitherT[Future, UpstreamErrorResponse, Option[String]](Future.successful(Right(Some("http://www.example.com"))))
+        EitherT[Future, UpstreamErrorResponse, HttpResponse](
+          Future.successful(
+            Right(HttpResponse(PRECONDITION_FAILED, """{"redirectUserTo": "http://www.example.com"}""".stripMargin))
+          )
+        )
 
       val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe SEE_OTHER
@@ -577,7 +582,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val configDecorator = injected[ConfigDecorator]
 
       val r: Future[Result] =
-        app.injector.instanceOf[HomeController].index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+        app.injector
+          .instanceOf[HomeController]
+          .index()(
+            FakeRequest()
+              .withSession("sessionId" -> "FAKE_SESSION_ID")
+              .withHeaders(HeaderNames.authorisation -> "Bearer 1")
+          )
 
       status(r) mustBe OK
       contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkUrl)

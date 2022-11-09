@@ -23,13 +23,15 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import metrics.HasMetrics
 import play.api.Logging
-import play.api.http.Status.PRECONDITION_FAILED
+import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, PRECONDITION_FAILED}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HttpReads.{is4xx, is5xx, upstreamResponseMessage}
+import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpReadsEither, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,40 +46,68 @@ class PreferencesFrontendConnector @Inject() (
   httpClientResponse: HttpClientResponse
 )(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter
-    with CustomError
+    with PreferencesCustomError
     with HasMetrics
     with I18nSupport
     with Logging {
 
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
+  val url                    = preferencesFrontendUrl
 
   def getPaperlessPreference()(implicit
     request: UserRequest[_]
-  ): EitherT[Future, UpstreamErrorResponse, Option[String]] = {
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
 
+    val url =
+      s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
+        .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
+
     withMetricsTimer("get-activate-paperless") { timer =>
-      val url =
-        s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
-          .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
+      println("0" * 100)
 
       httpClientResponse
         .read(
           httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))
         )
-        .transform {
-          case Left(response) if response.statusCode == PRECONDITION_FAILED =>
-            timer.completeTimerAndIncrementSuccessCounter()
-            val redirectUrl = (Json.parse(response.message) \ "redirectUserTo").asOpt[String]
-            Right(redirectUrl)
-          case Right(_)                                                     =>
-            timer.completeTimerAndIncrementSuccessCounter()
-            Right(None)
-          case Left(error)                                                  =>
+        .bimap(
+          error => {
             timer.completeTimerAndIncrementFailedCounter()
-            Left(error)
-        }
+            error
+          },
+          response => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            response
+          }
+        )
     }
   }
+}
+
+trait PreferencesCustomError extends HttpReadsEither {
+  private def handleResponseEither(response: HttpResponse): Either[UpstreamErrorResponse, HttpResponse] =
+    response.status match {
+
+      case status if status != PRECONDITION_FAILED && is4xx(status) || is5xx(status) =>
+        Left(
+          UpstreamErrorResponse(
+            message = upstreamResponseMessage("PUT", response.body, status, response.body),
+            statusCode = status,
+            reportAs = if (is4xx(status)) INTERNAL_SERVER_ERROR else BAD_GATEWAY,
+            headers = response.headers
+          )
+        )
+      case _                                                                         => Right(response)
+    }
+
+  override implicit def readEitherOf[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
+    HttpReads.ask.flatMap { case (_, _, response) =>
+      handleResponseEither(response) match {
+        case Left(err) =>
+          HttpReads.pure(Left(err))
+        case Right(_)  =>
+          HttpReads[A].map(Right.apply)
+      }
+    }
 }

@@ -38,7 +38,7 @@ import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util._
@@ -107,7 +107,7 @@ class InterstitialControllerSpec extends BaseSpec {
         }
 
         when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          EitherT[Future, UpstreamErrorResponse, Option[String]](Future.successful(Right(None)))
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
         }
       }
   }
@@ -392,7 +392,7 @@ class InterstitialControllerSpec extends BaseSpec {
           }
 
           when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-            EitherT[Future, UpstreamErrorResponse, Option[String]](
+            EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
             )
           }
@@ -484,7 +484,7 @@ class InterstitialControllerSpec extends BaseSpec {
           }
 
           when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-            EitherT[Future, UpstreamErrorResponse, Option[String]](
+            EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
             )
           }

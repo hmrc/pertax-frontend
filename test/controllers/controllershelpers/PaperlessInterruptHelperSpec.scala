@@ -23,6 +23,8 @@ import controllers.auth.requests.UserRequest
 import models.{NonFilerSelfAssessmentUser, UserName}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import play.api.libs.json.JsPath.\
+import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
@@ -30,7 +32,7 @@ import play.api.test.Helpers._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
@@ -63,7 +65,11 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
     "the enforce paperless preference toggle is set to true" must {
       "Redirect to paperless interupt page for a user who has no enrolments" in {
         when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          EitherT[Future, UpstreamErrorResponse, Option[String]](Future.successful(Right(Some("/activate-paperless"))))
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            Future.successful(
+              Right(HttpResponse(PRECONDITION_FAILED, Json.obj("redirectUserTo" -> "/activate-paperless").toString))
+            )
+          )
         }
 
         when(mockConfigDecorator.enforcePaperlessPreferenceEnabled).thenReturn(true)
@@ -75,7 +81,7 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
 
       "return the result of a passed in block" in {
         when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          EitherT[Future, UpstreamErrorResponse, Option[String]](Future.successful(Right(None)))
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
         }
 
         when(mockConfigDecorator.enforcePaperlessPreferenceEnabled).thenReturn(false)
@@ -86,7 +92,7 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
 
       "Return the result of the block when getPaperlessPreference does not return Right" in {
         when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          EitherT[Future, UpstreamErrorResponse, Option[String]](
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](
             Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
           )
         }

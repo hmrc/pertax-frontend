@@ -21,8 +21,10 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models.ActivatePaperlessRequiresUserActionResponse
 import play.api.http.Status.PRECONDITION_FAILED
+import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results._
+import uk.gov.hmrc.http.HttpReads.is2xx
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -39,7 +41,9 @@ trait PaperlessInterruptHelper {
         .getPaperlessPreference()
         .foldF(
           _ => block,
-          redirectFuture => redirectFuture.map(redirectUrl => Future.successful(Redirect(redirectUrl))).getOrElse(block)
+          response =>
+            if (is2xx(response.status)) block
+            else Future.successful(Redirect((response.json \ "redirectUserTo").as[String]))
         )
     } else {
       block
