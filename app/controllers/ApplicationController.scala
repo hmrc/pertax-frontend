@@ -94,7 +94,7 @@ class ApplicationController @Inject() (
 
             case IdentityVerificationSuccessResponse(Timeout) =>
               logErrorMessage(Timeout)
-              InternalServerError(timeOutView(retryUrl))
+              Unauthorized(timeOutView(retryUrl))
 
             case IdentityVerificationSuccessResponse(TechnicalIssue) =>
               logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")

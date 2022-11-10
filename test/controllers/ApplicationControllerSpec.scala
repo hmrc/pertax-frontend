@@ -236,7 +236,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     }
 
-    "return 500 when IV journey outcome was Timeout" in new LocalSetup {
+    "return 401 when IV journey outcome was Timeout" in new LocalSetup {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -248,7 +248,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Timeout")
 
       val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(result) mustBe INTERNAL_SERVER_ERROR
+      status(result) mustBe UNAUTHORIZED
 
     }
 
