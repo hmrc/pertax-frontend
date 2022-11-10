@@ -63,7 +63,12 @@ class IdentityVerificationFrontendService @Inject() (
     ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
     identityVerificationFrontendConnector.getIVJourneyStatus(journeyId).map { response =>
-      val status = (response.json \ "journeyResult").as[String]
+      val status =
+        List(
+          (response.json \ "journeyResult").asOpt[String],
+          (response.json \ "result").asOpt[String]
+        ).flatten.head
+
       status match {
         case "Success"              => Success
         case "Incomplete"           => Incomplete

@@ -58,36 +58,5 @@ class IdentityVerificationFrontendConnector @Inject() (
             response
           }
         )
-
-//      (
-//        onComplete = {
-//          case r if r.status >= 200 && r.status < 300 =>
-//            t.completeTimerAndIncrementSuccessCounter()
-//            val result =
-//              List(
-//                (r.json \ "journeyResult").asOpt[String],
-//                (r.json \ "result").asOpt[String]
-//              ).flatten.head //FIXME - dont use head
-//            IdentityVerificationSuccessResponse(result)
-//
-//          case r if r.status == NOT_FOUND =>
-//            t.completeTimerAndIncrementFailedCounter()
-//            logger.warn("Unable to get IV journey status from identity-verification-frontend-service")
-//            IdentityVerificationNotFoundResponse
-//
-//          case r =>
-//            t.completeTimerAndIncrementFailedCounter()
-//            logger.warn(
-//              s"Unexpected ${r.status} response getting IV journey status from identity-verification-frontend-service"
-//            )
-//            IdentityVerificationUnexpectedResponse(r)
-//        },
-//        onError = { case e =>
-//          t.completeTimerAndIncrementFailedCounter()
-//          logger.warn("Error getting IV journey status from identity-verification-frontend-service", e)
-//          IdentityVerificationErrorResponse(e)
-//        }
-//      )
-
     }
 }

@@ -66,7 +66,6 @@ class ApplicationController @Inject() (
           identityVerificationFrontendService
             .getIVJourneyStatus(jid)
             .map {
-
               case Success =>
                 Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
 
