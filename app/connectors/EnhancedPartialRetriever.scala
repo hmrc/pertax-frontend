@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package util
+package connectors
 
 import com.codahale.metrics.Timer
 import com.google.inject.Inject
@@ -22,7 +22,6 @@ import metrics.{Metrics, MetricsEnumeration}
 import play.api.Logging
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.{HttpClient, HttpException}
-import uk.gov.hmrc.play.partials.HtmlPartial._
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
 import scala.concurrent.{ExecutionContext, Future}
