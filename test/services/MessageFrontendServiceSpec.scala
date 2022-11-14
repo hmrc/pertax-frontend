@@ -138,9 +138,9 @@ class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with Integ
       )
 
       messageCount.futureValue mustBe None
-//      verify(mockMetrics, times(1)).startTimer(any())
-//      verify(mockMetrics, times(1)).incrementFailedCounter(any())
-//      verify(mockMetrics, times(0)).incrementSuccessCounter(any())
+      verify(mockMetrics, times(1)).startTimer(any())
+      verify(mockMetrics, times(0)).incrementFailedCounter(any())
+      verify(mockMetrics, times(1)).incrementSuccessCounter(any())
     }
 
     "return 10 unread messages" in {
