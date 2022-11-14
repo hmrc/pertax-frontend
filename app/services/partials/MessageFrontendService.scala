@@ -21,6 +21,7 @@ import connectors.{EnhancedPartialRetriever, MessageFrontendConnector}
 import metrics.Metrics
 import models.MessageCount
 import play.api.Logging
+import play.api.libs.json.Json
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -56,5 +57,7 @@ class MessageFrontendService @Inject() (
     messageFrontendConnector.getUnreadMessageCount.fold(
       _ => None,
       response => response.json.asOpt[MessageCount].map(_.count)
-    )
+    ) recover { case _: Exception =>
+      None
+    }
 }
