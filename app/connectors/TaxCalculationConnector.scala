@@ -22,7 +22,6 @@ import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
 import models.TaxYearReconciliation
 import play.api.Logging
-import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
@@ -32,7 +31,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class TaxCalculationConnector @Inject() (
-  val simpleHttp: SimpleHttp,
   val metrics: Metrics,
   val http: HttpClient,
   servicesConfig: ServicesConfig,
