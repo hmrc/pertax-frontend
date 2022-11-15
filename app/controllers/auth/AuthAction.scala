@@ -127,11 +127,11 @@ class AuthActionImpl @Inject() (
             affinityGroup
           )
 
-          lazy val updatedResult = for {
+          for {
             result        <- block(authenticatedRequest)
             updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
           } yield updatedResult
-          updatedResult
+
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
