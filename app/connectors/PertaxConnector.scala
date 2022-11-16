@@ -55,7 +55,7 @@ class PertaxConnector @Inject() (
   def loadPartial(url: String)(implicit request: RequestHeader, ec: ExecutionContext): Future[HtmlPartial] = {
     implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
 
-    httpClient.GET[HtmlPartial](url) map {
+    httpClient.GET[HtmlPartial](s"$pertaxUrl/$url") map {
       case partial: HtmlPartial.Success =>
         partial
       case partial: HtmlPartial.Failure =>
