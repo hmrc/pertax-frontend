@@ -19,10 +19,9 @@ package controllers.auth
 import com.google.inject.{ImplementedBy, Inject}
 import config.ConfigDecorator
 import controllers.auth.requests.AuthenticatedRequest
-import controllers.routes
+import controllers.{PertaxBaseController, routes}
 import io.lemonlabs.uri.Url
 import models.UserName
-import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
@@ -39,13 +38,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionImpl @Inject() (
   val authConnector: AuthConnector,
-  configDecorator: ConfigDecorator,
   sessionAuditor: SessionAuditor,
-  cc: ControllerComponents,
+  cc: MessagesControllerComponents,
   enrolmentsHelper: EnrolmentsHelper,
   businessHours: BusinessHours
-)(implicit ec: ExecutionContext)
-    extends AuthAction
+)(implicit ec: ExecutionContext, configDecorator: ConfigDecorator)
+    extends PertaxBaseController(cc)
+    with AuthAction
     with AuthorisedFunctions {
 
   def addRedirect(profileUrl: Option[String]): Option[String] =
@@ -147,8 +146,15 @@ class AuthActionImpl @Inject() (
 
           (configDecorator.singleAccountEnrolmentFeature, businessHours.isTrue(LocalDateTime.now())) match {
             case (true, true) =>
-              if (enrolmentsHelper.singleAccountEnrolmentPresent(enrolments)) updatedResult
-              else Future.successful(Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri)))
+              implicit val request = authenticatedRequest
+              enrolmentsHelper
+                .singleAccountEnrolmentPresent(enrolments, domain.Nino(nino))
+                .fold(
+                  left => Future.successful(left),
+                  status =>
+                    if (status) updatedResult
+                    else Future.successful(Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri)))
+                )
             case _            => updatedResult
           }
 
