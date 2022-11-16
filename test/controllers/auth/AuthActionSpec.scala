@@ -69,11 +69,12 @@ class AuthActionSpec extends BaseSpec {
       String
     ] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~ Option[String]
 
-  val nino                   = Fixtures.fakeNino.nino
-  val fakeCredentials        = Credentials("foo", "bar")
-  val fakeCredentialStrength = CredentialStrength.strong
-  val fakeConfidenceLevel    = ConfidenceLevel.L200
-  val enrolmentHelper        = injected[EnrolmentsHelper]
+  val nino                                                       = Fixtures.fakeNino.nino
+  val fakeCredentials                                            = Credentials("foo", "bar")
+  val fakeCredentialStrength                                     = CredentialStrength.strong
+  val fakeConfidenceLevel                                        = ConfidenceLevel.L200
+  val enrolmentHelper                                            = injected[EnrolmentsHelper]
+  def messagesControllerComponents: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   def fakeEnrolments(utr: String) = Set(
     Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
@@ -101,11 +102,9 @@ class AuthActionSpec extends BaseSpec {
     val authAction =
       new AuthActionImpl(
         mockAuthConnector,
-        config,
         sessionAuditor,
-        controllerComponents,
-        enrolmentsHelper
-      )
+        messagesControllerComponents
+      )(implicitly, config)
 
     new Harness(authAction)
   }
@@ -184,11 +183,9 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
-          enrolmentsHelper
-        )
+          messagesControllerComponents
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -203,11 +200,9 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
-          enrolmentsHelper
-        )
+          messagesControllerComponents
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -220,11 +215,9 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
-          enrolmentsHelper
-        )
+          messagesControllerComponents
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val request    =
         FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
@@ -244,11 +237,9 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
-          enrolmentsHelper
-        )
+          messagesControllerComponents
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
 
@@ -277,8 +268,11 @@ class AuthActionSpec extends BaseSpec {
       val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeEnrolments(utr)))
 
       val result = controller.onPageLoad(FakeRequest("", ""))
-      status(result) mustBe OK
-      contentAsString(result) must include(utr)
+
+      whenReady(result.failed) { ex =>
+        ex mustBe an[RuntimeException]
+        ex.getMessage mustBe "No nino found in session for an Individual with confidence level 200 and strong credentials"
+      }
     }
   }
 
