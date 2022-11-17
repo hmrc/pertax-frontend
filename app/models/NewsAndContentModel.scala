@@ -16,4 +16,12 @@
 
 package models
 
-case class NewsAndContentModel(newsSectionName: String, shortDescription: String, content: String, isDynamic: Boolean)
+import java.time.LocalDate
+
+case class NewsAndContentModel(
+  newsSectionName: String,
+  shortDescription: String,
+  content: String,
+  isDynamic: Boolean,
+  startDate: LocalDate
+)

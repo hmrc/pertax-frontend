@@ -23,6 +23,8 @@ import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 
+import java.time.LocalDate
+
 class ViewNewsAndUpdatesViewSpec extends ViewSpec {
 
   lazy val viewNewsAndUpdatesView                    = injected[ViewNewsAndUpdatesView]
@@ -37,7 +39,8 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
       "nicSection",
       "1.25 percentage points uplift in National Insurance contributions (base64 encoded)",
       "<p>base64 encoded content with html</p>",
-      false
+      false,
+      LocalDate.now
     )
 
     val doc =
