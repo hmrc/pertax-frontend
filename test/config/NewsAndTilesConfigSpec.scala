@@ -35,11 +35,11 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "feature.news.childBenefits.start-date"        -> "2022-11-14",
           "feature.news.childBenefits.end-date"          -> "2023-04-30",
           "feature.news.childBenefits.dynamic-content"   -> true,
+          "feature.news.hmrcApp.start-date"              -> "2021-10-31",
+          "feature.news.hmrcApp.dynamic-content"         -> true,
           "feature.news.payeEmployments.start-date"      -> "2022-11-01",
           "feature.news.payeEmployments.end-date"        -> "2023-01-02",
-          "feature.news.payeEmployments.dynamic-content" -> true,
-          "feature.news.hmrcApp.start-date"              -> "2021-10-31",
-          "feature.news.hmrcApp.dynamic-content"         -> true
+          "feature.news.payeEmployments.dynamic-content" -> true
         )
         .build()
 

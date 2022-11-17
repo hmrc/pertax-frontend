@@ -29,7 +29,7 @@ import scala.collection.JavaConverters._
 @Singleton
 class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtilities: LocalDateUtilities) {
 
-  implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
+  implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(-_.toEpochDay)
 
   def getNewsAndContentModelList()(implicit messages: Messages): List[NewsAndContentModel] = {
     val config = configuration.underlying
@@ -72,7 +72,6 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
         .toList
         .flatten
         .sortBy(_.startDate)
-        .reverse
     } else {
       List.empty
     }
