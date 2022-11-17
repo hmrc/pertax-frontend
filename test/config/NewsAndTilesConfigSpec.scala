@@ -72,5 +72,50 @@ class NewsAndTilesConfigSpec extends BaseSpec {
         )
       )
     }
+    "read configuration and create a list without expired entries" in {
+      val app = localGuiceApplicationBuilder()
+        .configure(
+          "feature.news.childBenefits.start-date"        -> LocalDate.now().format(formatter),
+          "feature.news.childBenefits.end-date"          -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.childBenefits.dynamic-content"   -> true,
+          "feature.news.hmrcApp.start-date"              -> LocalDate.now().minusWeeks(2).format(formatter),
+          "feature.news.hmrcApp.dynamic-content"         -> true,
+          "feature.news.payeEmployments.start-date"      -> LocalDate.now().minusWeeks(1).format(formatter),
+          "feature.news.payeEmployments.end-date"        -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.payeEmployments.dynamic-content" -> true
+        )
+        .build()
+
+      val sut = app.injector.instanceOf[NewsAndTilesConfig]
+
+      sut.getNewsAndContentModelList mustBe List(
+        NewsAndContentModel(
+          "hmrcApp",
+          "",
+          "",
+          true,
+          LocalDate.now().minusWeeks(2)
+        )
+      )
+    }
+    "read configuration and create an empty list if all entries have expired" in {
+      val app = localGuiceApplicationBuilder()
+        .configure(
+          "feature.news.childBenefits.start-date"        -> LocalDate.now().format(formatter),
+          "feature.news.childBenefits.end-date"          -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.childBenefits.dynamic-content"   -> true,
+          "feature.news.hmrcApp.start-date"              -> LocalDate.now().minusWeeks(2).format(formatter),
+          "feature.news.hmrcApp.end-date"                -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.hmrcApp.dynamic-content"         -> true,
+          "feature.news.payeEmployments.start-date"      -> LocalDate.now().minusWeeks(1).format(formatter),
+          "feature.news.payeEmployments.end-date"        -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.payeEmployments.dynamic-content" -> true
+        )
+        .build()
+
+      val sut = app.injector.instanceOf[NewsAndTilesConfig]
+
+      sut.getNewsAndContentModelList mustBe List.empty[NewsAndContentModel]
+    }
   }
 }
