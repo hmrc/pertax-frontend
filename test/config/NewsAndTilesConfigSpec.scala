@@ -70,5 +70,4 @@ class NewsAndTilesConfigSpec extends BaseSpec {
       )
     }
   }
-
 }

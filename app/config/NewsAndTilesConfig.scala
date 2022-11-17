@@ -76,6 +76,5 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
     } else {
       List.empty
     }
-
   }
 }
