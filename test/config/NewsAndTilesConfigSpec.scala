@@ -21,24 +21,27 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import testUtils.BaseSpec
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class NewsAndTilesConfigSpec extends BaseSpec {
 
-  lazy val messagesApi = injected[MessagesApi]
+  lazy val messagesApi: MessagesApi = injected[MessagesApi]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+
+  val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
   "getNewsAndContentModelList" must {
     "read configuration and create a list ordered by recency" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.news.childBenefits.start-date"        -> "2022-11-14",
-          "feature.news.childBenefits.end-date"          -> "2023-04-30",
+          "feature.news.childBenefits.start-date"        -> LocalDate.now().format(formatter),
+          "feature.news.childBenefits.end-date"          -> LocalDate.now().plusYears(1).format(formatter),
           "feature.news.childBenefits.dynamic-content"   -> true,
-          "feature.news.hmrcApp.start-date"              -> "2021-10-31",
+          "feature.news.hmrcApp.start-date"              -> LocalDate.now().minusWeeks(2).format(formatter),
           "feature.news.hmrcApp.dynamic-content"         -> true,
-          "feature.news.payeEmployments.start-date"      -> "2022-11-01",
-          "feature.news.payeEmployments.end-date"        -> "2023-01-02",
+          "feature.news.payeEmployments.start-date"      -> LocalDate.now().minusWeeks(1).format(formatter),
+          "feature.news.payeEmployments.end-date"        -> LocalDate.now().plusYears(1).format(formatter),
           "feature.news.payeEmployments.dynamic-content" -> true
         )
         .build()
@@ -51,21 +54,21 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "",
           "",
           true,
-          LocalDate.of(2022, 11, 14)
+          LocalDate.now()
         ),
         NewsAndContentModel(
           "payeEmployments",
           "",
           "",
           true,
-          LocalDate.of(2022, 11, 1)
+          LocalDate.now().minusWeeks(1)
         ),
         NewsAndContentModel(
           "hmrcApp",
           "",
           "",
           true,
-          LocalDate.of(2021, 10, 31)
+          LocalDate.now().minusWeeks(2)
         )
       )
     }
