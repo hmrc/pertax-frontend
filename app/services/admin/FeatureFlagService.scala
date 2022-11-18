@@ -42,6 +42,8 @@ class FeatureFlagService @Inject() (
       _      <- cache.remove(flagName.toString)
       _      <- cache.remove(allFeatureFlagsCacheKey)
       result <- featureFlagRepository.setFeatureFlag(flagName, enabled)
+      //blocking thread to let time to other containers to update their cache
+      _      <- Future.successful(Thread.sleep(configDecorator.ehCacheTtlInSeconds * 1000))
     } yield result
 
   def get(flagName: FeatureFlagName): Future[FeatureFlag] =
@@ -66,8 +68,16 @@ class FeatureFlagService @Inject() (
     }
 
   def setAll(flags: Map[FeatureFlagName, Boolean]): Future[Unit] =
-    Future.sequence(flags.keys.map(flag => cache.remove(flag.toString))).flatMap { _ =>
-      cache.remove(allFeatureFlagsCacheKey)
-      featureFlagRepository.setFeatureFlags(flags)
-    }
+    Future
+      .sequence(flags.keys.map(flag => cache.remove(flag.toString)))
+      .flatMap { _ =>
+        cache.remove(allFeatureFlagsCacheKey)
+        featureFlagRepository.setFeatureFlags(flags)
+      }
+      .map { _ =>
+        //blocking thread to let time to other containers to update their cache
+        Thread.sleep(configDecorator.ehCacheTtlInSeconds * 1000)
+        ()
+      }
+
 }
