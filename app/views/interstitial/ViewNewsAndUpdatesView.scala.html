@@ -49,7 +49,7 @@
             <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
             @for(newsAndContentModel <- newsAndContentModelList) {
                 <li>
-                    <a class="govuk-link govuk-link--no-visited-state" href="./@newsAndContentModel.newsSectionName">@newsAndContentModel.shortDescription</a>
+                    <a class="govuk-link govuk-link--no-visited-state" href="#@newsAndContentModel.newsSectionName">@newsAndContentModel.shortDescription</a>
                 </li>
             }
             </ul>
@@ -57,15 +57,10 @@
     }
 
     @for(newsAndContentModel <- newsAndContentModelList) {
-        <section class="app-markdown">
+        <section class="app-markdown" id="@newsAndContentModel.newsSectionName">
             <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-            @if(selectedNewsSectionId.equals(newsAndContentModel.newsSectionName)) {
-                <div id="@newsAndContentModel.newsSectionName" tabindex="0"></div>
-            }
             <h2 class="govuk-heading-m">@newsAndContentModel.shortDescription</h2>
-            <div>
             @Html(newsAndContentModel.content)
-            </div>
         </section>
     }
 }
