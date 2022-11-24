@@ -16,30 +16,20 @@
 
 package controllers.controllershelpers
 
-import cats.implicits._
-import cats.instances.list._
-import cats.syntax.traverse._
-import cats.syntax.all._
-import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.NationalInsuranceTileToggle
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
-import services.admin.FeatureFlagService
 import util.DateTimeTools.{current, previousAndCurrentTaxYear}
 import util.EnrolmentsHelper
 import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
 
-import scala.concurrent.{ExecutionContext, Future}
-
 @Singleton
 class HomeCardGenerator @Inject() (
-  featureFlagService: FeatureFlagService,
   payAsYouEarnView: PayAsYouEarnView,
   taxCalculationView: TaxCalculationView,
   selfAssessmentView: SelfAssessmentView,
@@ -54,7 +44,7 @@ class HomeCardGenerator @Inject() (
   saAndItsaMergeView: SaAndItsaMergeView,
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig
-)(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
+)(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
     taxComponentsState: TaxComponentsState,
@@ -62,30 +52,24 @@ class HomeCardGenerator @Inject() (
     taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
     saActionNeeded: SelfAssessmentUserType,
     showSeissCard: Boolean
-  )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] =
-    Future
-      .sequence(
-        List(
-          Future.successful(getLatestNewsAndUpdatesCard()),
-          Future.successful(getPayAsYouEarnCard(taxComponentsState)),
-          Future.successful(getTaxCalculationCard(taxCalculationStateCyMinusOne)),
-          Future.successful(getTaxCalculationCard(taxCalculationStateCyMinusTwo)),
-          Future.successful(getSaAndItsaMergeCard()),
-          Future.successful(getSelfAssessmentCard(saActionNeeded)),
-          Future.successful(
-            if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.saItsaTileEnabled)
-              Some(seissView())
-            else None
-          ),
-          getNationalInsuranceCard(),
-          Future.successful(if (request.trustedHelper.isEmpty) {
-            getAnnualTaxSummaryCard
-          } else {
-            None
-          })
-        )
-      )
-      .map(_.flatten)
+  )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
+    List(
+      getLatestNewsAndUpdatesCard(),
+      getPayAsYouEarnCard(taxComponentsState),
+      getTaxCalculationCard(taxCalculationStateCyMinusOne),
+      getTaxCalculationCard(taxCalculationStateCyMinusTwo),
+      getSaAndItsaMergeCard(),
+      getSelfAssessmentCard(saActionNeeded),
+      if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.saItsaTileEnabled)
+        Some(seissView())
+      else None,
+      getNationalInsuranceCard(),
+      if (request.trustedHelper.isEmpty) {
+        getAnnualTaxSummaryCard
+      } else {
+        None
+      }
+    ).flatten
 
   def getPayAsYouEarnCard(
     taxComponentsState: TaxComponentsState
@@ -159,12 +143,11 @@ class HomeCardGenerator @Inject() (
       None
     }
 
-  def getNationalInsuranceCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
-    featureFlagService.get(NationalInsuranceTileToggle).map { toggle =>
-      if (toggle.isEnabled)
-        Some(nationalInsuranceView())
-      else
-        None
+  def getNationalInsuranceCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    if (configDecorator.isNationalInsuranceCardEnabled) {
+      Some(nationalInsuranceView())
+    } else {
+      None
     }
 
   def getBenefitCards(

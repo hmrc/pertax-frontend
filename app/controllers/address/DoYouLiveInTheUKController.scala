@@ -16,7 +16,6 @@
 
 package controllers.address
 
-import cats.data.OptionT
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
