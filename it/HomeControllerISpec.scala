@@ -1,10 +1,12 @@
 import com.github.tomakehurst.wiremock.client.WireMock._
+import models.admin.TaxcalcToggle
 import play.api.Application
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import services.admin.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -67,7 +69,18 @@ class HomeControllerISpec extends IntegrationSpec {
   override def beforeEach() = {
     server.resetAll()
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+    server.stubFor(
+      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        .willReturn(aResponse().withStatus(404))
+    )
+    server.stubFor(
+      get(urlMatching("/keystore/pertax-frontend/.*"))
+        .willReturn(aResponse().withStatus(404))
+    )
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
+
+    lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
+    featureFlagService.set(TaxcalcToggle, false).futureValue
   }
 
   "personal-account" must {
@@ -79,7 +92,7 @@ class HomeControllerISpec extends IntegrationSpec {
           .willReturn(serverError())
       )
       server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
+        put(urlMatching("/keystore/pertax-frontend/.*"))
           .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
       )
       server.stubFor(
@@ -92,12 +105,11 @@ class HomeControllerISpec extends IntegrationSpec {
       contentAsString(result).contains("BREATHING SPACE") mustBe true
       contentAsString(result).contains("/personal-account/breathing-space") mustBe true
       server.verify(1, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
-      server.verify(1, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
+      server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
     }
 
     "hide BreathingSpaceIndicator when receive false response from BreathingSpaceIfProxy" in {
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
-      server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
       server.stubFor(
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
           .willReturn(serverError())
@@ -115,7 +127,7 @@ class HomeControllerISpec extends IntegrationSpec {
       contentAsString(result).contains("BREATHING SPACE") mustBe false
       contentAsString(result).contains("/personal-account/breathing-space") mustBe false
       server.verify(1, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
-      server.verify(1, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
+      server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
     }
 
     List(
@@ -130,7 +142,6 @@ class HomeControllerISpec extends IntegrationSpec {
     ).foreach { httpResponse =>
       s"return a $httpResponse when $httpResponse status is received" in {
         server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
-        server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
         server.stubFor(
           get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
             .willReturn(serverError())
@@ -148,7 +159,7 @@ class HomeControllerISpec extends IntegrationSpec {
         contentAsString(result).contains("BREATHING SPACE") mustBe false
         contentAsString(result).contains("/personal-account/breathing-space") mustBe false
         server.verify(1, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
-        server.verify(1, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
+        server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
       }
     }
 
@@ -181,7 +192,6 @@ class HomeControllerISpec extends IntegrationSpec {
            |""".stripMargin
 
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseNoHmrcPt)))
-      server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
       server.stubFor(
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
           .willReturn(serverError())

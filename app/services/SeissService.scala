@@ -33,7 +33,7 @@ class SeissService @Inject() (seissConnector: SeissConnector, appConfig: ConfigD
     if (appConfig.isSeissTileEnabled) {
       saUserType match {
         case user: SelfAssessmentUser =>
-          seissConnector.getClaims(user.saUtr.utr).bimap(_ => false, claims => claims.nonEmpty).merge
+          seissConnector.getClaims(user.saUtr.utr).fold(_ => false, claims => claims.nonEmpty)
         case _                        => Future.successful(false)
       }
     } else {

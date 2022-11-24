@@ -19,16 +19,18 @@ package controllers.controllershelpers
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import models._
+import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, NationalInsuranceTileToggle}
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.i18n.Langs
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import services.admin.FeatureFlagService
 import testUtils.Fixtures
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.DateTimeTools.{current, previousAndCurrentTaxYear}
@@ -38,6 +40,7 @@ import views.html.ViewSpec
 import views.html.cards.home._
 
 import java.time.LocalDate
+import scala.concurrent.Future
 
 class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
@@ -57,6 +60,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val saAndItsaMergeView       = injected[SaAndItsaMergeView]
   private val enrolmentsHelper         = injected[EnrolmentsHelper]
   private val newsAndTilesConfig       = mock[NewsAndTilesConfig]
+  private val mockFeatureFlagService   = mock[FeatureFlagService]
   private val stubConfigDecorator      = new ConfigDecorator(
     injected[Configuration],
     injected[Langs],
@@ -68,6 +72,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   private val homeCardGenerator =
     new HomeCardGenerator(
+      mockFeatureFlagService,
       payAsYouEarn,
       taxCalculation,
       selfAssessment,
@@ -82,7 +87,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       saAndItsaMergeView,
       enrolmentsHelper,
       newsAndTilesConfig
-    )(stubConfigDecorator)
+    )(stubConfigDecorator, ec)
 
   "Calling getIncomeCards" must {
     "contains a Seiss card" when {
@@ -96,9 +101,12 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         )
 
         when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
+        when(mockFeatureFlagService.get(NationalInsuranceTileToggle))
+          .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
+            mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
             selfAssessment,
@@ -113,16 +121,18 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             saAndItsaMergeView,
             enrolmentsHelper,
             newsAndTilesConfig
-          )(stubConfigDecorator)
+          )(stubConfigDecorator, ec)
 
         lazy val cardBody =
-          sut.getIncomeCards(
-            TaxComponentsDisabledState,
-            None,
-            None,
-            NonFilerSelfAssessmentUser,
-            showSeissCard = true
-          )
+          sut
+            .getIncomeCards(
+              TaxComponentsDisabledState,
+              None,
+              None,
+              NonFilerSelfAssessmentUser,
+              showSeissCard = true
+            )
+            .futureValue
 
         cardBody.map(_.toString()).mkString("") must include("seiss-card")
       }
@@ -147,9 +157,12 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         }
 
         when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
+        when(mockFeatureFlagService.get(NationalInsuranceTileToggle))
+          .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
+            mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
             selfAssessment,
@@ -164,16 +177,18 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             saAndItsaMergeView,
             enrolmentsHelper,
             newsAndTilesConfig
-          )(stubConfigDecorator)
+          )(stubConfigDecorator, ec)
 
         lazy val cardBody =
-          sut.getIncomeCards(
-            TaxComponentsDisabledState,
-            None,
-            None,
-            NonFilerSelfAssessmentUser,
-            showSeissCard = true
-          )
+          sut
+            .getIncomeCards(
+              TaxComponentsDisabledState,
+              None,
+              None,
+              NonFilerSelfAssessmentUser,
+              showSeissCard = true
+            )
+            .futureValue
 
         cardBody.map(_.toString()).mkString("") mustNot include("seiss-card")
       }
@@ -196,9 +211,12 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         }
 
         when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
+        when(mockFeatureFlagService.get(NationalInsuranceTileToggle))
+          .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
+            mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
             selfAssessment,
@@ -213,16 +231,18 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             saAndItsaMergeView,
             enrolmentsHelper,
             newsAndTilesConfig
-          )(stubConfigDecorator)
+          )(stubConfigDecorator, ec)
 
         lazy val cardBody =
-          sut.getIncomeCards(
-            TaxComponentsDisabledState,
-            None,
-            None,
-            NonFilerSelfAssessmentUser,
-            showSeissCard = true
-          )
+          sut
+            .getIncomeCards(
+              TaxComponentsDisabledState,
+              None,
+              None,
+              NonFilerSelfAssessmentUser,
+              showSeissCard = true
+            )
+            .futureValue
 
         cardBody.map(_.toString()).mkString("") mustNot include("seiss-card")
       }
@@ -318,6 +338,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       def sut: HomeCardGenerator =
         new HomeCardGenerator(
+          mockFeatureFlagService,
           payAsYouEarn,
           taxCalculation,
           selfAssessment,
@@ -332,7 +353,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           saAndItsaMergeView,
           enrolmentsHelper,
           newsAndTilesConfig
-        )(stubConfigDecorator)
+        )(stubConfigDecorator, ec)
 
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
 
@@ -410,41 +431,21 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   "Calling getNationalInsuranceCard" must {
     "return NI Card when toggled on" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
 
-      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard()
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
       cardBody mustBe Some(nationalInsurance())
     }
 
-    "return nothing when toggled off" in {
-      val stubConfigDecorator = new ConfigDecorator(
-        injected[Configuration],
-        injected[Langs],
-        injected[ServicesConfig]
-      ) {
-        override lazy val isNationalInsuranceCardEnabled: Boolean = false
-        override lazy val saItsaTileEnabled: Boolean              = false
-      }
+    "return None when toggled off" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, false)))
 
-      def sut: HomeCardGenerator =
-        new HomeCardGenerator(
-          payAsYouEarn,
-          taxCalculation,
-          selfAssessment,
-          nationalInsurance,
-          taxCredits,
-          childBenefit,
-          marriageAllowance,
-          statePension,
-          taxSummaries,
-          seissView,
-          latestNewsAndUpdatesView,
-          saAndItsaMergeView,
-          enrolmentsHelper,
-          newsAndTilesConfig
-        )(stubConfigDecorator)
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
-      sut.getNationalInsuranceCard() mustBe None
+      cardBody mustBe None
     }
   }
 
@@ -585,6 +586,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
+            mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
             selfAssessment,
@@ -599,7 +601,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             saAndItsaMergeView,
             enrolmentsHelper,
             newsAndTilesConfig
-          )(stubConfigDecorator)
+          )(stubConfigDecorator, ec)
 
         lazy val cardBody = sut.getAnnualTaxSummaryCard
 
@@ -633,6 +635,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
+            mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
             selfAssessment,
@@ -647,7 +650,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             saAndItsaMergeView,
             enrolmentsHelper,
             newsAndTilesConfig
-          )(stubConfigDecorator)
+          )(stubConfigDecorator, ec)
 
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
@@ -666,6 +669,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
+            mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
             selfAssessment,
@@ -680,7 +684,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             saAndItsaMergeView,
             enrolmentsHelper,
             newsAndTilesConfig
-          )(stubConfigDecorator)
+          )(stubConfigDecorator, ec)
 
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
@@ -705,6 +709,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
+            mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
             selfAssessment,
@@ -719,7 +724,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             saAndItsaMergeView,
             enrolmentsHelper,
             newsAndTilesConfig
-          )(stubConfigDecorator)
+          )(stubConfigDecorator, ec)
 
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
@@ -744,6 +749,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
+            mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
             selfAssessment,
@@ -758,7 +764,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             saAndItsaMergeView,
             enrolmentsHelper,
             newsAndTilesConfig
-          )(stubConfigDecorator)
+          )(stubConfigDecorator, ec)
 
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
@@ -806,6 +812,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       def sut: HomeCardGenerator =
         new HomeCardGenerator(
+          mockFeatureFlagService,
           payAsYouEarn,
           taxCalculation,
           selfAssessment,
@@ -820,7 +827,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           saAndItsaMergeView,
           enrolmentsHelper,
           newsAndTilesConfig
-        )(stubConfigDecorator)
+        )(stubConfigDecorator, ec)
 
       sut.getLatestNewsAndUpdatesCard mustBe None
     }
