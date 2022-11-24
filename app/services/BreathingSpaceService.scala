@@ -41,11 +41,10 @@ class BreathingSpaceService @Inject() (
         case Some(nino) =>
           breathingSpaceConnector
             .getBreathingSpaceIndicator(nino)
-            .bimap(
+            .fold(
               errorResponse => breathingSpaceIndicatorResponseForErrorResponse(errorResponse),
               breathingSpaceIndicator => BreathingSpaceIndicatorResponse.fromBoolean(breathingSpaceIndicator)
             )
-            .merge
             .recover { case _ => BreathingSpaceIndicatorResponse.StatusUnknown }
         case _          => Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)
       }
