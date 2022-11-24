@@ -142,10 +142,7 @@ class InterstitialController @Inject() (
             if (configDecorator.partialUpgradeEnabled)
               FormPartialUpgrade.upgrade(formPartial successfulContentOrEmpty)
             else formPartial successfulContentOrElse Html(""),
-          saPartial =
-            if (configDecorator.partialUpgradeEnabled)
-              FormPartialUpgrade.upgrade(saPartial successfulContentOrEmpty)
-            else saPartial successfulContentOrElse Html("")
+          saPartial = saPartial successfulContentOrElse Html("")
         )
       )
     } else errorRenderer.futureError(UNAUTHORIZED)

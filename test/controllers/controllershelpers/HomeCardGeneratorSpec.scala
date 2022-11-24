@@ -782,7 +782,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List[NewsAndContentModel](
-          NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false)
+          NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false, LocalDate.now)
         )
       )
 
