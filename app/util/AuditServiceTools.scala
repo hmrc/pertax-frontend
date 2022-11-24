@@ -26,33 +26,6 @@ object AuditServiceTools {
 
   val auditSource = "pertax-frontend"
 
-  def buildAdminEvent(auditType: String, transactionName: String, detail: Map[String, Option[String]])(implicit
-    hc: HeaderCarrier,
-    request: AuthenticatedRequest[_, Retrieval.Username]
-  ): DataEvent = {
-    val customTags = Map(
-      "clientIP"        -> hc.trueClientIp,
-      "clientPort"      -> hc.trueClientPort,
-      "path"            -> Some(request.path),
-      "transactionName" -> Some(transactionName)
-    )
-
-    val userName: String = request.retrieval.value
-
-    val standardAuditData: Map[String, String] = Map("User name" -> userName)
-
-    val customAuditData = detail.map(x => x._2.map((x._1, _))).flatten.filter(_._2 != "").toMap
-
-    DataEvent(
-      auditSource = auditSource,
-      auditType = auditType,
-      tags = hc
-        .headers(HeaderNames.explicitlyIncludedHeaders)
-        .toMap ++ customTags.map(x => x._2.map((x._1, _))).flatten.toMap,
-      detail = standardAuditData ++ customAuditData
-    )
-  }
-
   def buildEvent(auditType: String, transactionName: String, detail: Map[String, Option[String]])(implicit
     hc: HeaderCarrier,
     request: UserRequest[_]

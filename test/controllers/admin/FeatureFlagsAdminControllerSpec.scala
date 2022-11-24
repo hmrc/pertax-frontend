@@ -54,19 +54,17 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
 
   lazy val mockStubBehaviour      = mock[StubBehaviour]
   lazy val mockFeatureFlagService = mock[FeatureFlagService]
-  lazy val mockAuditConnector     = mock[AuditConnector]
   lazy val fakeInternalAuthAction =
     new InternalAuthAction(
       new ConfigDecorator(injected[Configuration], injected[Langs], injected[ServicesConfig]),
       BackendAuthComponentsStub(mockStubBehaviour)
     )
 
-  val sut = new FeatureFlagsAdminController(fakeInternalAuthAction, mockFeatureFlagService, cc, mockAuditConnector)(ec)
+  val sut = new FeatureFlagsAdminController(fakeInternalAuthAction, mockFeatureFlagService, cc)(ec)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockStubBehaviour, mockFeatureFlagService, mockAuditConnector)
-    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+    reset(mockStubBehaviour, mockFeatureFlagService)
     when(mockStubBehaviour.stubAuth(Some(expectedPermission), Retrieval.username))
       .thenReturn(Future.successful(Retrieval.Username("Test")))
   }

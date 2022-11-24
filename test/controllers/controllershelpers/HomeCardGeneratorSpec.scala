@@ -39,6 +39,7 @@ import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.home._
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
