@@ -18,7 +18,7 @@ package controllers.controllershelpers
 
 import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
-import controllers.bindable.AddrType
+import controllers.bindable.{AddrType, ResidentialAddrType}
 import models._
 import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
