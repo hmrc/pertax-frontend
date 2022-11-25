@@ -19,7 +19,6 @@ package util
 import controllers.auth.requests.UserRequest
 import models.{PersonDetails, SelfAssessmentUser}
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames}
-import uk.gov.hmrc.internalauth.client.{AuthenticatedRequest, Retrieval}
 import uk.gov.hmrc.play.audit.model.DataEvent
 
 object AuditServiceTools {

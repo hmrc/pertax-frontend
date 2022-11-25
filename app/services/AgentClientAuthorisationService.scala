@@ -39,13 +39,14 @@ class AgentClientAuthorisationService @Inject() (
   def getAgentClientStatus(implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_]): Future[Boolean] =
     if (agentClientAuthorisationEnabled) {
       agentClientAuthorisationConnector.getAgentClientStatus
-        .fold(
+        .bimap(
           _ => false,
           {
             case AgentClientStatus(false, false, false) => false
             case _                                      => true
           }
         )
+        .merge
         .recover {
           case FutureEarlyTimeout   =>
             logger.error(FutureEarlyTimeout.getMessage)

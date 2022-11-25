@@ -22,13 +22,11 @@ import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.TaxCreditsChoiceId
-import models.admin.AddressTaxCreditsBrokerCallToggle
-import models.dto.TaxCreditsChoiceDto
+import models.dto.{AddressFinderDto, TaxCreditsChoiceDto}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
-import services.admin.FeatureFlagService
-import services.{LocalSessionCache, TaxCreditsService}
+import services.TaxCreditsService
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
@@ -42,72 +40,62 @@ class TaxCreditsChoiceController @Inject() (
   editAddressLockRepository: EditAddressLockRepository,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   taxCreditsService: TaxCreditsService,
-  featureFlagService: FeatureFlagService,
   internalServerErrorView: InternalServerErrorView,
-  taxCreditsChoiceView: TaxCreditsChoiceView,
-  val sessionCache: LocalSessionCache
+  taxCreditsChoiceView: TaxCreditsChoiceView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(authJourney, cc, displayAddressInterstitialView)
     with Logging {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { nino => _ =>
-      featureFlagService
-        .get(AddressTaxCreditsBrokerCallToggle)
-        .flatMap { toggle =>
-          if (toggle.isEnabled) {
-            taxCreditsService.checkForTaxCredits(Some(nino)).map {
-              case Some(true)  =>
-                cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
-                Redirect(configDecorator.tcsChangeAddressUrl)
-              case Some(false) =>
-                cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
-                Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
-              case None        =>
-                InternalServerError(internalServerErrorView())
-            }
-          } else {
-            Future.successful(
-              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
-            )
-          }
+      val result = if (configDecorator.addressChangeTaxCreditsQuestionEnabled) {
+        Future.successful(
+          Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+        )
+      } else {
+        taxCreditsService.checkForTaxCredits(Some(nino)).map {
+          case Some(true)  =>
+            cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
+            Redirect(configDecorator.tcsChangeAddressUrl)
+          case Some(false) =>
+            cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
+            Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+          case None        =>
+            InternalServerError(internalServerErrorView())
         }
-        .flatMap(cachingHelper.enforceDisplayAddressPageVisited)
+      }
+      result.flatMap(cachingHelper.enforceDisplayAddressPageVisited(_))
     }
   }
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      featureFlagService.get(AddressTaxCreditsBrokerCallToggle).flatMap { featureFlag =>
-        if (featureFlag.isEnabled) {
-          Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
-        } else {
-          addressJourneyEnforcer { _ => _ =>
-            TaxCreditsChoiceDto.form.bindFromRequest.fold(
-              formWithErrors =>
-                Future
-                  .successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
-              taxCreditsChoiceDto =>
-                cachingHelper.addToCache(TaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
-                  if (taxCreditsChoiceDto.hasTaxCredits) {
-                    editAddressLockRepository
-                      .insert(
-                        request.nino.get.withoutSuffix,
-                        AddrType.apply("residential").get
-                      )
-                      .map {
-                        case true => logger.warn("Address locked for tcs users")
-                        case _    =>
-                          logger.error(s"Could not insert address lock for user $request.nino.get.withoutSuffix")
-                      }
-                    Redirect(configDecorator.tcsChangeAddressUrl)
-                  } else {
-                    Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
-                  }
+      if (configDecorator.addressChangeTaxCreditsQuestionEnabled) {
+        addressJourneyEnforcer { _ => _ =>
+          TaxCreditsChoiceDto.form.bindFromRequest.fold(
+            formWithErrors =>
+              Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
+            taxCreditsChoiceDto =>
+              cachingHelper.addToCache(TaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
+                if (taxCreditsChoiceDto.hasTaxCredits) {
+                  editAddressLockRepository
+                    .insert(
+                      request.nino.get.withoutSuffix,
+                      AddrType.apply("residential").get
+                    )
+                    .map {
+                      case true => logger.warn("Address locked for tcs users")
+                      case _    => logger.error(s"Could not insert address lock for user $request.nino.get.withoutSuffix")
+                    }
+                  Redirect(configDecorator.tcsChangeAddressUrl)
+                } else {
+                  Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
                 }
-            )
-          }
+              }
+          )
         }
+      } else {
+        Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
       }
     }
 }
