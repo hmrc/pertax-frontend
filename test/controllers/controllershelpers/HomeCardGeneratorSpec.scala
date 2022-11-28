@@ -36,6 +36,8 @@ import util.EnrolmentsHelper
 import views.html.ViewSpec
 import views.html.cards.home._
 
+import java.time.LocalDate
+
 class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator: ConfigDecorator = config
@@ -774,7 +776,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List[NewsAndContentModel](
-          NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false)
+          NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false, LocalDate.now)
         )
       )
 

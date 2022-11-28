@@ -644,7 +644,7 @@ global.error.InternalServerError500.pta.message.by.phone.post = ar-lein, dros y 
 #*************************************************************
 # Benefit survey text
 #*************************************************************
-label.child_benefit_survey_text = Helpwch i wella’r gwasanaeth Budd-dal Plant drwy gymryd rhan mewn arolwg (yn agor tab newydd). Dylai gymryd tua 5 munud, a gallech ennill taleb werth £25. Rydym yn cynnig 2 daleb bob mis yn ystod cyfnod yr arolwg.
+label.child_benefit_survey_text = Helpwch i wella’r gwasanaeth Budd-dal Plant drwy gymryd rhan mewn arolwg (yn agor tab newydd). Dylai gymryd tua 5 munud.
 
 #*************************************************************
 # RLS Interrupt Journey

@@ -294,35 +294,6 @@ class InterstitialControllerSpec extends BaseSpec {
   }
 
   "Calling displayNewsAndUpdates" must {
-
-    "call displayNewsAndUpdates and return 200 when called by authorised user using verify" in new LocalSetup {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "GovernmentGateway"),
-              request = request
-            )
-          )
-      })
-
-      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
-
-      lazy val simulateFormPartialServiceFailure            = false
-      lazy val simulateSaPartialServiceFailure              = false
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
-
-      val testController: InterstitialController = controller
-
-      val result: Future[Result] = testController.displayNewsAndUpdates("nicSection")(fakeRequest)
-
-      status(result) mustBe OK
-
-      contentAsString(result) must include("News and Updates")
-    }
-
     "call displayNewsAndUpdates and return 200 when called by authorised user using GG" in new LocalSetup {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {

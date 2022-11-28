@@ -75,12 +75,13 @@ class AuthActionSpec extends BaseSpec {
       String
     ] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~ Option[String]
 
-  val nino                   = Fixtures.fakeNino.nino
-  val fakeCredentials        = Credentials("foo", "bar")
-  val fakeCredentialStrength = CredentialStrength.strong
-  val fakeConfidenceLevel    = ConfidenceLevel.L200
-  val enrolmentHelper        = injected[EnrolmentsHelper]
-  val fakeBusinessHours      = new FakeBusinessHours(injected[BusinessHoursConfig])
+  val nino                                                       = Fixtures.fakeNino.nino
+  val fakeCredentials                                            = Credentials("foo", "bar")
+  val fakeCredentialStrength                                     = CredentialStrength.strong
+  val fakeConfidenceLevel                                        = ConfidenceLevel.L200
+  val enrolmentHelper                                            = injected[EnrolmentsHelper]
+  val fakeBusinessHours                                          = new FakeBusinessHours(injected[BusinessHoursConfig])
+  def messagesControllerComponents: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   def fakeEnrolments(utr: String) = Set(
     Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
@@ -108,12 +109,11 @@ class AuthActionSpec extends BaseSpec {
     val authAction =
       new AuthActionImpl(
         mockAuthConnector,
-        config,
         sessionAuditor,
-        controllerComponents,
+        messagesControllerComponents,
         enrolmentsHelper,
         fakeBusinessHours
-      )
+      )(implicitly, config)
 
     new Harness(authAction)
   }
@@ -192,12 +192,11 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
+          messagesControllerComponents,
           enrolmentsHelper,
           fakeBusinessHours
-        )
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -212,12 +211,11 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
+          messagesControllerComponents,
           enrolmentsHelper,
           fakeBusinessHours
-        )
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -230,12 +228,11 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
+          messagesControllerComponents,
           enrolmentsHelper,
           fakeBusinessHours
-        )
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val request    =
         FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
@@ -255,12 +252,11 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
+          messagesControllerComponents,
           enrolmentsHelper,
           fakeBusinessHours
-        )
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
 
@@ -352,12 +348,11 @@ class AuthActionSpec extends BaseSpec {
     val authAction =
       new AuthActionImpl(
         mockAuthConnector,
-        config,
         sessionAuditor,
-        controllerComponents,
+        messagesControllerComponents,
         enrolmentsHelper,
         fakeBusinessHours
-      )
+      )(implicitly, config)
 
     val controller = new Harness(authAction)
 
