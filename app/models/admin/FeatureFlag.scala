@@ -81,7 +81,7 @@ case object TaxcalcToggle extends FeatureFlagName {
 
 case object NationalInsuranceTileToggle extends FeatureFlagName {
   override def toString: String            = "national-insurance-tile"
-  override val description: Option[String] = Some("Enable/disable the tile for check your state pension")
+  override val description: Option[String] = Some("Enable/disable the tile for check your National Insurance")
 }
 
 object FeatureFlagMongoFormats {
