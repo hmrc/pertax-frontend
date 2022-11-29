@@ -49,7 +49,7 @@ lazy val microservice = Project(appName, file("."))
     PlayKeys.playDefaultPort := 9232,
     scalafmtOnCompile := true,
     majorVersion := 1,
-    scalacOptions ++= Seq("-P:silencer:pathFilters=views;routes", "-Ypartial-unification"),
+    scalacOptions += "-P:silencer:pathFilters=views;routes",
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
       "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
@@ -57,13 +57,11 @@ lazy val microservice = Project(appName, file("."))
     routesImport ++= Seq(
       "uk.gov.hmrc.play.bootstrap.binders._",
       "controllers.bindable._",
-      "uk.gov.hmrc.play.binders._",
       "models.admin._"
     ),
     TwirlKeys.templateImports ++= Seq(
       "models._",
       "models.dto._",
-      "uk.gov.hmrc.play.binders._",
       "uk.gov.hmrc.play.bootstrap.binders._",
       "controllers.bindable._",
       "uk.gov.hmrc.domain._",

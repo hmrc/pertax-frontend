@@ -22,7 +22,7 @@ import controllers.auth._
 import play.api.Logger
 import play.api.mvc._
 import services._
-import uk.gov.hmrc.play.binders.Origin
+import controllers.bindable.Origin
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl, SafeRedirectUrl}
 import uk.gov.hmrc.time.CurrentTaxYear
