@@ -526,6 +526,38 @@ label.your_paperless_settings=eich gosodiadau di-bapur
 label.paperless_settings=Gosodiadau di-bapur
 label.manage_your_paperless_settings=Rheoli’ch gosodiadau di-bapur
 
+label.paperless_new_response=Drwy’r post
+label.paperless_new_link=Newid
+label.paperless_new_hidden=sut rydym yn cysylltu â chi
+
+label.paperless_bounced_response=Drwy’r post, gwiriwch fod gennym eich e-bost cywir
+label.paperless_bounced_link=Gwirio’r e-bost
+label.paperless_bounced_hidden=cyfeiriad yn gywir
+
+label.paperless_unverified_response=Drwy’r post, cadarnhewch eich cyfeiriad e-bost
+label.paperless_unverified_link=Cadarnhau’r e-bost
+label.paperless_unverified_hidden=cyfeiriad
+
+label.paperless_reopt_response=Ar-lein, cytunwch â’n telerau diweddaraf
+label.paperless_reopt_link=Bwrw golwg dros y telerau diweddaraf
+
+label.paperless_reopt_modified_response=Ar-lein, cytunwch â’n telerau diweddaraf
+label.paperless_reopt_modified_link=Bwrw golwg dros y telerau diweddaraf
+
+label.paperless_opt_out_response=Drwy’r post
+label.paperless_opt_out_link=Newid
+label.paperless_opt_out_hidden=sut rydym yn cysylltu â chi
+
+
+label.paperless_opt_in_response=Ar-lein, byddwn yn eich e-bostio
+label.paperless_opt_in_link=Newid
+label.paperless_opt_in_hidden=sut rydym yn cysylltu â chi
+
+
+label.paperless_no_email_response=Drwy’r post, nid oes gennym eich cyfeiriad e-bost
+label.paperless_no_email_link=Rhowch wybod i ni beth yw’ch e-bost
+label.paperless_no_email_hidden=cyfeiriad
+
 #
 # Tax Summaries tile
 #
