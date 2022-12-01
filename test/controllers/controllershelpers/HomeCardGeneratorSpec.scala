@@ -29,13 +29,12 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import services.admin.FeatureFlagService
 import testUtils.Fixtures
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
+import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.DateTimeTools.{current, previousAndCurrentTaxYear}
 import util.EnrolmentsHelper
-import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.home._
 

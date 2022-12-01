@@ -21,7 +21,6 @@ import config.ConfigDecorator
 import controllers.auth._
 import play.api.Logger
 import play.api.mvc._
-import services.IdentityVerificationSuccessResponse._
 import services._
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
@@ -64,49 +63,47 @@ class ApplicationController @Inject() (
 
       journeyId match {
         case Some(jid) =>
-          identityVerificationFrontendService.getIVJourneyStatus(jid).map {
+          identityVerificationFrontendService
+            .getIVJourneyStatus(jid)
+            .map {
+              case Success =>
+                Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
 
-            case IdentityVerificationSuccessResponse(Success) =>
-              Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
+              case InsufficientEvidence =>
+                Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
 
-            case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
-              Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
+              case UserAborted =>
+                logErrorMessage(UserAborted.toString)
+                Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(UserAborted) =>
-              logErrorMessage(UserAborted)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
+              case FailedMatching =>
+                logErrorMessage(FailedMatching.toString)
+                Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(FailedMatching) =>
-              logErrorMessage(FailedMatching)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
+              case Incomplete =>
+                logErrorMessage(Incomplete.toString)
+                Unauthorized(failedIvIncompleteView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(Incomplete) =>
-              logErrorMessage(Incomplete)
-              Unauthorized(failedIvIncompleteView(retryUrl))
+              case PrecondFailed =>
+                logErrorMessage(PrecondFailed.toString)
+                Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(PrecondFailed) =>
-              logErrorMessage(PrecondFailed)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
+              case LockedOut =>
+                logErrorMessage(LockedOut.toString)
+                Unauthorized(lockedOutView(allowContinue = false))
 
-            case IdentityVerificationSuccessResponse(LockedOut) =>
-              logErrorMessage(LockedOut)
-              Unauthorized(lockedOutView(allowContinue = false))
+              case Timeout =>
+                logErrorMessage(Timeout.toString)
+                Unauthorized(timeOutView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(Timeout) =>
-              logErrorMessage(Timeout)
-              Unauthorized(timeOutView(retryUrl))
+              case TechnicalIssue =>
+                logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
+                InternalServerError(technicalIssuesView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(TechnicalIssue) =>
-              logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
-              InternalServerError(technicalIssuesView(retryUrl))
-
-            case r =>
-              logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
-              InternalServerError(technicalIssuesView(retryUrl))
-          }
-        case None      =>
-          logger.error(s"No journeyId present when displaying IV uplift journey outcome")
-          Future.successful(BadRequest(technicalIssuesView(retryUrl)))
+              case _ =>
+                InternalServerError(technicalIssuesView(retryUrl))
+            }
+            .getOrElse(BadRequest(technicalIssuesView(retryUrl)))
       }
     }
 

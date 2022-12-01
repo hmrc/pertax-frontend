@@ -17,45 +17,47 @@
 package connectors
 
 import cats.data.EitherT
-import com.google.inject.Inject
+import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
-import config.ConfigDecorator
-import metrics.HasMetrics
-import play.api.http.Status._
+import metrics._
+import play.api.Logging
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EnrolmentsConnector @Inject() (
-  http: HttpClient,
-  configDecorator: ConfigDecorator,
+@Singleton
+class TaiConnector @Inject() (
+  val httpClient: HttpClient,
   val metrics: Metrics,
+  servicesConfig: ServicesConfig,
   httpClientResponse: HttpClientResponse
-) extends HasMetrics {
+) extends HasMetrics
+    with Logging {
 
-  val baseUrl = configDecorator.enrolmentStoreProxyUrl
+  lazy val taiUrl = servicesConfig.baseUrl("tai")
 
-  def getUserIdsWithEnrolments(
-    saUtr: String
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Seq[String]] = {
-    val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$saUtr/users"
-
-    withMetricsTimer("get-user-ids-with-enrolments") { timer =>
+  def taxComponents(nino: Nino, year: Int)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    withMetricsTimer("get-tax-components") { t =>
       httpClientResponse
         .read(
-          http.GET[Either[UpstreamErrorResponse, HttpResponse]](url)
+          httpClient
+            .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taiUrl/tai/$nino/tax-account/$year/tax-components")
         )
-        .map { response =>
-          response.status match {
-            case OK =>
-              timer.completeTimerAndIncrementSuccessCounter()
-              (response.json \ "principalUserIds").as[Seq[String]]
-            case _  =>
-              timer.completeTimerAndIncrementSuccessCounter()
-              Seq.empty
+        .bimap(
+          error => {
+            t.completeTimerAndIncrementFailedCounter()
+            error
+          },
+          response => {
+            t.completeTimerAndIncrementSuccessCounter()
+            response
           }
-        }
+        )
     }
-  }
 }

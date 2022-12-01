@@ -18,6 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
@@ -38,9 +39,9 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
-  val preferencesFrontendService: PreferencesFrontendService,
-  taiService: TaiService,
-  taxCalculationService: TaxCalculationService,
+  val preferencesFrontendService: PreferencesFrontendConnector,
+  taiConnector: TaiConnector,
+  taxCalculationConnector: TaxCalculationConnector,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   homeCardGenerator: HomeCardGenerator,
@@ -121,23 +122,26 @@ class HomeController @Inject() (
     ) { nino =>
       val taxYr = featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
         if (toggle.isEnabled)
-          taxCalculationService.getTaxYearReconciliations(nino)
+          taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxYearReconciliation]).merge
         else
-          Future.successful(Nil)
+          Future.successful(List.empty[TaxYearReconciliation])
       }
 
       val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
       val taxCalculationStateCyMinusTwo = taxYr.map(_.find(_.taxYear == year - 2))
 
       val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
-        taiService.taxComponents(nino, year) map {
-          case TaxComponentsSuccessResponse(ts) =>
-            TaxComponentsAvailableState(ts)
-          case TaxComponentsUnavailableResponse =>
-            TaxComponentsNotAvailableState
-          case _                                =>
-            TaxComponentsUnreachableState
-        }
+        taiConnector
+          .taxComponents(nino, year)
+          .fold(
+            error =>
+              if (error.statusCode == BAD_REQUEST || error.statusCode == NOT_FOUND) {
+                TaxComponentsNotAvailableState
+              } else {
+                TaxComponentsUnreachableState
+              },
+            result => TaxComponentsAvailableState(TaxComponents.fromJsonTaxComponents(result.json))
+          )
       } else {
         Future.successful(TaxComponentsDisabledState)
       }

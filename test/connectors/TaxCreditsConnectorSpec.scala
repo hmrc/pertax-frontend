@@ -17,8 +17,8 @@
 package connectors
 
 import play.api.Application
-import testUtils.{FileHelper, WireMockHelper}
 import testUtils.Fixtures.fakeNino
+import testUtils.{FileHelper, WireMockHelper}
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {

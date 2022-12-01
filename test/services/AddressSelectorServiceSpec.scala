@@ -16,9 +16,8 @@
 
 package services
 
-import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
-import testUtils.BaseSpec
 import testUtils.Addresses._
+import testUtils.BaseSpec
 
 class AddressSelectorServiceSpec extends BaseSpec {
 

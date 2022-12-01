@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package services
+package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.http.Fault
-import models.addresslookup.RecordSet
+import models.addresslookup.{AddressRecord, RecordSet}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
-import play.api.http.Status.NOT_FOUND
+import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, Json}
 import testUtils.Fixtures.{oneAndTwoOtherPlacePafRecordSet, twoOtherPlaceRecordSet}
 import testUtils.{BaseSpec, WireMockHelper}
-import testUtils.BaseSpec
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.io.Source
 
-class AddressLookupServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
+class AddressLookupConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
@@ -39,7 +38,7 @@ class AddressLookupServiceSpec extends BaseSpec with WireMockHelper with Integra
     )
     .build()
 
-  def addressLookupService: AddressLookupService = injected[AddressLookupService]
+  def addressLookupConnector: AddressLookupConnector = injected[AddressLookupConnector]
 
   val urlPost = "/lookup"
 
@@ -73,8 +72,13 @@ class AddressLookupServiceSpec extends BaseSpec with WireMockHelper with Integra
             .willReturn(ok(addressRecordSet))
         )
 
-        addressLookupService.lookup("ZZ11ZZ", None).futureValue mustBe
-          AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+        val result = addressLookupConnector
+          .lookup("ZZ11ZZ", None)
+          .value
+          .futureValue
+          .getOrElse(Json.toJson(emptyRecordSet).as[List[AddressRecord]])
+
+        result mustBe oneAndTwoOtherPlacePafRecordSet
 
         server.verify(
           postRequestedFor(urlEqualTo(urlPost))
@@ -90,9 +94,13 @@ class AddressLookupServiceSpec extends BaseSpec with WireMockHelper with Integra
             .willReturn(ok(addressRecordSet))
         )
 
-        addressLookupService.lookup("ZZ11ZZ", Some("2")).futureValue mustBe
-          AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+        val result = addressLookupConnector
+          .lookup("ZZ11ZZ", Some("2"))
+          .value
+          .futureValue
+          .getOrElse(RecordSet(Json.toJson(emptyRecordSet).as[List[AddressRecord]]))
 
+        result mustBe oneAndTwoOtherPlacePafRecordSet
       }
     }
 
@@ -104,9 +112,13 @@ class AddressLookupServiceSpec extends BaseSpec with WireMockHelper with Integra
           .willReturn(ok(missingAddressLineRecordSet))
       )
 
-      val result = addressLookupService.lookup("ZZ11ZZ", Some("2"))
-
-      result.futureValue mustBe AddressLookupSuccessResponse(twoOtherPlaceRecordSet)
+      val result =
+        addressLookupConnector
+          .lookup("ZZ11ZZ", Some("2"))
+          .value
+          .futureValue
+          .getOrElse(oneAndTwoOtherPlacePafRecordSet)
+      result mustBe twoOtherPlaceRecordSet
     }
 
     "return an empty response for the given house name/number and postcode, if matching record doesn't exist" in {
@@ -117,37 +129,33 @@ class AddressLookupServiceSpec extends BaseSpec with WireMockHelper with Integra
           .willReturn(ok(emptyRecordSet))
       )
 
-      val result = addressLookupService.lookup("ZZ11ZZ", Some("2"))
-
-      result.futureValue mustBe AddressLookupSuccessResponse(RecordSet(List()))
+      val result =
+        addressLookupConnector.lookup("ZZ11ZZ", Some("2")).value.futureValue.getOrElse(addressRecordSet)
+      result mustBe RecordSet(Seq.empty[AddressRecord])
     }
 
-    "return AddressLookupUnexpectedResponse response, when called and service returns not found" in {
+    List(
+      TOO_MANY_REQUESTS,
+      INTERNAL_SERVER_ERROR,
+      BAD_GATEWAY,
+      SERVICE_UNAVAILABLE,
+      IM_A_TEAPOT,
+      NOT_FOUND,
+      BAD_REQUEST,
+      UNPROCESSABLE_ENTITY
+    ).foreach { httpResponse =>
+      s"return $httpResponse response when called and service returns not found" in {
 
-      server.stubFor(
-        post(urlEqualTo(urlPost))
-          .withRequestBody(equalToJson(requestBody.toString))
-          .willReturn(aResponse().withStatus(NOT_FOUND))
-      )
+        server.stubFor(
+          post(urlEqualTo(urlPost))
+            .withRequestBody(equalToJson(requestBody.toString))
+            .willReturn(aResponse().withStatus(httpResponse))
+        )
 
-      val result = addressLookupService.lookup("ZZ11ZZ", Some("2"))
+        val result = addressLookupConnector.lookup("ZZ11ZZ", Some("2"))
 
-      result.futureValue.asInstanceOf[AddressLookupUnexpectedResponse].r.status mustBe NOT_FOUND
+        result.value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe httpResponse
+      }
     }
-
-    "return AddressLookupErrorResponse when called and service is down" in {
-
-      server.stubFor(
-        post(urlEqualTo(urlPost))
-          .withRequestBody(equalToJson(requestBody.toString))
-          .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK))
-      )
-
-      val result = addressLookupService.lookup("ZZ11ZZ", Some("2"))
-
-      result.futureValue mustBe a[AddressLookupErrorResponse]
-    }
-
   }
-
 }

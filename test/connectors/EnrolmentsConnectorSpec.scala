@@ -18,9 +18,8 @@ package connectors
 
 import play.api.Application
 import play.api.test.DefaultAwaitTimeout
-import play.api.test.Helpers.await
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.BadRequestException
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout {
 
@@ -36,15 +35,15 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
     val utr = "1234500000"
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
-    "Return the error message for a BAD_REQUEST response" in {
+    "BAD_REQUEST response should return Left BAD_REQUEST status" in {
       stubGet(url, BAD_REQUEST, None)
-      lazy val result = await(connector.getUserIdsWithEnrolments(utr))
-      a[BadRequestException] mustBe thrownBy(result)
+      lazy val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
+      result.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_REQUEST
     }
 
     "NO_CONTENT response should return no enrolments" in {
       stubGet(url, NO_CONTENT, None)
-      val result = connector.getUserIdsWithEnrolments(utr).futureValue
+      val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
 
       result mustBe a[Right[_, _]]
       result.right.get mustBe empty
@@ -60,7 +59,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
         """.stripMargin
 
       stubGet(url, OK, Some(json))
-      val result = connector.getUserIdsWithEnrolments(utr).futureValue
+      val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
 
       result mustBe a[Right[_, _]]
       result.right.get mustBe empty
@@ -85,7 +84,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       val expected = Seq("ABCEDEFGI1234567", "ABCEDEFGI1234568")
 
       stubGet(url, OK, Some(json))
-      val result = connector.getUserIdsWithEnrolments(utr).futureValue
+      val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
 
       result mustBe a[Right[_, _]]
       result.right.get must contain.allElementsOf(expected)

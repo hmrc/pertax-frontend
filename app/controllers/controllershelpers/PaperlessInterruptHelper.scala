@@ -17,27 +17,34 @@
 package controllers.controllershelpers
 
 import config.ConfigDecorator
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models.ActivatePaperlessRequiresUserActionResponse
+import play.api.http.Status.PRECONDITION_FAILED
+import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results._
-import services.PreferencesFrontendService
+import uk.gov.hmrc.http.HttpReads.is2xx
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait PaperlessInterruptHelper {
 
-  def preferencesFrontendService: PreferencesFrontendService
+  def preferencesFrontendService: PreferencesFrontendConnector
 
   def enforcePaperlessPreference(
     block: => Future[Result]
   )(implicit request: UserRequest[_], configDecorator: ConfigDecorator): Future[Result] =
     if (configDecorator.enforcePaperlessPreferenceEnabled) {
-      preferencesFrontendService.getPaperlessPreference().flatMap {
-        case ActivatePaperlessRequiresUserActionResponse(redirectUrl) => Future.successful(Redirect(redirectUrl))
-        case _                                                        => block
-      }
+      preferencesFrontendService
+        .getPaperlessPreference()
+        .foldF(
+          _ => block,
+          response =>
+            if (is2xx(response.status)) block
+            else Future.successful(Redirect((response.json \ "redirectUserTo").as[String]))
+        )
     } else {
       block
     }

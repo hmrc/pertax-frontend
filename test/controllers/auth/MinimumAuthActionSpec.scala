@@ -29,9 +29,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import testUtils.RetrievalOps.Ops
 import testUtils.{BaseSpec, Fixtures}
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments, InsufficientEnrolments, SessionRecordNotFound}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.EnrolmentsHelper

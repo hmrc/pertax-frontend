@@ -16,16 +16,16 @@
 
 package services.partials
 
-import com.codahale.metrics.Timer
 import com.google.inject.{Inject, Singleton}
-import metrics.{Metrics, MetricsEnumeration}
+import connectors.{EnhancedPartialRetriever, MessageFrontendConnector}
+import metrics.Metrics
 import models.MessageCount
 import play.api.Logging
+import play.api.libs.json.Json
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
-import util.EnhancedPartialRetriever
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,7 +35,8 @@ class MessageFrontendService @Inject() (
   metrics: Metrics,
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
   servicesConfig: ServicesConfig,
-  enhancedPartialRetriever: EnhancedPartialRetriever
+  enhancedPartialRetriever: EnhancedPartialRetriever,
+  messageFrontendConnector: MessageFrontendConnector
 )(implicit executionContext: ExecutionContext)
     extends Logging {
 
@@ -52,25 +53,11 @@ class MessageFrontendService @Inject() (
       messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController.messageList
     )
 
-  def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] = {
-    val url = messageFrontendUrl + "/messages/count?read=No"
-
-    val timerContext: Timer.Context =
-      metrics.startTimer(MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT)
-
-    implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
-
-    (for {
-      messageCount <- http.GET[Option[MessageCount]](url)
-    } yield {
-      timerContext.stop()
-      metrics.incrementSuccessCounter(MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT)
-      messageCount.map(_.count)
-    }) recover { case e =>
-      timerContext.stop()
-      metrics.incrementFailedCounter(MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT)
-      logger.warn(s"Failed to load json", e)
+  def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] =
+    messageFrontendConnector.getUnreadMessageCount.fold(
+      _ => None,
+      response => response.json.asOpt[MessageCount].map(_.count)
+    ) recover { case _: Exception =>
       None
     }
-  }
 }

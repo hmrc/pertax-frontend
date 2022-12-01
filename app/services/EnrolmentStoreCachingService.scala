@@ -45,20 +45,14 @@ class EnrolmentStoreCachingService @Inject() (
       case _ =>
         enrolmentsConnector
           .getUserIdsWithEnrolments(saUtr.utr)
-          .flatMap[SelfAssessmentUserType]((response: Either[String, Seq[String]]) =>
-            response.fold(
-              error => {
-                logger.warn(error)
-                addSaUserTypeToCache(NonFilerSelfAssessmentUser)
-              },
-              ids =>
-                if (ids.nonEmpty) {
-                  addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
-                } else {
-                  addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
-                }
-            )
+          .foldF(
+            _ => addSaUserTypeToCache(NonFilerSelfAssessmentUser),
+            response =>
+              if (response.nonEmpty) {
+                addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
+              } else {
+                addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
+              }
           )
     }
-
 }

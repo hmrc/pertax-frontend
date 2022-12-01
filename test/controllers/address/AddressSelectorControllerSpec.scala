@@ -21,8 +21,6 @@ import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import models.dto.{AddressPageVisitedDto, DateDto, Dto}
-
-import java.time.LocalDate
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
@@ -31,10 +29,12 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.AddressSelectorService
-import uk.gov.hmrc.http.cache.client.CacheMap
 import testUtils.Fixtures.{oneAndTwoOtherPlacePafRecordSet, oneOtherPlacePafAddressRecord}
+import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.AddressSelectorView
+
+import java.time.LocalDate
 
 class AddressSelectorControllerSpec extends AddressBaseSpec {
 

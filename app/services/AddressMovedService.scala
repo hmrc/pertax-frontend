@@ -16,14 +16,16 @@
 
 package services
 
+import cats.data.EitherT
 import com.google.inject.Inject
+import connectors.AddressLookupConnector
 import models.addresslookup.Country
 import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressMovedService @Inject() (addressLookupService: AddressLookupService) {
+class AddressMovedService @Inject() (addressLookupService: AddressLookupConnector) {
 
   def moved(fromAddressId: String, toAddressId: String)(implicit
     hc: HeaderCarrier,
@@ -34,21 +36,18 @@ class AddressMovedService @Inject() (addressLookupService: AddressLookupService)
       for {
         fromResponse <- addressLookupService.lookup(fromAddressId)
         toResponse   <- addressLookupService.lookup(toAddressId)
-      } yield (fromResponse, toResponse) match {
-        case (AddressLookupSuccessResponse(fromRecordSet), AddressLookupSuccessResponse(toRecordSet)) =>
-          val fromSubdivision = fromRecordSet.addresses.headOption.flatMap(_.address.subdivision)
-          val toSubdivision   = toRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+      } yield {
+        val fromSubdivision = fromResponse.addresses.headOption.flatMap(_.address.subdivision)
+        val toSubdivision   = toResponse.addresses.headOption.flatMap(_.address.subdivision)
 
-          if (hasMovedFromScotland(fromSubdivision, toSubdivision))
-            MovedFromScotland
-          else if (hasMovedToScotland(fromSubdivision, toSubdivision))
-            MovedToScotland
-          else
-            AnyOtherMove
-        case _                                                                                        =>
+        if (hasMovedFromScotland(fromSubdivision, toSubdivision))
+          MovedFromScotland
+        else if (hasMovedToScotland(fromSubdivision, toSubdivision))
+          MovedToScotland
+        else
           AnyOtherMove
       }
-    }
+    }.getOrElse(AnyOtherMove)
 
   def toMessageKey(addressChanged: AddressChanged): Option[String] =
     addressChanged match {
@@ -66,10 +65,13 @@ class AddressMovedService @Inject() (addressLookupService: AddressLookupService)
     !containsScottishSubdivision(fromSubdivision) && containsScottishSubdivision(toSubdivision)
 
   private def withAddressExists(fromAddressId: String, toAddressId: String)(
-    f: => Future[AddressChanged]
-  ): Future[AddressChanged] =
-    if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty) Future.successful(AnyOtherMove) else f
+    f: => EitherT[Future, UpstreamErrorResponse, AddressChanged]
+  ): EitherT[Future, UpstreamErrorResponse, AddressChanged] =
+    if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty)
+      EitherT[Future, UpstreamErrorResponse, AddressChanged](Future.successful(Right(AnyOtherMove)))
+    else f
 
   private def containsScottishSubdivision(subdivision: Option[Country]): Boolean =
     subdivision.fold(false)(_.code.contains(scottishSubdivision))
+
 }

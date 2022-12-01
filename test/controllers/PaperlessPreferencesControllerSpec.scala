@@ -25,13 +25,11 @@ import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.partials.PreferencesFrontendPartialService
-import testUtils.{ActionBuilderFixture, BaseSpec}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Credentials
 import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{ActionBuilderFixture, BaseSpec}
 import util._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
   import testUtils.BetterOptionValues._
