@@ -18,6 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import config.{ConfigDecorator, NewsAndTilesConfig}
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.controllershelpers.PaperlessInterruptHelper
@@ -27,7 +28,7 @@ import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
-import services.{PreferencesFrontendService, SeissService}
+import services.SeissService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
@@ -41,7 +42,7 @@ import scala.language.postfixOps
 class InterstitialController @Inject() (
   val formPartialService: FormPartialService,
   val saPartialService: SaPartialService,
-  val preferencesFrontendService: PreferencesFrontendService,
+  val preferencesFrontendService: PreferencesFrontendConnector,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,

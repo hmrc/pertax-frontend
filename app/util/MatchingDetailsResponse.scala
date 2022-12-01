@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package metrics
+package util
 
-object MetricsEnumeration extends Enumeration {
+import models.MatchingDetails
+import uk.gov.hmrc.http.HttpResponse
 
-  type MetricsEnumeration = Value
-  val GET_AGENT_CLIENT_STATUS       = Value
-  val GET_SEISS_CLAIMS              = Value
-  val GET_UNREAD_MESSAGE_COUNT      = Value
-  val LOAD_PARTIAL                  = Value
-  val GET_BREATHING_SPACE_INDICATOR = Value
-  val GET_PERSONAL_DETAILS          = Value
-  val UPDATE_ADDRESS                = Value
-  val GET_MATCHING_DETAILS          = Value
-  val GET_ETAG                      = Value
-
-}
+sealed trait MatchingDetailsResponse
+case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails) extends MatchingDetailsResponse
+case object MatchingDetailsNotFoundResponse extends MatchingDetailsResponse
+case class MatchingDetailsUnexpectedResponse(r: HttpResponse) extends MatchingDetailsResponse
+case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetailsResponse

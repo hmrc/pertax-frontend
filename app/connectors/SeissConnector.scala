@@ -53,7 +53,7 @@ class SeissConnector @Inject() (
         timerContext.stop()
         response
       }
-    httpClientResponse.read(response, MetricsEnumeration.GET_SEISS_CLAIMS).map { response =>
+    httpClientResponse.read(response, Some(MetricsEnumeration.GET_SEISS_CLAIMS)).map { response =>
       response.json.as[List[SeissModel]]
     }
   }

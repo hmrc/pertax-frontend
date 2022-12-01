@@ -16,15 +16,19 @@
 
 package services
 
+import cats.data.EitherT
 import connectors.SelfAssessmentConnector
 import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentResponse, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import play.api.http.Status._
+import play.api.libs.json.{Json, OWrites}
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -51,28 +55,45 @@ class SelfAssessmentServiceSpec extends BaseSpec {
     "getSaEnrolmentUrl is called" must {
 
       "return a redirect Url" when {
+        implicit val writes: OWrites[SaEnrolmentResponse] = Json.writes[SaEnrolmentResponse]
 
         "the connector returns a successful response" in {
 
           val redirectUrl = "/foo"
 
-          when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any())) thenReturn Future.successful(
-            Some(SaEnrolmentResponse(redirectUrl))
+          when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any())).thenReturn(
+            EitherT[Future, UpstreamErrorResponse, HttpResponse](
+              Future.successful(Right(HttpResponse(OK, Json.toJson(SaEnrolmentResponse(redirectUrl)).toString)))
+            )
           )
 
-          sut.getSaEnrolmentUrl.futureValue mustBe Some(redirectUrl)
+          sut.getSaEnrolmentUrl.value.futureValue mustBe Right(Some(redirectUrl))
         }
       }
 
-      "return None" when {
+      "return UpstreamErrorResponse" when {
 
-        "the connector returns a failure response" in {
+        List(
+          BAD_REQUEST,
+          NOT_FOUND,
+          REQUEST_TIMEOUT,
+          UNPROCESSABLE_ENTITY,
+          INTERNAL_SERVER_ERROR,
+          BAD_GATEWAY,
+          SERVICE_UNAVAILABLE
+        ).foreach { error =>
+          s"the connector returns a $error response" in {
 
-          when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any())) thenReturn Future.successful(
-            None
-          )
+            when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any())).thenReturn(
+              EitherT[Future, UpstreamErrorResponse, HttpResponse](
+                Future.successful(Left(UpstreamErrorResponse("", error)))
+              )
+            )
 
-          sut.getSaEnrolmentUrl.futureValue mustBe None
+            sut.getSaEnrolmentUrl.value.futureValue.swap
+              .getOrElse(UpstreamErrorResponse("", OK))
+              .statusCode mustBe error
+          }
         }
       }
     }

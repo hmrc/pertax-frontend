@@ -16,35 +16,44 @@
 
 package connectors
 
+import cats.data.EitherT
 import com.google.inject.Inject
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics.HasMetrics
 import models.{CreatePayment, PaymentRequest}
-import play.api.http.Status._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PayApiConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)
-    extends HasMetrics {
+class PayApiConnector @Inject() (
+  http: HttpClient,
+  configDecorator: ConfigDecorator,
+  val metrics: Metrics,
+  httpClientResponse: HttpClientResponse
+) extends HasMetrics {
 
   def createPayment(
     request: PaymentRequest
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[CreatePayment]] = {
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Option[CreatePayment]] = {
     val postUrl = configDecorator.makeAPaymentUrl
 
     withMetricsTimer("create-payment") { timer =>
-      http.POST[PaymentRequest, HttpResponse](postUrl, request) flatMap { response =>
-        response.status match {
-          case CREATED =>
-            timer.completeTimerAndIncrementSuccessCounter()
-            Future.successful(Some(response.json.as[CreatePayment]))
-          case _       =>
+      httpClientResponse
+        .read(
+          http.POST[PaymentRequest, Either[UpstreamErrorResponse, HttpResponse]](postUrl, request)
+        )
+        .bimap(
+          error => {
             timer.completeTimerAndIncrementFailedCounter()
-            Future.successful(None)
-        }
-      }
+            error
+          },
+          response => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            response.json.asOpt[CreatePayment]
+          }
+        )
     }
   }
 }

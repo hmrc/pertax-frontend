@@ -46,7 +46,15 @@ class MetricsImpl @Inject() (metrics: com.kenshoo.play.metrics.Metrics) extends 
     MetricsEnumeration.LOAD_PARTIAL                  -> metrics.defaultRegistry
       .timer("load-partial-timer"),
     MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR -> metrics.defaultRegistry
-      .timer("get-breathing-space-indicator-timer")
+      .timer("get-breathing-space-indicator-timer"),
+    MetricsEnumeration.GET_PERSONAL_DETAILS          -> metrics.defaultRegistry
+      .timer("get-person-details-timer"),
+    MetricsEnumeration.UPDATE_ADDRESS                -> metrics.defaultRegistry
+      .timer("update-address-timer"),
+    MetricsEnumeration.GET_MATCHING_DETAILS          -> metrics.defaultRegistry
+      .timer("get-matching-details-timer"),
+    MetricsEnumeration.GET_ETAG                      -> metrics.defaultRegistry
+      .timer("get-etag-timer")
   )
 
   val successCounters = Map(
@@ -59,7 +67,15 @@ class MetricsImpl @Inject() (metrics: com.kenshoo.play.metrics.Metrics) extends 
     MetricsEnumeration.LOAD_PARTIAL                  -> metrics.defaultRegistry
       .counter("load-partial-success-counter"),
     MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR -> metrics.defaultRegistry
-      .counter("get-breathing-space-indicator-success-counter")
+      .counter("get-breathing-space-indicator-success-counter"),
+    MetricsEnumeration.GET_PERSONAL_DETAILS          -> metrics.defaultRegistry
+      .counter("get-person-details-success-counter"),
+    MetricsEnumeration.UPDATE_ADDRESS                -> metrics.defaultRegistry
+      .counter("update-address-success-counter"),
+    MetricsEnumeration.GET_MATCHING_DETAILS          -> metrics.defaultRegistry
+      .counter("get-matching-details-success-counter"),
+    MetricsEnumeration.GET_ETAG                      -> metrics.defaultRegistry
+      .counter("get-etag-success-counter")
   )
 
   val failedCounters = Map(
@@ -72,7 +88,15 @@ class MetricsImpl @Inject() (metrics: com.kenshoo.play.metrics.Metrics) extends 
     MetricsEnumeration.LOAD_PARTIAL                  -> metrics.defaultRegistry
       .counter("load-partial-failed-counter"),
     MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR -> metrics.defaultRegistry
-      .counter("get-breathing-space-indicator-failed-counter")
+      .counter("get-breathing-space-indicator-failed-counter"),
+    MetricsEnumeration.GET_PERSONAL_DETAILS          -> metrics.defaultRegistry
+      .counter("get-person-details-failed-counter"),
+    MetricsEnumeration.UPDATE_ADDRESS                -> metrics.defaultRegistry
+      .counter("update-address-failed-counter"),
+    MetricsEnumeration.GET_MATCHING_DETAILS          -> metrics.defaultRegistry
+      .counter("get-matching-details-failed-counter"),
+    MetricsEnumeration.GET_ETAG                      -> metrics.defaultRegistry
+      .counter("get-etag-failed-counter")
   )
 
   override def startTimer(api: MetricsEnumeration): Context = timers(api).time()

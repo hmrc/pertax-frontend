@@ -16,7 +16,7 @@
 
 package controllers
 
-import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
+import cats.data.EitherT
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}
 import models._
@@ -28,18 +28,20 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
+import testUtils.Fixtures._
+import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.{RedirectUrl, SafeRedirectUrl}
 import uk.gov.hmrc.time.CurrentTaxYear
-import testUtils.Fixtures._
-import testUtils.UserRequestFixture.buildUserRequest
 import views.html.iv.failure._
 import views.html.iv.success.SuccessView
+
 import java.time.LocalDate
 import scala.concurrent.Future
 
@@ -75,14 +77,15 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   trait LocalSetup {
 
-    lazy val authProviderType: String                                 = UserDetails.GovernmentGatewayAuthProvider
-    lazy val nino: Nino                                               = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetailsResponse             = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
-    lazy val withPaye: Boolean                                        = true
-    lazy val year                                                     = current.currentYear
-    lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
-    lazy val getCitizenDetailsResponse                                = true
-    lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
+    lazy val authProviderType: String                                                                         = UserDetails.GovernmentGatewayAuthProvider
+    lazy val nino: Nino                                                                                       = Fixtures.fakeNino
+    lazy val personDetailsResponse: PersonDetails                                                             = Fixtures.buildPersonDetails
+    lazy val withPaye: Boolean                                                                                = true
+    lazy val year                                                                                             = current.currentYear
+    lazy val getIVJourneyStatusResponse: EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+      EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(Success)))
+    lazy val getCitizenDetailsResponse                                                                        = true
+    lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType                                         = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr(new SaUtrGenerator().nextSaUtr.utr)
     )
 
@@ -99,8 +102,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[TechnicalIssuesView]
       )(config, ec)
 
-    when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
-      Future.successful(getIVJourneyStatusResponse)
+    when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any(), any())) thenReturn {
+      getIVJourneyStatusResponse
     }
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]): Option[Future[Result]] = {
@@ -163,8 +166,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
-
       val result = controller.showUpliftJourneyOutcome(Some(SafeRedirectUrl("/relative/url")))(
         buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
       )
@@ -181,7 +182,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("LockedOut")
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(LockedOut)))
 
       val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(result) mustBe UNAUTHORIZED
@@ -197,7 +200,11 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("InsufficientEvidence")
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](
+          Future.successful(Right(InsufficientEvidence))
+        )
 
       val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(result) mustBe SEE_OTHER
@@ -213,7 +220,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("UserAborted")
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(UserAborted)))
 
       val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(result) mustBe UNAUTHORIZED
@@ -229,7 +238,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("TechnicalIssues")
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(TechnicalIssue)))
 
       val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(result) mustBe INTERNAL_SERVER_ERROR
@@ -245,7 +256,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Timeout")
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(Timeout)))
 
       val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(result) mustBe UNAUTHORIZED
@@ -260,8 +273,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
             buildUserRequest(request = request)
           )
       })
-
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
 
       val result = routeWrapper(
         buildFakeRequestWithAuth(

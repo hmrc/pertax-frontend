@@ -17,25 +17,25 @@
 package services
 
 import com.codahale.metrics.Timer
-import com.github.tomakehurst.wiremock.client.WireMock.get
-import com.github.tomakehurst.wiremock.client.WireMock.{ok, serverError, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, serverError, urlEqualTo}
+import connectors.EnhancedPartialRetriever
+import controllers.auth.requests.UserRequest
+import metrics.MetricsImpl
+import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.FakeRequest
-import util.EnhancedPartialRetriever
-import org.mockito.ArgumentMatchers._
-import controllers.auth.requests.UserRequest
-import metrics.MetricsImpl
-import org.mockito.Mockito.{reset, times, verify, when}
+import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
-import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 import testUtils.Fixtures.buildFakeRequestWithAuth
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, WireMockHelper}
+import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
 import scala.concurrent.Future
 
@@ -134,13 +134,13 @@ class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with Integ
       when(mockMetrics.incrementSuccessCounter(any())).thenAnswer(_ => None)
       when(mockMetrics.incrementFailedCounter(any())).thenAnswer(_ => None)
       server.stubFor(
-        get(urlEqualTo("/messages/count?read=No")).willReturn(ok("""Gibberish"""))
+        get(urlEqualTo("/messages/count?read=No")).willReturn(ok(Json.obj("testInvalid" -> "testInvalid").toString))
       )
 
       messageCount.futureValue mustBe None
       verify(mockMetrics, times(1)).startTimer(any())
-      verify(mockMetrics, times(1)).incrementFailedCounter(any())
-      verify(mockMetrics, times(0)).incrementSuccessCounter(any())
+      verify(mockMetrics, times(0)).incrementFailedCounter(any())
+      verify(mockMetrics, times(1)).incrementSuccessCounter(any())
     }
 
     "return 10 unread messages" in {

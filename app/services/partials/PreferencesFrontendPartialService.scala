@@ -17,10 +17,11 @@
 package services.partials
 
 import com.google.inject.{Inject, Singleton}
+import connectors.EnhancedPartialRetriever
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
-import util.{EnhancedPartialRetriever, Tools}
+import util.Tools
 
 import scala.concurrent.{ExecutionContext, Future}
 

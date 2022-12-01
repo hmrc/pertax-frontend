@@ -16,27 +16,30 @@
 
 package controllers.controllershelpers
 
+import cats.data.EitherT
 import config.ConfigDecorator
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, NonFilerSelfAssessmentUser, UserName}
+import models.{NonFilerSelfAssessmentUser, UserName}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import play.api.libs.json.JsPath.\
+import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import testUtils.BaseSpec
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
 class PaperlessInterruptHelperSpec extends BaseSpec {
 
   val paperlessInterruptHelper = new PaperlessInterruptHelper {
-    override val preferencesFrontendService: PreferencesFrontendService = mock[PreferencesFrontendService]
+    override val preferencesFrontendService: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
   }
 
   val okBlock: Result = Ok("Block")
@@ -62,7 +65,11 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
     "the enforce paperless preference toggle is set to true" must {
       "Redirect to paperless interupt page for a user who has no enrolments" in {
         when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          Future.successful(ActivatePaperlessRequiresUserActionResponse("/activate-paperless"))
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            Future.successful(
+              Right(HttpResponse(PRECONDITION_FAILED, Json.obj("redirectUserTo" -> "/activate-paperless").toString))
+            )
+          )
         }
 
         when(mockConfigDecorator.enforcePaperlessPreferenceEnabled).thenReturn(true)
@@ -72,9 +79,22 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
         redirectLocation(r) mustBe Some("/activate-paperless")
       }
 
-      "Return the result of the block when getPaperlessPreference does not return ActivatePaperlessRequiresUserActionResponse" in {
+      "return the result of a passed in block" in {
         when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          Future.successful(ActivatePaperlessNotAllowedResponse)
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
+        }
+
+        when(mockConfigDecorator.enforcePaperlessPreferenceEnabled).thenReturn(false)
+
+        val result = paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock))
+        result.futureValue mustBe okBlock
+      }
+
+      "Return the result of the block when getPaperlessPreference does not return Right" in {
+        when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
+          )
         }
 
         val result = paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock)).futureValue

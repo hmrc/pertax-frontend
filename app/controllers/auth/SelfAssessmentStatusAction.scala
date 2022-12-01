@@ -17,7 +17,7 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import connectors.{CitizenDetailsConnector, MatchingDetailsSuccessResponse}
+import services.CitizenDetailsService
 import controllers.auth.requests._
 import models._
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
@@ -30,7 +30,7 @@ import util.EnrolmentsHelper
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentStatusAction @Inject() (
-  citizenDetailsConnector: CitizenDetailsConnector,
+  CitizenDetailsService: CitizenDetailsService,
   enrolmentsCachingService: EnrolmentStoreCachingService,
   enrolmentsHelper: EnrolmentsHelper,
   cc: ControllerComponents
@@ -39,10 +39,12 @@ class SelfAssessmentStatusAction @Inject() (
     with ActionFunction[AuthenticatedRequest, UserRequest] {
 
   private def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
-    citizenDetailsConnector.getMatchingDetails(nino) map {
-      case MatchingDetailsSuccessResponse(matchingDetails) => matchingDetails.saUtr
-      case _                                               => None
-    }
+    CitizenDetailsService
+      .getMatchingDetails(nino)
+      .fold(
+        _ => None,
+        matchingDetails => matchingDetails.saUtr
+      )
 
   private def getSelfAssessmentUserType[A](implicit
     hc: HeaderCarrier,

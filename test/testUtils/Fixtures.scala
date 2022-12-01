@@ -35,10 +35,10 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc._
-import play.api.test.{FakeRequest, Helpers}
+import play.api.test.{FakeRequest, Helpers, Injecting}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
-import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
 import uk.gov.hmrc.time.DateTimeUtils._
@@ -280,6 +280,10 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   val fakeNino = Nino(new Generator(new Random()).nextNino.nino)
 
+  val saUtr = new SaUtrGenerator().nextSaUtr
+
+  val etag = "1"
+
   def buildFakeRequestWithSessionId(method: String) =
     FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
 
@@ -321,7 +325,8 @@ trait BaseSpec
     with PatienceConfiguration
     with BeforeAndAfterEach
     with MockitoSugar
-    with ScalaFutures {
+    with ScalaFutures
+    with Injecting {
   this: Suite =>
 
   implicit val hc = HeaderCarrier()

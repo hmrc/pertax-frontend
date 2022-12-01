@@ -27,7 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.time.CurrentTaxYear
 
 import java.time.LocalDate
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class PaymentsController @Inject() (
   val payApiConnector: PayApiConnector,
@@ -50,11 +50,16 @@ class PaymentsController @Inject() (
             case saUser: SelfAssessmentUser =>
               val paymentRequest = PaymentRequest(configDecorator, saUser.saUtr.toString())
               for {
-                response <- payApiConnector.createPayment(paymentRequest)
-              } yield response match {
-                case Some(createPayment) => Redirect(createPayment.nextUrl)
-                case None                => errorRenderer.error(BAD_REQUEST)
-              }
+                response <- payApiConnector
+                              .createPayment(paymentRequest)
+                              .fold(
+                                _ => errorRenderer.error(BAD_REQUEST),
+                                {
+                                  case Some(createPayment) => Redirect(createPayment.nextUrl)
+                                  case None                => errorRenderer.error(BAD_REQUEST)
+                                }
+                              )
+              } yield response
             case NonFilerSelfAssessmentUser =>
               logger.warn("User had no sa account when one was required")
               errorRenderer.futureError(INTERNAL_SERVER_ERROR)

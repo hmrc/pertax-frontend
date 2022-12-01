@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import connectors._
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
@@ -28,9 +29,10 @@ import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import testUtils.{ActionBuilderFixture, BaseSpec}
-import uk.gov.hmrc.time.CurrentTaxYear
 import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{ActionBuilderFixture, BaseSpec}
+import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.time.CurrentTaxYear
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -75,20 +77,38 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
       val createPaymentResponse = CreatePayment("someJourneyId", expectedNextUrl)
 
       when(mockPayConnector.createPayment(any())(any(), any()))
-        .thenReturn(Future.successful(Some(createPaymentResponse)))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[CreatePayment]](
+            Future.successful(Right(Some(createPaymentResponse)))
+          )
+        )
 
       val result = controller.makePayment()(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("someNextUrl")
     }
 
-    "redirect to a BAD_REQUEST page if createPayment failed" in {
+    List(
+      BAD_REQUEST,
+      NOT_FOUND,
+      REQUEST_TIMEOUT,
+      UNPROCESSABLE_ENTITY,
+      INTERNAL_SERVER_ERROR,
+      BAD_GATEWAY,
+      SERVICE_UNAVAILABLE
+    ).foreach { error =>
+      s"redirect to a BAD_REQUEST page if createPayment fails with an $error status" in {
 
-      when(mockPayConnector.createPayment(any())(any(), any()))
-        .thenReturn(Future.successful(None))
+        when(mockPayConnector.createPayment(any())(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, Option[CreatePayment]](
+              Future.successful(Left(UpstreamErrorResponse("", error)))
+            )
+          )
 
-      val result = controller.makePayment()(FakeRequest())
-      status(result) mustBe BAD_REQUEST
+        val result = controller.makePayment()(FakeRequest())
+        status(result) mustBe BAD_REQUEST
+      }
     }
   }
 }

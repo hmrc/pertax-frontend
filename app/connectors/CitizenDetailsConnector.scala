@@ -16,165 +16,116 @@
 
 package connectors
 
+import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics._
 import models._
 import play.api.Logging
-import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
-import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import scala.concurrent.Future
-
-sealed trait PersonDetailsResponse
-case class PersonDetailsSuccessResponse(personDetails: PersonDetails) extends PersonDetailsResponse
-case object PersonDetailsNotFoundResponse extends PersonDetailsResponse
-case object PersonDetailsHiddenResponse extends PersonDetailsResponse
-case class PersonDetailsUnexpectedResponse(r: HttpResponse) extends PersonDetailsResponse
-case class PersonDetailsErrorResponse(cause: Exception) extends PersonDetailsResponse
-
-sealed trait MatchingDetailsResponse
-case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails) extends MatchingDetailsResponse
-case object MatchingDetailsNotFoundResponse extends MatchingDetailsResponse
-case class MatchingDetailsUnexpectedResponse(r: HttpResponse) extends MatchingDetailsResponse
-case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetailsResponse
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CitizenDetailsConnector @Inject() (
-  val simpleHttp: SimpleHttp,
+  val httpClient: HttpClient,
   val metrics: Metrics,
-  servicesConfig: ServicesConfig
+  servicesConfig: ServicesConfig,
+  httpClientResponse: HttpClientResponse
 ) extends HasMetrics
     with Logging {
 
   lazy val citizenDetailsUrl = servicesConfig.baseUrl("citizen-details")
 
-  def personDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[PersonDetailsResponse] =
+  def personDetails(
+    nino: Nino
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     withMetricsTimer("get-person-details") { timer =>
-      simpleHttp.get[PersonDetailsResponse](s"$citizenDetailsUrl/citizen-details/$nino/designatory-details")(
-        onComplete = {
-          case response if response.status >= 200 && response.status < 300 =>
+      httpClientResponse
+        .read(
+          httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
+            s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
+          )
+        )
+        .bimap(
+          error => {
+            timer.completeTimerAndIncrementFailedCounter()
+            error
+          },
+          response => {
             timer.completeTimerAndIncrementSuccessCounter()
-            PersonDetailsSuccessResponse(response.json.as[PersonDetails])
-
-          case response if response.status == LOCKED =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn("Personal details record in citizen-details was hidden")
-            PersonDetailsHiddenResponse
-
-          case response if response.status == NOT_FOUND =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn("Unable to find personal details record in citizen-details")
-            PersonDetailsNotFoundResponse
-
-          case response =>
-            timer.completeTimerAndIncrementFailedCounter()
-            if (response.status >= INTERNAL_SERVER_ERROR) {
-              logger.warn(
-                s"Unexpected ${response.status} response getting personal details record from citizen-details"
-              )
-            }
-            PersonDetailsUnexpectedResponse(response)
-        },
-        onError = { e =>
-          timer.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error getting personal details record from citizen-details", e)
-          PersonDetailsErrorResponse(e)
-        }
-      )
+            response
+          }
+        )
     }
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
-    headerCarrier: HeaderCarrier
-  ): Future[UpdateAddressResponse] = {
+    headerCarrier: HeaderCarrier,
+    ec: ExecutionContext
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
     withMetricsTimer("update-address") { timer =>
-      simpleHttp.post[JsObject, UpdateAddressResponse](
-        s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address",
-        body
-      )(
-        onComplete = {
-          case response if response.status >= 200 && response.status < 300 =>
-            timer.completeTimerAndIncrementSuccessCounter()
-            UpdateAddressSuccessResponse
-
-          case response if response.status == BAD_REQUEST =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn(
-              s"Bad Request ${response.status}-${response.body} response updating address record in citizen-details"
-            )
-            UpdateAddressBadRequestResponse
-
-          case response =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn(
-              s"Unexpected ${response.status}-${response.body} response updating address record in citizen-details"
-            )
-            UpdateAddressUnexpectedResponse(response)
-        },
-        onError = { e =>
-          timer.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error updating address record in citizen-details", e)
-          UpdateAddressErrorResponse(e)
-        }
-      )
-    }
-  }
-
-  def getMatchingDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[MatchingDetailsResponse] =
-    withMetricsTimer("get-matching-details") { timer =>
-      simpleHttp.get[MatchingDetailsResponse](s"$citizenDetailsUrl/citizen-details/nino/$nino")(
-        onComplete = {
-          case response if response.status >= 200 && response.status < 300 =>
-            timer.completeTimerAndIncrementSuccessCounter()
-            MatchingDetailsSuccessResponse(MatchingDetails.fromJsonMatchingDetails(response.json))
-          case response if response.status == NOT_FOUND                    =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn("Unable to find matching details in citizen-details")
-            MatchingDetailsNotFoundResponse
-          case response                                                    =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn(s"Unexpected ${response.status} response getting matching details from citizen-details")
-            MatchingDetailsUnexpectedResponse(response)
-        },
-        onError = { e =>
-          timer.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error getting matching details from citizen-details", e)
-          MatchingDetailsErrorResponse(e)
-        }
-      )
-    }
-
-  def getEtag(nino: String)(implicit hc: HeaderCarrier): Future[Option[ETag]] =
-    withMetricsTimer("get-etag") { timer =>
-      simpleHttp.get[Option[ETag]](s"$citizenDetailsUrl/citizen-details/$nino/etag")(
-        onComplete = {
-          case response: HttpResponse if response.status == OK =>
-            timer.completeTimerAndIncrementSuccessCounter()
-            response.json.asOpt[ETag]
-          case response                                        =>
-            auditEtagFailure(
-              timer,
-              s"[CitizenDetailsService.getEtag] failed to find etag in citizen-details: ${response.status}"
-            )
-        },
-        onError = { e: Exception =>
-          auditEtagFailure(
-            timer,
-            s"[CitizenDetailsService.getEtag] returned an Exception: ${e.getMessage}"
+      httpClientResponse
+        .read(
+          httpClient.POST[JsObject, Either[UpstreamErrorResponse, HttpResponse]](
+            s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address",
+            body
           )
-        }
-      )
+        )
+        .bimap(
+          error => {
+            timer.completeTimerAndIncrementFailedCounter()
+            error
+          },
+          response => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            response
+          }
+        )
     }
-
-  private def auditEtagFailure(timer: MetricsTimer, message: String): None.type = {
-    timer.completeTimerAndIncrementFailedCounter()
-    logger.warn(message)
-    None
   }
 
+  def getMatchingDetails(
+    nino: Nino
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    withMetricsTimer("get-matching-details") { timer =>
+      httpClientResponse
+        .read(
+          httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$citizenDetailsUrl/citizen-details/nino/$nino")
+        )
+        .bimap(
+          error => {
+            timer.completeTimerAndIncrementFailedCounter()
+            error
+          },
+          response => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            response
+          }
+        )
+    }
+
+  def getEtag(
+    nino: String
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    withMetricsTimer("get-etag") { timer =>
+      httpClientResponse
+        .read(
+          httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$citizenDetailsUrl/citizen-details/$nino/etag")
+        )
+        .bimap(
+          error => {
+            timer.completeTimerAndIncrementFailedCounter()
+            error
+          },
+          response => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            response
+          }
+        )
+    }
 }

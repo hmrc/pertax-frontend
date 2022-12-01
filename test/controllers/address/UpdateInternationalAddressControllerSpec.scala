@@ -18,9 +18,7 @@ package controllers.address
 
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.CountryHelper
-import models.dto.{AddressPageVisitedDto, DateDto, Dto, ResidencyChoiceDto}
-
-import java.time.LocalDate
+import models.dto.{AddressPageVisitedDto, DateDto, Dto}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
@@ -30,10 +28,12 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import testUtils.Fixtures.{asInternationalAddressDto, fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
-import testUtils.Fixtures.{asInternationalAddressDto, fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress}
 import views.html.personaldetails.UpdateInternationalAddressView
+
+import java.time.LocalDate
 
 class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 

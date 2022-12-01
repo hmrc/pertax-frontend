@@ -128,7 +128,7 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
             }
         }
       }
-    httpClientResponse.read(result, MetricsEnumeration.GET_AGENT_CLIENT_STATUS).map { response =>
+    httpClientResponse.read(result, Some(MetricsEnumeration.GET_AGENT_CLIENT_STATUS)).map { response =>
       response.json.as[AgentClientStatus]
     }
   }

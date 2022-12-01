@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package services
+package connectors
 
+import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics._
 import models.addresslookup.{AddressLookup, RecordSet}
 import play.api.Logging
-import services.http.SimpleHttp
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 sealed trait AddressLookupResponse
 
@@ -36,42 +37,43 @@ final case class AddressLookupUnexpectedResponse(r: HttpResponse) extends Addres
 final case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
 
 @Singleton
-class AddressLookupService @Inject() (
+class AddressLookupConnector @Inject() (
   configDecorator: ConfigDecorator,
-  val simpleHttp: SimpleHttp,
+  val http: HttpClient,
   val metrics: Metrics,
   val tools: Tools,
-  servicesConfig: ServicesConfig
+  servicesConfig: ServicesConfig,
+  httpClientResponse: HttpClientResponse
 ) extends HasMetrics
     with Logging {
 
   lazy val addressLookupUrl = servicesConfig.baseUrl("address-lookup")
 
   def lookup(postcode: String, filter: Option[String] = None)(implicit
-    hc: HeaderCarrier
-  ): Future[AddressLookupResponse] =
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): EitherT[Future, UpstreamErrorResponse, RecordSet] =
     withMetricsTimer("address-lookup") { t =>
-      val pc    = postcode.replaceAll(" ", "")
-      val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
-
+      val pc                 = postcode.replaceAll(" ", "")
+      val newHc              = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
       val addressRequestBody = AddressLookup(pc, filter)
 
-      simpleHttp.post[AddressLookup, AddressLookupResponse](s"$addressLookupUrl/lookup", addressRequestBody)(
-        onComplete = {
-          case r if r.status >= 200 && r.status < 300 =>
-            t.completeTimerAndIncrementSuccessCounter()
-            AddressLookupSuccessResponse(RecordSet.fromJsonAddressLookupService(r.json))
-
-          case r =>
+      httpClientResponse
+        .read(
+          http.POST[AddressLookup, Either[UpstreamErrorResponse, HttpResponse]](
+            s"$addressLookupUrl/lookup",
+            addressRequestBody
+          )(implicitly, implicitly, newHc, implicitly)
+        )
+        .bimap(
+          error => {
             t.completeTimerAndIncrementFailedCounter()
-            logger.warn(s"Unexpected ${r.status} response getting address record from address lookup service")
-            AddressLookupUnexpectedResponse(r)
-        },
-        onError = { case e =>
-          t.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error getting address record from address lookup service", e)
-          AddressLookupErrorResponse(e)
-        }
-      )(newHc, implicitly)
+            error
+          },
+          response => {
+            t.completeTimerAndIncrementSuccessCounter()
+            RecordSet.fromJsonAddressLookupService(response.json)
+          }
+        )
     }
 }

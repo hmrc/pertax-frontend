@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package util
+package connectors
 
 import com.codahale.metrics.Timer
 import com.github.tomakehurst.wiremock.client.WireMock._

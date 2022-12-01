@@ -25,10 +25,10 @@ import org.mockito.Mockito._
 import play.api.Configuration
 import play.api.http.Status._
 import play.api.i18n.Langs
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import testUtils.{BaseSpec, Fixtures}
 import util.FutureEarlyTimeout
 
 import scala.concurrent.Future

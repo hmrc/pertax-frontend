@@ -16,7 +16,6 @@
 
 package controllers.address
 
-import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.controllershelpers.{PersonalDetailsCardGenerator, RlsInterruptHelper}
 import models.PersonDetails
 import models.dto.AddressPageVisitedDto
@@ -67,9 +66,9 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
     "redirect to the rls interrupt page" when {
       "main address has an rls status with true" in new LocalSetup {
         override def sessionCacheResponse: Option[CacheMap] = None
-        override def personDetailsResponse: PersonDetailsResponse = {
+        override def personDetailsResponse: PersonDetails = {
           val address = fakeAddress.copy(isRls = true)
-          PersonDetailsSuccessResponse(fakePersonDetails.copy(address = Some(address)))
+          fakePersonDetails.copy(address = Some(address))
         }
         override def personDetailsForRequest: Option[PersonDetails] = {
           val address = fakeAddress.copy(isRls = true)
@@ -84,9 +83,9 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
       "postal address has an rls status with true" in new LocalSetup {
         override def sessionCacheResponse: Option[CacheMap] = None
-        override def personDetailsResponse: PersonDetailsResponse = {
+        override def personDetailsResponse: PersonDetails = {
           val address = fakeAddress.copy(isRls = true)
-          PersonDetailsSuccessResponse(fakePersonDetails.copy(correspondenceAddress = Some(address)))
+          fakePersonDetails.copy(correspondenceAddress = Some(address))
         }
         override def personDetailsForRequest: Option[PersonDetails] = {
           val address = fakeAddress.copy(isRls = true)
@@ -101,11 +100,10 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
       "main and postal address has an rls status with true" in new LocalSetup {
         override def sessionCacheResponse: Option[CacheMap] = None
-        override def personDetailsResponse: PersonDetailsResponse = {
+
+        override def personDetailsResponse: PersonDetails = {
           val address = fakeAddress.copy(isRls = true)
-          PersonDetailsSuccessResponse(
-            fakePersonDetails.copy(address = Some(address), correspondenceAddress = Some(address))
-          )
+          fakePersonDetails.copy(address = Some(address), correspondenceAddress = Some(address))
         }
         override def personDetailsForRequest: Option[PersonDetails] = {
           val address = fakeAddress.copy(isRls = true)

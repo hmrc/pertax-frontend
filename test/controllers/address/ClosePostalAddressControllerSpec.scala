@@ -16,7 +16,7 @@
 
 package controllers.address
 
-import connectors.{UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressResponse, UpdateAddressUnexpectedResponse}
+import cats.data.EitherT
 import controllers.bindable.PostalAddrType
 import models._
 import org.mockito.ArgumentCaptor
@@ -27,16 +27,16 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services._
-import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.model.DataEvent
-import testUtils.{ActionBuilderFixture, Fixtures}
+import testUtils.Fixtures
 import testUtils.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
 import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.play.audit.model.DataEvent
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
 import java.time.Instant
+import scala.concurrent.Future
 
 class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
@@ -58,7 +58,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
     def controller: ClosePostalAddressController =
       new ClosePostalAddressController(
-        mockCitizenDetailsConnector,
+        mockCitizenDetailsService,
         mockEditAddressLockRepository,
         mockAddressMovedService,
         addressJourneyCachingHelper,
@@ -231,7 +231,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
 
-      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any(), any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
@@ -245,7 +245,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad.url)
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
-      verify(mockCitizenDetailsConnector, times(0)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(mockCitizenDetailsService, times(0)).updateAddress(meq(nino), meq("115"), any())(any(), any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
@@ -265,41 +265,47 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
 
-      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any(), any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "return 400 if UpdateAddressBadRequestResponse is received from citizen-details" in new LocalSetup {
-      override def updateAddressResponse: UpdateAddressResponse = UpdateAddressBadRequestResponse
+    "return 400 if a BAD_REQUEST is received from citizen-details" in new LocalSetup {
+      override def updateAddressResponse = EitherT[Future, UpstreamErrorResponse, HttpResponse](
+        Future.successful(Left(UpstreamErrorResponse("", BAD_REQUEST)))
+      )
 
       val result = controller.confirmSubmit()(FakeRequest())
 
       status(result) mustBe BAD_REQUEST
-      verify(mockCitizenDetailsConnector, times(1))
-        .updateAddress(meq(nino), meq("115"), any())(any())
+      verify(mockCitizenDetailsService, times(1))
+        .updateAddress(meq(nino), meq("115"), any())(any(), any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "return 500 if an UpdateAddressUnexpectedResponse is received from citizen-details" in new LocalSetup {
-      override lazy val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(SEE_OTHER))
+    "return 500 if an unexpected error (418) is received from citizen-details" in new LocalSetup {
+      override lazy val updateAddressResponse = EitherT[Future, UpstreamErrorResponse, HttpResponse](
+        Future.successful(Left(UpstreamErrorResponse("", IM_A_TEAPOT)))
+      )
 
       val result = controller.confirmSubmit()(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      verify(mockCitizenDetailsConnector, times(1))
-        .updateAddress(meq(Fixtures.fakeNino), meq("115"), any())(any())
+      verify(mockCitizenDetailsService, times(1))
+        .updateAddress(meq(Fixtures.fakeNino), meq("115"), any())(any(), any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "return 500 if an UpdateAddressErrorResponse is received from citizen-details" in new LocalSetup {
-      override lazy val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("Any exception"))
+    "return 500 if a 5xx is received from citizen-details" in new LocalSetup {
+      override lazy val updateAddressResponse = EitherT[Future, UpstreamErrorResponse, HttpResponse](
+        Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
+      )
 
       override def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
       val result = controller.confirmSubmit()(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any(), any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
@@ -317,7 +323,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val dataEvent = arg.getValue
 
       pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
-      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any(), any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 

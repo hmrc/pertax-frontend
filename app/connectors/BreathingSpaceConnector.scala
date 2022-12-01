@@ -23,6 +23,7 @@ import config.ConfigDecorator
 import metrics.{Metrics, MetricsEnumeration}
 import models.BreathingSpaceIndicator
 import play.api.Logging
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
@@ -60,27 +61,21 @@ class BreathingSpaceConnector @Inject() (
     val result                                  = withTimeout(timeoutInSec seconds) {
       withCircuitBreaker(
         httpClient
-          .GET[HttpResponse](url)(HttpReadsLegacyRawReads.readRaw, bsHeaderCarrier, ec)
+          .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(implicitly, bsHeaderCarrier, ec)
       )(bsHeaderCarrier)
-        .map { response =>
-          timerContext.stop()
-          Right(response)
-        }
-    } recover {
-      case notFound: NotFoundException     =>
-        timerContext.stop()
-        Left(UpstreamErrorResponse(notFound.getMessage, notFound.responseCode, notFound.responseCode))
-      case badRequest: BadRequestException =>
-        timerContext.stop()
-        Left(UpstreamErrorResponse(badRequest.getMessage, badRequest.responseCode, badRequest.responseCode))
-      case error: UpstreamErrorResponse    =>
-        timerContext.stop()
-        Left(error)
-      case error                           =>
-        timerContext.stop()
-        throw error
     }
-    httpClientResponse.read(result, metricName).map(_.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
+    httpClientResponse
+      .read(result, Some(metricName))
+      .bimap(
+        error => {
+          timerContext.stop()
+          error
+        },
+        response => {
+          timerContext.stop()
+          response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator
+        }
+      )
   }
 
 }
