@@ -18,8 +18,10 @@ package controllers.controllershelpers
 
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
-import models._
-import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, NationalInsuranceTileToggle}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, NewsAndContentModel, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser}
+import models.{NotYetActivatedOnlineFilerSelfAssessmentUser, TaxComponentsAvailableState, TaxComponentsDisabledState}
+import models.{TaxComponentsNotAvailableState, TaxComponentsUnreachableState, WrongCredentialsSelfAssessmentUser}
+import models.admin.{FeatureFlag, NationalInsuranceTileToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -30,6 +32,7 @@ import play.api.test.FakeRequest
 import services.admin.FeatureFlagService
 import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig

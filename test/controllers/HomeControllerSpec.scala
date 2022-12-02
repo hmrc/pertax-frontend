@@ -192,7 +192,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[TaiConnector].toInstance(mockTaiService),
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[FeatureFlagService].toInstance(mockFeatureFlagService)
         )
         .configure(
@@ -254,7 +254,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
         .overrides(
           bind[TaiConnector].toInstance(mockTaiService),
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[FeatureFlagService].toInstance(mockFeatureFlagService)
         )
         .configure(
@@ -741,7 +741,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     val userNino = Some(fakeNino)
 
     "return TaxComponentsDisabled where taxComponents is not enabled" in new LocalSetup {
-      when(mockTaiService.taxComponents(any(), any())(any())).thenReturn(null)
+      when(mockTaiService.taxComponents(any(), any())(any(), any())).thenReturn(null)
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
         FeatureFlag(NationalInsuranceTileToggle, true)
       )
