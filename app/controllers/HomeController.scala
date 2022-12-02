@@ -24,9 +24,11 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
+import models.admin.TaxcalcToggle
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -41,6 +43,7 @@ class HomeController @Inject() (
   taiConnector: TaiConnector,
   taxCalculationConnector: TaxCalculationConnector,
   breathingSpaceService: BreathingSpaceService,
+  featureFlagService: FeatureFlagService,
   homeCardGenerator: HomeCardGenerator,
   homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
@@ -77,15 +80,15 @@ class HomeController @Inject() (
                                                                                                  case WithinPeriod => true
                                                                                                  case _            => false
                                                                                                }
+            incomeCards                                                                     <- homeCardGenerator.getIncomeCards(
+                                                                                                 taxSummaryState,
+                                                                                                 taxCalculationStateCyMinusOne,
+                                                                                                 taxCalculationStateCyMinusTwo,
+                                                                                                 saUserType,
+                                                                                                 showSeissCard
+                                                                                               )
           } yield {
 
-            val incomeCards: Seq[Html]  = homeCardGenerator.getIncomeCards(
-              taxSummaryState,
-              taxCalculationStateCyMinusOne,
-              taxCalculationStateCyMinusTwo,
-              saUserType,
-              showSeissCard
-            )
             val benefitCards: Seq[Html] = if (request.trustedHelper.isEmpty) {
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
             } else {
@@ -117,10 +120,11 @@ class HomeController @Inject() (
     ninoOpt.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
       Future.successful((TaxComponentsDisabledState, None, None))
     ) { nino =>
-      val taxYr = if (configDecorator.taxcalcEnabled) {
-        taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxYearReconciliation]).merge
-      } else {
-        Future.successful(List.empty[TaxYearReconciliation])
+      val taxYr = featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
+        if (toggle.isEnabled)
+          taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxYearReconciliation]).merge
+        else
+          Future.successful(List.empty[TaxYearReconciliation])
       }
 
       val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
