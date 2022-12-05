@@ -107,10 +107,7 @@ class FeatureFlagRepositorySpec extends BaseSpec with DefaultPlayMongoRepository
         } yield true))
       }
       result.getCode mustBe 11000
-      println(result.getError.getMessage)
       result.getError.getMessage mustBe s"""E11000 duplicate key error collection: $databaseName.admin-feature-flags index: name dup key: { name: "$AddressTaxCreditsBrokerCallToggle" }"""
-//      "result.getError.getMessage" mustBe s"""E11000 duplicate key error collection: $databaseName.admin-feature-flags index: name dup key: { name: "$AddressTaxCreditsBrokerCallToggle" }"""
-
     }
   }
 }
