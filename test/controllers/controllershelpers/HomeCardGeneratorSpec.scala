@@ -36,7 +36,7 @@ import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.DateTimeTools.{current, previousAndCurrentTaxYear}
+import util.DateTimeTools.{current}
 import util.EnrolmentsHelper
 import views.html.ViewSpec
 import views.html.cards.home._
@@ -67,10 +67,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     injected[Configuration],
     injected[Langs],
     injected[ServicesConfig]
-  ) {
-    override lazy val saItsaTileEnabled: Boolean = false
-  }
-  private val testUtr                  = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  )
 
   private val homeCardGenerator =
     new HomeCardGenerator(
@@ -90,166 +87,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       enrolmentsHelper,
       newsAndTilesConfig
     )(stubConfigDecorator, ec)
-
-  "Calling getIncomeCards" must {
-    "contains a Seiss card" when {
-      "isSeissTileEnabled is true" in {
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-          nino = None,
-          saUser = NonFilerSelfAssessmentUser,
-          confidenceLevel = ConfidenceLevel.L50,
-          personDetails = None,
-          request = FakeRequest()
-        )
-
-        when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
-        when(mockFeatureFlagService.get(NationalInsuranceTileToggle))
-          .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            selfAssessment,
-            nationalInsurance,
-            taxCredits,
-            childBenefit,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            seissView,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig
-          )(stubConfigDecorator, ec)
-
-        lazy val cardBody =
-          sut
-            .getIncomeCards(
-              TaxComponentsDisabledState,
-              None,
-              None,
-              NonFilerSelfAssessmentUser,
-              showSeissCard = true
-            )
-            .futureValue
-
-        cardBody.map(_.toString()).mkString("") must include("seiss-card")
-      }
-    }
-
-    "not contain a Seiss card" when {
-      "saItsaTileEnabled is true" in {
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-          nino = None,
-          saUser = NonFilerSelfAssessmentUser,
-          confidenceLevel = ConfidenceLevel.L50,
-          personDetails = None,
-          request = FakeRequest()
-        )
-
-        val stubConfigDecorator = new ConfigDecorator(
-          injected[Configuration],
-          injected[Langs],
-          injected[ServicesConfig]
-        ) {
-          override lazy val saItsaTileEnabled: Boolean = true
-        }
-
-        when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
-        when(mockFeatureFlagService.get(NationalInsuranceTileToggle))
-          .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            selfAssessment,
-            nationalInsurance,
-            taxCredits,
-            childBenefit,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            seissView,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig
-          )(stubConfigDecorator, ec)
-
-        lazy val cardBody =
-          sut
-            .getIncomeCards(
-              TaxComponentsDisabledState,
-              None,
-              None,
-              NonFilerSelfAssessmentUser,
-              showSeissCard = true
-            )
-            .futureValue
-
-        cardBody.map(_.toString()).mkString("") mustNot include("seiss-card")
-      }
-
-      "isSeissTileEnabled is false" in {
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-          nino = None,
-          saUser = NonFilerSelfAssessmentUser,
-          confidenceLevel = ConfidenceLevel.L50,
-          personDetails = None,
-          request = FakeRequest()
-        )
-
-        val stubConfigDecorator = new ConfigDecorator(
-          injected[Configuration],
-          injected[Langs],
-          injected[ServicesConfig]
-        ) {
-          override lazy val isSeissTileEnabled: Boolean = false
-        }
-
-        when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
-        when(mockFeatureFlagService.get(NationalInsuranceTileToggle))
-          .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            selfAssessment,
-            nationalInsurance,
-            taxCredits,
-            childBenefit,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            seissView,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig
-          )(stubConfigDecorator, ec)
-
-        lazy val cardBody =
-          sut
-            .getIncomeCards(
-              TaxComponentsDisabledState,
-              None,
-              None,
-              NonFilerSelfAssessmentUser,
-              showSeissCard = true
-            )
-            .futureValue
-
-        cardBody.map(_.toString()).mkString("") mustNot include("seiss-card")
-      }
-    }
-  }
 
   "Calling getPayAsYouEarnCard" must {
     "return nothing when called with no Pertax user" in {
@@ -322,112 +159,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         homeCardGenerator.getPayAsYouEarnCard(TaxComponentsAvailableState(Fixtures.buildTaxComponents))
 
       cardBody mustBe Some(payAsYouEarn(config))
-    }
-  }
-
-  "Calling getSelfAssessmentCard" must {
-    val taxYear             = previousAndCurrentTaxYear
-    val nextDeadlineTaxYear = 2019
-
-    "return None if saItsaTileEnabled is true" in {
-      val stubConfigDecorator = new ConfigDecorator(
-        injected[Configuration],
-        injected[Langs],
-        injected[ServicesConfig]
-      ) {
-        override lazy val saItsaTileEnabled: Boolean = true
-      }
-
-      def sut: HomeCardGenerator =
-        new HomeCardGenerator(
-          mockFeatureFlagService,
-          payAsYouEarn,
-          taxCalculation,
-          selfAssessment,
-          nationalInsurance,
-          taxCredits,
-          childBenefit,
-          marriageAllowance,
-          statePension,
-          taxSummaries,
-          seissView,
-          latestNewsAndUpdatesView,
-          saAndItsaMergeView,
-          enrolmentsHelper,
-          newsAndTilesConfig
-        )(stubConfigDecorator, ec)
-
-      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest())
-
-      lazy val cardBody = sut.getSelfAssessmentCard(saUserType)
-
-      cardBody mustBe None
-    }
-
-    "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in {
-      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest())
-
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType)
-
-      cardBody mustBe Some(selfAssessment(saUserType, taxYear, (current.currentYear + 1).toString))
-    }
-
-    "return correct markup when called with NotYetActivatedOnlineFilerSelfAssessmentUser" in {
-      val saUserType = NotYetActivatedOnlineFilerSelfAssessmentUser(testUtr)
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = saUserType,
-        request = FakeRequest()
-      )
-
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType)
-
-      cardBody mustBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
-    }
-
-    "return correct markup when called with WrongCredentialsSelfAssessmentUser" in {
-      val saUserType = WrongCredentialsSelfAssessmentUser(testUtr)
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = saUserType,
-        request = FakeRequest()
-      )
-
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType)
-
-      cardBody mustBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
-    }
-
-    "return correct markup when called with NotEnrolledSelfAssessmentUser" in {
-      val saUserType = NotEnrolledSelfAssessmentUser(testUtr)
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = saUserType,
-        request = FakeRequest()
-      )
-
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType)
-
-      cardBody mustBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
-    }
-
-    "return nothing when called with NonFilerSelfAssessmentUser" in {
-      val saUserType = NonFilerSelfAssessmentUser
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = saUserType,
-        request = FakeRequest()
-      )
-
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType)
-
-      cardBody mustBe None
     }
   }
 
@@ -617,7 +348,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
           request = FakeRequest()
         )
-      "return Itsa Card when toggled on with Itsa enrollments" in {
+      "return Itsa Card when with Itsa enrolments" in {
 
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
@@ -631,9 +362,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           injected[Configuration],
           injected[Langs],
           injected[ServicesConfig]
-        ) {
-          override lazy val saItsaTileEnabled: Boolean = true
-        }
+        )
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
@@ -659,15 +388,13 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = true))
       }
 
-      "return Itsa Card when toggled on without Itsa enrollments" in {
+      "return Itsa Card when without Itsa enrolments" in {
 
         val stubConfigDecorator = new ConfigDecorator(
           injected[Configuration],
           injected[Langs],
           injected[ServicesConfig]
-        ) {
-          override lazy val saItsaTileEnabled: Boolean = true
-        }
+        )
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
@@ -693,7 +420,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
       }
 
-      "return None when toggled on without Itsa enrollments and enrollment type is NonFilerSelfAssessmentUser" in {
+      "return None when without Itsa enrolments and sa enrolment type is NonFilerSelfAssessmentUser" in {
 
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
@@ -705,9 +432,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           injected[Configuration],
           injected[Langs],
           injected[ServicesConfig]
-        ) {
-          override lazy val saItsaTileEnabled: Boolean = true
-        }
+        )
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
@@ -733,7 +458,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         cardBody mustBe None
       }
 
-      "return Itsa/sa Card when toggled on without Itsa enrollments and enrollment type is WrongCredentialsSelfAssessmentUser" in {
+      "return Itsa/sa Card when without Itsa enrolments and sa enrolment type is WrongCredentialsSelfAssessmentUser" in {
 
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
@@ -745,9 +470,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           injected[Configuration],
           injected[Langs],
           injected[ServicesConfig]
-        ) {
-          override lazy val saItsaTileEnabled: Boolean = true
-        }
+        )
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
@@ -771,11 +494,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
         cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
-      }
-
-      "return nothing when toggled off" in {
-
-        homeCardGenerator.getSaAndItsaMergeCard() mustBe None
       }
     }
   }
