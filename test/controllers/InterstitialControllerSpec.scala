@@ -32,6 +32,7 @@ import play.api.test.Helpers._
 import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import services._
+import services.admin.FeatureFlagService
 import services.partials.{FormPartialService, SaPartialService}
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
@@ -83,7 +84,8 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewBreathingSpaceView],
         injected[EnrolmentsHelper],
         injected[SeissService],
-        mockNewsAndTileConfig
+        mockNewsAndTileConfig,
+        injected[FeatureFlagService]
       )(config, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) {
@@ -349,7 +351,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService],
-          mock[NewsAndTilesConfig]
+          mock[NewsAndTilesConfig],
+          inject[FeatureFlagService]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -442,7 +445,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService],
-          mockNewsAndTileConfig
+          mockNewsAndTileConfig,
+          inject[FeatureFlagService]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -511,7 +515,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService],
-          mock[NewsAndTilesConfig]
+          mock[NewsAndTilesConfig],
+          inject[FeatureFlagService]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -561,7 +566,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService],
-          mock[NewsAndTilesConfig]
+          mock[NewsAndTilesConfig],
+          inject[FeatureFlagService]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
