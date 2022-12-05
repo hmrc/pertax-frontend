@@ -16,8 +16,7 @@
 
 package repositories.admin
 
-import models.admin.FeatureFlagName.allFeatureFlags
-import models.admin.{FeatureFlag, FeatureFlagName, TaxcalcToggle}
+import models.admin.{FeatureFlag, FeatureFlagName}
 import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model._
 import uk.gov.hmrc.mongo.MongoComponent
