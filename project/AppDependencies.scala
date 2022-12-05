@@ -5,6 +5,7 @@ import sbt._
 object AppDependencies {
 
   private val playVersion = "play-28"
+  private val hmrcMongoVersion = "0.73.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -22,8 +23,8 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "reactive-circuit-breaker"         % "3.5.0",
     "org.typelevel"     %% "cats-core"                        % "2.8.0",
     "uk.gov.hmrc"       %% s"internal-auth-client-$playVersion" % "1.2.0",
+    "org.apache.commons" % "commons-text"               % "1.6",
     ehcache
-    "org.apache.commons" % "commons-text"               % "1.6"
   )
 
   val test: Seq[ModuleID] = Seq(
