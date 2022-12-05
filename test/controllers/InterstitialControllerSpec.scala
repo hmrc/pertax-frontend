@@ -583,7 +583,8 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockFeatureFlagService.get(any())).thenReturn(Future.successful(FeatureFlag(ItsaMessageToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(any()))
+        .thenReturn(Future.successful(FeatureFlag(ItsaMessageToggle, isEnabled = true)))
 
       val result = controller.displaySaAndItsaMergePage()(fakeRequest)
 
