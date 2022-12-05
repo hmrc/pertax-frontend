@@ -23,6 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
+import models.admin.{FeatureFlag, ItsaMessageToggle}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.i18n.{Langs, Messages}
@@ -548,6 +549,8 @@ class InterstitialControllerSpec extends BaseSpec {
         override lazy val saItsaTileEnabled: Boolean = true
       }
 
+      val mockFeatureFlagService = mock[FeatureFlagService]
+
       def controller: InterstitialController =
         new InterstitialController(
           mock[FormPartialService],
@@ -567,7 +570,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
-          inject[FeatureFlagService]
+          mockFeatureFlagService
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -579,6 +582,8 @@ class InterstitialControllerSpec extends BaseSpec {
             )
           )
       })
+
+      when(mockFeatureFlagService.get(any())).thenReturn(Future.successful(FeatureFlag(ItsaMessageToggle, isEnabled = true)))
 
       val result = controller.displaySaAndItsaMergePage()(fakeRequest)
 
