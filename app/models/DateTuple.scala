@@ -16,6 +16,7 @@
 
 package models
 
+import models.DateFields.{day, month, year}
 import play.api.data.Forms._
 import play.api.data.Mapping
 
@@ -25,8 +26,6 @@ import java.time.LocalDate
 object DateTuple extends DateTuple
 
 trait DateTuple {
-
-  import uk.gov.hmrc.play.mappers.DateFields._
 
   val dateTuple: Mapping[Option[LocalDate]] = dateTuple(validate = true)
 

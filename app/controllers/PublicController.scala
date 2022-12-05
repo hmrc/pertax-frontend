@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.binders.Origin
+import controllers.bindable.Origin
 import views.html.public.SessionTimeoutView
 
 import scala.concurrent.{ExecutionContext, Future}

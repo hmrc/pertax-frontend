@@ -1,7 +1,6 @@
 import play.core.PlayVersion.current
 import play.sbt.PlayImport._
 import sbt._
-import play.sbt.PlayImport.ehcache
 
 object AppDependencies {
 
@@ -13,7 +12,6 @@ object AppDependencies {
     "uk.gov.hmrc"       %% s"bootstrap-frontend-$playVersion" % "5.20.0",
     "uk.gov.hmrc"       %% "play-partials"                    % s"8.3.0-$playVersion",
     "uk.gov.hmrc"       %% "http-caching-client"              % s"9.6.0-$playVersion",
-    "uk.gov.hmrc"       %% "play-ui"                          % s"9.11.0-$playVersion",
     "uk.gov.hmrc"       %% "tax-year"                         % "3.0.0",
     "uk.gov.hmrc"       %% "time"                             % "3.19.0",
     "uk.gov.hmrc"       %% "domain"                           % s"8.0.0-$playVersion",
@@ -25,6 +23,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "reactive-circuit-breaker"         % "3.5.0",
     "org.typelevel"     %% "cats-core"                        % "2.8.0",
     "uk.gov.hmrc"       %% s"internal-auth-client-$playVersion" % "1.2.0",
+    "org.apache.commons" % "commons-text"               % "1.6",
     ehcache
   )
 
