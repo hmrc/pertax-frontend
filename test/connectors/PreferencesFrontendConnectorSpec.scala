@@ -35,7 +35,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.CONTENT_TYPE
 import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.{BaseSpec, WireMockHelper}
+import testUtils.{BaseSpec, FileHelper, WireMockHelper}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
@@ -171,6 +171,73 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
 
         result.statusCode mustBe errorResponse
       }
+    }
+
+    "return a PaperlessResponse with status ALRIGHT" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
+
+      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+
+      val url = "/paperless/status"
+
+      server.stubFor(
+        get(urlMatching(s"$url.*"))
+          .willReturn(
+            ok(FileHelper.loadFile("./test/resources/paperless-status/PaperlessStatusAlright.json"))
+          )
+      )
+
+      val result = service
+        .getPaperlessStatus(s"$url/redirect", "returnMessage")
+        .value
+        .futureValue
+        .getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST))
+
+      result mustBe
+        PaperlessResponse(
+          PaperlessStatus("ALRIGHT", "INFO"),
+          PaperlessUrl(
+            "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
+            "Check your settings"
+          )
+        )
+    }
+    "return a PaperlessResponse with status Bounced" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
+
+      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+
+      val url = "/paperless/status"
+
+      server.stubFor(
+        get(urlMatching(s"$url.*"))
+          .willReturn(
+            ok(FileHelper.loadFile("./test/resources/paperless-status/PaperlessStatusBounced.json"))
+          )
+      )
+
+      val result = service
+        .getPaperlessStatus(s"$url/redirect", "returnMessage")
+        .value
+        .futureValue
+        .getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST))
+
+      result mustBe
+        PaperlessResponse(
+          PaperlessStatus("BOUNCED_EMAIL", "ACTION_REQUIRED"),
+          PaperlessUrl(
+            "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
+            "Confirm or change your email address"
+          )
+        )
     }
   }
 }

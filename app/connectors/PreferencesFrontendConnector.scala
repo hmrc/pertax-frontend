@@ -22,12 +22,13 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import metrics.HasMetrics
+import models.PaperlessResponse
 import play.api.Logging
 import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, PRECONDITION_FAILED}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.HttpReads.{is4xx, is5xx, upstreamResponseMessage}
-import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpReadsEither, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads, HttpReadsEither, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
@@ -81,6 +82,24 @@ class PreferencesFrontendConnector @Inject() (
         )
     }
   }
+
+  def getPaperlessStatus(url: String, returnMessage: String)(implicit
+    headerCarrier: HeaderCarrier
+  ): EitherT[Future, UpstreamErrorResponse, PaperlessResponse] = {
+
+    def absoluteUrl = configDecorator.pertaxFrontendHost + url
+    val fullUrl     =
+      s"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
+        .encryptAndEncode(returnMessage)}"
+    httpClientResponse
+      .read(
+        httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
+          fullUrl
+        )
+      )
+      .map(_.json.as[PaperlessResponse])
+  }
+
 }
 
 trait PreferencesCustomError extends HttpReadsEither {

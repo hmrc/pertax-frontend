@@ -16,20 +16,28 @@
 
 package viewmodels
 
+import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import play.api.Application
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
+import services.PreferencesFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import views.html.ViewSpec
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
 import java.time.{Instant, LocalDate}
+import scala.concurrent.Future
 import scala.util.Random
 
 class PersonalDetailsViewModelSpec extends ViewSpec {
@@ -42,6 +50,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   lazy val addressView               = injected[AddressView]
   lazy val correspondenceAddressView = injected[CorrespondenceAddressView]
   lazy val countryHelper             = injected[CountryHelper]
+  lazy val mockPreferencesService    = mock[PreferencesFrontendService]
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser, None)
+    .overrides(
+      bind[PreferencesFrontendService].toInstance(mockPreferencesService)
+    )
+    .build()
 
   val fakeRequest = FakeRequest("", "")
   val userRequest = UserRequest(
@@ -127,16 +142,30 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       val expected = Some(
         PersonalDetailsTableRowModel(
           "paperless",
-          "label.paperless_settings",
-          HtmlFormat.raw(""),
-          "label.change",
-          "label.your_paperless_settings",
+          messages("label.paperless_settings"),
+          HtmlFormat.raw(messages("label.paperless_opt_in_response")),
+          messages("label.paperless_opt_in_link"),
+          messages("label.paperless_opt_in_hidden"),
           Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
         )
       )
 
-      val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest)
-      actual mustBe expected
+      when(mockPreferencesService.getPaperlessPreference(any(), any())(any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, PaperlessMessages](
+          Future.successful(
+            Right(
+              PaperlessMessages(
+                "label.paperless_opt_in_response",
+                "label.paperless_opt_in_link",
+                Some("label.paperless_opt_in_hidden")
+              )
+            )
+          )
+        )
+      )
+
+      val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages, hc, ec)
+      actual.futureValue mustBe expected
     }
   }
 
