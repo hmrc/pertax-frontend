@@ -74,7 +74,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           request = FakeRequest()
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/activate"
 
@@ -94,7 +94,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           )
       )
 
-      val result = service.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
+      val result = connector.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
 
       result.status mustBe OK
     }
@@ -106,7 +106,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           request = FakeRequest()
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/activate"
 
@@ -126,7 +126,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           )
       )
 
-      val result = service.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, jsonBody))
+      val result = connector.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, jsonBody))
 
       result.status mustBe PRECONDITION_FAILED
       result.body must include("http://www.testurl.com")
@@ -150,7 +150,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
             request = FakeRequest()
           )
 
-        implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+        implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
 
         val url = "/paperless/activate"
 
@@ -167,7 +167,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
             )
         )
 
-        val result = service.getPaperlessPreference().value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
+        val result = connector.getPaperlessPreference().value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
 
         result.statusCode mustBe errorResponse
       }
@@ -180,7 +180,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           request = FakeRequest()
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/status"
 
@@ -191,7 +191,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           )
       )
 
-      val result = service
+      val result = connector
         .getPaperlessStatus(s"$url/redirect", "returnMessage")
         .value
         .futureValue
@@ -213,7 +213,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           request = FakeRequest()
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/status"
 
@@ -224,7 +224,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           )
       )
 
-      val result = service
+      val result = connector
         .getPaperlessStatus(s"$url/redirect", "returnMessage")
         .value
         .futureValue

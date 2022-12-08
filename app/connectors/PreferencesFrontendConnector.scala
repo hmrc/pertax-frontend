@@ -84,7 +84,7 @@ class PreferencesFrontendConnector @Inject() (
   }
 
   def getPaperlessStatus(url: String, returnMessage: String)(implicit
-    headerCarrier: HeaderCarrier
+    request: UserRequest[_]
   ): EitherT[Future, UpstreamErrorResponse, PaperlessResponse] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + url
@@ -94,7 +94,8 @@ class PreferencesFrontendConnector @Inject() (
     httpClientResponse
       .read(
         httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
-          fullUrl
+          fullUrl,
+          headers = request.headers.headers
         )
       )
       .map(_.json.as[PaperlessResponse])

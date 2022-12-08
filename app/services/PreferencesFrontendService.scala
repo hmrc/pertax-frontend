@@ -19,6 +19,7 @@ package services
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import connectors.{EnhancedPartialRetriever, PreferencesFrontendConnector}
+import controllers.auth.requests.UserRequest
 import models.{PaperlessMessages, PaperlessResponse, PaperlessStatus, PaperlessUrl}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
@@ -38,7 +39,7 @@ class PreferencesFrontendService @Inject() (
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
   def getPaperlessPreference(url: String, returnMessage: String)(implicit
-    hc: HeaderCarrier
+    request: UserRequest[_]
   ): EitherT[Future, UpstreamErrorResponse, PaperlessMessages] =
     preferencesFrontendConnector.getPaperlessStatus(url, returnMessage).map {
       case PaperlessResponse(PaperlessStatus("NEW_CUSTOMER", _), _) =>
