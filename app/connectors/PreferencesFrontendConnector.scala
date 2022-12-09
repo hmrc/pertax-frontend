@@ -22,22 +22,24 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import metrics.HasMetrics
-import models.PaperlessResponse
+import models.PaperlessStatusResponse
 import play.api.Logging
 import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, PRECONDITION_FAILED}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.HttpReads.{is4xx, is5xx, upstreamResponseMessage}
-import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpReadsEither, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpReadsEither, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PreferencesFrontendConnector @Inject() (
-  httpClient: HttpClient,
+  httpClient: HttpClientV2,
   val messagesApi: MessagesApi,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
@@ -64,41 +66,31 @@ class PreferencesFrontendConnector @Inject() (
       s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
         .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
 
-    withMetricsTimer("get-activate-paperless") { timer =>
-      httpClientResponse
-        .read(
-          httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))
-        )
-        .bimap(
-          error => {
-            timer.completeTimerAndIncrementFailedCounter()
-            error
-          },
-          response => {
-            timer.completeTimerAndIncrementSuccessCounter()
-            response
-          }
-        )
-    }
+    httpClientResponse
+      .read(
+        httpClient
+          .put(url"$url")
+          .withBody(Json.obj("active" -> true))
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      )
   }
 
   def getPaperlessStatus(url: String, returnMessage: String)(implicit
     request: UserRequest[_]
-  ): EitherT[Future, UpstreamErrorResponse, PaperlessResponse] = {
+  ): EitherT[Future, UpstreamErrorResponse, PaperlessStatusResponse] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + url
     val fullUrl     =
       s"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
         .encryptAndEncode(returnMessage)}"
-        // Timeout of 5 seconds to be added
     httpClientResponse
       .read(
-        httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
-          fullUrl,
-          headers = request.headers.headers
-        )
+        httpClient
+          .get(url"$fullUrl")
+          .transform(_.withRequestTimeout(5.seconds))
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
-      .map(_.json.as[PaperlessResponse])
+      .map(_.json.as[PaperlessStatusResponse])
   }
 
 }

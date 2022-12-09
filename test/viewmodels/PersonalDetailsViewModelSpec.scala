@@ -154,11 +154,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         EitherT[Future, UpstreamErrorResponse, PaperlessMessages](
           Future.successful(
             Right(
-              PaperlessMessages(
-                "label.paperless_opt_in_response",
-                "label.paperless_opt_in_link",
-                Some("label.paperless_opt_in_hidden")
-              )
+              PaperlessStatusOptIn
             )
           )
         )

@@ -173,7 +173,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
       }
     }
 
-    "return a PaperlessResponse with status ALRIGHT" in {
+    "return a PaperlessStatusResponse with status ALRIGHT" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = NonFilerSelfAssessmentUser,
@@ -198,15 +198,12 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
         .getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST))
 
       result mustBe
-        PaperlessResponse(
-          PaperlessStatus("ALRIGHT", "INFO"),
-          PaperlessUrl(
-            "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
-            "Check your settings"
-          )
+        PaperlessStatusResponse(
+          "ALRIGHT",
+          "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D"
         )
     }
-    "return a PaperlessResponse with status Bounced" in {
+    "return a PaperlessStatusResponse with status Bounced" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = NonFilerSelfAssessmentUser,
@@ -231,12 +228,9 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
         .getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST))
 
       result mustBe
-        PaperlessResponse(
-          PaperlessStatus("BOUNCED_EMAIL", "ACTION_REQUIRED"),
-          PaperlessUrl(
-            "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
-            "Confirm or change your email address"
-          )
+        PaperlessStatusResponse(
+          "BOUNCED_EMAIL",
+          "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D"
         )
     }
   }

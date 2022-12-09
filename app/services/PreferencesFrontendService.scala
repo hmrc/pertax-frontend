@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import connectors.{EnhancedPartialRetriever, PreferencesFrontendConnector}
 import controllers.auth.requests.UserRequest
-import models.{PaperlessMessages, PaperlessResponse, PaperlessStatus, PaperlessUrl}
+import models.{PaperlessMessages, PaperlessStatusFailed, PaperlessStatusResponse, PaperlessStatuses}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -42,59 +42,10 @@ class PreferencesFrontendService @Inject() (
     request: UserRequest[_]
   ): EitherT[Future, UpstreamErrorResponse, PaperlessMessages] =
     preferencesFrontendConnector.getPaperlessStatus(url, returnMessage).map {
-      case PaperlessResponse(PaperlessStatus("NEW_CUSTOMER", _), _) =>
-        PaperlessMessages(
-          "label.paperless_new_response",
-          "label.paperless_new_link",
-          Some("label.paperless_new_hidden")
-        )
-
-      case PaperlessResponse(PaperlessStatus("BOUNCED_EMAIL", _), _) =>
-        PaperlessMessages(
-          "label.paperless_bounced_response",
-          "label.paperless_bounced_link",
-          Some("label.paperless_bounced_hidden")
-        )
-
-      case PaperlessResponse(PaperlessStatus("EMAIL_NOT_VERIFIED", _), _) =>
-        PaperlessMessages(
-          "label.paperless_unverified_response",
-          "label.paperless_unverified_link",
-          Some("label.paperless_unverified_hidden")
-        )
-
-      case PaperlessResponse(PaperlessStatus("RE_OPT_IN", _), _) =>
-        PaperlessMessages("label.paperless_reopt_response", "label.paperless_reopt_link", None)
-
-      case PaperlessResponse(PaperlessStatus("RE_OPT_IN_MODIFIED", _), _) =>
-        PaperlessMessages("label.paperless_reopt_modified_response", "label.paperless_reopt_modified_link", None)
-
-      case PaperlessResponse(PaperlessStatus("PAPER", _), _) =>
-        PaperlessMessages(
-          "label.paperless_opt_out_response",
-          "label.paperless_opt_out_link",
-          Some("label.paperless_opt_out_hidden")
-        )
-
-      case PaperlessResponse(PaperlessStatus("ALRIGHT", _), _) =>
-        PaperlessMessages(
-          "label.paperless_opt_in_response",
-          "label.paperless_opt_in_link",
-          Some("label.paperless_opt_in_hidden")
-        )
-
-      case PaperlessResponse(PaperlessStatus("NO_EMAIL", _), _) =>
-        PaperlessMessages(
-          "label.paperless_no_email_response",
-          "label.paperless_no_email_link",
-          Some("label.paperless_no_email_hidden")
-        )
+      case x: PaperlessStatusResponse =>
+        PaperlessStatuses.status.apply(x.name)
 
       case _ =>
-        PaperlessMessages(
-          "label.paperless_no_email_response",
-          "label.paperless_no_email_link",
-          Some("label.paperless_no_email_hidden")
-        )
+        PaperlessStatusFailed
     }
 }

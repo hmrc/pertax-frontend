@@ -16,24 +16,15 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{JsPath, Reads}
+import play.api.libs.functional.syntax._
 
-case class PaperlessStatus(name: String, category: String)
+case class PaperlessStatusResponse(name: String, url: String)
 
-object PaperlessStatus {
-  implicit val format = Json.format[PaperlessStatus]
+object PaperlessStatusResponse {
+  implicit val reads: Reads[PaperlessStatusResponse] = (
+    (JsPath \ "status" \ "name").read[String] and
+      (JsPath \ "url" \ "link").read[String]
+  )(PaperlessStatusResponse.apply _)
+
 }
-
-case class PaperlessUrl(link: String, text: String)
-
-object PaperlessUrl {
-  implicit val format = Json.format[PaperlessUrl]
-}
-
-case class PaperlessResponse(status: PaperlessStatus, url: PaperlessUrl)
-
-object PaperlessResponse {
-  implicit val formats = Json.format[PaperlessResponse]
-}
-
-case class PaperlessMessages(responseText: String, linkText: String, hiddenText: Option[String])

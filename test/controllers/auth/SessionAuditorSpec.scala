@@ -70,9 +70,18 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
     val tags        = buildTags(authenticatedRequest)
     argThat[ExtendedDataEvent](new CustomMatcher[ExtendedDataEvent]("eq expected ExtendedDataEvent") {
       override def matches(o: Any): Boolean = o match {
-        case ExtendedDataEvent(AuditServiceTools.auditSource, sessionAuditor.auditType, _, `tags`, `detailsJson`, _) =>
+        case ExtendedDataEvent(
+              AuditServiceTools.auditSource,
+              sessionAuditor.auditType,
+              _,
+              `tags`,
+              `detailsJson`,
+              _,
+              _,
+              _
+            ) =>
           true
-        case _                                                                                                       => false
+        case _ => false
       }
     })
   }

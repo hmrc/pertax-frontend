@@ -19,7 +19,7 @@ package services
 import cats.data.EitherT
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import models.{NonFilerSelfAssessmentUser, PaperlessMessages, PaperlessResponse, PaperlessStatus, PaperlessUrl}
+import models.{NonFilerSelfAssessmentUser, PaperlessMessages, PaperlessStatusBounced, PaperlessStatusNewCustomer, PaperlessStatusNoEmail, PaperlessStatusOptIn, PaperlessStatusOptOut, PaperlessStatusReopt, PaperlessStatusReoptModified, PaperlessStatusResponse, PaperlessStatusUnverified}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
@@ -44,12 +44,12 @@ class PreferencesFrontendServiceSpec extends BaseSpec {
 
   "PreferenceFrontendService" must {
     List(
-      ("NEW_CUSTOMER", "new"),
-      ("BOUNCED_EMAIL", "bounced"),
-      ("EMAIL_NOT_VERIFIED", "unverified"),
-      ("PAPER", "opt_out"),
-      ("ALRIGHT", "opt_in"),
-      ("NO_EMAIL", "no_email")
+      ("NEW_CUSTOMER", PaperlessStatusNewCustomer),
+      ("BOUNCED_EMAIL", PaperlessStatusBounced),
+      ("EMAIL_NOT_VERIFIED", PaperlessStatusUnverified),
+      ("PAPER", PaperlessStatusOptOut),
+      ("ALRIGHT", PaperlessStatusOptIn),
+      ("NO_EMAIL", PaperlessStatusNoEmail)
     ).foreach { key =>
       s"return PaperlessMessages with the ${key._1} message keys" in {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
@@ -59,8 +59,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec {
           )
         when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, PaperlessResponse](
-              Future.successful(Right(PaperlessResponse(PaperlessStatus(key._1, ""), PaperlessUrl("", ""))))
+            EitherT[Future, UpstreamErrorResponse, PaperlessStatusResponse](
+              Future.successful(Right(PaperlessStatusResponse(key._1, "")))
             )
           )
 
@@ -69,17 +69,13 @@ class PreferencesFrontendServiceSpec extends BaseSpec {
           .getPaperlessPreference("url", "returnMessage")(userRequest)
           .value
           .futureValue
-          .getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe PaperlessMessages(
-          s"label.paperless_${key._2}_response",
-          s"label.paperless_${key._2}_link",
-          Some(s"label.paperless_${key._2}_hidden")
-        )
+          .getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe key._2
       }
     }
 
     List(
-      ("RE_OPT_IN", "reopt"),
-      ("RE_OPT_IN_MODIFIED", "reopt_modified")
+      ("RE_OPT_IN", PaperlessStatusReopt),
+      ("RE_OPT_IN_MODIFIED", PaperlessStatusReoptModified)
     ).foreach { key =>
       s"return PaperlessMessages with the ${key._1} message keys" in {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
@@ -89,8 +85,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec {
           )
         when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, PaperlessResponse](
-              Future.successful(Right(PaperlessResponse(PaperlessStatus(key._1, ""), PaperlessUrl("", ""))))
+            EitherT[Future, UpstreamErrorResponse, PaperlessStatusResponse](
+              Future.successful(Right(PaperlessStatusResponse(key._1, "")))
             )
           )
 
@@ -99,11 +95,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec {
           .getPaperlessPreference("url", "returnMessage")(userRequest)
           .value
           .futureValue
-          .getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe PaperlessMessages(
-          s"label.paperless_${key._2}_response",
-          s"label.paperless_${key._2}_link",
-          None
-        )
+          .getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe key._2
       }
     }
   }
