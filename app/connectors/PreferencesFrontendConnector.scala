@@ -28,11 +28,10 @@ import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, PRECONDITION_FA
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.HttpReads.{is4xx, is5xx, upstreamResponseMessage}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads, HttpReadsEither, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpReadsEither, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
-import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -91,6 +90,7 @@ class PreferencesFrontendConnector @Inject() (
     val fullUrl     =
       s"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
         .encryptAndEncode(returnMessage)}"
+        // Timeout of 5 seconds to be added
     httpClientResponse
       .read(
         httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
