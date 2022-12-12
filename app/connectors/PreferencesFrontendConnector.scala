@@ -60,28 +60,12 @@ class PreferencesFrontendConnector @Inject() (
   def getPaperlessPreference()(implicit
     request: UserRequest[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
-    def handleResponseEither(response: HttpResponse): Either[UpstreamErrorResponse, HttpResponse] =
-      response.status match {
-
-        case status if status != PRECONDITION_FAILED && is4xx(status) || is5xx(status) =>
-          Left(
-            UpstreamErrorResponse(
-              message = upstreamResponseMessage("PUT", response.body, status, response.body),
-              statusCode = status,
-              reportAs = if (is4xx(status)) INTERNAL_SERVER_ERROR else BAD_GATEWAY,
-              headers = response.headers
-            )
-          )
-        case _                                                                         => Right(response)
-      }
 
     def newReadEitherOf[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
       HttpReads.ask.flatMap { case (_, _, response) =>
-        handleResponseEither(response) match {
-          case Left(err) =>
-            HttpReads.pure(Left(err))
-          case Right(_)  =>
-            HttpReads[A].map(Right.apply)
+        response.status match {
+          case PRECONDITION_FAILED => HttpReads[A].map(Right.apply)
+          case _                   => readEitherOf
         }
       }
 
