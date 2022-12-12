@@ -45,6 +45,7 @@ object FeatureFlagName {
           JsSuccess(AddressTaxCreditsBrokerCallToggle)
         case name if name == JsString(TaxcalcToggle.toString)                     => JsSuccess(TaxcalcToggle)
         case name if name == JsString(NationalInsuranceTileToggle.toString)       => JsSuccess(NationalInsuranceTileToggle)
+        case name if name == JsString(ItsaMessageToggle.toString)                 => JsSuccess(ItsaMessageToggle)
         case _                                                                    => JsError("Unknown FeatureFlagName")
       }
   }
@@ -66,7 +67,8 @@ object FeatureFlagName {
       value.toString
   }
 
-  val allFeatureFlags = List(AddressTaxCreditsBrokerCallToggle, TaxcalcToggle, NationalInsuranceTileToggle)
+  val allFeatureFlags =
+    List(AddressTaxCreditsBrokerCallToggle, TaxcalcToggle, NationalInsuranceTileToggle, ItsaMessageToggle)
 }
 
 case object AddressTaxCreditsBrokerCallToggle extends FeatureFlagName {
@@ -82,6 +84,11 @@ case object TaxcalcToggle extends FeatureFlagName {
 case object NationalInsuranceTileToggle extends FeatureFlagName {
   override def toString: String            = "national-insurance-tile"
   override val description: Option[String] = Some("Enable/disable the tile for check your National Insurance")
+}
+
+case object ItsaMessageToggle extends FeatureFlagName {
+  override def toString: String            = "itsa-message"
+  override val description: Option[String] = Some("Enable/disable the message for ITSA")
 }
 
 object FeatureFlagMongoFormats {
