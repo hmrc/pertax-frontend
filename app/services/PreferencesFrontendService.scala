@@ -18,13 +18,11 @@ package services
 
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
-import connectors.{EnhancedPartialRetriever, PreferencesFrontendConnector}
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import models.{PaperlessMessages, PaperlessStatusFailed, PaperlessStatusResponse, PaperlessStatuses}
-import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import models.{PaperlessMessages, PaperlessStatusResponse, PaperlessStatuses}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.partials.HtmlPartial
 import util.Tools
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,6 +44,6 @@ class PreferencesFrontendService @Inject() (
         PaperlessStatuses.status.apply(x.name)
 
       case _ =>
-        PaperlessStatusFailed
+        throw new Exception("Invalid PaperlessStatus response")
     }
 }

@@ -28,6 +28,7 @@ import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.ContentTypes
 import play.api.http.Status._
+import play.api.inject.NewInstanceInjector.instanceOf
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
@@ -36,9 +37,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.CONTENT_TYPE
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, FileHelper, WireMockHelper}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, InsufficientEnrolments}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HttpResponse, SessionKeys, UpstreamErrorResponse}
 
 class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
@@ -63,7 +64,6 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
 
   when(mockContext.stop()).thenReturn(1L)
 
-  //TODO: Find a way to mock metrics in a testable way
   "PreferencesFrontend" must {
 
     "return None if an OK status is retrieved, and user is Government GateWay" in {
@@ -103,7 +103,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = NonFilerSelfAssessmentUser,
-          request = FakeRequest()
+          request = FakeRequest().withSession(SessionKeys.authToken -> "Bearer 1")
         )
 
       implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
@@ -126,7 +126,8 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           )
       )
 
-      val result = connector.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, jsonBody))
+      val result =
+        connector.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse.apply(BAD_REQUEST, jsonBody))
 
       result.status mustBe PRECONDITION_FAILED
       result.body must include("http://www.testurl.com")
@@ -195,9 +196,10 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
         .getPaperlessStatus(s"$url/redirect", "returnMessage")
         .value
         .futureValue
-        .getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST))
 
-      result mustBe
+      result mustBe a[Right[UpstreamErrorResponse, PaperlessStatusResponse]]
+
+      result.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe
         PaperlessStatusResponse(
           "ALRIGHT",
           "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D"
@@ -225,9 +227,11 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
         .getPaperlessStatus(s"$url/redirect", "returnMessage")
         .value
         .futureValue
-        .getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST))
 
-      result mustBe
+      result mustBe a[Right[UpstreamErrorResponse, PaperlessStatusResponse]]
+
+      result
+        .getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe
         PaperlessStatusResponse(
           "BOUNCED_EMAIL",
           "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D"
