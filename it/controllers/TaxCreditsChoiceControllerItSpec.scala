@@ -11,7 +11,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import testUtils.{FileHelper, IntegrationSpec}
-import uk.gov.hmrc.http.SessionId
+import uk.gov.hmrc.http.{SessionId, SessionKeys}
 
 class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
@@ -56,6 +56,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
     val cacheMap = s"/keystore/pertax-frontend"
 
     "return a SEE_OTHER and redirect to TCS Address change if the user is a TCS user" in {
+      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
 
       server.stubFor(
         get(urlEqualTo(citizenDetailsUrl))
@@ -98,7 +99,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
       )
 
-      val request = FakeRequest(GET, url)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
 
       val result = route(app, request)
 
@@ -174,7 +175,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
       )
 
-      val request = FakeRequest(GET, url)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
       val result  = route(app, request)
 
       result.get.futureValue.header.status mustBe OK
@@ -224,7 +225,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      val request = FakeRequest(GET, url)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
 
       val result = route(app, request)
 
@@ -278,7 +279,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      val request = FakeRequest(GET, url)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
 
       val result = route(app, request)
 
@@ -338,7 +339,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
             .willReturn(aResponse().withStatus(response))
         )
 
-        val request = FakeRequest(GET, url)
+        val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
 
         val result = route(app, request)
 
