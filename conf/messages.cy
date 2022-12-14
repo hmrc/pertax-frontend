@@ -558,6 +558,10 @@ label.paperless_no_email_response=Drwy’r post, nid oes gennym eich cyfeiriad e
 label.paperless_no_email_link=Rhowch wybod i ni beth yw’ch e-bost
 label.paperless_no_email_hidden=cyfeiriad
 
+label.paperless_failed_response=PLACEHOLDER
+label.paperless_failed_link=PLACEHOLDER
+label.paperless_failed_hidden=PLACEHOLDER
+
 #
 # Tax Summaries tile
 #

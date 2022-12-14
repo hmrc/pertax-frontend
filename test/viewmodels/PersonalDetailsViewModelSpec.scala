@@ -18,6 +18,7 @@ package viewmodels
 
 import cats.data.EitherT
 import config.ConfigDecorator
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
@@ -27,7 +28,6 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
-import services.PreferencesFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
@@ -50,11 +50,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   lazy val addressView               = injected[AddressView]
   lazy val correspondenceAddressView = injected[CorrespondenceAddressView]
   lazy val countryHelper             = injected[CountryHelper]
-  lazy val mockPreferencesService    = mock[PreferencesFrontendService]
+  lazy val mockPreferencesConnector  = mock[PreferencesFrontendConnector]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser, None)
     .overrides(
-      bind[PreferencesFrontendService].toInstance(mockPreferencesService)
+      bind[PreferencesFrontendConnector].toInstance(mockPreferencesConnector)
     )
     .build()
 
@@ -150,7 +150,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         )
       )
 
-      when(mockPreferencesService.getPaperlessPreference(any(), any())(any())).thenReturn(
+      when(mockPreferencesConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, PaperlessMessages](
           Future.successful(
             Right(

@@ -71,9 +71,9 @@ case object PaperlessStatusNoEmail extends PaperlessMessages {
 }
 
 case object PaperlessStatusFailed extends PaperlessMessages {
-  override val responseText: String       = "label.paperless_no_email_response"
-  override val linkText: String           = "label.paperless_no_email_link"
-  override val hiddenText: Option[String] = Some("label.paperless_no_email_hidden")
+  override val responseText: String       = "label.paperless_failed_response"
+  override val linkText: String           = "label.paperless_failed_link"
+  override val hiddenText: Option[String] = Some("label.paperless_failed_hidden")
 }
 
 object PaperlessStatuses {

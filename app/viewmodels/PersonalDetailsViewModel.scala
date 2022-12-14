@@ -18,11 +18,11 @@ package viewmodels
 
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
 import play.twirl.api.HtmlFormat
-import services.PreferencesFrontendService
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import util.TemplateFunctions
@@ -37,7 +37,7 @@ class PersonalDetailsViewModel @Inject() (
   countryHelper: CountryHelper,
   addressView: AddressView,
   correspondenceAddressView: CorrespondenceAddressView,
-  preferencesFrontendService: PreferencesFrontendService
+  preferencesFrontendConnector: PreferencesFrontendConnector
 ) {
 
   private def getMainAddress(
@@ -206,8 +206,8 @@ class PersonalDetailsViewModel @Inject() (
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Option[PersonalDetailsTableRowModel]] =
-    preferencesFrontendService
-      .getPaperlessPreference(request.uri, messages("label.continue"))
+    preferencesFrontendConnector
+      .getPaperlessStatus(request.uri, messages("label.continue"))
       .fold(
         _ => None,
         response =>

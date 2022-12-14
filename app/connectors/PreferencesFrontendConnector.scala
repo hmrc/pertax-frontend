@@ -22,13 +22,12 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import metrics.HasMetrics
-import models.PaperlessStatusResponse
+import models.{PaperlessMessages, PaperlessStatusFailed, PaperlessStatusResponse, PaperlessStatuses}
 import play.api.Logging
-import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, PRECONDITION_FAILED}
+import play.api.http.Status.PRECONDITION_FAILED
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.http.HttpReads.{is4xx, is5xx, upstreamResponseMessage}
-import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpReadsEither, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import play.api.libs.json.{JsObject, JsResult, JsSuccess, Json}
+import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
@@ -100,7 +99,7 @@ class PreferencesFrontendConnector @Inject() (
 
   def getPaperlessStatus(url: String, returnMessage: String)(implicit
     request: UserRequest[_]
-  ): EitherT[Future, UpstreamErrorResponse, PaperlessStatusResponse] = {
+  ): EitherT[Future, UpstreamErrorResponse, PaperlessMessages] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + url
     val fullUrl     =
@@ -113,6 +112,11 @@ class PreferencesFrontendConnector @Inject() (
           .transform(_.withRequestTimeout(5.seconds))
           .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
-      .map(_.json.as[PaperlessStatusResponse])
+      .map(response =>
+        response.json.validate[PaperlessStatusResponse] match {
+          case JsSuccess(value, _) => PaperlessStatuses.status.apply(value.name)
+          case _                   => PaperlessStatusFailed
+        }
+      )
   }
 }
