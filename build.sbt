@@ -57,12 +57,11 @@ lazy val microservice = Project(appName, file("."))
     routesImport ++= Seq(
       "uk.gov.hmrc.play.bootstrap.binders._",
       "controllers.bindable._",
-      "uk.gov.hmrc.play.binders._"
+      "models.admin._"
     ),
     TwirlKeys.templateImports ++= Seq(
       "models._",
       "models.dto._",
-      "uk.gov.hmrc.play.binders._",
       "uk.gov.hmrc.play.bootstrap.binders._",
       "controllers.bindable._",
       "uk.gov.hmrc.domain._",

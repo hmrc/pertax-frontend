@@ -61,7 +61,7 @@ class BreathingSpaceConnector @Inject() (
     val result                                  = withTimeout(timeoutInSec seconds) {
       withCircuitBreaker(
         httpClient
-          .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(implicitly, bsHeaderCarrier, ec)
+          .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(readEitherOf(readRaw), bsHeaderCarrier, ec)
       )(bsHeaderCarrier)
     }
     httpClientResponse

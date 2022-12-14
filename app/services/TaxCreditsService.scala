@@ -31,11 +31,13 @@ class TaxCreditsService @Inject() (taxCreditsConnector: TaxCreditsConnector)(imp
     if (nino.isEmpty) {
       Future.successful(Some(false))
     } else {
-      taxCreditsConnector.checkForTaxCredits(nino.get) bimap (
-        error => if (error.statusCode == NOT_FOUND) Some(false) else None,
-        result => {
-          if (result.status == OK) Some(true) else Some(false)
-        }
-      )
-    }.merge
+      taxCreditsConnector
+        .checkForTaxCredits(nino.get)
+        .fold(
+          error => if (error.statusCode == NOT_FOUND) Some(false) else None,
+          result =>
+            if (result.status == OK) Some(true)
+            else Some(false)
+        )
+    }
 }

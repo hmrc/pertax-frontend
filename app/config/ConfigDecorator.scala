@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import controllers.routes
 import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
-import uk.gov.hmrc.play.binders.Origin
+import controllers.bindable.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -34,6 +34,9 @@ class ConfigDecorator @Inject() (
   servicesConfig: ServicesConfig
 ) extends TaxcalcUrls {
   lazy val authProviderChoice = runModeConfiguration.get[String](s"external-url.auth-provider-choice.host")
+
+  lazy val internalAuthResourceType: String =
+    runModeConfiguration.getOptional[String]("internal-auth.resource-type").getOrElse("ddcn-live-admin-frontend")
 
   val defaultOrigin = Origin("PERTAX")
 
@@ -172,6 +175,8 @@ class ConfigDecorator @Inject() (
       .orElse(runModeConfiguration.getOptional[String]("appName"))
       .getOrElse("undefined")
 
+  val ehCacheTtlInSeconds = runModeConfiguration.getOptional[Int]("ehCache.ttlInSeconds").getOrElse(600)
+
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
   lazy val generalQueriesUrl     = "https://www.gov.uk/contact-hmrc"
 
@@ -240,8 +245,6 @@ class ConfigDecorator @Inject() (
   lazy val singleAccountEnrolmentFeature =
     runModeConfiguration.getOptional[String]("feature.single-account-enrolment.enabled").getOrElse("false").toBoolean
 
-  lazy val taxcalcEnabled       =
-    runModeConfiguration.getOptional[String]("feature.taxcalc.enabled").getOrElse("true").toBoolean
   lazy val taxComponentsEnabled =
     runModeConfiguration.getOptional[String]("feature.tax-components.enabled").getOrElse("true").toBoolean
 
@@ -257,11 +260,6 @@ class ConfigDecorator @Inject() (
 
   lazy val personDetailsMessageCountEnabled =
     runModeConfiguration.getOptional[String]("feature.person-details-message-count.enabled").getOrElse("true").toBoolean
-
-  lazy val addressChangeTaxCreditsQuestionEnabled = runModeConfiguration
-    .getOptional[String]("feature.address-change-tax-credits-question.enabled")
-    .getOrElse("false")
-    .toBoolean
 
   lazy val updateInternationalAddressInPta =
     runModeConfiguration
@@ -300,12 +298,6 @@ class ConfigDecorator @Inject() (
   lazy val editAddressTtl: Int = runModeConfiguration.getOptional[Int]("mongodb.editAddressTtl").getOrElse(0)
 
   lazy val saPartialReturnLinkText = "Back to account home"
-
-  lazy val isNationalInsuranceCardEnabled: Boolean =
-    runModeConfiguration
-      .getOptional[String]("feature.national-insurance-tile.enabled")
-      .getOrElse("false")
-      .toBoolean
 
   lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
   lazy val seissClaimsUrl          = s"$seissFrontendHost/self-employment-support/claim/your-claims"
