@@ -18,11 +18,9 @@ package connectors
 
 import cats.data.EitherT
 import cats.implicits._
-import com.codahale.metrics.Timer
 import com.google.common.util.concurrent.RateLimiter
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import metrics.{Metrics, MetricsEnumeration}
 import models.AgentClientStatus
 import play.api.Logging
 import play.api.libs.json.Format
@@ -96,7 +94,6 @@ class CachingAgentClientAuthorisationConnector @Inject() (
 @Singleton
 class DefaultAgentClientAuthorisationConnector @Inject() (
   val httpClient: HttpClient,
-  val metrics: Metrics,
   servicesConfig: ServicesConfig,
   httpClientResponse: HttpClientResponse,
   limiters: Limiters
@@ -114,21 +111,14 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
     ec: ExecutionContext,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] = {
-    val timerContext: Timer.Context =
-      metrics.startTimer(MetricsEnumeration.GET_AGENT_CLIENT_STATUS)
-
     val result =
       withThrottle {
         withTimeout(timeoutInSec seconds) {
           httpClient
             .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$baseUrl/agent-client-authorisation/status")
-            .map { response =>
-              timerContext.stop()
-              response
-            }
         }
       }
-    httpClientResponse.read(result, Some(MetricsEnumeration.GET_AGENT_CLIENT_STATUS)).map { response =>
+    httpClientResponse.read(result).map { response =>
       response.json.as[AgentClientStatus]
     }
   }

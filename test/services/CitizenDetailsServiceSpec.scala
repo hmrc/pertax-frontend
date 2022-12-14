@@ -36,7 +36,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
 
   val mockConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
 
-  val sut: CitizenDetailsService = new CitizenDetailsService(inject[ConfigDecorator], mockConnector)
+  val sut: CitizenDetailsService = new CitizenDetailsService(mockConnector)
 
   "CitizenDetailsService" when {
     "personDetails is called" must {

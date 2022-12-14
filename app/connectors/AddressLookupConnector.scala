@@ -18,15 +18,12 @@ package connectors
 
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
-import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import metrics._
 import models.addresslookup.{AddressLookup, RecordSet}
 import play.api.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,40 +37,27 @@ final case class AddressLookupErrorResponse(cause: Exception) extends AddressLoo
 class AddressLookupConnector @Inject() (
   configDecorator: ConfigDecorator,
   val http: HttpClient,
-  val metrics: Metrics,
-  val tools: Tools,
   servicesConfig: ServicesConfig,
   httpClientResponse: HttpClientResponse
-) extends HasMetrics
-    with Logging {
+) extends Logging {
 
   lazy val addressLookupUrl = servicesConfig.baseUrl("address-lookup")
 
   def lookup(postcode: String, filter: Option[String] = None)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
-  ): EitherT[Future, UpstreamErrorResponse, RecordSet] =
-    withMetricsTimer("address-lookup") { t =>
-      val pc                 = postcode.replaceAll(" ", "")
-      val newHc              = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
-      val addressRequestBody = AddressLookup(pc, filter)
+  ): EitherT[Future, UpstreamErrorResponse, RecordSet] = {
+    val pc                 = postcode.replaceAll(" ", "")
+    val newHc              = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
+    val addressRequestBody = AddressLookup(pc, filter)
 
-      httpClientResponse
-        .read(
-          http.POST[AddressLookup, Either[UpstreamErrorResponse, HttpResponse]](
-            s"$addressLookupUrl/lookup",
-            addressRequestBody
-          )(implicitly, implicitly, newHc, implicitly)
-        )
-        .bimap(
-          error => {
-            t.completeTimerAndIncrementFailedCounter()
-            error
-          },
-          response => {
-            t.completeTimerAndIncrementSuccessCounter()
-            RecordSet.fromJsonAddressLookupService(response.json)
-          }
-        )
-    }
+    httpClientResponse
+      .read(
+        http.POST[AddressLookup, Either[UpstreamErrorResponse, HttpResponse]](
+          s"$addressLookupUrl/lookup",
+          addressRequestBody
+        )(implicitly, implicitly, newHc, implicitly)
+      )
+      .map(response => RecordSet.fromJsonAddressLookupService(response.json))
+  }
 }

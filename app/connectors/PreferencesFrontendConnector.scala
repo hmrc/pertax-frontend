@@ -18,10 +18,8 @@ package connectors
 
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
-import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import metrics.HasMetrics
 import play.api.Logging
 import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, PRECONDITION_FAILED}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -39,7 +37,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class PreferencesFrontendConnector @Inject() (
   httpClient: HttpClient,
   val messagesApi: MessagesApi,
-  val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   val tools: Tools,
   servicesConfig: ServicesConfig,
@@ -47,7 +44,6 @@ class PreferencesFrontendConnector @Inject() (
 )(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter
     with PreferencesCustomError
-    with HasMetrics
     with I18nSupport
     with Logging {
 
@@ -64,22 +60,10 @@ class PreferencesFrontendConnector @Inject() (
       s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
         .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
 
-    withMetricsTimer("get-activate-paperless") { timer =>
-      httpClientResponse
-        .read(
-          httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))
-        )
-        .bimap(
-          error => {
-            timer.completeTimerAndIncrementFailedCounter()
-            error
-          },
-          response => {
-            timer.completeTimerAndIncrementSuccessCounter()
-            response
-          }
-        )
-    }
+    httpClientResponse
+      .read(
+        httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))
+      )
   }
 }
 

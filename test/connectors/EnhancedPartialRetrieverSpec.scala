@@ -18,12 +18,10 @@ package connectors
 
 import com.codahale.metrics.Timer
 import com.github.tomakehurst.wiremock.client.WireMock._
-import metrics.MetricsImpl
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, verify, _}
+import org.mockito.Mockito.{verify, _}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
-import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -35,18 +33,8 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
 
   lazy implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
 
-  val mockMetrics: MetricsImpl = mock[MetricsImpl]
-
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    reset(mockMetrics)
-  }
-
   server.start()
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
-    .overrides(
-      bind[MetricsImpl].toInstance(mockMetrics)
-    )
     .configure(
       "microservice.services.contact-frontend.port" -> server.port(),
       "metrics.enabled"                             -> false,
@@ -66,14 +54,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       server.stubFor(
         get(urlEqualTo("/")).willReturn(ok("my body content"))
       )
-      when(mockMetrics.startTimer(any())).thenReturn(mock[Timer.Context])
-      when(mockMetrics.incrementSuccessCounter(any())).thenAnswer(_ => None)
-      when(mockMetrics.incrementFailedCounter(any())).thenAnswer(_ => None)
-
       sut.loadPartial(url).futureValue mustBe returnPartial
-      verify(mockMetrics, times(1)).startTimer(any())
-      verify(mockMetrics, times(0)).incrementFailedCounter(any())
-      verify(mockMetrics, times(1)).incrementSuccessCounter(any())
     }
 
     "return a failed partial and log the right metrics" in {
@@ -83,15 +64,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       server.stubFor(
         get(urlEqualTo("/")).willReturn(notFound.withBody("Not Found"))
       )
-
-      when(mockMetrics.startTimer(any())).thenReturn(mock[Timer.Context])
-      when(mockMetrics.incrementSuccessCounter(any())).thenAnswer(_ => None)
-      when(mockMetrics.incrementFailedCounter(any())).thenAnswer(_ => None)
-
       sut.loadPartial(url).futureValue mustBe returnPartial
-      verify(mockMetrics, times(1)).startTimer(any())
-      verify(mockMetrics, times(1)).incrementFailedCounter(any())
-      verify(mockMetrics, times(0)).incrementSuccessCounter(any())
     }
 
     "when the call to the service fails log the right metrics" in {
@@ -101,15 +74,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       server.stubFor(
         get(urlEqualTo("/")).willReturn(serverError.withBody("Error"))
       )
-
-      when(mockMetrics.startTimer(any())).thenReturn(mock[Timer.Context])
-      when(mockMetrics.incrementSuccessCounter(any())).thenAnswer(_ => None)
-      when(mockMetrics.incrementFailedCounter(any())).thenAnswer(_ => None)
-
       sut.loadPartial(url).futureValue mustBe returnPartial
-      verify(mockMetrics, times(1)).startTimer(any())
-      verify(mockMetrics, times(1)).incrementFailedCounter(any())
-      verify(mockMetrics, times(0)).incrementSuccessCounter(any())
     }
   }
 }

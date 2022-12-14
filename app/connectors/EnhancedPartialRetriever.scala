@@ -16,9 +16,7 @@
 
 package connectors
 
-import com.codahale.metrics.Timer
 import com.google.inject.Inject
-import metrics.{Metrics, MetricsEnumeration}
 import play.api.Logging
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.{HttpClient, HttpException}
@@ -27,36 +25,26 @@ import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial
 import scala.concurrent.{ExecutionContext, Future}
 
 class EnhancedPartialRetriever @Inject() (
-  metrics: Metrics,
   http: HttpClient,
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
 ) extends Logging {
 
   def loadPartial(url: String)(implicit request: RequestHeader, ec: ExecutionContext): Future[HtmlPartial] = {
-    val timerContext: Timer.Context =
-      metrics.startTimer(MetricsEnumeration.LOAD_PARTIAL)
 
     implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
 
     http.GET[HtmlPartial](url) map {
       case partial: HtmlPartial.Success =>
-        timerContext.stop()
-        metrics.incrementSuccessCounter(MetricsEnumeration.LOAD_PARTIAL)
         partial
       case partial: HtmlPartial.Failure =>
-        timerContext.stop()
         logger.error(s"Failed to load partial from $url, partial info: $partial")
-        metrics.incrementFailedCounter(MetricsEnumeration.LOAD_PARTIAL)
         partial
-    } recover { case e =>
-      timerContext.stop()
-      metrics.incrementFailedCounter(MetricsEnumeration.LOAD_PARTIAL)
-      e match {
-        case ex: HttpException =>
-          HtmlPartial.Failure(Some(ex.responseCode))
-        case _                 =>
-          HtmlPartial.Failure(None)
-      }
+    } recover {
+      case ex: HttpException =>
+        HtmlPartial.Failure(Some(ex.responseCode))
+      case _                 =>
+        HtmlPartial.Failure(None)
+
     }
   }
 }

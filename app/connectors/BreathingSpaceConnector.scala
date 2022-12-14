@@ -17,10 +17,8 @@
 package connectors
 
 import cats.data.EitherT
-import com.codahale.metrics.Timer
 import com.google.inject.Inject
 import config.ConfigDecorator
-import metrics.{Metrics, MetricsEnumeration}
 import models.BreathingSpaceIndicator
 import play.api.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
@@ -35,7 +33,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class BreathingSpaceConnector @Inject() (
   val httpClient: HttpClient,
-  val metrics: Metrics,
   httpClientResponse: HttpClientResponse,
   override val configDecorator: ConfigDecorator
 ) extends Timeout
@@ -45,14 +42,12 @@ class BreathingSpaceConnector @Inject() (
   lazy val baseUrl      = configDecorator.breathingSpcaeBaseUrl
   lazy val timeoutInSec =
     configDecorator.breathingSpcaeTimeoutInSec
-  val metricName        = MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR
 
   override val externalServiceName = configDecorator.breathingSpaceAppName
 
   def getBreathingSpaceIndicator(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Boolean] = {
-    val timerContext: Timer.Context             = metrics.startTimer(metricName)
     val url                                     = s"$baseUrl/$nino/memorandum"
     implicit val bsHeaderCarrier: HeaderCarrier = hc
       .withExtraHeaders(
@@ -65,17 +60,8 @@ class BreathingSpaceConnector @Inject() (
       )(bsHeaderCarrier)
     }
     httpClientResponse
-      .read(result, Some(metricName))
-      .bimap(
-        error => {
-          timerContext.stop()
-          error
-        },
-        response => {
-          timerContext.stop()
-          response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator
-        }
-      )
+      .read(result)
+      .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
 
 }

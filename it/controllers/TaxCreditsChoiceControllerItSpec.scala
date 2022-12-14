@@ -12,7 +12,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import services.admin.FeatureFlagService
 import testUtils.{FileHelper, IntegrationSpec}
-import uk.gov.hmrc.http.SessionId
+import uk.gov.hmrc.http.{SessionId, SessionKeys}
 
 class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
@@ -96,7 +96,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
       )
 
-      val request = FakeRequest(GET, url)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
 
       val result = route(app, request)
 
@@ -174,7 +174,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
       )
 
-      val request = FakeRequest(GET, url)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
       val result  = route(app, request)
 
       result.get.futureValue.header.status mustBe OK
@@ -226,7 +226,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      val request = FakeRequest(GET, url)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
 
       val result = route(app, request)
 
@@ -282,7 +282,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      val request = FakeRequest(GET, url)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
 
       val result = route(app, request)
 
@@ -344,7 +344,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
             .willReturn(aResponse().withStatus(response))
         )
 
-        val request = FakeRequest(GET, url)
+        val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
 
         val result = route(app, request)
 

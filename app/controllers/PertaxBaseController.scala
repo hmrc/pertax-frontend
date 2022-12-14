@@ -27,12 +27,6 @@ abstract class PertaxBaseController(cc: MessagesControllerComponents)(implicit e
     extends FrontendController(cc)
     with I18nSupport {
 
-  implicit class SessionKeyRemover(result: Future[Result]) {
-    def removeSessionKey(key: String)(implicit request: Request[_]): Future[Result] = result.map {
-      _.withSession(request.session - key)
-    }
-  }
-
   val baseBreadcrumb: Breadcrumb =
     List("label.account_home" -> routes.HomeController.index.url)
 
