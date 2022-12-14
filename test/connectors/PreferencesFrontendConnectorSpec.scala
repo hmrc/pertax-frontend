@@ -298,7 +298,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
       }
     }
 
-    "return a UpstreamErrorResponse if invalid json is returned" in {
+    "return a PaperlessStatusFailed if invalid json is returned" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = NonFilerSelfAssessmentUser,
