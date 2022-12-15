@@ -218,7 +218,7 @@ class PersonalDetailsViewModel @Inject() (
               HtmlFormat.raw(messages(response.responseText)),
               messages(response.linkText),
               messages(response.hiddenText.getOrElse("")),
-              Some(controllers.routes.PaperlessPreferencesController.managePreferences.url),
+              Some(response.link),
               displayChangelink = request.trustedHelper.isEmpty
             )
           )

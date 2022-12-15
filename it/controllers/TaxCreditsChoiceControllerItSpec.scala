@@ -61,11 +61,6 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       )
 
       server.stubFor(
-        get(urlEqualTo(personDetailsUrl))
-          .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
-      )
-
-      server.stubFor(
         get(urlPathMatching(s"$cacheMap/.*"))
           .willReturn(
             aResponse()

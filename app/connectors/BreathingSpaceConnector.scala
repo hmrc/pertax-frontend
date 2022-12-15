@@ -44,7 +44,7 @@ class BreathingSpaceConnector @Inject() (
 
   lazy val baseUrl      = configDecorator.breathingSpcaeBaseUrl
   lazy val timeoutInSec =
-    configDecorator.breathingSpcaeTimeoutInSec
+    configDecorator.breathingSpaceTimeoutInSec
   val metricName        = MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR
 
   override val externalServiceName = configDecorator.breathingSpaceAppName

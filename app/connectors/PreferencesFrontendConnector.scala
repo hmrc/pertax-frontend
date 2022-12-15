@@ -22,7 +22,7 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import metrics.HasMetrics
-import models.{PaperlessMessages, PaperlessStatusFailed, PaperlessStatusResponse, PaperlessStatuses}
+import models.PaperlessMessages
 import play.api.Logging
 import play.api.http.Status.PRECONDITION_FAILED
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -109,14 +109,9 @@ class PreferencesFrontendConnector @Inject() (
       .read(
         httpClientV2
           .get(url"$fullUrl")
-          .transform(_.withRequestTimeout(5.seconds))
+          .transform(_.withRequestTimeout(configDecorator.preferenceFrontendTimeoutInSec.seconds))
           .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
-      .map(response =>
-        response.json.validate[PaperlessStatusResponse] match {
-          case JsSuccess(value, _) => PaperlessStatuses.status.apply(value.name)
-          case _                   => PaperlessStatusFailed
-        }
-      )
+      .map(_.json.as[PaperlessMessages])
   }
 }

@@ -151,13 +151,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       )
 
       when(mockPreferencesConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PaperlessMessages](
-          Future.successful(
-            Right(
-              PaperlessStatusOptIn
-            )
-          )
-        )
+        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn("link"): PaperlessMessages)
       )
 
       val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages, hc, ec)

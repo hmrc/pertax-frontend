@@ -28,16 +28,15 @@ import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.ContentTypes
 import play.api.http.Status._
-import play.api.inject.NewInstanceInjector.instanceOf
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
+import play.api.libs.json.JsResultException
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.CONTENT_TYPE
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, FileHelper, WireMockHelper}
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, InsufficientEnrolments}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HttpReads.{is4xx, is5xx}
 import uk.gov.hmrc.http.{HttpResponse, SessionKeys, UpstreamErrorResponse}
@@ -201,7 +200,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
       result mustBe a[Right[UpstreamErrorResponse, PaperlessMessages]]
 
       result.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe
-        PaperlessStatusOptIn
+        a[PaperlessStatusOptIn]
     }
     "return a PaperlessStatusResponse with status Bounced" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
@@ -228,7 +227,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
 
       result mustBe a[Right[UpstreamErrorResponse, PaperlessMessages]]
 
-      result.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe PaperlessStatusBounced
+      result.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe a[PaperlessStatusBounced]
     }
 
     List(
@@ -327,11 +326,10 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
       val result = connector
         .getPaperlessStatus(s"$url/redirect", "returnMessage")
         .value
-        .futureValue
 
-      result mustBe a[Right[UpstreamErrorResponse, PaperlessMessages]]
-
-      result.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe PaperlessStatusFailed
+      whenReady(result.failed) { ex =>
+        ex mustBe a[JsResultException]
+      }
     }
   }
 }

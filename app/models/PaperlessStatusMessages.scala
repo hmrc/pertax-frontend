@@ -16,75 +16,86 @@
 
 package models
 
+import play.api.libs.json.{JsError, JsResult, JsSuccess, JsValue, Reads}
+
 sealed trait PaperlessMessages {
+  val responseCode: String
   val responseText: String
   val linkText: String
   val hiddenText: Option[String]
+  val link: String
 }
 
-case object PaperlessStatusNewCustomer extends PaperlessMessages {
+object PaperlessMessages {
+  private def getPaperlessMessage(key: String, link: String): JsResult[PaperlessMessages] = Map(
+    PaperlessStatusNewCustomer().responseCode   -> JsSuccess(PaperlessStatusNewCustomer(link)),
+    PaperlessStatusBounced().responseCode       -> JsSuccess(PaperlessStatusBounced(link)),
+    PaperlessStatusUnverified().responseCode    -> JsSuccess(PaperlessStatusUnverified(link)),
+    PaperlessStatusReopt().responseCode         -> JsSuccess(PaperlessStatusReopt(link)),
+    PaperlessStatusReoptModified().responseCode -> JsSuccess(PaperlessStatusReoptModified(link)),
+    PaperlessStatusOptOut().responseCode        -> JsSuccess(PaperlessStatusOptOut(link)),
+    PaperlessStatusOptIn().responseCode         -> JsSuccess(PaperlessStatusOptIn(link)),
+    PaperlessStatusNoEmail().responseCode       -> JsSuccess(PaperlessStatusNoEmail(link))
+  ).getOrElse(key, JsError("Invalid response code for paperless status"))
+
+  implicit val reads: Reads[PaperlessMessages] = new Reads[PaperlessMessages] {
+    override def reads(json: JsValue): JsResult[PaperlessMessages] =
+      getPaperlessMessage((json \ "status" \ "name").as[String], (json \ "url" \ "link").as[String])
+  }
+}
+
+case class PaperlessStatusNewCustomer(link: String = "") extends PaperlessMessages {
+  override val responseCode: String       = "NEW_CUSTOMER"
   override val responseText: String       = "label.paperless_new_response"
   override val linkText: String           = "label.paperless_new_link"
   override val hiddenText: Option[String] = Some("label.paperless_new_hidden")
 }
 
-case object PaperlessStatusBounced extends PaperlessMessages {
+case class PaperlessStatusBounced(link: String = "") extends PaperlessMessages {
+  override val responseCode: String       = "BOUNCED_EMAIL"
   override val responseText: String       = "label.paperless_bounced_response"
   override val linkText: String           = "label.paperless_bounced_link"
   override val hiddenText: Option[String] = Some("label.paperless_bounced_hidden")
 }
 
-case object PaperlessStatusUnverified extends PaperlessMessages {
+case class PaperlessStatusUnverified(link: String = "") extends PaperlessMessages {
+  override val responseCode: String       = "EMAIL_NOT_VERIFIED"
   override val responseText: String       = "label.paperless_unverified_response"
   override val linkText: String           = "label.paperless_unverified_link"
   override val hiddenText: Option[String] = Some("label.paperless_unverified_hidden")
 }
 
-case object PaperlessStatusReopt extends PaperlessMessages {
+case class PaperlessStatusReopt(link: String = "") extends PaperlessMessages {
+  override val responseCode: String       = "RE_OPT_IN"
   override val responseText: String       = "label.paperless_reopt_response"
   override val linkText: String           = "label.paperless_reopt_link"
   override val hiddenText: Option[String] = None
 }
 
-case object PaperlessStatusReoptModified extends PaperlessMessages {
+case class PaperlessStatusReoptModified(link: String = "") extends PaperlessMessages {
+  override val responseCode: String       = "RE_OPT_IN_MODIFIED"
   override val responseText: String       = "label.paperless_reopt_modified_response"
   override val linkText: String           = "label.paperless_reopt_modified_link"
   override val hiddenText: Option[String] = None
 }
 
-case object PaperlessStatusOptOut extends PaperlessMessages {
+case class PaperlessStatusOptOut(link: String = "") extends PaperlessMessages {
+  override val responseCode: String       = "PAPER"
   override val responseText: String       = "label.paperless_opt_out_response"
   override val linkText: String           = "label.paperless_opt_out_link"
   override val hiddenText: Option[String] = Some("label.paperless_opt_out_hidden")
 }
 
-case object PaperlessStatusOptIn extends PaperlessMessages {
+case class PaperlessStatusOptIn(link: String = "") extends PaperlessMessages {
+  override val responseCode: String       = "ALRIGHT"
   override val responseText: String       = "label.paperless_opt_in_response"
   override val linkText: String           = "label.paperless_opt_in_link"
   override val hiddenText: Option[String] = Some("label.paperless_opt_in_hidden")
 }
 
-case object PaperlessStatusNoEmail extends PaperlessMessages {
+case class PaperlessStatusNoEmail(link: String = "") extends PaperlessMessages {
+  override val responseCode: String       = "NO_EMAIL"
   override val responseText: String       = "label.paperless_no_email_response"
   override val linkText: String           = "label.paperless_no_email_link"
   override val hiddenText: Option[String] = Some("label.paperless_no_email_hidden")
-}
-
-case object PaperlessStatusFailed extends PaperlessMessages {
-  override val responseText: String       = "label.paperless_failed_response"
-  override val linkText: String           = "label.paperless_failed_link"
-  override val hiddenText: Option[String] = Some("label.paperless_failed_hidden")
-}
-
-object PaperlessStatuses {
-  val status: Map[String, PaperlessMessages] = Map(
-    "BOUNCED_EMAIL"      -> PaperlessStatusBounced,
-    "NEW_CUSTOMER"       -> PaperlessStatusNewCustomer,
-    "EMAIL_NOT_VERIFIED" -> PaperlessStatusUnverified,
-    "RE_OPT_IN"          -> PaperlessStatusReopt,
-    "RE_OPT_IN_MODIFIED" -> PaperlessStatusReoptModified,
-    "PAPER"              -> PaperlessStatusOptOut,
-    "ALRIGHT"            -> PaperlessStatusOptIn,
-    "NO_EMAIL"           -> PaperlessStatusNoEmail
-  )
 }
