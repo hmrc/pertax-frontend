@@ -27,7 +27,7 @@
     link: Link
 )
 
-@(redirectUrl: String, nextDeadlineTaxYear: String, isItsa: Boolean, isSa: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(redirectUrl: String, nextDeadlineTaxYear: String, isItsa: Boolean, isSa: Boolean, itsaToggle: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(
     pageTitle = messages("label.your_self_assessment"),
@@ -98,7 +98,7 @@
         }
         case _ => {}
     }
-        @if(!isItsa) {
+        @if(itsaToggle && !isItsa) {
             @h2("label.making_tax_digital")
             @p(Text(messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return")))
             @p(Text(messages("label.some_businesses_agents_using_mtd_for_itsa")))

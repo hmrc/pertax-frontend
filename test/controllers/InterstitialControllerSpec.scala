@@ -23,6 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
+import models.admin.{FeatureFlag, ItsaMessageToggle}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.i18n.{Langs, Messages}
@@ -32,6 +33,7 @@ import play.api.test.Helpers._
 import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import services._
+import services.admin.FeatureFlagService
 import services.partials.{FormPartialService, SaPartialService}
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
@@ -83,7 +85,8 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewBreathingSpaceView],
         injected[EnrolmentsHelper],
         injected[SeissService],
-        mockNewsAndTileConfig
+        mockNewsAndTileConfig,
+        injected[FeatureFlagService]
       )(config, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) {
@@ -349,7 +352,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService],
-          mock[NewsAndTilesConfig]
+          mock[NewsAndTilesConfig],
+          inject[FeatureFlagService]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -442,7 +446,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService],
-          mockNewsAndTileConfig
+          mockNewsAndTileConfig,
+          inject[FeatureFlagService]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -480,7 +485,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayItsa" must {
 
-    "saItsaTileEnabled is true return OK" in {
+    "return OK" in {
       lazy val fakeRequest = FakeRequest("", "")
 
       val mockAuthJourney = mock[AuthJourney]
@@ -490,6 +495,8 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[Langs],
         injected[ServicesConfig]
       )
+
+      val mockFeatureFlagService = mock[FeatureFlagService]
 
       def controller: InterstitialController =
         new InterstitialController(
@@ -509,7 +516,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService],
-          mock[NewsAndTilesConfig]
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -521,6 +529,9 @@ class InterstitialControllerSpec extends BaseSpec {
             )
           )
       })
+
+      when(mockFeatureFlagService.get(any()))
+        .thenReturn(Future.successful(FeatureFlag(ItsaMessageToggle, isEnabled = true)))
 
       val result = controller.displaySaAndItsaMergePage()(fakeRequest)
 

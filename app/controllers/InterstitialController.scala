@@ -24,11 +24,13 @@ import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.controllershelpers.PaperlessInterruptHelper
 import error.ErrorRenderer
 import models._
+import models.admin.{ItsaMessageToggle, NationalInsuranceTileToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
 import services.SeissService
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
@@ -56,7 +58,8 @@ class InterstitialController @Inject() (
   viewBreathingSpaceView: ViewBreathingSpaceView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
-  newsAndTilesConfig: NewsAndTilesConfig
+  newsAndTilesConfig: NewsAndTilesConfig,
+  featureFlagService: FeatureFlagService
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with PaperlessInterruptHelper
@@ -107,13 +110,15 @@ class InterstitialController @Inject() (
       (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       for {
-        hasSeissClaims <- seissService.hasClaims(request.saUserType)
+        hasSeissClaims    <- seissService.hasClaims(request.saUserType)
+        istaMessageToggle <- featureFlagService.get(ItsaMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
           redirectUrl = currentUrl(request),
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           request.isSa,
+          istaMessageToggle.isEnabled,
           hasSeissClaims,
           taxYear = previousAndCurrentTaxYear,
           request.saUserType

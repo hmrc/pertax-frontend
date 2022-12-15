@@ -19,15 +19,22 @@ package views.html.interstitial
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
+import models.admin.{FeatureFlag, ItsaMessageToggle, NationalInsuranceTileToggle}
 import org.jsoup.nodes.Document
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import org.scalatest.Assertion
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.DateTimeTools.{current, previousAndCurrentTaxYear}
 import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.time.TaxYear
 import views.html.ViewSpec
+
+import scala.concurrent.Future
 
 class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
@@ -57,6 +64,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
         nextDeadlineTaxYear,
         false,
         true,
+        true,
         false,
         previousAndCurrentTaxYear,
         user
@@ -75,6 +83,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             nextDeadlineTaxYear,
             true,
             false,
+            true,
             false,
             previousAndCurrentTaxYear,
             userRequest.saUserType
@@ -103,6 +112,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
               s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
               nextDeadlineTaxYear,
               false,
+              true,
               true,
               false,
               previousAndCurrentTaxYear,
@@ -219,6 +229,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             false,
             false,
             true,
+            true,
             previousAndCurrentTaxYear,
             userRequest.saUserType
           ).toString
@@ -241,6 +252,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
           viewSaAndItsaMergePageView(
             s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
+            true,
             true,
             true,
             true,
@@ -276,6 +288,38 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       )
     }
 
+    "show all content besides MTD ITSA message if mongo toggle is false" in {
+
+      val doc =
+        asDocument(
+          viewSaAndItsaMergePageView(
+            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
+            nextDeadlineTaxYear,
+            isItsa = false,
+            isSa = true,
+            itsaToggle = false,
+            isSeiss = true,
+            previousAndCurrentTaxYear,
+            userRequest.saUserType
+          ).toString
+        )
+
+      doc.text() must include(Messages("label.your_self_assessment"))
+      doc.text() must not include (Messages("label.making_tax_digital"))
+
+      hasLink(
+        doc,
+        Messages("body.seiss"),
+        s"${configDecorator.seissClaimsUrl}"
+      )
+
+      hasLink(
+        doc,
+        Messages("label.view_manage_sa_return"),
+        "/personal-account/self-assessment-summary"
+      )
+    }
+
     "show content for Itsa , SA , Seiss when all the conditions are true with SA not Enrolled" in {
 
       val doc =
@@ -283,6 +327,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
           viewSaAndItsaMergePageView(
             s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
+            true,
             true,
             true,
             true,
@@ -297,6 +342,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       doc.text() must include(Messages("label.self_assessment_tax_returns"))
       doc.text() must include(Messages("label.not_enrolled.content"))
       doc.text() must include(Messages("title.seiss"))
+      doc.text() must include(Messages("label.making_tax_digital"))
 
       hasLink(
         doc,
