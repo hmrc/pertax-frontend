@@ -146,7 +146,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           HtmlFormat.raw(messages("label.paperless_opt_in_response")),
           messages("label.paperless_opt_in_link"),
           messages("label.paperless_opt_in_hidden"),
-          Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
+          Some("link")
         )
       )
 
