@@ -29,7 +29,7 @@ class testSpec extends IntegrationSpec {
 
   def request: FakeRequest[AnyContentAsEmpty.type] = {
     val uuid = UUID.randomUUID().toString
-    FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid)
+    FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
   }
 
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]

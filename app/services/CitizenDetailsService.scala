@@ -28,7 +28,6 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import scala.concurrent.{ExecutionContext, Future}
 
 class CitizenDetailsService @Inject() (
-  configDecorator: ConfigDecorator,
   citizenDetailsConnector: CitizenDetailsConnector
 ) extends Logging {
 

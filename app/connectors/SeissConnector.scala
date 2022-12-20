@@ -18,10 +18,8 @@ package connectors
 
 import cats.data.EitherT
 import cats.implicits._
-import com.codahale.metrics.Timer
 import com.google.inject.Inject
 import config.ConfigDecorator
-import metrics.{Metrics, MetricsEnumeration}
 import models.{SeissModel, SeissRequest}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
@@ -32,7 +30,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class SeissConnector @Inject() (
   http: HttpClient,
-  metrics: Metrics,
   httpClientResponse: HttpClientResponse,
   implicit val ec: ExecutionContext,
   configDecorator: ConfigDecorator
@@ -41,20 +38,13 @@ class SeissConnector @Inject() (
   def getClaims(utr: String)(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, List[SeissModel]] = {
     val seissRequest = SeissRequest(utr)
 
-    val timerContext: Timer.Context =
-      metrics.startTimer(MetricsEnumeration.GET_SEISS_CLAIMS)
-
-    val response = http
-      .POST[SeissRequest, Either[UpstreamErrorResponse, HttpResponse]](
-        s"${configDecorator.seissUrl}/self-employed-income-support/get-claims",
-        seissRequest
+    httpClientResponse
+      .read(
+        http.POST[SeissRequest, Either[UpstreamErrorResponse, HttpResponse]](
+          s"${configDecorator.seissUrl}/self-employed-income-support/get-claims",
+          seissRequest
+        )
       )
-      .map { response =>
-        timerContext.stop()
-        response
-      }
-    httpClientResponse.read(response, Some(MetricsEnumeration.GET_SEISS_CLAIMS)).map { response =>
-      response.json.as[List[SeissModel]]
-    }
+      .map(_.json.as[List[SeissModel]])
   }
 }

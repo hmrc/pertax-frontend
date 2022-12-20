@@ -19,20 +19,25 @@ package config
 import connectors.{AgentClientAuthorisationConnector, CachingAgentClientAuthorisationConnector, DefaultAgentClientAuthorisationConnector}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
+import services.LocalSessionCache
+import uk.gov.hmrc.http.cache.client.SessionCache
 
 class HmrcModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
+    val cacheBinding                     = bind[SessionCache].to[LocalSessionCache]
     val useAgentClientAuthorisationCache = configuration
       .getOptional[Boolean]("feature.agent-client-authorisation.cached")
       .getOrElse(true)
     if (useAgentClientAuthorisationCache)
       Seq(
         bind[AgentClientAuthorisationConnector].to[CachingAgentClientAuthorisationConnector],
-        bind[AgentClientAuthorisationConnector].qualifiedWith("default").to[DefaultAgentClientAuthorisationConnector]
+        bind[AgentClientAuthorisationConnector].qualifiedWith("default").to[DefaultAgentClientAuthorisationConnector],
+        cacheBinding
       )
     else
       Seq(
-        bind[AgentClientAuthorisationConnector].to[DefaultAgentClientAuthorisationConnector]
+        bind[AgentClientAuthorisationConnector].to[DefaultAgentClientAuthorisationConnector],
+        cacheBinding
       )
   }
 }
