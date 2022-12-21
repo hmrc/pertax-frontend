@@ -474,7 +474,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayItsa" must {
 
-    "saItsaTileEnabled is false return Unauthorized" in {
+    "return OK" in {
       lazy val fakeRequest = FakeRequest("", "")
 
       val mockAuthJourney = mock[AuthJourney]
@@ -483,60 +483,7 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[Configuration],
         injected[Langs],
         injected[ServicesConfig]
-      ) {
-        override lazy val saItsaTileEnabled: Boolean = false
-      }
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mock[PreferencesFrontendConnector],
-          mockAuthJourney,
-          injected[WithBreadcrumbAction],
-          injected[MessagesControllerComponents],
-          injected[ErrorRenderer],
-          injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
-          injected[SelfAssessmentSummaryView],
-          injected[Sa302InterruptView],
-          injected[ViewNewsAndUpdatesView],
-          injected[ViewSaAndItsaMergePageView],
-          injected[ViewBreathingSpaceView],
-          injected[EnrolmentsHelper],
-          injected[SeissService],
-          mock[NewsAndTilesConfig],
-          inject[FeatureFlagService]
-        )(stubConfigDecorator, ec)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "GovernmentGateway"),
-              request = request
-            )
-          )
-      })
-
-      val result = controller.displaySaAndItsaMergePage()(fakeRequest)
-
-      status(result) mustBe UNAUTHORIZED
-    }
-
-    "saItsaTileEnabled is true return OK" in {
-      lazy val fakeRequest = FakeRequest("", "")
-
-      val mockAuthJourney = mock[AuthJourney]
-
-      val stubConfigDecorator = new ConfigDecorator(
-        injected[Configuration],
-        injected[Langs],
-        injected[ServicesConfig]
-      ) {
-        override lazy val saItsaTileEnabled: Boolean = true
-      }
+      )
 
       val mockFeatureFlagService = mock[FeatureFlagService]
 
