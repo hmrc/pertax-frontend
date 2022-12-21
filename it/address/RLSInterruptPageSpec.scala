@@ -143,7 +143,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
         )
 
         val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "1")
-        val result = route(app, request)
+        val result  = route(app, request)
 
         result.map(getStatus) mustBe Some(SEE_OTHER)
         result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))

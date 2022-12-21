@@ -72,12 +72,12 @@ class PreferencesFrontendConnector @Inject() (
 
     httpClientResponse
       .read(
-         httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))(
-            wts = implicitly,
-            rds = newReadEitherOf,
-            ec = implicitly,
-            hc = implicitly
-          )
+        httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))(
+          wts = implicitly,
+          rds = newReadEitherOf,
+          ec = implicitly,
+          hc = implicitly
+        )
       )
   }
 
