@@ -16,6 +16,7 @@
 
 package controllers.address
 
+import cats.data.OptionT
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, TaxcalcToggle}
 import models.dto.{AddressPageVisitedDto, TaxCreditsChoiceDto}
@@ -87,7 +88,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
-        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(Some(false)))
+        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(OptionT.fromOption[Future](Some(false)))
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
 
@@ -109,7 +110,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
-        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(Some(true)))
+        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(OptionT.fromOption[Future](Some(true)))
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
 
@@ -133,7 +134,8 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
-        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(None))
+        when(mockTaxCreditsService.checkForTaxCredits(any())(any()))
+          .thenReturn(OptionT.fromOption[Future](None: Option[Boolean]))
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
 

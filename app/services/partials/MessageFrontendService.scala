@@ -18,22 +18,16 @@ package services.partials
 
 import com.google.inject.{Inject, Singleton}
 import connectors.{EnhancedPartialRetriever, MessageFrontendConnector}
-import metrics.Metrics
 import models.MessageCount
 import play.api.Logging
-import play.api.libs.json.Json
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
+import uk.gov.hmrc.play.partials.HtmlPartial
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class MessageFrontendService @Inject() (
-  http: HttpClient,
-  metrics: Metrics,
-  headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
   servicesConfig: ServicesConfig,
   enhancedPartialRetriever: EnhancedPartialRetriever,
   messageFrontendConnector: MessageFrontendConnector

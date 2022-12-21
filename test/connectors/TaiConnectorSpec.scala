@@ -16,9 +16,6 @@
 
 package connectors
 
-import com.codahale.metrics.Timer
-import com.kenshoo.play.metrics.Metrics
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
@@ -61,20 +58,12 @@ class TaiConnectorSpec
                                          |   "links" : [ ]
                                          |}""".stripMargin)
 
-    lazy val (connector, metrics, timer) = {
+    lazy val connector = {
 
-      val timer         = mock[Timer.Context]
       val serviceConfig = inject[ServicesConfig]
       val httpClient    = inject[HttpClient]
 
-      lazy val taiConnector: TaiConnector =
-        new TaiConnector(httpClient, mock[Metrics], serviceConfig, inject[HttpClientResponse]) {
-
-          override val metricsOperator: MetricsOperator = mock[MetricsOperator]
-          when(metricsOperator.startTimer(any())) thenReturn timer
-        }
-
-      (taiConnector, taiConnector.metricsOperator, timer)
+      new TaiConnector(httpClient, serviceConfig, inject[HttpClientResponse])
     }
   }
 
@@ -96,10 +85,6 @@ class TaiConnectorSpec
         connector.taxComponents(nino, taxYear).value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
       result.status mustBe OK
       result.json mustBe taxComponentsJson
-
-      verify(metrics, times(1)).startTimer(metricId)
-      verify(metrics, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
     }
 
     "return __ on success" in new LocalSetup {
@@ -109,10 +94,6 @@ class TaiConnectorSpec
         connector.taxComponents(nino, taxYear).value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
       result.status mustBe OK
       result.json mustBe taxComponentsJson
-
-      verify(metrics, times(1)).startTimer(metricId)
-      verify(metrics, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
     }
 
     List(
@@ -131,10 +112,6 @@ class TaiConnectorSpec
         val result: UpstreamErrorResponse =
           connector.taxComponents(nino, taxYear).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
         result.statusCode mustBe statusCode
-
-        verify(metrics, times(1)).startTimer(metricId)
-        verify(metrics, times(1)).incrementFailedCounter(metricId)
-        verify(timer, times(1)).stop()
       }
     }
   }

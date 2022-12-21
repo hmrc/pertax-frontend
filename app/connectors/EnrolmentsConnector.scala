@@ -18,9 +18,7 @@ package connectors
 
 import cats.data.EitherT
 import com.google.inject.Inject
-import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import metrics.HasMetrics
 import play.api.http.Status._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
@@ -30,9 +28,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class EnrolmentsConnector @Inject() (
   http: HttpClient,
   configDecorator: ConfigDecorator,
-  val metrics: Metrics,
   httpClientResponse: HttpClientResponse
-) extends HasMetrics {
+) {
 
   val baseUrl = configDecorator.enrolmentStoreProxyUrl
 
@@ -40,22 +37,17 @@ class EnrolmentsConnector @Inject() (
     saUtr: String
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Seq[String]] = {
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$saUtr/users"
-
-    withMetricsTimer("get-user-ids-with-enrolments") { timer =>
-      httpClientResponse
-        .read(
-          http.GET[Either[UpstreamErrorResponse, HttpResponse]](url)
-        )
-        .map { response =>
-          response.status match {
-            case OK =>
-              timer.completeTimerAndIncrementSuccessCounter()
-              (response.json \ "principalUserIds").as[Seq[String]]
-            case _  =>
-              timer.completeTimerAndIncrementSuccessCounter()
-              Seq.empty
-          }
+    httpClientResponse
+      .read(
+        http.GET[Either[UpstreamErrorResponse, HttpResponse]](url)
+      )
+      .map { response =>
+        response.status match {
+          case OK =>
+            (response.json \ "principalUserIds").as[Seq[String]]
+          case _  =>
+            Seq.empty
         }
-    }
+      }
   }
 }

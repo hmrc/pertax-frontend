@@ -91,8 +91,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
       )
 
-      val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
-
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
       val result = route(app, request)
 
       result.get.futureValue.header.status mustBe SEE_OTHER
@@ -169,7 +168,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
       )
 
-      val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
       val result  = route(app, request)
 
       result.get.futureValue.header.status mustBe OK
@@ -221,8 +220,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
-
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
       val result = route(app, request)
 
       result.get.futureValue.header.status mustBe SEE_OTHER
@@ -277,8 +275,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
-
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
       val result = route(app, request)
 
       result.get.futureValue.header.status mustBe SEE_OTHER
@@ -339,8 +336,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
             .willReturn(aResponse().withStatus(response))
         )
 
-        val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
-
+        val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
         val result = route(app, request)
 
         result.get.futureValue.header.status mustBe INTERNAL_SERVER_ERROR

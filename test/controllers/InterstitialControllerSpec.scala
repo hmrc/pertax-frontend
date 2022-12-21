@@ -65,8 +65,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
     def simulateSaPartialServiceFailure: Boolean
 
-    def paperlessResponse: ActivatePaperlessResponse
-
     def controller: InterstitialController =
       new InterstitialController(
         mock[FormPartialService],
@@ -130,9 +128,8 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      lazy val simulateFormPartialServiceFailure            = false
-      lazy val simulateSaPartialServiceFailure              = false
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure   = false
 
       val testController: InterstitialController = controller
 
@@ -148,9 +145,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "call FormPartialService.getChildBenefitPartial and return 200 when called by authorised user" in new LocalSetup {
 
-      lazy val simulateFormPartialServiceFailure            = false
-      lazy val simulateSaPartialServiceFailure              = false
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure   = false
 
       val fakeRequestWithPath: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/foo")
 
@@ -176,9 +172,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "call FormPartialService.getSelfAssessmentPartial and return 200 when called by a high GG user" in new LocalSetup {
 
-      lazy val simulateFormPartialServiceFailure            = false
-      lazy val simulateSaPartialServiceFailure              = false
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure   = false
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -198,9 +193,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "call FormPartialService.getSelfAssessmentPartial and return return 401 for a high GG user not enrolled in SA" in new LocalSetup {
 
-      lazy val simulateFormPartialServiceFailure            = true
-      lazy val simulateSaPartialServiceFailure              = true
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      lazy val simulateFormPartialServiceFailure = true
+      lazy val simulateSaPartialServiceFailure   = true
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -220,9 +214,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "call FormPartialService.getSelfAssessmentPartial and return 401 for a user not logged in via GG" in new LocalSetup {
 
-      lazy val simulateFormPartialServiceFailure            = true
-      lazy val simulateSaPartialServiceFailure              = true
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      lazy val simulateFormPartialServiceFailure = true
+      lazy val simulateSaPartialServiceFailure   = true
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -246,9 +239,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
       "should return OK response when accessing with an SA user with a valid tax year" in new LocalSetup {
 
-        lazy val simulateFormPartialServiceFailure            = false
-        lazy val simulateSaPartialServiceFailure              = false
-        lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+        lazy val simulateFormPartialServiceFailure = false
+        lazy val simulateSaPartialServiceFailure   = false
 
         val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
@@ -274,9 +266,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
       "should return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
 
-        lazy val simulateFormPartialServiceFailure            = false
-        lazy val simulateSaPartialServiceFailure              = false
-        lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+        lazy val simulateFormPartialServiceFailure = false
+        lazy val simulateSaPartialServiceFailure   = false
 
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -308,9 +299,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
       when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
 
-      lazy val simulateFormPartialServiceFailure            = false
-      lazy val simulateSaPartialServiceFailure              = false
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure   = false
 
       val testController: InterstitialController = controller
 
@@ -403,7 +393,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure   = false
-      lazy val paperlessResponse                 = ActivatePaperlessNotAllowedResponse
 
       val testController = controller
 

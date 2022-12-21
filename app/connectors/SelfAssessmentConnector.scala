@@ -18,9 +18,7 @@ package connectors
 
 import cats.data.EitherT
 import com.google.inject.Inject
-import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import metrics.HasMetrics
 import models.SaEnrolmentRequest
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
@@ -30,31 +28,18 @@ import scala.concurrent.{ExecutionContext, Future}
 class SelfAssessmentConnector @Inject() (
   http: HttpClient,
   configDecorator: ConfigDecorator,
-  val metrics: Metrics,
   httpClientResponse: HttpClientResponse
 )(implicit
   ec: ExecutionContext
-) extends HasMetrics {
+) {
 
   def enrolForSelfAssessment(
     saEnrolmentRequest: SaEnrolmentRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val url = s"${configDecorator.addTaxesFrontendUrl}/internal/self-assessment/enrol-for-sa"
-    withMetricsTimer("enrol-for-self-assessment") { timer =>
-      httpClientResponse
-        .read(
-          http.POST[SaEnrolmentRequest, Either[UpstreamErrorResponse, HttpResponse]](url, saEnrolmentRequest)
-        )
-        .bimap(
-          error => {
-            timer.completeTimerAndIncrementFailedCounter()
-            error
-          },
-          response => {
-            timer.completeTimerAndIncrementSuccessCounter()
-            response
-          }
-        )
-    }
+    httpClientResponse
+      .read(
+        http.POST[SaEnrolmentRequest, Either[UpstreamErrorResponse, HttpResponse]](url, saEnrolmentRequest)
+      )
   }
 }

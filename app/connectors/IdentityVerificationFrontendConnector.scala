@@ -18,8 +18,6 @@ package connectors
 
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
-import com.kenshoo.play.metrics.Metrics
-import metrics.HasMetrics
 import play.api.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
@@ -30,33 +28,19 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class IdentityVerificationFrontendConnector @Inject() (
   val httpClient: HttpClient,
-  val metrics: Metrics,
   servicesConfig: ServicesConfig,
   httpClientResponse: HttpClientResponse
-) extends HasMetrics
-    with Logging {
+) extends Logging {
 
   lazy val identityVerificationFrontendUrl: String = servicesConfig.baseUrl("identity-verification-frontend")
 
   def getIVJourneyStatus(
     journeyId: String
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    withMetricsTimer("get-iv-journey-status") { t =>
-      httpClientResponse
-        .read(
-          httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
-            s"$identityVerificationFrontendUrl/mdtp/journey/journeyId/$journeyId"
-          )
+    httpClientResponse
+      .read(
+        httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
+          s"$identityVerificationFrontendUrl/mdtp/journey/journeyId/$journeyId"
         )
-        .bimap(
-          error => {
-            t.completeTimerAndIncrementFailedCounter()
-            error
-          },
-          response => {
-            t.completeTimerAndIncrementSuccessCounter()
-            response
-          }
-        )
-    }
+      )
 }

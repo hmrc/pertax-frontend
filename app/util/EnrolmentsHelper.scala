@@ -23,7 +23,7 @@ import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.{Request, Result}
 import play.api.mvc.Results.InternalServerError
-import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier}
+import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import views.html.InternalServerErrorView

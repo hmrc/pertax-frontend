@@ -19,9 +19,6 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import models.ActivatePaperlessRequiresUserActionResponse
-import play.api.http.Status.PRECONDITION_FAILED
-import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import uk.gov.hmrc.http.HttpReads.is2xx

@@ -46,22 +46,13 @@ class IdentityVerificationFrontendConnectorSpec
   trait SpecSetup {
     val metricId = "get-iv-journey-status"
 
-    lazy val (connector, metrics, timer) = {
-      val serviceConfig                                                                = app.injector.instanceOf[ServicesConfig]
-      val timer                                                                        = mock[Timer.Context]
-      val identityVerificationFrontendConnector: IdentityVerificationFrontendConnector =
-        new IdentityVerificationFrontendConnector(
-          inject[HttpClient],
-          mock[Metrics],
-          serviceConfig,
-          inject[HttpClientResponse]
-        ) {
-
-          override val metricsOperator: MetricsOperator = mock[MetricsOperator]
-          when(metricsOperator.startTimer(any())) thenReturn timer
-        }
-
-      (identityVerificationFrontendConnector, identityVerificationFrontendConnector.metricsOperator, timer)
+    lazy val connector = {
+      val serviceConfig = app.injector.instanceOf[ServicesConfig]
+      new IdentityVerificationFrontendConnector(
+        inject[HttpClient],
+        serviceConfig,
+        inject[HttpClientResponse]
+      )
     }
   }
 
@@ -75,9 +66,6 @@ class IdentityVerificationFrontendConnectorSpec
 
       result.status mustBe OK
       (result.json \ "journeyResult").as[String] mustBe "LockedOut"
-      verify(metrics, times(1)).startTimer(metricId)
-      verify(metrics, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
     }
 
     List(
@@ -97,9 +85,6 @@ class IdentityVerificationFrontendConnectorSpec
           connector.getIVJourneyStatus("1234").value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
 
         result.statusCode mustBe statusCode
-        verify(metrics, times(1)).startTimer(metricId)
-        verify(metrics, times(1)).incrementFailedCounter(metricId)
-        verify(timer, times(1)).stop()
       }
     }
   }

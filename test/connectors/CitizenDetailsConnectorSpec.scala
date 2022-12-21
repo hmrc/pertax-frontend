@@ -16,11 +16,7 @@
 
 package connectors
 
-import com.codahale.metrics.Timer
-import com.kenshoo.play.metrics.Metrics
 import models._
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
@@ -66,31 +62,10 @@ class CitizenDetailsConnectorSpec
       isRls = false
     )
 
-    lazy val (connector, met, timer) = {
-
+    lazy val connector = {
       val httpClient    = app.injector.instanceOf[HttpClient]
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
-      val timer         = mock[Timer.Context]
-
-      val citizenDetailsConnector: CitizenDetailsConnector =
-        new CitizenDetailsConnector(httpClient, mock[Metrics], serviceConfig, inject[HttpClientResponse]) {
-          override val metricsOperator: MetricsOperator = mock[MetricsOperator]
-          when(metricsOperator.startTimer(any())) thenReturn timer
-        }
-
-      (citizenDetailsConnector, citizenDetailsConnector.metricsOperator, timer)
-    }
-
-    def verifyMetricsSuccess(metricId: String): Any = {
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
-    }
-
-    def verifyMetricsFailure(metricId: String): Any = {
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      new CitizenDetailsConnector(httpClient, serviceConfig, inject[HttpClientResponse])
     }
   }
 
@@ -107,7 +82,6 @@ class CitizenDetailsConnectorSpec
       val result: Int =
         connector.personDetails(nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, "")).status
       result mustBe OK
-      verifyMetricsSuccess(metricId)
     }
 
     "return NOT_FOUND when called with an unknown nino" in new LocalSetup {
@@ -116,7 +90,6 @@ class CitizenDetailsConnectorSpec
       val result =
         connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
       result mustBe NOT_FOUND
-      verifyMetricsFailure(metricId)
     }
 
     "return LOCKED when a locked hidden record (MCI) is asked for" in new LocalSetup {
@@ -125,7 +98,6 @@ class CitizenDetailsConnectorSpec
       val result =
         connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
       result mustBe LOCKED
-      verifyMetricsFailure(metricId)
     }
 
     "return given status code when an unexpected status is returned" in new LocalSetup {
@@ -134,7 +106,6 @@ class CitizenDetailsConnectorSpec
       val result =
         connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
       result mustBe IM_A_TEAPOT
-      verifyMetricsFailure(metricId)
     }
 
     "return BAD_GATEWAY when the call to retrieve person details results in an exception" in new LocalSetup {
@@ -144,7 +115,6 @@ class CitizenDetailsConnectorSpec
       val result: Int =
         connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
       result mustBe BAD_GATEWAY
-      verifyMetricsFailure(metricId)
     }
   }
 
@@ -169,7 +139,6 @@ class CitizenDetailsConnectorSpec
           .getOrElse(HttpResponse(BAD_REQUEST, ""))
           .status
       result mustBe CREATED
-      verifyMetricsSuccess(metricId)
     }
 
     "return CREATED when called with a valid Nino and valid correspondence address with an end date" in new LocalSetup {
@@ -205,7 +174,6 @@ class CitizenDetailsConnectorSpec
           .getOrElse(HttpResponse(BAD_REQUEST, ""))
           .status
       result mustBe CREATED
-      verifyMetricsSuccess(metricId)
     }
 
     "return BAD_REQUEST when Citizen Details service returns BAD_REQUEST" in new LocalSetup {
@@ -220,7 +188,6 @@ class CitizenDetailsConnectorSpec
           .getOrElse(UpstreamErrorResponse("", OK))
           .statusCode
       result mustBe BAD_REQUEST
-      verifyMetricsFailure(metricId)
     }
 
     "return given status code when an unexpected status is returned" in new LocalSetup {
@@ -235,7 +202,6 @@ class CitizenDetailsConnectorSpec
           .getOrElse(UpstreamErrorResponse("", OK))
           .statusCode
       result mustBe IM_A_TEAPOT
-      verifyMetricsFailure(metricId)
     }
 
     "return BAD_GATEWAY when the call to UpdateAddressErrorResponse when Citizen Details service returns an exception" in new LocalSetup {
@@ -250,7 +216,6 @@ class CitizenDetailsConnectorSpec
         .getOrElse(UpstreamErrorResponse("", OK))
         .statusCode
       result mustBe BAD_GATEWAY
-      verifyMetricsFailure(metricId)
     }
   }
 
@@ -268,7 +233,6 @@ class CitizenDetailsConnectorSpec
       val result: Int   =
         connector.getMatchingDetails(nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, "")).status
       result mustBe OK
-      verifyMetricsSuccess(metricId)
     }
 
     "return OK containing no SAUTR when the service does not return an SAUTR" in new LocalSetup {
@@ -277,7 +241,6 @@ class CitizenDetailsConnectorSpec
       val result: Int =
         connector.getMatchingDetails(nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, "")).status
       result mustBe OK
-      verifyMetricsSuccess(metricId)
     }
 
     "return NOT_FOUND when citizen-details returns an 404" in new LocalSetup {
@@ -286,7 +249,6 @@ class CitizenDetailsConnectorSpec
       val result: Int =
         connector.getMatchingDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
       result mustBe NOT_FOUND
-      verifyMetricsFailure(metricId)
     }
 
     "return given status code when citizen-details returns an unexpected response code" in new LocalSetup {
@@ -295,7 +257,6 @@ class CitizenDetailsConnectorSpec
       val result: Int =
         connector.getMatchingDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
       result mustBe IM_A_TEAPOT
-      verifyMetricsFailure(metricId)
     }
 
     "return BAD_GATEWAY when the call to MatchingDetailsErrorResponse when hod call results in another exception" in new LocalSetup {
@@ -305,8 +266,6 @@ class CitizenDetailsConnectorSpec
       val result: Int =
         connector.getMatchingDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
       result mustBe BAD_GATEWAY
-
-      verifyMetricsFailure(metricId)
     }
   }
 
@@ -323,7 +282,6 @@ class CitizenDetailsConnectorSpec
       val result: Int =
         connector.getEtag(nino.nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, "")).status
       result mustBe OK
-      verifyMetricsSuccess(metricId)
 
     }
 
@@ -334,7 +292,6 @@ class CitizenDetailsConnectorSpec
         val result: Int =
           connector.getEtag(nino.nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
         result mustBe NOT_FOUND
-        verifyMetricsFailure(metricId)
       }
 
       "citizen-details returns 423" in new LocalSetup {
@@ -343,7 +300,6 @@ class CitizenDetailsConnectorSpec
         val result: Int =
           connector.getEtag(nino.nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
         result mustBe LOCKED
-        verifyMetricsFailure(metricId)
       }
 
       "citizen-details returns 500" in new LocalSetup {
@@ -357,7 +313,6 @@ class CitizenDetailsConnectorSpec
           .getOrElse(UpstreamErrorResponse("", OK))
           .statusCode
         result mustBe INTERNAL_SERVER_ERROR
-        verifyMetricsFailure(metricId)
       }
 
       "return BAD_GATEWAY when the call to citizen-details throws an exception" in new LocalSetup {
@@ -367,7 +322,6 @@ class CitizenDetailsConnectorSpec
         val result: Int =
           connector.getEtag(nino.nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
         result mustBe BAD_GATEWAY
-        verifyMetricsFailure(metricId)
       }
     }
   }

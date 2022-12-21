@@ -18,19 +18,15 @@ package services
 
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import config.ConfigDecorator
-import play.api.{Configuration, Environment}
+import play.api.Configuration
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class LocalSessionCache @Inject() (
-  environment: Environment,
-  configuration: Configuration,
   val appNameConfiguration: Configuration,
   override val http: HttpClient,
-  configDecorator: ConfigDecorator,
   servicesConfig: ServicesConfig,
   @Named("appName") appName: String
 ) extends SessionCache {

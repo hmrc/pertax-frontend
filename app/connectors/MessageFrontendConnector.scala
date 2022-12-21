@@ -17,9 +17,7 @@
 package connectors
 
 import cats.data.EitherT
-import com.codahale.metrics.Timer
 import com.google.inject.Inject
-import metrics.{Metrics, MetricsEnumeration}
 import play.api.Logging
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpReads.Implicits._
@@ -31,7 +29,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class MessageFrontendConnector @Inject() (
   val httpClient: HttpClient,
-  val metrics: Metrics,
   servicesConfig: ServicesConfig,
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
   httpClientResponse: HttpClientResponse
@@ -45,20 +42,10 @@ class MessageFrontendConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val url = messageFrontendUrl + "/messages/count?read=No"
 
-    val timerContext: Timer.Context =
-      metrics.startTimer(MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT)
-
     implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
 
-    val result = httpClientResponse
-      .read(
-        httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
-          url
-        ),
-        Some(MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT)
-      )
-    timerContext.stop()
-    result
+    httpClientResponse
+      .read(httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](url))
   }
 
 }

@@ -56,16 +56,16 @@ class TaxCreditsChoiceController @Inject() (
         .get(AddressTaxCreditsBrokerCallToggle)
         .flatMap { toggle =>
           if (toggle.isEnabled) {
-            taxCreditsService.checkForTaxCredits(Some(nino)).map {
-              case Some(true)  =>
-                cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
-                Redirect(configDecorator.tcsChangeAddressUrl)
-              case Some(false) =>
-                cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
-                Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
-              case None        =>
-                InternalServerError(internalServerErrorView())
-            }
+            taxCreditsService
+              .checkForTaxCredits(Some(nino))
+              .fold(InternalServerError(internalServerErrorView())) {
+                case true  =>
+                  cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
+                  Redirect(configDecorator.tcsChangeAddressUrl)
+                case false =>
+                  cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
+                  Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+              }
           } else {
             Future.successful(
               Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))

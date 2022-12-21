@@ -18,9 +18,7 @@ package connectors
 
 import cats.data.EitherT
 import com.google.inject.Inject
-import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import metrics.HasMetrics
 import models.{CreatePayment, PaymentRequest}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
@@ -30,30 +28,17 @@ import scala.concurrent.{ExecutionContext, Future}
 class PayApiConnector @Inject() (
   http: HttpClient,
   configDecorator: ConfigDecorator,
-  val metrics: Metrics,
   httpClientResponse: HttpClientResponse
-) extends HasMetrics {
+) {
 
   def createPayment(
     request: PaymentRequest
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Option[CreatePayment]] = {
     val postUrl = configDecorator.makeAPaymentUrl
-
-    withMetricsTimer("create-payment") { timer =>
-      httpClientResponse
-        .read(
-          http.POST[PaymentRequest, Either[UpstreamErrorResponse, HttpResponse]](postUrl, request)
-        )
-        .bimap(
-          error => {
-            timer.completeTimerAndIncrementFailedCounter()
-            error
-          },
-          response => {
-            timer.completeTimerAndIncrementSuccessCounter()
-            response.json.asOpt[CreatePayment]
-          }
-        )
-    }
+    httpClientResponse
+      .read(
+        http.POST[PaymentRequest, Either[UpstreamErrorResponse, HttpResponse]](postUrl, request)
+      )
+      .map(_.json.asOpt[CreatePayment])
   }
 }

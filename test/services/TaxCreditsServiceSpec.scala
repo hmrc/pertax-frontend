@@ -41,7 +41,7 @@ class TaxCreditsServiceSpec extends BaseSpec {
             EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Right(HttpResponse(OK, ""))))
           )
 
-        val result = sut.checkForTaxCredits(Some(fakeNino)).futureValue
+        val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
 
         result mustBe Some(true)
       }
@@ -52,7 +52,7 @@ class TaxCreditsServiceSpec extends BaseSpec {
             EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Right(HttpResponse(OK, ""))))
           )
 
-        val result = sut.checkForTaxCredits(None).futureValue
+        val result = sut.checkForTaxCredits(None).value.futureValue
 
         result mustBe Some(false)
       }
@@ -63,7 +63,7 @@ class TaxCreditsServiceSpec extends BaseSpec {
             EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Left(UpstreamErrorResponse("", NOT_FOUND))))
           )
 
-        val result = sut.checkForTaxCredits(Some(fakeNino)).futureValue
+        val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
 
         result mustBe Some(false)
       }
@@ -80,7 +80,7 @@ class TaxCreditsServiceSpec extends BaseSpec {
               EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Left(UpstreamErrorResponse("", status))))
             )
 
-          val result = sut.checkForTaxCredits(Some(fakeNino)).futureValue
+          val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
 
           result mustBe None
         }

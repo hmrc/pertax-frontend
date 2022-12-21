@@ -18,10 +18,8 @@ package connectors
 
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
-import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import metrics.HasMetrics
 import models.PaperlessMessages
 import play.api.Logging
 import play.api.http.Status.PRECONDITION_FAILED
@@ -42,14 +40,12 @@ class PreferencesFrontendConnector @Inject() (
   httpClient: HttpClient,
   httpClientV2: HttpClientV2,
   val messagesApi: MessagesApi,
-  val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   val tools: Tools,
   servicesConfig: ServicesConfig,
   httpClientResponse: HttpClientResponse
 )(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter
-    with HasMetrics
     with I18nSupport
     with Logging {
 
@@ -74,27 +70,15 @@ class PreferencesFrontendConnector @Inject() (
       s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
         .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
 
-    withMetricsTimer("get-activate-paperless") { timer =>
-      httpClientResponse
-        .read(
-          httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))(
+    httpClientResponse
+      .read(
+         httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))(
             wts = implicitly,
             rds = newReadEitherOf,
             ec = implicitly,
             hc = implicitly
           )
-        )
-        .bimap(
-          error => {
-            timer.completeTimerAndIncrementFailedCounter()
-            error
-          },
-          response => {
-            timer.completeTimerAndIncrementSuccessCounter()
-            response
-          }
-        )
-    }
+      )
   }
 
   def getPaperlessStatus(url: String, returnMessage: String)(implicit
