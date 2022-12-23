@@ -24,13 +24,13 @@ import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.controllershelpers.PaperlessInterruptHelper
 import error.ErrorRenderer
 import models._
-import models.admin.{ItsaMessageToggle, NationalInsuranceTileToggle}
+import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, ItsaMessageToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
-import services.partials.{FormPartialService, SaPartialService}
 import services.SeissService
 import services.admin.FeatureFlagService
+import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
@@ -40,6 +40,7 @@ import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
+import scala.util.Try
 
 class InterstitialController @Inject() (
   val formPartialService: FormPartialService,
@@ -51,6 +52,7 @@ class InterstitialController @Inject() (
   errorRenderer: ErrorRenderer,
   viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
+  viewChildBenefitsSummarySingleAccountInterstitialView: ViewChildBenefitsSummarySingleAccountInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
@@ -96,12 +98,32 @@ class InterstitialController @Inject() (
     configDecorator.pertaxFrontendHost + request.path
 
   def displayChildBenefits: Action[AnyContent] = authenticate { implicit request =>
-    Ok(
-      viewChildBenefitsSummaryInterstitialView(
-        redirectUrl = currentUrl,
-        taxCreditsEnabled = configDecorator.taxCreditsEnabled
+    val childBenefitSingleAccountToggleValue: Option[Try[FeatureFlag]] =
+      featureFlagService.get(ChildBenefitSingleAccountToggle).value
+    if (childBenefitSingleAccountToggleValue.isEmpty || !childBenefitSingleAccountToggleValue.get.get.isEnabled) {
+      Ok(
+        viewChildBenefitsSummaryInterstitialView(
+          redirectUrl = currentUrl,
+          taxCreditsEnabled = configDecorator.taxCreditsEnabled
+        )
       )
-    )
+    } else {
+      errorRenderer.error(UNAUTHORIZED)
+    }
+  }
+
+  def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate { implicit request =>
+    val childBenefitSingleAccountToggleValue: Option[Try[FeatureFlag]] =
+      featureFlagService.get(ChildBenefitSingleAccountToggle).value
+    if (childBenefitSingleAccountToggleValue.nonEmpty && childBenefitSingleAccountToggleValue.get.get.isEnabled) {
+      Ok(
+        viewChildBenefitsSummarySingleAccountInterstitialView(
+          redirectUrl = currentUrl
+        )
+      )
+    } else {
+      errorRenderer.error(UNAUTHORIZED)
+    }
   }
 
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
@@ -144,14 +166,17 @@ class InterstitialController @Inject() (
       } yield Ok(
         selfAssessmentSummaryView(
           //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
-          formPartial =
-            if (configDecorator.partialUpgradeEnabled)
-              FormPartialUpgrade.upgrade(formPartial successfulContentOrEmpty)
-            else formPartial successfulContentOrElse Html(""),
+          formPartial = if (configDecorator.partialUpgradeEnabled) {
+            FormPartialUpgrade.upgrade(formPartial successfulContentOrEmpty)
+          } else {
+            formPartial successfulContentOrElse Html("")
+          },
           saPartial = saPartial successfulContentOrElse Html("")
         )
       )
-    } else errorRenderer.futureError(UNAUTHORIZED)
+    } else {
+      errorRenderer.futureError(UNAUTHORIZED)
+    }
 
   }
 
