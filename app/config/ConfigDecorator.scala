@@ -229,9 +229,9 @@ class ConfigDecorator @Inject() (
 
   lazy val reportChangesChildBenefit: String = "https://www.gov.uk/report-changes-child-benefit"
 
-  lazy val viewPaymentHistory: String = "https://www.tax.service.gov.uk/child-benefit/view-payment-history"
+  lazy val viewPaymentHistory: String = "https://www.gov.uk/child-benefit/view-payment-history"
 
-  lazy val viewProofEntitlement: String = "https://www.tax.service.gov.uk/child-benefit/view-proof-entitlement"
+  lazy val viewProofEntitlement: String = "https://www.gov.uk/child-benefit/view-proof-entitlement"
 
   lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
 
