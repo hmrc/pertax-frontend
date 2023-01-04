@@ -31,22 +31,23 @@ class FeatureFlagsController @Inject() (
 )(implicit ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
-  def setFlag(featureFlagName: FeatureFlagName, isEnabled: Boolean): Action[AnyContent] = Action.async { request =>
+  def setFlag(featureFlagName: FeatureFlagName, isEnabled: Boolean): Action[AnyContent] = Action.async {
     featureFlagService.set(featureFlagName, isEnabled).map {
       case true  => Ok(s"Flag $featureFlagName set to $isEnabled")
       case false => InternalServerError(s"Error while setting flag $featureFlagName to $isEnabled")
     }
   }
 
-  def setDefaults: Action[AnyContent] = Action {
-    featureFlagService.setAll(
-      Map(
-        AddressTaxCreditsBrokerCallToggle -> false,
-        TaxcalcToggle                     -> true,
-        NationalInsuranceTileToggle       -> true,
-        ItsaMessageToggle                 -> true
+  def setDefaults: Action[AnyContent] = Action.async {
+    featureFlagService
+      .setAll(
+        Map(
+          AddressTaxCreditsBrokerCallToggle -> false,
+          TaxcalcToggle                     -> true,
+          NationalInsuranceTileToggle       -> true,
+          ItsaMessageToggle                 -> true
+        )
       )
-    )
-    Ok("Default flags set")
+      .map(_ => Ok("Default flags set"))
   }
 }
