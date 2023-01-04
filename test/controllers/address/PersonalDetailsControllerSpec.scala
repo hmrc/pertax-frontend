@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,33 @@ package controllers.address
 
 import controllers.controllershelpers.{PersonalDetailsCardGenerator, RlsInterruptHelper}
 import models.PersonDetails
+import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, RlsInterruptToggle}
 import models.dto.AddressPageVisitedDto
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify}
+import org.mockito.Mockito.{times, verify, when}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
+import repositories.EditAddressLockRepository
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.http.cache.client.CacheMap
 import viewmodels.PersonalDetailsViewModel
 import views.html.personaldetails.PersonalDetailsView
+
+import scala.concurrent.Future
 
 class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+    val mockFeatureFlagService        = mock[FeatureFlagService]
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
+      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+
+    def rlsInterruptHelper = new RlsInterruptHelper(cc, injected[EditAddressLockRepository], mockFeatureFlagService)
 
     def controller =
       new PersonalDetailsController(
@@ -43,7 +54,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         addressJourneyCachingHelper,
         mockAuditConnector,
-        injected[RlsInterruptHelper],
+        rlsInterruptHelper,
         mockAgentClientAuthorisationService,
         cc,
         displayAddressInterstitialView,

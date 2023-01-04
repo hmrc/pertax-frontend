@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,6 @@ class InterstitialControllerSpec extends BaseSpec {
       new InterstitialController(
         mock[FormPartialService],
         mock[SaPartialService],
-        mock[PreferencesFrontendConnector],
         mockAuthJourney,
         injected[WithBreadcrumbAction],
         injected[MessagesControllerComponents],
@@ -105,10 +104,6 @@ class InterstitialControllerSpec extends BaseSpec {
               HtmlPartial.Success(Some("Success"), Html("any"))
             }
           }
-        }
-
-        when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
         }
       }
   }
@@ -328,7 +323,6 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -354,12 +348,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
           when(saPartialService.getSaAccountSummary(any())) thenReturn {
             Future.successful(HtmlPartial.Success(Some("Success"), Html("any")))
-          }
-
-          when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
-              Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
-            )
           }
         }
 
@@ -421,7 +409,6 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -446,12 +433,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
           when(saPartialService.getSaAccountSummary(any())) thenReturn {
             Future.successful(HtmlPartial.Success(Some("Success"), Html("any")))
-          }
-
-          when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
-              Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
-            )
           }
         }
 
@@ -491,7 +472,6 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],

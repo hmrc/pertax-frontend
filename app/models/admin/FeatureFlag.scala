@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,8 @@ object FeatureFlagName {
         case name if name == JsString(TaxcalcToggle.toString)                     => JsSuccess(TaxcalcToggle)
         case name if name == JsString(NationalInsuranceTileToggle.toString)       => JsSuccess(NationalInsuranceTileToggle)
         case name if name == JsString(ItsaMessageToggle.toString)                 => JsSuccess(ItsaMessageToggle)
+        case name if name == JsString(NispTileToggle.toString)                    => JsSuccess(NispTileToggle)
+        case name if name == JsString(TaxComponentsToggle.toString)               => JsSuccess(TaxComponentsToggle)
         case _                                                                    => JsError("Unknown FeatureFlagName")
       }
   }
@@ -68,7 +70,14 @@ object FeatureFlagName {
   }
 
   val allFeatureFlags =
-    List(AddressTaxCreditsBrokerCallToggle, TaxcalcToggle, NationalInsuranceTileToggle, ItsaMessageToggle)
+    List(
+      AddressTaxCreditsBrokerCallToggle,
+      TaxcalcToggle,
+      NationalInsuranceTileToggle,
+      ItsaMessageToggle,
+      NispTileToggle,
+      TaxComponentsToggle
+    )
 }
 
 case object AddressTaxCreditsBrokerCallToggle extends FeatureFlagName {
@@ -89,6 +98,33 @@ case object NationalInsuranceTileToggle extends FeatureFlagName {
 case object ItsaMessageToggle extends FeatureFlagName {
   override def toString: String            = "itsa-message"
   override val description: Option[String] = Some("Enable/disable the message for ITSA")
+}
+
+case object NispTileToggle extends FeatureFlagName {
+  override def toString: String            = "nisp"
+  override val description: Option[String] = Some(
+    "Enable/disable national insurance contributions in national-insurance-summary"
+  )
+}
+
+case object TaxComponentsToggle extends FeatureFlagName {
+  override def toString: String            = "tax-components"
+  override val description: Option[String] = Some("Check your income tax")
+}
+
+case object RlsInterruptToggle extends FeatureFlagName {
+  override def toString: String            = "rls-interrupt-toggle"
+  override val description: Option[String] = Some("Enable/disable the interrupt for return letter to sender (RLS)")
+}
+
+case object PaperlessInterruptToggle extends FeatureFlagName {
+  override def toString: String            = "enforce-paperless-preference"
+  override val description: Option[String] = Some("Enable/disable the interrupt for paperless setting")
+}
+
+case object TaxSummariesTileToggle extends FeatureFlagName {
+  override def toString: String            = "tax-summaries-tile"
+  override val description: Option[String] = Some("Enable/disable the tile for annual tax summary")
 }
 
 object FeatureFlagMongoFormats {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,30 +19,36 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
+import models.admin.PaperlessInterruptToggle
 import play.api.mvc.Result
 import play.api.mvc.Results._
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.http.HttpReads.is2xx
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait PaperlessInterruptHelper {
-
-  def preferencesFrontendService: PreferencesFrontendConnector
+class PaperlessInterruptHelper @Inject() (
+  preferencesFrontendConnector: PreferencesFrontendConnector,
+  featureFlagService: FeatureFlagService
+) {
 
   def enforcePaperlessPreference(
     block: => Future[Result]
   )(implicit request: UserRequest[_], configDecorator: ConfigDecorator): Future[Result] =
-    if (configDecorator.enforcePaperlessPreferenceEnabled) {
-      preferencesFrontendService
-        .getPaperlessPreference()
-        .foldF(
-          _ => block,
-          response =>
-            if (is2xx(response.status)) block
-            else Future.successful(Redirect((response.json \ "redirectUserTo").as[String]))
-        )
-    } else {
-      block
+    featureFlagService.get(PaperlessInterruptToggle).flatMap { featureFlag =>
+      if (featureFlag.isEnabled) {
+        preferencesFrontendConnector
+          .getPaperlessPreference()
+          .foldF(
+            _ => block,
+            response =>
+              if (is2xx(response.status)) block
+              else Future.successful(Redirect((response.json \ "redirectUserTo").as[String]))
+          )
+      } else {
+        block
+      }
     }
 }

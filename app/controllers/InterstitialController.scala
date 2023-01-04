@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,8 @@ package controllers
 
 import com.google.inject.Inject
 import config.{ConfigDecorator, NewsAndTilesConfig}
-import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import controllers.controllershelpers.PaperlessInterruptHelper
 import error.ErrorRenderer
 import models._
 import models.admin.{ItsaMessageToggle, NationalInsuranceTileToggle}
@@ -44,7 +42,6 @@ import scala.language.postfixOps
 class InterstitialController @Inject() (
   val formPartialService: FormPartialService,
   val saPartialService: SaPartialService,
-  val preferencesFrontendService: PreferencesFrontendConnector,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
@@ -62,7 +59,6 @@ class InterstitialController @Inject() (
   featureFlagService: FeatureFlagService
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
-    with PaperlessInterruptHelper
     with Logging {
 
   val saBreadcrumb: Breadcrumb =

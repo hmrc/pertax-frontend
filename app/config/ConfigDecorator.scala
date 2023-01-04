@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,6 @@ class ConfigDecorator @Inject() (
   lazy val enrolmentManagementFrontendHost  = getExternalUrl(s"enrolment-management-frontend.host").getOrElse("")
   lazy val ssoUrl                           = getExternalUrl("sso-portal.host")
   lazy val annualTaxSummariesUrl            = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
-  lazy val isAtsTileEnabled                 = runModeConfiguration.get[String]("feature.tax-summaries-tile.enabled").toBoolean
   lazy val isNewsAndUpdatesTileEnabled      =
     runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
   lazy val isBreathingSpaceIndicatorEnabled =
@@ -109,12 +108,8 @@ class ConfigDecorator @Inject() (
   lazy val isSeissTileEnabled  =
     runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean
 
-  lazy val portalBaseUrl                = runModeConfiguration.get[String]("external-url.sso-portal.host")
-  def toPortalUrl(path: String)         = new URL(portalBaseUrl + path)
-  lazy val frontendTemplatePath: String =
-    runModeConfiguration
-      .getOptional[String]("microservice.services.frontend-template-provider.path")
-      .getOrElse("/template/mustache")
+  lazy val portalBaseUrl        = runModeConfiguration.get[String]("external-url.sso-portal.host")
+  def toPortalUrl(path: String) = new URL(portalBaseUrl + path)
 
   def transformUrlForSso(url: URL) =
     s"$basGatewayFrontendHost/bas-gateway/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
@@ -239,24 +234,15 @@ class ConfigDecorator @Inject() (
   // Only used in HomeControllerSpec
   lazy val allowLowConfidenceSAEnabled   =
     runModeConfiguration.getOptional[String]("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
-  lazy val ltaEnabled                    = runModeConfiguration.getOptional[String]("feature.lta.enabled").getOrElse("true").toBoolean
   lazy val allowSaPreview                =
     runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
   lazy val singleAccountEnrolmentFeature =
     runModeConfiguration.getOptional[String]("feature.single-account-enrolment.enabled").getOrElse("false").toBoolean
 
-  lazy val taxComponentsEnabled =
-    runModeConfiguration.getOptional[String]("feature.tax-components.enabled").getOrElse("true").toBoolean
-
-  lazy val nispEnabled = runModeConfiguration.getOptional[String]("feature.nisp.enabled").getOrElse("true").toBoolean
-
   lazy val taxCreditsPaymentLinkEnabled =
     runModeConfiguration.getOptional[String]("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
   lazy val saveNiLetterAsPdfLinkEnabled =
     runModeConfiguration.getOptional[String]("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
-
-  lazy val enforcePaperlessPreferenceEnabled =
-    runModeConfiguration.getOptional[String]("feature.enforce-paperless-preference.enabled").getOrElse("true").toBoolean
 
   lazy val personDetailsMessageCountEnabled =
     runModeConfiguration.getOptional[String]("feature.person-details-message-count.enabled").getOrElse("true").toBoolean
@@ -272,8 +258,8 @@ class ConfigDecorator @Inject() (
   lazy val getNinoFromCID =
     runModeConfiguration.getOptional[Boolean]("feature.get-nino-from-cid.enabled").getOrElse(false)
 
-  lazy val rlsInterruptToggle =
-    runModeConfiguration.getOptional[Boolean]("feature.rls-interrupt-toggle.enabled").getOrElse(false)
+  lazy val saItsaTileEnabled =
+    runModeConfiguration.getOptional[Boolean]("feature.sa-itsa-tile.enabled").getOrElse(false)
 
   lazy val partialUpgradeEnabled =
     runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)

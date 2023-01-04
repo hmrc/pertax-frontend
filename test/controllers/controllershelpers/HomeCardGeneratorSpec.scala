@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NewsAndContentModel, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser}
 import models.{NotYetActivatedOnlineFilerSelfAssessmentUser, TaxComponentsAvailableState, TaxComponentsDisabledState}
 import models.{TaxComponentsNotAvailableState, TaxComponentsUnreachableState, WrongCredentialsSelfAssessmentUser}
-import models.admin.{FeatureFlag, NationalInsuranceTileToggle}
+import models.admin.{FeatureFlag, NationalInsuranceTileToggle, TaxSummariesTileToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -36,7 +36,7 @@ import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.DateTimeTools.{current}
+import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import views.html.ViewSpec
 import views.html.cards.home._
@@ -272,13 +272,16 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "the tax summaries card is enabled" must {
       "always return the same markup for a SA user" in {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
+
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
             saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
             request = FakeRequest()
           )
 
-        lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
+        lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.value.futureValue
 
         cardBody mustBe Some(taxSummaries(configDecorator.annualTaxSaSummariesTileLink))
       }
@@ -293,11 +296,13 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       incorrectSaUsers.foreach { saType =>
         s"always return the same markup for a $saType user" in {
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
+            .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
 
           implicit val payeRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(saUser = saType, request = FakeRequest())
 
-          lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
+          lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.value.futureValue
           cardBody mustBe Some(taxSummaries(configDecorator.annualTaxPayeSummariesTileLink))
         }
       }
@@ -306,6 +311,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "the tax summaries card is disabled" must {
       "return None" in {
 
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, false)))
+
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(request = FakeRequest())
 
@@ -313,9 +321,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           injected[Configuration],
           injected[Langs],
           injected[ServicesConfig]
-        ) {
-          override lazy val isAtsTileEnabled = false
-        }
+        )
 
         def sut: HomeCardGenerator =
           new HomeCardGenerator(
@@ -336,7 +342,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             newsAndTilesConfig
           )(stubConfigDecorator, ec)
 
-        lazy val cardBody = sut.getAnnualTaxSummaryCard
+        lazy val cardBody = sut.getAnnualTaxSummaryCard.value.futureValue
 
         cardBody mustBe None
       }

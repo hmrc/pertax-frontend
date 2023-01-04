@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@
 @import views.html.interstitial._
 @import scala.concurrent.ExecutionContext
 @import views.html.components.{H1, H2, P, Link, Button}
+@import services.admin.FeatureFlagService
+@import models.admin.TaxComponentsToggle
 
 @this(
     main: MainView,
@@ -29,7 +31,8 @@
     p: P,
     link: Link,
     button: Button,
-    govukInsetText: GovukInsetText
+    govukInsetText: GovukInsetText,
+    featureFlagService: FeatureFlagService
 )
 
 @(formPartial: Html, redirectUrl: String, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
@@ -46,11 +49,13 @@
             @govukInsetText(InsetText(content = HtmlContent(messages("label.your_national_insurance_number_is") + " " +formattedNino(nino))))
         }
 
-        @if(configDecorator.nispEnabled) {
+        @featureFlagService.get(TaxComponentsToggle).map { toggle =>
+          @if(toggle.isEnabled) {
             @h2("label.check_your_national_insurance_contributions")
             @p(Text(messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")))
             @link(configDecorator.nationalInsuranceRecordUrl, messageKey = "label.check_your_national_insurance_contributions")
         }
+}
 
         @h2("label.print_proof_of_your_national_insurance_number")
         @p(Text(messages("label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_number_")))
