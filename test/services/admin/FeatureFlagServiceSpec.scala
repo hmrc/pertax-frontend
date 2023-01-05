@@ -23,7 +23,7 @@ import org.mockito.Mockito._
 import play.api.cache.AsyncCacheApi
 import play.api.inject.bind
 import config.ConfigDecorator
-import models.admin.{AddressTaxCreditsBrokerCallToggle, NationalInsuranceTileToggle}
+import models.admin.{AddressTaxCreditsBrokerCallToggle, NationalInsuranceTileToggle, TaxcalcToggle}
 import repositories.admin.FeatureFlagRepository
 import testUtils.BaseSpec
 import scala.collection.JavaConverters._
@@ -68,4 +68,31 @@ class FeatureFlagServiceSpec extends BaseSpec {
     }
   }
 
+  "setAll" must {
+    "set all the feature flags provided" in {
+      when(mockCache.remove(any())).thenReturn(Future.successful(Done))
+      when(mockFeatureFlagRepository.setFeatureFlags(any()))
+        .thenReturn(Future.successful(()))
+
+      val result = featureFlagService
+        .setAll(
+          Map(AddressTaxCreditsBrokerCallToggle -> false, NationalInsuranceTileToggle -> true, TaxcalcToggle -> true)
+        )
+        .futureValue
+
+      result mustBe ((): Unit)
+
+      val eventCaptor = ArgumentCaptor.forClass(classOf[String])
+      verify(mockCache, times(4)).remove(eventCaptor.capture())
+      verify(mockFeatureFlagRepository, times(1)).setFeatureFlags(any())
+
+      val arguments: List[String] = eventCaptor.getAllValues.asScala.toList
+      arguments.sorted mustBe List(
+        AddressTaxCreditsBrokerCallToggle.toString,
+        NationalInsuranceTileToggle.toString,
+        TaxcalcToggle.toString,
+        "*$*$allFeatureFlags*$*$"
+      ).sorted
+    }
+  }
 }
