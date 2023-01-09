@@ -49,5 +49,8 @@ class FeatureFlagsController @Inject() (
         )
       )
       .map(_ => Ok("Default flags set"))
+      .recover { case e: Exception =>
+        InternalServerError(s"Error while setting default flag : ${e.getMessage}")
+      }
   }
 }

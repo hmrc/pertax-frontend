@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
-import play.api.http.Status.OK
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import services.admin.FeatureFlagService
 import scala.concurrent.Future
@@ -44,6 +44,20 @@ class FeatureFlagsControllerSpec extends BaseSpec {
 
         status(result) mustBe OK
         contentAsString(result) mustBe "Default flags set"
+      }
+    }
+
+    "recover with an error response" when {
+      "there is error while setting default flag " in {
+
+        when(mockFeatureFlagService.setAll(any())).thenReturn(Future.failed(new Exception("some failure text")))
+
+        val result = controller.setDefaults()(
+          FakeRequest().withHeaders("Authorization" -> "Token some-token")
+        )
+
+        contentAsString(result) must include("Error while setting default flag")
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
     }
   }
