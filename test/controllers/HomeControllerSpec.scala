@@ -226,10 +226,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
         .overrides(
@@ -241,8 +237,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           "feature.taxcalc.enabled"        -> true
         )
         .overrides(
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
-          //bind[FeatureFlagService].toInstance(mockFeatureFlagService)
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+          bind[FeatureFlagService].toInstance(mockFeatureFlagService)
         )
         .build()
 
@@ -415,16 +411,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -482,16 +468,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -549,16 +525,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -616,16 +582,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -648,16 +604,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(

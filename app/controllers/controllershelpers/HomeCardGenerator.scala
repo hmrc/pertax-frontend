@@ -146,29 +146,30 @@ class HomeCardGenerator @Inject() (
 
   def getBenefitCards(
     taxComponents: Option[TaxComponents]
-  )(implicit messages: Messages): Seq[Html] =
-    List(
-      getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
-      getChildBenefitCard(),
-      getMarriageAllowanceCard(taxComponents)
-    ).flatten
+  )(implicit messages: Messages): Future[List[Html]] =
+    Future
+      .sequence(
+        List(
+          Future.successful(getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled)),
+          getChildBenefitCard(),
+          Future.successful(getMarriageAllowanceCard(taxComponents))
+        )
+      )
+      .map(_.flatten)
 
   def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(taxCreditsView(showTaxCreditsPaymentLink))
 
-  def getChildBenefitCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+  def getChildBenefitCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
     featureFlagService
       .get(ChildBenefitSingleAccountToggle)
       .map { toggle =>
         if (toggle.isEnabled) {
           Some(childBenefitSingleAccountView())
         } else {
-          None
+          Some(childBenefitView())
         }
       }
-      .value
-      .get
-      .get
 
   def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit
     messages: Messages

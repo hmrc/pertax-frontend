@@ -144,12 +144,62 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayChildBenefits" must {
 
-    "call FormPartialService.getChildBenefitPartial and return 200 when called by authorised user" in new LocalSetup {
+    "call FormPartialService.getChildBenefitPartial and return 200 when called by authorised user" in {
 
-      lazy val simulateFormPartialServiceFailure = false
-      lazy val simulateSaPartialServiceFailure   = false
-
+      val mockFeatureFlagService                                   = mock[FeatureFlagService]
       val fakeRequestWithPath: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/foo")
+      val mockAuthJourney: AuthJourney                             = mock[AuthJourney]
+      val mockNewsAndTileConfig: NewsAndTilesConfig                = mock[NewsAndTilesConfig]
+      lazy val simulateFormPartialServiceFailure                   = false
+      lazy val simulateSaPartialServiceFailure                     = false
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mock[PreferencesFrontendConnector],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummaryInterstitialView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
+          mockNewsAndTileConfig,
+          mockFeatureFlagService
+        )(config, ec) {
+          private def formPartialServiceResponse = Future.successful {
+            if (simulateFormPartialServiceFailure) {
+              HtmlPartial.Failure()
+            } else {
+              HtmlPartial.Success(Some("Success"), Html("any"))
+            }
+          }
+
+          when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
+          when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
+
+          when(saPartialService.getSaAccountSummary(any())) thenReturn {
+            Future.successful {
+              if (simulateSaPartialServiceFailure) {
+                HtmlPartial.Failure()
+              } else {
+                HtmlPartial.Success(Some("Success"), Html("any"))
+              }
+            }
+          }
+
+          when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+            EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
+          }
+        }
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -161,6 +211,9 @@ class InterstitialControllerSpec extends BaseSpec {
             )
           )
       })
+
+      when(mockFeatureFlagService.get(any()))
+        .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)))
 
       val result: Future[Result] = controller.displayChildBenefits(fakeRequestWithPath)
 

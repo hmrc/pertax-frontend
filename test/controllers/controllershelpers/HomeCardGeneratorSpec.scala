@@ -207,16 +207,16 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getChildBenefitCard()
 
-      cardBody mustBe Some(childBenefit())
+      cardBody.futureValue mustBe Some(childBenefit())
     }
 
-    "returns the child Benefit single signa on markup if ChildBenefitSingleAccountToggle is true" in {
+    "returns the child Benefit single sign on markup if ChildBenefitSingleAccountToggle is true" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle)))
         .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = true)))
 
       lazy val cardBody = homeCardGenerator.getChildBenefitCard()
 
-      cardBody mustBe Some(childBenefitSingleAccount())
+      cardBody.futureValue mustBe Some(childBenefitSingleAccount())
     }
   }
 
