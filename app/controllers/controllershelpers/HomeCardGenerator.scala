@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, NationalInsuranceTileToggle}
+import models.admin.{ChildBenefitSingleAccountToggle, NationalInsuranceTileToggle}
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
@@ -31,7 +31,6 @@ import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 @Singleton
 class HomeCardGenerator @Inject() (
@@ -157,15 +156,19 @@ class HomeCardGenerator @Inject() (
   def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(taxCreditsView(showTaxCreditsPaymentLink))
 
-  def getChildBenefitCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] = {
-    val childBenefitSingleAccountToggleValue: Option[Try[FeatureFlag]] =
-      featureFlagService.get(ChildBenefitSingleAccountToggle).value
-    if (childBenefitSingleAccountToggleValue.nonEmpty && childBenefitSingleAccountToggleValue.get.get.isEnabled) {
-      Some(childBenefitSingleAccountView())
-    } else {
-      Some(childBenefitView())
-    }
-  }
+  def getChildBenefitCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    featureFlagService
+      .get(ChildBenefitSingleAccountToggle)
+      .map { toggle =>
+        if (toggle.isEnabled) {
+          Some(childBenefitSingleAccountView())
+        } else {
+          None
+        }
+      }
+      .value
+      .get
+      .get
 
   def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit
     messages: Messages

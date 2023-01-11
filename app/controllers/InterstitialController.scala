@@ -24,7 +24,7 @@ import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.controllershelpers.PaperlessInterruptHelper
 import error.ErrorRenderer
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, ItsaMessageToggle}
+import models.admin.{ChildBenefitSingleAccountToggle, ItsaMessageToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -40,7 +40,6 @@ import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
-import scala.util.Try
 
 class InterstitialController @Inject() (
   val formPartialService: FormPartialService,
@@ -97,32 +96,32 @@ class InterstitialController @Inject() (
   private def currentUrl(implicit request: Request[AnyContent]) =
     configDecorator.pertaxFrontendHost + request.path
 
-  def displayChildBenefits: Action[AnyContent] = authenticate { implicit request =>
-    val childBenefitSingleAccountToggleValue: Option[Try[FeatureFlag]] =
-      featureFlagService.get(ChildBenefitSingleAccountToggle).value
-    if (childBenefitSingleAccountToggleValue.isEmpty || !childBenefitSingleAccountToggleValue.get.get.isEnabled) {
-      Ok(
-        viewChildBenefitsSummaryInterstitialView(
-          redirectUrl = currentUrl,
-          taxCreditsEnabled = configDecorator.taxCreditsEnabled
+  def displayChildBenefits: Action[AnyContent] = authenticate.async { implicit request =>
+    featureFlagService.get(ChildBenefitSingleAccountToggle).map { featureFlag =>
+      if (!featureFlag.isEnabled) {
+        Ok(
+          viewChildBenefitsSummaryInterstitialView(
+            redirectUrl = currentUrl,
+            taxCreditsEnabled = configDecorator.taxCreditsEnabled
+          )
         )
-      )
-    } else {
-      errorRenderer.error(UNAUTHORIZED)
+      } else {
+        errorRenderer.error(UNAUTHORIZED)
+      }
     }
   }
 
-  def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate { implicit request =>
-    val childBenefitSingleAccountToggleValue: Option[Try[FeatureFlag]] =
-      featureFlagService.get(ChildBenefitSingleAccountToggle).value
-    if (childBenefitSingleAccountToggleValue.nonEmpty && childBenefitSingleAccountToggleValue.get.get.isEnabled) {
-      Ok(
-        viewChildBenefitsSummarySingleAccountInterstitialView(
-          redirectUrl = currentUrl
+  def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate.async { implicit request =>
+    featureFlagService.get(ChildBenefitSingleAccountToggle).map { featureFlag =>
+      if (featureFlag.isEnabled) {
+        Ok(
+          viewChildBenefitsSummarySingleAccountInterstitialView(
+            redirectUrl = currentUrl
+          )
         )
-      )
-    } else {
-      errorRenderer.error(UNAUTHORIZED)
+      } else {
+        errorRenderer.error(UNAUTHORIZED)
+      }
     }
   }
 
