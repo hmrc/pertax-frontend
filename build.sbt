@@ -12,9 +12,7 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "pertax-frontend"
 
-scalaVersion := "2.12.15"
-
-val silencerVersion = "1.7.8"
+scalaVersion := "2.13.8"
 
 lazy val plugins: Seq[Plugins] =
   Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
@@ -49,10 +47,15 @@ lazy val microservice = Project(appName, file("."))
     PlayKeys.playDefaultPort := 9232,
     scalafmtOnCompile := true,
     majorVersion := 1,
-    scalacOptions += "-P:silencer:pathFilters=views;routes",
-    libraryDependencies ++= Seq(
-      compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
-      "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
+    scalacOptions ++= Seq(
+      "-feature",
+      "-Werror",
+      "-Wconf:cat=unused-imports&site=.*views\\.html.*:s",
+      "-Wconf:cat=unused-imports&site=<empty>:s",
+      "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
+      "-Wconf:cat=unused&src=.*Routes\\.scala:s",
+      "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
+      "-Wconf:cat=unused&src=.*JavaScriptReverseRoutes\\.scala:s"
     ),
     routesImport ++= Seq(
       "uk.gov.hmrc.play.bootstrap.binders._",

@@ -6,10 +6,11 @@ object AppDependencies {
 
   private val playVersion = "play-28"
   private val hmrcMongoVersion = "0.73.0"
+  private val bootstrapVersion = "7.12.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc"       %% s"bootstrap-frontend-$playVersion" % "6.3.0",
+    "uk.gov.hmrc"       %% s"bootstrap-frontend-$playVersion" % bootstrapVersion,
     "uk.gov.hmrc"       %% "play-partials"                    % s"8.3.0-$playVersion",
     "uk.gov.hmrc"       %% "http-caching-client"              % s"9.6.0-$playVersion",
     "uk.gov.hmrc"       %% "tax-year"                         % "3.0.0",
@@ -28,6 +29,7 @@ object AppDependencies {
 
   val test: Seq[ModuleID] = Seq(
     "org.scalatest"          %% "scalatest"                     % "3.2.14",
+    "uk.gov.hmrc"            %% s"bootstrap-test-$playVersion"  % bootstrapVersion,
     "com.typesafe.play"      %% "play-test"                     % current,
     "org.scalatestplus.play" %% "scalatestplus-play"            % "5.1.0",
     "uk.gov.hmrc.mongo"      %% s"hmrc-mongo-test-$playVersion" % hmrcMongoVersion,
