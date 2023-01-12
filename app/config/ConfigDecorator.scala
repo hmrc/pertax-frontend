@@ -224,22 +224,21 @@ class ConfigDecorator @Inject() (
   lazy val childBenefitsStopOrRestart               =
     s"$dfsFrontendHost/digital-forms/form/high-income-child-benefit-tax-charge/draft/guide"
 
-  lazy val childBenefitsCheckIfYouCanClaim: String =
-    if (welshLangEnabled) "https://www.gov.uk/budd-dal-plant" else "https://www.gov.uk/child-benefit/overview"
+  lazy val childBenefitsCheckIfYouCanClaim: String = "https://www.gov.uk/child-benefit/overview"
 
   lazy val claimChildBenefits: String = "https://www.gov.uk/child-benefit/how-to-claim"
 
-  lazy val reportChangesChildBenefit: String =
-    if (welshLangEnabled) "https://www.gov.uk/rhoi-gwybod-am-newidiadau-budd-dal-plant"
-    else "https://www.gov.uk/report-changes-child-benefit"
+  lazy val reportChangesChildBenefit: String = "https://www.gov.uk/report-changes-child-benefit"
+
+  lazy val reportChangesChildBenefitWelsh: String = "https://www.gov.uk/rhoi-gwybod-am-newidiadau-budd-dal-plant"
 
   lazy val viewPaymentHistory: String = "https://www.gov.uk/child-benefit/view-payment-history"
 
   lazy val viewProofEntitlement: String = "https://www.gov.uk/child-benefit/view-proof-entitlement"
 
-  lazy val childBenefitTaxCharge: String =
-    if (welshLangEnabled) "https://www.gov.uk/tal-treth-budd-dal-plant"
-    else "https://www.gov.uk/child-benefit-tax-charge"
+  lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
+
+  lazy val childBenefitTaxChargeWelsh: String = "https://www.gov.uk/tal-treth-budd-dal-plant"
 
   lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord/pta"
 

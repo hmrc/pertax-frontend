@@ -32,7 +32,12 @@
 )
 
 @(redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
-
+@reportChangesChildBenefitLink = @{
+    if(messages.lang.code == "cy"){ configDecorator.reportChangesChildBenefitWelsh }else {configDecorator.reportChangesChildBenefit}
+}
+@childBenefitTaxChargeLink = @{
+    if(messages.lang.code == "cy"){ configDecorator.childBenefitTaxChargeWelsh }else {configDecorator.childBenefitTaxCharge}
+}
 @main(pageTitle = messages("label.make_or_manage_a_child_benefit_claim"), showChildBenefitBanner = true) {
 
     @h1(messages("label.make_or_manage_a_child_benefit_claim"))
@@ -43,10 +48,10 @@
         </ul>
         @h2(messages("label.manage_a_claim"))
         <ul class="govuk-list govuk-list--bullet">
-            <li>@link(configDecorator.reportChangesChildBenefit, messageKey = "label.report_changes_that_affect_your_child_benefit", inParagraph = true)</li>
+            <li>@link(reportChangesChildBenefitLink, messageKey = "label.report_changes_that_affect_your_child_benefit", inParagraph = true)</li>
             <li>@link(configDecorator.viewPaymentHistory, messageKey = "label.view_your_child_benefit_payment_history", inParagraph = true)</li>
             <li>@link(configDecorator.viewProofEntitlement, messageKey = "label.view_your_proof_of_entitlement_to_child_benefit", inParagraph = true)</li>
-            <li>@link(configDecorator.childBenefitTaxCharge, messageKey = "label.high_income_child_benefit_charge", inParagraph = true)</li>
+            <li>@link(childBenefitTaxChargeLink, messageKey = "label.high_income_child_benefit_charge", inParagraph = true)</li>
         </ul>
     } else {
         @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")), classes = Some("govuk-body-l"))
