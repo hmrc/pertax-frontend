@@ -12,17 +12,17 @@ object AppDependencies {
     ws,
     "uk.gov.hmrc"       %% s"bootstrap-frontend-$playVersion" % bootstrapVersion,
     "uk.gov.hmrc"       %% "play-partials"                    % s"8.3.0-$playVersion",
-    "uk.gov.hmrc"       %% "http-caching-client"              % s"9.6.0-$playVersion",
+    "uk.gov.hmrc"       %% "http-caching-client"              % s"10.0.0-$playVersion",
     "uk.gov.hmrc"       %% "tax-year"                         % "3.0.0",
     "uk.gov.hmrc"       %% "time"                             % "3.19.0",
     "uk.gov.hmrc"       %% "domain"                           % s"8.0.0-$playVersion",
     "uk.gov.hmrc.mongo" %% s"hmrc-mongo-$playVersion"         % hmrcMongoVersion,
     "io.lemonlabs"      %% "scala-uri"                        % "4.0.2",
-    "uk.gov.hmrc"       %% "play-frontend-hmrc"               % s"3.32.0-$playVersion",
-    "uk.gov.hmrc"       %% "play-frontend-pta"                % "0.3.0",
+    "uk.gov.hmrc"       %% "play-frontend-hmrc"               % s"6.0.0-$playVersion",
+    "uk.gov.hmrc"       %% "play-frontend-pta"                % "0.4.0",
     "org.jsoup"          % "jsoup"                            % "1.15.3",
     "uk.gov.hmrc"       %% "reactive-circuit-breaker"         % "3.5.0",
-    "org.typelevel"     %% "cats-core"                        % "2.8.0",
+    "org.typelevel"     %% "cats-core"                        % "2.9.0",
     "uk.gov.hmrc"       %% s"internal-auth-client-$playVersion" % "1.2.0",
     "org.apache.commons" % "commons-text"               % "1.6",
     ehcache
@@ -38,7 +38,7 @@ object AppDependencies {
     "org.mockito"             % "mockito-core"                  % "4.8.0",
     "org.scalacheck"         %% "scalacheck"                    % "1.17.0",
     "com.github.tomakehurst"  % "wiremock-standalone"           % "2.27.2",
-    "com.vladsch.flexmark"    % "flexmark-all"                  % "0.62.0"
+    "com.vladsch.flexmark"    % "flexmark-all"                  % "0.62.2"
   ).map(_ % "test,it")
 
   val all: Seq[ModuleID]  = compile ++ test
