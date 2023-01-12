@@ -258,9 +258,6 @@ class ConfigDecorator @Inject() (
   lazy val getNinoFromCID =
     runModeConfiguration.getOptional[Boolean]("feature.get-nino-from-cid.enabled").getOrElse(false)
 
-  lazy val saItsaTileEnabled =
-    runModeConfiguration.getOptional[Boolean]("feature.sa-itsa-tile.enabled").getOrElse(false)
-
   lazy val partialUpgradeEnabled =
     runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)
 
