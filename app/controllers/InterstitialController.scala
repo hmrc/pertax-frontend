@@ -106,7 +106,7 @@ class InterstitialController @Inject() (
           )
         )
       } else {
-        errorRenderer.error(UNAUTHORIZED)
+        Redirect(routes.InterstitialController.displayChildBenefitsSingleAccountView, MOVED_PERMANENTLY)
       }
     }
   }

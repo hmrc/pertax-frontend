@@ -274,7 +274,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val result = controller.displayChildBenefits()(fakeRequest)
 
-      status(result) mustBe UNAUTHORIZED
+      status(result) mustBe MOVED_PERMANENTLY
     }
 
     "return UNAUTHORIZED when tne feature toggled false for new Child Benefits" in {
