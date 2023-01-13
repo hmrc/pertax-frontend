@@ -50,14 +50,18 @@ class FeatureFlagsControllerSpec extends BaseSpec {
     "recover with an error response" when {
       "there is error while setting default flag " in {
 
-        when(mockFeatureFlagService.setAll(any())).thenReturn(Future.failed(new Exception("some failure text")))
+        when(mockFeatureFlagService.setAll(any()))
+          .thenReturn(Future.failed(new IllegalArgumentException("some failure text")))
 
         val result = controller.setDefaults()(
           FakeRequest().withHeaders("Authorization" -> "Token some-token")
         )
 
-        contentAsString(result) must include("Error while setting default flag")
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        whenReady(result.failed) { e =>
+          e mustBe an[IllegalArgumentException]
+
+          e.getMessage must include("some failure text")
+        }
       }
     }
   }
