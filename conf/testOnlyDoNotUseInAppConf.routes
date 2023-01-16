@@ -15,3 +15,4 @@
 
 PUT /pertax-frontend/test-only/setFlag/:flagName/:isEnabled  controllers.testOnly.FeatureFlagsController.setFlag(flagName: FeatureFlagName, isEnabled: Boolean)
 PUT /personal-account/test-only/setFlag/:flagName/:isEnabled  controllers.testOnly.FeatureFlagsController.setFlag(flagName: FeatureFlagName, isEnabled: Boolean)
+PUT /personal-account/test-only/setDefaultFlags  controllers.testOnly.FeatureFlagsController.setDefaults

@@ -17,7 +17,7 @@
 package controllers.testOnly
 
 import controllers.PertaxBaseController
-import models.admin.FeatureFlagName
+import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlagName, ItsaMessageToggle, NationalInsuranceTileToggle, TaxcalcToggle}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.admin.FeatureFlagService
 
@@ -31,10 +31,23 @@ class FeatureFlagsController @Inject() (
 )(implicit ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
-  def setFlag(featureFlagName: FeatureFlagName, isEnabled: Boolean): Action[AnyContent] = Action.async { request =>
+  def setFlag(featureFlagName: FeatureFlagName, isEnabled: Boolean): Action[AnyContent] = Action.async {
     featureFlagService.set(featureFlagName, isEnabled).map {
       case true  => Ok(s"Flag $featureFlagName set to $isEnabled")
       case false => InternalServerError(s"Error while setting flag $featureFlagName to $isEnabled")
     }
+  }
+
+  def setDefaults: Action[AnyContent] = Action.async {
+    featureFlagService
+      .setAll(
+        Map(
+          AddressTaxCreditsBrokerCallToggle -> false,
+          TaxcalcToggle                     -> true,
+          NationalInsuranceTileToggle       -> true,
+          ItsaMessageToggle                 -> true
+        )
+      )
+      .map(_ => Ok("Default flags set"))
   }
 }
