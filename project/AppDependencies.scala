@@ -21,7 +21,6 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "play-frontend-hmrc"               % s"6.0.0-$playVersion",
     "uk.gov.hmrc"       %% "play-frontend-pta"                % "0.4.0",
     "org.jsoup"          % "jsoup"                            % "1.15.3",
-    "uk.gov.hmrc"       %% "reactive-circuit-breaker"         % "3.5.0",
     "org.typelevel"     %% "cats-core"                        % "2.9.0",
     "uk.gov.hmrc"       %% s"internal-auth-client-$playVersion" % "1.2.0",
     "org.apache.commons" % "commons-text"               % "1.6",
