@@ -20,7 +20,6 @@ import cats.implicits._
 import cats.instances.list._
 import cats.syntax.traverse._
 import cats.syntax.all._
-import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest

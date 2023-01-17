@@ -87,26 +87,30 @@ class SaWrongCredentialsController @Inject() (
   }
 
   def processDoYouKnowOtherCredentials: Action[AnyContent] = authenticate { implicit request =>
-    SAWrongCredentialsDto.form.bindFromRequest.fold(
-      formWithErrors => BadRequest(doYouKnowOtherCredentialsView(formWithErrors)),
-      wrongCredentialsDto =>
-        if (wrongCredentialsDto.value) {
-          Redirect(routes.SaWrongCredentialsController.signInAgain)
-        } else {
-          Redirect(routes.SaWrongCredentialsController.doYouKnowUserId)
-        }
-    )
+    SAWrongCredentialsDto.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => BadRequest(doYouKnowOtherCredentialsView(formWithErrors)),
+        wrongCredentialsDto =>
+          if (wrongCredentialsDto.value) {
+            Redirect(routes.SaWrongCredentialsController.signInAgain)
+          } else {
+            Redirect(routes.SaWrongCredentialsController.doYouKnowUserId)
+          }
+      )
   }
 
   def processDoYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
-    SAWrongCredentialsDto.form.bindFromRequest.fold(
-      formWithErrors => BadRequest(doYouKnowUserIdView(formWithErrors)),
-      wrongCredentialsDto =>
-        if (wrongCredentialsDto.value) {
-          Redirect(routes.SaWrongCredentialsController.needToResetPassword)
-        } else {
-          Redirect(routes.SaWrongCredentialsController.findYourUserId)
-        }
-    )
+    SAWrongCredentialsDto.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => BadRequest(doYouKnowUserIdView(formWithErrors)),
+        wrongCredentialsDto =>
+          if (wrongCredentialsDto.value) {
+            Redirect(routes.SaWrongCredentialsController.needToResetPassword)
+          } else {
+            Redirect(routes.SaWrongCredentialsController.findYourUserId)
+          }
+      )
   }
 }

@@ -21,8 +21,6 @@ import models.admin.{FeatureFlag, FeatureFlagName}
 import play.api.libs.json.{JsBoolean, Json}
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import services.admin.FeatureFlagService
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import util.AuditServiceTools
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

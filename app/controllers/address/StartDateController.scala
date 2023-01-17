@@ -70,25 +70,27 @@ class StartDateController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
-          dateDtoForm.bindFromRequest.fold(
-            formWithErrors => Future.successful(BadRequest(enterStartDateView(formWithErrors, typ))),
-            dateDto =>
-              cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map { _ =>
-                val proposedStartDate = dateDto.startDate
+          dateDtoForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors => Future.successful(BadRequest(enterStartDateView(formWithErrors, typ))),
+              dateDto =>
+                cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map { _ =>
+                  val proposedStartDate = dateDto.startDate
 
-                personDetails.address match {
-                  case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
-                    if (!currentStartDate.isBefore(proposedStartDate)) {
-                      BadRequest(
-                        cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate))
-                      )
-                    } else {
-                      Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                    }
-                  case _                                                                   => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                  personDetails.address match {
+                    case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
+                      if (!currentStartDate.isBefore(proposedStartDate)) {
+                        BadRequest(
+                          cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate))
+                        )
+                      } else {
+                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                      }
+                    case _                                                                   => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                  }
                 }
-              }
-          )
+            )
         }
       }
     }
