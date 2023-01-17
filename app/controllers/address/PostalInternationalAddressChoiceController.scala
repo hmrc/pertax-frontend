@@ -56,7 +56,7 @@ class PostalDoYouLiveInTheUKController @Inject() (
       addressJourneyEnforcer { _ => _ =>
         InternationalAddressChoiceDto
           .form(Some("error.postal_address_uk_select"))
-          .bindFromRequest
+          .bindFromRequest()
           .fold(
             formWithErrors => Future.successful(BadRequest(postalInternationalAddressChoiceView(formWithErrors))),
             internationalAddressChoiceDto =>
