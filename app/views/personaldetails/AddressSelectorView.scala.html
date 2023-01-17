@@ -48,7 +48,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
 
     @errorSummary(addressSelectorForm, Some("radio-0"))
 
-    @form(action = controllers.address.routes.AddressSelectorController.onSubmit(typ), args = 'class -> "select-address-form", 'id -> "select-address-form") {
+    @form(action = controllers.address.routes.AddressSelectorController.onSubmit(typ), args = (Symbol("class")) -> "select-address-form", (Symbol("id")) -> "select-address-form") {
         <input type="hidden" name="postcode" value="@postcode" />
         <input type="hidden" name="filter" value="@filter" />
 
@@ -63,7 +63,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
                             id = Some("radio-" + index),
                             value = Some(ad.id),
                             checked = addressSelectorForm("addressId").value.contains(ad.id)
-                        ),
+                        )
                     }
         )
 

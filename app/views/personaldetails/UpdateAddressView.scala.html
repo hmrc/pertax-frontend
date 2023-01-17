@@ -61,7 +61,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
 
     @errorSummary(updateAddressForm)
 
-    @form(action = controllers.address.routes.UpdateAddressController.onSubmit(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
+    @form(action = controllers.address.routes.UpdateAddressController.onSubmit(typ), args = (Symbol("class")) -> "update-address-form", (Symbol("id")) -> "update-address-form") {
 
         @govukFieldset(Fieldset(
             describedBy = Some(fieldsetDescribedBy),
