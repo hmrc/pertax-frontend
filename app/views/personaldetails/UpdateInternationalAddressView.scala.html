@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import tags._
 @import scala.concurrent.ExecutionContext
@@ -37,8 +36,7 @@
     autocompleteJavascript : HmrcAccessibleAutocompleteJavascript
 )
 
-@(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, countries: List[Country])(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, countries: List[Country])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @scriptElems = {
     @autocompleteJavascript(CSPNonce.get)

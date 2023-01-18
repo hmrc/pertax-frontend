@@ -30,5 +30,5 @@ object DateTimeTools extends CurrentTaxYear with Logging {
     (y - 1).toString.takeRight(2) + y.toString.takeRight(2)
   }
 
-  override def now: () => LocalDate = LocalDate.now()
+  override def now: () => LocalDate = () => LocalDate.now
 }

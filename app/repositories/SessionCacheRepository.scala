@@ -31,7 +31,7 @@ class SessionCacheRepository @Inject() (appConfig: ConfigDecorator, mongoCompone
 ) extends CacheRepository(
       mongoComponent = mongoComponent,
       collectionName = "sessions",
-      ttl = appConfig.sessionCacheTtl minutes,
+      ttl = appConfig.sessionCacheTtl.minutes,
       timestampSupport = new CurrentTimestampSupport(),
       sessionIdKey = SessionKeys.sessionId
     )

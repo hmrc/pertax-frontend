@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import viewmodels.{AddressRowModel, ExtraLinks, PersonalDetailsTableRowModel}
 @import views.html.personaldetails.partials.AddressView
@@ -30,7 +29,7 @@
     govukInsetText: GovukInsetText
 )
 
-@(mainAddressOption: Option[Address], postalAddressOption: Option[Address])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(mainAddressOption: Option[Address], postalAddressOption: Option[Address])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("rls.title.update_your_address"),

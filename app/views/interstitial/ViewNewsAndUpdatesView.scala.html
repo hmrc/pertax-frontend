@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import views.html.components.{H1, H2, Link, P}
@@ -29,7 +28,7 @@
     link: Link
 )
 
-@(redirectUrl: String, newsAndContentModelList: List[NewsAndContentModel], selectedNewsSectionId: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(redirectUrl: String, newsAndContentModelList: List[NewsAndContentModel], selectedNewsSectionId: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 @ptaScript = {
     <script>
             document.onreadystatechange = function () {

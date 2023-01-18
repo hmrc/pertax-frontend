@@ -15,7 +15,7 @@
  *@
 
 @this()
-@(address: models.Address, countries: List[Country])(implicit messages: play.api.i18n.Messages)
+@(address: models.Address, countries: List[Country])
 
 @address.lines.map { line =>
 <span class="address-line">@upperCaseToTitleCase(line)</span>

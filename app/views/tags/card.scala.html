@@ -21,7 +21,7 @@
         heading: String,
         headingTag: String = "h2",
         bodyContent: Option[Html] = None
-)(actionContent: Html)(implicit messages: play.api.i18n.Messages)
+)(actionContent: Html)
 
 <div class="card" @id.map { i => id="@i" }>
 

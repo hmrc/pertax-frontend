@@ -44,8 +44,6 @@ class PersonalDetailsViewModel @Inject() (
     personDetails: PersonDetails,
     optionalEditAddress: List[EditedAddress],
     taxCreditsAvailable: Boolean
-  )(implicit
-    messages: play.api.i18n.Messages
   ) = {
     val isMainAddressChangeLocked = optionalEditAddress.exists(
       _.isInstanceOf[EditResidentialAddress]

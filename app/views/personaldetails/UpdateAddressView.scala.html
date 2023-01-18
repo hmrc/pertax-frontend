@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import tags._
 @import scala.concurrent.ExecutionContext
@@ -30,8 +29,7 @@
 )
 
 @(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, addressFinderDto: Option[AddressFinderDto],
-addressLookupServiceDown: Boolean, showEnterAddressHeader: Boolean)(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+addressLookupServiceDown: Boolean, showEnterAddressHeader: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @getYourAddressLabels = {
   @if(showEnterAddressHeader) {

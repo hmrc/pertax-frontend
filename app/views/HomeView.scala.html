@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import viewmodels.HomeViewModel
 @import scala.concurrent.ExecutionContext
@@ -27,7 +26,7 @@
     h2: H2
 )
 
-@(viewModel: HomeViewModel)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(viewModel: HomeViewModel)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.account_home"),

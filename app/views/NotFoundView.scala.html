@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 @import components.{H1, P, Link}
@@ -25,7 +24,7 @@
     p: P,
     link: Link
 )
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("global.page.not.found.error.title")

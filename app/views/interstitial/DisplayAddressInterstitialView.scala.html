@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import scala.concurrent.ExecutionContext
@@ -26,7 +25,7 @@
     p: P,
     button: Button
 )
-@(continueUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(continueUrl: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @mainView(
     pageTitle = messages("label.profile")
