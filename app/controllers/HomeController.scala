@@ -94,7 +94,7 @@ class HomeController @Inject() (
             } else {
               Seq.empty
             }
-            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
+            val pensionCards: Seq[Html] = homeCardGenerator().getPensionCards
 
             Ok(
               homeView(
