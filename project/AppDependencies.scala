@@ -14,7 +14,6 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "play-partials"                    % s"8.3.0-$playVersion",
     "uk.gov.hmrc"       %% "http-caching-client"              % s"10.0.0-$playVersion",
     "uk.gov.hmrc"       %% "tax-year"                         % "3.0.0",
-    "uk.gov.hmrc"       %% "time"                             % "3.19.0",
     "uk.gov.hmrc"       %% "domain"                           % s"8.0.0-$playVersion",
     "uk.gov.hmrc.mongo" %% s"hmrc-mongo-$playVersion"         % hmrcMongoVersion,
     "io.lemonlabs"      %% "scala-uri"                        % "4.0.2",

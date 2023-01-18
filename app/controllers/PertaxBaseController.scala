@@ -21,7 +21,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext}
 
 abstract class PertaxBaseController(cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     extends FrontendController(cc)
