@@ -29,7 +29,7 @@
     govukDetails: GovukDetails
 )
 
-@(year: String, saUtr: SaUtr)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(year: String, saUtr: SaUtr)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @insetContent = {
     @p(Text(messages("label.to_get_your_sa302_calculation")))

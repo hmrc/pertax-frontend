@@ -21,7 +21,7 @@
 
 @this(p: P)
 
-@(saActionNeeded: SelfAssessmentUserType, taxYear: String, nextDeadlineTaxYear: String)(implicit request: UserRequest[AnyContent], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(saActionNeeded: SelfAssessmentUserType, taxYear: String, nextDeadlineTaxYear: String)(implicit configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @cardContent = {
 @saActionNeeded match {

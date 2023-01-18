@@ -15,7 +15,6 @@
  *@
 
 @import tags._
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 @import components.{ErrorSummary, InputValue, Link, Button}
@@ -30,8 +29,7 @@
     govukFieldset : GovukFieldset
 )
 
-@(addressFinderForm: Form[models.dto.AddressFinderDto], typ: AddrType)(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(addressFinderForm: Form[models.dto.AddressFinderDto], typ: AddrType)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @title = {
     @if(addressFinderForm.hasErrors){@messages("error.message.error")  }@typ.ifIs(

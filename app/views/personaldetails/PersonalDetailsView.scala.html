@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import viewmodels.{AddressRowModel, ExtraLinks, PersonalDetailsTableRowModel}
 @import scala.concurrent.ExecutionContext
@@ -35,7 +34,7 @@
     paperlessHelpers: Option[PersonalDetailsTableRowModel],
     signinDetailsHelpers: Option[PersonalDetailsTableRowModel],
     manageTaxAgent: Option[PersonalDetailsTableRowModel]
-)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil) = {
     <div class="govuk-summary-list__row" id="@row.id">
@@ -121,7 +120,7 @@
         <dl class="govuk-summary-list">
             @personalDetails.map(row => rowsPresenter(row))
             @addressRowsPresenter(addressDetails.mainAddress, true)
-            @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink.toList)
+            @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink().toList)
         </dl>
         @h2("label.settings")
         <dl class="govuk-summary-list">

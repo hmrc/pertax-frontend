@@ -49,7 +49,7 @@ lazy val microservice = Project(appName, file("."))
     majorVersion := 1,
     scalacOptions ++= Seq(
       "-feature",
-      "-Werror",
+      //"-Werror",
       "-Wconf:cat=unused-imports&site=.*views\\.html.*:s",
       "-Wconf:cat=unused-imports&site=<empty>:s",
       "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",

@@ -111,7 +111,7 @@ class ApplicationController @Inject() (
     logger.warn(s"Unable to confirm user identity: $reason")
 
   def signout(continueUrl: Option[RedirectUrl], origin: Option[Origin]): Action[AnyContent] =
-    authJourney.minimumAuthWithSelfAssessment { implicit request =>
+    authJourney.minimumAuthWithSelfAssessment {
       val safeUrl = continueUrl.flatMap { redirectUrl =>
         redirectUrl.getEither(OnlyRelative) match {
           case Right(safeRedirectUrl) => Some(safeRedirectUrl.url)

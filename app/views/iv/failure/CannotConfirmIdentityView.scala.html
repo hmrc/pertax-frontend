@@ -25,7 +25,7 @@
     link: Link
 )
 
-@(retryUrl: String)(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(retryUrl: String)(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.we_cannot_confirm_your_identity")
