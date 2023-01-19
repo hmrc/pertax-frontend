@@ -59,42 +59,6 @@ sbt -mem 6699 'run 9232'
 ## Service is now running at http://localhost:9232/personal-account/
 ```
 
-## Code quality
-
-There are pre-commit checks against the JS and SCSS files with ESLint and Stylelint. You can run these together or one at a time.
-- `npm run lint:js` checks the JS files
-- `npm run lint:scss` checks the SCSS files
-- `npm run lint` checks both JS & SCSS files
-
-Any files which do not require linting — minified library files, legacy vendor files, etc. — should be added to the relevant ignore file:
-- `.eslintignore`
-- `.stylelintignore`
-
-If you absolutely have to bend a rule, disable it at the top of your file:
-```js
-/* eslint-disable sonarjs/no-duplicate-string */
-```
-
-```scss
-/* stylelint-disable selector-max-compound-selectors */
-```
-
-And always declare external globals, for example:
-```js
-/* global $, GOVUK */
-```
-
-## VS Code additions
-
-To help those in design and front-end who use VS Code instead of IntelliJ, there are some additional files in this repository.
-
-- `extensions.json`: recommends a set of extensions to help with a Scala development environment, as well as debugging and linting tools, and things to generally help you commit more consistent code.
-  **Run these from in the Workspace Recommendations section of the Extensions sidebar.**
-- `launch.json`: a set of debug configurations to help debug your code with the help of various browsers and tools.
-  **Run these from in the Debug sidebar.**
-- `tasks.json`: some `sbt` tasks to manage the service and get it running.
-  **Run these from the Command Palette.** <kbd>shift</kbd>+<kbd>cmd/ctrl</kbd>+<kbd>p</kbd>, and choose “Tasks: Run Task” to see the available options. (NPM tasks are in the NPM section)
-
 ## License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")
