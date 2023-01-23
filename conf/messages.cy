@@ -515,7 +515,7 @@ label.claim_child_benefit=Hawlio Budd-dal Plant
 label.manage_a_claim=Rheoli hawliad
 label.view_your_child_benefit_payment_history=Bwrw golwg dros hanes eich taliadau Budd-dal Plant
 label.view_your_proof_of_entitlement_to_child_benefit=Bwrw golwg dros eich tystiolaeth o hawl i Fudd-dal Plant
-label.high_income_child_benefit_charge=Tâl Treth Budd-dal Plant Incwm Uchel
+label.high_income_child_benefit_charge=TÃ¢l Treth Budd-dal Plant Incwm Uchel
 
 # Pensions
 title.pensions=Pensiynau
