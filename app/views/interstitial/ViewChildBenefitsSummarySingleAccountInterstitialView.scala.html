@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@
 @childBenefitTaxChargeLink = @{
     if(messages.lang.code == "cy"){ configDecorator.childBenefitTaxChargeWelsh }else {configDecorator.childBenefitTaxCharge}
 }
-@main(pageTitle = messages("label.make_or_manage_a_child_benefit_claim"), showChildBenefitBanner = true) {
+@main(pageTitle = messages("label.make_or_manage_a_child_benefit_claim"), showChildBenefitBanner = true, showBackLink = true) {
 
     @h1(messages("label.make_or_manage_a_child_benefit_claim"))
     @if(request.nino.isDefined) {
