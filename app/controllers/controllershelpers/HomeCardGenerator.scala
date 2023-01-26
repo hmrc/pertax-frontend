@@ -42,7 +42,6 @@ class HomeCardGenerator @Inject() (
   featureFlagService: FeatureFlagService,
   payAsYouEarnView: PayAsYouEarnView,
   taxCalculationView: TaxCalculationView,
-  selfAssessmentView: SelfAssessmentView,
   nationalInsuranceView: NationalInsuranceView,
   taxCreditsView: TaxCreditsView,
   childBenefitView: ChildBenefitView,
