@@ -67,7 +67,7 @@ class SelfAssessmentController @Inject() (
     }
 
   def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
-    authJourney.minimumAuthWithSelfAssessment { implicit request =>
+    authJourney.authWithSelfAssessment { implicit request =>
       val retryUrl = routes.ApplicationController.uplift(continueUrl).url
 
       request.saUserType match {
@@ -107,7 +107,7 @@ class SelfAssessmentController @Inject() (
     )
 
   def requestAccess: Action[AnyContent] =
-    authJourney.minimumAuthWithSelfAssessment { implicit request =>
+    authJourney.authWithSelfAssessment { implicit request =>
       request.saUserType match {
         case NotEnrolledSelfAssessmentUser(_) =>
           val deadlineYear = current.finishYear.toString
