@@ -37,5 +37,4 @@ class FakeAuthJourney(saUser: SelfAssessmentUserType, personDetails: Option[Pers
   }
 
   override val authWithPersonalDetails: ActionBuilderFixture = actionBuilderFixture
-  override val authWithSelfAssessment: ActionBuilderFixture  = actionBuilderFixture
 }

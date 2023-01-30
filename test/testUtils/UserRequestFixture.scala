@@ -44,7 +44,7 @@ object UserRequestFixture {
     UserRequest(
       nino,
       userName,
-      saUser,
+      Some(saUser),
       credentials,
       confidenceLevel,
       personDetails,

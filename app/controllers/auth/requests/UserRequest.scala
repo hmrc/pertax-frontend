@@ -17,7 +17,7 @@
 package controllers.auth.requests
 
 import models._
-import play.api.mvc.{Request, WrappedRequest}
+import play.api.mvc.{AnyContent, Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
@@ -26,7 +26,7 @@ import uk.gov.hmrc.domain.Nino
 final case class UserRequest[+A](
   nino: Option[Nino],
   retrievedName: Option[UserName],
-  saUserType: SelfAssessmentUserType,
+  saUserType: Option[SelfAssessmentUserType],
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
   personDetails: Option[PersonDetails],
@@ -45,9 +45,35 @@ final case class UserRequest[+A](
 
   def isSa: Boolean = saUserType != NonFilerSelfAssessmentUser
 
-  def isSaUserLoggedIntoCorrectAccount: Boolean = saUserType match {
-    case ActivatedOnlineFilerSelfAssessmentUser(_) => true
-    case _                                         => false
-  }
+  def isSaUserLoggedIntoCorrectAccount: Boolean = saUserType
+    .map {
+      case ActivatedOnlineFilerSelfAssessmentUser(_) => true
+      case _                                         => false
+    }
+    .getOrElse(throw new RuntimeException())
+}
 
+object UserRequest {
+  def apply[A](
+    authenticatedRequest: AuthenticatedRequest[A],
+    retrievedName: Option[UserName],
+    saUserType: Option[SelfAssessmentUserType],
+    personDetails: Option[PersonDetails],
+    unreadMessageCount: Option[Int],
+    breadcrumb: Option[Breadcrumb]
+  ): UserRequest[A] =
+    UserRequest(
+      authenticatedRequest.nino,
+      retrievedName,
+      saUserType,
+      authenticatedRequest.credentials,
+      authenticatedRequest.confidenceLevel,
+      personDetails,
+      authenticatedRequest.trustedHelper,
+      authenticatedRequest.enrolments,
+      authenticatedRequest.profile,
+      unreadMessageCount,
+      breadcrumb,
+      authenticatedRequest.request
+    )
 }

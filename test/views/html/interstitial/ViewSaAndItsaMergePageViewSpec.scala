@@ -86,7 +86,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             true,
             false,
             previousAndCurrentTaxYear,
-            userRequest.saUserType
+            userRequest.saUserType.get
           ).toString
         )
 
@@ -116,7 +116,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
               true,
               false,
               previousAndCurrentTaxYear,
-              userRequest.saUserType
+              userRequest.saUserType.get
             ).toString
           )
 
@@ -231,7 +231,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             true,
             true,
             previousAndCurrentTaxYear,
-            userRequest.saUserType
+            userRequest.saUserType.get
           ).toString
         )
 
@@ -300,7 +300,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             itsaToggle = false,
             isSeiss = true,
             previousAndCurrentTaxYear,
-            userRequest.saUserType
+            userRequest.saUserType.get
           ).toString
         )
 

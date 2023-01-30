@@ -46,24 +46,26 @@ class PaymentsController @Inject() (
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
         if (request.isSa) {
-          request.saUserType match {
-            case saUser: SelfAssessmentUser =>
-              val paymentRequest = PaymentRequest(configDecorator, saUser.saUtr.toString())
-              for {
-                response <- payApiConnector
-                              .createPayment(paymentRequest)
-                              .fold(
-                                _ => errorRenderer.error(BAD_REQUEST),
-                                {
-                                  case Some(createPayment) => Redirect(createPayment.nextUrl)
-                                  case None                => errorRenderer.error(BAD_REQUEST)
-                                }
-                              )
-              } yield response
-            case NonFilerSelfAssessmentUser =>
-              logger.warn("User had no sa account when one was required")
-              errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-          }
+          request.saUserType
+            .map {
+              case saUser: SelfAssessmentUser =>
+                val paymentRequest = PaymentRequest(configDecorator, saUser.saUtr.toString())
+                for {
+                  response <- payApiConnector
+                                .createPayment(paymentRequest)
+                                .fold(
+                                  _ => errorRenderer.error(BAD_REQUEST),
+                                  {
+                                    case Some(createPayment) => Redirect(createPayment.nextUrl)
+                                    case None                => errorRenderer.error(BAD_REQUEST)
+                                  }
+                                )
+                } yield response
+              case NonFilerSelfAssessmentUser =>
+                logger.warn("User had no sa account when one was required")
+                errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+            }
+            .getOrElse(throw new RuntimeException())
         } else {
           logger.warn("User had no sa account when one was required")
           errorRenderer.futureError(INTERNAL_SERVER_ERROR)

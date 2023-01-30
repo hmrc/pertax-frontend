@@ -105,12 +105,14 @@ class InterstitialController @Inject() (
   }
 
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
+    val saUserType = request.saUserType.getOrElse(throw new RuntimeException())
+
     if (
       request.trustedHelper.isEmpty &&
       (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       for {
-        hasSeissClaims    <- seissService.hasClaims(request.saUserType)
+        hasSeissClaims    <- seissService.hasClaims(saUserType)
         istaMessageToggle <- featureFlagService.get(ItsaMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
@@ -121,7 +123,7 @@ class InterstitialController @Inject() (
           istaMessageToggle.isEnabled,
           hasSeissClaims,
           taxYear = previousAndCurrentTaxYear,
-          request.saUserType
+          saUserType
         )
       )
     } else {
@@ -156,13 +158,15 @@ class InterstitialController @Inject() (
   }
 
   def displaySa302Interrupt(year: Int): Action[AnyContent] = authenticateSa { implicit request =>
-    request.saUserType match {
-      case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
-        Ok(sa302InterruptView(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUtr))
-      case _                                             =>
-        logger.warn("User had no sa account when one was required")
-        errorRenderer.error(UNAUTHORIZED)
-    }
+    request.saUserType
+      .map {
+        case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
+          Ok(sa302InterruptView(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUtr))
+        case _                                             =>
+          logger.warn("User had no sa account when one was required")
+          errorRenderer.error(UNAUTHORIZED)
+      }
+      .getOrElse(throw new RuntimeException())
   }
 
   def displayNewsAndUpdates(newsSectionId: String): Action[AnyContent] = authenticate { implicit request =>

@@ -291,7 +291,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with a continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -307,7 +307,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with no continue URL but an origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -323,7 +323,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return BAD_REQUEST when signed in with government gateway with no continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -339,7 +339,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return 'Bad Request' when signed in with verify and supplied no continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -357,7 +357,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return see other when supplied with an absolute url" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(

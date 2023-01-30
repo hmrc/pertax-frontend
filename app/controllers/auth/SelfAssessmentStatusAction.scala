@@ -73,7 +73,7 @@ class SelfAssessmentStatusAction @Inject() (
         UserRequest(
           request.nino,
           request.name,
-          saType,
+          Some(saType),
           request.credentials,
           request.confidenceLevel,
           None,
