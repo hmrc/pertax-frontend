@@ -16,6 +16,7 @@
 
 package controllers.auth.requests
 
+import exceptions.NoSaUserTypeException
 import models._
 import play.api.mvc.{AnyContent, Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -48,14 +49,14 @@ final case class UserRequest[+A](
       case NonFilerSelfAssessmentUser => false
       case _                          => true
     }
-    .getOrElse(throw new RuntimeException())
+    .getOrElse(throw new NoSaUserTypeException(saUserType))
 
   def isSaUserLoggedIntoCorrectAccount: Boolean = saUserType
     .map {
       case ActivatedOnlineFilerSelfAssessmentUser(_) => true
       case _                                         => false
     }
-    .getOrElse(throw new RuntimeException())
+    .getOrElse(throw new NoSaUserTypeException(saUserType))
 }
 
 object UserRequest {

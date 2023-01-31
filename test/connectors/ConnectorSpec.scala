@@ -64,7 +64,7 @@ trait ConnectorSpec
   def userRequest(saUserType: SelfAssessmentUserType, providerId: String): UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(
       request = FakeRequest(),
-      saUser = saUserType,
+      saUser = Some(saUserType),
       credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
     )
 

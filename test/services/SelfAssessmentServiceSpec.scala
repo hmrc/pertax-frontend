@@ -18,11 +18,14 @@ package services
 
 import cats.data.EitherT
 import connectors.SelfAssessmentConnector
+import controllers.auth.requests.UserRequest
+import exceptions.NoSaUserTypeException
 import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentResponse, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status._
 import play.api.libs.json.{Json, OWrites}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
 import testUtils.UserRequestFixture.buildUserRequest
@@ -46,7 +49,7 @@ class SelfAssessmentServiceSpec extends BaseSpec {
   implicit val userRequest =
     buildUserRequest(
       request = FakeRequest(),
-      saUser = NotEnrolledSelfAssessmentUser(utr),
+      saUser = Some(NotEnrolledSelfAssessmentUser(utr)),
       credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
     )
 
@@ -67,6 +70,30 @@ class SelfAssessmentServiceSpec extends BaseSpec {
             )
           )
 
+          sut.getSaEnrolmentUrl.value.futureValue mustBe Right(Some(redirectUrl))
+        }
+      }
+
+      "throw a NoSaUserTypeException if SelfAssessmentUserType is empty" in {
+
+        implicit val writes: OWrites[SaEnrolmentResponse] = Json.writes[SaEnrolmentResponse]
+
+        implicit val userRequest =
+          buildUserRequest(
+            request = FakeRequest(),
+            saUser = None,
+            credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
+          )
+
+        val redirectUrl = "/foo"
+
+        when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            Future.successful(Right(HttpResponse(OK, Json.toJson(SaEnrolmentResponse(redirectUrl)).toString)))
+          )
+        )
+
+        intercept[NoSaUserTypeException] {
           sut.getSaEnrolmentUrl.value.futureValue mustBe Right(Some(redirectUrl))
         }
       }

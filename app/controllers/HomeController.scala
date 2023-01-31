@@ -22,6 +22,7 @@ import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationCon
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
+import exceptions.NoSaUserTypeException
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
 import models.admin.TaxcalcToggle
@@ -68,7 +69,7 @@ class HomeController @Inject() (
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear)
 
-    val saUserType = request.saUserType.getOrElse(throw new RuntimeException())
+    val saUserType = request.saUserType.getOrElse(throw new NoSaUserTypeException(request.saUserType))
 
     rlsInterruptHelper.enforceByRlsStatus(
       showUserResearchBanner flatMap { showUserResearchBanner =>

@@ -54,7 +54,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
     val user: SelfAssessmentUser
 
     implicit val request: UserRequest[AnyContent] = buildUserRequest(
-      saUser = user,
+      saUser = Some(user),
       request = request
     )
 

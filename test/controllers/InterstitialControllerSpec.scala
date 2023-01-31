@@ -121,7 +121,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
+              saUser = Some(NonFilerSelfAssessmentUser),
               credentials = Credentials("", "GovernmentGateway"),
               request = request
             )
@@ -154,7 +154,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
+              saUser = Some(NonFilerSelfAssessmentUser),
               credentials = Credentials("", "GovernmentGateway"),
               request = request
             )
@@ -200,7 +200,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
+              saUser = Some(NonFilerSelfAssessmentUser),
               request = request
             )
           )
@@ -221,7 +221,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
+              saUser = Some(NonFilerSelfAssessmentUser),
               credentials = Credentials("", "GovernmentGateway"),
               confidenceLevel = ConfidenceLevel.L200,
               request = request
@@ -245,7 +245,7 @@ class InterstitialControllerSpec extends BaseSpec {
         val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
         def userRequest[A](request: Request[A]): UserRequest[A] = buildUserRequest(
-          saUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr),
+          saUser = Some(ActivatedOnlineFilerSelfAssessmentUser(saUtr)),
           request = request
         )
 
@@ -273,7 +273,7 @@ class InterstitialControllerSpec extends BaseSpec {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               buildUserRequest(
-                saUser = NonFilerSelfAssessmentUser,
+                saUser = Some(NonFilerSelfAssessmentUser),
                 request = request
               )
             )
@@ -367,7 +367,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
+              saUser = Some(NonFilerSelfAssessmentUser),
               request = request
             )
           )
@@ -459,7 +459,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
+              saUser = Some(NonFilerSelfAssessmentUser),
               request = request
             )
           )
@@ -513,7 +513,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+              saUser = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
               request = request
             )
           )

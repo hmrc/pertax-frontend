@@ -70,7 +70,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
-          saUser = NonFilerSelfAssessmentUser,
+          saUser = Some(NonFilerSelfAssessmentUser),
           request = FakeRequest()
         )
 
@@ -102,7 +102,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
     "return a redirectUrl if Precondition failed with 412 response" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
-          saUser = NonFilerSelfAssessmentUser,
+          saUser = Some(NonFilerSelfAssessmentUser),
           request = FakeRequest()
         )
 
@@ -144,7 +144,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
       s"return UpstreamErrorResponse when the connector retrieves a $errorResponse status" in {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
-            saUser = NonFilerSelfAssessmentUser,
+            saUser = Some(NonFilerSelfAssessmentUser),
             credentials = Credentials("", "GovernmentGateway"),
             confidenceLevel = ConfidenceLevel.L200,
             request = FakeRequest()

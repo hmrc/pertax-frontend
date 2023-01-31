@@ -21,6 +21,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.SelfAssessmentConnector
 import controllers.auth.requests.UserRequest
+import exceptions.NoSaUserTypeException
 import models.{SaEnrolmentRequest, SaEnrolmentResponse, SelfAssessmentUser}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
@@ -39,7 +40,7 @@ class SelfAssessmentService @Inject() (
       .map { case saEnrolment: SelfAssessmentUser =>
         SaEnrolmentRequest(configDecorator.addTaxesPtaOrigin, Some(saEnrolment.saUtr), request.credentials.providerId)
       }
-      .getOrElse(throw new RuntimeException())
+      .getOrElse(throw new NoSaUserTypeException(request.saUserType))
     selfAssessmentConnector.enrolForSelfAssessment(saEnrolmentRequest).map { response =>
       response.json.asOpt[SaEnrolmentResponse].map(_.redirectUrl)
     }

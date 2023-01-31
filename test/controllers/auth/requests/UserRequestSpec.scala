@@ -28,10 +28,10 @@ class UserRequestSpec extends BaseSpec {
 
   "isSa" must {
     val saUsers = Seq(
-      ActivatedOnlineFilerSelfAssessmentUser(saUtr),
-      NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
-      WrongCredentialsSelfAssessmentUser(saUtr),
-      NotEnrolledSelfAssessmentUser(saUtr)
+      Some(ActivatedOnlineFilerSelfAssessmentUser(saUtr)),
+      Some(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)),
+      Some(WrongCredentialsSelfAssessmentUser(saUtr)),
+      Some(NotEnrolledSelfAssessmentUser(saUtr))
     )
 
     saUsers.foreach { saType =>
@@ -42,16 +42,16 @@ class UserRequestSpec extends BaseSpec {
     }
 
     "be false when a user is non-SA" in {
-      val userRequest = buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
+      val userRequest = buildUserRequest(saUser = Some(NonFilerSelfAssessmentUser), request = FakeRequest())
       userRequest.isSa mustBe false
     }
   }
 
   "isSaUserLoggedIntoCorrectAccount" must {
     val saUsersWithWrongCreds = Seq(
-      NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
-      WrongCredentialsSelfAssessmentUser(saUtr),
-      NotEnrolledSelfAssessmentUser(saUtr)
+      Some(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)),
+      Some(WrongCredentialsSelfAssessmentUser(saUtr)),
+      Some(NotEnrolledSelfAssessmentUser(saUtr))
     )
 
     saUsersWithWrongCreds.foreach { saType =>
@@ -62,13 +62,13 @@ class UserRequestSpec extends BaseSpec {
     }
 
     "be false when a user is non SA" in {
-      val userRequest = buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
+      val userRequest = buildUserRequest(saUser = Some(NonFilerSelfAssessmentUser), request = FakeRequest())
       userRequest.isSaUserLoggedIntoCorrectAccount mustBe false
     }
 
     "be true when a user is logged in to the correct SA account" in {
       val userRequest =
-        buildUserRequest(saUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr), request = FakeRequest())
+        buildUserRequest(saUser = Some(ActivatedOnlineFilerSelfAssessmentUser(saUtr)), request = FakeRequest())
       userRequest.isSaUserLoggedIntoCorrectAccount mustBe true
     }
   }

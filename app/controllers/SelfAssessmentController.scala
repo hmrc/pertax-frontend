@@ -21,6 +21,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
+import exceptions.NoSaUserTypeException
 import models._
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SelfAssessmentService
@@ -65,7 +66,7 @@ class SelfAssessmentController @Inject() (
               Redirect(routes.SelfAssessmentController.requestAccess)
             case _                                               => Redirect(routes.HomeController.index)
           }
-          .getOrElse(throw new RuntimeException())
+          .getOrElse(throw new NoSaUserTypeException(request.saUserType))
     }
 
   def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
@@ -89,7 +90,7 @@ class SelfAssessmentController @Inject() (
           case NonFilerSelfAssessmentUser                      =>
             Ok(cannotConfirmIdentityView(retryUrl))
         }
-        .getOrElse(throw new RuntimeException())
+        .getOrElse(throw new NoSaUserTypeException(request.saUserType))
     }
 
   def redirectToEnrolForSa: Action[AnyContent] = authJourney.authWithPersonalDetails.async { implicit request =>
@@ -119,7 +120,7 @@ class SelfAssessmentController @Inject() (
             Ok(requestAccessToSelfAssessmentView(deadlineYear))
           case _                                => Redirect(routes.HomeController.index)
         }
-        .getOrElse(throw new RuntimeException())
+        .getOrElse(throw new NoSaUserTypeException(request.saUserType))
     }
 
 }

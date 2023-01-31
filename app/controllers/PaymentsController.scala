@@ -21,6 +21,7 @@ import config.ConfigDecorator
 import connectors.PayApiConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
+import exceptions.NoSaUserTypeException
 import models.{NonFilerSelfAssessmentUser, PaymentRequest, SelfAssessmentUser}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -65,7 +66,7 @@ class PaymentsController @Inject() (
                 logger.warn("User had no sa account when one was required")
                 errorRenderer.futureError(INTERNAL_SERVER_ERROR)
             }
-            .getOrElse(throw new RuntimeException())
+            .getOrElse(throw new NoSaUserTypeException(request.saUserType))
         } else {
           logger.warn("User had no sa account when one was required")
           errorRenderer.futureError(INTERNAL_SERVER_ERROR)

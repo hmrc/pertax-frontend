@@ -23,6 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.controllershelpers.PaperlessInterruptHelper
 import error.ErrorRenderer
+import exceptions.NoSaUserTypeException
 import models._
 import models.admin.{ItsaMessageToggle, NationalInsuranceTileToggle}
 import play.api.Logging
@@ -105,7 +106,7 @@ class InterstitialController @Inject() (
   }
 
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
-    val saUserType = request.saUserType.getOrElse(throw new RuntimeException())
+    val saUserType = request.saUserType.getOrElse(throw new NoSaUserTypeException(request.saUserType))
 
     if (
       request.trustedHelper.isEmpty &&
@@ -166,7 +167,7 @@ class InterstitialController @Inject() (
           logger.warn("User had no sa account when one was required")
           errorRenderer.error(UNAUTHORIZED)
       }
-      .getOrElse(throw new RuntimeException())
+      .getOrElse(throw new NoSaUserTypeException(request.saUserType))
   }
 
   def displayNewsAndUpdates(newsSectionId: String): Action[AnyContent] = authenticate { implicit request =>
