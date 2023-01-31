@@ -23,8 +23,6 @@ import play.api.mvc.{ActionBuilder, AnyContent}
 @ImplementedBy(classOf[AuthJourneyImpl])
 trait AuthJourney {
   val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent]
-//  val authWithSelfAssessment: ActionBuilder[UserRequest, AnyContent]
-//  val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest, AnyContent]
 }
 
 class AuthJourneyImpl @Inject() (
@@ -35,12 +33,4 @@ class AuthJourneyImpl @Inject() (
 
   override val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
     authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
-
-//  override val authWithSelfAssessment: ActionBuilder[UserRequest, AnyContent] =
-//    authAction andThen selfAssessmentStatusAction
-
-  // TODO - Delete once verified
-//  override val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest, AnyContent] =
-//    minimumAuthAction andThen selfAssessmentStatusAction
-
 }
