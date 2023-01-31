@@ -22,6 +22,7 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
+import exceptions.NoSaUserTypeException
 import models._
 import models.admin.{FeatureFlag, ItsaMessageToggle}
 import org.mockito.ArgumentMatchers.any
@@ -237,7 +238,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "Calling getSa302" must {
 
-      "should return OK response when accessing with an SA user with a valid tax year" in new LocalSetup {
+      "return OK response when accessing with an SA user with a valid tax year" in new LocalSetup {
 
         lazy val simulateFormPartialServiceFailure = false
         lazy val simulateSaPartialServiceFailure   = false
@@ -264,7 +265,30 @@ class InterstitialControllerSpec extends BaseSpec {
         contentAsString(r) must include(saUtr.utr)
       }
 
-      "should return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
+      /// TODO - FIX
+      "throw an NoSaUserTypeException if saUser is a None" in new LocalSetup {
+
+        lazy val simulateFormPartialServiceFailure = false
+        lazy val simulateSaPartialServiceFailure   = false
+
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                saUser = None,
+                request = request
+              )
+            )
+        })
+
+        controller.displaySa302Interrupt(2018)(fakeRequest)
+
+        intercept[NoSaUserTypeException] {
+          controller.displaySa302Interrupt(2018)(fakeRequest)
+        }
+      }
+
+      "return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
 
         lazy val simulateFormPartialServiceFailure = false
         lazy val simulateSaPartialServiceFailure   = false

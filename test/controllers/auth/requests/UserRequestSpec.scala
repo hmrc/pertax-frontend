@@ -16,6 +16,7 @@
 
 package controllers.auth.requests
 
+import exceptions.NoSaUserTypeException
 import models._
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
@@ -45,6 +46,14 @@ class UserRequestSpec extends BaseSpec {
       val userRequest = buildUserRequest(saUser = Some(NonFilerSelfAssessmentUser), request = FakeRequest())
       userRequest.isSa mustBe false
     }
+
+    "throw NoSaUserTypeException when saUser param is a None" in {
+      val userRequest = buildUserRequest(saUser = None, request = FakeRequest())
+
+      intercept[NoSaUserTypeException] {
+        userRequest.isSa
+      }
+    }
   }
 
   "isSaUserLoggedIntoCorrectAccount" must {
@@ -70,6 +79,15 @@ class UserRequestSpec extends BaseSpec {
       val userRequest =
         buildUserRequest(saUser = Some(ActivatedOnlineFilerSelfAssessmentUser(saUtr)), request = FakeRequest())
       userRequest.isSaUserLoggedIntoCorrectAccount mustBe true
+    }
+
+    "throw NoSaUserTypeException when saUser param is a None" in {
+      val userRequest =
+        buildUserRequest(saUser = None, request = FakeRequest())
+
+      intercept[NoSaUserTypeException] {
+        userRequest.isSaUserLoggedIntoCorrectAccount
+      }
     }
   }
 }
