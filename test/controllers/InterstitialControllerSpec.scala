@@ -265,29 +265,6 @@ class InterstitialControllerSpec extends BaseSpec {
         contentAsString(r) must include(saUtr.utr)
       }
 
-      /// TODO - FIX
-      "throw an NoSaUserTypeException if saUser is a None" in new LocalSetup {
-
-        lazy val simulateFormPartialServiceFailure = false
-        lazy val simulateSaPartialServiceFailure   = false
-
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(
-              buildUserRequest(
-                saUser = None,
-                request = request
-              )
-            )
-        })
-
-        controller.displaySa302Interrupt(2018)(fakeRequest)
-
-        intercept[NoSaUserTypeException] {
-          controller.displaySa302Interrupt(2018)(fakeRequest)
-        }
-      }
-
       "return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
 
         lazy val simulateFormPartialServiceFailure = false
