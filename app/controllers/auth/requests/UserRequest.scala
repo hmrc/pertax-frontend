@@ -43,7 +43,12 @@ final case class UserRequest[+A](
     case _                   => retrievedName.map(_.toString)
   }
 
-  def isSa: Boolean = saUserType != NonFilerSelfAssessmentUser
+  def isSa: Boolean = saUserType
+    .map {
+      case NonFilerSelfAssessmentUser => false
+      case _                          => true
+    }
+    .getOrElse(throw new RuntimeException())
 
   def isSaUserLoggedIntoCorrectAccount: Boolean = saUserType
     .map {

@@ -69,6 +69,9 @@ class ApplicationController @Inject() (
               case Success =>
                 Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
 
+              case InsufficientEvidence =>
+                Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
+
               case UserAborted =>
                 logErrorMessage(UserAborted.toString)
                 Unauthorized(cannotConfirmIdentityView(retryUrl))

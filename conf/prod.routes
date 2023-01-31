@@ -18,6 +18,7 @@ GET         /personal-account/dismiss-ur-banner                                 
 
 GET         /personal-account/self-assessment                                          controllers.SelfAssessmentController.handleSelfAssessment
 GET         /personal-account/self-assessment/request-access                           controllers.SelfAssessmentController.requestAccess
+GET         /personal-account/sa-continue                                              controllers.SelfAssessmentController.ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl])
 GET         /personal-account/self-assessment/make-payment                             controllers.PaymentsController.makePayment
 
 GET         /personal-account/self-assessment/signed-in-wrong-account                  controllers.SaWrongCredentialsController.landingPage

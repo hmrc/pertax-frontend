@@ -35,10 +35,11 @@ class SelfAssessmentService @Inject() (
     request: UserRequest[_],
     hc: HeaderCarrier
   ): EitherT[Future, UpstreamErrorResponse, Option[String]] = {
-    def saEnrolmentRequest: SaEnrolmentRequest = request.saUserType match {
-      case saEnrolment: SelfAssessmentUser =>
+    def saEnrolmentRequest: SaEnrolmentRequest = request.saUserType
+      .map { case saEnrolment: SelfAssessmentUser =>
         SaEnrolmentRequest(configDecorator.addTaxesPtaOrigin, Some(saEnrolment.saUtr), request.credentials.providerId)
-    }
+      }
+      .getOrElse(throw new RuntimeException())
     selfAssessmentConnector.enrolForSelfAssessment(saEnrolmentRequest).map { response =>
       response.json.asOpt[SaEnrolmentResponse].map(_.redirectUrl)
     }
