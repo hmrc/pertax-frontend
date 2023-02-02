@@ -100,7 +100,7 @@ class CachingItSpec
 
           val nino = testNino.withoutSuffix
 
-          val address1 = AddressJourneyTTLModel(nino, editedAddressAddedSeconds)
+          val address1 = AddressJourneyTTLModel(nino, editedAddressAddedSeconds())
           val address2 =
             AddressJourneyTTLModel(
               nino,
