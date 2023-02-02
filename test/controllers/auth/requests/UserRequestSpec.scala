@@ -16,7 +16,6 @@
 
 package controllers.auth.requests
 
-import exceptions.NoSaUserTypeException
 import models._
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
@@ -29,10 +28,10 @@ class UserRequestSpec extends BaseSpec {
 
   "isSa" must {
     val saUsers = Seq(
-      Some(ActivatedOnlineFilerSelfAssessmentUser(saUtr)),
-      Some(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)),
-      Some(WrongCredentialsSelfAssessmentUser(saUtr)),
-      Some(NotEnrolledSelfAssessmentUser(saUtr))
+      ActivatedOnlineFilerSelfAssessmentUser(saUtr),
+      NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
+      WrongCredentialsSelfAssessmentUser(saUtr),
+      NotEnrolledSelfAssessmentUser(saUtr)
     )
 
     saUsers.foreach { saType =>
@@ -43,24 +42,16 @@ class UserRequestSpec extends BaseSpec {
     }
 
     "be false when a user is non-SA" in {
-      val userRequest = buildUserRequest(saUser = Some(NonFilerSelfAssessmentUser), request = FakeRequest())
+      val userRequest = buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
       userRequest.isSa mustBe false
-    }
-
-    "throw NoSaUserTypeException when saUser param is a None" in {
-      val userRequest = buildUserRequest(saUser = None, request = FakeRequest())
-
-      intercept[NoSaUserTypeException] {
-        userRequest.isSa
-      }
     }
   }
 
   "isSaUserLoggedIntoCorrectAccount" must {
     val saUsersWithWrongCreds = Seq(
-      Some(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)),
-      Some(WrongCredentialsSelfAssessmentUser(saUtr)),
-      Some(NotEnrolledSelfAssessmentUser(saUtr))
+      NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
+      WrongCredentialsSelfAssessmentUser(saUtr),
+      NotEnrolledSelfAssessmentUser(saUtr)
     )
 
     saUsersWithWrongCreds.foreach { saType =>
@@ -71,23 +62,14 @@ class UserRequestSpec extends BaseSpec {
     }
 
     "be false when a user is non SA" in {
-      val userRequest = buildUserRequest(saUser = Some(NonFilerSelfAssessmentUser), request = FakeRequest())
+      val userRequest = buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
       userRequest.isSaUserLoggedIntoCorrectAccount mustBe false
     }
 
     "be true when a user is logged in to the correct SA account" in {
       val userRequest =
-        buildUserRequest(saUser = Some(ActivatedOnlineFilerSelfAssessmentUser(saUtr)), request = FakeRequest())
+        buildUserRequest(saUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr), request = FakeRequest())
       userRequest.isSaUserLoggedIntoCorrectAccount mustBe true
-    }
-
-    "throw NoSaUserTypeException when saUser param is a None" in {
-      val userRequest =
-        buildUserRequest(saUser = None, request = FakeRequest())
-
-      intercept[NoSaUserTypeException] {
-        userRequest.isSaUserLoggedIntoCorrectAccount
-      }
     }
   }
 }

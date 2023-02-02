@@ -54,7 +54,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
     val user: SelfAssessmentUser
 
     implicit val request: UserRequest[AnyContent] = buildUserRequest(
-      saUser = Some(user),
+      saUser = user,
       request = request
     )
 
@@ -86,7 +86,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             true,
             false,
             previousAndCurrentTaxYear,
-            userRequest.saUserType.get
+            userRequest.saUserType
           ).toString
         )
 
@@ -116,7 +116,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
               true,
               false,
               previousAndCurrentTaxYear,
-              userRequest.saUserType.get
+              userRequest.saUserType
             ).toString
           )
 
@@ -231,7 +231,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             true,
             true,
             previousAndCurrentTaxYear,
-            userRequest.saUserType.get
+            userRequest.saUserType
           ).toString
         )
 
@@ -300,7 +300,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             itsaToggle = false,
             isSeiss = true,
             previousAndCurrentTaxYear,
-            userRequest.saUserType.get
+            userRequest.saUserType
           ).toString
         )
 

@@ -120,7 +120,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = Some(NonFilerSelfAssessmentUser),
+              saUser = NonFilerSelfAssessmentUser,
               request = request
             )
           )
@@ -140,7 +140,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = Some(NonFilerSelfAssessmentUser),
+              saUser = NonFilerSelfAssessmentUser,
               request = request
             )
           )

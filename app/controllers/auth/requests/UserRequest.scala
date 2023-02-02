@@ -16,9 +16,8 @@
 
 package controllers.auth.requests
 
-import exceptions.NoSaUserTypeException
 import models._
-import play.api.mvc.{AnyContent, Request, WrappedRequest}
+import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
@@ -27,7 +26,7 @@ import uk.gov.hmrc.domain.Nino
 final case class UserRequest[+A](
   nino: Option[Nino],
   retrievedName: Option[UserName],
-  saUserType: Option[SelfAssessmentUserType],
+  saUserType: SelfAssessmentUserType,
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
   personDetails: Option[PersonDetails],
@@ -44,26 +43,22 @@ final case class UserRequest[+A](
     case _                   => retrievedName.map(_.toString)
   }
 
-  def isSa: Boolean = saUserType
-    .map {
-      case NonFilerSelfAssessmentUser => false
-      case _                          => true
-    }
-    .getOrElse(throw new NoSaUserTypeException(saUserType))
+  def isSa: Boolean = saUserType match {
+    case NonFilerSelfAssessmentUser => false
+    case _                          => true
+  }
 
-  def isSaUserLoggedIntoCorrectAccount: Boolean = saUserType
-    .map {
-      case ActivatedOnlineFilerSelfAssessmentUser(_) => true
-      case _                                         => false
-    }
-    .getOrElse(throw new NoSaUserTypeException(saUserType))
+  def isSaUserLoggedIntoCorrectAccount: Boolean = saUserType match {
+    case ActivatedOnlineFilerSelfAssessmentUser(_) => true
+    case _                                         => false
+  }
 }
 
 object UserRequest {
   def apply[A](
     authenticatedRequest: AuthenticatedRequest[A],
     retrievedName: Option[UserName],
-    saUserType: Option[SelfAssessmentUserType],
+    saUserType: SelfAssessmentUserType,
     personDetails: Option[PersonDetails],
     unreadMessageCount: Option[Int],
     breadcrumb: Option[Breadcrumb]

@@ -91,7 +91,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         nino = None,
-        saUser = Some(NonFilerSelfAssessmentUser),
+        saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
         personDetails = None,
         request = FakeRequest()
@@ -105,7 +105,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "return no content when called with with a Pertax user that is PAYE but has no tax summary" in {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = Some(NonFilerSelfAssessmentUser),
+        saUser = NonFilerSelfAssessmentUser,
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
         request = FakeRequest()
@@ -119,7 +119,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "return the static version of the markup (no card actions) when called with with a user that is PAYE but there was an error calling the endpoint" in {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = Some(NonFilerSelfAssessmentUser),
+        saUser = NonFilerSelfAssessmentUser,
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
         request = FakeRequest()
@@ -133,7 +133,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but the tax summary call is disabled" in {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = Some(NonFilerSelfAssessmentUser),
+        saUser = NonFilerSelfAssessmentUser,
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
         request = FakeRequest()
@@ -147,7 +147,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "return correct markup when called with with a Pertax user that is PAYE" in {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = Some(NonFilerSelfAssessmentUser),
+        saUser = NonFilerSelfAssessmentUser,
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
         request = FakeRequest()
@@ -272,7 +272,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       "always return the same markup for a SA user" in {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
-            saUser = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
+            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
             request = FakeRequest()
           )
 
@@ -283,10 +283,10 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       val saUtr: SaUtr     = SaUtr("test utr")
       val incorrectSaUsers = Seq(
-        Some(NonFilerSelfAssessmentUser),
-        Some(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)),
-        Some(WrongCredentialsSelfAssessmentUser(saUtr)),
-        Some(NotEnrolledSelfAssessmentUser(saUtr))
+        NonFilerSelfAssessmentUser,
+        NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
+        WrongCredentialsSelfAssessmentUser(saUtr),
+        NotEnrolledSelfAssessmentUser(saUtr)
       )
 
       incorrectSaUsers.foreach { saType =>
@@ -342,14 +342,14 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "Calling getItsaCard" must {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
-          saUser = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
+          saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
           request = FakeRequest()
         )
       "return Itsa Card when with Itsa enrolments" in {
 
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
-            saUser = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
+            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
             enrolments =
               Set(Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
             request = FakeRequest()
@@ -419,7 +419,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
-            saUser = Some(NonFilerSelfAssessmentUser),
+            saUser = NonFilerSelfAssessmentUser,
             request = FakeRequest()
           )
 
@@ -456,7 +456,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
-            saUser = Some(WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
+            saUser = WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
             request = FakeRequest()
           )
 

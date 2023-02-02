@@ -34,7 +34,7 @@ class TaxCalculationStateSpec extends BaseSpec {
   lazy val userRequest = UserRequest(
     None,
     None,
-    Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
+    ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
     Credentials("", "GovernmentGateway"),
     ConfidenceLevel.L200,
     None,

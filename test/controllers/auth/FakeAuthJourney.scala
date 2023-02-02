@@ -29,7 +29,7 @@ class FakeAuthJourney(saUser: SelfAssessmentUserType, personDetails: Option[Pers
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
       block(
         buildUserRequest(
-          saUser = Some(saUser),
+          saUser = saUser,
           personDetails = personDetails,
           request = request
         )

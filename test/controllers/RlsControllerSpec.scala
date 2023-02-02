@@ -320,7 +320,7 @@ class RlsControllerSpec extends BaseSpec {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               buildUserRequest(
-                saUser = Some(NonFilerSelfAssessmentUser),
+                saUser = NonFilerSelfAssessmentUser,
                 personDetails = Some(personDetails),
                 request = request
               )

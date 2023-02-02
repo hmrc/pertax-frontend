@@ -21,7 +21,6 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.SelfAssessmentConnector
 import controllers.auth.requests.UserRequest
-import exceptions.NoSaUserTypeException
 import models.{SaEnrolmentRequest, SaEnrolmentResponse, SelfAssessmentUser}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
@@ -36,11 +35,11 @@ class SelfAssessmentService @Inject() (
     request: UserRequest[_],
     hc: HeaderCarrier
   ): EitherT[Future, UpstreamErrorResponse, Option[String]] = {
-    def saEnrolmentRequest: SaEnrolmentRequest = request.saUserType
-      .map { case saEnrolment: SelfAssessmentUser =>
+    def saEnrolmentRequest: SaEnrolmentRequest = request.saUserType match {
+      case saEnrolment: SelfAssessmentUser =>
         SaEnrolmentRequest(configDecorator.addTaxesPtaOrigin, Some(saEnrolment.saUtr), request.credentials.providerId)
-      }
-      .getOrElse(throw new NoSaUserTypeException(request.saUserType))
+    }
+
     selfAssessmentConnector.enrolForSelfAssessment(saEnrolmentRequest).map { response =>
       response.json.asOpt[SaEnrolmentResponse].map(_.redirectUrl)
     }

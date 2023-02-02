@@ -23,7 +23,6 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.controllershelpers.PaperlessInterruptHelper
 import error.ErrorRenderer
-import exceptions.NoSaUserTypeException
 import models._
 import models.admin.{ItsaMessageToggle, NationalInsuranceTileToggle}
 import play.api.Logging
@@ -106,7 +105,7 @@ class InterstitialController @Inject() (
   }
 
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
-    val saUserType = request.saUserType.getOrElse(throw new NoSaUserTypeException(request.saUserType))
+    val saUserType = request.saUserType
 
     if (
       request.trustedHelper.isEmpty &&
@@ -159,15 +158,13 @@ class InterstitialController @Inject() (
   }
 
   def displaySa302Interrupt(year: Int): Action[AnyContent] = authenticateSa { implicit request =>
-    request.saUserType
-      .map {
-        case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
-          Ok(sa302InterruptView(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUtr))
-        case _                                             =>
-          logger.warn("User had no sa account when one was required")
-          errorRenderer.error(UNAUTHORIZED)
-      }
-      .getOrElse(throw new NoSaUserTypeException(request.saUserType))
+    request.saUserType match {
+      case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
+        Ok(sa302InterruptView(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUtr))
+      case _                                             =>
+        logger.warn("User had no sa account when one was required")
+        errorRenderer.error(UNAUTHORIZED)
+    }
   }
 
   def displayNewsAndUpdates(newsSectionId: String): Action[AnyContent] = authenticate { implicit request =>

@@ -21,7 +21,6 @@ import config.ConfigDecorator
 import connectors.PayApiConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
-import exceptions.NoSaUserTypeException
 import models.{NonFilerSelfAssessmentUser, PaymentRequest, SelfAssessmentUser}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -47,26 +46,24 @@ class PaymentsController @Inject() (
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
         if (request.isSa) {
-          request.saUserType
-            .map {
-              case saUser: SelfAssessmentUser =>
-                val paymentRequest = PaymentRequest(configDecorator, saUser.saUtr.toString())
-                for {
-                  response <- payApiConnector
-                                .createPayment(paymentRequest)
-                                .fold(
-                                  _ => errorRenderer.error(BAD_REQUEST),
-                                  {
-                                    case Some(createPayment) => Redirect(createPayment.nextUrl)
-                                    case None                => errorRenderer.error(BAD_REQUEST)
-                                  }
-                                )
-                } yield response
-              case NonFilerSelfAssessmentUser =>
-                logger.warn("User had no sa account when one was required")
-                errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-            }
-            .getOrElse(throw new NoSaUserTypeException(request.saUserType))
+          request.saUserType match {
+            case saUser: SelfAssessmentUser =>
+              val paymentRequest = PaymentRequest(configDecorator, saUser.saUtr.toString())
+              for {
+                response <- payApiConnector
+                              .createPayment(paymentRequest)
+                              .fold(
+                                _ => errorRenderer.error(BAD_REQUEST),
+                                {
+                                  case Some(createPayment) => Redirect(createPayment.nextUrl)
+                                  case None                => errorRenderer.error(BAD_REQUEST)
+                                }
+                              )
+              } yield response
+            case NonFilerSelfAssessmentUser =>
+              logger.warn("User had no sa account when one was required")
+              errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+          }
         } else {
           logger.warn("User had no sa account when one was required")
           errorRenderer.futureError(INTERNAL_SERVER_ERROR)

@@ -50,7 +50,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       Some(fakeAddress.fullAddress),
       None
     )(
-      buildUserRequest(request = FakeRequest(), saUser = Some(NonFilerSelfAssessmentUser)),
+      buildUserRequest(request = FakeRequest(), saUser = NonFilerSelfAssessmentUser),
       configDecorator,
       messages,
       ec

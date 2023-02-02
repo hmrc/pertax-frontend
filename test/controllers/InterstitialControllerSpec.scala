@@ -22,7 +22,6 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
-import exceptions.NoSaUserTypeException
 import models._
 import models.admin.{FeatureFlag, ItsaMessageToggle}
 import org.mockito.ArgumentMatchers.any
@@ -122,7 +121,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = Some(NonFilerSelfAssessmentUser),
+              saUser = NonFilerSelfAssessmentUser,
               credentials = Credentials("", "GovernmentGateway"),
               request = request
             )
@@ -155,7 +154,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = Some(NonFilerSelfAssessmentUser),
+              saUser = NonFilerSelfAssessmentUser,
               credentials = Credentials("", "GovernmentGateway"),
               request = request
             )
@@ -201,7 +200,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = Some(NonFilerSelfAssessmentUser),
+              saUser = NonFilerSelfAssessmentUser,
               request = request
             )
           )
@@ -222,7 +221,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = Some(NonFilerSelfAssessmentUser),
+              saUser = NonFilerSelfAssessmentUser,
               credentials = Credentials("", "GovernmentGateway"),
               confidenceLevel = ConfidenceLevel.L200,
               request = request
@@ -246,7 +245,7 @@ class InterstitialControllerSpec extends BaseSpec {
         val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
         def userRequest[A](request: Request[A]): UserRequest[A] = buildUserRequest(
-          saUser = Some(ActivatedOnlineFilerSelfAssessmentUser(saUtr)),
+          saUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr),
           request = request
         )
 
@@ -274,7 +273,7 @@ class InterstitialControllerSpec extends BaseSpec {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               buildUserRequest(
-                saUser = Some(NonFilerSelfAssessmentUser),
+                saUser = NonFilerSelfAssessmentUser,
                 request = request
               )
             )
@@ -368,7 +367,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = Some(NonFilerSelfAssessmentUser),
+              saUser = NonFilerSelfAssessmentUser,
               request = request
             )
           )
@@ -460,7 +459,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = Some(NonFilerSelfAssessmentUser),
+              saUser = NonFilerSelfAssessmentUser,
               request = request
             )
           )
@@ -514,7 +513,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
               request = request
             )
           )

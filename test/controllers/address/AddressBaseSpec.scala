@@ -176,7 +176,7 @@ trait AddressBaseSpec extends BaseSpec {
           buildUserRequest(
             request = currentRequest[A],
             personDetails = personDetailsForRequest,
-            saUser = Some(saUserType)
+            saUser = saUserType
           ).asInstanceOf[UserRequest[A]]
         )
     })

@@ -104,10 +104,8 @@ class MainViewSpec extends IntegrationSpec {
     def buildUserRequest[A](
       nino: Option[Nino] = Some(testNino),
       userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-      saUser: Option[SelfAssessmentUserType] = Some(
-        ActivatedOnlineFilerSelfAssessmentUser(
-          SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-        )
+      saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
+        SaUtr(new SaUtrGenerator().nextSaUtr.utr)
       ),
       credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
       confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
@@ -135,7 +133,7 @@ class MainViewSpec extends IntegrationSpec {
     def buildUserRequestNoSA[A](
       nino: Option[Nino] = Some(testNino),
       userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-      saUser: Option[SelfAssessmentUserType] = Some(NonFilerSelfAssessmentUser),
+      saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
       credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
       confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
       personDetails: Option[PersonDetails] = Some(fakePersonDetails),
