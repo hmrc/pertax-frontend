@@ -40,16 +40,10 @@ object FeatureFlagName {
 
   implicit val reads: Reads[FeatureFlagName] = new Reads[FeatureFlagName] {
     override def reads(json: JsValue): JsResult[FeatureFlagName] =
-      json match {
-        case name if name == JsString(AddressTaxCreditsBrokerCallToggle.toString) =>
-          JsSuccess(AddressTaxCreditsBrokerCallToggle)
-        case name if name == JsString(TaxcalcToggle.toString)                     => JsSuccess(TaxcalcToggle)
-        case name if name == JsString(NationalInsuranceTileToggle.toString)       => JsSuccess(NationalInsuranceTileToggle)
-        case name if name == JsString(ItsaMessageToggle.toString)                 => JsSuccess(ItsaMessageToggle)
-        case name if name == JsString(NispTileToggle.toString)                    => JsSuccess(NispTileToggle)
-        case name if name == JsString(TaxComponentsToggle.toString)               => JsSuccess(TaxComponentsToggle)
-        case _                                                                    => JsError("Unknown FeatureFlagName")
-      }
+      allFeatureFlags
+        .find(flag => JsString(flag.toString) == json)
+        .map(JsSuccess(_))
+        .getOrElse(JsError(s"Unknown FeatureFlagName `${json.toString}`"))
   }
 
   implicit val formats: Format[FeatureFlagName] =
@@ -76,7 +70,8 @@ object FeatureFlagName {
       NationalInsuranceTileToggle,
       ItsaMessageToggle,
       NispTileToggle,
-      TaxComponentsToggle
+      TaxComponentsToggle,
+      SingleAccountCheckToggle
     )
 }
 
@@ -125,6 +120,11 @@ case object PaperlessInterruptToggle extends FeatureFlagName {
 case object TaxSummariesTileToggle extends FeatureFlagName {
   override def toString: String            = "tax-summaries-tile"
   override val description: Option[String] = Some("Enable/disable the tile for annual tax summary")
+}
+
+case object SingleAccountCheckToggle extends FeatureFlagName {
+  override def toString: String            = "single-account-check"
+  override val description: Option[String] = Some("Enable/disable single account check")
 }
 
 object FeatureFlagMongoFormats {

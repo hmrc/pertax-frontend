@@ -232,12 +232,10 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.getOptional[String]("feature.tax-credits.enabled").getOrElse("true").toBoolean
 
   // Only used in HomeControllerSpec
-  lazy val allowLowConfidenceSAEnabled   =
+  lazy val allowLowConfidenceSAEnabled =
     runModeConfiguration.getOptional[String]("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
-  lazy val allowSaPreview                =
+  lazy val allowSaPreview              =
     runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
-  lazy val singleAccountEnrolmentFeature =
-    runModeConfiguration.getOptional[String]("feature.single-account-enrolment.enabled").getOrElse("false").toBoolean
 
   lazy val taxCreditsPaymentLinkEnabled =
     runModeConfiguration.getOptional[String]("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean

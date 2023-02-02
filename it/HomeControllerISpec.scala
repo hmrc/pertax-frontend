@@ -1,5 +1,5 @@
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.TaxcalcToggle
+import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.http.Status._
 import play.api.libs.json.Json
@@ -23,7 +23,6 @@ class HomeControllerISpec extends IntegrationSpec {
       "feature.breathing-space-indicator.timeoutInSec" -> 4,
       "microservice.services.taxcalc.port"             -> server.port(),
       "microservice.services.tai.port"                 -> server.port(),
-      "feature.single-account-enrolment.enabled"       -> true,
       "feature.business-hours.Monday.start-time"       -> "0:00",
       "feature.business-hours.Monday.end-time"         -> "23:59",
       "feature.business-hours.Tuesday.start-time"      -> "0:00",
@@ -81,6 +80,7 @@ class HomeControllerISpec extends IntegrationSpec {
 
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, false).futureValue
+    featureFlagService.set(SingleAccountCheckToggle, true).futureValue
   }
 
   "personal-account" must {

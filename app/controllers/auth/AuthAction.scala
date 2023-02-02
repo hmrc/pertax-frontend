@@ -22,7 +22,9 @@ import controllers.auth.requests.AuthenticatedRequest
 import controllers.{PertaxBaseController, routes}
 import io.lemonlabs.uri.Url
 import models.UserName
+import models.admin.SingleAccountCheckToggle
 import play.api.mvc._
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
@@ -41,7 +43,8 @@ class AuthActionImpl @Inject() (
   sessionAuditor: SessionAuditor,
   cc: MessagesControllerComponents,
   enrolmentsHelper: EnrolmentsHelper,
-  businessHours: BusinessHours
+  businessHours: BusinessHours,
+  featureFlagService: FeatureFlagService
 )(implicit ec: ExecutionContext, configDecorator: ConfigDecorator)
     extends PertaxBaseController(cc)
     with AuthAction
@@ -144,18 +147,20 @@ class AuthActionImpl @Inject() (
             updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
           } yield updatedResult
 
-          (configDecorator.singleAccountEnrolmentFeature, businessHours.isTrue(LocalDateTime.now())) match {
-            case (true, true) =>
-              implicit val request = authenticatedRequest
-              enrolmentsHelper
-                .singleAccountEnrolmentPresent(enrolments, domain.Nino(nino))
-                .fold(
-                  left => Future.successful(left),
-                  status =>
-                    if (status) updatedResult
-                    else Future.successful(Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri)))
-                )
-            case _            => updatedResult
+          featureFlagService.get(SingleAccountCheckToggle).flatMap { toggle =>
+            (toggle.isEnabled, businessHours.isTrue(LocalDateTime.now())) match {
+              case (true, true) =>
+                implicit val request = authenticatedRequest
+                enrolmentsHelper
+                  .singleAccountEnrolmentPresent(enrolments, domain.Nino(nino))
+                  .fold(
+                    left => Future.successful(left),
+                    status =>
+                      if (status) updatedResult
+                      else Future.successful(Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri)))
+                  )
+              case _            => updatedResult
+            }
           }
 
         case _ => throw new RuntimeException("Can't find credentials for user")
