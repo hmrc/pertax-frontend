@@ -51,7 +51,8 @@ class MessageFrontendService @Inject() (
     messageFrontendConnector.getUnreadMessageCount.fold(
       _ => None,
       response => response.json.asOpt[MessageCount].map(_.count)
-    ) recover { case _: Exception =>
+    ) recover { case ex: Exception =>
+      logger.error(ex.getMessage, ex)
       None
     }
 }
