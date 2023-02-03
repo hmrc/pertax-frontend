@@ -16,11 +16,11 @@
 
 package repositories.admin
 
-import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag}
+import models.admin.{AddressTaxCreditsBrokerCallToggle, DeletedToggle, FeatureFlag, FeatureFlagName, SingleAccountCheckToggle}
 import org.mongodb.scala.MongoWriteException
 import org.mongodb.scala.bson.BsonDocument
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
-import testUtils.{BaseSpec, FeatureFlagRepositoryUtils}
+import testUtils.BaseSpec
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
 class FeatureFlagRepositorySpec extends BaseSpec with DefaultPlayMongoRepositorySupport[FeatureFlag] {
@@ -56,13 +56,12 @@ class FeatureFlagRepositorySpec extends BaseSpec with DefaultPlayMongoRepository
 
       val result = (for {
         _      <- repository.setFeatureFlag(AddressTaxCreditsBrokerCallToggle, true)
-        result <- repository.getFeatureFlag(AddressTaxCreditsBrokerCallToggle)
+        result <- findAll()
       } yield result).futureValue
 
-      result mustBe Some(
+      result mustBe List(
         FeatureFlag(AddressTaxCreditsBrokerCallToggle, true, AddressTaxCreditsBrokerCallToggle.description)
       )
-
     }
   }
 
@@ -71,22 +70,37 @@ class FeatureFlagRepositorySpec extends BaseSpec with DefaultPlayMongoRepository
       val result = (for {
         _      <- repository.setFeatureFlag(AddressTaxCreditsBrokerCallToggle, true)
         _      <- repository.setFeatureFlag(AddressTaxCreditsBrokerCallToggle, false)
-        result <- repository.getFeatureFlag(AddressTaxCreditsBrokerCallToggle)
+        result <- findAll()
       } yield result).futureValue
 
-      result mustBe Some(
+      result mustBe List(
         FeatureFlag(AddressTaxCreditsBrokerCallToggle, false, AddressTaxCreditsBrokerCallToggle.description)
       )
+    }
+  }
 
+  "setFeatureFlags" must {
+    "set multiple records" in {
+      val expectedFlags: Map[FeatureFlagName, Boolean] =
+        Map(AddressTaxCreditsBrokerCallToggle -> false, SingleAccountCheckToggle -> true)
+      val result                                       = (for {
+        _      <- repository.setFeatureFlags(expectedFlags)
+        result <- findAll()
+      } yield result).futureValue
+
+      result.sortBy(_.name.toString) mustBe expectedFlags
+        .map { case (key, value) =>
+          FeatureFlag(key, value, key.description)
+        }
+        .toList
+        .sortBy(_.name.toString)
     }
   }
 
   "getAllFeatureFlags" must {
     "get a list of all the feature toggles" in {
-      lazy val adminRepositoryUtils = app.injector.instanceOf[FeatureFlagRepositoryUtils]
-
       val allFlags: Seq[FeatureFlag] = (for {
-        _      <- adminRepositoryUtils.setFeatureFlag(AddressTaxCreditsBrokerCallToggle, true)
+        _      <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true, AddressTaxCreditsBrokerCallToggle.description))
         result <- repository.getAllFeatureFlags
       } yield result).futureValue
 
@@ -96,15 +110,25 @@ class FeatureFlagRepositorySpec extends BaseSpec with DefaultPlayMongoRepository
     }
   }
 
+  "deleteFeatureFlag" must {
+    "delete a mongo record" in {
+      val allFlags: Boolean = (for {
+        _      <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true, AddressTaxCreditsBrokerCallToggle.description))
+        result <- repository.deleteFeatureFlag(AddressTaxCreditsBrokerCallToggle)
+      } yield result).futureValue
+
+      allFlags mustBe true
+      findAll().futureValue.length mustBe 0
+    }
+  }
+
   "Collection" must {
     "not allow duplicates" in {
-      lazy val adminRepositoryUtils = app.injector.instanceOf[FeatureFlagRepositoryUtils]
-
       val result = intercept[MongoWriteException] {
-        await((for {
-          _ <- adminRepositoryUtils.insertFeatureFlag(AddressTaxCreditsBrokerCallToggle, true)
-          _ <- adminRepositoryUtils.insertFeatureFlag(AddressTaxCreditsBrokerCallToggle, false)
-        } yield true))
+        await(for {
+          _ <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true))
+          _ <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false))
+        } yield true)
       }
       result.getCode mustBe 11000
       result.getError.getMessage mustBe s"""E11000 duplicate key error collection: $databaseName.admin-feature-flags index: name dup key: { name: "$AddressTaxCreditsBrokerCallToggle" }"""

@@ -26,8 +26,8 @@ import config.ConfigDecorator
 import models.admin.{AddressTaxCreditsBrokerCallToggle, NationalInsuranceTileToggle, TaxcalcToggle}
 import repositories.admin.FeatureFlagRepository
 import testUtils.BaseSpec
-import scala.collection.JavaConverters._
 
+import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
 class FeatureFlagServiceSpec extends BaseSpec {

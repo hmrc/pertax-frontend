@@ -19,6 +19,7 @@ package repositories.admin
 import models.admin.{FeatureFlag, FeatureFlagName}
 import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model._
+import play.api.libs.json.JsValue
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
@@ -48,6 +49,13 @@ class FeatureFlagRepository @Inject() (
     with Transactions {
 
   private implicit val tc = TransactionConfiguration.strict
+
+  def deleteFeatureFlag(name: FeatureFlagName): Future[Boolean] =
+    collection
+      .deleteOne(Filters.equal("name", name.toString))
+      .map(_.wasAcknowledged())
+      .toSingle()
+      .toFuture()
 
   def getFeatureFlag(name: FeatureFlagName): Future[Option[FeatureFlag]] =
     collection

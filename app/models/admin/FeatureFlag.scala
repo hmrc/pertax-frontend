@@ -46,8 +46,16 @@ object FeatureFlagName {
         .getOrElse(JsError(s"Unknown FeatureFlagName `${json.toString}`"))
   }
 
+  val mongoReads: Reads[FeatureFlagName] = new Reads[FeatureFlagName] {
+    override def reads(json: JsValue): JsResult[FeatureFlagName] =
+      allFeatureFlags
+        .find(flag => JsString(flag.toString) == json)
+        .map(JsSuccess(_))
+        .getOrElse(JsSuccess(DeletedToggle(json.as[String])))
+  }
+
   implicit val formats: Format[FeatureFlagName] =
-    Format(reads, writes)
+    Format(mongoReads, writes)
 
   implicit def pathBindable: PathBindable[FeatureFlagName] = new PathBindable[FeatureFlagName] {
 
@@ -125,6 +133,10 @@ case object TaxSummariesTileToggle extends FeatureFlagName {
 case object SingleAccountCheckToggle extends FeatureFlagName {
   override def toString: String            = "single-account-check"
   override val description: Option[String] = Some("Enable/disable single account check")
+}
+
+case class DeletedToggle(name: String) extends FeatureFlagName {
+  override def toString: String = name
 }
 
 object FeatureFlagMongoFormats {
