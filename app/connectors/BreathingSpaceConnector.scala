@@ -34,16 +34,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class BreathingSpaceConnector @Inject() (
   val httpClient: HttpClient,
   httpClientResponse: HttpClientResponse,
-  override val configDecorator: ConfigDecorator
+  configDecorator: ConfigDecorator
 ) extends Timeout
-    with Logging
-    with ServicesCircuitBreaker {
+    with Logging {
 
   lazy val baseUrl      = configDecorator.breathingSpcaeBaseUrl
   lazy val timeoutInSec =
     configDecorator.breathingSpcaeTimeoutInSec
-
-  override val externalServiceName = configDecorator.breathingSpaceAppName
 
   def getBreathingSpaceIndicator(
     nino: Nino
@@ -54,10 +51,8 @@ class BreathingSpaceConnector @Inject() (
         "Correlation-Id" -> randomUUID.toString
       )
     val result                                  = withTimeout(timeoutInSec seconds) {
-      withCircuitBreaker(
-        httpClient
-          .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(readEitherOf(readRaw), bsHeaderCarrier, ec)
-      )(bsHeaderCarrier)
+      httpClient
+        .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(readEitherOf(readRaw), bsHeaderCarrier, ec)
     }
     httpClientResponse
       .read(result)
