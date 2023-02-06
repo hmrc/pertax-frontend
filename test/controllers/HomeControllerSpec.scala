@@ -793,7 +793,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
       result mustBe TaxComponentsAvailableState(
-        TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
+        TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
       )
       verify(mockTaiService, times(1)).taxComponents(any(), any())(any(), any())
 

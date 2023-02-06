@@ -76,7 +76,7 @@ class PersonalDetailsController @Inject() (
                    )
                  )
                }
-               .getOrElse(Future.successful(Unit))
+               .getOrElse(Future.successful(()))
         _ <- cachingHelper
                .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 

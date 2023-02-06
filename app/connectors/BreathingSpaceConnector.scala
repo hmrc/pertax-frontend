@@ -50,7 +50,7 @@ class BreathingSpaceConnector @Inject() (
       .withExtraHeaders(
         "Correlation-Id" -> randomUUID.toString
       )
-    val result                                  = withTimeout(timeoutInSec seconds) {
+    val result                                  = withTimeout(timeoutInSec.seconds) {
       httpClient
         .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(readEitherOf(readRaw), bsHeaderCarrier, ec)
     }
