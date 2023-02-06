@@ -272,7 +272,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getMarriageAllowanceCard" must {
     "return correct markup when called with a user who has tax summary and receives Marriage Allowance" in {
       val hasTaxComponents: Boolean = true
-      val taxComponents             = Seq("MarriageAllowanceReceived")
+      val taxComponents             = List("MarriageAllowanceReceived")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -284,7 +284,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return nothing when called with a user who has tax summary and transfers Marriage Allowance" in {
       val hasTaxComponents: Boolean = true
-      val taxComponents             = Seq("MarriageAllowanceTransferred")
+      val taxComponents             = List("MarriageAllowanceTransferred")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -296,7 +296,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return correct markup when called with a user who has no tax summary" in {
       val hasTaxComponents = false
-      val taxComponents    = Seq()
+      val taxComponents    = List.empty
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -308,7 +308,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return correct markup when called with a user who has tax summary but no marriage allowance" in {
       val hasTaxComponents = true
-      val taxComponents    = Seq("MedicalInsurance")
+      val taxComponents    = List("MedicalInsurance")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -347,7 +347,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       }
 
       val saUtr: SaUtr     = SaUtr("test utr")
-      val incorrectSaUsers = Seq(
+      val incorrectSaUsers = List(
         NonFilerSelfAssessmentUser,
         NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
         WrongCredentialsSelfAssessmentUser(saUtr),
@@ -419,7 +419,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           buildUserRequest(
             saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
             enrolments =
-              Set(Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
+              Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
             request = FakeRequest()
           )
 

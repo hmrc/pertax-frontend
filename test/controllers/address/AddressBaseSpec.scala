@@ -110,7 +110,7 @@ trait AddressBaseSpec extends BaseSpec {
 
     def eTagResponse: Option[ETag] = Some(ETag("115"))
 
-    def updateAddressResponse() =
+    def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(NO_CONTENT, ""))))
 
     def getAddressesLockResponse: AddressesLock = AddressesLock(false, false)

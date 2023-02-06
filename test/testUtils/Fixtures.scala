@@ -41,9 +41,9 @@ import repositories.EditAddressLockRepository
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
-import uk.gov.hmrc.time.DateTimeUtils._
 
-import java.time.LocalDate
+import java.time.temporal.ChronoField
+import java.time.{Instant, LocalDate}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
@@ -119,7 +119,7 @@ trait PafFixtures {
 
 trait TaiFixtures {
 
-  def buildTaxComponents: TaxComponents = TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
+  def buildTaxComponents: TaxComponents = TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
 }
 
 trait TaxCalculationFixtures {
@@ -293,7 +293,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
   ): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
-      SessionKeys.lastRequestTimestamp -> now.getMillis.toString
+      SessionKeys.lastRequestTimestamp -> Instant.now().get(ChronoField.MILLI_OF_SECOND).toString
     )
 
     FakeRequest(method, uri).withSession(session.toList: _*)
