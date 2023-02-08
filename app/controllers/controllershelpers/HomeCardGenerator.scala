@@ -16,11 +16,6 @@
 
 package controllers.controllershelpers
 
-import cats.implicits._
-import cats.instances.list._
-import cats.syntax.traverse._
-import cats.syntax.all._
-import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
@@ -30,7 +25,7 @@ import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
 import services.admin.FeatureFlagService
-import util.DateTimeTools.{current, previousAndCurrentTaxYear}
+import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
@@ -150,13 +145,9 @@ class HomeCardGenerator @Inject() (
     taxComponents: Option[TaxComponents]
   )(implicit messages: Messages): Seq[Html] =
     List(
-      getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
       getChildBenefitCard(),
       getMarriageAllowanceCard(taxComponents)
     ).flatten
-
-  def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(taxCreditsView(showTaxCreditsPaymentLink))
 
   def getChildBenefitCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(childBenefitView())

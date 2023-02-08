@@ -36,7 +36,7 @@ import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.DateTimeTools.{current}
+import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import views.html.ViewSpec
 import views.html.cards.home._
@@ -163,7 +163,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getNationalInsuranceCard" must {
     "return NI Card when toggled on" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
 
       lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
@@ -172,29 +172,11 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return None when toggled off" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = false)))
 
       lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
       cardBody mustBe None
-    }
-  }
-
-  "Calling getTaxCreditsCard" must {
-    "always return the same markup when taxCreditsPaymentLinkEnabled is enabled" in {
-      lazy val showTaxCreditsPaymentLink = true
-
-      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
-
-      cardBody mustBe Some(taxCredits(showTaxCreditsPaymentLink))
-    }
-
-    "always return the same markup when taxCreditsPaymentLinkEnabled is disabled" in {
-      lazy val showTaxCreditsPaymentLink = false
-
-      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
-
-      cardBody mustBe Some(taxCredits(showTaxCreditsPaymentLink))
     }
   }
 
