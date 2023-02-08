@@ -145,9 +145,13 @@ class HomeCardGenerator @Inject() (
     taxComponents: Option[TaxComponents]
   )(implicit messages: Messages): Seq[Html] =
     List(
+      getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
       getChildBenefitCard(),
       getMarriageAllowanceCard(taxComponents)
     ).flatten
+
+  def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] =
+    Some(taxCreditsView(showTaxCreditsPaymentLink))
 
   def getChildBenefitCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(childBenefitView())

@@ -252,6 +252,9 @@ class ConfigDecorator @Inject() (
   lazy val taxComponentsEnabled: Boolean =
     runModeConfiguration.getOptional[String]("feature.tax-components.enabled").getOrElse("true").toBoolean
 
+  lazy val taxCreditsPaymentLinkEnabled: Boolean =
+    runModeConfiguration.getOptional[String]("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
+
   lazy val nispEnabled: Boolean =
     runModeConfiguration.getOptional[String]("feature.nisp.enabled").getOrElse("true").toBoolean
 
