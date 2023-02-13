@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,7 +106,7 @@ class InterstitialController @Inject() (
 
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
     if (
-      configDecorator.saItsaTileEnabled && request.trustedHelper.isEmpty &&
+      request.trustedHelper.isEmpty &&
       (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       for {

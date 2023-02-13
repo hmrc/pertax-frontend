@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,16 +34,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class BreathingSpaceConnector @Inject() (
   val httpClient: HttpClient,
   httpClientResponse: HttpClientResponse,
-  override val configDecorator: ConfigDecorator
+  configDecorator: ConfigDecorator
 ) extends Timeout
-    with Logging
-    with ServicesCircuitBreaker {
+    with Logging {
 
   lazy val baseUrl      = configDecorator.breathingSpcaeBaseUrl
   lazy val timeoutInSec =
     configDecorator.breathingSpaceTimeoutInSec
-
-  override val externalServiceName = configDecorator.breathingSpaceAppName
 
   def getBreathingSpaceIndicator(
     nino: Nino
@@ -54,10 +51,8 @@ class BreathingSpaceConnector @Inject() (
         "Correlation-Id" -> randomUUID.toString
       )
     val result                                  = withTimeout(timeoutInSec seconds) {
-      withCircuitBreaker(
-        httpClient
-          .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(readEitherOf(readRaw), bsHeaderCarrier, ec)
-      )(bsHeaderCarrier)
+      httpClient
+        .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(readEitherOf(readRaw), bsHeaderCarrier, ec)
     }
     httpClientResponse
       .read(result)

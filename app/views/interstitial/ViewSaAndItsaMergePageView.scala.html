@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,10 +57,10 @@
 
                     <ul class="govuk-list govuk-list--spaced">
                         <li>
-                            @link(routes.InterstitialController.displaySelfAssessment.url, "label.view_manage_sa_return", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"View and manage your Self Assessment tax return"), inParagraph=true)
+                            @link(configDecorator.completeYourTaxReturnUrl(saUtr.toString, taxYear, messages.lang), "label.complete_your_tax_return", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Complete your tax return"), inParagraph=true)
                         </li>
                         <li>
-                            @link(configDecorator.completeYourTaxReturnUrl(saUtr.toString, taxYear, messages.lang), "label.complete_your_tax_return", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Complete your tax return"), inParagraph=true)
+                            @link("https://www.gov.uk/check-if-you-need-a-tax-return", "label.check_if_you_need_to_fill_in_a_tax_return", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Check if you need to fill in a tax return"),inParagraph=true)
                         </li>
                         <li>
                             @link(controllers.routes.PaymentsController.makePayment.url, "label.make_a_payment", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Make a payment"), inParagraph=true)
@@ -69,7 +69,7 @@
                             @link(configDecorator.viewSaPaymentsUrl(saUtr.value, messages.lang), "label.view_your_payments", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"View your payments"), inParagraph=true)
                         </li>
                         <li>
-                            @link("https://www.gov.uk/check-if-you-need-a-tax-return", "label.check_if_you_need_to_fill_in_a_tax_return", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Check if you need to fill in a tax return"),inParagraph=true)
+                            @link(routes.InterstitialController.displaySelfAssessment.url, "label.view_manage_sa_return", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"More details about your Self Assessment tax return"), inParagraph=true)
                         </li>
                     </ul>
                 }

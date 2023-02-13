@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,6 @@ class HomeCardGenerator @Inject() (
   featureFlagService: FeatureFlagService,
   payAsYouEarnView: PayAsYouEarnView,
   taxCalculationView: TaxCalculationView,
-  selfAssessmentView: SelfAssessmentView,
   nationalInsuranceView: NationalInsuranceView,
   taxCreditsView: TaxCreditsView,
   childBenefitView: ChildBenefitView,
@@ -71,12 +70,6 @@ class HomeCardGenerator @Inject() (
           Future.successful(getTaxCalculationCard(taxCalculationStateCyMinusOne)),
           Future.successful(getTaxCalculationCard(taxCalculationStateCyMinusTwo)),
           Future.successful(getSaAndItsaMergeCard()),
-          Future.successful(getSelfAssessmentCard(saActionNeeded)),
-          Future.successful(
-            if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.saItsaTileEnabled)
-              Some(seissView())
-            else None
-          ),
           getNationalInsuranceCard(),
           Future.successful(if (request.trustedHelper.isEmpty) {
             getAnnualTaxSummaryCard
@@ -104,26 +97,12 @@ class HomeCardGenerator @Inject() (
       .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation)
       .map(taxCalculationView(_))
 
-  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType)(implicit
-    request: UserRequest[AnyContent],
-    messages: Messages
-  ): Option[HtmlFormat.Appendable] =
-    if (!configDecorator.saItsaTileEnabled) {
-      saActionNeeded match {
-        case NonFilerSelfAssessmentUser => None
-        case saWithActionNeeded         =>
-          Some(selfAssessmentView(saWithActionNeeded, previousAndCurrentTaxYear, (current.currentYear + 1).toString))
-      }
-    } else {
-      None
-    }
-
   def getSaAndItsaMergeCard()(implicit
     messages: Messages,
     request: UserRequest[_]
   ): Option[HtmlFormat.Appendable] =
     if (
-      configDecorator.saItsaTileEnabled && request.trustedHelper.isEmpty &&
+      request.trustedHelper.isEmpty &&
       (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       Some(
