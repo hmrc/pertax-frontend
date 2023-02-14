@@ -18,11 +18,13 @@ package services
 
 import cats.data.EitherT
 import connectors.SelfAssessmentConnector
+import controllers.auth.requests.UserRequest
 import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentResponse, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status._
 import play.api.libs.json.{Json, OWrites}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
 import testUtils.UserRequestFixture.buildUserRequest
