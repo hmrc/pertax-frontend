@@ -16,6 +16,7 @@
 
 package controllers.controllershelpers
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
