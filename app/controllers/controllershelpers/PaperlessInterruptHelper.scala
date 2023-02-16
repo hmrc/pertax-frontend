@@ -23,8 +23,7 @@ import play.api.mvc.Result
 import play.api.mvc.Results._
 import uk.gov.hmrc.http.HttpReads.is2xx
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait PaperlessInterruptHelper {
 
@@ -32,7 +31,7 @@ trait PaperlessInterruptHelper {
 
   def enforcePaperlessPreference(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], configDecorator: ConfigDecorator): Future[Result] =
+  )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, ec: ExecutionContext): Future[Result] =
     if (configDecorator.enforcePaperlessPreferenceEnabled) {
       preferencesFrontendService
         .getPaperlessPreference()
