@@ -27,6 +27,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
+import java.time.temporal.ChronoUnit
 import java.time.{Instant, OffsetDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
@@ -59,7 +60,7 @@ class CachingItSpec
 
   val addedSeconds                                        = 546
   def editedAddressAddedSeconds(): EditResidentialAddress = EditResidentialAddress(
-    Instant.now().plusSeconds(addedSeconds)
+    Instant.now().plusSeconds(addedSeconds).truncatedTo(ChronoUnit.MILLIS)
   )
 
   "editAddressLockRepository" when {
@@ -99,9 +100,12 @@ class CachingItSpec
 
           val nino = testNino.withoutSuffix
 
-          val address1 = AddressJourneyTTLModel(nino, editedAddressAddedSeconds)
+          val address1 = AddressJourneyTTLModel(nino, editedAddressAddedSeconds())
           val address2 =
-            AddressJourneyTTLModel(nino, EditCorrespondenceAddress(Instant.now().plusSeconds(addedSeconds)))
+            AddressJourneyTTLModel(
+              nino,
+              EditCorrespondenceAddress(Instant.now().plusSeconds(addedSeconds).truncatedTo(ChronoUnit.MILLIS))
+            )
 
           await(repository.insertCore(address1))
           await(repository.insertCore(address2))

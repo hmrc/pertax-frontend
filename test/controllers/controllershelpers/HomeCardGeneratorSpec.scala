@@ -48,7 +48,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   private val payAsYouEarn              = injected[PayAsYouEarnView]
   private val taxCalculation            = injected[TaxCalculationView]
-  private val selfAssessment            = injected[SelfAssessmentView]
   private val nationalInsurance         = injected[NationalInsuranceView]
   private val taxCredits                = injected[TaxCreditsView]
   private val childBenefit              = injected[ChildBenefitView]
@@ -73,7 +72,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       mockFeatureFlagService,
       payAsYouEarn,
       taxCalculation,
-      selfAssessment,
       nationalInsurance,
       taxCredits,
       childBenefit,
@@ -333,7 +331,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
-            selfAssessment,
             nationalInsurance,
             taxCredits,
             childBenefit,
@@ -381,7 +378,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
-            selfAssessment,
             nationalInsurance,
             taxCredits,
             childBenefit,
@@ -414,7 +410,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
-            selfAssessment,
             nationalInsurance,
             taxCredits,
             childBenefit,
@@ -453,7 +448,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
-            selfAssessment,
             nationalInsurance,
             taxCredits,
             childBenefit,
@@ -492,7 +486,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             mockFeatureFlagService,
             payAsYouEarn,
             taxCalculation,
-            selfAssessment,
             nationalInsurance,
             taxCredits,
             childBenefit,
@@ -551,7 +544,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           mockFeatureFlagService,
           payAsYouEarn,
           taxCalculation,
-          selfAssessment,
           nationalInsurance,
           taxCredits,
           childBenefit,
