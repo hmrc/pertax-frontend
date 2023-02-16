@@ -20,22 +20,25 @@ import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
+import models.PaperlessMessages
 import play.api.Logging
-import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, PRECONDITION_FAILED}
+import play.api.http.Status.PRECONDITION_FAILED
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.http.HttpReads.{is4xx, is5xx, upstreamResponseMessage}
-import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpReadsEither, HttpResponse, UpstreamErrorResponse}
+import play.api.libs.json.{JsObject, JsResult, JsSuccess, Json}
+import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.client.HttpClientV2
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PreferencesFrontendConnector @Inject() (
   httpClient: HttpClient,
+  httpClientV2: HttpClientV2,
   val messagesApi: MessagesApi,
   val configDecorator: ConfigDecorator,
   val tools: Tools,
@@ -43,7 +46,6 @@ class PreferencesFrontendConnector @Inject() (
   httpClientResponse: HttpClientResponse
 )(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter
-    with PreferencesCustomError
     with I18nSupport
     with Logging {
 
@@ -54,6 +56,14 @@ class PreferencesFrontendConnector @Inject() (
     request: UserRequest[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
 
+    def newReadEitherOf[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
+      HttpReads.ask.flatMap { case (_, _, response) =>
+        response.status match {
+          case PRECONDITION_FAILED => HttpReads[A].map(Right.apply)
+          case _                   => readEitherOf
+        }
+      }
+
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
 
     val url =
@@ -62,34 +72,30 @@ class PreferencesFrontendConnector @Inject() (
 
     httpClientResponse
       .read(
-        httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))
+        httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))(
+          wts = implicitly,
+          rds = newReadEitherOf,
+          ec = implicitly,
+          hc = implicitly
+        )
       )
   }
-}
 
-trait PreferencesCustomError extends HttpReadsEither {
-  private def handleResponseEither(response: HttpResponse): Either[UpstreamErrorResponse, HttpResponse] =
-    response.status match {
+  def getPaperlessStatus(url: String, returnMessage: String)(implicit
+    request: UserRequest[_]
+  ): EitherT[Future, UpstreamErrorResponse, PaperlessMessages] = {
 
-      case status if status != PRECONDITION_FAILED && is4xx(status) || is5xx(status) =>
-        Left(
-          UpstreamErrorResponse(
-            message = upstreamResponseMessage("PUT", response.body, status, response.body),
-            statusCode = status,
-            reportAs = if (is4xx(status)) INTERNAL_SERVER_ERROR else BAD_GATEWAY,
-            headers = response.headers
-          )
-        )
-      case _                                                                         => Right(response)
-    }
-
-  override implicit def readEitherOf[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
-    HttpReads.ask.flatMap { case (_, _, response) =>
-      handleResponseEither(response) match {
-        case Left(err) =>
-          HttpReads.pure(Left(err))
-        case Right(_)  =>
-          HttpReads[A].map(Right.apply)
-      }
-    }
+    def absoluteUrl = configDecorator.pertaxFrontendHost + url
+    val fullUrl     =
+      s"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
+        .encryptAndEncode(returnMessage)}"
+    httpClientResponse
+      .read(
+        httpClientV2
+          .get(url"$fullUrl")
+          .transform(_.withRequestTimeout(configDecorator.preferenceFrontendTimeoutInSec.seconds))
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      )
+      .map(_.json.as[PaperlessMessages])
+  }
 }

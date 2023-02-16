@@ -39,6 +39,7 @@ class SelfAssessmentService @Inject() (
       case saEnrolment: SelfAssessmentUser =>
         SaEnrolmentRequest(configDecorator.addTaxesPtaOrigin, Some(saEnrolment.saUtr), request.credentials.providerId)
     }
+
     selfAssessmentConnector.enrolForSelfAssessment(saEnrolmentRequest).map { response =>
       response.json.asOpt[SaEnrolmentResponse].map(_.redirectUrl)
     }

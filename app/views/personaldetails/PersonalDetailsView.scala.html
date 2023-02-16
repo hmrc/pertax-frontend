@@ -47,7 +47,7 @@
         </dd>
         <dd class="govuk-summary-list__actions">
             @row.linkUrl.map { url =>
-            <a class="govuk-link" href="@url">
+            <a class="govuk-link" href="@{Html(url)}">
 
                 @messages(row.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
                 <span class="govuk-visually-hidden">@messages(row.visuallyhiddenText)</span>

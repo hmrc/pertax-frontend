@@ -101,12 +101,14 @@ class InterstitialController @Inject() (
   }
 
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
+    val saUserType = request.saUserType
+
     if (
       request.trustedHelper.isEmpty &&
       (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       for {
-        hasSeissClaims    <- seissService.hasClaims(request.saUserType)
+        hasSeissClaims    <- seissService.hasClaims(saUserType)
         istaMessageToggle <- featureFlagService.get(ItsaMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
@@ -117,7 +119,7 @@ class InterstitialController @Inject() (
           istaMessageToggle.isEnabled,
           hasSeissClaims,
           taxYear = previousAndCurrentTaxYear,
-          request.saUserType
+          saUserType
         )
       )
     } else {

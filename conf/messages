@@ -555,8 +555,44 @@ label.profile=Profile
 label.settings=Settings
 label.update_your_address=Update your address
 label.your_paperless_settings=your paperless settings
-label.paperless_settings=Paperless settings
+label.paperless_settings=Contact preferences
 label.manage_your_paperless_settings=Manage your paperless settings
+
+label.paperless_new_response=By post
+label.paperless_new_link=Change
+label.paperless_new_hidden=how we contact you
+
+label.paperless_bounced_response=By post, check we have your correct email
+label.paperless_bounced_link=Check email
+label.paperless_bounced_hidden=address is correct
+
+label.paperless_unverified_response=By post, please verify your email address
+label.paperless_unverified_link=Verify email
+label.paperless_unverified_hidden=address
+
+label.paperless_reopt_response=Online, please agree to our updated terms
+label.paperless_reopt_link=View updated terms
+
+label.paperless_reopt_modified_response=Online, please agree to our updated terms
+label.paperless_reopt_modified_link=View updated terms
+
+label.paperless_opt_out_response=By post
+label.paperless_opt_out_link=Change
+label.paperless_opt_out_hidden=how we contact you
+
+
+label.paperless_opt_in_response=Online, we will email you
+label.paperless_opt_in_link=Change
+label.paperless_opt_in_hidden=how we contact you
+
+
+label.paperless_no_email_response=By post, we do not have your email address
+label.paperless_no_email_link=Tell us your email
+label.paperless_no_email_hidden=address
+
+label.paperless_failed_response=PLACEHOLDER
+label.paperless_failed_link=PLACEHOLDER
+label.paperless_failed_hidden=PLACEHOLDER
 
 #
 # Tax Summaries tile

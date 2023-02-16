@@ -47,14 +47,13 @@ class GetPersonDetailsAction @Inject() (
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
       getPersonDetails()(request).map { personalDetails =>
-        val pd = if (!request.uri.contains("/signout")) personalDetails else None
         UserRequest(
           request.nino,
           request.retrievedName,
           request.saUserType,
           request.credentials,
           request.confidenceLevel,
-          pd,
+          personalDetails,
           request.trustedHelper,
           request.enrolments,
           request.profile,
@@ -66,10 +65,11 @@ class GetPersonDetailsAction @Inject() (
     }
 
   def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
-    if (configDecorator.personDetailsMessageCountEnabled)
+    if (configDecorator.personDetailsMessageCountEnabled) {
       messageFrontendService.getUnreadMessageCount
-    else
+    } else {
       Future.successful(None)
+    }
 
   private def getPersonDetails()(implicit request: UserRequest[_]): EitherT[Future, Result, Option[PersonDetails]] = {
 

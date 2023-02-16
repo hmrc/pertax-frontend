@@ -25,9 +25,7 @@ import play.api.mvc.Results._
 import services.admin.FeatureFlagService
 import uk.gov.hmrc.http.HttpReads.is2xx
 
-import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PaperlessInterruptHelper @Inject() (
   preferencesFrontendConnector: PreferencesFrontendConnector,
@@ -36,7 +34,7 @@ class PaperlessInterruptHelper @Inject() (
 
   def enforcePaperlessPreference(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], configDecorator: ConfigDecorator): Future[Result] =
+  )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, ec: ExecutionContext): Future[Result] =
     featureFlagService.get(PaperlessInterruptToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {
         preferencesFrontendConnector

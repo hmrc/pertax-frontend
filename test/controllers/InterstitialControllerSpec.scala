@@ -232,7 +232,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "Calling getSa302" must {
 
-      "should return OK response when accessing with an SA user with a valid tax year" in new LocalSetup {
+      "return OK response when accessing with an SA user with a valid tax year" in new LocalSetup {
 
         lazy val simulateFormPartialServiceFailure = false
         lazy val simulateSaPartialServiceFailure   = false
@@ -259,7 +259,7 @@ class InterstitialControllerSpec extends BaseSpec {
         contentAsString(r) must include(saUtr.utr)
       }
 
-      "should return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
+      "return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
 
         lazy val simulateFormPartialServiceFailure = false
         lazy val simulateSaPartialServiceFailure   = false
