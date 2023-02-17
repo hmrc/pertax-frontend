@@ -97,11 +97,9 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       )
 
       val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-
-      val result = route(app, request)
+      val result  = route(app, request)
 
       result.get.futureValue.header.status mustBe SEE_OTHER
-
       result.get.futureValue.header.headers.get("Location") mustBe Some(
         "http://localhost:9362/tax-credits-service/personal/change-address"
       )
@@ -227,8 +225,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       )
 
       val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-
-      val result = route(app, request)
+      val result  = route(app, request)
 
       result.get.futureValue.header.status mustBe SEE_OTHER
 
@@ -283,8 +280,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       )
 
       val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-
-      val result = route(app, request)
+      val result  = route(app, request)
 
       result.get.futureValue.header.status mustBe SEE_OTHER
 
@@ -345,8 +341,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
         )
 
         val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-
-        val result = route(app, request)
+        val result  = route(app, request)
 
         result.get.futureValue.header.status mustBe INTERNAL_SERVER_ERROR
 

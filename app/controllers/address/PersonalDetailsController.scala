@@ -80,12 +80,14 @@ class PersonalDetailsController @Inject() (
         _ <- cachingHelper
                .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
+        paperLessPreference <- personalDetailsViewModel.getPaperlessSettingsRow
+
       } yield {
         val personalDetails      = personalDetailsViewModel
           .getPersonDetailsTable(request.nino)
         val addressDetails       = personalDetailsViewModel.getAddressRow(addressModel)
         val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow
-        val paperlessHelpers     = personalDetailsViewModel.getPaperlessSettingsRow
+        val paperlessHelpers     = paperLessPreference
         val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
         val manageTaxAgent       = if (agentClientStatus) personalDetailsViewModel.getManageTaxAgentsRow else None
 

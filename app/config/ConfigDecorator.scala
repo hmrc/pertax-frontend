@@ -313,10 +313,12 @@ class ConfigDecorator @Inject() (
   lazy val bannerHomePageLinkUrl: String    =
     runModeConfiguration.getOptional[String]("feature.banner.home.link.url").getOrElse("")
 
-  lazy val breathingSpcaeBaseUrl      = servicesConfig.baseUrl("breathing-space-if-proxy")
-  lazy val breathingSpaceAppName      = "breathing-space-if-proxy"
-  lazy val breathingSpcaeTimeoutInSec =
+  lazy val breathingSpcaeBaseUrl          = servicesConfig.baseUrl("breathing-space-if-proxy")
+  lazy val breathingSpaceAppName          = "breathing-space-if-proxy"
+  lazy val breathingSpaceTimeoutInSec     =
     servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
+  lazy val preferenceFrontendTimeoutInSec =
+    servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
 
   def numberOfCallsToTriggerStateChange(serviceName: String): Int = servicesConfig.getInt(
     s"microservice.services.$serviceName.circuitBreaker.numberOfCallsToTriggerStateChange"

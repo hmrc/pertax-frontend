@@ -40,7 +40,7 @@ class BreathingSpaceConnector @Inject() (
 
   lazy val baseUrl      = configDecorator.breathingSpcaeBaseUrl
   lazy val timeoutInSec =
-    configDecorator.breathingSpcaeTimeoutInSec
+    configDecorator.breathingSpaceTimeoutInSec
 
   def getBreathingSpaceIndicator(
     nino: Nino

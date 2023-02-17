@@ -18,21 +18,26 @@ package viewmodels
 
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.HeaderCarrier
 import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
+
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PersonalDetailsViewModel @Inject() (
   configDecorator: ConfigDecorator,
   countryHelper: CountryHelper,
   addressView: AddressView,
-  correspondenceAddressView: CorrespondenceAddressView
+  correspondenceAddressView: CorrespondenceAddressView,
+  preferencesFrontendConnector: PreferencesFrontendConnector
 ) {
 
   private def getMainAddress(
@@ -194,19 +199,28 @@ class PersonalDetailsViewModel @Inject() (
     )
 
   def getPaperlessSettingsRow(implicit
-    request: UserRequest[_]
-  ): Option[PersonalDetailsTableRowModel] =
-    Some(
-      PersonalDetailsTableRowModel(
-        "paperless",
-        "label.paperless_settings",
-        HtmlFormat.raw(""),
-        "label.change",
-        "label.your_paperless_settings",
-        Some(controllers.routes.PaperlessPreferencesController.managePreferences.url),
-        displayChangelink = request.trustedHelper.isEmpty
+    request: UserRequest[_],
+    messages: play.api.i18n.Messages,
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Option[PersonalDetailsTableRowModel]] =
+    preferencesFrontendConnector
+      .getPaperlessStatus(request.uri, messages("label.continue"))
+      .fold(
+        _ => None,
+        response =>
+          Some(
+            PersonalDetailsTableRowModel(
+              "paperless",
+              messages("label.paperless_settings"),
+              HtmlFormat.raw(messages(response.responseText)),
+              messages(response.linkText),
+              messages(response.hiddenText.getOrElse("")),
+              Some(response.link),
+              displayChangelink = request.trustedHelper.isEmpty
+            )
+          )
       )
-    )
 
   def getSignInDetailsRow(implicit
     request: UserRequest[_],
