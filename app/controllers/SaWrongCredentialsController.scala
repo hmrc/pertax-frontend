@@ -26,8 +26,6 @@ import models.dto.SAWrongCredentialsDto
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import views.html.selfassessment._
 
-import scala.concurrent.ExecutionContext
-
 class SaWrongCredentialsController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
@@ -37,7 +35,7 @@ class SaWrongCredentialsController @Inject() (
   doYouKnowUserIdView: DoYouKnowUserIdView,
   needToResetPasswordView: NeedToResetPasswordView,
   findYourUserIdView: FindYourUserIdView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator)
     extends PertaxBaseController(cc) {
   private val authenticate: ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails
 

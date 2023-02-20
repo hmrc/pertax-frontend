@@ -22,11 +22,10 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import controllers.bindable.Origin
 import views.html.public.SessionTimeoutView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future}
 
 class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeoutView: SessionTimeoutView)(implicit
-  configDecorator: ConfigDecorator,
-  ec: ExecutionContext
+  configDecorator: ConfigDecorator
 ) extends PertaxBaseController(cc) {
 
   def governmentGatewayEntryPoint: Action[AnyContent] = Action.async { implicit request =>
