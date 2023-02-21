@@ -17,7 +17,7 @@
 package controllers.testOnly
 
 import controllers.PertaxBaseController
-import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlagName, ItsaMessageToggle, NationalInsuranceTileToggle, TaxcalcToggle}
+import models.admin.{AddressTaxCreditsBrokerCallToggle, ChildBenefitSingleAccountToggle, FeatureFlagName, ItsaMessageToggle, NationalInsuranceTileToggle, TaxcalcToggle}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.admin.FeatureFlagService
 
@@ -45,7 +45,8 @@ class FeatureFlagsController @Inject() (
           AddressTaxCreditsBrokerCallToggle -> false,
           TaxcalcToggle                     -> true,
           NationalInsuranceTileToggle       -> true,
-          ItsaMessageToggle                 -> true
+          ItsaMessageToggle                 -> true,
+          ChildBenefitSingleAccountToggle   -> false
         )
       )
       .map(_ => Ok("Default flags set"))
