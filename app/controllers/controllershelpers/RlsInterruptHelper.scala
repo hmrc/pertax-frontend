@@ -31,8 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class RlsInterruptHelper @Inject() (
   cc: MessagesControllerComponents,
   editAddressLockRepository: EditAddressLockRepository
-)(implicit ec: ExecutionContext)
-    extends PertaxBaseController(cc)
+) extends PertaxBaseController(cc)
     with Logging {
 
   def enforceByRlsStatus(

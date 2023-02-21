@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUseServiceView}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future}
 
 class AddressErrorController @Inject() (
   authJourney: AuthJourney,
@@ -34,7 +34,7 @@ class AddressErrorController @Inject() (
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   cannotUseServiceView: CannotUseServiceView,
   addressAlreadyUpdatedView: AddressAlreadyUpdatedView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator)
     extends AddressController(authJourney, cc, displayAddressInterstitialView) {
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =
