@@ -42,7 +42,7 @@ object AuditServiceTools {
         case saUser: SelfAssessmentUser => Some(("saUtr", saUser.saUtr.utr))
         case _                          => None
       },
-      Some("credId", request.credentials.providerId),
+      Some(("credId", request.credentials.providerId)),
       hc.deviceID.map(id => ("deviceId", id)),
       request.cookies.get("mdtpdf").map(fingerprint => ("deviceFingerprint", fingerprint.value))
     ).flatten.toMap
