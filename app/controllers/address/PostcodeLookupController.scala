@@ -160,8 +160,8 @@ class PostcodeLookupController @Inject() (
     typ: AddrType,
     postcode: String,
     lookupServiceDown: Boolean,
-    filter: Option[String] = None,
-    forceLookup: Boolean = false
+    filter: Option[String],
+    forceLookup: Boolean
   )(f: PartialFunction[RecordSet, Future[Result]])(implicit request: UserRequest[_]): Future[Result] =
     if (!forceLookup && lookupServiceDown) {
       Future.successful(Redirect(routes.UpdateAddressController.onPageLoad(typ)))
