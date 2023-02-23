@@ -23,6 +23,7 @@ import play.api.libs.json.JsValue
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
+import uk.gov.hmrc.play.http.logging.Mdc
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -58,36 +59,44 @@ class FeatureFlagRepository @Inject() (
       .toFuture()
 
   def getFeatureFlag(name: FeatureFlagName): Future[Option[FeatureFlag]] =
-    collection
-      .find(Filters.equal("name", name.toString))
-      .headOption()
+    Mdc.preservingMdc(
+      collection
+        .find(Filters.equal("name", name.toString))
+        .headOption()
+    )
 
   def getAllFeatureFlags: Future[List[FeatureFlag]] =
-    collection
-      .find()
-      .toFuture()
-      .map(_.toList)
+    Mdc.preservingMdc(
+      collection
+        .find()
+        .toFuture()
+        .map(_.toList)
+    )
 
   def setFeatureFlag(name: FeatureFlagName, enabled: Boolean): Future[Boolean] =
-    collection
-      .replaceOne(
-        filter = equal("name", name),
-        replacement = FeatureFlag(name, enabled, name.description),
-        options = ReplaceOptions().upsert(true)
-      )
-      .map(_.wasAcknowledged())
-      .toSingle()
-      .toFuture()
+    Mdc.preservingMdc(
+      collection
+        .replaceOne(
+          filter = equal("name", name),
+          replacement = FeatureFlag(name, enabled, name.description),
+          options = ReplaceOptions().upsert(true)
+        )
+        .map(_.wasAcknowledged())
+        .toSingle()
+        .toFuture()
+    )
 
   def setFeatureFlags(flags: Map[FeatureFlagName, Boolean]): Future[Unit] = {
     val featureFlags = flags.map { case (flag, status) =>
       FeatureFlag(flag, status, flag.description)
     }.toList
-    withSessionAndTransaction(session =>
-      for {
-        _ <- collection.deleteMany(session, filter = in("name", flags.keys.toSeq: _*)).toFuture()
-        _ <- collection.insertMany(session, featureFlags).toFuture()
-      } yield ()
+    Mdc.preservingMdc(
+      withSessionAndTransaction(session =>
+        for {
+          _ <- collection.deleteMany(session, filter = in("name", flags.keys.toSeq: _*)).toFuture()
+          _ <- collection.insertMany(session, featureFlags).toFuture()
+        } yield ()
+      )
     )
   }
 }

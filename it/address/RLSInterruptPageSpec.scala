@@ -1,7 +1,7 @@
 package address
 
 import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, status => _}
-import models.admin.{FeatureFlag, NationalInsuranceTileToggle, PaperlessInterruptToggle, RlsInterruptToggle, SingleAccountCheckToggle, TaxComponentsToggle, TaxSummariesTileToggle, TaxcalcToggle}
+import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -39,6 +39,8 @@ class RLSInterruptPageSpec extends IntegrationSpec {
     .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
     .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle)))
+    .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, true)))
 
   "personal-account" must {
     "show rls interrupt" when {

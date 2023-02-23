@@ -90,13 +90,10 @@ class HomeController @Inject() (
                                                                                                  saUserType,
                                                                                                  showSeissCard
                                                                                                )
+
+            benefitCards <- homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
           } yield {
 
-            val benefitCards: Seq[Html] = if (request.trustedHelper.isEmpty) {
-              homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
-            } else {
-              Seq.empty
-            }
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
             Ok(
