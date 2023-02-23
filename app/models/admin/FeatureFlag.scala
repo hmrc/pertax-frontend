@@ -74,13 +74,16 @@ object FeatureFlagName {
   val allFeatureFlags =
     List(
       AddressTaxCreditsBrokerCallToggle,
-      TaxcalcToggle,
-      NationalInsuranceTileToggle,
+      ChildBenefitSingleAccountToggle,
       ItsaMessageToggle,
+      NationalInsuranceTileToggle,
       NispTileToggle,
-      TaxComponentsToggle,
+      PaperlessInterruptToggle,
+      RlsInterruptToggle,
       SingleAccountCheckToggle,
-      ChildBenefitSingleAccountToggle
+      TaxcalcToggle,
+      TaxComponentsToggle,
+      TaxSummariesTileToggle
     )
 }
 
