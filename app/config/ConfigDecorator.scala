@@ -17,10 +17,10 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
+import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
-import controllers.bindable.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -138,6 +138,7 @@ class ConfigDecorator @Inject() (
   def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String): String             =
     transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
   def viewSaPaymentsUrl(saUtr: String, lang: Lang): String                         =
+
     s"/self-assessment/ind/$saUtr/account/payments?lang=" + (if (lang.code equals "en") "eng"
                                                              else "cym")
 
@@ -151,11 +152,12 @@ class ConfigDecorator @Inject() (
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val deskproToken    = "PTA"
 
-  lazy val accessibilityStatementToggle: Boolean  =
+  lazy val accessibilityStatementToggle: Boolean =
     runModeConfiguration.getOptional[Boolean](s"accessibility-statement.toggle").getOrElse(false)
   lazy val accessibilityBaseUrl: String           = servicesConfig.getString("accessibility-statement.baseUrl")
   lazy private val accessibilityRedirectUrl       =
     servicesConfig.getString("accessibility-statement.redirectUrl")
+
   def accessibilityStatementUrl(referrer: String) =
     s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${SafeRedirectUrl(accessibilityBaseUrl + referrer).encodedUrl}"
 
@@ -224,7 +226,22 @@ class ConfigDecorator @Inject() (
     s"$dfsFrontendHost/digital-forms/form/authorise-a-tax-adviser-for-high-income-child-benefit-charge-matters/draft/guide"
   lazy val childBenefitsStopOrRestart               =
     s"$dfsFrontendHost/digital-forms/form/high-income-child-benefit-tax-charge/draft/guide"
-  lazy val childBenefitsCheckIfYouCanClaim          = "https://www.gov.uk/child-benefit/overview"
+
+  lazy val childBenefitsCheckIfYouCanClaim: String = "https://www.gov.uk/child-benefit/overview"
+
+  lazy val claimChildBenefits: String = "https://www.gov.uk/child-benefit/how-to-claim"
+
+  lazy val reportChangesChildBenefit: String = "https://www.gov.uk/report-changes-child-benefit"
+
+  lazy val reportChangesChildBenefitWelsh: String = "https://www.gov.uk/rhoi-gwybod-am-newidiadau-budd-dal-plant"
+
+  lazy val viewPaymentHistory: String = "https://www.gov.uk/child-benefit-payment-dates"
+
+  lazy val viewProofEntitlement: String = "https://www.gov.uk/child-benefit-proof"
+
+  lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
+
+  lazy val childBenefitTaxChargeWelsh: String = "https://www.gov.uk/tal-treth-budd-dal-plant"
 
   lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord/pta"
 
@@ -323,6 +340,8 @@ class ConfigDecorator @Inject() (
   lazy val breathingSpaceAppName           = "breathing-space-if-proxy"
   lazy val breathingSpcaeTimeoutInSec: Int =
     servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
+  lazy val preferenceFrontendTimeoutInSec =
+    servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
 
   def numberOfCallsToTriggerStateChange(serviceName: String): Int = servicesConfig.getInt(
     s"microservice.services.$serviceName.circuitBreaker.numberOfCallsToTriggerStateChange"
