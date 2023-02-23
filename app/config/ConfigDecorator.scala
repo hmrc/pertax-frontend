@@ -138,7 +138,6 @@ class ConfigDecorator @Inject() (
   def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String): String             =
     transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
   def viewSaPaymentsUrl(saUtr: String, lang: Lang): String                         =
-
     s"/self-assessment/ind/$saUtr/account/payments?lang=" + (if (lang.code equals "en") "eng"
                                                              else "cym")
 
@@ -154,8 +153,8 @@ class ConfigDecorator @Inject() (
 
   lazy val accessibilityStatementToggle: Boolean =
     runModeConfiguration.getOptional[Boolean](s"accessibility-statement.toggle").getOrElse(false)
-  lazy val accessibilityBaseUrl: String           = servicesConfig.getString("accessibility-statement.baseUrl")
-  lazy private val accessibilityRedirectUrl       =
+  lazy val accessibilityBaseUrl: String          = servicesConfig.getString("accessibility-statement.baseUrl")
+  lazy private val accessibilityRedirectUrl      =
     servicesConfig.getString("accessibility-statement.redirectUrl")
 
   def accessibilityStatementUrl(referrer: String) =
@@ -338,9 +337,9 @@ class ConfigDecorator @Inject() (
 
   lazy val breathingSpcaeBaseUrl: String   = servicesConfig.baseUrl("breathing-space-if-proxy")
   lazy val breathingSpaceAppName           = "breathing-space-if-proxy"
-  lazy val breathingSpcaeTimeoutInSec: Int =
+  lazy val breathingSpaceTimeoutInSec: Int =
     servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
-  lazy val preferenceFrontendTimeoutInSec =
+  lazy val preferenceFrontendTimeoutInSec  =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
 
   def numberOfCallsToTriggerStateChange(serviceName: String): Int = servicesConfig.getInt(

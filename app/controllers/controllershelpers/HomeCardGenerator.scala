@@ -149,7 +149,7 @@ class HomeCardGenerator @Inject() (
     Future
       .sequence(
         List(
-          Future.successful(getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled)),
+          Future.successful(getTaxCreditsCard()),
           getChildBenefitCard(),
           Future.successful(getMarriageAllowanceCard(taxComponents))
         )
