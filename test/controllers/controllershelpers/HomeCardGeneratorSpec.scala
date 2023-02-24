@@ -18,10 +18,8 @@ package controllers.controllershelpers
 
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NewsAndContentModel, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser}
-import models.{NotYetActivatedOnlineFilerSelfAssessmentUser, TaxComponentsAvailableState, TaxComponentsDisabledState}
-import models.{TaxComponentsNotAvailableState, TaxComponentsUnreachableState, WrongCredentialsSelfAssessmentUser}
-import models.admin.{FeatureFlag, NationalInsuranceTileToggle}
+import models._
+import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, NationalInsuranceTileToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,11 +30,11 @@ import play.api.test.FakeRequest
 import services.admin.FeatureFlagService
 import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.DateTimeTools.{current}
+import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import views.html.ViewSpec
 import views.html.cards.home._
@@ -48,21 +46,22 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator: ConfigDecorator = config
 
-  private val payAsYouEarn             = injected[PayAsYouEarnView]
-  private val taxCalculation           = injected[TaxCalculationView]
-  private val nationalInsurance        = injected[NationalInsuranceView]
-  private val taxCredits               = injected[TaxCreditsView]
-  private val childBenefit             = injected[ChildBenefitView]
-  private val marriageAllowance        = injected[MarriageAllowanceView]
-  private val statePension             = injected[StatePensionView]
-  private val taxSummaries             = injected[TaxSummariesView]
-  private val seissView                = injected[SeissView]
-  private val latestNewsAndUpdatesView = injected[LatestNewsAndUpdatesView]
-  private val saAndItsaMergeView       = injected[SaAndItsaMergeView]
-  private val enrolmentsHelper         = injected[EnrolmentsHelper]
-  private val newsAndTilesConfig       = mock[NewsAndTilesConfig]
-  private val mockFeatureFlagService   = mock[FeatureFlagService]
-  private val stubConfigDecorator      = new ConfigDecorator(
+  private val payAsYouEarn              = injected[PayAsYouEarnView]
+  private val taxCalculation            = injected[TaxCalculationView]
+  private val nationalInsurance         = injected[NationalInsuranceView]
+  private val taxCredits                = injected[TaxCreditsView]
+  private val childBenefit              = injected[ChildBenefitView]
+  private val childBenefitSingleAccount = injected[ChildBenefitSingleAccountView]
+  private val marriageAllowance         = injected[MarriageAllowanceView]
+  private val statePension              = injected[StatePensionView]
+  private val taxSummaries              = injected[TaxSummariesView]
+  private val seissView                 = injected[SeissView]
+  private val latestNewsAndUpdatesView  = injected[LatestNewsAndUpdatesView]
+  private val saAndItsaMergeView        = injected[SaAndItsaMergeView]
+  private val enrolmentsHelper          = injected[EnrolmentsHelper]
+  private val newsAndTilesConfig        = mock[NewsAndTilesConfig]
+  private val mockFeatureFlagService    = mock[FeatureFlagService]
+  private val stubConfigDecorator       = new ConfigDecorator(
     injected[Configuration],
     injected[Langs],
     injected[ServicesConfig]
@@ -76,6 +75,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       nationalInsurance,
       taxCredits,
       childBenefit,
+      childBenefitSingleAccount,
       marriageAllowance,
       statePension,
       taxSummaries,
@@ -163,7 +163,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getNationalInsuranceCard" must {
     "return NI Card when toggled on" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
 
       lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
@@ -172,7 +172,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return None when toggled off" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = false)))
 
       lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
@@ -199,11 +199,22 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "Calling getChildBenefitCard" must {
-    "always return the same markup" in {
+    "returns the child Benefit markup if ChildBenefitSingleAccountToggle is false" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)))
 
       lazy val cardBody = homeCardGenerator.getChildBenefitCard()
 
-      cardBody mustBe Some(childBenefit())
+      cardBody.futureValue mustBe Some(childBenefit())
+    }
+
+    "returns the child Benefit single sign on markup if ChildBenefitSingleAccountToggle is true" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = true)))
+
+      lazy val cardBody = homeCardGenerator.getChildBenefitCard()
+
+      cardBody.futureValue mustBe Some(childBenefitSingleAccount())
     }
   }
 
@@ -323,6 +334,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             nationalInsurance,
             taxCredits,
             childBenefit,
+            childBenefitSingleAccount,
             marriageAllowance,
             statePension,
             taxSummaries,
@@ -369,6 +381,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             nationalInsurance,
             taxCredits,
             childBenefit,
+            childBenefitSingleAccount,
             marriageAllowance,
             statePension,
             taxSummaries,
@@ -400,6 +413,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             nationalInsurance,
             taxCredits,
             childBenefit,
+            childBenefitSingleAccount,
             marriageAllowance,
             statePension,
             taxSummaries,
@@ -437,6 +451,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             nationalInsurance,
             taxCredits,
             childBenefit,
+            childBenefitSingleAccount,
             marriageAllowance,
             statePension,
             taxSummaries,
@@ -474,6 +489,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             nationalInsurance,
             taxCredits,
             childBenefit,
+            childBenefitSingleAccount,
             marriageAllowance,
             statePension,
             taxSummaries,
@@ -531,6 +547,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           nationalInsurance,
           taxCredits,
           childBenefit,
+          childBenefitSingleAccount,
           marriageAllowance,
           statePension,
           taxSummaries,

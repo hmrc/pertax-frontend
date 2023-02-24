@@ -17,10 +17,10 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
+import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
-import controllers.bindable.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -128,13 +128,14 @@ class ConfigDecorator @Inject() (
   def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang) =
     s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (if (lang.code equals "en") "eng"
                                                                                 else "cym")
-  lazy val ssoToActivateSaEnrolmentPinUrl                                  =
+
+  lazy val ssoToActivateSaEnrolmentPinUrl                      =
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
-  lazy val ssoToRegisterForSaEnrolment                                     = transformUrlForSso(toPortalUrl("/home/services/enroll"))
-  lazy val ssoToRegistration                                               = transformUrlForSso(toPortalUrl("/registration"))
-  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String)             =
+  lazy val ssoToRegisterForSaEnrolment                         = transformUrlForSso(toPortalUrl("/home/services/enroll"))
+  lazy val ssoToRegistration                                   = transformUrlForSso(toPortalUrl("/registration"))
+  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String) =
     transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
-  def viewSaPaymentsUrl(saUtr: String, lang: Lang): String                 =
+  def viewSaPaymentsUrl(saUtr: String, lang: Lang): String     =
     s"/self-assessment/ind/$saUtr/account/payments?lang=" + (if (lang.code equals "en") "eng"
                                                              else "cym")
 
@@ -148,11 +149,12 @@ class ConfigDecorator @Inject() (
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val deskproToken    = "PTA"
 
-  lazy val accessibilityStatementToggle: Boolean  =
+  lazy val accessibilityStatementToggle: Boolean =
     runModeConfiguration.getOptional[Boolean](s"accessibility-statement.toggle").getOrElse(false)
-  lazy val accessibilityBaseUrl                   = servicesConfig.getString("accessibility-statement.baseUrl")
-  lazy private val accessibilityRedirectUrl       =
+  lazy val accessibilityBaseUrl                  = servicesConfig.getString("accessibility-statement.baseUrl")
+  lazy private val accessibilityRedirectUrl      =
     servicesConfig.getString("accessibility-statement.redirectUrl")
+
   def accessibilityStatementUrl(referrer: String) =
     s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${SafeRedirectUrl(accessibilityBaseUrl + referrer).encodedUrl}"
 
@@ -221,7 +223,22 @@ class ConfigDecorator @Inject() (
     s"$dfsFrontendHost/digital-forms/form/authorise-a-tax-adviser-for-high-income-child-benefit-charge-matters/draft/guide"
   lazy val childBenefitsStopOrRestart               =
     s"$dfsFrontendHost/digital-forms/form/high-income-child-benefit-tax-charge/draft/guide"
-  lazy val childBenefitsCheckIfYouCanClaim          = "https://www.gov.uk/child-benefit/overview"
+
+  lazy val childBenefitsCheckIfYouCanClaim: String = "https://www.gov.uk/child-benefit/overview"
+
+  lazy val claimChildBenefits: String = "https://www.gov.uk/child-benefit/how-to-claim"
+
+  lazy val reportChangesChildBenefit: String = "https://www.gov.uk/report-changes-child-benefit"
+
+  lazy val reportChangesChildBenefitWelsh: String = "https://www.gov.uk/rhoi-gwybod-am-newidiadau-budd-dal-plant"
+
+  lazy val viewPaymentHistory: String = "https://www.gov.uk/child-benefit-payment-dates"
+
+  lazy val viewProofEntitlement: String = "https://www.gov.uk/child-benefit-proof"
+
+  lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
+
+  lazy val childBenefitTaxChargeWelsh: String = "https://www.gov.uk/tal-treth-budd-dal-plant"
 
   lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord/pta"
 
