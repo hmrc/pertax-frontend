@@ -104,6 +104,7 @@ class ApplicationController @Inject() (
                 InternalServerError(technicalIssuesView(retryUrl))
             }
             .getOrElse(BadRequest(technicalIssuesView(retryUrl)))
+        case _         => throw new RuntimeException("journeyId missing or incorect")
       }
     }
 
