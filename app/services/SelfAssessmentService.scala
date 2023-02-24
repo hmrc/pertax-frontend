@@ -38,6 +38,7 @@ class SelfAssessmentService @Inject() (
     def saEnrolmentRequest: SaEnrolmentRequest = request.saUserType match {
       case saEnrolment: SelfAssessmentUser =>
         SaEnrolmentRequest(configDecorator.addTaxesPtaOrigin, Some(saEnrolment.saUtr), request.credentials.providerId)
+      case _                               => throw new RuntimeException("Invalid Self Assessment User Type")
     }
 
     selfAssessmentConnector.enrolForSelfAssessment(saEnrolmentRequest).map { response =>
