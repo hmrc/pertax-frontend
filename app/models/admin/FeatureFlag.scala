@@ -22,10 +22,10 @@ import play.api.mvc.PathBindable
 import scala.collection.immutable
 
 case class FeatureFlag(
-                        name: FeatureFlagName,
-                        isEnabled: Boolean,
-                        description: Option[String] = None
-                      )
+  name: FeatureFlagName,
+  isEnabled: Boolean,
+  description: Option[String] = None
+)
 
 object FeatureFlag {
   implicit val format: OFormat[FeatureFlag] = Json.format[FeatureFlag]
@@ -41,12 +41,12 @@ object FeatureFlagName {
   implicit val reads: Reads[FeatureFlagName] = {
     case name if name == JsString(AddressTaxCreditsBrokerCallToggle.toString) =>
       JsSuccess(AddressTaxCreditsBrokerCallToggle)
-    case name if name == JsString(TaxcalcToggle.toString) => JsSuccess(TaxcalcToggle)
-    case name if name == JsString(NationalInsuranceTileToggle.toString) => JsSuccess(NationalInsuranceTileToggle)
-    case name if name == JsString(ItsaMessageToggle.toString) => JsSuccess(ItsaMessageToggle)
-    case name if name == JsString(ChildBenefitSingleAccountToggle.toString) =>
+    case name if name == JsString(TaxcalcToggle.toString)                     => JsSuccess(TaxcalcToggle)
+    case name if name == JsString(NationalInsuranceTileToggle.toString)       => JsSuccess(NationalInsuranceTileToggle)
+    case name if name == JsString(ItsaMessageToggle.toString)                 => JsSuccess(ItsaMessageToggle)
+    case name if name == JsString(ChildBenefitSingleAccountToggle.toString)   =>
       JsSuccess(ChildBenefitSingleAccountToggle)
-    case _ => JsError("Unknown FeatureFlagName")
+    case _                                                                    => JsError("Unknown FeatureFlagName")
   }
 
   implicit val formats: Format[FeatureFlagName] =
@@ -58,7 +58,7 @@ object FeatureFlagName {
       JsString(value).validate[FeatureFlagName] match {
         case JsSuccess(name, _) =>
           Right(name)
-        case _ =>
+        case _                  =>
           Left(s"The feature flag `$value` does not exist")
       }
 
@@ -72,7 +72,8 @@ object FeatureFlagName {
       TaxcalcToggle,
       NationalInsuranceTileToggle,
       ItsaMessageToggle,
-      ChildBenefitSingleAccountToggle
+      ChildBenefitSingleAccountToggle,
+      TaxcalcMakePaymentLinkToggle
     )
 }
 
@@ -106,6 +107,12 @@ case object ChildBenefitSingleAccountToggle extends FeatureFlagName {
   override def toString: String = "child-benefit-single-account"
 
   override val description: Option[String] = Some("Enable/disable the Child Benefit feature for single account")
+}
+
+case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
+  override def toString: String = "taxcalc-make-payment-link-toggle"
+
+  override val description: Option[String] = Some("Enable/disable direct link to make a payment on taxcalc tile")
 }
 
 object FeatureFlagMongoFormats {
