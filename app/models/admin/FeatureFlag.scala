@@ -46,6 +46,7 @@ object FeatureFlagName {
     case name if name == JsString(ItsaMessageToggle.toString)                 => JsSuccess(ItsaMessageToggle)
     case name if name == JsString(ChildBenefitSingleAccountToggle.toString)   =>
       JsSuccess(ChildBenefitSingleAccountToggle)
+    case name if name == JsString(TaxcalcMakePaymentLinkToggle.toString)      => JsSuccess(TaxcalcMakePaymentLinkToggle)
     case _                                                                    => JsError("Unknown FeatureFlagName")
   }
 
