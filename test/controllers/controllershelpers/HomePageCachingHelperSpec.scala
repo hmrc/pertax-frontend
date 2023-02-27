@@ -17,7 +17,6 @@
 package controllers.controllershelpers
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.JsBoolean
@@ -33,7 +32,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
     .overrides(bind[LocalSessionCache].toInstance(mock[LocalSessionCache]))
     .build()
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(injected[LocalSessionCache])
 
   "Calling HomePageCachingHelper.hasUserDismissedUrInvitation" must {
@@ -101,7 +100,9 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
     "Store true in session cache" in new LocalSetup {
 
-      val r = cachingHelper.storeUserUrDismissal()
+      val result: CacheMap = cachingHelper.storeUserUrDismissal().futureValue
+
+      result mustBe None
       verify(cachingHelper.sessionCache, times(1)).cache(meq("urBannerDismissed"), meq(true))(any(), any(), any())
     }
   }

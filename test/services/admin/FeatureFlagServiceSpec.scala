@@ -27,7 +27,7 @@ import models.admin.{AddressTaxCreditsBrokerCallToggle, NationalInsuranceTileTog
 import repositories.admin.FeatureFlagRepository
 import testUtils.BaseSpec
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 
 class FeatureFlagServiceSpec extends BaseSpec {

@@ -17,17 +17,16 @@
 package services
 
 import cats.data.EitherT
-import config.ConfigDecorator
 import connectors.CitizenDetailsConnector
 import models.{ETag, MatchingDetails}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.http.Status._
 import play.api.libs.json.{Json, OWrites}
 import play.api.test.Injecting
 import testUtils.BaseSpec
 import testUtils.Fixtures._
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
@@ -124,8 +123,6 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
     }
 
     "getMatchingDetails is called" must {
-      implicit val matchingDetailsWrites: OWrites[MatchingDetails] = Json.writes[MatchingDetails]
-
       "return matching details when connector returns and OK status with body" in {
         when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
@@ -142,10 +139,9 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .getMatchingDetails(fakeNino)
             .value
             .futureValue
-            .right
-            .get
 
-        result mustBe MatchingDetails(Some(saUtr))
+        result mustBe a[Right[_, MatchingDetails]]
+        result.getOrElse(MatchingDetails(Some(SaUtr("Invalid")))) mustBe MatchingDetails(Some(saUtr))
       }
 
       "return error when connector returns and OK status with no body" in {
@@ -155,15 +151,14 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
           )
         )
 
-        val result =
+        val result: Either[UpstreamErrorResponse, MatchingDetails] =
           sut
             .getMatchingDetails(fakeNino)
             .value
             .futureValue
-            .right
-            .get
-            .saUtr
-        result mustBe None
+
+        result mustBe a[Right[_, MatchingDetails]]
+        result.getOrElse(MatchingDetails(Some(SaUtr("Invalid")))) mustBe None
       }
 
       List(

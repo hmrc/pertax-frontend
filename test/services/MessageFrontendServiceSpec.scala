@@ -16,12 +16,10 @@
 
 package services
 
-import com.codahale.metrics.Timer
 import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, serverError, urlEqualTo}
 import connectors.EnhancedPartialRetriever
 import controllers.auth.requests.UserRequest
 import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.bind

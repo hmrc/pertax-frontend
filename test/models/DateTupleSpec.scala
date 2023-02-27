@@ -98,24 +98,27 @@ class DateTupleSpec extends BaseSpec {
 
     val errorKey = "error.date.required"
 
-    def assertError(dateFields: Map[String, String], validationError: String) {
+    def assertError(dateFields: Map[String, String], validationError: String): Unit = {
       val result = mandatoryDateTuple(errorKey).bind(dateFields)
-      result.isLeft mustBe true
-      result.left.get mustBe Seq(FormError("", validationError))
+
+      result mustBe a[Left[_, _]]
+      result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", validationError))
     }
 
     "create a mapping for a valid date" in {
       val dateFields = Map(day -> "1", month -> "2", year -> "2014")
       val result     = mandatoryDateTuple(errorKey).bind(dateFields)
-      result.isRight mustBe true
-      result.right.get mustBe (LocalDate.of(2014, 2, 1))
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(LocalDate.of(1, 1, 1)) mustBe (LocalDate.of(2014, 2, 1))
     }
 
     "create a mapping for an invalid date (with space after month, day and year)" in {
       val dateFields = Map(day -> "1 ", month -> "2 ", year -> "2014 ")
       val result     = mandatoryDateTuple(errorKey).bind(dateFields)
-      result.isRight mustBe true
-      result.right.get mustBe (LocalDate.of(2014, 2, 1))
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(LocalDate.of(1, 1, 1)) mustBe (LocalDate.of(2014, 2, 1))
     }
 
     "return error when all the fields are empty" in {
