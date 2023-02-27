@@ -115,9 +115,7 @@
         language = if(messages.lang.code == "cy") Cy else En,
         businessTaxAccount = request.saUserType match {
                                 case NonFilerSelfAssessmentUser => None
-                                case saWithActionNeeded =>
-                                    Some(BusinessTaxAccount(href="#"))
-                                case _ => None
+                                case _ => Some(BusinessTaxAccount(href="#")) //TODO: double check plus add unit tests for all 5 sa cases.
                             },
         accountHome = AccountHome(active = accountHome),
         messages = AccountMessages(active = messagesActive, messageCount = request.unreadMessageCount),

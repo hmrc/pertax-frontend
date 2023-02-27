@@ -22,8 +22,6 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models.{NonFilerSelfAssessmentUser, UserName}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
-import play.api.libs.json.JsPath.\
 import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}

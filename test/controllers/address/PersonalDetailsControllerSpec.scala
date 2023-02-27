@@ -20,7 +20,6 @@ import controllers.controllershelpers.{PersonalDetailsCardGenerator, RlsInterrup
 import models.PersonDetails
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Request

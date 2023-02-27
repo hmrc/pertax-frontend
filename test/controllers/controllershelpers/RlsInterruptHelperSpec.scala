@@ -20,7 +20,6 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.{AddressesLock, NonFilerSelfAssessmentUser, UserName}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest

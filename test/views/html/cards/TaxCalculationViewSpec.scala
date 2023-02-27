@@ -33,9 +33,6 @@ class TaxCalculationViewSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
-    document.getElementsMatchingText(content).hasAttr("href") mustBe true
-
   "TaxCalculation card" must {
 
     val previousTaxYear = 2017
@@ -66,8 +63,7 @@ class TaxCalculationViewSpec extends ViewSpec {
 
       hasLink(
         doc,
-        Messages("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, (previousTaxYear + 1).toString),
-        configDecorator.underpaidUrl(previousTaxYear)
+        Messages("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, (previousTaxYear + 1).toString)
       )
     }
 

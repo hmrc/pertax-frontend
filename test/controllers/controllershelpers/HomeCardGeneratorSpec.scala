@@ -21,8 +21,6 @@ import controllers.auth.requests.UserRequest
 import models._
 import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, NationalInsuranceTileToggle}
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.i18n.Langs
 import play.api.mvc.AnyContentAsEmpty
@@ -42,7 +40,7 @@ import views.html.cards.home._
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
+class HomeCardGeneratorSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = config
 
@@ -165,7 +163,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
 
-      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard.futureValue
 
       cardBody mustBe Some(nationalInsurance())
     }
@@ -174,7 +172,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = false)))
 
-      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard.futureValue
 
       cardBody mustBe None
     }
@@ -516,7 +514,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         )
       )
 
-      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard()
+      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard
 
       cardBody mustBe Some(latestNewsAndUpdatesView())
     }
@@ -525,7 +523,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
 
-      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard()
+      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard
 
       cardBody mustBe None
     }

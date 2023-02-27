@@ -20,7 +20,6 @@ import controllers.auth.UserSessionAuditEvent.writes
 import controllers.auth.requests.AuthenticatedRequest
 import org.hamcrest.CustomMatcher
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import org.mockito.hamcrest.MockitoHamcrest.argThat
 import play.api.libs.json.Json
 import play.api.mvc.Results.Ok

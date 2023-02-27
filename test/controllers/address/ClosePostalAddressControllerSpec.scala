@@ -21,7 +21,6 @@ import controllers.bindable.PostalAddrType
 import models._
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.Request

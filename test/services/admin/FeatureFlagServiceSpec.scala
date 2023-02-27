@@ -19,14 +19,13 @@ package services.admin
 import akka.Done
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.cache.AsyncCacheApi
 import play.api.inject.bind
 import config.ConfigDecorator
 import models.admin.{AddressTaxCreditsBrokerCallToggle, NationalInsuranceTileToggle, TaxcalcToggle}
 import repositories.admin.FeatureFlagRepository
 import testUtils.BaseSpec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import scala.concurrent.Future
 

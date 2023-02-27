@@ -61,12 +61,12 @@ class HomeCardGenerator @Inject() (
     Future
       .sequence(
         List(
-          Future.successful(getLatestNewsAndUpdatesCard()),
+          Future.successful(getLatestNewsAndUpdatesCard),
           Future.successful(getPayAsYouEarnCard(taxComponentsState)),
           Future.successful(getTaxCalculationCard(taxCalculationStateCyMinusOne)),
           Future.successful(getTaxCalculationCard(taxCalculationStateCyMinusTwo)),
           Future.successful(getSaAndItsaMergeCard()),
-          getNationalInsuranceCard(),
+          getNationalInsuranceCard,
           Future.successful(if (request.trustedHelper.isEmpty) {
             getAnnualTaxSummaryCard
           } else {
@@ -127,14 +127,14 @@ class HomeCardGenerator @Inject() (
       None
     }
 
-  def getLatestNewsAndUpdatesCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+  def getLatestNewsAndUpdatesCard(implicit messages: Messages): Option[HtmlFormat.Appendable] =
     if (configDecorator.isNewsAndUpdatesTileEnabled && newsAndTilesConfig.getNewsAndContentModelList().nonEmpty) {
       Some(latestNewsAndUpdatesView())
     } else {
       None
     }
 
-  def getNationalInsuranceCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
+  def getNationalInsuranceCard(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
     featureFlagService.get(NationalInsuranceTileToggle).map { toggle =>
       if (toggle.isEnabled) {
         Some(nationalInsuranceView())

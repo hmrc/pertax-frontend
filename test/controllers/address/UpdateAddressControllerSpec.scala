@@ -20,7 +20,6 @@ import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto.{AddressPageVisitedDto, DateDto, Dto}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.Request

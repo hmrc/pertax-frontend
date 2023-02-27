@@ -45,7 +45,7 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
-  override def now: () => LocalDate = LocalDate.now
+  override def now: () => LocalDate = () => LocalDate.now()
 
   val mockAuditConnector             = mock[AuditConnector]
   val mockAuthAction                 = mock[AuthAction]

@@ -21,7 +21,6 @@ import config.BusinessHoursConfig
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status.SEE_OTHER

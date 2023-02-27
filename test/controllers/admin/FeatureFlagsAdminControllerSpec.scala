@@ -35,7 +35,6 @@ import org.mockito.Mockito.{reset, when}
 import play.api.Configuration
 import play.api.i18n.Langs
 import uk.gov.hmrc.internalauth.client.{IAAction, Resource, ResourceLocation, ResourceType, Retrieval}
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.Future

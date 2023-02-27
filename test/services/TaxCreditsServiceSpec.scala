@@ -19,7 +19,6 @@ package services
 import cats.data.EitherT
 import connectors.TaxCreditsConnector
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.http.Status._
 import testUtils.BaseSpec
 import testUtils.Fixtures.fakeNino

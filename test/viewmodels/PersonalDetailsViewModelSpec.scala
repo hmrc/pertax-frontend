@@ -154,7 +154,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn("link"): PaperlessMessages)
       )
 
-      val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages, hc, ec)
+      val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages, ec)
       actual.futureValue mustBe expected
     }
   }
