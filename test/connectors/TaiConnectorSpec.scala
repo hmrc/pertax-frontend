@@ -27,12 +27,7 @@ import uk.gov.hmrc.time.TaxYear
 
 import scala.util.Random
 
-class TaiConnectorSpec
-    extends ConnectorSpec
-    with WireMockHelper
-    with MockitoSugar
-    with DefaultAwaitTimeout
-    with Injecting {
+class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
 
   override implicit lazy val app: Application = app(
     Map("microservice.services.tai.port" -> server.port())

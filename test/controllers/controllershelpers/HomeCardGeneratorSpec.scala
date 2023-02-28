@@ -53,7 +53,6 @@ class HomeCardGeneratorSpec extends ViewSpec {
   private val marriageAllowance         = injected[MarriageAllowanceView]
   private val statePension              = injected[StatePensionView]
   private val taxSummaries              = injected[TaxSummariesView]
-  private val seissView                 = injected[SeissView]
   private val latestNewsAndUpdatesView  = injected[LatestNewsAndUpdatesView]
   private val saAndItsaMergeView        = injected[SaAndItsaMergeView]
   private val enrolmentsHelper          = injected[EnrolmentsHelper]
