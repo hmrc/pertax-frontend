@@ -25,7 +25,6 @@ import error.ErrorRenderer
 import models._
 import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, ItsAdvertisementMessageToggle}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.i18n.{Langs, Messages}
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest

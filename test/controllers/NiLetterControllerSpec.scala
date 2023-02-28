@@ -21,8 +21,6 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.jsoup.Jsoup
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
@@ -36,7 +34,7 @@ import views.html.print._
 
 import scala.concurrent.Future
 
-class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDetailsFixtures {
+class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
   val mockPdfGeneratorConnector       = mock[PdfGeneratorConnector]
   val mockAuthJourney                 = mock[AuthJourney]

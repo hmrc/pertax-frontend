@@ -16,11 +16,6 @@
 
 package connectors
 
-import com.codahale.metrics.Timer
-import com.kenshoo.play.metrics.Metrics
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper

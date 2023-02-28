@@ -23,7 +23,6 @@ import com.kenshoo.play.metrics.Metrics
 import controllers.auth.requests.UserRequest
 import models._
 import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.ContentTypes

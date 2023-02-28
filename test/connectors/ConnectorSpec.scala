@@ -37,7 +37,6 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
-import scala.language.implicitConversions
 
 trait ConnectorSpec
     extends AnyWordSpec

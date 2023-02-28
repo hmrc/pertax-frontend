@@ -27,7 +27,6 @@ import models._
 import models.addresslookup.RecordSet
 import models.dto.{AddressDto, Dto}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
 import play.api.http.Status.NO_CONTENT
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}

@@ -20,7 +20,6 @@ import cats.data.EitherT
 import cats.implicits._
 import models.AgentClientStatus
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty

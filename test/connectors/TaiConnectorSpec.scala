@@ -16,8 +16,6 @@
 
 package connectors
 
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
