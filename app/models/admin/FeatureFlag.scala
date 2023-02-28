@@ -81,6 +81,7 @@ object FeatureFlagName {
       PaperlessInterruptToggle,
       RlsInterruptToggle,
       SingleAccountCheckToggle,
+      TaxcalcMakePaymentLinkToggle,
       TaxcalcToggle,
       TaxComponentsToggle,
       TaxSummariesTileToggle
@@ -153,6 +154,12 @@ case object ChildBenefitSingleAccountToggle extends FeatureFlagName {
   override def toString: String = "child-benefit-single-account"
 
   override val description: Option[String] = Some("Enable/disable the Child Benefit feature for single account")
+}
+
+case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
+  override def toString: String = "taxcalc-make-payment-link-toggle"
+
+  override val description: Option[String] = Some("Enable/disable direct link to make a payment on taxcalc tile")
 }
 
 object FeatureFlagMongoFormats {

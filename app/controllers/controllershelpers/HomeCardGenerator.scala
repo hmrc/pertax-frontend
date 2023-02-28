@@ -45,7 +45,6 @@ class HomeCardGenerator @Inject() (
   marriageAllowanceView: MarriageAllowanceView,
   statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
-  seissView: SeissView,
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
   saAndItsaMergeView: SaAndItsaMergeView,
   enrolmentsHelper: EnrolmentsHelper,
@@ -55,17 +54,15 @@ class HomeCardGenerator @Inject() (
   def getIncomeCards(
     taxComponentsState: TaxComponentsState,
     taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
-    taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
-    saActionNeeded: SelfAssessmentUserType,
-    showSeissCard: Boolean
+    taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation]
   )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] =
     Future
       .sequence(
         List(
           Future.successful(getLatestNewsAndUpdatesCard()),
           Future.successful(getPayAsYouEarnCard(taxComponentsState)),
-          Future.successful(getTaxCalculationCard(taxCalculationStateCyMinusOne)),
-          Future.successful(getTaxCalculationCard(taxCalculationStateCyMinusTwo)),
+          getTaxCalculationCard(taxCalculationStateCyMinusOne),
+          getTaxCalculationCard(taxCalculationStateCyMinusTwo),
           Future.successful(getSaAndItsaMergeCard()),
           getNationalInsuranceCard(),
           if (request.trustedHelper.isEmpty) {
@@ -89,10 +86,12 @@ class HomeCardGenerator @Inject() (
 
   def getTaxCalculationCard(
     taxYearReconciliations: Option[TaxYearReconciliation]
-  )(implicit messages: Messages): Option[HtmlFormat.Appendable] =
-    taxYearReconciliations
-      .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation)
-      .map(taxCalculationView(_))
+  )(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
+    featureFlagService.get(TaxcalcMakePaymentLinkToggle).map { toggle =>
+      taxYearReconciliations
+        .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation(_, toggle))
+        .map(taxCalculationView(_))
+    }
 
   def getSaAndItsaMergeCard()(implicit
     messages: Messages,

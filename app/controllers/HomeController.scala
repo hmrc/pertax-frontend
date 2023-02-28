@@ -86,9 +86,7 @@ class HomeController @Inject() (
             incomeCards                                                                     <- homeCardGenerator.getIncomeCards(
                                                                                                  taxSummaryState,
                                                                                                  taxCalculationStateCyMinusOne,
-                                                                                                 taxCalculationStateCyMinusTwo,
-                                                                                                 saUserType,
-                                                                                                 showSeissCard
+                                                                                                 taxCalculationStateCyMinusTwo
                                                                                                )
 
             benefitCards <- homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)

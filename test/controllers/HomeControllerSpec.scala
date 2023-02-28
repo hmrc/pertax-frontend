@@ -62,7 +62,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockBreathingSpaceService: BreathingSpaceService                             = mock[BreathingSpaceService]
   val mockFeatureFlagService: FeatureFlagService                                   = mock[FeatureFlagService]
 
-  override def beforeEach: Unit =
+  override def beforeEach: Unit = {
     reset(
       mockConfigDecorator,
       mockTaxCalculationService,
@@ -71,6 +71,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       mockHomePageCachingHelper,
       mockFeatureFlagService
     )
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle))) thenReturn Future.successful(
+      FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)
+    )
+  }
 
   override def now: () => LocalDate = LocalDate.now
 
