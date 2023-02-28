@@ -46,7 +46,7 @@ class FeatureFlagsController @Inject() (
           TaxcalcToggle                     -> true,
           NationalInsuranceTileToggle       -> true,
           ItsaMessageToggle                 -> true,
-          ChildBenefitSingleAccountToggle   -> false
+          ChildBenefitSingleAccountToggle   -> true
         )
       )
       .map(_ => Ok("Default flags set"))
