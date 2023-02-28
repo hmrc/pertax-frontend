@@ -22,7 +22,6 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest

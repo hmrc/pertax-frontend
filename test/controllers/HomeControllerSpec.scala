@@ -27,7 +27,6 @@ import models._
 import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, NationalInsuranceTileToggle, TaxcalcToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito._
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc._

@@ -16,10 +16,7 @@
 
 package connectors
 
-import com.codahale.metrics.Timer
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, _}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder

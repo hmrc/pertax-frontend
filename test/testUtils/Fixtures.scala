@@ -23,7 +23,6 @@ import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import org.mockito.MockitoSugar
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers

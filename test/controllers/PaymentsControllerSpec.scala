@@ -23,7 +23,6 @@ import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.CreatePayment
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}

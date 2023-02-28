@@ -23,7 +23,6 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest

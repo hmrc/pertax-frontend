@@ -36,8 +36,7 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
 
-class SelfAssessmentStatusActionSpec
-    extends BaseSpec {
+class SelfAssessmentStatusActionSpec extends BaseSpec {
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
   private val saUtr                                    = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
   private val enrolmentsCachingService                 = mock[EnrolmentStoreCachingService]
