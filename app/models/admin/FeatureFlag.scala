@@ -46,6 +46,7 @@ object FeatureFlagName {
     case name if name == JsString(ItsaMessageToggle.toString)                 => JsSuccess(ItsaMessageToggle)
     case name if name == JsString(ChildBenefitSingleAccountToggle.toString)   =>
       JsSuccess(ChildBenefitSingleAccountToggle)
+    case name if name == JsString(TaxcalcMakePaymentLinkToggle.toString)      => JsSuccess(TaxcalcMakePaymentLinkToggle)
     case _                                                                    => JsError("Unknown FeatureFlagName")
   }
 
@@ -72,7 +73,8 @@ object FeatureFlagName {
       TaxcalcToggle,
       NationalInsuranceTileToggle,
       ItsaMessageToggle,
-      ChildBenefitSingleAccountToggle
+      ChildBenefitSingleAccountToggle,
+      TaxcalcMakePaymentLinkToggle
     )
 }
 
@@ -106,6 +108,12 @@ case object ChildBenefitSingleAccountToggle extends FeatureFlagName {
   override def toString: String = "child-benefit-single-account"
 
   override val description: Option[String] = Some("Enable/disable the Child Benefit feature for single account")
+}
+
+case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
+  override def toString: String = "taxcalc-make-payment-link-toggle"
+
+  override val description: Option[String] = Some("Enable/disable direct link to make a payment on taxcalc tile")
 }
 
 object FeatureFlagMongoFormats {
