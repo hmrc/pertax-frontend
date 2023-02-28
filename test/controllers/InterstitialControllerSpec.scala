@@ -23,7 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, ItsaMessageToggle}
+import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, ItsAdvertisementMessageToggle}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.i18n.{Langs, Messages}
@@ -714,7 +714,7 @@ class InterstitialControllerSpec extends BaseSpec {
       })
 
       when(mockFeatureFlagService.get(any()))
-        .thenReturn(Future.successful(FeatureFlag(ItsaMessageToggle, isEnabled = true)))
+        .thenReturn(Future.successful(FeatureFlag(ItsAdvertisementMessageToggle, isEnabled = true)))
 
       val result = controller.displaySaAndItsaMergePage()(fakeRequest)
 

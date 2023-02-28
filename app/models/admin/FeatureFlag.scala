@@ -75,7 +75,7 @@ object FeatureFlagName {
     List(
       AddressTaxCreditsBrokerCallToggle,
       ChildBenefitSingleAccountToggle,
-      ItsaMessageToggle,
+      ItsAdvertisementMessageToggle,
       NationalInsuranceTileToggle,
       NispTileToggle,
       PaperlessInterruptToggle,
@@ -108,10 +108,10 @@ case object NationalInsuranceTileToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable the tile for check your National Insurance")
 }
 
-case object ItsaMessageToggle extends FeatureFlagName {
-  override def toString: String = "itsa-message"
+case object ItsAdvertisementMessageToggle extends FeatureFlagName {
+  override def toString: String = "itsa-advertisement-message"
 
-  override val description: Option[String] = Some("Enable/disable the message for ITSA")
+  override val description: Option[String] = Some("Enable/disable the advertisement message for ITSA")
 }
 
 case object NispTileToggle extends FeatureFlagName {

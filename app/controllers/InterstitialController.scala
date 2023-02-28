@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, ItsaMessageToggle}
+import models.admin.{ChildBenefitSingleAccountToggle, ItsAdvertisementMessageToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -130,7 +130,7 @@ class InterstitialController @Inject() (
     ) {
       for {
         hasSeissClaims    <- seissService.hasClaims(saUserType)
-        istaMessageToggle <- featureFlagService.get(ItsaMessageToggle)
+        istaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
           redirectUrl = currentUrl(request),
