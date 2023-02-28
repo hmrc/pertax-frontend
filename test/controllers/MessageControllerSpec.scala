@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class MessageControllerSpec extends BaseSpec {
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(mockMessageFrontendService, mock[CitizenDetailsConnector])
 
   val mockAuthJourney            = mock[AuthJourney]

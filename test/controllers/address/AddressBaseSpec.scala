@@ -67,7 +67,7 @@ trait AddressBaseSpec extends BaseSpec {
 
   implicit lazy val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(
       mockAuthJourney,
       mockLocalSessionCache,

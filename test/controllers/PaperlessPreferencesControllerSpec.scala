@@ -45,7 +45,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
       injected[MessagesControllerComponents],
       injected[ErrorRenderer],
       injected[Tools]
-    )(config, ec) {}
+    )(config) {}
 
   "Calling PaperlessPreferencesController.managePreferences" must {
     "Redirect to  preferences-frontend manage paperless url when a user is logged in using GG" in {

@@ -62,7 +62,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     )
     .build()
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(mockAuditConnector, mockAuthAction, mockSelfAssessmentStatusAction)
 
   trait LocalSetup {
@@ -146,7 +146,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(WrongCredentialsSelfAssessmentUser(saUtr))
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
-      val doc    = Jsoup.parse(contentAsString(result))
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage.url)
     }
@@ -163,7 +162,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NonFilerSelfAssessmentUser)
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
-      val doc    = Jsoup.parse(contentAsString(result))
       status(result) mustBe OK
     }
 

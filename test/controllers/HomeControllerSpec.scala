@@ -62,7 +62,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockFeatureFlagService: FeatureFlagService                                   = mock[FeatureFlagService]
   val mockHomeCardGenerator: HomeCardGenerator                                     = mock[HomeCardGenerator]
 
-  override def beforeEach: Unit = {
+  override def beforeEach(): Unit = {
     reset(
       mockConfigDecorator,
       mockTaxCalculationService,

@@ -28,7 +28,6 @@ import scala.util.Random
 class IdentityVerificationFrontendConnectorSpec
     extends ConnectorSpec
     with WireMockHelper
-    with MockitoSugar
     with DefaultAwaitTimeout
     with Injecting {
 

@@ -28,12 +28,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import java.time.LocalDate
 import scala.util.Random
 
-class CitizenDetailsConnectorSpec
-    extends ConnectorSpec
-    with WireMockHelper
-    with MockitoSugar
-    with DefaultAwaitTimeout
-    with Injecting {
+class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
 
   override implicit lazy val app: Application = app(
     Map("microservice.services.citizen-details.port" -> server.port())
