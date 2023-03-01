@@ -181,19 +181,17 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   "Calling getTaxCreditsCard" must {
     "always return the same markup when taxCreditsPaymentLinkEnabled is enabled" in {
-      lazy val showTaxCreditsPaymentLink = true
 
-      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
+      lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
 
-      cardBody mustBe Some(taxCredits(showTaxCreditsPaymentLink))
+      cardBody mustBe Some(taxCredits())
     }
 
     "always return the same markup when taxCreditsPaymentLinkEnabled is disabled" in {
-      lazy val showTaxCreditsPaymentLink = false
 
-      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
+      lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
 
-      cardBody mustBe Some(taxCredits(showTaxCreditsPaymentLink))
+      cardBody mustBe Some(taxCredits())
     }
   }
 

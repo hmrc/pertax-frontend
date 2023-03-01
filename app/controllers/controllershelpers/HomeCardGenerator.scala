@@ -148,15 +148,15 @@ class HomeCardGenerator @Inject() (
     Future
       .sequence(
         List(
-          Future.successful(getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled)),
+          Future.successful(getTaxCreditsCard()),
           getChildBenefitCard(),
           Future.successful(getMarriageAllowanceCard(taxComponents))
         )
       )
       .map(_.flatten)
 
-  def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(taxCreditsView(showTaxCreditsPaymentLink))
+  def getTaxCreditsCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
+    Some(taxCreditsView())
 
   def getChildBenefitCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
     featureFlagService
