@@ -21,6 +21,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.BaseSpec
 import controllers.bindable.Origin
+import testUtils.Fixtures._
 import views.html.public.SessionTimeoutView
 
 class PublicControllerSpec extends BaseSpec {
