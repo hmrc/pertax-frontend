@@ -91,8 +91,9 @@ class ConfigDecorator @Inject() (
   lazy val agentClientManagementFrontendHost: String  =
     getExternalUrl("agent-client-management-frontend.host").getOrElse("")
 
-  lazy val saFrontendHost: String                               = getExternalUrl(s"sa-frontend.host").getOrElse("")
-  lazy val governmentGatewayLostCredentialsFrontendHost: String =
+  lazy val saFrontendHost                               = getExternalUrl(s"sa-frontend.host").getOrElse("")
+  lazy val childBenefitViewFrontend: String             = getExternalUrl(s"child-benefit-view-frontend.host").getOrElse("")
+  lazy val governmentGatewayLostCredentialsFrontendHost =
     getExternalUrl(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
 
   lazy val enrolmentManagementFrontendHost: String   = getExternalUrl(s"enrolment-management-frontend.host").getOrElse("")
@@ -234,9 +235,9 @@ class ConfigDecorator @Inject() (
 
   lazy val reportChangesChildBenefitWelsh: String = "https://www.gov.uk/rhoi-gwybod-am-newidiadau-budd-dal-plant"
 
-  lazy val viewPaymentHistory: String = "https://www.gov.uk/child-benefit-payment-dates"
+  lazy val viewPaymentHistory: String = s"$childBenefitViewFrontend/child-benefit/view-payment-history"
 
-  lazy val viewProofEntitlement: String = "https://www.gov.uk/child-benefit-proof"
+  lazy val viewProofEntitlement: String = s"$childBenefitViewFrontend/child-benefit/view-proof-entitlement"
 
   lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
 
