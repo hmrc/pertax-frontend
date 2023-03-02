@@ -77,7 +77,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     )
   }
 
-  override def now: () => LocalDate = LocalDate.now
+  override def now: () => LocalDate = () => LocalDate.now()
 
   trait LocalSetup {
 

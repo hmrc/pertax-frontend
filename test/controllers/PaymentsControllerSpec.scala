@@ -38,7 +38,7 @@ import scala.concurrent.Future
 
 class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
-  override def now: () => LocalDate = LocalDate.now
+  override def now: () => LocalDate = () => LocalDate.now()
 
   lazy val fakeRequest = FakeRequest("", "")
 
