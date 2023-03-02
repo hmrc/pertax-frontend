@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, ItsAdvertisementMessageToggle}
+import models.admin.{ChildBenefitSingleAccountToggle, ItsAdvertisementMessageToggle, TaxComponentsToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -73,19 +73,22 @@ class InterstitialController @Inject() (
       .addBreadcrumb(saBreadcrumb)
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
-    formPartialService.getNationalInsurancePartial.map { p =>
-      Ok(
-        viewNationalInsuranceInterstitialHomeView(
-          formPartial = if (configDecorator.partialUpgradeEnabled) {
-            //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
-            FormPartialUpgrade.upgrade(p successfulContentOrEmpty)
-          } else {
-            p successfulContentOrEmpty
-          },
-          redirectUrl = currentUrl,
-          request.nino
+    featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
+      formPartialService.getNationalInsurancePartial.map { p =>
+        Ok(
+          viewNationalInsuranceInterstitialHomeView(
+            formPartial = if (configDecorator.partialUpgradeEnabled) {
+              //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
+              FormPartialUpgrade.upgrade(p successfulContentOrEmpty)
+            } else {
+              p successfulContentOrEmpty
+            },
+            redirectUrl = currentUrl,
+            request.nino,
+            toggle.isEnabled
+          )
         )
-      )
+      }
     }
   }
 
