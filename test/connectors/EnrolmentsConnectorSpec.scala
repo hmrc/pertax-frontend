@@ -87,7 +87,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
 
       result mustBe a[Right[_, _]]
-      result.right.get must contain.allElementsOf(expected)
+      result.getOrElse(Seq("", "")) must contain.allElementsOf(expected)
     }
   }
 }
