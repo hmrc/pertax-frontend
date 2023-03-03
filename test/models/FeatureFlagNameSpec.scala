@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import tags._
-@this()
-@()(implicit messages: play.api.i18n.Messages)
+package models
 
-@card(
-    id = Some("tax-credits-card"),
-    url = Some("/tax-credits-service/renewals/service-router"),
-    gaAction = Some("Benefits"),
-    gaLabel = Some("Tax credits"),
-    heading = messages("label.tax_credits"),
-    headingTag = "h3",
-    bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim") + "</p>"))
-) {
+import models.admin.FeatureFlagName
+import play.api.libs.json.JsString
+import testUtils.BaseSpec
+
+class FeatureFlagNameSpec extends BaseSpec {
+  FeatureFlagName.allFeatureFlags.foreach { toggle: FeatureFlagName =>
+    JsString(toggle.toString).as[FeatureFlagName] mustBe toggle
+  }
 }

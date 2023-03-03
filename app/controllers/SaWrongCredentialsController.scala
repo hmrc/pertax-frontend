@@ -39,7 +39,7 @@ class SaWrongCredentialsController @Inject() (
   findYourUserIdView: FindYourUserIdView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
-  private val authenticate: ActionBuilder[UserRequest, AnyContent] = authJourney.authWithSelfAssessment
+  private val authenticate: ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails
 
   def ggSignInUrl: String = {
     lazy val ggSignIn = s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"

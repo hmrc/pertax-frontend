@@ -21,12 +21,11 @@ import services.LocalSessionCache
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class HomePageCachingHelper @Inject() (
   val sessionCache: LocalSessionCache
-) {
+)(implicit executionContext: ExecutionContext) {
 
   def hasUserDismissedBanner(implicit hc: HeaderCarrier): Future[Boolean] =
     sessionCache.fetch() map {

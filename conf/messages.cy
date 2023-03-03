@@ -508,6 +508,14 @@ label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=Ar 
 
 label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children=Taliad yn rhydd o dreth i helpu rhieni gyda chostau magu plant.
 label.tell_us_if_your_child_is_staying_in_full_time_education=Rhowch wybod i ni a yw’ch plentyn yn aros mewn addysg amser llawn
+label.a_payment_to_help_with_the_cost_of_bringing_up_children=Taliad i helpu gyda chostau magu plant
+label.make_or_manage_a_child_benefit_claim=Gwneud neu reoli hawliad am Fudd-dal Plant
+label.make_a_claim=Gwneud hawliad
+label.claim_child_benefit=Hawlio Budd-dal Plant
+label.manage_a_claim=Rheoli hawliad
+label.view_your_child_benefit_payment_history=Bwrw golwg dros hanes eich taliadau Budd-dal Plant
+label.view_your_proof_of_entitlement_to_child_benefit=Bwrw golwg dros eich tystiolaeth o hawl i Fudd-dal Plant
+label.high_income_child_benefit_charge=Tâl Treth Budd-dal Plant Incwm Uchel
 
 # Pensions
 title.pensions=Pensiynau
@@ -523,8 +531,44 @@ label.messages=Negeseuon
 label.message=Neges
 
 label.your_paperless_settings=eich gosodiadau di-bapur
-label.paperless_settings=Gosodiadau di-bapur
+label.paperless_settings=Dewisiadau o ran cysylltu
 label.manage_your_paperless_settings=Rheoli’ch gosodiadau di-bapur
+
+label.paperless_new_response=Drwy’r post
+label.paperless_new_link=Newid
+label.paperless_new_hidden=sut rydym yn cysylltu â chi
+
+label.paperless_bounced_response=Drwy’r post, gwiriwch fod gennym eich e-bost cywir
+label.paperless_bounced_link=Gwirio’r e-bost
+label.paperless_bounced_hidden=cyfeiriad yn gywir
+
+label.paperless_unverified_response=Drwy’r post, cadarnhewch eich cyfeiriad e-bost
+label.paperless_unverified_link=Cadarnhau’r e-bost
+label.paperless_unverified_hidden=cyfeiriad
+
+label.paperless_reopt_response=Ar-lein, cytunwch â’n telerau diweddaraf
+label.paperless_reopt_link=Bwrw golwg dros y telerau diweddaraf
+
+label.paperless_reopt_modified_response=Ar-lein, cytunwch â’n telerau diweddaraf
+label.paperless_reopt_modified_link=Bwrw golwg dros y telerau diweddaraf
+
+label.paperless_opt_out_response=Drwy’r post
+label.paperless_opt_out_link=Newid
+label.paperless_opt_out_hidden=sut rydym yn cysylltu â chi
+
+
+label.paperless_opt_in_response=Ar-lein, byddwn yn eich e-bostio
+label.paperless_opt_in_link=Newid
+label.paperless_opt_in_hidden=sut rydym yn cysylltu â chi
+
+
+label.paperless_no_email_response=Drwy’r post, nid oes gennym eich cyfeiriad e-bost
+label.paperless_no_email_link=Rhowch wybod i ni beth yw’ch e-bost
+label.paperless_no_email_hidden=cyfeiriad
+
+label.paperless_failed_response=PLACEHOLDER
+label.paperless_failed_link=PLACEHOLDER
+label.paperless_failed_hidden=PLACEHOLDER
 
 #
 # Tax Summaries tile

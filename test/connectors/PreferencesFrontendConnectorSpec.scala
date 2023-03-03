@@ -30,15 +30,16 @@ import play.api.http.ContentTypes
 import play.api.http.Status._
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
+import play.api.libs.json.JsResultException
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.CONTENT_TYPE
 import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.{BaseSpec, WireMockHelper}
+import testUtils.{BaseSpec, FileHelper, WireMockHelper}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HttpReads.{is4xx, is5xx}
+import uk.gov.hmrc.http.{HttpResponse, SessionKeys, UpstreamErrorResponse}
 
 class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
@@ -63,7 +64,6 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
 
   when(mockContext.stop()).thenReturn(1L)
 
-  //TODO: Find a way to mock metrics in a testable way
   "PreferencesFrontend" must {
 
     "return None if an OK status is retrieved, and user is Government GateWay" in {
@@ -74,7 +74,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           request = FakeRequest()
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/activate"
 
@@ -94,7 +94,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           )
       )
 
-      val result = service.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
+      val result = connector.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
 
       result.status mustBe OK
     }
@@ -103,10 +103,10 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = NonFilerSelfAssessmentUser,
-          request = FakeRequest()
+          request = FakeRequest().withSession(SessionKeys.authToken -> "Bearer 1")
         )
 
-      implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/activate"
 
@@ -126,7 +126,8 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           )
       )
 
-      val result = service.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, jsonBody))
+      val result =
+        connector.getPaperlessPreference().value.futureValue.getOrElse(HttpResponse.apply(BAD_REQUEST, jsonBody))
 
       result.status mustBe PRECONDITION_FAILED
       result.body must include("http://www.testurl.com")
@@ -150,7 +151,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
             request = FakeRequest()
           )
 
-        implicit val service = app.injector.instanceOf[PreferencesFrontendConnector]
+        implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
 
         val url = "/paperless/activate"
 
@@ -167,9 +168,167 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
             )
         )
 
-        val result = service.getPaperlessPreference().value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
+        val result = connector.getPaperlessPreference().value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
 
         result.statusCode mustBe errorResponse
+      }
+    }
+
+    "return a PaperlessStatusResponse with status ALRIGHT" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
+
+      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+
+      val url = "/paperless/status"
+
+      server.stubFor(
+        get(urlMatching(s"$url.*"))
+          .willReturn(
+            ok(FileHelper.loadFile("./test/resources/paperless-status/PaperlessStatusAlright.json"))
+          )
+      )
+
+      val result = connector
+        .getPaperlessStatus(s"$url/redirect", "returnMessage")
+        .value
+        .futureValue
+
+      result mustBe a[Right[UpstreamErrorResponse, PaperlessMessages]]
+
+      result.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe
+        a[PaperlessStatusOptIn]
+    }
+    "return a PaperlessStatusResponse with status Bounced" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
+
+      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+
+      val url = "/paperless/status"
+
+      server.stubFor(
+        get(urlMatching(s"$url.*"))
+          .willReturn(
+            ok(FileHelper.loadFile("./test/resources/paperless-status/PaperlessStatusBounced.json"))
+          )
+      )
+
+      val result = connector
+        .getPaperlessStatus(s"$url/redirect", "returnMessage")
+        .value
+        .futureValue
+
+      result mustBe a[Right[UpstreamErrorResponse, PaperlessMessages]]
+
+      result.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe a[PaperlessStatusBounced]
+    }
+
+    List(
+      BAD_REQUEST,
+      UNAUTHORIZED,
+      FORBIDDEN
+    ).foreach { error =>
+      s"return a UpstreamErrorResponse status 4xx when PreferencesFrontend returns a $error response" in {
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(
+            saUser = NonFilerSelfAssessmentUser,
+            request = FakeRequest()
+          )
+
+        implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+
+        val url = "/paperless/status"
+
+        server.stubFor(
+          get(urlMatching(s"$url.*"))
+            .willReturn(
+              aResponse().withStatus(error)
+            )
+        )
+
+        val result = connector
+          .getPaperlessStatus(s"$url/redirect", "returnMessage")
+          .value
+          .futureValue
+
+        result mustBe a[Left[UpstreamErrorResponse, PaperlessMessages]]
+
+        is4xx(result.swap.getOrElse(UpstreamErrorResponse("Error", INTERNAL_SERVER_ERROR)).statusCode) mustBe true
+      }
+    }
+
+    List(
+      INTERNAL_SERVER_ERROR,
+      SERVICE_UNAVAILABLE
+    ).foreach { error =>
+      s"return a UpstreamErrorResponse status 5xx when PreferencesFrontend returns a $error response" in {
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(
+            saUser = NonFilerSelfAssessmentUser,
+            request = FakeRequest()
+          )
+
+        implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+
+        val url = "/paperless/status"
+
+        server.stubFor(
+          get(urlMatching(s"$url.*"))
+            .willReturn(
+              aResponse().withStatus(error)
+            )
+        )
+
+        val result = connector
+          .getPaperlessStatus(s"$url/redirect", "returnMessage")
+          .value
+          .futureValue
+
+        result mustBe a[Left[UpstreamErrorResponse, PaperlessMessages]]
+
+        is5xx(result.swap.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST)).statusCode) mustBe true
+      }
+    }
+
+    "return a PaperlessStatusFailed if invalid json is returned" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
+
+      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+
+      val url = "/paperless/status"
+
+      val json =
+        """
+          |{
+          |    "principalUserIds": [],
+          |     "delegatedUserIds": []
+          |}
+        """.stripMargin
+
+      server.stubFor(
+        get(urlMatching(s"$url.*"))
+          .willReturn(
+            ok(json)
+          )
+      )
+
+      val result = connector
+        .getPaperlessStatus(s"$url/redirect", "returnMessage")
+        .value
+
+      whenReady(result.failed) { ex =>
+        ex mustBe a[JsResultException]
       }
     }
   }

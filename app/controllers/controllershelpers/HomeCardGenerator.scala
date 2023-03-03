@@ -16,21 +16,16 @@
 
 package controllers.controllershelpers
 
-import cats.implicits._
-import cats.instances.list._
-import cats.syntax.traverse._
-import cats.syntax.all._
-import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.NationalInsuranceTileToggle
+import models.admin.{ChildBenefitSingleAccountToggle, NationalInsuranceTileToggle, TaxcalcMakePaymentLinkToggle}
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
 import services.admin.FeatureFlagService
-import util.DateTimeTools.{current, previousAndCurrentTaxYear}
+import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
@@ -45,10 +40,10 @@ class HomeCardGenerator @Inject() (
   nationalInsuranceView: NationalInsuranceView,
   taxCreditsView: TaxCreditsView,
   childBenefitView: ChildBenefitView,
+  childBenefitSingleAccountView: ChildBenefitSingleAccountView,
   marriageAllowanceView: MarriageAllowanceView,
   statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
-  seissView: SeissView,
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
   saAndItsaMergeView: SaAndItsaMergeView,
   enrolmentsHelper: EnrolmentsHelper,
@@ -58,17 +53,15 @@ class HomeCardGenerator @Inject() (
   def getIncomeCards(
     taxComponentsState: TaxComponentsState,
     taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
-    taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
-    saActionNeeded: SelfAssessmentUserType,
-    showSeissCard: Boolean
+    taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation]
   )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] =
     Future
       .sequence(
         List(
           Future.successful(getLatestNewsAndUpdatesCard()),
           Future.successful(getPayAsYouEarnCard(taxComponentsState)),
-          Future.successful(getTaxCalculationCard(taxCalculationStateCyMinusOne)),
-          Future.successful(getTaxCalculationCard(taxCalculationStateCyMinusTwo)),
+          getTaxCalculationCard(taxCalculationStateCyMinusOne),
+          getTaxCalculationCard(taxCalculationStateCyMinusTwo),
           Future.successful(getSaAndItsaMergeCard()),
           getNationalInsuranceCard(),
           Future.successful(if (request.trustedHelper.isEmpty) {
@@ -92,10 +85,12 @@ class HomeCardGenerator @Inject() (
 
   def getTaxCalculationCard(
     taxYearReconciliations: Option[TaxYearReconciliation]
-  )(implicit messages: Messages): Option[HtmlFormat.Appendable] =
-    taxYearReconciliations
-      .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation)
-      .map(taxCalculationView(_))
+  )(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
+    featureFlagService.get(TaxcalcMakePaymentLinkToggle).map { toggle =>
+      taxYearReconciliations
+        .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation(_, toggle))
+        .map(taxCalculationView(_))
+    }
 
   def getSaAndItsaMergeCard()(implicit
     messages: Messages,
@@ -140,26 +135,39 @@ class HomeCardGenerator @Inject() (
 
   def getNationalInsuranceCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
     featureFlagService.get(NationalInsuranceTileToggle).map { toggle =>
-      if (toggle.isEnabled)
+      if (toggle.isEnabled) {
         Some(nationalInsuranceView())
-      else
+      } else {
         None
+      }
     }
 
   def getBenefitCards(
     taxComponents: Option[TaxComponents]
-  )(implicit messages: Messages): Seq[Html] =
-    List(
-      getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
-      getChildBenefitCard(),
-      getMarriageAllowanceCard(taxComponents)
-    ).flatten
+  )(implicit messages: Messages): Future[List[Html]] =
+    Future
+      .sequence(
+        List(
+          Future.successful(getTaxCreditsCard()),
+          getChildBenefitCard(),
+          Future.successful(getMarriageAllowanceCard(taxComponents))
+        )
+      )
+      .map(_.flatten)
 
-  def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(taxCreditsView(showTaxCreditsPaymentLink))
+  def getTaxCreditsCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
+    Some(taxCreditsView())
 
-  def getChildBenefitCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(childBenefitView())
+  def getChildBenefitCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
+    featureFlagService
+      .get(ChildBenefitSingleAccountToggle)
+      .map { toggle =>
+        if (toggle.isEnabled) {
+          Some(childBenefitSingleAccountView())
+        } else {
+          Some(childBenefitView())
+        }
+      }
 
   def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit
     messages: Messages
