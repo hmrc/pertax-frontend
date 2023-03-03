@@ -21,7 +21,7 @@ import config.ConfigDecorator
 import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.bindable.Origin
-import controllers.controllershelpers.HomePageCachingHelper
+import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
 import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, NationalInsuranceTileToggle, TaxcalcMakePaymentLinkToggle, TaxcalcToggle}
@@ -42,6 +42,8 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.time.CurrentTaxYear
+import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -61,6 +63,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockHomePageCachingHelper: HomePageCachingHelper                             = mock[HomePageCachingHelper]
   val mockBreathingSpaceService: BreathingSpaceService                             = mock[BreathingSpaceService]
   val mockFeatureFlagService: FeatureFlagService                                   = mock[FeatureFlagService]
+  val mockHomeCardGenerator: HomeCardGenerator                                     = mock[HomeCardGenerator]
 
   override def beforeEach: Unit = {
     reset(
@@ -69,7 +72,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       mockTaiService,
       mockMessageFrontendService,
       mockHomePageCachingHelper,
-      mockFeatureFlagService
+      mockFeatureFlagService,
+      mockHomeCardGenerator
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle))) thenReturn Future.successful(
       FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)
@@ -626,6 +630,43 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       status(r) mustBe SEE_OTHER
     }
 
+  }
+
+  "benefit cards" when {
+    "should not be present when the trusted helper exists in the request" in new LocalSetup {
+
+      lazy val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
+        )
+        .build()
+
+      val controller: HomeController = app.injector.instanceOf[HomeController]
+      val helper                     = TrustedHelper(
+        "principalName",
+        "Attorney name",
+        "return-url",
+        "NINO"
+      )
+
+      controller.index()(buildUserRequest(request = FakeRequest(), trustedHelper = Some(helper)))
+      verify(mockHomeCardGenerator, times(0)).getBenefitCards(any())(any())
+    }
+
+    "should be present when no trusted helper exists in the request" in new LocalSetup {
+
+      lazy val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
+        )
+        .build()
+
+      val controller: HomeController = app.injector.instanceOf[HomeController]
+
+      controller.index()(buildUserRequest(request = FakeRequest(), trustedHelper = None))
+
+      verify(mockHomeCardGenerator, times(1)).getBenefitCards(any())(any())
+    }
   }
 
   "banner is present" when {
