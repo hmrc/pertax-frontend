@@ -47,8 +47,10 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         )
 
         val result =
-          sut.personDetails(fakeNino).value.futureValue.right.getOrElse(buildPersonDetails.copy(address = None))
-        result mustBe buildPersonDetails
+          sut.personDetails(fakeNino).value.futureValue
+
+        result mustBe a[Right[_, _]]
+        result.getOrElse(buildPersonDetails.copy(address = None)) mustBe buildPersonDetails
       }
 
       List(
@@ -87,10 +89,9 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .updateAddress(fakeNino, etag, buildFakeAddress)
             .value
             .futureValue
-            .right
-            .getOrElse(HttpResponse(BAD_REQUEST, ""))
-            .status
-        result mustBe OK
+
+        result mustBe a[Right[_, _]]
+        result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
       }
 
       List(
@@ -195,8 +196,10 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         )
 
         val result =
-          sut.getEtag(fakeNino.nino).value.futureValue.right.getOrElse(Some(ETag("wrong etag")))
-        result mustBe Some(ETag("1"))
+          sut.getEtag(fakeNino.nino).value.futureValue
+
+        result mustBe a[Right[_, _]]
+        result.getOrElse(Some(ETag("wrong etag"))) mustBe Some(ETag("1"))
       }
 
       List(

@@ -103,9 +103,9 @@ class TaxCalculationConnectorSpec extends ConnectorSpec with WireMockHelper with
               .getTaxYearReconciliations(nino)
               .value
               .futureValue
-              .right
-              .get // OrElse(expectedTaxYearListEmpty)
-          result mustBe jsonAndModel._2
+
+          result mustBe a[Right[_, _]]
+          result.getOrElse(expectedTaxYearListEmpty) mustBe jsonAndModel._2
         }
       }
       List(

@@ -73,9 +73,11 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     "return OK when called with an existing nino" in new LocalSetup {
       stubGet(url, OK, Some(Json.toJson(personDetails).toString()))
 
-      val result: Int =
-        connector.personDetails(nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, "")).status
-      result mustBe OK
+      val result =
+        connector.personDetails(nino).value.futureValue
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
     }
 
     "return NOT_FOUND when called with an unknown nino" in new LocalSetup {
@@ -124,15 +126,13 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     "return CREATED when called with valid Nino and address data" in new LocalSetup {
       stubPost(url, CREATED, Some(requestBody), None)
 
-      val result: Int =
+      val result =
         connector
           .updateAddress(nino, etag, address)
           .value
           .futureValue
-          .right
-          .getOrElse(HttpResponse(BAD_REQUEST, ""))
-          .status
-      result mustBe CREATED
+      result mustBe a[Right[_, _]]
+      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe CREATED
     }
 
     "return CREATED when called with a valid Nino and valid correspondence address with an end date" in new LocalSetup {
@@ -159,15 +159,14 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
 
       stubPost(url, CREATED, Some(requestBody), None)
 
-      val result: Int =
+      val result =
         connector
           .updateAddress(nino, etag, correspondenceAddress)
           .value
           .futureValue
-          .right
-          .getOrElse(HttpResponse(BAD_REQUEST, ""))
-          .status
-      result mustBe CREATED
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe CREATED
     }
 
     "return BAD_REQUEST when Citizen Details service returns BAD_REQUEST" in new LocalSetup {
@@ -224,17 +223,21 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
       val saUtr: String = new SaUtrGenerator().nextSaUtr.utr
       stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr)).toString()))
 
-      val result: Int   =
-        connector.getMatchingDetails(nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, "")).status
-      result mustBe OK
+      val result        =
+        connector.getMatchingDetails(nino).value.futureValue
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
     }
 
     "return OK containing no SAUTR when the service does not return an SAUTR" in new LocalSetup {
       stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> JsNull)).toString()))
 
-      val result: Int =
-        connector.getMatchingDetails(nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, "")).status
-      result mustBe OK
+      val result =
+        connector.getMatchingDetails(nino).value.futureValue
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
     }
 
     "return NOT_FOUND when citizen-details returns an 404" in new LocalSetup {
@@ -273,9 +276,11 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     "return an etag when citizen-details returns 200" in new LocalSetup {
       stubGet(url, OK, Some(JsObject(Seq(("etag", JsString("115")))).toString()))
 
-      val result: Int =
-        connector.getEtag(nino.nino).value.futureValue.right.getOrElse(HttpResponse(BAD_REQUEST, "")).status
-      result mustBe OK
+      val result =
+        connector.getEtag(nino.nino).value.futureValue
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
 
     }
 
