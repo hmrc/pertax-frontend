@@ -46,7 +46,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
 
       result mustBe a[Right[_, _]]
-      result.right.get mustBe empty
+      result.getOrElse(Seq("", "")) mustBe empty
     }
 
     "query users with no principal enrolment returns empty enrolments" in {
@@ -62,7 +62,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
 
       result mustBe a[Right[_, _]]
-      result.right.get mustBe empty
+      result.getOrElse(Seq("", "")) mustBe empty
     }
 
     "query users with assigned enrolment return two principleIds" in {

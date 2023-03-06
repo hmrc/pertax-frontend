@@ -120,7 +120,7 @@ class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
 
           val result = connector.getClaims(utr.toString()).value.futureValue
           result mustBe a[Right[_, _]]
-          result.right.get mustBe empty
+          result.getOrElse(Seq("", "")) mustBe empty
         }
       }
 
