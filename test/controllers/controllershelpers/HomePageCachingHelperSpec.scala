@@ -102,7 +102,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
       val result: CacheMap = cachingHelper.storeUserUrDismissal().futureValue
 
-      result mustBe None
+      result mustBe CacheMap("id", Map.empty)
       verify(cachingHelper.sessionCache, times(1)).cache(meq("urBannerDismissed"), meq(true))(any(), any(), any())
     }
   }

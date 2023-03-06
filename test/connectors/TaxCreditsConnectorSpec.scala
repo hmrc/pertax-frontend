@@ -41,7 +41,7 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
         response mustBe a[Right[_, _]]
 
         val result = response.getOrElse(HttpResponse(IM_A_TEAPOT, "Invalid Response"))
-        result mustBe HttpResponse(OK, _: String)
+        result mustBe (HttpResponse(OK, _: String))
         result.body mustBe data
       }
 
