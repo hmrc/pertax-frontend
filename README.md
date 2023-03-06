@@ -2,38 +2,6 @@
 
 This is the repository for the Personal Tax Account (PTA) frontend project.
 
-#### Integrating the PTA header into your project
-
-Example Partial URL:
-```conf
-//personal-account/integration/main-content-header? \
-  name=John%20Smith& \
-  lastLogin=1444229760085& \
-  item_text=Home& \
-  item_url=%2F& \
-  item_text=Profile& \
-  item_url=%2Fprofile& \
-  showBetaBanner=true
-```
-
-Add in your `application.conf` like this:
-```conf
-header-service {
-  headerPartial = "%s/personal-account/integration/main-content-header"
-}
-```
-
-Partial URL parameters:
-
-| Parameter      | Type    | Example       | Description                                     |
-|----------------|---------|---------------|-------------------------------------------------|
-| name           | string  | John Smith    | Name of the logged in user                      |
-| lastLogin      | number  | 1444229760085 | Time in milliseconds of last login              |
-| item_text      | string  | Home          | Link text for breadcrumb item (repeatable)      |
-| item_url       | string  | /             | Link location for breadcrumb item (repeatable)  |
-| showBetaBanner | boolean | true/false    | Should the beta banner be displayed             |
-| deskProToken   | string  | PTA           | Token defined by DeskPro to denote your service |
-
 ## To run locally
 
 ```sh
