@@ -25,6 +25,7 @@ import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
 import services.admin.FeatureFlagService
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import viewmodels.TaxCalculationViewModel
@@ -143,17 +144,22 @@ class HomeCardGenerator @Inject() (
     }
 
   def getBenefitCards(
-    taxComponents: Option[TaxComponents]
+    taxComponents: Option[TaxComponents],
+    trustedHelper: Option[TrustedHelper]
   )(implicit messages: Messages): Future[List[Html]] =
-    Future
-      .sequence(
-        List(
-          Future.successful(getTaxCreditsCard()),
-          getChildBenefitCard(),
-          Future.successful(getMarriageAllowanceCard(taxComponents))
+    if (trustedHelper.isEmpty) {
+      Future
+        .sequence(
+          List(
+            Future.successful(getTaxCreditsCard()),
+            getChildBenefitCard(),
+            Future.successful(getMarriageAllowanceCard(taxComponents))
+          )
         )
-      )
-      .map(_.flatten)
+        .map(_.flatten)
+    } else {
+      Future.successful(List.empty)
+    }
 
   def getTaxCreditsCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(taxCreditsView())

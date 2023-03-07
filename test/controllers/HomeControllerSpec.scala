@@ -21,7 +21,7 @@ import config.ConfigDecorator
 import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.bindable.Origin
-import controllers.controllershelpers.HomePageCachingHelper
+import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
 import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, NationalInsuranceTileToggle, TaxcalcMakePaymentLinkToggle, TaxcalcToggle}
@@ -61,6 +61,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockHomePageCachingHelper: HomePageCachingHelper                             = mock[HomePageCachingHelper]
   val mockBreathingSpaceService: BreathingSpaceService                             = mock[BreathingSpaceService]
   val mockFeatureFlagService: FeatureFlagService                                   = mock[FeatureFlagService]
+  val mockHomeCardGenerator: HomeCardGenerator                                     = mock[HomeCardGenerator]
 
   override def beforeEach: Unit = {
     reset(
@@ -69,7 +70,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       mockTaiService,
       mockMessageFrontendService,
       mockHomePageCachingHelper,
-      mockFeatureFlagService
+      mockFeatureFlagService,
+      mockHomeCardGenerator
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle))) thenReturn Future.successful(
       FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)
