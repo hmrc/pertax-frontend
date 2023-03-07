@@ -39,7 +39,7 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
                                                        |  }
                                                        |}""".stripMargin
 
-  override def beforeEach: Unit = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))

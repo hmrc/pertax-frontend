@@ -1,11 +1,11 @@
 package address
 
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, urlMatching, status => _}
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, status => _}
 import play.api.Application
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, status => getStatus, _}
 import testUtils.IntegrationSpec
-import uk.gov.hmrc.http.{HeaderNames, SessionKeys}
+import uk.gov.hmrc.http.SessionKeys
 
 class RLSInterruptPageSpec extends IntegrationSpec {
 
