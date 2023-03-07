@@ -21,7 +21,6 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
 import org.mockito.Mockito.reset
 import org.scalatest.Assertion
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
