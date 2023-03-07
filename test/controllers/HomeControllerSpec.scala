@@ -632,43 +632,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   }
 
-  "benefit cards" when {
-    "should not be present when the trusted helper exists in the request" in new LocalSetup {
-
-      lazy val app: Application = localGuiceApplicationBuilder()
-        .overrides(
-          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
-        )
-        .build()
-
-      val controller: HomeController = app.injector.instanceOf[HomeController]
-      val helper                     = TrustedHelper(
-        "principalName",
-        "Attorney name",
-        "return-url",
-        "NINO"
-      )
-
-      controller.index()(buildUserRequest(request = FakeRequest(), trustedHelper = Some(helper)))
-      verify(mockHomeCardGenerator, times(0)).getBenefitCards(any())(any())
-    }
-
-    "should be present when no trusted helper exists in the request" in new LocalSetup {
-
-      lazy val app: Application = localGuiceApplicationBuilder()
-        .overrides(
-          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
-        )
-        .build()
-
-      val controller: HomeController = app.injector.instanceOf[HomeController]
-
-      controller.index()(buildUserRequest(request = FakeRequest(), trustedHelper = None))
-
-      verify(mockHomeCardGenerator, times(1)).getBenefitCards(any())(any())
-    }
-  }
-
   "banner is present" when {
     "it is enabled and user has not closed it" in new LocalSetup {
       when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(false))
