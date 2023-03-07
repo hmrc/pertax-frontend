@@ -32,7 +32,7 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
   "Rendering ViewNationalInsuranceInterstitialHomeView.scala.html" must {
 
     "show NINO section when a nino is present" in {
-      val document = asDocument(view(Html(""), "asfa", userRequest.nino, true).toString)
+      val document = asDocument(view(Html(""), "asfa", userRequest.nino).toString)
       Option(document.select(".nino").first).isDefined mustBe true
       document.body().toString must include(messages("label.check_your_national_insurance_contributions"))
       document.body().toString must include(
@@ -41,27 +41,9 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
     }
 
     "show incomplete when there is no NINO" in {
-      val document = asDocument(view(Html(""), "http://google.com", None, true).toString)
+      val document = asDocument(view(Html(""), "http://google.com", None).toString)
       Option(document.select(".nino").first).isDefined mustBe false
       document.body().toString must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
-    }
-
-    "do not show NI contribution paragraph when toggle is false" in {
-      val document = asDocument(view(Html(""), "http://google.com", userRequest.nino, false).toString)
-      Option(document.select(".nino").first).isDefined mustBe true
-      document.body().toString mustNot include(messages("label.check_your_national_insurance_contributions"))
-      document.body().toString mustNot include(
-        messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")
-      )
-    }
-
-    "show NI contribution paragraph when toggle is true" in {
-      val document = asDocument(view(Html(""), "http://google.com", userRequest.nino, true).toString)
-      Option(document.select(".nino").first).isDefined mustBe true
-      document.body().toString must include(messages("label.check_your_national_insurance_contributions"))
-      document.body().toString must include(
-        messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")
-      )
     }
 
   }
