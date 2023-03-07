@@ -12,7 +12,7 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "pertax-frontend"
 
-scalaVersion := "2.13.8"
+scalaVersion := "2.12.15"
 
 val silencerVersion = "1.7.8"
 
