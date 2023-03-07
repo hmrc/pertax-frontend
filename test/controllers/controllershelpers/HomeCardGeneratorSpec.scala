@@ -210,7 +210,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), None)
 
       //Just verifying the feature flags as it should only be checked if there is no trusted helpers
-      verify(mockFeatureFlagService, times(0)).get(any())
+      verify(mockFeatureFlagService, times(1)).get(any())
     }
   }
 
