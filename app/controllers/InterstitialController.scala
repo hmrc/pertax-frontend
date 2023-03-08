@@ -18,13 +18,11 @@ package controllers
 
 import com.google.inject.Inject
 import config.{ConfigDecorator, NewsAndTilesConfig}
-import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import controllers.controllershelpers.PaperlessInterruptHelper
 import error.ErrorRenderer
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, ItsaMessageToggle}
+import models.admin.{ChildBenefitSingleAccountToggle, ItsAdvertisementMessageToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -44,7 +42,6 @@ import scala.language.postfixOps
 class InterstitialController @Inject() (
   val formPartialService: FormPartialService,
   val saPartialService: SaPartialService,
-  val preferencesFrontendService: PreferencesFrontendConnector,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
@@ -63,7 +60,6 @@ class InterstitialController @Inject() (
   featureFlagService: FeatureFlagService
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
-    with PaperlessInterruptHelper
     with Logging {
 
   val saBreadcrumb: Breadcrumb =
@@ -134,7 +130,7 @@ class InterstitialController @Inject() (
     ) {
       for {
         hasSeissClaims    <- seissService.hasClaims(saUserType)
-        istaMessageToggle <- featureFlagService.get(ItsaMessageToggle)
+        istaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
           redirectUrl = currentUrl(request),

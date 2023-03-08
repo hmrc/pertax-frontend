@@ -26,7 +26,9 @@ class BusinessHoursConfigSpec extends BaseSpec {
       val app = localGuiceApplicationBuilder()
         .configure(
           "feature.business-hours.Monday.start-time" -> "9:00",
-          "feature.business-hours.Monday.end-time"   -> "17:00"
+          "feature.business-hours.Monday.end-time"   -> "17:00",
+          "play.cache.bindCaches"                    -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"             -> false
         )
         .build()
 
@@ -39,7 +41,12 @@ class BusinessHoursConfigSpec extends BaseSpec {
 
   "ignore configuration" when {
     "No key is present" in {
-      val app = localGuiceApplicationBuilder().build()
+      val app = localGuiceApplicationBuilder()
+        .configure(
+          "play.cache.bindCaches"        -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches" -> false
+        )
+        .build()
 
       val sut = app.injector.instanceOf[BusinessHoursConfig]
 
@@ -50,7 +57,9 @@ class BusinessHoursConfigSpec extends BaseSpec {
       val app = localGuiceApplicationBuilder()
         .configure(
           "feature.business-hours.Monday.start-time" -> "17:00",
-          "feature.business-hours.Monday.end-time"   -> "9:00"
+          "feature.business-hours.Monday.end-time"   -> "9:00",
+          "play.cache.bindCaches"                    -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"             -> false
         )
         .build()
 
@@ -63,7 +72,9 @@ class BusinessHoursConfigSpec extends BaseSpec {
       val app = localGuiceApplicationBuilder()
         .configure(
           "feature.business-hours.Monday.start-time" -> "giberish",
-          "feature.business-hours.Monday.end-time"   -> "17:00"
+          "feature.business-hours.Monday.end-time"   -> "17:00",
+          "play.cache.bindCaches"                    -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"             -> false
         )
         .build()
 
@@ -76,7 +87,9 @@ class BusinessHoursConfigSpec extends BaseSpec {
       val app = localGuiceApplicationBuilder()
         .configure(
           "feature.business-hours.Monday.start-time" -> "9:00",
-          "feature.business-hours.Monday.end-time"   -> "giberish"
+          "feature.business-hours.Monday.end-time"   -> "giberish",
+          "play.cache.bindCaches"                    -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"             -> false
         )
         .build()
 
@@ -89,7 +102,9 @@ class BusinessHoursConfigSpec extends BaseSpec {
       val app = localGuiceApplicationBuilder()
         .configure(
           "feature.business-hours.Giberish.start-time" -> "9:00",
-          "feature.business-hours.Giberish.end-time"   -> "17:00"
+          "feature.business-hours.Giberish.end-time"   -> "17:00",
+          "play.cache.bindCaches"                      -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"               -> false
         )
         .build()
 
@@ -101,7 +116,9 @@ class BusinessHoursConfigSpec extends BaseSpec {
     "end-time is missing" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.business-hours.Monday.start-time" -> "9:00"
+          "feature.business-hours.Monday.start-time" -> "9:00",
+          "play.cache.bindCaches"                    -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"             -> false
         )
         .build()
 
@@ -113,7 +130,9 @@ class BusinessHoursConfigSpec extends BaseSpec {
     "start-time is missing" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.business-hours.Monday.end-time" -> "9:00"
+          "feature.business-hours.Monday.end-time" -> "9:00",
+          "play.cache.bindCaches"                  -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"           -> false
         )
         .build()
 

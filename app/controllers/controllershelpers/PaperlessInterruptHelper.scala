@@ -16,32 +16,38 @@
 
 package controllers.controllershelpers
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
+import models.admin.PaperlessInterruptToggle
 import play.api.mvc.Result
 import play.api.mvc.Results._
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.http.HttpReads.is2xx
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait PaperlessInterruptHelper {
-
-  def preferencesFrontendService: PreferencesFrontendConnector
+class PaperlessInterruptHelper @Inject() (
+  preferencesFrontendConnector: PreferencesFrontendConnector,
+  featureFlagService: FeatureFlagService
+) {
 
   def enforcePaperlessPreference(
     block: => Future[Result]
   )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, ec: ExecutionContext): Future[Result] =
-    if (configDecorator.enforcePaperlessPreferenceEnabled) {
-      preferencesFrontendService
-        .getPaperlessPreference()
-        .foldF(
-          _ => block,
-          response =>
-            if (is2xx(response.status)) block
-            else Future.successful(Redirect((response.json \ "redirectUserTo").as[String]))
-        )
-    } else {
-      block
+    featureFlagService.get(PaperlessInterruptToggle).flatMap { featureFlag =>
+      if (featureFlag.isEnabled) {
+        preferencesFrontendConnector
+          .getPaperlessPreference()
+          .foldF(
+            _ => block,
+            response =>
+              if (is2xx(response.status)) block
+              else Future.successful(Redirect((response.json \ "redirectUserTo").as[String]))
+          )
+      } else {
+        block
+      }
     }
 }

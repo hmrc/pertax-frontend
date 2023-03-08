@@ -21,10 +21,12 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import models.admin.RlsInterruptToggle
 import models.dto.AddressPageVisitedDto
 import models.{Address, AddressPageVisitedDtoId, AddressesLock}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
@@ -37,6 +39,7 @@ class RlsController @Inject() (
   auditConnector: AuditConnector,
   cachingHelper: AddressJourneyCachingHelper,
   editAddressLockRepository: EditAddressLockRepository,
+  featureFlagService: FeatureFlagService,
   cc: MessagesControllerComponents,
   checkYourAddressInterruptView: CheckYourAddressInterruptView,
   internalServerErrorView: InternalServerErrorView
@@ -77,42 +80,44 @@ class RlsController @Inject() (
     }
 
   def rlsInterruptOnPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    if (configDecorator.rlsInterruptToggle) {
-      editAddressLockRepository.getAddressesLock(request.nino.map(_.withoutSuffix).getOrElse("Nino")).flatMap {
-        case AddressesLock(residentialLock, postalLock) =>
-          request.personDetails
-            .map { personDetails =>
-              val mainAddress   =
-                personDetails.address.map { address =>
-                  if (address.isRls && !residentialLock)
-                    address
-                  else
-                    address.copy(isRls = false)
-                }
-              val postalAddress =
-                personDetails.correspondenceAddress
-                  .map { address =>
-                    if (address.isRls && !postalLock)
+    featureFlagService.get(RlsInterruptToggle).flatMap { featureFlag =>
+      if (featureFlag.isEnabled) {
+        editAddressLockRepository.getAddressesLock(request.nino.map(_.withoutSuffix).getOrElse("Nino")).flatMap {
+          case AddressesLock(residentialLock, postalLock) =>
+            request.personDetails
+              .map { personDetails =>
+                val mainAddress   =
+                  personDetails.address.map { address =>
+                    if (address.isRls && !residentialLock)
                       address
                     else
                       address.copy(isRls = false)
                   }
-              if (mainAddress.exists(_.isRls) || postalAddress.exists(_.isRls)) {
-                auditRls(mainAddress, postalAddress)
-                cachingHelper
-                  .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
-                Future.successful(
-                  Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
-                )
-              } else {
-                Future.successful(Redirect(routes.HomeController.index))
-              }
+                val postalAddress =
+                  personDetails.correspondenceAddress
+                    .map { address =>
+                      if (address.isRls && !postalLock)
+                        address
+                      else
+                        address.copy(isRls = false)
+                    }
+                if (mainAddress.exists(_.isRls) || postalAddress.exists(_.isRls)) {
+                  auditRls(mainAddress, postalAddress)
+                  cachingHelper
+                    .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
+                  Future.successful(
+                    Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
+                  )
+                } else {
+                  Future.successful(Redirect(routes.HomeController.index))
+                }
 
-            }
-            .getOrElse(Future.successful(InternalServerError(internalServerErrorView())))
+              }
+              .getOrElse(Future.successful(InternalServerError(internalServerErrorView())))
+        }
+      } else {
+        Future.successful(Redirect(routes.HomeController.index))
       }
-    } else {
-      Future.successful(Redirect(routes.HomeController.index))
     }
   }
 }

@@ -38,20 +38,24 @@ sealed trait FeatureFlagName {
 object FeatureFlagName {
   implicit val writes: Writes[FeatureFlagName] = (o: FeatureFlagName) => JsString(o.toString)
 
-  implicit val reads: Reads[FeatureFlagName] = {
-    case name if name == JsString(AddressTaxCreditsBrokerCallToggle.toString) =>
-      JsSuccess(AddressTaxCreditsBrokerCallToggle)
-    case name if name == JsString(TaxcalcToggle.toString)                     => JsSuccess(TaxcalcToggle)
-    case name if name == JsString(NationalInsuranceTileToggle.toString)       => JsSuccess(NationalInsuranceTileToggle)
-    case name if name == JsString(ItsaMessageToggle.toString)                 => JsSuccess(ItsaMessageToggle)
-    case name if name == JsString(ChildBenefitSingleAccountToggle.toString)   =>
-      JsSuccess(ChildBenefitSingleAccountToggle)
-    case name if name == JsString(TaxcalcMakePaymentLinkToggle.toString)      => JsSuccess(TaxcalcMakePaymentLinkToggle)
-    case _                                                                    => JsError("Unknown FeatureFlagName")
+  implicit val reads: Reads[FeatureFlagName] = new Reads[FeatureFlagName] {
+    override def reads(json: JsValue): JsResult[FeatureFlagName] =
+      allFeatureFlags
+        .find(flag => JsString(flag.toString) == json)
+        .map(JsSuccess(_))
+        .getOrElse(JsError(s"Unknown FeatureFlagName `${json.toString}`"))
+  }
+
+  val mongoReads: Reads[FeatureFlagName] = new Reads[FeatureFlagName] {
+    override def reads(json: JsValue): JsResult[FeatureFlagName] =
+      allFeatureFlags
+        .find(flag => JsString(flag.toString) == json)
+        .map(JsSuccess(_))
+        .getOrElse(JsSuccess(DeletedToggle(json.as[String])))
   }
 
   implicit val formats: Format[FeatureFlagName] =
-    Format(reads, writes)
+    Format(mongoReads, writes)
 
   implicit def pathBindable: PathBindable[FeatureFlagName] = new PathBindable[FeatureFlagName] {
 
@@ -67,14 +71,19 @@ object FeatureFlagName {
       value.toString
   }
 
-  val allFeatureFlags: immutable.Seq[FeatureFlagName] =
+  val allFeatureFlags =
     List(
       AddressTaxCreditsBrokerCallToggle,
-      TaxcalcToggle,
-      NationalInsuranceTileToggle,
-      ItsaMessageToggle,
       ChildBenefitSingleAccountToggle,
-      TaxcalcMakePaymentLinkToggle
+      ItsAdvertisementMessageToggle,
+      NationalInsuranceTileToggle,
+      PaperlessInterruptToggle,
+      RlsInterruptToggle,
+      SingleAccountCheckToggle,
+      TaxcalcMakePaymentLinkToggle,
+      TaxcalcToggle,
+      TaxComponentsToggle,
+      TaxSummariesTileToggle
     )
 }
 
@@ -98,10 +107,39 @@ case object NationalInsuranceTileToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable the tile for check your National Insurance")
 }
 
-case object ItsaMessageToggle extends FeatureFlagName {
-  override def toString: String = "itsa-message"
+case object ItsAdvertisementMessageToggle extends FeatureFlagName {
+  override def toString: String = "itsa-advertisement-message"
 
-  override val description: Option[String] = Some("Enable/disable the message for ITSA")
+  override val description: Option[String] = Some("Enable/disable the advertisement message for ITSA")
+}
+
+case object TaxComponentsToggle extends FeatureFlagName {
+  override def toString: String            = "tax-components"
+  override val description: Option[String] = Some("Check your income tax")
+}
+
+case object RlsInterruptToggle extends FeatureFlagName {
+  override def toString: String            = "rls-interrupt-toggle"
+  override val description: Option[String] = Some("Enable/disable the interrupt for return letter to sender (RLS)")
+}
+
+case object PaperlessInterruptToggle extends FeatureFlagName {
+  override def toString: String            = "enforce-paperless-preference"
+  override val description: Option[String] = Some("Enable/disable the interrupt for paperless setting")
+}
+
+case object TaxSummariesTileToggle extends FeatureFlagName {
+  override def toString: String            = "tax-summaries-tile"
+  override val description: Option[String] = Some("Enable/disable the tile for annual tax summary")
+}
+
+case object SingleAccountCheckToggle extends FeatureFlagName {
+  override def toString: String            = "single-account-check"
+  override val description: Option[String] = Some("Enable/disable single account check")
+}
+
+case class DeletedToggle(name: String) extends FeatureFlagName {
+  override def toString: String = name
 }
 
 case object ChildBenefitSingleAccountToggle extends FeatureFlagName {

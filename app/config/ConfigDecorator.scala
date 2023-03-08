@@ -99,7 +99,6 @@ class ConfigDecorator @Inject() (
   lazy val enrolmentManagementFrontendHost: String   = getExternalUrl(s"enrolment-management-frontend.host").getOrElse("")
   lazy val ssoUrl: Option[String]                    = getExternalUrl("sso-portal.host")
   lazy val annualTaxSummariesUrl: String             = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
-  lazy val isAtsTileEnabled: Boolean                 = runModeConfiguration.get[String]("feature.tax-summaries-tile.enabled").toBoolean
   lazy val isNewsAndUpdatesTileEnabled: Boolean      =
     runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
   lazy val isBreathingSpaceIndicatorEnabled: Boolean =
@@ -115,10 +114,6 @@ class ConfigDecorator @Inject() (
 
   lazy val portalBaseUrl: String        = runModeConfiguration.get[String]("external-url.sso-portal.host")
   def toPortalUrl(path: String)         = new URL(portalBaseUrl + path)
-  lazy val frontendTemplatePath: String =
-    runModeConfiguration
-      .getOptional[String]("microservice.services.frontend-template-provider.path")
-      .getOrElse("/template/mustache")
 
   def transformUrlForSso(url: URL): String =
     s"$basGatewayFrontendHost/bas-gateway/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
@@ -259,16 +254,8 @@ class ConfigDecorator @Inject() (
   // Only used in HomeControllerSpec
   lazy val allowLowConfidenceSAEnabled: Boolean   =
     runModeConfiguration.getOptional[String]("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
-  lazy val ltaEnabled: Boolean                    =
-    runModeConfiguration.getOptional[String]("feature.lta.enabled").getOrElse("true").toBoolean
-  lazy val allowSaPreview: Boolean                =
+   lazy val allowSaPreview: Boolean                =
     runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
-  lazy val singleAccountEnrolmentFeature: Boolean =
-    runModeConfiguration.getOptional[String]("feature.single-account-enrolment.enabled").getOrElse("false").toBoolean
-
-  lazy val taxComponentsEnabled: Boolean =
-    runModeConfiguration.getOptional[String]("feature.tax-components.enabled").getOrElse("true").toBoolean
-
   lazy val taxCreditsPaymentLinkEnabled: Boolean =
     runModeConfiguration.getOptional[String]("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
 
@@ -278,10 +265,7 @@ class ConfigDecorator @Inject() (
   lazy val saveNiLetterAsPdfLinkEnabled: Boolean =
     runModeConfiguration.getOptional[String]("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
 
-  lazy val enforcePaperlessPreferenceEnabled: Boolean =
-    runModeConfiguration.getOptional[String]("feature.enforce-paperless-preference.enabled").getOrElse("true").toBoolean
-
-  lazy val personDetailsMessageCountEnabled: Boolean =
+  lazy val personDetailsMessageCountEnabled =
     runModeConfiguration.getOptional[String]("feature.person-details-message-count.enabled").getOrElse("true").toBoolean
 
   lazy val updateInternationalAddressInPta: Boolean =
@@ -294,9 +278,6 @@ class ConfigDecorator @Inject() (
 
   lazy val getNinoFromCID: Boolean =
     runModeConfiguration.getOptional[Boolean]("feature.get-nino-from-cid.enabled").getOrElse(false)
-
-  lazy val rlsInterruptToggle: Boolean =
-    runModeConfiguration.getOptional[Boolean]("feature.rls-interrupt-toggle.enabled").getOrElse(false)
 
   lazy val partialUpgradeEnabled: Boolean =
     runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)
