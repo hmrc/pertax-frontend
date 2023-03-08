@@ -77,7 +77,6 @@ object FeatureFlagName {
       ChildBenefitSingleAccountToggle,
       ItsAdvertisementMessageToggle,
       NationalInsuranceTileToggle,
-      NispMessageToggle,
       PaperlessInterruptToggle,
       RlsInterruptToggle,
       SingleAccountCheckToggle,
@@ -112,13 +111,6 @@ case object ItsAdvertisementMessageToggle extends FeatureFlagName {
   override def toString: String = "itsa-advertisement-message"
 
   override val description: Option[String] = Some("Enable/disable the advertisement message for ITSA")
-}
-
-case object NispMessageToggle extends FeatureFlagName {
-  override def toString: String            = "nisp"
-  override val description: Option[String] = Some(
-    "Enable/disable national insurance contributions in national-insurance-summary"
-  )
 }
 
 case object TaxComponentsToggle extends FeatureFlagName {

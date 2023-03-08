@@ -46,7 +46,6 @@ class FeatureFlagsController @Inject() (
           TaxcalcToggle                     -> true,
           NationalInsuranceTileToggle       -> true,
           ItsAdvertisementMessageToggle     -> true,
-          NispMessageToggle                 -> true,
           TaxComponentsToggle               -> true,
           RlsInterruptToggle                -> true,
           PaperlessInterruptToggle          -> false,
