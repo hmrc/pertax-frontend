@@ -16,7 +16,7 @@
 
 @import tags._
 @this()
-@(showTaxCreditsPaymentLink: Boolean)(implicit messages: play.api.i18n.Messages)
+@()(implicit messages: play.api.i18n.Messages)
 
 @card(
     id = Some("tax-credits-card"),
@@ -27,9 +27,4 @@
     headingTag = "h3",
     bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim") + "</p>"))
 ) {
-    @if(showTaxCreditsPaymentLink) {
-        <ul class="govuk-list">
-            <li><a class="govuk-link ga-track-anchor-click" href="/tax-credits-service/home/payment-schedule" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="View your tax credits payments">@messages("label.view_your_tax_credits_payments")</a></li>
-        </ul>
-    }
 }

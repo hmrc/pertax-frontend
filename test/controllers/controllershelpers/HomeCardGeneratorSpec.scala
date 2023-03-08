@@ -21,7 +21,8 @@ import controllers.auth.requests.UserRequest
 import models._
 import models.admin._
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.i18n.Langs
@@ -31,8 +32,9 @@ import services.admin.FeatureFlagService
 import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
-import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.domain.{Generator, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
@@ -41,10 +43,13 @@ import views.html.cards.home._
 
 import java.time.LocalDate
 import scala.concurrent.Future
+import scala.util.Random
 
 class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator: ConfigDecorator = config
+
+  private val generator = new Generator(new Random())
 
   private val payAsYouEarn              = injected[PayAsYouEarnView]
   private val taxCalculation            = injected[TaxCalculationView]
@@ -55,7 +60,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val marriageAllowance         = injected[MarriageAllowanceView]
   private val statePension              = injected[StatePensionView]
   private val taxSummaries              = injected[TaxSummariesView]
-  private val seissView                 = injected[SeissView]
   private val latestNewsAndUpdatesView  = injected[LatestNewsAndUpdatesView]
   private val saAndItsaMergeView        = injected[SaAndItsaMergeView]
   private val enrolmentsHelper          = injected[EnrolmentsHelper]
@@ -159,6 +163,56 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
   }
 
+  "benefit cards" when {
+    "should not have benefit cards when the trusted helper exists in the request" in {
+
+      val principalName = "John Doe"
+      val url           = "/return-url"
+      val helper        = TrustedHelper(
+        principalName,
+        "Attorney name",
+        url,
+        generator.nextNino.nino
+      )
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "GovernmentGateway"),
+        confidenceLevel = ConfidenceLevel.L200,
+        request = FakeRequest()
+      )
+
+      lazy val cardBody =
+        homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), Some(helper))
+
+      cardBody.value.get.get.isEmpty
+
+      //Just verifying the feature flags as it should only be checked if there is no trusted helpers
+      verify(mockFeatureFlagService, times(0)).get(any())
+
+    }
+
+    "should have benefit cards when no trusted helper exists in the request" in {
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
+        .successful(
+          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
+        )
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "GovernmentGateway"),
+        confidenceLevel = ConfidenceLevel.L200,
+        request = FakeRequest()
+      )
+
+      homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), None)
+
+      //Just verifying the feature flags as it should only be checked if there is no trusted helpers
+      verify(mockFeatureFlagService, times(1)).get(any())
+    }
+  }
+
   "Calling getNationalInsuranceCard" must {
     "return NI Card when toggled on" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
@@ -181,19 +235,17 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   "Calling getTaxCreditsCard" must {
     "always return the same markup when taxCreditsPaymentLinkEnabled is enabled" in {
-      lazy val showTaxCreditsPaymentLink = true
 
-      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
+      lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
 
-      cardBody mustBe Some(taxCredits(showTaxCreditsPaymentLink))
+      cardBody mustBe Some(taxCredits())
     }
 
     "always return the same markup when taxCreditsPaymentLinkEnabled is disabled" in {
-      lazy val showTaxCreditsPaymentLink = false
 
-      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
+      lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
 
-      cardBody mustBe Some(taxCredits(showTaxCreditsPaymentLink))
+      cardBody mustBe Some(taxCredits())
     }
   }
 
