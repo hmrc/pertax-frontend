@@ -159,7 +159,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .futureValue
 
         result mustBe a[Right[_, MatchingDetails]]
-        result.getOrElse(MatchingDetails(Some(SaUtr("Invalid")))) mustBe None
+        result.getOrElse(MatchingDetails(Some(SaUtr("Invalid")))) mustBe MatchingDetails(None)
       }
 
       List(
