@@ -21,6 +21,8 @@ import controllers.auth.requests.UserRequest
 import models._
 import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, NationalInsuranceTileToggle}
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
+import org.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.i18n.Langs
 import play.api.mvc.AnyContentAsEmpty
@@ -29,8 +31,9 @@ import services.admin.FeatureFlagService
 import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
-import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.domain.{Generator, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
@@ -39,10 +42,13 @@ import views.html.cards.home._
 
 import java.time.LocalDate
 import scala.concurrent.Future
+import scala.util.Random
 
-class HomeCardGeneratorSpec extends ViewSpec {
+class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator: ConfigDecorator = config
+
+  private val generator = new Generator(new Random())
 
   private val payAsYouEarn              = injected[PayAsYouEarnView]
   private val taxCalculation            = injected[TaxCalculationView]
@@ -156,12 +162,62 @@ class HomeCardGeneratorSpec extends ViewSpec {
     }
   }
 
+  "benefit cards" when {
+    "should not have benefit cards when the trusted helper exists in the request" in {
+
+      val principalName = "John Doe"
+      val url           = "/return-url"
+      val helper        = TrustedHelper(
+        principalName,
+        "Attorney name",
+        url,
+        generator.nextNino.nino
+      )
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "GovernmentGateway"),
+        confidenceLevel = ConfidenceLevel.L200,
+        request = FakeRequest()
+      )
+
+      lazy val cardBody =
+        homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), Some(helper))
+
+      cardBody.value.get.get.isEmpty
+
+      //Just verifying the feature flags as it should only be checked if there is no trusted helpers
+      verify(mockFeatureFlagService, times(0)).get(any())
+
+    }
+
+    "should have benefit cards when no trusted helper exists in the request" in {
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
+        .successful(
+          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
+        )
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "GovernmentGateway"),
+        confidenceLevel = ConfidenceLevel.L200,
+        request = FakeRequest()
+      )
+
+      homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), None)
+
+      //Just verifying the feature flags as it should only be checked if there is no trusted helpers
+      verify(mockFeatureFlagService, times(1)).get(any())
+    }
+  }
+
   "Calling getNationalInsuranceCard" must {
     "return NI Card when toggled on" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
 
-      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard.futureValue
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
       cardBody mustBe Some(nationalInsurance())
     }
@@ -170,7 +226,7 @@ class HomeCardGeneratorSpec extends ViewSpec {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = false)))
 
-      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard.futureValue
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
       cardBody mustBe None
     }
@@ -215,7 +271,7 @@ class HomeCardGeneratorSpec extends ViewSpec {
   "Calling getMarriageAllowanceCard" must {
     "return correct markup when called with a user who has tax summary and receives Marriage Allowance" in {
       val hasTaxComponents: Boolean = true
-      val taxComponents             = List("MarriageAllowanceReceived")
+      val taxComponents             = Seq("MarriageAllowanceReceived")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -227,7 +283,7 @@ class HomeCardGeneratorSpec extends ViewSpec {
 
     "return nothing when called with a user who has tax summary and transfers Marriage Allowance" in {
       val hasTaxComponents: Boolean = true
-      val taxComponents             = List("MarriageAllowanceTransferred")
+      val taxComponents             = Seq("MarriageAllowanceTransferred")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -239,7 +295,7 @@ class HomeCardGeneratorSpec extends ViewSpec {
 
     "return correct markup when called with a user who has no tax summary" in {
       val hasTaxComponents = false
-      val taxComponents    = List.empty
+      val taxComponents    = Seq()
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -251,7 +307,7 @@ class HomeCardGeneratorSpec extends ViewSpec {
 
     "return correct markup when called with a user who has tax summary but no marriage allowance" in {
       val hasTaxComponents = true
-      val taxComponents    = List("MedicalInsurance")
+      val taxComponents    = Seq("MedicalInsurance")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -287,7 +343,7 @@ class HomeCardGeneratorSpec extends ViewSpec {
       }
 
       val saUtr: SaUtr     = SaUtr("test utr")
-      val incorrectSaUsers = List(
+      val incorrectSaUsers = Seq(
         NonFilerSelfAssessmentUser,
         NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
         WrongCredentialsSelfAssessmentUser(saUtr),
@@ -356,7 +412,7 @@ class HomeCardGeneratorSpec extends ViewSpec {
           buildUserRequest(
             saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
             enrolments =
-              Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
+              Set(Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
             request = FakeRequest()
           )
 
@@ -505,7 +561,7 @@ class HomeCardGeneratorSpec extends ViewSpec {
         )
       )
 
-      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard
+      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard()
 
       cardBody mustBe Some(latestNewsAndUpdatesView())
     }
@@ -514,7 +570,7 @@ class HomeCardGeneratorSpec extends ViewSpec {
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
 
-      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard
+      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard()
 
       cardBody mustBe None
     }
