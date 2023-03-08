@@ -174,13 +174,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         generator.nextNino.nino
       )
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "GovernmentGateway"),
-        confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest()
-      )
-
       lazy val cardBody =
         homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), Some(helper))
 
@@ -198,13 +191,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
         )
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "GovernmentGateway"),
-        confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest()
-      )
-
       homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), None)
 
       //Just verifying the feature flags as it should only be checked if there is no trusted helpers
@@ -217,7 +203,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
 
-      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard(messages).futureValue
 
       cardBody mustBe Some(nationalInsurance())
     }
@@ -226,7 +212,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = false)))
 
-      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard(messages).futureValue
 
       cardBody mustBe None
     }
@@ -271,7 +257,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getMarriageAllowanceCard" must {
     "return correct markup when called with a user who has tax summary and receives Marriage Allowance" in {
       val hasTaxComponents: Boolean = true
-      val taxComponents             = Seq("MarriageAllowanceReceived")
+      val taxComponents             = List("MarriageAllowanceReceived")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -283,7 +269,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return nothing when called with a user who has tax summary and transfers Marriage Allowance" in {
       val hasTaxComponents: Boolean = true
-      val taxComponents             = Seq("MarriageAllowanceTransferred")
+      val taxComponents             = List("MarriageAllowanceTransferred")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -295,7 +281,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return correct markup when called with a user who has no tax summary" in {
       val hasTaxComponents = false
-      val taxComponents    = Seq()
+      val taxComponents    = List()
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -307,7 +293,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return correct markup when called with a user who has tax summary but no marriage allowance" in {
       val hasTaxComponents = true
-      val taxComponents    = Seq("MedicalInsurance")
+      val taxComponents    = List("MedicalInsurance")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
@@ -561,7 +547,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         )
       )
 
-      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard()
+      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard(messages)
 
       cardBody mustBe Some(latestNewsAndUpdatesView())
     }
@@ -570,7 +556,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
 
-      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard()
+      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard(messages)
 
       cardBody mustBe None
     }
