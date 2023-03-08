@@ -105,8 +105,8 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
     }
   }
 
-  "A user without an SA enrolment" must {
-    "return CitizenDetails has a matching SA account" in {
+  "A user without an SA enrolment" when {
+    "CitizenDetails has a matching SA account" must {
 
       val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
