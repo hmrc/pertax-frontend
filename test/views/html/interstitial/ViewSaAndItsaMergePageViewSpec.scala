@@ -19,7 +19,7 @@ package views.html.interstitial
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.{FeatureFlag, ItsaMessageToggle, NationalInsuranceTileToggle}
+import models.admin.{FeatureFlag, ItsAdvertisementMessageToggle, NationalInsuranceTileToggle}
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when

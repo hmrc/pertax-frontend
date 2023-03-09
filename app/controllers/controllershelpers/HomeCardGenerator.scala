@@ -16,11 +16,12 @@
 
 package controllers.controllershelpers
 
+import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, NationalInsuranceTileToggle, TaxcalcMakePaymentLinkToggle}
+import models.admin._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
@@ -65,11 +66,11 @@ class HomeCardGenerator @Inject() (
           getTaxCalculationCard(taxCalculationStateCyMinusTwo),
           Future.successful(getSaAndItsaMergeCard()),
           getNationalInsuranceCard,
-          Future.successful(if (request.trustedHelper.isEmpty) {
-            getAnnualTaxSummaryCard
+          if (request.trustedHelper.isEmpty) {
+            getAnnualTaxSummaryCard.value
           } else {
-            None
-          })
+            Future.successful(None)
+          }
         )
       )
       .map(_.flatten)
@@ -114,18 +115,20 @@ class HomeCardGenerator @Inject() (
   def getAnnualTaxSummaryCard(implicit
     request: UserRequest[AnyContent],
     messages: Messages
-  ): Option[HtmlFormat.Appendable] =
-    if (configDecorator.isAtsTileEnabled) {
-      val url = if (request.isSaUserLoggedIntoCorrectAccount) {
-        configDecorator.annualTaxSaSummariesTileLink
-      } else {
-        configDecorator.annualTaxPayeSummariesTileLink
-      }
+  ): OptionT[Future, HtmlFormat.Appendable] =
+    OptionT(featureFlagService.get(TaxSummariesTileToggle).map { featureFlag =>
+      if (featureFlag.isEnabled) {
+        val url = if (request.isSaUserLoggedIntoCorrectAccount) {
+          configDecorator.annualTaxSaSummariesTileLink
+        } else {
+          configDecorator.annualTaxPayeSummariesTileLink
+        }
 
-      Some(taxSummariesView(url))
-    } else {
-      None
-    }
+        Some(taxSummariesView(url))
+      } else {
+        None
+      }
+    })
 
   def getLatestNewsAndUpdatesCard(implicit messages: Messages): Option[HtmlFormat.Appendable] =
     if (configDecorator.isNewsAndUpdatesTileEnabled && newsAndTilesConfig.getNewsAndContentModelList().nonEmpty) {

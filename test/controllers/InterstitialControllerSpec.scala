@@ -16,14 +16,12 @@
 
 package controllers
 
-import cats.data.EitherT
 import config.{ConfigDecorator, NewsAndTilesConfig}
-import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, ItsaMessageToggle}
+import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, ItsAdvertisementMessageToggle}
 import org.mockito.ArgumentMatchers.any
 import play.api.i18n.{Langs, Messages}
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
@@ -39,7 +37,6 @@ import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util._
@@ -68,7 +65,6 @@ class InterstitialControllerSpec extends BaseSpec {
       new InterstitialController(
         mock[FormPartialService],
         mock[SaPartialService],
-        mock[PreferencesFrontendConnector],
         mockAuthJourney,
         injected[WithBreadcrumbAction],
         injected[MessagesControllerComponents],
@@ -105,10 +101,6 @@ class InterstitialControllerSpec extends BaseSpec {
               HtmlPartial.Success(Some("Success"), Html("any"))
             }
           }
-        }
-
-        when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
         }
       }
   }
@@ -156,7 +148,6 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -193,10 +184,6 @@ class InterstitialControllerSpec extends BaseSpec {
                 HtmlPartial.Success(Some("Success"), Html("any"))
               }
             }
-          }
-
-          when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
           }
         }
 
@@ -239,7 +226,6 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -293,7 +279,6 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -347,7 +332,6 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -545,7 +529,6 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -572,12 +555,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
           when(saPartialService.getSaAccountSummary(any())) thenReturn {
             Future.successful(HtmlPartial.Success(Some("Success"), Html("any")))
-          }
-
-          when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
-              Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
-            )
           }
         }
 
@@ -639,7 +616,6 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -666,12 +642,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
           when(saPartialService.getSaAccountSummary(any())) thenReturn {
             Future.successful(HtmlPartial.Success(Some("Success"), Html("any")))
-          }
-
-          when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
-              Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
-            )
           }
         }
 
@@ -711,7 +681,6 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendConnector],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
@@ -741,7 +710,7 @@ class InterstitialControllerSpec extends BaseSpec {
       })
 
       when(mockFeatureFlagService.get(any()))
-        .thenReturn(Future.successful(FeatureFlag(ItsaMessageToggle, isEnabled = true)))
+        .thenReturn(Future.successful(FeatureFlag(ItsAdvertisementMessageToggle, isEnabled = true)))
 
       val result = controller.displaySaAndItsaMergePage()(fakeRequest)
 

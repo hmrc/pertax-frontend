@@ -42,7 +42,9 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "feature.news.hmrcApp.dynamic-content"         -> true,
           "feature.news.payeEmployments.start-date"      -> LocalDate.now().minusWeeks(1).format(formatter),
           "feature.news.payeEmployments.end-date"        -> LocalDate.now().plusYears(1).format(formatter),
-          "feature.news.payeEmployments.dynamic-content" -> true
+          "feature.news.payeEmployments.dynamic-content" -> true,
+          "play.cache.bindCaches"                        -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"                 -> false
         )
         .build()
 
@@ -82,7 +84,9 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "feature.news.hmrcApp.dynamic-content"         -> true,
           "feature.news.payeEmployments.start-date"      -> LocalDate.now().minusWeeks(1).format(formatter),
           "feature.news.payeEmployments.end-date"        -> LocalDate.now().minusDays(1).format(formatter),
-          "feature.news.payeEmployments.dynamic-content" -> true
+          "feature.news.payeEmployments.dynamic-content" -> true,
+          "play.cache.bindCaches"                        -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"                 -> false
         )
         .build()
 
@@ -109,7 +113,9 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "feature.news.hmrcApp.dynamic-content"         -> true,
           "feature.news.payeEmployments.start-date"      -> LocalDate.now().minusWeeks(1).format(formatter),
           "feature.news.payeEmployments.end-date"        -> LocalDate.now().minusDays(1).format(formatter),
-          "feature.news.payeEmployments.dynamic-content" -> true
+          "feature.news.payeEmployments.dynamic-content" -> true,
+          "play.cache.bindCaches"                        -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"                 -> false
         )
         .build()
 

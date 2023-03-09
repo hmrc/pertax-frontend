@@ -20,6 +20,8 @@ import com.google.inject.Inject
 import config.BusinessHoursConfig
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
+import models.admin.{FeatureFlag, SingleAccountCheckToggle}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.http.HeaderNames
@@ -29,6 +31,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
 import play.api.test.Helpers.{redirectLocation, _}
 import play.api.test.{FakeHeaders, FakeRequest}
+import services.admin.FeatureFlagService
 import testUtils.RetrievalOps._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
@@ -79,8 +82,12 @@ class AuthActionSpec extends BaseSpec {
   val fakeCredentialStrength                                     = CredentialStrength.strong
   val fakeConfidenceLevel                                        = ConfidenceLevel.L200
   val enrolmentHelper                                            = injected[EnrolmentsHelper]
+  val mockFeatureFlagService                                     = mock[FeatureFlagService]
   val fakeBusinessHours                                          = new FakeBusinessHours(injected[BusinessHoursConfig])
   def messagesControllerComponents: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+    .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
 
   def fakeEnrolments(utr: String) = Set(
     Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
@@ -111,7 +118,8 @@ class AuthActionSpec extends BaseSpec {
         sessionAuditor,
         messagesControllerComponents,
         enrolmentsHelper,
-        fakeBusinessHours
+        fakeBusinessHours,
+        mockFeatureFlagService
       )(implicitly, config)
 
     new Harness(authAction)
@@ -123,7 +131,6 @@ class AuthActionSpec extends BaseSpec {
   "A user without a L200 confidence level must" when {
     "be redirected to the IV uplift endpoint when" must {
       "the user is an Individual" in {
-
         val controller = retrievals(confidenceLevel = ConfidenceLevel.L50)
         val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
@@ -194,7 +201,8 @@ class AuthActionSpec extends BaseSpec {
           sessionAuditor,
           messagesControllerComponents,
           enrolmentsHelper,
-          fakeBusinessHours
+          fakeBusinessHours,
+          mockFeatureFlagService
         )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
@@ -213,7 +221,8 @@ class AuthActionSpec extends BaseSpec {
           sessionAuditor,
           messagesControllerComponents,
           enrolmentsHelper,
-          fakeBusinessHours
+          fakeBusinessHours,
+          mockFeatureFlagService
         )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
@@ -230,7 +239,8 @@ class AuthActionSpec extends BaseSpec {
           sessionAuditor,
           messagesControllerComponents,
           enrolmentsHelper,
-          fakeBusinessHours
+          fakeBusinessHours,
+          mockFeatureFlagService
         )(implicitly, config)
       val controller = new Harness(authAction)
       val request    =
@@ -254,7 +264,8 @@ class AuthActionSpec extends BaseSpec {
           sessionAuditor,
           messagesControllerComponents,
           enrolmentsHelper,
-          fakeBusinessHours
+          fakeBusinessHours,
+          mockFeatureFlagService
         )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
@@ -350,7 +361,8 @@ class AuthActionSpec extends BaseSpec {
         sessionAuditor,
         messagesControllerComponents,
         enrolmentsHelper,
-        fakeBusinessHours
+        fakeBusinessHours,
+        mockFeatureFlagService
       )(implicitly, config)
 
     val controller = new Harness(authAction)
