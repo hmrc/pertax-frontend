@@ -112,8 +112,8 @@ class ConfigDecorator @Inject() (
   lazy val isSeissTileEnabled: Boolean =
     runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean
 
-  lazy val portalBaseUrl: String        = runModeConfiguration.get[String]("external-url.sso-portal.host")
-  def toPortalUrl(path: String)         = new URL(portalBaseUrl + path)
+  lazy val portalBaseUrl: String = runModeConfiguration.get[String]("external-url.sso-portal.host")
+  def toPortalUrl(path: String)  = new URL(portalBaseUrl + path)
 
   def transformUrlForSso(url: URL): String =
     s"$basGatewayFrontendHost/bas-gateway/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
@@ -252,9 +252,9 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.getOptional[String]("feature.tax-credits.enabled").getOrElse("true").toBoolean
 
   // Only used in HomeControllerSpec
-  lazy val allowLowConfidenceSAEnabled: Boolean   =
+  lazy val allowLowConfidenceSAEnabled: Boolean  =
     runModeConfiguration.getOptional[String]("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
-   lazy val allowSaPreview: Boolean                =
+  lazy val allowSaPreview: Boolean               =
     runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
   lazy val taxCreditsPaymentLinkEnabled: Boolean =
     runModeConfiguration.getOptional[String]("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
