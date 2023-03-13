@@ -36,13 +36,16 @@
 @childBenefitTaxChargeLink = @{
     if(messages.lang.code == "cy"){ configDecorator.childBenefitTaxChargeWelsh }else {configDecorator.childBenefitTaxCharge}
 }
+@claimChildBenefitLink = @{
+    if(messages.lang.code == "cy"){ configDecorator.claimChildBenefitsWelsh }else {configDecorator.claimChildBenefits}
+}
 @main(pageTitle = messages("label.make_or_manage_a_child_benefit_claim"), showChildBenefitBanner = true, showBackLink = true) {
 
     @h1(messages("label.make_or_manage_a_child_benefit_claim"))
     @if(request.nino.isDefined) {
         @h2(messages("label.make_a_claim"))
         <ul class="govuk-list govuk-list--bullet">
-            <li>@link(configDecorator.claimChildBenefits, messageKey = "label.claim_child_benefit", inParagraph = true)</li>
+            <li>@link(claimChildBenefitLink, messageKey = "label.claim_child_benefit", inParagraph = true)</li>
         </ul>
         @h2(messages("label.manage_a_claim"))
         <ul class="govuk-list govuk-list--bullet">
