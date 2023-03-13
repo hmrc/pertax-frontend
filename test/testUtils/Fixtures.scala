@@ -332,7 +332,8 @@ trait BaseSpec
   implicit val hc = HeaderCarrier()
 
   val mockPartialRetriever = mock[FormPartialRetriever]
-  when(mockPartialRetriever.getPartialContent(any(), any(), any())(any(), any())) thenReturn Html("")
+  when(mockPartialRetriever.getPartialContentAsync(any(), any(), any())(any(), any()))
+    .thenReturn(Future.successful(Html("")))
 
   val mockEditAddressLockRepository = mock[EditAddressLockRepository]
 

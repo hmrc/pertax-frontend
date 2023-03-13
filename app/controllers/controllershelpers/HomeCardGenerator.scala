@@ -16,15 +16,17 @@
 
 package controllers.controllershelpers
 
+import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, NationalInsuranceTileToggle, TaxcalcMakePaymentLinkToggle}
+import models.admin._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
 import services.admin.FeatureFlagService
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import viewmodels.TaxCalculationViewModel
@@ -64,11 +66,11 @@ class HomeCardGenerator @Inject() (
           getTaxCalculationCard(taxCalculationStateCyMinusTwo),
           Future.successful(getSaAndItsaMergeCard()),
           getNationalInsuranceCard(),
-          Future.successful(if (request.trustedHelper.isEmpty) {
-            getAnnualTaxSummaryCard
+          if (request.trustedHelper.isEmpty) {
+            getAnnualTaxSummaryCard.value
           } else {
-            None
-          })
+            Future.successful(None)
+          }
         )
       )
       .map(_.flatten)
@@ -113,18 +115,20 @@ class HomeCardGenerator @Inject() (
   def getAnnualTaxSummaryCard(implicit
     request: UserRequest[AnyContent],
     messages: Messages
-  ): Option[HtmlFormat.Appendable] =
-    if (configDecorator.isAtsTileEnabled) {
-      val url = if (request.isSaUserLoggedIntoCorrectAccount) {
-        configDecorator.annualTaxSaSummariesTileLink
-      } else {
-        configDecorator.annualTaxPayeSummariesTileLink
-      }
+  ): OptionT[Future, HtmlFormat.Appendable] =
+    OptionT(featureFlagService.get(TaxSummariesTileToggle).map { featureFlag =>
+      if (featureFlag.isEnabled) {
+        val url = if (request.isSaUserLoggedIntoCorrectAccount) {
+          configDecorator.annualTaxSaSummariesTileLink
+        } else {
+          configDecorator.annualTaxPayeSummariesTileLink
+        }
 
-      Some(taxSummariesView(url))
-    } else {
-      None
-    }
+        Some(taxSummariesView(url))
+      } else {
+        None
+      }
+    })
 
   def getLatestNewsAndUpdatesCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
     if (configDecorator.isNewsAndUpdatesTileEnabled && newsAndTilesConfig.getNewsAndContentModelList().nonEmpty) {
@@ -143,17 +147,22 @@ class HomeCardGenerator @Inject() (
     }
 
   def getBenefitCards(
-    taxComponents: Option[TaxComponents]
+    taxComponents: Option[TaxComponents],
+    trustedHelper: Option[TrustedHelper]
   )(implicit messages: Messages): Future[List[Html]] =
-    Future
-      .sequence(
-        List(
-          Future.successful(getTaxCreditsCard()),
-          getChildBenefitCard(),
-          Future.successful(getMarriageAllowanceCard(taxComponents))
+    if (trustedHelper.isEmpty) {
+      Future
+        .sequence(
+          List(
+            Future.successful(getTaxCreditsCard()),
+            getChildBenefitCard(),
+            Future.successful(getMarriageAllowanceCard(taxComponents))
+          )
         )
-      )
-      .map(_.flatten)
+        .map(_.flatten)
+    } else {
+      Future.successful(List.empty)
+    }
 
   def getTaxCreditsCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(taxCreditsView())

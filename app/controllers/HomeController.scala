@@ -18,13 +18,13 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
+import connectors.{TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
-import models.admin.TaxcalcToggle
+import models.admin.{TaxComponentsToggle, TaxcalcToggle}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
@@ -39,7 +39,7 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
-  val preferencesFrontendService: PreferencesFrontendConnector,
+  paperlessInterruptHelper: PaperlessInterruptHelper,
   taiConnector: TaiConnector,
   taxCalculationConnector: TaxCalculationConnector,
   breathingSpaceService: BreathingSpaceService,
@@ -53,7 +53,6 @@ class HomeController @Inject() (
   rlsInterruptHelper: RlsInterruptHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
-    with PaperlessInterruptHelper
     with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
@@ -63,7 +62,11 @@ class HomeController @Inject() (
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
-      homePageCachingHelper.hasUserDismissedBanner.map(!_ && configDecorator.bannerHomePageIsEnabled)
+      if (configDecorator.bannerHomePageIsEnabled) {
+        homePageCachingHelper.hasUserDismissedBanner.map(!_)
+      } else {
+        Future.successful(false)
+      }
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear)
@@ -72,7 +75,7 @@ class HomeController @Inject() (
 
     rlsInterruptHelper.enforceByRlsStatus(
       showUserResearchBanner flatMap { showUserResearchBanner =>
-        enforcePaperlessPreference {
+        paperlessInterruptHelper.enforcePaperlessPreference {
           for {
             (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
             showSeissCard                                                                   <- seissService.hasClaims(saUserType)
@@ -86,7 +89,7 @@ class HomeController @Inject() (
                                                                                                  taxCalculationStateCyMinusTwo
                                                                                                )
 
-            benefitCards <- homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
+            benefitCards <- homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
           } yield {
 
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
@@ -125,20 +128,22 @@ class HomeController @Inject() (
       val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
       val taxCalculationStateCyMinusTwo = taxYr.map(_.find(_.taxYear == year - 2))
 
-      val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
-        taiConnector
-          .taxComponents(nino, year)
-          .fold(
-            error =>
-              if (error.statusCode == BAD_REQUEST || error.statusCode == NOT_FOUND) {
-                TaxComponentsNotAvailableState
-              } else {
-                TaxComponentsUnreachableState
-              },
-            result => TaxComponentsAvailableState(TaxComponents.fromJsonTaxComponents(result.json))
-          )
-      } else {
-        Future.successful(TaxComponentsDisabledState)
+      val taxSummaryState = featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
+        if (toggle.isEnabled) {
+          taiConnector
+            .taxComponents(nino, year)
+            .fold(
+              error =>
+                if (error.statusCode == BAD_REQUEST || error.statusCode == NOT_FOUND) {
+                  TaxComponentsNotAvailableState
+                } else {
+                  TaxComponentsUnreachableState
+                },
+              result => TaxComponentsAvailableState(TaxComponents.fromJsonTaxComponents(result.json))
+            )
+        } else {
+          Future.successful(TaxComponentsDisabledState)
+        }
       }
 
       for {

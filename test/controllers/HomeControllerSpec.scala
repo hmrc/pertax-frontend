@@ -21,10 +21,10 @@ import config.ConfigDecorator
 import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.bindable.Origin
-import controllers.controllershelpers.HomePageCachingHelper
+import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, NationalInsuranceTileToggle, TaxcalcMakePaymentLinkToggle, TaxcalcToggle}
+import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
@@ -61,6 +61,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockHomePageCachingHelper: HomePageCachingHelper                             = mock[HomePageCachingHelper]
   val mockBreathingSpaceService: BreathingSpaceService                             = mock[BreathingSpaceService]
   val mockFeatureFlagService: FeatureFlagService                                   = mock[FeatureFlagService]
+  val mockHomeCardGenerator: HomeCardGenerator                                     = mock[HomeCardGenerator]
 
   override def beforeEach: Unit = {
     reset(
@@ -69,7 +70,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       mockTaiService,
       mockMessageFrontendService,
       mockHomePageCachingHelper,
-      mockFeatureFlagService
+      mockFeatureFlagService,
+      mockHomeCardGenerator
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle))) thenReturn Future.successful(
       FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)
@@ -152,9 +154,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       Future.successful(None)
     }
 
-    when(mockConfigDecorator.enforcePaperlessPreferenceEnabled) thenReturn true
-    when(mockConfigDecorator.taxComponentsEnabled) thenReturn true
-    when(mockConfigDecorator.ltaEnabled) thenReturn true
     when(mockConfigDecorator.allowSaPreview) thenReturn true
     when(mockConfigDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
     when(mockConfigDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
@@ -172,9 +171,21 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     ) thenReturn "/bas-gateway/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
     when(mockConfigDecorator.bannerHomePageIsEnabled) thenReturn false
-    when(mockConfigDecorator.rlsInterruptToggle) thenReturn true
     when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())) thenReturn Future.successful(
       WithinPeriod
+    )
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
+      FeatureFlag(TaxComponentsToggle, true)
+    )
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle))) thenReturn Future.successful(
+      FeatureFlag(RlsInterruptToggle, true)
+    )
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle))) thenReturn Future.successful(
+      FeatureFlag(PaperlessInterruptToggle, true)
+    )
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle))) thenReturn Future.successful(
+      FeatureFlag(TaxSummariesTileToggle, false)
     )
 
   }
@@ -262,6 +273,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = false)
       )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
+        FeatureFlag(TaxcalcToggle, false)
+      )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
         .successful(
           FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
@@ -272,9 +286,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaiConnector].toInstance(mockTaiService),
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[FeatureFlagService].toInstance(mockFeatureFlagService)
-        )
-        .configure(
-          "feature.tax-components.enabled" -> false
         )
         .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
@@ -415,6 +426,12 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
+        FeatureFlag(NationalInsuranceTileToggle, true)
+      )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
+        FeatureFlag(TaxcalcToggle, true)
+      )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -424,6 +441,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
             person = buildFakePerson
           )
         )
+      ).overrides(
+        bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       ).build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
@@ -472,6 +491,12 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
+        FeatureFlag(NationalInsuranceTileToggle, true)
+      )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
+        FeatureFlag(TaxcalcToggle, true)
+      )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -481,6 +506,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
             person = buildFakePerson
           )
         )
+      ).overrides(
+        bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       ).build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
@@ -529,6 +556,12 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
+        FeatureFlag(NationalInsuranceTileToggle, true)
+      )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
+        FeatureFlag(TaxcalcToggle, true)
+      )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -538,6 +571,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
             person = buildFakePerson
           )
         )
+      ).overrides(
+        bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       ).build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
@@ -586,6 +621,12 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
+        FeatureFlag(NationalInsuranceTileToggle, true)
+      )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
+        FeatureFlag(TaxcalcToggle, true)
+      )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -595,6 +636,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
             person = buildFakePerson
           )
         )
+      ).overrides(
+        bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       ).build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
@@ -608,6 +651,12 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
+        FeatureFlag(NationalInsuranceTileToggle, true)
+      )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
+        FeatureFlag(TaxcalcToggle, true)
+      )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -617,6 +666,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
             person = buildFakePerson
           )
         )
+      ).overrides(
+        bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       ).build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
@@ -774,6 +825,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
+        FeatureFlag(NationalInsuranceTileToggle, false)
+      )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
         .successful(
           FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
@@ -784,10 +838,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiConnector].toInstance(mockTaiService),
           bind[FeatureFlagService].toInstance(mockFeatureFlagService)
-        )
-        .configure(
-          "feature.tax-components.enabled" -> false,
-          "feature.taxcalc.enabled"        -> true
         )
         .build()
 
@@ -816,10 +866,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiConnector].toInstance(mockTaiService),
           bind[FeatureFlagService].toInstance(mockFeatureFlagService)
-        )
-        .configure(
-          "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled"        -> true
         )
         .build()
 
@@ -850,10 +896,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiConnector].toInstance(mockTaiService),
           bind[FeatureFlagService].toInstance(mockFeatureFlagService)
-        )
-        .configure(
-          "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled"        -> true
         )
         .build()
 
@@ -890,10 +932,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaiConnector].toInstance(mockTaiService),
           bind[FeatureFlagService].toInstance(mockFeatureFlagService)
         )
-        .configure(
-          "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled"        -> true
-        )
         .build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
@@ -927,9 +965,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaiConnector].toInstance(mockTaiService),
           bind[FeatureFlagService].toInstance(mockFeatureFlagService)
         )
-        .configure(
-          "feature.tax-components.enabled" -> true
-        )
         .build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
@@ -957,10 +992,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiConnector].toInstance(mockTaiService),
           bind[FeatureFlagService].toInstance(mockFeatureFlagService)
-        )
-        .configure(
-          "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled"        -> true
         )
         .build()
 
@@ -995,10 +1026,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiConnector].toInstance(mockTaiService),
           bind[FeatureFlagService].toInstance(mockFeatureFlagService)
-        )
-        .configure(
-          "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled"        -> true
         )
         .build()
 

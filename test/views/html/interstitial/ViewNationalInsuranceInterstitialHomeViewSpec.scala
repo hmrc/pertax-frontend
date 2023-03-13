@@ -34,6 +34,10 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
     "show NINO section when a nino is present" in {
       val document = asDocument(view(Html(""), "asfa", userRequest.nino).toString)
       Option(document.select(".nino").first).isDefined mustBe true
+      document.body().toString must include(messages("label.check_your_national_insurance_contributions"))
+      document.body().toString must include(
+        messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")
+      )
     }
 
     "show incomplete when there is no NINO" in {
