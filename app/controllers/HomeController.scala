@@ -69,9 +69,8 @@ class HomeController @Inject() (
         Future.successful(false)
       }
 
-    val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] = {
+    val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear, request.trustedHelper)
-    }
 
     val saUserType = request.saUserType
 

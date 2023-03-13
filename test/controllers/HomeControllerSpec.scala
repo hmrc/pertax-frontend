@@ -41,6 +41,7 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.time.CurrentTaxYear
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -87,6 +88,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val confidenceLevel: ConfidenceLevel     = ConfidenceLevel.L200
     lazy val withPaye: Boolean                    = true
     lazy val year                                 = 2017
+    lazy val trustedHelper: Option[TrustedHelper] = None
 
     lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse]             =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
@@ -842,7 +844,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       result mustBe TaxComponentsDisabledState
       verify(mockTaiService, times(0)).taxComponents(any(), any())(any(), any())
@@ -870,7 +872,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
       result mustBe TaxComponentsAvailableState(
         TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
       )
@@ -906,7 +908,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       result mustBe TaxComponentsNotAvailableState
       verify(mockTaiService, times(1)).taxComponents(any(), any())(any(), any())
@@ -941,7 +943,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       result mustBe TaxComponentsUnreachableState
     }
@@ -968,7 +970,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year))
+      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       resultCYm1 mustBe None
       resultCYm2 mustBe None
@@ -1002,7 +1004,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       )
 
-      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
+      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       resultCYM1 mustBe None
       resultCYM2 mustBe None
@@ -1030,7 +1032,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
+      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       resultCYM1 mustBe Some(TaxYearReconciliation(2016, Balanced))
       resultCYM2 mustBe Some(TaxYearReconciliation(2015, Balanced))
