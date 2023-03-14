@@ -19,7 +19,6 @@ package controllers.controllershelpers
 import cats.data.OptionT
 import cats.instances.future._
 import com.google.inject.Inject
-import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
 import models.admin.RlsInterruptToggle
@@ -34,16 +33,14 @@ class RlsInterruptHelper @Inject() (
   cc: MessagesControllerComponents,
   editAddressLockRepository: EditAddressLockRepository,
   featureFlagService: FeatureFlagService
-)(implicit ec: ExecutionContext)
-    extends PertaxBaseController(cc)
+) extends PertaxBaseController(cc)
     with Logging {
 
   def enforceByRlsStatus(
     block: => Future[Result]
   )(implicit
     request: UserRequest[_],
-    ec: ExecutionContext,
-    configDecorator: ConfigDecorator
+    ec: ExecutionContext
   ): Future[Result] =
     featureFlagService.get(RlsInterruptToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {

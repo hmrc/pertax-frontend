@@ -65,7 +65,7 @@ class HomeCardGenerator @Inject() (
           getTaxCalculationCard(taxCalculationStateCyMinusOne),
           getTaxCalculationCard(taxCalculationStateCyMinusTwo),
           Future.successful(getSaAndItsaMergeCard()),
-          getNationalInsuranceCard,
+          getNationalInsuranceCard(),
           if (request.trustedHelper.isEmpty) {
             getAnnualTaxSummaryCard.value
           } else {

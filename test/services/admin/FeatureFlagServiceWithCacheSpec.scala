@@ -17,7 +17,6 @@
 package services.admin
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.cache.AsyncCacheApi
 import play.api.inject.bind
 import config.ConfigDecorator

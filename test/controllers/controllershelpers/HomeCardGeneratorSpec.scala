@@ -22,8 +22,7 @@ import models._
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.i18n.Langs
 import play.api.mvc.AnyContentAsEmpty
@@ -175,13 +174,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         generator.nextNino.nino
       )
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "GovernmentGateway"),
-        confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest()
-      )
-
       lazy val cardBody =
         homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), Some(helper))
 
@@ -198,13 +190,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         .successful(
           FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
         )
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "GovernmentGateway"),
-        confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest()
-      )
 
       homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), None)
 
@@ -609,7 +594,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           newsAndTilesConfig
         )(stubConfigDecorator, ec)
 
-      sut.getLatestNewsAndUpdatesCard mustBe None
+      sut.getLatestNewsAndUpdatesCard() mustBe None
     }
   }
 }

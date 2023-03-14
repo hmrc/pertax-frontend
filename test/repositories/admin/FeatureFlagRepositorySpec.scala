@@ -16,7 +16,7 @@
 
 package repositories.admin
 
-import models.admin.{AddressTaxCreditsBrokerCallToggle, DeletedToggle, FeatureFlag, FeatureFlagName, SingleAccountCheckToggle}
+import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, FeatureFlagName, SingleAccountCheckToggle}
 import org.mongodb.scala.MongoWriteException
 import org.mongodb.scala.bson.BsonDocument
 import play.api.test.Helpers.{await, defaultAwaitTimeout}

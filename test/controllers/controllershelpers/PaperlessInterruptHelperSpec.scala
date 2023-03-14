@@ -20,11 +20,10 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import models.admin.{FeatureFlag, PaperlessInterruptToggle, RlsInterruptToggle}
+import models.admin.{FeatureFlag, PaperlessInterruptToggle}
 import models.{NonFilerSelfAssessmentUser, UserName}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.Json
