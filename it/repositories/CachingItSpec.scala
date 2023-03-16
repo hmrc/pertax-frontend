@@ -22,7 +22,7 @@ import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentia
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatestplus.mockito.MockitoSugar.mock
+import org.mockito.MockitoSugar.mock
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
@@ -75,7 +75,7 @@ class CachingItSpec
 
         "there isn't an existing record that matches the requested nino" in {
 
-          await(repository.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddressAddedSeconds)))
+          await(repository.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddressAddedSeconds())))
 
           val fGet = repository.get(differentNino.withoutSuffix)
 

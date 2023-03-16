@@ -36,9 +36,6 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
   lazy implicit val configDecorator: ConfigDecorator            = injected[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
-  def hasLink(document: Document, content: String)(implicit messages: Messages): Assertion =
-    document.getElementsMatchingText(content).hasAttr("href") mustBe true
-
   trait SelfAssessmentLocalSetup {
 
     val user: SelfAssessmentUser

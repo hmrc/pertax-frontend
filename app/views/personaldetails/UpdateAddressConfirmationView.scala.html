@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 @import components.{H1, H2, P, Link}
@@ -29,13 +28,8 @@
 )
 
 @(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]], subheading: Option[String])(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+messages: play.api.i18n.Messages)
 
-@additionalGaCalls = {
-    @typ.ifIsPostal {
-        ga('set', 'page', '/personal-account/your-address/@typ/thank-you');
-    }
-}
 
 @content = {
     @subheading.map{p1 =>

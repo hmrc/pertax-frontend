@@ -19,7 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import controllers.bindable.{PostalAddrType, ResidentialAddrType}
+import controllers.bindable.{PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedInternationalAddressChoiceId
 import models.dto.InternationalAddressChoiceDto
@@ -56,7 +56,7 @@ class PostalDoYouLiveInTheUKController @Inject() (
       addressJourneyEnforcer { _ => _ =>
         InternationalAddressChoiceDto
           .form(Some("error.postal_address_uk_select"))
-          .bindFromRequest
+          .bindFromRequest()
           .fold(
             formWithErrors => Future.successful(BadRequest(postalInternationalAddressChoiceView(formWithErrors))),
             internationalAddressChoiceDto =>

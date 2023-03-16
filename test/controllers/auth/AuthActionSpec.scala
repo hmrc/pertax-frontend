@@ -23,7 +23,6 @@ import models.UserName
 import models.admin.{FeatureFlag, SingleAccountCheckToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status.SEE_OTHER

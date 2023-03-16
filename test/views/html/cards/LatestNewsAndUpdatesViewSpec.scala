@@ -32,9 +32,6 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  def hasLink(document: Document, content: String)(implicit messages: Messages): Assertion =
-    document.getElementsMatchingText(content).hasAttr("href") mustBe true
-
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .configure(

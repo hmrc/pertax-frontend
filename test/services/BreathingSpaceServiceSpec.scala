@@ -21,7 +21,6 @@ import config.ConfigDecorator
 import connectors.BreathingSpaceConnector
 import models.BreathingSpaceIndicatorResponse
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.Configuration
 import play.api.http.Status._
 import play.api.i18n.Langs

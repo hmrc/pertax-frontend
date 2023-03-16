@@ -23,7 +23,7 @@ import play.api.{Configuration, Logging}
 import java.time.{DayOfWeek, LocalTime}
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.util.TimeZone
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 @Singleton

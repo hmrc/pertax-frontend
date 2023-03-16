@@ -19,8 +19,6 @@ package controllers
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -31,7 +29,7 @@ import util._
 
 import scala.concurrent.Future
 
-class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
+class PaperlessPreferencesControllerSpec extends BaseSpec {
   import testUtils.BetterOptionValues._
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
@@ -47,7 +45,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
       injected[MessagesControllerComponents],
       injected[ErrorRenderer],
       injected[Tools]
-    )(config, ec) {}
+    )(config) {}
 
   "Calling PaperlessPreferencesController.managePreferences" must {
     "Redirect to  preferences-frontend manage paperless url when a user is logged in using GG" in {

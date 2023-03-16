@@ -19,6 +19,7 @@ package views.html
 import config.ConfigDecorator
 import models._
 import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 import play.api.test.FakeRequest
 import testUtils.Fixtures
 import uk.gov.hmrc.auth.core.retrieve.Name
@@ -26,7 +27,7 @@ import uk.gov.hmrc.domain.SaUtrGenerator
 import testUtils.UserRequestFixture.buildUserRequest
 import viewmodels.HomeViewModel
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class HomeViewSpec extends ViewSpec {
 
@@ -44,8 +45,8 @@ class HomeViewSpec extends ViewSpec {
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 
-      document.select("h1").exists(e => e.text == "Firstname Lastname") mustBe true
-      document.select("h1").exists(e => e.text == "Your account") mustBe false
+      document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
+      document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false
     }
 
     "show the users name and not 'Your account' when the user has no details but is a GG user" in {
@@ -57,8 +58,8 @@ class HomeViewSpec extends ViewSpec {
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 
-      document.select("h1").exists(e => e.text == "Firstname Lastname") mustBe true
-      document.select("h1").exists(e => e.text == "Your account") mustBe false
+      document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
+      document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false
     }
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
@@ -66,7 +67,7 @@ class HomeViewSpec extends ViewSpec {
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 
-      document.select("h1").exists(e => e.text == "Your account") mustBe true
+      document.select("h1").asScala.exists(e => e.text == "Your account") mustBe true
     }
 
     "must not show the UTR if the user is not a self assessment user" in {

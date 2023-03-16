@@ -26,13 +26,13 @@ import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Re
 import uk.gov.hmrc.domain.Nino
 import views.html.interstitial.DisplayAddressInterstitialView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future}
 
 abstract class AddressController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator)
     extends PertaxBaseController(cc) {
 
   def authenticate: ActionBuilder[UserRequest, AnyContent] =

@@ -23,7 +23,6 @@ import com.kenshoo.play.metrics.Metrics
 import controllers.auth.requests.UserRequest
 import models._
 import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.ContentTypes
@@ -197,7 +196,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
         .value
         .futureValue
 
-      result mustBe a[Right[UpstreamErrorResponse, PaperlessMessages]]
+      result mustBe a[Right[_, _]]
 
       result.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe
         a[PaperlessStatusOptIn]
@@ -225,7 +224,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
         .value
         .futureValue
 
-      result mustBe a[Right[UpstreamErrorResponse, PaperlessMessages]]
+      result mustBe a[Right[_, _]]
 
       result.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe a[PaperlessStatusBounced]
     }
@@ -258,7 +257,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           .value
           .futureValue
 
-        result mustBe a[Left[UpstreamErrorResponse, PaperlessMessages]]
+        result mustBe a[Left[_, _]]
 
         is4xx(result.swap.getOrElse(UpstreamErrorResponse("Error", INTERNAL_SERVER_ERROR)).statusCode) mustBe true
       }
@@ -291,7 +290,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           .value
           .futureValue
 
-        result mustBe a[Left[UpstreamErrorResponse, PaperlessMessages]]
+        result mustBe a[Left[_, _]]
 
         is5xx(result.swap.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST)).statusCode) mustBe true
       }

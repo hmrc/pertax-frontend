@@ -27,7 +27,7 @@
     link: Link
 )
 @(lostCredentialsChooseAccountUrl: String, webChatPartial: Html)(implicit request: UserRequest[_],
-        configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+        configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 
 @sidebar = {
@@ -58,7 +58,7 @@
     @p(HtmlContent(link(configDecorator.notShownSaRecoverYourUserId,
                     "label.you_must_sign_out_then_sign_in_with_the_user_id_recover_link_text",
                     inParagraph = true
-                    ) + " " + messages("label.you_must_sign_out_then_sign_in_with_the_user_id_recover_text_after_link")
+                    ).toString + " " + messages("label.you_must_sign_out_then_sign_in_with_the_user_id_recover_text_after_link")
     ))
 
     @h2("label.if_you_have_never_sent_your_tax_return_online")

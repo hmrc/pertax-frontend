@@ -28,8 +28,6 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import views.html.InternalServerErrorView
 
-import scala.concurrent.ExecutionContext
-
 class EnrolmentsHelper @Inject() (internalServerErrorView: InternalServerErrorView) extends Logging {
 
   private def fromString(value: String): EnrolmentStatus = value match {
@@ -62,8 +60,7 @@ class EnrolmentsHelper @Inject() (internalServerErrorView: InternalServerErrorVi
   def singleAccountEnrolmentPresent(enrolments: Set[Enrolment], sessionNino: Nino)(implicit
     request: Request[_],
     configDecorator: ConfigDecorator,
-    messages: Messages,
-    ec: ExecutionContext
+    messages: Messages
   ): Either[Result, Boolean] =
     enrolments
       .filter(_.key == "HMRC-PT")

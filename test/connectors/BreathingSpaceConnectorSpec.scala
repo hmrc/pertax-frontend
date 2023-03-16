@@ -76,13 +76,12 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
-    "return a BAD_GATEWAY for timeout response" in {
+    "return an UpstreamErrorResponse for timeout response" in {
       val delay: Int = 5000
       stubWithDelay(url, OK, None, Some(breathingSpaceTrueResponse), delay)
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-      result mustBe a[Left[_, _]]
-      result.swap.getOrElse(UpstreamErrorResponse("", OK)) mustBe UpstreamErrorResponse(_: String, BAD_REQUEST)
+      result mustBe a[Left[UpstreamErrorResponse, _]]
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
@@ -96,12 +95,11 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
       BAD_REQUEST,
       UNPROCESSABLE_ENTITY
     ).foreach { httpResponse =>
-      s"return a $httpResponse when $httpResponse status is received" in {
+      s"return an UpstreamErrorResponse when $httpResponse status is received" in {
         stubGet(url, httpResponse, None)
 
         val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-        result mustBe a[Left[_, _]]
-        result mustBe UpstreamErrorResponse(_: String, httpResponse)
+        result mustBe a[Left[UpstreamErrorResponse, _]]
         verifyHeader(getRequestedFor(urlEqualTo(url)))
       }
     }

@@ -20,7 +20,6 @@ import cats.data.EitherT
 import connectors.EnrolmentsConnector
 import models._
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.Json
 import testUtils.BaseSpec
@@ -52,11 +51,11 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
       when(
         mockSessionCache.cache[SelfAssessmentUserType](any(), any())(any(), any(), any())
-      ) thenReturn Future.successful(cacheResult)
+      ).thenReturn(Future.successful(cacheResult))
 
       when(
         mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())
-      ) thenReturn Future.successful(fetchResult)
+      ).thenReturn(Future.successful(fetchResult))
 
       when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Seq[String]](
@@ -112,11 +111,16 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         )
       )
 
-      when(mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())) thenReturn (Future
-        .successful(None), Future.successful(Some(NotEnrolledSelfAssessmentUser(saUtr))))
+      when(mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())).thenReturn(
+        Future
+          .successful(None),
+        Future.successful(Some(NotEnrolledSelfAssessmentUser(saUtr)))
+      )
 
-      when(mockSessionCache.cache[SelfAssessmentUserType](any(), any())(any(), any(), any())) thenReturn Future
-        .successful(cacheMap)
+      when(mockSessionCache.cache[SelfAssessmentUserType](any(), any())(any(), any(), any())).thenReturn(
+        Future
+          .successful(cacheMap)
+      )
 
       sut.getSaUserTypeFromCache(saUtr).futureValue
 

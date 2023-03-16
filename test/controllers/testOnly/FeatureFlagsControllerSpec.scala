@@ -17,10 +17,9 @@
 package controllers.testOnly
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.OK
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import services.admin.FeatureFlagService
 import scala.concurrent.Future
@@ -36,7 +35,7 @@ class FeatureFlagsControllerSpec extends BaseSpec {
   "PUT /setDefaults" must {
     "return a OK response" when {
       "default values are successfully set" in {
-        when(mockFeatureFlagService.setAll(any())).thenReturn(Future.successful())
+        when(mockFeatureFlagService.setAll(any())).thenReturn(Future.successful(()))
 
         val result = controller.setDefaults()(
           FakeRequest().withHeaders("Authorization" -> "Token some-token")

@@ -24,7 +24,6 @@ import controllers.controllershelpers.CountryHelper
 import models._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
 import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
@@ -44,8 +43,6 @@ class PersonalDetailsViewModel @Inject() (
     personDetails: PersonDetails,
     optionalEditAddress: List[EditedAddress],
     taxCreditsAvailable: Boolean
-  )(implicit
-    messages: play.api.i18n.Messages
   ) = {
     val isMainAddressChangeLocked = optionalEditAddress.exists(
       _.isInstanceOf[EditResidentialAddress]
@@ -203,7 +200,6 @@ class PersonalDetailsViewModel @Inject() (
   def getPaperlessSettingsRow(implicit
     request: UserRequest[_],
     messages: play.api.i18n.Messages,
-    hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Option[PersonalDetailsTableRowModel]] =
     preferencesFrontendConnector

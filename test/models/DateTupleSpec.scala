@@ -37,57 +37,57 @@ class DateTupleSpec extends BaseSpec {
     "return error.date.required.day when day field is missing" in new Setup {
 
       lazy val input = Map(month -> "2", year -> "2015")
-      result.isLeft mustBe true
-      result.left.get mustBe Seq(FormError("", "error.date.required.day"))
+      result mustBe a[Left[_, _]]
+      result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.date.required.day"))
     }
 
     "return error.date.required.month when month field is missing" in new Setup {
 
       lazy val input = Map(day -> "1", year -> "2015")
-      result.isLeft mustBe true
-      result.left.get mustBe Seq(FormError("", "error.date.required.month"))
+      result mustBe a[Left[_, _]]
+      result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.date.required.month"))
     }
 
     "return error.date.required.year when year field is missing" in new Setup {
 
       lazy val input = Map(day -> "1", month -> "2")
-      result.isLeft mustBe true
-      result.left.get mustBe Seq(FormError("", "error.date.required.year"))
+      result mustBe a[Left[_, _]]
+      result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.date.required.year"))
     }
 
     "return error.invalid.date.format when day field is non-digit" in new Setup {
 
       lazy val input = Map(day -> "@", month -> "2", year -> "2015")
-      result.isLeft mustBe true
-      result.left.get mustBe Seq(FormError("", "error.invalid.date.format"))
+      result mustBe a[Left[_, _]]
+      result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.invalid.date.format"))
     }
 
     "return error.invalid.date.format when month field is non-digit" in new Setup {
 
       lazy val input = Map(day -> "1", month -> "j", year -> "2015")
-      result.isLeft mustBe true
-      result.left.get mustBe Seq(FormError("", "error.invalid.date.format"))
+      result mustBe a[Left[_, _]]
+      result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.invalid.date.format"))
     }
 
     "return error.invalid.date.format when year field is non-digit" in new Setup {
 
       lazy val input = Map(day -> "1", month -> "2", year -> "%")
-      result.isLeft mustBe true
-      result.left.get mustBe Seq(FormError("", "error.invalid.date.format"))
+      result mustBe a[Left[_, _]]
+      result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.invalid.date.format"))
     }
 
     "return error.invalid.date.format when date is not real" in new Setup {
 
       lazy val input = Map(day -> "30", month -> "2", year -> "2015")
-      result.isLeft mustBe true
-      result.left.get mustBe Seq(FormError("", "error.invalid.date.format"))
+      result mustBe a[Left[_, _]]
+      result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.invalid.date.format"))
     }
 
     "return a date on valid input" in new Setup {
 
       lazy val input = Map(day -> "28", month -> "2", year -> "2015")
-      result.isRight mustBe true
-      result.right.get mustBe Some(LocalDate.parse("2015-02-28"))
+      result mustBe a[Right[_, _]]
+      result.getOrElse(LocalDate.of(1, 1, 1)) mustBe Some(LocalDate.parse("2015-02-28"))
     }
 
   }
@@ -98,24 +98,27 @@ class DateTupleSpec extends BaseSpec {
 
     val errorKey = "error.date.required"
 
-    def assertError(dateFields: Map[String, String], validationError: String) {
+    def assertError(dateFields: Map[String, String], validationError: String): Unit = {
       val result = mandatoryDateTuple(errorKey).bind(dateFields)
-      result.isLeft mustBe true
-      result.left.get mustBe Seq(FormError("", validationError))
+
+      result mustBe a[Left[_, _]]
+      result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", validationError))
     }
 
     "create a mapping for a valid date" in {
       val dateFields = Map(day -> "1", month -> "2", year -> "2014")
       val result     = mandatoryDateTuple(errorKey).bind(dateFields)
-      result.isRight mustBe true
-      result.right.get mustBe (LocalDate.of(2014, 2, 1))
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(LocalDate.of(1, 1, 1)) mustBe (LocalDate.of(2014, 2, 1))
     }
 
     "create a mapping for an invalid date (with space after month, day and year)" in {
       val dateFields = Map(day -> "1 ", month -> "2 ", year -> "2014 ")
       val result     = mandatoryDateTuple(errorKey).bind(dateFields)
-      result.isRight mustBe true
-      result.right.get mustBe (LocalDate.of(2014, 2, 1))
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(LocalDate.of(1, 1, 1)) mustBe (LocalDate.of(2014, 2, 1))
     }
 
     "return error when all the fields are empty" in {

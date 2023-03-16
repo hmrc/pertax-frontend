@@ -21,7 +21,6 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}
 import models._
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.Application
 import play.api.inject._
 import play.api.mvc._
@@ -67,7 +66,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     )
     .build()
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(
       mockIdentityVerificationFrontendService,
       mockAuthAction,
@@ -379,5 +378,5 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     }
   }
 
-  override def now: () => LocalDate = LocalDate.now
+  override def now: () => LocalDate = () => LocalDate.now()
 }

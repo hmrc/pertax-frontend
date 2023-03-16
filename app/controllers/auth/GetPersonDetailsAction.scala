@@ -83,6 +83,7 @@ class GetPersonDetailsAction @Inject() (
           case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
           case _                                         => Right(None)
         }
+      case _          => throw new RuntimeException("There is some problem with NINO. It is either missing or incorrect")
     }
   }
 

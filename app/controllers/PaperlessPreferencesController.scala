@@ -26,7 +26,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.partials.PreferencesFrontendPartialService
 import util.Tools
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future}
 
 class PaperlessPreferencesController @Inject() (
   val preferencesFrontendPartialService: PreferencesFrontendPartialService,
@@ -35,7 +35,7 @@ class PaperlessPreferencesController @Inject() (
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   tools: Tools
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator)
     extends PertaxBaseController(cc) {
 
   def managePreferences: Action[AnyContent] =

@@ -23,7 +23,6 @@ import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.CreatePayment
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
@@ -39,7 +38,7 @@ import scala.concurrent.Future
 
 class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
-  override def now: () => LocalDate = LocalDate.now
+  override def now: () => LocalDate = () => LocalDate.now()
 
   lazy val fakeRequest = FakeRequest("", "")
 
