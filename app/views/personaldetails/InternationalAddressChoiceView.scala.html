@@ -15,7 +15,6 @@
  *@
 
 @import tags._
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 @import components.{ErrorSummary, InputYesNo, Button}
@@ -29,7 +28,7 @@
 )
 
 @(internationalAddressChoiceForm: Form[dto.InternationalAddressChoiceDto], typ: AddrType
-)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @title = {
     @if(internationalAddressChoiceForm.hasErrors){@messages("error.message.error") }@messages("label.is_your_main_address_in_the_uk")

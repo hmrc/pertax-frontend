@@ -21,11 +21,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
-
-abstract class PertaxBaseController(cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
-    extends FrontendController(cc)
-    with I18nSupport {
+abstract class PertaxBaseController(cc: MessagesControllerComponents) extends FrontendController(cc) with I18nSupport {
 
   val baseBreadcrumb: Breadcrumb =
     List("label.account_home" -> routes.HomeController.index.url)

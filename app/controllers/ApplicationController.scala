@@ -104,6 +104,7 @@ class ApplicationController @Inject() (
                 InternalServerError(technicalIssuesView(retryUrl))
             }
             .getOrElse(BadRequest(technicalIssuesView(retryUrl)))
+        case _         => throw new RuntimeException("journeyId missing or incorect")
       }
     }
 
@@ -111,7 +112,7 @@ class ApplicationController @Inject() (
     logger.warn(s"Unable to confirm user identity: $reason")
 
   def signout(continueUrl: Option[RedirectUrl], origin: Option[Origin]): Action[AnyContent] =
-    Action { implicit request =>
+    Action {
       val safeUrl = continueUrl.flatMap { redirectUrl =>
         redirectUrl.getEither(OnlyRelative) match {
           case Right(safeRedirectUrl) => Some(safeRedirectUrl.url)

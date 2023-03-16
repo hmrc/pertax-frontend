@@ -19,7 +19,6 @@ package repositories.admin
 import models.admin.{FeatureFlag, FeatureFlagName}
 import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model._
-import play.api.libs.json.JsValue
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}

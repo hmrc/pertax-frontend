@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, sta
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar.mock
+import org.mockito.MockitoSugar.mock
 import play.api.{Application, inject}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, status => getStatus, _}

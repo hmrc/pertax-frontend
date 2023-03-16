@@ -30,7 +30,7 @@
     button: Button,
     govukDetails: GovukDetails
 )
-@(residenceStartDateForm: Form[DateDto], typ: AddrType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(residenceStartDateForm: Form[DateDto], typ: AddrType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @detailsContent = {
     @messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_text_before_link")

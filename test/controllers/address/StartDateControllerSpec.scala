@@ -21,7 +21,6 @@ import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.PersonDetails
 import models.dto.{AddressPageVisitedDto, DateDto}
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest

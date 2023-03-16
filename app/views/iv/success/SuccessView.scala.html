@@ -25,7 +25,7 @@
     button: Button
 )
 
-@(continueUrl: String)(implicit request: Request[_], messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(continueUrl: String)(implicit request: Request[_], messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.we_have_confirmed_your_identity")

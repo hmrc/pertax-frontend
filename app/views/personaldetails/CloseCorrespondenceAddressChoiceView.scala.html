@@ -15,7 +15,6 @@
  *@
 
 @import tags._
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 @import components.{ErrorSummary, P, InputRadios, Button}
@@ -31,7 +30,7 @@
 
 
 @(addressDto: List[String], closePostalAddressChoiceForm: Form[dto.ClosePostalAddressChoiceDto]
-)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @address = {
     @p(Text(messages("label.your_main_address_is")))

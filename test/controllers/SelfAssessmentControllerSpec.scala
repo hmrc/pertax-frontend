@@ -23,7 +23,6 @@ import error.ErrorRenderer
 import models._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
 import org.scalatest.exceptions.TestFailedException
 import play.api.Application
 import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, REQUEST_TIMEOUT, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
@@ -45,7 +44,7 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
-  override def now: () => LocalDate = LocalDate.now
+  override def now: () => LocalDate = () => LocalDate.now()
 
   val mockAuditConnector             = mock[AuditConnector]
   val mockAuthAction                 = mock[AuthAction]
@@ -63,7 +62,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     )
     .build()
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(mockAuditConnector, mockAuthAction, mockSelfAssessmentStatusAction)
 
   trait LocalSetup {
@@ -147,7 +146,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(WrongCredentialsSelfAssessmentUser(saUtr))
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
-      val doc    = Jsoup.parse(contentAsString(result))
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage.url)
     }
@@ -164,7 +162,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NonFilerSelfAssessmentUser)
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
-      val doc    = Jsoup.parse(contentAsString(result))
       status(result) mustBe OK
     }
 

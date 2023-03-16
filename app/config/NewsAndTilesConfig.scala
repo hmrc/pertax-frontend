@@ -24,7 +24,7 @@ import util.LocalDateUtilities
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Singleton
 class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtilities: LocalDateUtilities) {

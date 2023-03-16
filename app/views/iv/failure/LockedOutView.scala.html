@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import scala.concurrent.ExecutionContext
 @import components.{H1, P}
 
@@ -24,7 +23,7 @@
     p: P
 )
 
-@(allowContinue: Boolean)(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(allowContinue: Boolean)(implicit request: Request[_], messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.we_cannot_confirm_your_identity")

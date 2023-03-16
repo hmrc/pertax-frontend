@@ -21,7 +21,6 @@ import org.scalatest.concurrent.IntegrationPatience
 import testUtils.{BaseSpec, WireMockHelper}
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
 
 class RateLimiterSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
@@ -54,8 +53,6 @@ class RateLimiterSpec extends BaseSpec with WireMockHelper with IntegrationPatie
       def workFuture: Future[Boolean] = Future.successful {
         true
       }
-
-      val waitTime = 10.seconds
 
       val result = withThrottle {
         workFuture

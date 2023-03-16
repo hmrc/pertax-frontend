@@ -53,7 +53,7 @@ class PersonalDetailsCardGenerator @Inject() (
     ).flatten
   }
 
-  private def getPersonDetails()(implicit request: UserRequest[_]) =
+  private def getPersonDetails(implicit request: UserRequest[_]) =
     request.personDetails
 
   def hasCorrespondenceAddress()(implicit request: UserRequest[_]): Boolean = {
@@ -70,7 +70,7 @@ class PersonalDetailsCardGenerator @Inject() (
           mainAddress(
             personDetails = personDetails,
             taxCreditsEnabled = configDecorator.taxCreditsEnabled,
-            hasCorrespondenceAddress = hasCorrespondenceAddress,
+            hasCorrespondenceAddress = hasCorrespondenceAddress(),
             isLocked = isLocked,
             countryHelper.excludedCountries
           )
@@ -83,7 +83,7 @@ class PersonalDetailsCardGenerator @Inject() (
   )(implicit request: UserRequest[_], messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
       case Some(personDetails) =>
-        hasCorrespondenceAddress match {
+        hasCorrespondenceAddress() match {
           case true if !personDetails.correspondenceAddress.exists(_.isWelshLanguageUnit) =>
             Some(
               postalAddress(
@@ -100,7 +100,7 @@ class PersonalDetailsCardGenerator @Inject() (
 
   def getNationalInsuranceCard(
     ninoToDisplay: Option[Nino]
-  )(implicit request: UserRequest[_], messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
+  )(implicit messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     ninoToDisplay.map(n => nationalInsurance(n))
 
   def getChangeNameCard()(implicit

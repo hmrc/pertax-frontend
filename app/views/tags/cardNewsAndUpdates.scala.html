@@ -21,7 +21,7 @@
         heading: String,
         headingTag: String = "h2",
         newsAndContentModelList: List[NewsAndContentModel]
-)(actionContent: Html)(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
+)(actionContent: Html)(implicit configDecorator: ConfigDecorator)
 
 <div class="card" @id.map { i => id="@i" }>
 

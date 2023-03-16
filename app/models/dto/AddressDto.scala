@@ -21,10 +21,11 @@ import models.addresslookup.AddressRecord
 import models.{Address, Country}
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import util.PertaxValidators._
 
 import java.time.LocalDate
+import scala.annotation.nowarn
 
 case class AddressDto(
   line1: String,
@@ -83,6 +84,7 @@ case class AddressDto(
 
 object AddressDto extends CountryHelper {
 
+  @nowarn("msg=match may not be exhaustive.")
   def apply(
     line1: String,
     line2: String,
@@ -92,34 +94,32 @@ object AddressDto extends CountryHelper {
     postcode: Option[String],
     country: Option[String],
     propertyRefNo: Option[String]
-  ): AddressDto = {
+  ): AddressDto =
+    List(line3, line4, line5).filter(op => op.exists(line => line.nonEmpty)).padTo(3, None) match {
+      case List(newLine3, newLine4, newLine5) =>
+        new AddressDto(line1, line2, newLine3, newLine4, newLine5, postcode, country, propertyRefNo)
+    }
 
-    val List(newLine3, newLine4, newLine5) =
-      List(line3, line4, line5).filter(op => op.exists(line => line.nonEmpty)).padTo(3, None)
-    new AddressDto(line1, line2, newLine3, newLine4, newLine5, postcode, country, propertyRefNo)
-  }
+  implicit val formats: OFormat[AddressDto] = Json.format[AddressDto]
 
-  implicit val formats = Json.format[AddressDto]
+  @nowarn("msg=match may not be exhaustive.")
+  def fromAddressRecord(addressRecord: AddressRecord): AddressDto =
+    (addressRecord.address.lines.map(s => Option(s).filter(_.trim.nonEmpty)) ++ Seq(addressRecord.address.town))
+      .padTo(5, None) match {
+      case List(line1, line2, line3, line4, line5) =>
+        AddressDto(
+          line1.getOrElse(""),
+          line2.getOrElse(""),
+          line3,
+          line4,
+          line5,
+          Some(addressRecord.address.postcode),
+          Some(addressRecord.address.country.toString),
+          Some(addressRecord.id)
+        )
+    }
 
-  def fromAddressRecord(addressRecord: AddressRecord): AddressDto = {
-
-    val address                                 = addressRecord.address
-    val List(line1, line2, line3, line4, line5) =
-      (address.lines.map(s => Option(s).filter(_.trim.nonEmpty)) ++ Seq(address.town)).padTo(5, None)
-
-    AddressDto(
-      line1.getOrElse(""),
-      line2.getOrElse(""),
-      line3,
-      line4,
-      line5,
-      Some(address.postcode),
-      Some(address.country.toString),
-      Some(addressRecord.id)
-    )
-  }
-
-  val ukForm = Form(
+  val ukForm: Form[AddressDto] = Form(
     mapping(
       "line1"         -> text
         .verifying("error.line1_required", _.nonEmpty)
@@ -152,7 +152,7 @@ object AddressDto extends CountryHelper {
     )(AddressDto.apply)(AddressDto.unapply)
   )
 
-  val internationalForm = Form(
+  val internationalForm: Form[AddressDto] = Form(
     mapping(
       "line1"         -> text
         .verifying("error.line1_required", _.nonEmpty)

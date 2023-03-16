@@ -56,6 +56,7 @@ object EditedAddress extends MongoJavatimeFormats.Implicits {
     } yield addressType match {
       case `editResidentialAddress`    => EditResidentialAddress(expireAt)
       case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
+      case _                           => throw new RuntimeException("Invalid address type")
     }
 }
 

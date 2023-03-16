@@ -26,7 +26,7 @@
     link: Link
 )
 
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.you_cannot_access_your_account")

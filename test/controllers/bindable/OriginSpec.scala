@@ -43,21 +43,31 @@ class OriginSpec extends BaseSpec with EitherValues with OptionValues {
   "Origin binder" should {
 
     "default when origin has invalid characters" in {
-      queryBinder.bind("origin", Map("origin" -> Seq("!asdasd"))).value.right.value must be(Origin("unknown"))
+      val result = queryBinder.bind("origin", Map("origin" -> Seq("!asdasd"))).value
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(Origin("")) mustBe (Origin("unknown"))
     }
 
     "default when no origin supplied" in {
-      queryBinder.bind("origin", Map("origin" -> Seq.empty)).value.right.value must be(Origin("unknown"))
+      val result = queryBinder.bind("origin", Map("origin" -> Seq.empty)).value
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(Origin("")) mustBe (Origin("unknown"))
     }
 
     "take the first when two origins supplied" in {
-      queryBinder.bind("origin", Map("origin" -> Seq("origin1", "origin2"))).value.right.value must be(
-        Origin("origin1")
-      )
+      val result = queryBinder.bind("origin", Map("origin" -> Seq("origin1", "origin2"))).value
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(Origin("")) mustBe (Origin("origin1"))
     }
 
     "create origin" in {
-      queryBinder.bind("origin", Map("origin" -> Seq("theOrigin"))).value.right.value must be(Origin("theOrigin"))
+      val result = queryBinder.bind("origin", Map("origin" -> Seq("theOrigin"))).value
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(Origin("")) mustBe (Origin("theOrigin"))
     }
 
   }

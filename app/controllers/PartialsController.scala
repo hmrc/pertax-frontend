@@ -24,13 +24,13 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.integration.MainContentHeaderView
 
 import java.time.{Instant, LocalDateTime, ZoneId}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future}
 
 class PartialsController @Inject() (
   val localErrorHandler: LocalErrorHandler,
   cc: MessagesControllerComponents,
   mainContentHeaderView: MainContentHeaderView
-)(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator)
     extends PertaxBaseController(cc) {
 
   def mainContentHeader(

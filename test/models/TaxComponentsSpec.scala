@@ -43,28 +43,28 @@ class TaxComponentsSpec extends BaseSpec {
                                            |}""".stripMargin)
 
       val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
-      tc mustBe TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
+      tc mustBe TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
     }
   }
 
   "Checking marriage allowance status" must {
 
     "indicate a recipient but not a transferor if the tax code ends in M" in {
-      val tc = TaxComponents(Seq("MarriageAllowanceReceived"))
+      val tc = TaxComponents(List("MarriageAllowanceReceived"))
       tc.isMarriageAllowanceRecipient mustBe true
       tc.isMarriageAllowanceTransferor mustBe false
       tc.notMarriageAllowanceCustomer mustBe false
     }
 
     "indicate a transferor but not a transferee if the tax code ends in N" in {
-      val tc = TaxComponents(Seq("MarriageAllowanceTransferred"))
+      val tc = TaxComponents(List("MarriageAllowanceTransferred"))
       tc.isMarriageAllowanceRecipient mustBe false
       tc.isMarriageAllowanceTransferor mustBe true
       tc.notMarriageAllowanceCustomer mustBe false
     }
 
     "indicate neither a transferor or a transferee if the tax code does not end in N or M" in {
-      val tc = TaxComponents(Seq("MedicalInsurance"))
+      val tc = TaxComponents(List("MedicalInsurance"))
       tc.isMarriageAllowanceRecipient mustBe false
       tc.isMarriageAllowanceTransferor mustBe false
       tc.notMarriageAllowanceCustomer mustBe true

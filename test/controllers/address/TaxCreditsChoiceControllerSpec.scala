@@ -18,12 +18,11 @@ package controllers.address
 
 import cats.data.OptionT
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, TaxcalcToggle}
-import models.dto.{AddressPageVisitedDto, TaxCreditsChoiceDto}
-import models.{CacheIdentifier, NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
+import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag}
+import models.dto.AddressPageVisitedDto
+import models.{NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, spy, times, verify, when}
 import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
@@ -36,9 +35,8 @@ import services.admin.FeatureFlagService
 import services.{LocalSessionCache, TaxCreditsService}
 import testUtils.BaseSpec
 import testUtils.Fixtures.buildPersonDetailsCorrespondenceAddress
-import uk.gov.hmrc.http.{HeaderNames, HttpResponse}
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.model.DataEvent
 
 import scala.concurrent.Future
 

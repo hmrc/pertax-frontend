@@ -19,8 +19,6 @@
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import views.html.components.{Button, H1, H2, H3, Link, P}
 
-@import scala.concurrent.ExecutionContext
-
 @this(
         main: MainView,
         h1: H1,
@@ -31,7 +29,7 @@
         button: Button
 )
 
-@(redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 @reportChangesChildBenefitLink = @{
     if(messages.lang.code == "cy"){ configDecorator.reportChangesChildBenefitWelsh }else {configDecorator.reportChangesChildBenefit}
 }

@@ -19,7 +19,6 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import org.mockito.Mockito._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest

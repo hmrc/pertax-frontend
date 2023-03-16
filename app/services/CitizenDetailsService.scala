@@ -18,7 +18,6 @@ package services
 
 import cats.data.EitherT
 import com.google.inject.Inject
-import config.ConfigDecorator
 import connectors.CitizenDetailsConnector
 import models.{Address, ETag, MatchingDetails, PersonDetails}
 import play.api.Logging

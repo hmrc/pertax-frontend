@@ -27,7 +27,6 @@ import models._
 import models.addresslookup.RecordSet
 import models.dto.{AddressDto, Dto}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
 import play.api.http.Status.NO_CONTENT
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
@@ -68,7 +67,7 @@ trait AddressBaseSpec extends BaseSpec {
 
   implicit lazy val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(
       mockAuthJourney,
       mockLocalSessionCache,
@@ -110,7 +109,7 @@ trait AddressBaseSpec extends BaseSpec {
 
     def eTagResponse: Option[ETag] = Some(ETag("115"))
 
-    def updateAddressResponse() =
+    def updateAddressResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse] =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(NO_CONTENT, ""))))
 
     def getAddressesLockResponse: AddressesLock = AddressesLock(false, false)
@@ -129,46 +128,46 @@ trait AddressBaseSpec extends BaseSpec {
     when(mockLocalSessionCache.fetchAndGetEntry[Dto](any())(any(), any(), any())).thenReturn(
       Future.successful(fetchAndGetEntryDto: Option[Dto])
     )
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
+    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())).thenReturn(
       Future.successful(CacheMap("id", Map.empty))
-    }
-    when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
+    )
+    when(mockLocalSessionCache.fetch()(any(), any())).thenReturn(
       Future.successful(sessionCacheResponse)
-    }
-    when(mockLocalSessionCache.remove()(any(), any())) thenReturn {
+    )
+    when(mockLocalSessionCache.remove()(any(), any())).thenReturn(
       Future.successful(mock[HttpResponse])
-    }
-    when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
+    )
+    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
       Future.successful(AuditResult.Success)
-    }
-    when(mockCitizenDetailsService.personDetails(any())(any(), any())) thenReturn {
+    )
+    when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, PersonDetails](
         Future.successful(Right(personDetailsResponse))
       )
-    }
-    when(mockCitizenDetailsService.getEtag(any())(any(), any())) thenReturn {
+    )
+    when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, Option[ETag]](
         Future.successful(Right(eTagResponse))
       )
-    }
-    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())) thenReturn {
+    )
+    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(
       updateAddressResponse
-    }
-    when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
+    )
+    when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
       Future.successful(isInsertCorrespondenceAddressLockSuccessful)
-    }
-    when(mockEditAddressLockRepository.get(any())) thenReturn {
+    )
+    when(mockEditAddressLockRepository.get(any())).thenReturn(
       Future.successful(getEditedAddressIndicators)
-    }
-    when(mockEditAddressLockRepository.getAddressesLock(any())(any())) thenReturn {
+    )
+    when(mockEditAddressLockRepository.getAddressesLock(any())(any())).thenReturn(
       Future.successful(getAddressesLockResponse)
-    }
-    when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())) thenReturn {
+    )
+    when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())).thenReturn(
       Future.successful(MovedToScotland)
-    }
-    when(mockAddressMovedService.toMessageKey(any[AddressChanged]())) thenReturn {
+    )
+    when(mockAddressMovedService.toMessageKey(any[AddressChanged]())).thenReturn(
       None
-    }
+    )
 
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

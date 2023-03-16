@@ -27,8 +27,7 @@ import views.html.public.SessionTimeoutView
 class PublicControllerSpec extends BaseSpec {
 
   private def controller = new PublicController(injected[MessagesControllerComponents], injected[SessionTimeoutView])(
-    config,
-    ec
+    config
   )
 
   "Calling PublicController.sessionTimeout" must {
@@ -73,8 +72,7 @@ class PublicControllerSpec extends BaseSpec {
   "Calling PublicController.governmentGatewayEntryPoint" must {
 
     "redirect to /personal-account page with GG auth provider" in {
-      val request = FakeRequest("GET", "/personal-account/start-government-gateway")
-      val r       = controller.governmentGatewayEntryPoint()(request)
+      val r = controller.governmentGatewayEntryPoint()(FakeRequest("GET", "/personal-account/start-government-gateway"))
 
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("/personal-account")

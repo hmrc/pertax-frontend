@@ -17,17 +17,16 @@
 package services
 
 import cats.data.EitherT
-import config.ConfigDecorator
 import connectors.CitizenDetailsConnector
 import models.{ETag, MatchingDetails}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.http.Status._
 import play.api.libs.json.{Json, OWrites}
 import play.api.test.Injecting
 import testUtils.BaseSpec
 import testUtils.Fixtures._
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
@@ -48,8 +47,10 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         )
 
         val result =
-          sut.personDetails(fakeNino).value.futureValue.right.getOrElse(buildPersonDetails.copy(address = None))
-        result mustBe buildPersonDetails
+          sut.personDetails(fakeNino).value.futureValue
+
+        result mustBe a[Right[_, _]]
+        result.getOrElse(buildPersonDetails.copy(address = None)) mustBe buildPersonDetails
       }
 
       List(
@@ -88,10 +89,9 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .updateAddress(fakeNino, etag, buildFakeAddress)
             .value
             .futureValue
-            .right
-            .getOrElse(HttpResponse(BAD_REQUEST, ""))
-            .status
-        result mustBe OK
+
+        result mustBe a[Right[_, _]]
+        result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
       }
 
       List(
@@ -124,8 +124,6 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
     }
 
     "getMatchingDetails is called" must {
-      implicit val matchingDetailsWrites: OWrites[MatchingDetails] = Json.writes[MatchingDetails]
-
       "return matching details when connector returns and OK status with body" in {
         when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
@@ -142,10 +140,9 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .getMatchingDetails(fakeNino)
             .value
             .futureValue
-            .right
-            .get
 
-        result mustBe MatchingDetails(Some(saUtr))
+        result mustBe a[Right[_, MatchingDetails]]
+        result.getOrElse(MatchingDetails(Some(SaUtr("Invalid")))) mustBe MatchingDetails(Some(saUtr))
       }
 
       "return error when connector returns and OK status with no body" in {
@@ -155,15 +152,14 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
           )
         )
 
-        val result =
+        val result: Either[UpstreamErrorResponse, MatchingDetails] =
           sut
             .getMatchingDetails(fakeNino)
             .value
             .futureValue
-            .right
-            .get
-            .saUtr
-        result mustBe None
+
+        result mustBe a[Right[_, MatchingDetails]]
+        result.getOrElse(MatchingDetails(Some(SaUtr("Invalid")))) mustBe MatchingDetails(None)
       }
 
       List(
@@ -200,8 +196,10 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         )
 
         val result =
-          sut.getEtag(fakeNino.nino).value.futureValue.right.getOrElse(Some(ETag("wrong etag")))
-        result mustBe Some(ETag("1"))
+          sut.getEtag(fakeNino.nino).value.futureValue
+
+        result mustBe a[Right[_, _]]
+        result.getOrElse(Some(ETag("wrong etag"))) mustBe Some(ETag("1"))
       }
 
       List(

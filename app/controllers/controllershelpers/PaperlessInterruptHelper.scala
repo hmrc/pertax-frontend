@@ -17,7 +17,6 @@
 package controllers.controllershelpers
 
 import com.google.inject.Inject
-import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models.admin.PaperlessInterruptToggle
@@ -35,7 +34,7 @@ class PaperlessInterruptHelper @Inject() (
 
   def enforcePaperlessPreference(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, ec: ExecutionContext): Future[Result] =
+  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Result] =
     featureFlagService.get(PaperlessInterruptToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {
         preferencesFrontendConnector
