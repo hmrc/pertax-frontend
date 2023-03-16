@@ -15,7 +15,6 @@
  *@
 
 @import controllers.auth.requests.UserRequest
-@import config.ConfigDecorator
 @import views.html.selfassessment.{selfAssessmentHeading, selfAssessmentUtr}
 @import scala.concurrent.ExecutionContext
 @import components.{P, Button}
@@ -28,7 +27,7 @@
     selfAssessmentUtr: selfAssessmentUtr
 )
 
-@(saUtr: Option[String], ggSignInUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(saUtr: Option[String], ggSignInUrl: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("title.find_your_user_id.h1"),

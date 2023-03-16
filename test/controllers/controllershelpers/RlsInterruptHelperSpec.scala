@@ -18,11 +18,10 @@ package controllers.controllershelpers
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, RlsInterruptToggle}
+import models.admin.{FeatureFlag, RlsInterruptToggle}
 import models.{AddressesLock, NonFilerSelfAssessmentUser, UserName}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.Results._

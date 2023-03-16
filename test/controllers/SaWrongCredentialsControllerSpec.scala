@@ -41,54 +41,56 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
       injected[DoYouKnowUserIdView],
       injected[NeedToResetPasswordView],
       injected[FindYourUserIdView]
-    )(config, ec)
+    )(config)
 
   "processDoYouKnowOtherCredentials" must {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
-      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
 
-      val result = controller.processDoYouKnowOtherCredentials(request)
+      val result = controller.processDoYouKnowOtherCredentials(
+        FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
+      )
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.signInAgain.url)
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
-      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
 
-      val result = controller.processDoYouKnowOtherCredentials(request)
+      val result = controller.processDoYouKnowOtherCredentials(
+        FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
+      )
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.doYouKnowUserId.url)
     }
 
     "return a bad request when supplied no value" in {
-      val request = FakeRequest("POST", "")
 
-      val result = controller.processDoYouKnowOtherCredentials(request)
+      val result = controller.processDoYouKnowOtherCredentials(FakeRequest("POST", ""))
       status(result) mustBe BAD_REQUEST
     }
   }
 
   "processDoYouKnowUserId" must {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
-      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
 
-      val result = controller.processDoYouKnowUserId(request)
+      val result = controller.processDoYouKnowUserId(
+        FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
+      )
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.needToResetPassword.url)
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
-      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
-      val result  = controller.processDoYouKnowUserId(request)
+      val result = controller.processDoYouKnowUserId(
+        FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
+      )
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.findYourUserId.url)
     }
 
     "return a bad request when supplied no value" in {
-      val request = FakeRequest("POST", "")
-      val result  = controller.processDoYouKnowUserId(request)
+      val result = controller.processDoYouKnowUserId(FakeRequest("POST", ""))
       status(result) mustBe BAD_REQUEST
     }
   }

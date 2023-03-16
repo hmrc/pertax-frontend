@@ -24,7 +24,7 @@ import models.PaperlessMessages
 import play.api.Logging
 import play.api.http.Status.PRECONDITION_FAILED
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, JsResult, JsSuccess, Json}
+import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter

@@ -15,14 +15,13 @@
  *@
 
 @import controllers.auth.requests.UserRequest
-@import config.ConfigDecorator
 @import views.html.selfassessment.selfAssessmentHeading
 @import scala.concurrent.ExecutionContext
 @import components.{P, Button}
 
 @this(main: MainView, selfAssessmentHeading: selfAssessmentHeading, p: P, button: Button)
 
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
  pageTitle = messages("title.signed_in_wrong_account.h1"),

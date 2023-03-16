@@ -19,8 +19,6 @@ package models.admin
 import play.api.libs.json._
 import play.api.mvc.PathBindable
 
-import scala.collection.immutable
-
 case class FeatureFlag(
   name: FeatureFlagName,
   isEnabled: Boolean,

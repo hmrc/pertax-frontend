@@ -50,7 +50,7 @@ class NewsAndTilesConfigSpec extends BaseSpec {
 
       val sut = app.injector.instanceOf[NewsAndTilesConfig]
 
-      sut.getNewsAndContentModelList mustBe List(
+      sut.getNewsAndContentModelList() mustBe List(
         NewsAndContentModel(
           "childBenefits",
           "",
@@ -92,7 +92,7 @@ class NewsAndTilesConfigSpec extends BaseSpec {
 
       val sut = app.injector.instanceOf[NewsAndTilesConfig]
 
-      sut.getNewsAndContentModelList mustBe List(
+      sut.getNewsAndContentModelList() mustBe List(
         NewsAndContentModel(
           "hmrcApp",
           "",
@@ -121,7 +121,7 @@ class NewsAndTilesConfigSpec extends BaseSpec {
 
       val sut = app.injector.instanceOf[NewsAndTilesConfig]
 
-      sut.getNewsAndContentModelList mustBe List.empty[NewsAndContentModel]
+      sut.getNewsAndContentModelList() mustBe List.empty[NewsAndContentModel]
     }
   }
 }

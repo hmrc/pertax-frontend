@@ -48,10 +48,12 @@ class MessageFrontendService @Inject() (
     )
 
   def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] =
-    messageFrontendConnector.getUnreadMessageCount.fold(
-      _ => None,
-      response => response.json.asOpt[MessageCount].map(_.count)
-    ) recover { case ex: Exception =>
+    messageFrontendConnector
+      .getUnreadMessageCount()
+      .fold(
+        _ => None,
+        response => response.json.asOpt[MessageCount].map(_.count)
+      ) recover { case ex: Exception =>
       logger.error(ex.getMessage, ex)
       None
     }

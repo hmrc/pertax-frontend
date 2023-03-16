@@ -27,7 +27,6 @@ import models._
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito._
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc._
@@ -63,7 +62,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockFeatureFlagService: FeatureFlagService                                   = mock[FeatureFlagService]
   val mockHomeCardGenerator: HomeCardGenerator                                     = mock[HomeCardGenerator]
 
-  override def beforeEach: Unit = {
+  override def beforeEach(): Unit = {
     reset(
       mockConfigDecorator,
       mockTaxCalculationService,
@@ -78,7 +77,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     )
   }
 
-  override def now: () => LocalDate = LocalDate.now
+  override def now: () => LocalDate = () => LocalDate.now()
 
   trait LocalSetup {
 
@@ -873,7 +872,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
       result mustBe TaxComponentsAvailableState(
-        TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
+        TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
       )
       verify(mockTaiService, times(1)).taxComponents(any(), any())(any(), any())
 

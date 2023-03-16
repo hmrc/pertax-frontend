@@ -83,29 +83,31 @@ class TaxCreditsChoiceController @Inject() (
           Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
         } else {
           addressJourneyEnforcer { _ => _ =>
-            TaxCreditsChoiceDto.form.bindFromRequest.fold(
-              formWithErrors =>
-                Future
-                  .successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
-              taxCreditsChoiceDto =>
-                cachingHelper.addToCache(TaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
-                  if (taxCreditsChoiceDto.hasTaxCredits) {
-                    editAddressLockRepository
-                      .insert(
-                        request.nino.get.withoutSuffix,
-                        AddrType.apply("residential").get
-                      )
-                      .map {
-                        case true => logger.warn("Address locked for tcs users")
-                        case _    =>
-                          logger.error(s"Could not insert address lock for user $request.nino.get.withoutSuffix")
-                      }
-                    Redirect(configDecorator.tcsChangeAddressUrl)
-                  } else {
-                    Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+            TaxCreditsChoiceDto.form
+              .bindFromRequest()
+              .fold(
+                formWithErrors =>
+                  Future
+                    .successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
+                taxCreditsChoiceDto =>
+                  cachingHelper.addToCache(TaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
+                    if (taxCreditsChoiceDto.hasTaxCredits) {
+                      editAddressLockRepository
+                        .insert(
+                          request.nino.get.withoutSuffix,
+                          AddrType.apply("residential").get
+                        )
+                        .map {
+                          case true => logger.warn("Address locked for tcs users")
+                          case _    =>
+                            logger.error(s"Could not insert address lock for user $request.nino.get.withoutSuffix")
+                        }
+                      Redirect(configDecorator.tcsChangeAddressUrl)
+                    } else {
+                      Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                    }
                   }
-                }
-            )
+              )
           }
         }
       }

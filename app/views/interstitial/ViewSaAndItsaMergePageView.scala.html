@@ -27,7 +27,7 @@
     link: Link
 )
 
-@(redirectUrl: String, nextDeadlineTaxYear: String, isItsa: Boolean, isSa: Boolean, itsaToggle: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(redirectUrl: String, nextDeadlineTaxYear: String, isItsa: Boolean, isSa: Boolean, itsaToggle: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @mainView(
     pageTitle = messages("label.your_self_assessment"),

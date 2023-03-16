@@ -22,7 +22,6 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import models.dto.{AddressPageVisitedDto, DateDto, Dto}
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.Request

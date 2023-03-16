@@ -19,7 +19,6 @@ package models
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import java.time.LocalDate
-import org.mockito.Mockito.{mock, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest

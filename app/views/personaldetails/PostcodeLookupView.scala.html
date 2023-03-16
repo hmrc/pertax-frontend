@@ -15,7 +15,6 @@
  *@
 
 @import tags._
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 @import components.{ErrorSummary, InputValue, Link, Button}
@@ -30,8 +29,7 @@
     govukFieldset : GovukFieldset
 )
 
-@(addressFinderForm: Form[models.dto.AddressFinderDto], typ: AddrType)(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(addressFinderForm: Form[models.dto.AddressFinderDto], typ: AddrType)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @title = {
     @if(addressFinderForm.hasErrors){@messages("error.message.error")  }@typ.ifIs(
@@ -49,7 +47,7 @@ configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: Executio
     @errorSummary(addressFinderForm)
 
 
-    @form(action = controllers.address.routes.PostcodeLookupController.onSubmit(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
+    @form(action = controllers.address.routes.PostcodeLookupController.onSubmit(typ), args = (Symbol("class")) -> "find-address-form", (Symbol("id")) -> "find-address-form") {
 
         @govukFieldset(Fieldset(
             describedBy = if(addressFinderForm("postcode").hasErrors){Some("postcode-error")} else {None},

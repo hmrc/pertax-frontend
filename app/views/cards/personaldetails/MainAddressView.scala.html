@@ -42,7 +42,7 @@
         }
     } else {
         @card(
-            url = Some(updateAddressLink.url),
+            url = Some(updateAddressLink().url),
             gaAction = Some("Main address"),
             gaLabel = Some("Main address"),
             heading = messages("label.main_address"),
@@ -50,7 +50,7 @@
         ) {
             <ul>
                 <li>
-                    <a class="govuk-link ga-track-anchor-click" href="@updateAddressLink" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">@messages("label.change_your_main_address")</a>
+                    <a class="govuk-link ga-track-anchor-click" href="@updateAddressLink()" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">@messages("label.change_your_main_address()")</a>
                 </li>
                 @if(!hasCorrespondenceAddress) {
                     <li>

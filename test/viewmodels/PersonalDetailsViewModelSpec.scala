@@ -23,7 +23,6 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -154,7 +153,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn("link"): PaperlessMessages)
       )
 
-      val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages, hc, ec)
+      val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages, ec)
       actual.futureValue mustBe expected
     }
   }

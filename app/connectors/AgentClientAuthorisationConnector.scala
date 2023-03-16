@@ -113,7 +113,7 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] = {
     val result =
       withThrottle {
-        withTimeout(timeoutInSec seconds) {
+        withTimeout(timeoutInSec.seconds) {
           httpClient
             .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$baseUrl/agent-client-authorisation/status")
         }

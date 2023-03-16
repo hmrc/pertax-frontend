@@ -21,7 +21,6 @@ import controllers.bindable.PostalAddrType
 import models._
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.Request
@@ -51,9 +50,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       None
     )(
       buildUserRequest(request = FakeRequest(), saUser = NonFilerSelfAssessmentUser),
-      configDecorator,
-      messages,
-      ec
+      messages
     ).toString
 
     def controller: ClosePostalAddressController =
@@ -270,9 +267,10 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "return 400 if a BAD_REQUEST is received from citizen-details" in new LocalSetup {
-      override def updateAddressResponse = EitherT[Future, UpstreamErrorResponse, HttpResponse](
-        Future.successful(Left(UpstreamErrorResponse("", BAD_REQUEST)))
-      )
+      override def updateAddressResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+        EitherT[Future, UpstreamErrorResponse, HttpResponse](
+          Future.successful(Left(UpstreamErrorResponse("", BAD_REQUEST)))
+        )
 
       val result = controller.confirmSubmit()(FakeRequest())
 
@@ -283,9 +281,10 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "return 500 if an unexpected error (418) is received from citizen-details" in new LocalSetup {
-      override lazy val updateAddressResponse = EitherT[Future, UpstreamErrorResponse, HttpResponse](
-        Future.successful(Left(UpstreamErrorResponse("", IM_A_TEAPOT)))
-      )
+      override def updateAddressResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+        EitherT[Future, UpstreamErrorResponse, HttpResponse](
+          Future.successful(Left(UpstreamErrorResponse("", IM_A_TEAPOT)))
+        )
 
       val result = controller.confirmSubmit()(FakeRequest())
 
@@ -296,9 +295,10 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "return 500 if a 5xx is received from citizen-details" in new LocalSetup {
-      override lazy val updateAddressResponse = EitherT[Future, UpstreamErrorResponse, HttpResponse](
-        Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
-      )
+      override def updateAddressResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+        EitherT[Future, UpstreamErrorResponse, HttpResponse](
+          Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
+        )
 
       override def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 

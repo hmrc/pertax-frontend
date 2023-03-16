@@ -21,7 +21,6 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -36,7 +35,7 @@ import scala.concurrent.Future
 
 class MessageControllerSpec extends BaseSpec {
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(mockMessageFrontendService, mock[CitizenDetailsConnector])
 
   val mockAuthJourney            = mock[AuthJourney]

@@ -16,7 +16,6 @@
 
 @import tags._
 @import scala.util.Try
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 @import components.{ErrorSummary, InputRadios, Link, Button}
@@ -31,7 +30,7 @@
 )
 
 @(addressSelectorForm: Form[models.dto.AddressSelectorDto], recordSet: models.addresslookup.RecordSet, typ: AddrType,
-postcode: String, filter: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+postcode: String, filter: Option[String])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @title = {
     @if(addressSelectorForm.hasErrors){@messages("error.message.error") } @typ.ifIs(
@@ -48,7 +47,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
 
     @errorSummary(addressSelectorForm, Some("radio-0"))
 
-    @form(action = controllers.address.routes.AddressSelectorController.onSubmit(typ), args = 'class -> "select-address-form", 'id -> "select-address-form") {
+    @form(action = controllers.address.routes.AddressSelectorController.onSubmit(typ), args = (Symbol("class")) -> "select-address-form", (Symbol("id")) -> "select-address-form") {
         <input type="hidden" name="postcode" value="@postcode" />
         <input type="hidden" name="filter" value="@filter" />
 
@@ -63,7 +62,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
                             id = Some("radio-" + index),
                             value = Some(ad.id),
                             checked = addressSelectorForm("addressId").value.contains(ad.id)
-                        ),
+                        )
                     }
         )
 

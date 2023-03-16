@@ -174,7 +174,7 @@ class AddressSubmissionController @Inject() (
                                           .updateAddress(nino, version.etag, address)
                                           .foldF(
                                             _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
-                                            _ => Future.successful(successResponseBlock)
+                                            _ => Future.successful(successResponseBlock())
                                           )
                             } yield result
                           }

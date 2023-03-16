@@ -24,8 +24,6 @@ import error.LocalErrorHandler
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.partials.MessageFrontendService
 
-import scala.concurrent.ExecutionContext
-
 class UserResearchDismissalController @Inject() (
   val citizenDetailsConnector: CitizenDetailsConnector,
   val messageFrontendService: MessageFrontendService,
@@ -33,8 +31,7 @@ class UserResearchDismissalController @Inject() (
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents
-)(implicit ec: ExecutionContext)
-    extends PertaxBaseController(cc) {
+) extends PertaxBaseController(cc) {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
     homePageCachingHelper.storeUserUrDismissal()

@@ -25,7 +25,7 @@
     link: Link
 )
 
-@()(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@()(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("global.error.InternalServerError500.pta.title"),

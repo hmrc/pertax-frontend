@@ -20,12 +20,6 @@ import cats.data.EitherT
 import controllers.auth.requests._
 import models._
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -34,6 +28,7 @@ import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{CitizenDetailsService, EnrolmentStoreCachingService}
+import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
@@ -41,12 +36,7 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
 
-class SelfAssessmentStatusActionSpec
-    extends AnyFreeSpec
-    with Matchers
-    with MockitoSugar
-    with BeforeAndAfterEach
-    with GuiceOneAppPerSuite {
+class SelfAssessmentStatusActionSpec extends BaseSpec {
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
   private val saUtr                                    = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
   private val enrolmentsCachingService                 = mock[EnrolmentStoreCachingService]
@@ -57,7 +47,7 @@ class SelfAssessmentStatusActionSpec
     .configure(Map("metrics.enabled" -> false))
     .build()
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(mockCitizenDetailsService)
 
   def harness[A]()(implicit request: AuthenticatedRequest[A]): Future[Result] = {
@@ -91,7 +81,7 @@ class SelfAssessmentStatusActionSpec
       Some(AffinityGroup.Agent)
     )
 
-  "An SA user with an activated enrolment must" - {
+  "An SA user with an activated enrolment must" must {
     "return ActivatedOnlineFilerSelfAssessmentUser" in {
       val saEnrolment                                        =
         Enrolment("IR-SA", identifiers = Seq(EnrolmentIdentifier("UTR", saUtr.utr)), state = "Activated")
@@ -103,7 +93,7 @@ class SelfAssessmentStatusActionSpec
     }
   }
 
-  "An SA user with a not yet activated enrolment must" - {
+  "An SA user with a not yet activated enrolment must" must {
     "return NotYetActivatedOnlineFilerSelfAssessmentUser" in {
       val saEnrolment                                        =
         Enrolment("IR-SA", identifiers = Seq(EnrolmentIdentifier("UTR", saUtr.utr)), state = "NotYetActivated")
@@ -115,8 +105,8 @@ class SelfAssessmentStatusActionSpec
     }
   }
 
-  "A user without an SA enrolment must" - {
-    "when CitizenDetails has a matching SA account" - {
+  "A user without an SA enrolment" when {
+    "CitizenDetails has a matching SA account" must {
 
       val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
@@ -148,8 +138,8 @@ class SelfAssessmentStatusActionSpec
     }
   }
 
-  "when CitizenDetails has no matching SA account" - {
-    "return NonFilerSelfAssessmentUser" in {
+  "return NonFilerSelfAssessmentUser" when {
+    "CitizenDetails has no matching SA account" in {
       implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest()
 
       when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
@@ -164,7 +154,7 @@ class SelfAssessmentStatusActionSpec
     }
   }
 
-  "when user has no Nino" - {
+  "when user has no Nino" must {
     "return NonFilerSelfAssessmentUser" in {
       implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set.empty, None)
 

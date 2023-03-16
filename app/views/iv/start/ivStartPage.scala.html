@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import scala.concurrent.ExecutionContext
@@ -27,7 +26,7 @@
     button: Button
 )
 
-@(redirectUrl: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(redirectUrl: Option[String])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @mainView(messages("label.confirm_your_identity")) {
 

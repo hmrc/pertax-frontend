@@ -67,20 +67,22 @@ class ClosePostalAddressController @Inject() (
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personalDetails =>
-        ClosePostalAddressChoiceDto.form.bindFromRequest.fold(
-          formWithErrors =>
-            Future.successful(
-              BadRequest(
-                closeCorrespondenceAddressChoiceView(getAddress(personalDetails.address).fullAddress, formWithErrors)
-              )
-            ),
-          closePostalAddressChoiceDto =>
-            if (closePostalAddressChoiceDto.value) {
-              Future.successful(Redirect(routes.ClosePostalAddressController.confirmPageLoad))
-            } else {
-              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
-            }
-        )
+        ClosePostalAddressChoiceDto.form
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              Future.successful(
+                BadRequest(
+                  closeCorrespondenceAddressChoiceView(getAddress(personalDetails.address).fullAddress, formWithErrors)
+                )
+              ),
+            closePostalAddressChoiceDto =>
+              if (closePostalAddressChoiceDto.value) {
+                Future.successful(Redirect(routes.ClosePostalAddressController.confirmPageLoad))
+              } else {
+                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
+              }
+          )
       }
     }
 

@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.language.LanguageUtils
 @import scala.concurrent.ExecutionContext
@@ -30,7 +29,7 @@
 )
 
 @(typ: AddrType, addressDto: AddressDto, doYouLiveInTheUK: String, isUkAddress: Boolean,  startDateDto: Option[DateDto],
-displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.check_your_details"),
