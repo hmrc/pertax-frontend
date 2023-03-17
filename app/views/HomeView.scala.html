@@ -16,24 +16,14 @@
 
 @import controllers.auth.requests.UserRequest
 @import viewmodels.HomeViewModel
-@import scala.concurrent.ExecutionContext
 @import components.H2
 
 @this(
-    main: MainView,
-    hmrcPageHeading: HmrcPageHeading,
     govukInsetText: GovukInsetText,
     h2: H2
 )
 
 @(viewModel: HomeViewModel)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
-
-@main(
-    pageTitle = messages("label.account_home"),
-    fullWidth = true,
-    showUserResearchBanner = viewModel.showUserResearchBanner,
-    accountHome = true
-) {
 
     <header class="hmrc-page-heading">
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
@@ -83,4 +73,3 @@
             </div>
 
         </div>
-    }

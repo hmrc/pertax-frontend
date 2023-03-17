@@ -25,15 +25,18 @@ import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper,
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
 import models.admin.{TaxComponentsToggle, TaxcalcToggle}
+import play.api.i18n.Messages
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
 import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.time.CurrentTaxYear
 import viewmodels.HomeViewModel
 import views.html.HomeView
+import views.html.components.{AdditionalScript, HeadBlock}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -50,7 +53,10 @@ class HomeController @Inject() (
   cc: MessagesControllerComponents,
   homeView: HomeView,
   seissService: SeissService,
-  rlsInterruptHelper: RlsInterruptHelper
+  rlsInterruptHelper: RlsInterruptHelper,
+  wrapperService: WrapperService,
+  headBlock: HeadBlock,
+  additionalScript: AdditionalScript
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
@@ -71,7 +77,9 @@ class HomeController @Inject() (
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear)
 
-    val saUserType = request.saUserType
+    val saUserType              = request.saUserType
+    val fullPageTitle           = s"""${Messages("label.account_home")} - ${Messages("label.your_personal_tax_account_gov_uk")}"""
+    val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
 
     rlsInterruptHelper.enforceByRlsStatus(
       showUserResearchBanner flatMap { showUserResearchBanner =>
@@ -90,23 +98,29 @@ class HomeController @Inject() (
                                                                                                )
 
             benefitCards <- homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
-          } yield {
 
-            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
-
-            Ok(
-              homeView(
-                HomeViewModel(
-                  incomeCards,
-                  benefitCards,
-                  pensionCards,
-                  showUserResearchBanner,
-                  saUserType,
-                  breathingSpaceIndicator
-                )
-              )
-            )
-          }
+            layout <- wrapperService.layout(
+                        content = homeView(
+                          HomeViewModel(
+                            incomeCards,
+                            benefitCards,
+                            pensionCards,
+                            showUserResearchBanner,
+                            saUserType,
+                            breathingSpaceIndicator
+                          )
+                        ),
+                        pageTitle = Some(fullPageTitle),
+                        serviceNameUrl = Some(configDecorator.personalAccount),
+                        signoutUrl = controllers.routes.SessionManagementController.timeOut.url,
+                        keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
+                        styleSheets = Seq(headBlock()),
+                        scripts = Seq(additionalScript()),
+                        bannerConfig =
+                          wrapperService.defaultBannerConfig.copy(showHelpImproveBanner = showUserResearchBanner),
+                        fullWidth = true
+                      )
+          } yield Ok(layout)
         }
       }
     )
