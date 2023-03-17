@@ -18,14 +18,13 @@ object AppDependencies {
     "uk.gov.hmrc.mongo" %% s"hmrc-mongo-$playVersion"         % hmrcMongoVersion,
     "io.lemonlabs"      %% "scala-uri"                        % "4.0.2",
     "uk.gov.hmrc"       %% "play-frontend-hmrc"               % s"6.2.0-$playVersion",
-    "uk.gov.hmrc"       %% "play-frontend-pta"                % "0.4.0",
     "uk.gov.hmrc"       %% "play-frontend-hmrc"               % s"6.0.0-$playVersion",
     "uk.gov.hmrc"       %% "play-frontend-pta"                % "0.4.0",
     "org.jsoup"          % "jsoup"                            % "1.15.3",
     "org.typelevel"     %% "cats-core"                        % "2.9.0",
     "uk.gov.hmrc"       %% s"internal-auth-client-$playVersion" % "1.2.0",
     "org.apache.commons" % "commons-text"               % "1.6",
-    "uk.gov.hmrc"       %% "sca-wrapper"                    % "1.0.12",
+    "uk.gov.hmrc"       %% "sca-wrapper"                    % "1.0.13",
     ehcache
   )
 
