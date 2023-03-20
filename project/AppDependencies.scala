@@ -24,7 +24,7 @@ object AppDependencies {
     "org.typelevel"     %% "cats-core"                        % "2.9.0",
     "uk.gov.hmrc"       %% s"internal-auth-client-$playVersion" % "1.2.0",
     "org.apache.commons" % "commons-text"               % "1.6",
-    "uk.gov.hmrc"       %% "sca-wrapper"                    % "1.0.15",
+    "uk.gov.hmrc"       %% "sca-wrapper"                    % "1.0.16",
     ehcache
   )
 
