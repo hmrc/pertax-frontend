@@ -40,6 +40,7 @@ import repositories.EditAddressLockRepository
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 
 import java.time.temporal.ChronoField
 import java.time.{Instant, LocalDate}
@@ -126,6 +127,7 @@ trait TaxCalculationFixtures {
 
   def buildTaxYearReconciliations: List[TaxYearReconciliation] =
     List(TaxYearReconciliation(2015, Balanced), TaxYearReconciliation(2016, Balanced))
+  def buildTrustedHelper: Option[TrustedHelper]                = Some(TrustedHelper("John", "Smith", "Some Url", "AH498813B"))
 }
 
 trait CitizenDetailsFixtures {

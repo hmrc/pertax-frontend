@@ -41,6 +41,7 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.time.CurrentTaxYear
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -81,12 +82,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   trait LocalSetup {
 
-    lazy val authProviderType: String             = UserDetails.GovernmentGatewayAuthProvider
-    lazy val nino: Nino                           = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetails = Fixtures.buildPersonDetails
-    lazy val confidenceLevel: ConfidenceLevel     = ConfidenceLevel.L200
-    lazy val withPaye: Boolean                    = true
-    lazy val year                                 = 2017
+    lazy val authProviderType: String                      = UserDetails.GovernmentGatewayAuthProvider
+    lazy val nino: Nino                                    = Fixtures.fakeNino
+    lazy val personDetailsResponse: PersonDetails          = Fixtures.buildPersonDetails
+    lazy val confidenceLevel: ConfidenceLevel              = ConfidenceLevel.L200
+    lazy val withPaye: Boolean                             = true
+    lazy val year                                          = 2017
+    lazy val trustedHelper: Option[TrustedHelper]          = None
+    lazy val truestedHelperResponse: Option[TrustedHelper] = Fixtures.buildTrustedHelper
 
     lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse]             =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
@@ -842,7 +845,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       result mustBe TaxComponentsDisabledState
       verify(mockTaiService, times(0)).taxComponents(any(), any())(any(), any())
@@ -870,7 +873,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
       result mustBe TaxComponentsAvailableState(
         TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
       )
@@ -906,7 +909,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       result mustBe TaxComponentsNotAvailableState
       verify(mockTaiService, times(1)).taxComponents(any(), any())(any(), any())
@@ -941,7 +944,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       result mustBe TaxComponentsUnreachableState
     }
@@ -968,10 +971,39 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year))
+      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       resultCYm1 mustBe None
       resultCYm2 mustBe None
+    }
+
+    "return None where there is a trusted helper in use" in new LocalSetup {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
+      )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
+        FeatureFlag(TaxcalcToggle, isEnabled = true)
+      )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
+        .successful(
+          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
+        )
+
+      lazy val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
+          bind[TaiConnector].toInstance(mockTaiService),
+          bind[FeatureFlagService].toInstance(mockFeatureFlagService)
+        )
+        .build()
+
+      val controller: HomeController = app.injector.instanceOf[HomeController]
+
+      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year, truestedHelperResponse))
+
+      resultCYm1 mustBe None
+      resultCYm2 mustBe None
+      verify(mockTaxCalculationService, times(0)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return only  CY-1 None and CY-2 None when get TaxYearReconcillation returns Nil" in new LocalSetup {
@@ -1002,7 +1034,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       )
 
-      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
+      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       resultCYM1 mustBe None
       resultCYM2 mustBe None
@@ -1030,7 +1062,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
+      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
 
       resultCYM1 mustBe Some(TaxYearReconciliation(2016, Balanced))
       resultCYM2 mustBe Some(TaxYearReconciliation(2015, Balanced))

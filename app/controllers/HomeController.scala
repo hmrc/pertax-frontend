@@ -30,6 +30,7 @@ import play.twirl.api.Html
 import services._
 import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.time.CurrentTaxYear
 import viewmodels.HomeViewModel
@@ -69,7 +70,7 @@ class HomeController @Inject() (
       }
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
-      serviceCallResponses(request.nino, current.currentYear)
+      serviceCallResponses(request.nino, current.currentYear, request.trustedHelper)
 
     val saUserType = request.saUserType
 
@@ -112,14 +113,14 @@ class HomeController @Inject() (
     )
   }
 
-  private[controllers] def serviceCallResponses(ninoOpt: Option[Nino], year: Int)(implicit
-    hc: HeaderCarrier
+  private[controllers] def serviceCallResponses(ninoOpt: Option[Nino], year: Int, trustedHelper: Option[TrustedHelper])(
+    implicit hc: HeaderCarrier
   ): Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
     ninoOpt.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
       Future.successful((TaxComponentsDisabledState, None, None))
     ) { nino =>
       val taxYr = featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
-        if (toggle.isEnabled)
+        if (toggle.isEnabled && trustedHelper.isEmpty)
           taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxYearReconciliation]).merge
         else
           Future.successful(List.empty[TaxYearReconciliation])
