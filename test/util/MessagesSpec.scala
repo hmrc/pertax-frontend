@@ -34,17 +34,20 @@ class MessagesSpec extends BaseSpec {
     }
 
     "have messages for default and cy only" in {
-      messagesAPI.messages("en").size mustBe 0
-      val englishMessageCount = messagesAPI.messages("default").size
+      val englishMessageCount = messagesAPI.messages("en").size
 
-      messagesAPI.messages("cy").size mustBe englishMessageCount
+      englishMessageCount mustBe 17
+
+      val defaultMessageCount = messagesAPI.messages("default").size
+
+      messagesAPI.messages("cy").size mustBe defaultMessageCount + englishMessageCount
     }
   }
 
   "All message files" must {
     "have the same set of keys" in {
-      withClue(mismatchingKeys(defaultMessages.keySet, welshMessages.keySet)) {
-        assert(welshMessages.keySet equals defaultMessages.keySet)
+      withClue(mismatchingKeys(defaultMessages.keySet ++ englishMessages.keySet, welshMessages.keySet)) {
+        assert(welshMessages.keySet equals defaultMessages.keySet ++ englishMessages.keySet)
       }
     }
 
@@ -135,6 +138,8 @@ class MessagesSpec extends BaseSpec {
   private lazy val displayLine = "\n" + ("@" * 42) + "\n"
 
   private lazy val defaultMessages: Map[String, String] = getExpectedMessages("default") -- commonProvidedKeys
+
+  private lazy val englishMessages: Map[String, String] = getExpectedMessages("en") -- commonProvidedKeys
 
   private lazy val welshMessages: Map[String, String] = getExpectedMessages("cy") -- commonProvidedKeys
 
