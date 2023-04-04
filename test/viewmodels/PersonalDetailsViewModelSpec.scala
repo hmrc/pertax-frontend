@@ -167,7 +167,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             "trusted_helpers",
             "label.trusted_helpers",
             HtmlFormat.raw(messages("label.manage_trusted_helpers")),
-            "label.change",
+            "label.manage",
             "label.your_trusted_helpers",
             Some(configDecorator.manageTrustedHelpersUrl)
           )
@@ -184,7 +184,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             "trusted_helpers",
             "label.trusted_helpers",
             HtmlFormat.raw(messages("label.manage_trusted_helpers")),
-            "label.change",
+            "label.manage",
             "label.your_trusted_helpers",
             Some(configDecorator.manageTrustedHelpersUrl)
           )
