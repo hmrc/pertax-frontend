@@ -118,7 +118,8 @@ class HomeController @Inject() (
                         scripts = Seq(additionalScript()),
                         bannerConfig =
                           wrapperService.defaultBannerConfig.copy(showHelpImproveBanner = showUserResearchBanner),
-                        fullWidth = true
+                        fullWidth = true,
+                        optTrustedHelper = request.trustedHelper
                       )
           } yield Ok(layout)
         }
