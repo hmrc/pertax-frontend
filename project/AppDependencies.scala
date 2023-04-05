@@ -6,7 +6,7 @@ object AppDependencies {
 
   private val playVersion = "play-28"
   private val hmrcMongoVersion = "0.73.0"
-  private val bootstrapVersion = "7.13.0"
+  private val bootstrapVersion = "7.15.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -19,7 +19,7 @@ object AppDependencies {
     "io.lemonlabs"      %% "scala-uri"                        % "4.0.2",
     "uk.gov.hmrc"       %% "play-frontend-hmrc"               % s"6.2.0-$playVersion",
     "uk.gov.hmrc"       %% "play-frontend-pta"                % "0.4.0",
-    "uk.gov.hmrc"       %% "play-frontend-hmrc"               % s"6.0.0-$playVersion",
+    "uk.gov.hmrc"       %% "play-frontend-hmrc"               % s"7.3.0-$playVersion",
     "uk.gov.hmrc"       %% "play-frontend-pta"                % "0.4.0",
     "org.jsoup"          % "jsoup"                            % "1.15.3",
     "org.typelevel"     %% "cats-core"                        % "2.9.0",
