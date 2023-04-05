@@ -25,7 +25,7 @@
         gaLabel = Some("National Insurance"),
         heading = messages("label.national_insurance"),
         headingTag = "h3",
-        bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_") + "</p>"))
+        bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.check_your_national_insurance_contributions_and_view_and_save_") + "</p>"))
     ) {
         <ul class="govuk-list">
             <li><a class="govuk-link ga-track-anchor-click" href="@controllers.routes.NiLetterController.printNationalInsuranceNumber" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Print your National Insurance letter">@messages("label.view_your_national_insurance_letter")</a></li>
