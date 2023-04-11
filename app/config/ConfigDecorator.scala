@@ -63,6 +63,8 @@ class ConfigDecorator @Inject() (
   lazy val addTaxesFrontendUrl: String = servicesConfig.baseUrl("add-taxes-frontend")
   lazy val addTaxesPtaOrigin: String   = "pta-sa"
 
+  lazy val pertaxUrl: String = servicesConfig.baseUrl("pertax")
+
   private def getExternalUrl(key: String): Option[String] =
     runModeConfiguration.getOptional[String](s"external-url.$key")
 

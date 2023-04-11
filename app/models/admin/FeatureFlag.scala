@@ -81,7 +81,8 @@ object FeatureFlagName {
       TaxcalcMakePaymentLinkToggle,
       TaxcalcToggle,
       TaxComponentsToggle,
-      TaxSummariesTileToggle
+      TaxSummariesTileToggle,
+      PertaxBackendToggle
     )
 }
 
@@ -150,6 +151,14 @@ case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
   override def toString: String = "taxcalc-make-payment-link-toggle"
 
   override val description: Option[String] = Some("Enable/disable direct link to make a payment on taxcalc tile")
+}
+
+case object PertaxBackendToggle extends FeatureFlagName {
+  override def toString: String = "pertax-backend-toggle"
+
+  override val description: Option[String] = Some(
+    "Enable/disable pertax backend during auth"
+  )
 }
 
 object FeatureFlagMongoFormats {

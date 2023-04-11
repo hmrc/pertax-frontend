@@ -51,7 +51,8 @@ class FeatureFlagsController @Inject() (
           PaperlessInterruptToggle          -> false,
           TaxSummariesTileToggle            -> true,
           SingleAccountCheckToggle          -> false,
-          ChildBenefitSingleAccountToggle   -> true
+          ChildBenefitSingleAccountToggle   -> true,
+          PertaxBackendToggle               -> true
         )
       )
       .map(_ => Ok("Default flags set"))
