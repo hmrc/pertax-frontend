@@ -21,7 +21,7 @@ import play.api.libs.json.Json
 case class PertaxResponse(
   code: String,
   message: String,
-  errorView: Option[ErrorViewWrapper] = None,
+  errorView: Option[ErrorView] = None,
   redirect: Option[String] = None
 )
 

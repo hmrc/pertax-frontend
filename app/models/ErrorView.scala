@@ -18,8 +18,8 @@ package models
 
 import play.api.libs.json.Json
 
-case class ErrorViewWrapper(url: String, statusCode: Int)
+case class ErrorView(url: String, statusCode: Int)
 
-object ErrorViewWrapper {
-  implicit val format = Json.format[ErrorViewWrapper]
+object ErrorView {
+  implicit val format = Json.format[ErrorView]
 }

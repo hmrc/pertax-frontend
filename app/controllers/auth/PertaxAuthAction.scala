@@ -48,7 +48,7 @@ class PertaxAuthAction @Inject() (
     with I18nSupport
     with Logging {
 
-  override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] = {
+  override def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] = {
     implicit val hc: HeaderCarrier           =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     implicit val implicitConfigDecorator     = configDecorator
