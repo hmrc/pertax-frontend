@@ -5,9 +5,9 @@ import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.mockito.MockitoSugar.mock
-import play.api.{Application, inject}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, status => getStatus, _}
+import play.api.{Application, inject}
 import services.admin.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
@@ -20,6 +20,9 @@ class RLSInterruptPageSpec extends IntegrationSpec {
   val mockFeatureFlagService = mock[FeatureFlagService]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .configure(
+      "microservice.services.pertax.port" -> server.port()
+    )
     .overrides(
       inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService)
     )
@@ -43,6 +46,8 @@ class RLSInterruptPageSpec extends IntegrationSpec {
     .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, true)))
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
     .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
+    .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
 
   "personal-account" must {
     "show rls interrupt" when {

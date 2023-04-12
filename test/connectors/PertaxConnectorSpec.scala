@@ -41,7 +41,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
     "return a PertaxResponse with ACCESS_GRANTED code" in {
       server.stubFor(
         get(urlEqualTo(authoriseUrl(Fixtures.fakeNino.nino)))
-          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}").withStatus(OK))
+          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
       )
 
       val result = pertaxConnector
