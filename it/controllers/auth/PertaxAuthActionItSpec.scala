@@ -68,9 +68,7 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
         )
 
         val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-
-        val result = route(app, request)
-
+        val result  = route(app, request)
         result.map(getStatus).get mustBe OK
       }
       "Pertax toggle is off" in {
@@ -78,9 +76,7 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
           .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
 
         val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-
-        val result = route(app, request)
-
+        val result  = route(app, request)
         result.map(getStatus).get mustBe OK
       }
     }
@@ -96,9 +92,7 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
         )
 
         val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-
-        val result = route(app, request)
-
+        val result  = route(app, request)
         result.map(getStatus).get mustBe SEE_OTHER
         result.map(redirectLocation).get mustBe Some("personal-account/?redirectUrl=%2Fpersonal-account")
       }
@@ -129,9 +123,7 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
         )
 
         val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-
-        val result = route(app, request)
-
+        val result  = route(app, request)
         result.map(getStatus).get mustBe INTERNAL_SERVER_ERROR
       }
     }
@@ -192,9 +184,7 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
           )
 
           val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-
-          val result = route(app, request)
-
+          val result  = route(app, request)
           result.map(getStatus).get mustBe errorCode
         }
       }
