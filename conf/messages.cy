@@ -44,15 +44,6 @@ label.you_can_see_a_record_of_your_annual_contributions_=Gallwch fwrw golwg dros
 label.view_and_save_your_national_insurance_number=Bwrw golwg dros eich rhif Yswiriant Gwladol a’i gadw
 label.a_new_employer_will_ask_for_your_national_insurance_number_and_you_may_=Bydd cyflogwr newydd yn gofyn am eich rhif Yswiriant Gwladol. Mae’n bosibl y bydd arnoch angen eich rhif Yswiriant Gwladol ar adegau eraill hefyd, megis wrth wneud cais am Fenthyciad Myfyriwr neu fudd-daliadau penodol.
 label.so_that_you_have_your_number_when_you_need_it_=Fel bod eich rhif Yswiriant Gwladol wrth law pryd bynnag y bydd ei angen arnoch, gallwch fwrw golwg dros eich llythyr sy’n cadarnhau eich rhif Yswiriant Gwladol, a chael copi ohono.
-label.national_insurance_forms=TO BE ADDED
-label.application_for_home_responsibilities_protection=TO BE ADDED
-label.application_for_national_insurance_class_3_credits=TO BE ADDED
-label.application_for_credits_for_parents_and_carers=TO BE ADDED
-label.application_for_refund_of_class_2_national_insurance_=TO BE ADDED
-label.application_for_refund_of_class_4_national_insurance_=TO BE ADDED
-label.application_for_deferment_of_payment_of_class_1_national_insurance_=TO BE ADDED
-label.eea_healthcare_application=TO BE ADDED
-label.self_employed_and_temporarily_working_in_another_country_=TO BE ADDED
 
 label.hm_revenue_and_customs=Cyllid a Thollau EM
 label.your_national_insurance_letter=Eich llythyr Yswiriant Gwladol
