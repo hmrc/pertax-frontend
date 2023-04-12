@@ -48,7 +48,7 @@
         }
 
         @p(Text(messages("label.your_national_insurance_number_ensures_your_national_insurance_contributions_")))
-        @link(routes.InterstitialController.displayNationalInsurance.url, messageKey = "label.find_out_more_about_national_insurance_")
+        @link(routes.InterstitialController.displayNationalInsurance.url, messageKey = "label.find_out_more_about_national_insurance_", attrTarget = true)
         @h2("label.check_your_national_insurance_contributions")
         @p(Text(messages("label.every_year_you_pay_national_insurance_contributions_to_qualify_")))
         @p(Text(messages("label.you_can_see_a_record_of_your_annual_contributions_")))
@@ -57,7 +57,7 @@
         @h2("label.view_and_save_your_national_insurance_number")
         @p(Text(messages("label.a_new_employer_will_ask_for_your_national_insurance_number_and_you_may_")))
         @p(Text(messages("label.so_that_you_have_your_number_when_you_need_it_")))
-        @link(configDecorator.emptyUrl, messageKey = "label.view_and_save_your_national_insurance_number")
+        @link(routes.NiLetterController.printNationalInsuranceNumber.url, messageKey = "label.view_and_save_your_national_insurance_number")
 
         <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
         @h2("label.national_insurance_forms")
