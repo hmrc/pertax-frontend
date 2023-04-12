@@ -68,7 +68,7 @@
 
 @stylesheets
 
-@if(!disableSessionExpired) {
+@if(!disableSessionExpired){
     @hmrcTimeoutDialogHelper(
         signOutUrl = controllers.routes.SessionManagementController.timeOut.url,
         keepAliveUrl = Some(controllers.routes.SessionManagementController.keepAlive.url),
@@ -81,11 +81,9 @@
 
 
 @beforeContent = {
-@if(!hideAccountMenu && request.personDetails.nonEmpty) {
-    @accountMenu
-}
+@if(!hideAccountMenu && request.personDetails.nonEmpty) { @accountMenu }
 
-@if(showBackLink) {
+@if(showBackLink){
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
         @backLink(backLinkUrl, backLinkID)
@@ -100,13 +98,13 @@
 
 @attorneyBanner
 
-@if(beforeContentHtml.isDefined) {
+@if(beforeContentHtml.isDefined){
     @beforeContentHtml
 }
 }
 
 @attorneyBanner = @{
-    request.trustedHelper.map { helper =>
+    request.trustedHelper.map{ helper =>
         banner(helper)
     }
 }
@@ -117,7 +115,7 @@
         language = if(messages.lang.code == "cy") Cy else En,
         businessTaxAccount = request.saUserType match {
             case NonFilerSelfAssessmentUser => None
-            case _ => Some(BusinessTaxAccount(href = "#")) //TODO: double check plus add unit tests for all 5 sa cases.
+            case _ => Some(BusinessTaxAccount(href="#")) //TODO: double check plus add unit tests for all 5 sa cases.
         },
         accountHome = AccountHome(active = accountHome),
         messages = AccountMessages(active = messagesActive, messageCount = request.unreadMessageCount),
@@ -143,8 +141,8 @@
         content = Text(messages("label.beta"))
     )),
     content = HtmlContent(messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_before_link") + " " +
-            link(link = configDecorator.betaFeedbackUnauthenticatedUrl(configDecorator.deskproToken),
-                messageKey = "global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text",
+            link(link= configDecorator.betaFeedbackUnauthenticatedUrl(configDecorator.deskproToken),
+                messageKey="global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text",
                 inParagraph = true) + " " +
             messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_after_link")
     )
@@ -178,18 +176,10 @@
         <div class="hmrc-user-research-banner__container govuk-width-container">
             <div class="hmrc-user-research-banner__text">
                 <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
-                @if(messages.lang.code == "cy") {
-                    @configDecorator.bannerHomePageHeadingCy
-                } else {
-                    @configDecorator.bannerHomePageHeadingEn
-                }
+                @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageHeadingCy} else {@configDecorator.bannerHomePageHeadingEn}
                 </div>
                 <a class="govuk-link hmrc-user-research-banner__link govuk-!-font-weight-bold" rel="noopener noreferrer" href="@configDecorator.bannerHomePageLinkUrl" target="_blank">
-                @if(messages.lang.code == "cy") {
-                    @configDecorator.bannerHomePageLinkTextCy
-                } else {
-                    @configDecorator.bannerHomePageLinkTextEn
-                }
+                @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageLinkTextCy }else {@configDecorator.bannerHomePageLinkTextEn}
                 </a>
             </div>
             <button class="govuk-link hmrc-user-research-banner__close">
@@ -210,13 +200,7 @@
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),
     additionalScriptsBlock = Some(additionalScripts),
-    additionalBannersBlock = if(showChildBenefitBanner) {
-        Some(childBenefitBanner)
-    } else if(showUserResearchBanner && configDecorator.bannerHomePageIsEnabled) {
-        Some(ptaHomeBanner)
-    } else {
-        None
-    },
+    additionalBannersBlock = if(showChildBenefitBanner){Some(childBenefitBanner)}else if (showUserResearchBanner && configDecorator.bannerHomePageIsEnabled){Some(ptaHomeBanner)}else{None},
     mainContentLayout = Some(sidebarContent match {
         case Some(sidebarHtml) => twoThirdsOneThirdMainContent(sidebarHtml)
         case None =>
