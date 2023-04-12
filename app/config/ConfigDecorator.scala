@@ -244,9 +244,6 @@ class ConfigDecorator @Inject() (
 
   lazy val enrolmentStoreProxyUrl = s"$enrolmentStoreProxyService/enrolment-store-proxy"
 
-  //TODO : To be replaced with original url once SCA team completes the work
-  lazy val viewAndSaveNINumberUrl: String = s""
-
   // Links back to pertax
   lazy val pertaxFrontendHomeUrl: String  = pertaxFrontendHost + routes.HomeController.index.url
   lazy val pertaxFrontendBackLink: String = runModeConfiguration
