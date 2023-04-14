@@ -444,7 +444,7 @@ label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=B
 label.not_enrolled.content=Rydych wedi cofrestru ar gyfer Hunanasesiad. I ddefnyddio’ch cyfrif Hunanasesiad ar-lein, mae’n rhaid i chi wneud cais i gael mynediad ato.
 label.not_enrolled.link.text=Gwneud cais i gael mynediad at eich Hunanasesiad
 
-label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=Mae gennych rif Yswiriant Gwladol er mwyn sicrhau bod eich cyfraniadau Yswiriant Gwladol a threth yn cael eu cofnodi yn erbyn eich enw chi’n unig.
+label.check_your_national_insurance_contributions_and_view_and_save_=Gwirio’ch cyfraniadau Yswiriant Gwladol, bwrw golwg dros eich rhif Yswiriant Gwladol a’i gadw.
 label.your_national_insurance_number_is_your_unique_identifier=Eich rhif Yswiriant Gwladol yw’ch dynodydd unigryw.
 
 label.view_your_national_insurance_letter=Bwrw golwg ar eich llythyr Yswiriant Gwladol
