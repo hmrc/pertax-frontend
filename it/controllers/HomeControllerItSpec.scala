@@ -22,7 +22,7 @@ class HomeControllerItSpec extends IntegrationSpec {
     super.beforeEach()
 
   "/personal-account" when {
-    val url = "/personal-accountvbxdfgb"
+    val url = "/personal-account"
 
     "a " must {
       "b " in {
