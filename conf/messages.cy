@@ -607,6 +607,7 @@ label.check_if_you_are_due_a_tax_refund=rhoi gwybod i CThEM am newid cyfeiriad
 label.view_your_tax_code=gwirio’ch amcangyfrif o Dreth Incwm a’ch cod treth
 label.view_more_information_about_national_insurance_at=Gallwch weld rhagor o wybodaeth am Yswiriant Gwladol yn:
 label.www_gov_uk_national_insurance=www.gov.uk/yswiriant-gwladol
+label.www_gov_uk_national_insurance_link=https://www.gov.uk/yswiriant-gwladol
 label.or_our_youtube_channel_at=neu ar ein sianel YouTube yn:
 label.www_youtube_com_hmrcgovuk=www.youtube.com/HMRCgovuk
 label.it_is_not_proof_of=Nid yw’n dystiolaeth o’r canlynol:

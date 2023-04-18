@@ -73,6 +73,7 @@ label.check_if_you_are_due_a_tax_refund=tell us about a change to your address
 label.view_your_tax_code=check your income tax estimate and tax code
 label.view_more_information_about_national_insurance_at=View more information about National Insurance at:
 label.www_gov_uk_national_insurance=www.gov.uk/national-insurance
+label.www_gov_uk_national_insurance_link=https://www.gov.uk/national-insurance
 label.or_our_youtube_channel_at=or our YouTube channel at:
 label.www_youtube_com_hmrcgovuk=www.youtube.com/HMRCgovuk
 label.it_is_not_proof_of=It is not proof of:
