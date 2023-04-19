@@ -569,7 +569,7 @@ class HomeControllerISpec extends IntegrationSpec {
 //      httpStatus(resultSa) mustBe UNAUTHORIZED
 //    }
 
-    "show BreathingSpaceIndicator when receive true response from BreathingSpaceIfProxy" in {
+    "show PAYE tile with the correct link for a user with a valid NINO" in {
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
       server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
       server.stubFor(
@@ -585,7 +585,22 @@ class HomeControllerISpec extends IntegrationSpec {
       httpStatus(result) mustBe OK
       contentAsString(result).contains("Pay As You Earn (PAYE)") mustBe true
       contentAsString(result).contains("/check-income-tax/what-do-you-want-to-do") mustBe true
+    }
 
+    "show the correct feedback link" in {
+      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+      server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
+      server.stubFor(
+        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+          .willReturn(serverError())
+      )
+      server.stubFor(
+        put(urlMatching("/keystore/pertax-frontend/.*"))
+          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+      )
+
+      val result: Future[Result] = route(app, request).get
+      httpStatus(result) mustBe OK
       contentAsString(result).contains("feedback") mustBe true
       contentAsString(result).contains("/contact/beta-feedback-unauthenticated") mustBe true
     }
