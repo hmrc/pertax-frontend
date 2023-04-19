@@ -35,6 +35,7 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
   implicit override val patienceConfig = PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
 
   val generatedNino = new Generator().nextNino
+  val generatedUtr  = new Generator().nextAtedUtr.utr
 
   val authResponse =
     s"""
