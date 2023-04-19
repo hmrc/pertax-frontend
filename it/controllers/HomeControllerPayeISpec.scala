@@ -51,7 +51,7 @@ class HomeControllerPayeISpec extends IntegrationSpec {
   }
 
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     server.resetAll()
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(

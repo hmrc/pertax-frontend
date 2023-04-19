@@ -1,13 +1,13 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
+import models.admin.{ChildBenefitSingleAccountToggle, SingleAccountCheckToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import services.admin.FeatureFlagService
 import testUtils.IntegrationSpec
@@ -18,7 +18,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class HomeControllerFeedbackISpec extends IntegrationSpec {
+class HomeControllerChildBenefitsISpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
@@ -43,14 +43,13 @@ class HomeControllerFeedbackISpec extends IntegrationSpec {
     )
     .build()
 
-  val url = s"/personal-account"
+  val url: String  = s"/personal-account"
+  val uuid: String = UUID.randomUUID().toString
 
-  def request: FakeRequest[AnyContentAsEmpty.type] = {
-    val uuid = UUID.randomUUID().toString
+  def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
-  }
 
-  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec                             = app.injector.instanceOf[ExecutionContext]
   override def beforeEach(): Unit = {
     server.resetAll()
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
@@ -72,16 +71,33 @@ class HomeControllerFeedbackISpec extends IntegrationSpec {
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, false).futureValue
     featureFlagService.set(SingleAccountCheckToggle, true).futureValue
+    featureFlagService.set(ChildBenefitSingleAccountToggle, true).futureValue
+
   }
 
   "personal-account" must {
-    "show the correct feedback link" in {
+    val urlSingleChildBenefit = routes.InterstitialController.displayChildBenefitsSingleAccountView.url
+    "show the the child benefit tile with the correct single account link" in {
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
       contentAsString(result).contains(
-        Messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text")
+        Messages("label.child_benefit")
       ) mustBe true
-      contentAsString(result).contains("/contact/beta-feedback-unauthenticated") mustBe true
+      contentAsString(result).contains(
+        Messages("label.a_payment_to_help_with_the_cost_of_bringing_up_children")
+      ) mustBe true
+      contentAsString(result).contains(
+        urlSingleChildBenefit
+      ) mustBe true
+
+      val requestSingleChildBenefit = FakeRequest(GET, urlSingleChildBenefit)
+        .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
+      val resultSingleChildBenefit  = route(app, requestSingleChildBenefit)
+
+      Helpers.status(resultSingleChildBenefit.get) mustBe OK
+      contentAsString(resultSingleChildBenefit.get) must include("Make or manage a Child Benefit claim")
+      contentAsString(resultSingleChildBenefit.get) must include("Make a claim")
+      contentAsString(resultSingleChildBenefit.get) must include("Manage a claim")
     }
   }
 }

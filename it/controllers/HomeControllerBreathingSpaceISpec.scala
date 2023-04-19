@@ -67,7 +67,7 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
        |}
        |""".stripMargin
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     server.resetAll()
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(
