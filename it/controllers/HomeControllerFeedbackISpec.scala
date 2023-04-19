@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.http.Status._
+import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
@@ -50,25 +51,6 @@ class HomeControllerFeedbackISpec extends IntegrationSpec {
   }
 
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
-
-  val breathingSpaceUrl = s"/$generatedNino/memorandum"
-
-  val breathingSpaceTrueResponse =
-    s"""
-       |{
-       |    "breathingSpaceIndicator": true
-       |}
-       |""".stripMargin
-
-  val breathingSpaceFalseResponse =
-    s"""
-       |{
-       |    "breathingSpaceIndicator": false
-       |}
-       |""".stripMargin
-
-  val uuid: String = UUID.randomUUID().toString
-
   override def beforeEach() = {
     server.resetAll()
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
@@ -77,11 +59,16 @@ class HomeControllerFeedbackISpec extends IntegrationSpec {
         .willReturn(aResponse().withStatus(404))
     )
     server.stubFor(
-      get(urlMatching("/keystore/pertax-frontend/.*"))
-        .willReturn(aResponse().withStatus(404))
+      put(urlMatching("/keystore/pertax-frontend/.*"))
+        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
     )
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
-
+    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+    server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
+    server.stubFor(
+      get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+        .willReturn(serverError())
+    )
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, false).futureValue
     featureFlagService.set(SingleAccountCheckToggle, true).futureValue
@@ -89,20 +76,11 @@ class HomeControllerFeedbackISpec extends IntegrationSpec {
 
   "personal-account" must {
     "show the correct feedback link" in {
-      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
-      server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
-      server.stubFor(
-        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
-          .willReturn(serverError())
-      )
-      server.stubFor(
-        put(urlMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
-      )
-
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
-      contentAsString(result).contains("feedback") mustBe true
+      contentAsString(result).contains(
+        Messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text")
+      ) mustBe true
       contentAsString(result).contains("/contact/beta-feedback-unauthenticated") mustBe true
     }
   }

@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.http.Status._
+import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
@@ -50,25 +51,6 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
   }
 
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
-
-  val breathingSpaceUrl = s"/$generatedNino/memorandum"
-
-  val breathingSpaceTrueResponse =
-    s"""
-       |{
-       |    "breathingSpaceIndicator": true
-       |}
-       |""".stripMargin
-
-  val breathingSpaceFalseResponse =
-    s"""
-       |{
-       |    "breathingSpaceIndicator": false
-       |}
-       |""".stripMargin
-
-  val uuid: String = UUID.randomUUID().toString
-
   override def beforeEach() = {
     server.resetAll()
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
@@ -77,11 +59,11 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
         .willReturn(aResponse().withStatus(404))
     )
     server.stubFor(
-      get(urlMatching("/keystore/pertax-frontend/.*"))
-        .willReturn(aResponse().withStatus(404))
+      put(urlMatching("/keystore/pertax-frontend/.*"))
+        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
     )
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
-
+    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, false).futureValue
     featureFlagService.set(SingleAccountCheckToggle, true).futureValue
@@ -104,16 +86,10 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
             |}""".stripMargin)
         .toString
 
-      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
       server.stubFor(
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
           .willReturn(ok(taxComponentsJson))
       )
-      server.stubFor(
-        put(urlMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
-      )
-
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
 
@@ -123,7 +99,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       )
 
       contentAsString(result).contains(
-        "You currently transfer part of your Personal Allowance to your partner."
+        Messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner")
       ) mustBe true
       server.verify(
         1,
@@ -147,7 +123,6 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
             |}""".stripMargin)
         .toString
 
-      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
       server.stubFor(
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
           .willReturn(ok(taxComponentsJson))
@@ -161,7 +136,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       httpStatus(result) mustBe OK
 
       contentAsString(result).contains(
-        "Your partner currently transfers part of their Personal Allowance to you."
+        Messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you")
       ) mustBe true
       server.verify(
         1,
@@ -185,7 +160,6 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
             |}""".stripMargin)
         .toString
 
-      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
       server.stubFor(
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
           .willReturn(ok(taxComponentsJson))
@@ -199,7 +173,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       httpStatus(result) mustBe OK
 
       contentAsString(result).contains(
-        "Transfer part of your Personal Allowance to your partner so they pay less tax."
+        Messages("label.transfer_part_of_your_personal_allowance_to_your_partner_")
       ) mustBe true
       server.verify(
         1,

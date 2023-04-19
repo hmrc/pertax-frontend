@@ -43,14 +43,13 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
     )
     .build()
 
-  val url = s"/personal-account"
+  val url          = s"/personal-account"
+  val uuid: String = UUID.randomUUID().toString
 
-  def request: FakeRequest[AnyContentAsEmpty.type] = {
-    val uuid = UUID.randomUUID().toString
+  def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
-  }
 
-  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec                             = app.injector.instanceOf[ExecutionContext]
 
   val breathingSpaceUrl = s"/$generatedNino/memorandum"
 
@@ -68,8 +67,6 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
        |}
        |""".stripMargin
 
-  val uuid: String = UUID.randomUUID().toString
-
   override def beforeEach() = {
     server.resetAll()
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
@@ -77,9 +74,15 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
       get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
         .willReturn(aResponse().withStatus(404))
     )
+    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+    server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
     server.stubFor(
-      get(urlMatching("/keystore/pertax-frontend/.*"))
-        .willReturn(aResponse().withStatus(404))
+      get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+        .willReturn(serverError())
+    )
+    server.stubFor(
+      put(urlMatching("/keystore/pertax-frontend/.*"))
+        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
     )
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
 
@@ -92,16 +95,6 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
     val urlBreathingSpace = controllers.routes.InterstitialController.displayBreathingSpaceDetails.url
 
     "show BreathingSpaceIndicator when receive true response from BreathingSpaceIfProxy" in {
-      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
-      server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
-      server.stubFor(
-        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
-          .willReturn(serverError())
-      )
-      server.stubFor(
-        put(urlMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
-      )
       server.stubFor(
         get(urlPathEqualTo(breathingSpaceUrl))
           .willReturn(ok(breathingSpaceTrueResponse))
@@ -128,15 +121,6 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
     }
 
     "hide BreathingSpaceIndicator when receive false response from BreathingSpaceIfProxy" in {
-      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
-      server.stubFor(
-        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
-          .willReturn(serverError())
-      )
-      server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
-      )
       server.stubFor(
         get(urlPathEqualTo(breathingSpaceUrl))
           .willReturn(ok(breathingSpaceFalseResponse))
@@ -147,6 +131,30 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
       contentAsString(result).contains(urlBreathingSpace) mustBe false
       server.verify(1, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
       server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
+    }
+
+    List(
+      TOO_MANY_REQUESTS,
+      INTERNAL_SERVER_ERROR,
+      BAD_GATEWAY,
+      SERVICE_UNAVAILABLE,
+      IM_A_TEAPOT,
+      NOT_FOUND,
+      BAD_REQUEST,
+      UNPROCESSABLE_ENTITY
+    ).foreach { httpResponse =>
+      s"return a $httpResponse when $httpResponse status is received" in {
+        server.stubFor(
+          get(urlPathEqualTo(breathingSpaceUrl))
+            .willReturn(aResponse.withStatus(httpResponse))
+        )
+
+        val result: Future[Result] = route(app, request).get
+        contentAsString(result).contains(Messages("label.breathing_space")) mustBe false
+        contentAsString(result).contains(urlBreathingSpace) mustBe false
+        server.verify(1, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
+        server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
+      }
     }
   }
 }

@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.http.Status._
+import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
@@ -50,25 +51,6 @@ class HomeControllerPayeISpec extends IntegrationSpec {
   }
 
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
-
-  val breathingSpaceUrl = s"/$generatedNino/memorandum"
-
-  val breathingSpaceTrueResponse =
-    s"""
-       |{
-       |    "breathingSpaceIndicator": true
-       |}
-       |""".stripMargin
-
-  val breathingSpaceFalseResponse =
-    s"""
-       |{
-       |    "breathingSpaceIndicator": false
-       |}
-       |""".stripMargin
-
-  val uuid: String = UUID.randomUUID().toString
-
   override def beforeEach() = {
     server.resetAll()
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
@@ -76,10 +58,16 @@ class HomeControllerPayeISpec extends IntegrationSpec {
       get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
         .willReturn(aResponse().withStatus(404))
     )
+    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(
-      get(urlMatching("/keystore/pertax-frontend/.*"))
-        .willReturn(aResponse().withStatus(404))
+      get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+        .willReturn(serverError())
     )
+    server.stubFor(
+      put(urlMatching("/keystore/pertax-frontend/.*"))
+        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+    )
+    server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
 
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
@@ -89,20 +77,9 @@ class HomeControllerPayeISpec extends IntegrationSpec {
 
   "personal-account" must {
     "show PAYE tile with the correct link for a user with a valid NINO" in {
-      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
-      server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
-      server.stubFor(
-        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
-          .willReturn(serverError())
-      )
-      server.stubFor(
-        put(urlMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
-      )
-
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
-      contentAsString(result).contains("Pay As You Earn (PAYE)") mustBe true
+      contentAsString(result).contains(Messages("label.pay_as_you_earn_paye")) mustBe true
       contentAsString(result).contains("/check-income-tax/what-do-you-want-to-do") mustBe true
     }
   }
