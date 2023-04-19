@@ -93,10 +93,7 @@ class MainViewSpec extends IntegrationSpec {
     None
   )
 
-  lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-
   implicit lazy val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
-  implicit lazy val messages: Messages               = MessagesImpl(Lang("en"), messagesApi).messages
 
   trait LocalSetup {
 

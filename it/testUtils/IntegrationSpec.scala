@@ -9,6 +9,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api
 import play.api.cache.AsyncCacheApi
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.Generator
 
@@ -33,6 +34,9 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
   }
 
   implicit override val patienceConfig = PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
+
+  lazy val messagesApi                 = app.injector.instanceOf[MessagesApi]
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   val generatedNino = new Generator().nextNino
   val generatedUtr  = new Generator().nextAtedUtr.utr

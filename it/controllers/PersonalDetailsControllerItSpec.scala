@@ -1,8 +1,8 @@
 package controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, put, urlEqualTo, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.Application
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl, MessagesProvider}
+import play.api.i18n._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import testUtils.{FileHelper, IntegrationSpec}
@@ -17,14 +17,12 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
     )
     .build()
 
-  val uuid                             = UUID.randomUUID().toString
-  val cacheMap                         = s"/keystore/pertax-frontend/session-$uuid/data/"
-  val agentClientAuthorisationUrl      = "/agent-client-authorisation/status"
-  val personDetailsUrl                 = s"/citizen-details/$generatedNino/designatory-details"
-  implicit lazy val messageProvider    = app.injector.instanceOf[MessagesProvider]
-  lazy val messagesApi                 = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
-  val paperlessStatusTargetUrl         =
+  val uuid                          = UUID.randomUUID().toString
+  val cacheMap                      = s"/keystore/pertax-frontend/session-$uuid/data/"
+  val agentClientAuthorisationUrl   = "/agent-client-authorisation/status"
+  val personDetailsUrl              = s"/citizen-details/$generatedNino/designatory-details"
+  implicit lazy val messageProvider = app.injector.instanceOf[MessagesProvider]
+  val paperlessStatusTargetUrl      =
     "http://localhost/paperless/check-settings?returnUrl=encrypted1&returnLinkText=encrypted2"
 
   def paperlessStatusMessage(responseCode: String) = s"""{
