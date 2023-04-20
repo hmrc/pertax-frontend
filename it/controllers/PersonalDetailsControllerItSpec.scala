@@ -17,15 +17,15 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
     )
     .build()
 
-  val uuid                          = UUID.randomUUID().toString
-  val cacheMap                      = s"/keystore/pertax-frontend/session-$uuid/data/"
-  val agentClientAuthorisationUrl   = "/agent-client-authorisation/status"
-  val personDetailsUrl              = s"/citizen-details/$generatedNino/designatory-details"
-  implicit lazy val messageProvider = app.injector.instanceOf[MessagesProvider]
-  val paperlessStatusTargetUrl      =
+  val uuid: String                                    = UUID.randomUUID().toString
+  val cacheMap: String                                = s"/keystore/pertax-frontend/session-$uuid/data/"
+  val agentClientAuthorisationUrl: String             = "/agent-client-authorisation/status"
+  val personDetailsUrl: String                        = s"/citizen-details/$generatedNino/designatory-details"
+  implicit lazy val messageProvider: MessagesProvider = app.injector.instanceOf[MessagesProvider]
+  val paperlessStatusTargetUrl: String                =
     "http://localhost/paperless/check-settings?returnUrl=encrypted1&returnLinkText=encrypted2"
 
-  def paperlessStatusMessage(responseCode: String) = s"""{
+  def paperlessStatusMessage(responseCode: String): String = s"""{
                                                        |  "status": {
                                                        |    "name": "${responseCode.toUpperCase()}",
                                                        |    "category": "INFO",

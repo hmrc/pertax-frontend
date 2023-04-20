@@ -48,14 +48,14 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
   def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
 
-  implicit lazy val ec                             = app.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext           = app.injector.instanceOf[ExecutionContext]
 
   override def beforeEach(): Unit = {
     server.resetAll()
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(
       get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-        .willReturn(aResponse().withStatus(404))
+        .willReturn(aResponse().withStatus(NOT_FOUND))
     )
     server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
     server.stubFor(
@@ -69,8 +69,8 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
 
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-    featureFlagService.set(TaxcalcToggle, false).futureValue
-    featureFlagService.set(SingleAccountCheckToggle, true).futureValue
+    featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
+    featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
   }
 
   "personal-account" must {

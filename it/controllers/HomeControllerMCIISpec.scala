@@ -47,13 +47,13 @@ class HomeControllerMCIISpec extends IntegrationSpec {
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
   }
 
-  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   override def beforeEach(): Unit = {
     server.resetAll()
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(
       get(urlMatching("/keystore/pertax-frontend/.*"))
-        .willReturn(aResponse().withStatus(404))
+        .willReturn(aResponse().withStatus(NOT_FOUND))
     )
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
 
@@ -64,8 +64,8 @@ class HomeControllerMCIISpec extends IntegrationSpec {
     )
 
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-    featureFlagService.set(TaxcalcToggle, false).futureValue
-    featureFlagService.set(SingleAccountCheckToggle, true).futureValue
+    featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
+    featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
   }
 
   "personal-account" must {
