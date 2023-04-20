@@ -240,16 +240,8 @@ label.back_to_account_home=Back to account home
 label.return_to_your_account_home=Return to your account home
 label.national_insurance_summary=National Insurance summary
 label.report_changes_that_affect_your_child_benefit=Report changes that affect your Child Benefit
-label.if_your_childs_circumstances_change=If your child’s circumstances change
 label.tell_us_if_your_childs_circumstances_change=Tell us if your child’s circumstances change
 label.tell_us_if_your_circumstances_change=Tell us if your circumstances change
-label.child_benefit_stops_on_31_august_=Child Benefit stops on 31 August on or after your child’s 16th birthday if they leave approved education or training.
-label.tell_us_if_your_child=Tell us if your child:
-label.apply_for_an_extension=Apply for an extension
-label.you_could_get_child_benefit_for_20_weeks_=You could get Child Benefit for 20 weeks (called an ‘extension’) if your child leaves approved education or training and either:
-label.registers_with_their_local_careers_service_=registers with their local careers service, Connexions (or a similar organisation in Northern Ireland, the EU, Norway, Iceland or Liechtenstein)
-label.signs_up_to_join_the_armed_forces=signs up to join the armed forces
-label.other_changes_to_your_child_benefit_claim=Other changes to your Child Benefit claim
 label.tell_us_if_you_need_to=Tell us if you need to:
 label.if_you_do_not_currently_claim_child_benefit=If you do not currently claim Child Benefit
 label.any_updates_to_your_contact_details=Any updates to your contact details take up to 2 days to appear on this site.
@@ -407,9 +399,6 @@ text.stop_or_restart_your_child_benefit_payments_link_text=stop or restart your 
 text.stop_or_restart_your_child_benefit_payments_text_after_link=if you or your partner are affected by the High Income Child Benefit Charge
 text.if_you_do_not_claim_child_benefit_text_before_link=If you do not claim Child Benefit you normally qualify for it if you are responsible for a child under 16 (or under 20 if they stay in approved education or training) and you live in the UK.
 text.if_you_do_not_claim_child_benefit_link_text=Check if you can claim Child Benefit
-text.stays_in_education_or_training=stays in education or training
-text.leaves_education_or_training=leaves education or training
-text.has_any_other_change_in_their_circumstances_link_text=has any other change in their circumstances
 text.has_any_other_change_in_their_circumstances_text_after_link=such as they leave the household
 
 #

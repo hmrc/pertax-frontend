@@ -89,11 +89,11 @@ class HomeController @Inject() (
                                                                                                  taxCalculationStateCyMinusOne,
                                                                                                  taxCalculationStateCyMinusTwo
                                                                                                )
-
-            benefitCards <- homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
           } yield {
 
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
+            val benefitCards: Seq[Html] =
+              homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
 
             Ok(
               homeView(

@@ -171,16 +171,8 @@ label.return_to_your_account_home=Yn ôl i hafan eich cyfrif
 label.national_insurance_summary=Crynodeb Yswiriant Gwladol
 label.child_benefit=Budd-dal Plant
 label.report_changes_that_affect_your_child_benefit=Rhoi gwybod am newidiadau sy’n effeithio ar eich Budd-dal Plant
-label.if_your_childs_circumstances_change=Os yw amgylchiadau eich plentyn yn newid
 label.tell_us_if_your_childs_circumstances_change=Rhowch wybod i ni os bydd amgylchiadau’ch plentyn yn newid
 label.tell_us_if_your_circumstances_change=Rhowch wybod i ni os yw’ch amgylchiadau wedi newid
-label.child_benefit_stops_on_31_august_=Mae Budd-dal Plant yn dod i ben ar 31 Awst ar neu ar ôl pen-blwydd eich plentyn yn 16 oed os yw’n gadael addysg neu hyfforddiant cymeradwy
-label.tell_us_if_your_child=Rhowch wybod i ni:
-label.apply_for_an_extension=Gwneud cais am estyniad
-label.you_could_get_child_benefit_for_20_weeks_=Mae’n bosibl i chi gael Budd-dal Plant am 20 wythnos (a elwir yn ‘estyniad’) os yw’ch plentyn yn gadael addysg neu hyfforddiant cymeradwy a naill ai’n:
-label.registers_with_their_local_careers_service_=cofrestru â’i wasanaeth gyrfaoedd lleol, Connexions (neu sefydliad tebyg yng Ngogledd Iwerddon, yr UE, Norwy, Gwlad yr Iâ neu Liechtenstein)
-label.signs_up_to_join_the_armed_forces=arwyddo i ymuno â’r lluoedd arfog
-label.other_changes_to_your_child_benefit_claim=Newidiadau eraill i’ch cais am Fudd-dal Plant
 label.tell_us_if_you_need_to=Rhowch wybod i ni os oes angen i chi:
 label.if_you_do_not_currently_claim_child_benefit=Os nad ydych yn gwneud cais am Fudd-dal Plant ar hyn o bryd
 label.any_updates_to_your_contact_details=Mae diweddariadau i’ch manylion cyswllt yn cymryd hyd at 2 ddiwrnod i ymddangos ar y safle hwn.
@@ -388,9 +380,6 @@ text.stop_or_restart_your_child_benefit_payments_link_text=ailddechrau neu roi�
 text.stop_or_restart_your_child_benefit_payments_text_after_link=os yw’r Tâl Incwm Uchel Budd-dal Plant yn effeithio arnoch chi neu’ch partner
 text.if_you_do_not_claim_child_benefit_text_before_link=Os nad ydych yn hawlio Budd-dal Plant, rydych fel arfer yn gymwys ar ei gyfer os ydych yn gyfrifol am blentyn sydd o dan 16 oed (neu o dan 20 oed os yw’n aros mewn addysg neu hyfforddiant cymeradwy), ac rydych yn byw yn y DU.
 text.if_you_do_not_claim_child_benefit_link_text=Gwiriwch a allwch hawlio Budd-dal Plant
-text.stays_in_education_or_training=os yw’ch plentyn yn aros mewn addysg neu hyfforddiant
-text.leaves_education_or_training=yn gadael hyfforddiant neu addysg
-text.has_any_other_change_in_their_circumstances_link_text=ag unrhyw newidiadau eraill yn ei amgylchiadau
 text.has_any_other_change_in_their_circumstances_text_after_link=megis gadael yr aelwyd
 
 #

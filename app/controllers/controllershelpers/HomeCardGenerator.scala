@@ -41,7 +41,6 @@ class HomeCardGenerator @Inject() (
   taxCalculationView: TaxCalculationView,
   nationalInsuranceView: NationalInsuranceView,
   taxCreditsView: TaxCreditsView,
-  childBenefitView: ChildBenefitView,
   childBenefitSingleAccountView: ChildBenefitSingleAccountView,
   marriageAllowanceView: MarriageAllowanceView,
   statePensionView: StatePensionView,
@@ -149,34 +148,22 @@ class HomeCardGenerator @Inject() (
   def getBenefitCards(
     taxComponents: Option[TaxComponents],
     trustedHelper: Option[TrustedHelper]
-  )(implicit messages: Messages): Future[List[Html]] =
+  )(implicit messages: Messages): List[Html] =
     if (trustedHelper.isEmpty) {
-      Future
-        .sequence(
-          List(
-            Future.successful(getTaxCreditsCard()),
-            getChildBenefitCard(),
-            Future.successful(getMarriageAllowanceCard(taxComponents))
-          )
-        )
-        .map(_.flatten)
+      List(
+        getTaxCreditsCard(),
+        getChildBenefitCard(),
+        getMarriageAllowanceCard(taxComponents)
+      ).flatten
     } else {
-      Future.successful(List.empty)
+      List.empty
     }
 
   def getTaxCreditsCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(taxCreditsView())
 
-  def getChildBenefitCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
-    featureFlagService
-      .get(ChildBenefitSingleAccountToggle)
-      .map { toggle =>
-        if (toggle.isEnabled) {
-          Some(childBenefitSingleAccountView())
-        } else {
-          Some(childBenefitView())
-        }
-      }
+  def getChildBenefitCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    Some(childBenefitSingleAccountView())
 
   def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit
     messages: Messages
