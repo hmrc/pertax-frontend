@@ -36,7 +36,7 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
       Option(document.select(".nino").first).isDefined mustBe true
       document.body().toString must include(messages("label.check_your_national_insurance_contributions"))
       document.body().toString must include(
-        messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")
+        messages("label.every_year_you_pay_national_insurance_contributions_to_qualify_")
       )
     }
 
