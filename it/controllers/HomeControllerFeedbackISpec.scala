@@ -53,22 +53,29 @@ class HomeControllerFeedbackISpec extends IntegrationSpec {
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   override def beforeEach(): Unit = {
     server.resetAll()
-    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(
-      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+      get(urlMatching("/keystore/pertax-frontend/.*"))
         .willReturn(aResponse().withStatus(NOT_FOUND))
     )
     server.stubFor(
       put(urlMatching("/keystore/pertax-frontend/.*"))
         .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
     )
-    server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
-    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+    server.stubFor(
+      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        .willReturn(aResponse().withStatus(NOT_FOUND))
+    )
+
     server.stubFor(get(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")).willReturn(serverError()))
     server.stubFor(
       get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
         .willReturn(serverError())
     )
+    server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
+    server.stubFor(get(urlMatching(s"/$generatedNino/memorandum")).willReturn(serverError()))
+
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
     featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue

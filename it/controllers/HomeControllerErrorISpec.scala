@@ -52,20 +52,25 @@ class HomeControllerErrorISpec extends IntegrationSpec {
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   override def beforeEach(): Unit = {
     server.resetAll()
-    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(
-      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+      get(urlMatching("/keystore/pertax-frontend/.*"))
         .willReturn(aResponse().withStatus(NOT_FOUND))
-    )
-    server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
-    server.stubFor(
-      get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
-        .willReturn(serverError())
     )
     server.stubFor(
       put(urlMatching(s"/keystore/pertax-frontend/.*"))
         .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
     )
+    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+    server.stubFor(
+      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        .willReturn(aResponse().withStatus(NOT_FOUND))
+    )
+    server.stubFor(
+      get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+        .willReturn(serverError())
+    )
+    server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
+
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
     featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue

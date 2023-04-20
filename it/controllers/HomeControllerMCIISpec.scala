@@ -5,12 +5,14 @@ import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
+import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import services.admin.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.http.cache.client.CacheMap
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -50,18 +52,22 @@ class HomeControllerMCIISpec extends IntegrationSpec {
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   override def beforeEach(): Unit = {
     server.resetAll()
-    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(
       get(urlMatching("/keystore/pertax-frontend/.*"))
         .willReturn(aResponse().withStatus(NOT_FOUND))
     )
-    server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
-
-    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+    server.stubFor(
+      put(urlMatching("/keystore/pertax-frontend/.*"))
+        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+    )
+    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(
       get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
         .willReturn(aResponse().withStatus(LOCKED))
     )
+    server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
+    server.stubFor(get(urlMatching(s"/$generatedNino/memorandum")).willReturn(serverError()))
 
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, enabled = false).futureValue

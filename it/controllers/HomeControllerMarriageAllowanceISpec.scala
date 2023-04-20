@@ -1,7 +1,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
+import models.admin.{SingleAccountCheckToggle, TaxComponentsToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
@@ -53,20 +53,27 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   override def beforeEach(): Unit = {
     server.resetAll()
-    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(
-      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+      get(urlMatching("/keystore/pertax-frontend/.*"))
         .willReturn(aResponse().withStatus(NOT_FOUND))
     )
     server.stubFor(
       put(urlMatching("/keystore/pertax-frontend/.*"))
         .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
     )
+    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+    server.stubFor(
+      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        .willReturn(aResponse().withStatus(NOT_FOUND))
+    )
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
-    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+    server.stubFor(get(urlMatching(s"/$generatedNino/memorandum")).willReturn(serverError()))
+
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
     featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
+    featureFlagService.set(TaxComponentsToggle, enabled = true).futureValue
   }
 
   "personal-account" must {
