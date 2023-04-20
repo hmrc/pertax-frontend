@@ -14,7 +14,7 @@ import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
 
@@ -32,8 +32,6 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
 
   def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
-
-  implicit lazy val ec: ExecutionContext           = app.injector.instanceOf[ExecutionContext]
 
   override def beforeEach(): Unit = {
     server.resetAll()

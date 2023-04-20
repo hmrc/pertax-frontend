@@ -15,7 +15,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 
 import java.time.LocalDateTime
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class HomeControllerErrorISpec extends IntegrationSpec {
 
@@ -24,7 +24,21 @@ class HomeControllerErrorISpec extends IntegrationSpec {
       "feature.breathing-space-indicator.enabled"      -> true,
       "feature.breathing-space-indicator.timeoutInSec" -> 4,
       "microservice.services.taxcalc.port"             -> server.port(),
-      "microservice.services.tai.port"                 -> server.port()
+      "microservice.services.tai.port"                 -> server.port(),
+      "feature.business-hours.Monday.start-time"       -> "0:00",
+      "feature.business-hours.Monday.end-time"         -> "23:59",
+      "feature.business-hours.Tuesday.start-time"      -> "0:00",
+      "feature.business-hours.Tuesday.end-time"        -> "23:59",
+      "feature.business-hours.Wednesday.start-time"    -> "0:00",
+      "feature.business-hours.Wednesday.end-time"      -> "23:59",
+      "feature.business-hours.Thursday.start-time"     -> "0:00",
+      "feature.business-hours.Thursday.end-time"       -> "23:59",
+      "feature.business-hours.Friday.start-time"       -> "0:00",
+      "feature.business-hours.Friday.end-time"         -> "23:59",
+      "feature.business-hours.Saturday.start-time"     -> "0:00",
+      "feature.business-hours.Saturday.end-time"       -> "23:59",
+      "feature.business-hours.Sunday.start-time"       -> "0:00",
+      "feature.business-hours.sunday.end-time"         -> "23:59"
     )
     .build()
 
@@ -35,27 +49,9 @@ class HomeControllerErrorISpec extends IntegrationSpec {
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
   }
 
-  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   override def beforeEach(): Unit = {
     server.resetAll()
-    server.stubFor(
-      get(urlMatching("/keystore/pertax-frontend/.*"))
-        .willReturn(aResponse().withStatus(NOT_FOUND))
-    )
-    server.stubFor(
-      put(urlMatching(s"/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
-    )
-    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
-    server.stubFor(
-      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-        .willReturn(aResponse().withStatus(NOT_FOUND))
-    )
-    server.stubFor(
-      get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
-        .willReturn(serverError())
-    )
-    server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
+    beforeEachHomeController(auth = false, memorandum = false)
 
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
@@ -92,6 +88,18 @@ class HomeControllerErrorISpec extends IntegrationSpec {
            |""".stripMargin
 
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseNoHmrcPt)))
+      server.stubFor(
+        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+          .willReturn(serverError())
+      )
+      server.stubFor(
+        put(urlMatching(s"/keystore/pertax-frontend/.*"))
+          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+      )
+//      server.stubFor(
+//        get(urlPathEqualTo(breathingSpaceUrl))
+//          .willReturn(ok(breathingSpaceTrueResponse))
+//      )
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe SEE_OTHER

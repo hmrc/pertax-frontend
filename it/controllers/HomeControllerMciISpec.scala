@@ -13,7 +13,7 @@ import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class HomeControllerMciISpec extends IntegrationSpec {
 
@@ -33,7 +33,6 @@ class HomeControllerMciISpec extends IntegrationSpec {
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
   }
 
-  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   override def beforeEach(): Unit = {
     server.resetAll()
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))

@@ -13,7 +13,7 @@ import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
 
@@ -32,9 +32,7 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
   def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
 
-  implicit lazy val ec: ExecutionContext           = app.injector.instanceOf[ExecutionContext]
-
-  val breathingSpaceUrl = s"/$generatedNino/memorandum"
+  val breathingSpaceUrl                            = s"/$generatedNino/memorandum"
 
   val breathingSpaceTrueResponse: String =
     s"""

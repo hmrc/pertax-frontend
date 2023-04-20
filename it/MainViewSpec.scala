@@ -44,8 +44,7 @@ import scala.util.Random
 
 class MainViewSpec extends IntegrationSpec {
 
-  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-  implicit val hc                        = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
+  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(

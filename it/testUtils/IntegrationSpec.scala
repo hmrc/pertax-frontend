@@ -13,10 +13,10 @@ import play.api.cache.AsyncCacheApi
 import play.api.http.Status.NOT_FOUND
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.domain.{Generator, Nino}
 
 import java.time.LocalDateTime
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
 
@@ -36,15 +36,18 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
 
-  implicit override val patienceConfig = PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
+  implicit override val patienceConfig: PatienceConfig =
+    PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
 
-  lazy val messagesApi                 = app.injector.instanceOf[MessagesApi]
+  lazy val messagesApi: MessagesApi    = app.injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  val generatedNino = new Generator().nextNino
-  val generatedUtr  = new Generator().nextAtedUtr.utr
+  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
-  val authResponse =
+  val generatedNino: Nino  = new Generator().nextNino
+  val generatedUtr: String = new Generator().nextAtedUtr.utr
+
+  val authResponse: String =
     s"""
        |{
        |    "confidenceLevel": 200,
@@ -81,7 +84,7 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
        |}
        |""".stripMargin
 
-  val citizenResponse =
+  val citizenResponse: String =
     s"""|
        |{
        |  "name": {

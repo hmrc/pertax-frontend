@@ -13,7 +13,7 @@ import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class PersonalDetailsControllerSpec extends IntegrationSpec {
   val designatoryDetails =
@@ -57,8 +57,6 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
     val uuid = UUID.randomUUID().toString
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
   }
-
-  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
 
   val url       = s"/personal-account/profile-and-settings"
   val agentLink = "/manage-your-tax-agents"

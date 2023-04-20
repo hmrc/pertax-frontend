@@ -12,7 +12,7 @@ import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class HomeControllerChildBenefitsISpec extends IntegrationSpec {
 
@@ -31,16 +31,14 @@ class HomeControllerChildBenefitsISpec extends IntegrationSpec {
   def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
 
-  implicit lazy val ec: ExecutionContext           = app.injector.instanceOf[ExecutionContext]
   override def beforeEach(): Unit = {
     server.resetAll()
-    beforeEachHomeController(auth = false, memorandum = false)
+    beforeEachHomeController()
 
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
     featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
     featureFlagService.set(ChildBenefitSingleAccountToggle, enabled = true).futureValue
-
   }
 
   "personal-account" must {

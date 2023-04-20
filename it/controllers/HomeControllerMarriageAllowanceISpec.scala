@@ -16,7 +16,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 
 import java.time.LocalDateTime
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
 
@@ -36,7 +36,6 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
   }
 
-  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   override def beforeEach(): Unit = {
     server.resetAll()
     beforeEachHomeController()
