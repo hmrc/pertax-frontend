@@ -122,20 +122,22 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
   }
 
-  def beforeEachHomeController(auth: Boolean = true, memorandum: Boolean = true): StubMapping = {
+  def beforeEachHomeController(auth: Boolean = true, memorandum: Boolean = true, matchingDetails: Boolean = true): StubMapping = {
     if (auth) {
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     }
     if (memorandum) {
       server.stubFor(get(urlMatching(s"/$generatedNino/memorandum")).willReturn(serverError()))
     }
-    server.stubFor(
-      get(urlMatching("/keystore/pertax-frontend/.*"))
-        .willReturn(aResponse().withStatus(NOT_FOUND))
-    )
-    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+    if (matchingDetails) {
+      server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+    }
     server.stubFor(
       get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        .willReturn(aResponse().withStatus(NOT_FOUND))
+    )
+    server.stubFor(
+      get(urlMatching("/keystore/pertax-frontend/.*"))
         .willReturn(aResponse().withStatus(NOT_FOUND))
     )
     server.stubFor(
