@@ -35,7 +35,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
 
   override def beforeEach(): Unit = {
     server.resetAll()
-    beforeEachHomeController(matchingDetails = false)
+    beforeEachHomeController(auth = false, matchingDetails = false)
     server.stubFor(
       put(urlMatching("/keystore/pertax-frontend/.*"))
         .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
@@ -73,6 +73,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
            |{
            |    "confidenceLevel": 200,
            |    "nino": "$generatedNino",
+           |    "sautr": "$generatedUtr",
            |    "name": {
            |        "name": "John",
            |        "lastName": "Smith"
