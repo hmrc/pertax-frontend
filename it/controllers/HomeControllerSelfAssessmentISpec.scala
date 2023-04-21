@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.{SingleAccountCheckToggle, TaxComponentsToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.http.Status._
+import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
@@ -111,7 +112,14 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
-      contentAsString(result).contains(generatedUtr) mustBe true
+
+      println(result)
+      println("*"*100)
+      println(generatedUtr)
+      println("*"*100)
+
+      contentAsString(result).contains(Messages("label.home_page.utr")) mustBe true // label.home_page.utr
+      contentAsString(result).contains(generatedUtr) mustBe true // label.home_page.utr
 
       val urlSa                    = "/personal-account/self-assessment-home"
       val requestSa                = FakeRequest(GET, urlSa)
