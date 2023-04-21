@@ -21,10 +21,11 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled"      -> true,
-      "feature.breathing-space-indicator.timeoutInSec" -> 4,
-      "microservice.services.taxcalc.port"             -> server.port(),
-      "microservice.services.tai.port"                 -> server.port()
+      "feature.breathing-space-indicator.enabled"        -> true,
+      "feature.breathing-space-indicator.timeoutInSec"   -> 4,
+      "microservice.services.taxcalc.port"               -> server.port(),
+      "microservice.services.tai.port"                   -> server.port(),
+      "microservice.services.enrolment-store-proxy.port" -> server.port()
     )
     .build()
 
@@ -40,6 +41,10 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
     server.stubFor(
       put(urlMatching("/keystore/pertax-frontend/.*"))
         .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+    )
+    server.stubFor(
+      get(urlMatching(s"/enrolment-store-proxy/enrolment-store/enrolments/IR-SA~UTR~$generatedUtr/users"))
+        .willReturn(aResponse().withStatus(NO_CONTENT))
     )
 
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
