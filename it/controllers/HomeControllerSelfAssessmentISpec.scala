@@ -117,14 +117,8 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
-
-      println(contentAsString(result))
-      println("*" * 100)
-      println(generatedUtr)
-      println("*" * 100)
-
-      contentAsString(result).contains(Messages("label.home_page.utr")) mustBe true // label.home_page.utr
-      contentAsString(result).contains(generatedUtr) mustBe true // label.home_page.utr
+      contentAsString(result).contains(Messages("label.home_page.utr")) mustBe true
+      contentAsString(result).contains(generatedUtr) mustBe true
 
       val urlSa                    = "/personal-account/self-assessment-home"
       val requestSa                = FakeRequest(GET, urlSa)
