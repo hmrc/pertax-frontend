@@ -169,6 +169,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
            |}
            |""".stripMargin
 
+      server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
 
       val result: Future[Result] = route(app, request).get
@@ -233,6 +234,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
            |}
            |""".stripMargin
 
+      server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
 
       val result: Future[Result] = route(app, request).get
@@ -288,6 +290,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
            |}
            |""".stripMargin
 
+      server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
 
       val result: Future[Result] = route(app, request).get

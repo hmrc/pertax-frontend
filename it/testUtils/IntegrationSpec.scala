@@ -122,7 +122,11 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
   }
 
-  def beforeEachHomeController(auth: Boolean = true, memorandum: Boolean = true, matchingDetails: Boolean = true): StubMapping = {
+  def beforeEachHomeController(
+    auth: Boolean = true,
+    memorandum: Boolean = true,
+    matchingDetails: Boolean = true
+  ): StubMapping = {
     if (auth) {
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     }
