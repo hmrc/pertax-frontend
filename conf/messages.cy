@@ -521,6 +521,7 @@ label.manage_a_claim=Rheoli hawliad
 label.view_your_child_benefit_payment_history=Bwrw golwg dros hanes eich taliadau Budd-dal Plant
 label.view_your_proof_of_entitlement_to_child_benefit=Bwrw golwg dros eich tystiolaeth o hawl i Fudd-dal Plant
 label.high_income_child_benefit_charge=Tâl Treth Budd-dal Plant Incwm Uchel
+label.change_your_bank_details=Newid eich manylion banc
 
 # Pensions
 title.pensions=Pensiynau
