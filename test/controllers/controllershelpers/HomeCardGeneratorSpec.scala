@@ -54,7 +54,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val taxCalculation            = injected[TaxCalculationView]
   private val nationalInsurance         = injected[NationalInsuranceView]
   private val taxCredits                = injected[TaxCreditsView]
-  private val childBenefit              = injected[ChildBenefitView]
   private val childBenefitSingleAccount = injected[ChildBenefitSingleAccountView]
   private val marriageAllowance         = injected[MarriageAllowanceView]
   private val statePension              = injected[StatePensionView]
@@ -77,7 +76,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       taxCalculation,
       nationalInsurance,
       taxCredits,
-      childBenefit,
       childBenefitSingleAccount,
       marriageAllowance,
       statePension,
@@ -177,7 +175,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       lazy val cardBody =
         homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), Some(helper))
 
-      cardBody.value.get.get.isEmpty
+      cardBody.isEmpty
 
       //Just verifying the feature flags as it should only be checked if there is no trusted helpers
       verify(mockFeatureFlagService, times(0)).get(any())
@@ -186,15 +184,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "should have benefit cards when no trusted helper exists in the request" in {
 
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
-
       homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), None)
 
-      //Just verifying the feature flags as it should only be checked if there is no trusted helpers
-      verify(mockFeatureFlagService, times(1)).get(any())
     }
   }
 
@@ -235,22 +226,10 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "Calling getChildBenefitCard" must {
-    "returns the child Benefit markup if ChildBenefitSingleAccountToggle is false" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle)))
-        .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)))
-
+    "returns the child Benefit single sign on markup" in {
       lazy val cardBody = homeCardGenerator.getChildBenefitCard()
 
-      cardBody.futureValue mustBe Some(childBenefit())
-    }
-
-    "returns the child Benefit single sign on markup if ChildBenefitSingleAccountToggle is true" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle)))
-        .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = true)))
-
-      lazy val cardBody = homeCardGenerator.getChildBenefitCard()
-
-      cardBody.futureValue mustBe Some(childBenefitSingleAccount())
+      cardBody mustBe Some(childBenefitSingleAccount())
     }
   }
 
@@ -375,7 +354,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             taxCalculation,
             nationalInsurance,
             taxCredits,
-            childBenefit,
             childBenefitSingleAccount,
             marriageAllowance,
             statePension,
@@ -421,7 +399,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             taxCalculation,
             nationalInsurance,
             taxCredits,
-            childBenefit,
             childBenefitSingleAccount,
             marriageAllowance,
             statePension,
@@ -452,7 +429,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             taxCalculation,
             nationalInsurance,
             taxCredits,
-            childBenefit,
             childBenefitSingleAccount,
             marriageAllowance,
             statePension,
@@ -489,7 +465,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             taxCalculation,
             nationalInsurance,
             taxCredits,
-            childBenefit,
             childBenefitSingleAccount,
             marriageAllowance,
             statePension,
@@ -526,7 +501,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             taxCalculation,
             nationalInsurance,
             taxCredits,
-            childBenefit,
             childBenefitSingleAccount,
             marriageAllowance,
             statePension,
@@ -583,7 +557,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           taxCalculation,
           nationalInsurance,
           taxCredits,
-          childBenefit,
           childBenefitSingleAccount,
           marriageAllowance,
           statePension,

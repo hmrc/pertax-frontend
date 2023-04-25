@@ -207,19 +207,13 @@ class ConfigDecorator @Inject() (
   lazy val personalAccountYourAddress         = "/personal-account/your-address"
   lazy val personalAccount                    = "/personal-account"
 
-  lazy val childBenefitsStaysInEducation            =
-    s"$dfsFrontendHost/digital-forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/draft/guide"
-  lazy val childBenefitsLaterLeavesEducation        =
-    s"$dfsFrontendHost/digital-forms/form/Tell-Child-Benefit-about-your-child-leaving-non-advanced-education-or-approved-training/draft/guide"
-  lazy val childBenefitsHasAnyChangeInCircumstances =
-    s"$dfsFrontendHost/digital-forms/form/child-benefit-child-change-of-circumstances/draft/guide"
-  lazy val childBenefitsApplyForExtension           =
+  lazy val childBenefitsApplyForExtension   =
     s"$dfsFrontendHost/digital-forms/form/Application-for-extension-of-Child-Benefit/draft/guide"
-  lazy val childBenefitsReportChange                =
+  lazy val childBenefitsReportChange        =
     s"$dfsFrontendHost/digital-forms/form/Child-Benefit-Claimant-Change-of-Circumstances/draft/guide"
-  lazy val childBenefitsAuthoriseTaxAdvisor         =
+  lazy val childBenefitsAuthoriseTaxAdvisor =
     s"$dfsFrontendHost/digital-forms/form/authorise-a-tax-adviser-for-high-income-child-benefit-charge-matters/draft/guide"
-  lazy val childBenefitsStopOrRestart               =
+  lazy val childBenefitsStopOrRestart       =
     s"$dfsFrontendHost/digital-forms/form/high-income-child-benefit-tax-charge/draft/guide"
 
   lazy val childBenefitsCheckIfYouCanClaim: String = "https://www.gov.uk/child-benefit/overview"
