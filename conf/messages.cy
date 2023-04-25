@@ -171,8 +171,6 @@ label.return_to_your_account_home=Yn ôl i hafan eich cyfrif
 label.national_insurance_summary=Crynodeb Yswiriant Gwladol
 label.child_benefit=Budd-dal Plant
 label.report_changes_that_affect_your_child_benefit=Rhoi gwybod am newidiadau sy’n effeithio ar eich Budd-dal Plant
-label.tell_us_if_your_childs_circumstances_change=Rhowch wybod i ni os bydd amgylchiadau’ch plentyn yn newid
-label.tell_us_if_your_circumstances_change=Rhowch wybod i ni os yw’ch amgylchiadau wedi newid
 label.tell_us_if_you_need_to=Rhowch wybod i ni os oes angen i chi:
 label.if_you_do_not_currently_claim_child_benefit=Os nad ydych yn gwneud cais am Fudd-dal Plant ar hyn o bryd
 label.any_updates_to_your_contact_details=Mae diweddariadau i’ch manylion cyswllt yn cymryd hyd at 2 ddiwrnod i ymddangos ar y safle hwn.
@@ -500,8 +498,6 @@ label.manage_your_marriage_allowance=Rheoli’ch Lwfans Priodasol
 label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you=Ar hyn o bryd, mae’ch partner yn trosglwyddo rhan o’i Lwfans Personol i chi.
 label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=Ar hyn o bryd, rydych yn trosglwyddo rhan o’ch Lwfans Personol i’ch partner.
 
-label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children=Taliad yn rhydd o dreth i helpu rhieni gyda chostau magu plant.
-label.tell_us_if_your_child_is_staying_in_full_time_education=Rhowch wybod i ni a yw’ch plentyn yn aros mewn addysg amser llawn
 label.a_payment_to_help_with_the_cost_of_bringing_up_children=Taliad i helpu gyda chostau magu plant
 label.make_or_manage_a_child_benefit_claim=Gwneud neu reoli hawliad am Fudd-dal Plant
 label.make_a_claim=Gwneud hawliad
