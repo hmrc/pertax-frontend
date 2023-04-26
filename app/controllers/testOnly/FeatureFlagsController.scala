@@ -51,7 +51,6 @@ class FeatureFlagsController @Inject() (
           PaperlessInterruptToggle          -> false,
           TaxSummariesTileToggle            -> true,
           SingleAccountCheckToggle          -> false,
-          ChildBenefitSingleAccountToggle   -> true,
           PertaxBackendToggle               -> true
         )
       )
