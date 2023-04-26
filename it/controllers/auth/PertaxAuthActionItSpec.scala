@@ -45,8 +45,6 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
     .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
     .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle)))
-    .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, true)))
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
     .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
 
