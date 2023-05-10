@@ -1,6 +1,6 @@
 package controllers
 
-import models.admin.{ChildBenefitSingleAccountToggle, SingleAccountCheckToggle, TaxcalcToggle}
+import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
@@ -38,7 +38,6 @@ class HomeControllerChildBenefitsISpec extends IntegrationSpec {
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
     featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
-    featureFlagService.set(ChildBenefitSingleAccountToggle, enabled = true).futureValue
   }
 
   "personal-account" must {
@@ -64,6 +63,17 @@ class HomeControllerChildBenefitsISpec extends IntegrationSpec {
       contentAsString(resultSingleChildBenefit.get) must include(Messages("label.make_or_manage_a_child_benefit_claim"))
       contentAsString(resultSingleChildBenefit.get) must include(Messages("label.make_a_claim"))
       contentAsString(resultSingleChildBenefit.get) must include(Messages("label.manage_a_claim"))
+      contentAsString(resultSingleChildBenefit.get) must include(Messages("label.claim_child_benefit"))
+      contentAsString(resultSingleChildBenefit.get) must include(
+        Messages("label.report_changes_that_affect_your_child_benefit")
+      )
+      contentAsString(resultSingleChildBenefit.get) must include(
+        Messages("label.view_your_child_benefit_payment_history")
+      )
+      contentAsString(resultSingleChildBenefit.get) must include(
+        Messages("label.view_your_proof_of_entitlement_to_child_benefit")
+      )
+      contentAsString(resultSingleChildBenefit.get) must include(Messages("label.high_income_child_benefit_charge"))
     }
   }
 }
