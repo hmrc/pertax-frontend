@@ -61,9 +61,9 @@ class HomeControllerChildBenefitsISpec extends IntegrationSpec {
       val resultSingleChildBenefit  = route(app, requestSingleChildBenefit)
 
       Helpers.status(resultSingleChildBenefit.get) mustBe OK
-      contentAsString(resultSingleChildBenefit.get) must include("Make or manage a Child Benefit claim")
-      contentAsString(resultSingleChildBenefit.get) must include("Make a claim")
-      contentAsString(resultSingleChildBenefit.get) must include("Manage a claim")
+      contentAsString(resultSingleChildBenefit.get) must include(Messages("label.make_or_manage_a_child_benefit_claim"))
+      contentAsString(resultSingleChildBenefit.get) must include(Messages("label.make_a_claim"))
+      contentAsString(resultSingleChildBenefit.get) must include(Messages("label.manage_a_claim"))
     }
   }
 }

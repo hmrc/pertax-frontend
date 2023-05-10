@@ -96,10 +96,6 @@ class HomeControllerErrorISpec extends IntegrationSpec {
         put(urlMatching(s"/keystore/pertax-frontend/.*"))
           .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
       )
-//      server.stubFor(
-//        get(urlPathEqualTo(breathingSpaceUrl))
-//          .willReturn(ok(breathingSpaceTrueResponse))
-//      )
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe SEE_OTHER
