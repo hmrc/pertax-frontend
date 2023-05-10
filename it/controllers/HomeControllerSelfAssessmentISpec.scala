@@ -125,7 +125,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
         .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
       val resultSa: Future[Result] = route(app, requestSa).get
       httpStatus(resultSa) mustBe OK
-      contentAsString(resultSa).contains("Request access to your Self Assessment") mustBe true
+      contentAsString(resultSa).contains(Messages("label.not_enrolled.link.text")) mustBe true
     }
 
     "show SaUtr and Activate your Self Assessment message when user has an SaUtr in the auth body which has the NotYetActivated state" in {
@@ -183,14 +183,14 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
       contentAsString(result).contains(generatedUtr) mustBe true
-      contentAsString(result).contains("Self Assessment") mustBe true
+      contentAsString(result).contains(Messages("label.self_assessment")) mustBe true
 
       val urlSa                    = "/personal-account/self-assessment-home"
       val requestSa                = FakeRequest(GET, urlSa)
         .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
       val resultSa: Future[Result] = route(app, requestSa).get
       httpStatus(resultSa) mustBe OK
-      contentAsString(resultSa).contains("Activate your Self Assessment") mustBe true
+      contentAsString(resultSa).contains(Messages("label.activate_your_self_assessment")) mustBe true
     }
 
     "show SaUtr and Complete your tax return message when user has an SaUtr in the auth body which has the Activated state" in {
@@ -248,15 +248,15 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
       contentAsString(result).contains(generatedUtr) mustBe true
-      contentAsString(result).contains("Self Assessment") mustBe true
+      contentAsString(result).contains(Messages("label.self_assessment")) mustBe true
 
       val urlSa                    = "/personal-account/self-assessment-home"
       val requestSa                = FakeRequest(GET, urlSa)
         .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
       val resultSa: Future[Result] = route(app, requestSa).get
       httpStatus(resultSa) mustBe OK
-      contentAsString(resultSa).contains("Complete your tax return") mustBe true
-      contentAsString(resultSa).contains("View your payments") mustBe true
+      contentAsString(resultSa).contains(Messages("label.complete_your_tax_return")) mustBe true
+      contentAsString(resultSa).contains(Messages("label.view_your_payments")) mustBe true
     }
 
     "not show SaUtr or Self Assessment tile if no SaUtr is present in the auth or citizen details body" in {
@@ -303,7 +303,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
-      contentAsString(result).contains("Self Assessment") mustBe false
+      contentAsString(result).contains(Messages("label.self_assessment")) mustBe false
 
       val urlSa                    = "/personal-account/self-assessment-home"
       val requestSa                = FakeRequest(GET, urlSa)
