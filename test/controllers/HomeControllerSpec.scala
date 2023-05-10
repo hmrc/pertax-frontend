@@ -205,10 +205,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -233,10 +229,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 200 status when accessing index page with good nino and a non sa User" in new LocalSetup {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = true)
-        )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
         FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
@@ -278,10 +270,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, false)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
         .overrides(
@@ -308,10 +296,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -339,10 +323,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -375,10 +355,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -405,10 +381,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -464,10 +436,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -529,10 +497,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -594,10 +558,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         personDetails = Some(
@@ -690,10 +650,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         NonFilerSelfAssessmentUser,
@@ -734,10 +690,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         NonFilerSelfAssessmentUser,
@@ -776,10 +728,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder(
         NonFilerSelfAssessmentUser,
@@ -830,10 +778,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
         FeatureFlag(NationalInsuranceTileToggle, false)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -858,10 +802,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -888,10 +828,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -923,10 +859,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -956,10 +888,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = false)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -984,10 +912,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -1013,10 +937,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -1047,10 +967,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ChildBenefitSingleAccountToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)
-        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(

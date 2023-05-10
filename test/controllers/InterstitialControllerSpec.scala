@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, FeatureFlag, ItsAdvertisementMessageToggle}
+import models.admin.{FeatureFlag, ItsAdvertisementMessageToggle}
 import org.mockito.ArgumentMatchers.any
 import play.api.i18n.{Langs, Messages}
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
@@ -70,7 +70,6 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[MessagesControllerComponents],
         injected[ErrorRenderer],
         injected[ViewNationalInsuranceInterstitialHomeView],
-        injected[ViewChildBenefitsSummaryInterstitialView],
         injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
         injected[SelfAssessmentSummaryView],
         injected[Sa302InterruptView],
@@ -133,83 +132,8 @@ class InterstitialControllerSpec extends BaseSpec {
     }
   }
 
-  "Calling displayChildBenefits" must {
-
-    "call FormPartialService.getChildBenefitPartial and return 200 when called by authorised user" in {
-
-      val mockFeatureFlagService                                   = mock[FeatureFlagService]
-      val fakeRequestWithPath: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/foo")
-      val mockAuthJourney: AuthJourney                             = mock[AuthJourney]
-      val mockNewsAndTileConfig: NewsAndTilesConfig                = mock[NewsAndTilesConfig]
-      lazy val simulateFormPartialServiceFailure                   = false
-      lazy val simulateSaPartialServiceFailure                     = false
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          injected[WithBreadcrumbAction],
-          injected[MessagesControllerComponents],
-          injected[ErrorRenderer],
-          injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
-          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          injected[SelfAssessmentSummaryView],
-          injected[Sa302InterruptView],
-          injected[ViewNewsAndUpdatesView],
-          injected[ViewSaAndItsaMergePageView],
-          injected[ViewBreathingSpaceView],
-          injected[EnrolmentsHelper],
-          injected[SeissService],
-          mockNewsAndTileConfig,
-          mockFeatureFlagService
-        )(config, ec) {
-          private def formPartialServiceResponse = Future.successful {
-            if (simulateFormPartialServiceFailure) {
-              HtmlPartial.Failure()
-            } else {
-              HtmlPartial.Success(Some("Success"), Html("any"))
-            }
-          }
-
-          when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
-          when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
-
-          when(saPartialService.getSaAccountSummary(any())) thenReturn {
-            Future.successful {
-              if (simulateSaPartialServiceFailure) {
-                HtmlPartial.Failure()
-              } else {
-                HtmlPartial.Success(Some("Success"), Html("any"))
-              }
-            }
-          }
-        }
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "GovernmentGateway"),
-              request = request
-            )
-          )
-      })
-
-      when(mockFeatureFlagService.get(any()))
-        .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)))
-
-      val result: Future[Result] = controller.displayChildBenefits(fakeRequestWithPath)
-
-      status(result) mustBe OK
-
-    }
-  }
-
-  "Calling displayChildBenefits" must {
-    "return UNAUTHORIZED when tne feature toggled on" in {
+  "Calling displayChildBenefits"                  must {
+    "return MOVED_PERMANENTLY to displayChildBenefitsSingleAccountView" in {
       lazy val fakeRequest = FakeRequest("", "")
 
       val mockAuthJourney = mock[AuthJourney]
@@ -231,7 +155,6 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[MessagesControllerComponents],
           injected[ErrorRenderer],
           injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
           injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
@@ -253,68 +176,16 @@ class InterstitialControllerSpec extends BaseSpec {
             )
           )
       })
-
-      when(mockFeatureFlagService.get(any()))
-        .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = true)))
 
       val result = controller.displayChildBenefits()(fakeRequest)
 
       status(result) mustBe MOVED_PERMANENTLY
+      redirectLocation(
+        result
+      ) mustBe Some(controllers.routes.InterstitialController.displayChildBenefitsSingleAccountView.url)
     }
-
-    "return UNAUTHORIZED when tne feature toggled false for new Child Benefits" in {
-      lazy val fakeRequest = FakeRequest("", "")
-
-      val mockAuthJourney = mock[AuthJourney]
-
-      val stubConfigDecorator = new ConfigDecorator(
-        injected[Configuration],
-        injected[Langs],
-        injected[ServicesConfig]
-      )
-
-      val mockFeatureFlagService = mock[FeatureFlagService]
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          injected[WithBreadcrumbAction],
-          injected[MessagesControllerComponents],
-          injected[ErrorRenderer],
-          injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
-          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          injected[SelfAssessmentSummaryView],
-          injected[Sa302InterruptView],
-          injected[ViewNewsAndUpdatesView],
-          injected[ViewSaAndItsaMergePageView],
-          injected[ViewBreathingSpaceView],
-          injected[EnrolmentsHelper],
-          injected[SeissService],
-          mock[NewsAndTilesConfig],
-          mockFeatureFlagService
-        )(stubConfigDecorator, ec)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-              request = request
-            )
-          )
-      })
-
-      when(mockFeatureFlagService.get(any()))
-        .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = false)))
-
-      val result = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
-
-      status(result) mustBe UNAUTHORIZED
-    }
-
+  }
+  "Calling displayChildBenefitsSingleAccountView" must {
     "return OK when tne feature toggled false for new Child Benefits" in {
       lazy val fakeRequest = FakeRequest("", "")
 
@@ -337,7 +208,6 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[MessagesControllerComponents],
           injected[ErrorRenderer],
           injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
           injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
@@ -359,9 +229,6 @@ class InterstitialControllerSpec extends BaseSpec {
             )
           )
       })
-
-      when(mockFeatureFlagService.get(any()))
-        .thenReturn(Future.successful(FeatureFlag(ChildBenefitSingleAccountToggle, isEnabled = true)))
 
       val result = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
 
@@ -534,7 +401,6 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[MessagesControllerComponents],
           injected[ErrorRenderer],
           injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
           injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
@@ -621,7 +487,6 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[MessagesControllerComponents],
           injected[ErrorRenderer],
           injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
           injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
@@ -686,7 +551,6 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[MessagesControllerComponents],
           injected[ErrorRenderer],
           injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
           injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],

@@ -37,9 +37,15 @@ label.settings=Gosodiadau
 label.track_your_forms=Dilyn eich ffurflenni
 label.your_national_insurance_number_is=Eich rhif Yswiriant Gwladol yw
 label.check_your_national_insurance_contributions=Gwirio’ch cyfraniadau Yswiriant Gwladol
-label.see_a_record_of_the_national_insurance_contributions_which_count_towards_=Gweld cofnod o’r cyfraniadau Yswiriant Gwladol sy’n cyfrif tuag at eich Pensiwn y Wladwriaeth, a gwirio unrhyw fylchau.
+label.your_national_insurance_number_ensures_your_national_insurance_contributions_=Mae’ch rhif Yswiriant Gwladol yn sicrhau bod eich cyfraniadau Yswiriant Gwladol a’ch treth yn cael eu cofnodi yn erbyn eich enw chi yn unig.
+label.find_out_more_about_national_insurance_=Dysgwch ragor am Yswiriant Gwladol (yn agor tab newydd)
+label.every_year_you_pay_national_insurance_contributions_to_qualify_=Bob blwyddyn rydych yn talu cyfraniadau Yswiriant Gwladol er mwyn bod yn gymwys ar gyfer budd-daliadau penodol, a Phensiwn y Wladwriaeth.
+label.you_can_see_a_record_of_your_annual_contributions_=Gallwch fwrw golwg dros gofnod o’ch cyfraniadau blynyddol er mwyn gwirio am unrhyw fylchau.
+label.view_and_save_your_national_insurance_number=Bwrw golwg dros eich rhif Yswiriant Gwladol a’i gadw
+label.a_new_employer_will_ask_for_your_national_insurance_number_and_you_may_=Bydd cyflogwr newydd yn gofyn am eich rhif Yswiriant Gwladol. Mae’n bosibl y bydd arnoch angen eich rhif Yswiriant Gwladol ar adegau eraill hefyd, megis wrth wneud cais am Fenthyciad Myfyriwr neu fudd-daliadau penodol.
+label.so_that_you_have_your_number_when_you_need_it_=Fel bod eich rhif Yswiriant Gwladol wrth law pryd bynnag y bydd ei angen arnoch, gallwch fwrw golwg dros eich llythyr sy’n cadarnhau eich rhif Yswiriant Gwladol, a chael copi ohono.
+
 label.hm_revenue_and_customs=Cyllid a Thollau EM
-label.print_proof_of_your_national_insurance_number=Argraffu cadarnhad o’ch rhif Yswiriant Gwladol
 label.your_national_insurance_letter=Eich llythyr Yswiriant Gwladol
 label.print_your_national_insurance_summary=Argraffu’ch crynodeb Yswiriant Gwladol
 label.nic_eo_hmrc_address.line1=Cyllid a Thollau EM
@@ -48,7 +54,6 @@ label.nic_eo_hmrc_address.line3=Porthmadog
 label.print=Argraffu’r llythyr hwn
 label.save_as_a_PDF=ACadw fel PDF
 label.date=Dyddiad
-label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_number_=Os ydych yn dechrau swydd newydd, bydd eich cyflogwr yn gofyn am gael eich rhif Yswiriant Gwladol. Efallai y bydd angen eich rhif Yswiriant Gwladol arnoch ar adegau eraill hefyd (er enghraifft, pan fyddwch yn gwneud cais am Fenthyciad Myfyriwr neu fudd-daliadau penodol).
 label.your_personal_details=Eich manylion personol
 label.your_address=Eich cyfeiriad
 label.main_address=Prif gyfeiriad
@@ -166,16 +171,6 @@ label.return_to_your_account_home=Yn ôl i hafan eich cyfrif
 label.national_insurance_summary=Crynodeb Yswiriant Gwladol
 label.child_benefit=Budd-dal Plant
 label.report_changes_that_affect_your_child_benefit=Rhoi gwybod am newidiadau sy’n effeithio ar eich Budd-dal Plant
-label.if_your_childs_circumstances_change=Os yw amgylchiadau eich plentyn yn newid
-label.tell_us_if_your_childs_circumstances_change=Rhowch wybod i ni os bydd amgylchiadau’ch plentyn yn newid
-label.tell_us_if_your_circumstances_change=Rhowch wybod i ni os yw’ch amgylchiadau wedi newid
-label.child_benefit_stops_on_31_august_=Mae Budd-dal Plant yn dod i ben ar 31 Awst ar neu ar ôl pen-blwydd eich plentyn yn 16 oed os yw’n gadael addysg neu hyfforddiant cymeradwy
-label.tell_us_if_your_child=Rhowch wybod i ni:
-label.apply_for_an_extension=Gwneud cais am estyniad
-label.you_could_get_child_benefit_for_20_weeks_=Mae’n bosibl i chi gael Budd-dal Plant am 20 wythnos (a elwir yn ‘estyniad’) os yw’ch plentyn yn gadael addysg neu hyfforddiant cymeradwy a naill ai’n:
-label.registers_with_their_local_careers_service_=cofrestru â’i wasanaeth gyrfaoedd lleol, Connexions (neu sefydliad tebyg yng Ngogledd Iwerddon, yr UE, Norwy, Gwlad yr Iâ neu Liechtenstein)
-label.signs_up_to_join_the_armed_forces=arwyddo i ymuno â’r lluoedd arfog
-label.other_changes_to_your_child_benefit_claim=Newidiadau eraill i’ch cais am Fudd-dal Plant
 label.tell_us_if_you_need_to=Rhowch wybod i ni os oes angen i chi:
 label.if_you_do_not_currently_claim_child_benefit=Os nad ydych yn gwneud cais am Fudd-dal Plant ar hyn o bryd
 label.any_updates_to_your_contact_details=Mae diweddariadau i’ch manylion cyswllt yn cymryd hyd at 2 ddiwrnod i ymddangos ar y safle hwn.
@@ -383,9 +378,6 @@ text.stop_or_restart_your_child_benefit_payments_link_text=ailddechrau neu roi�
 text.stop_or_restart_your_child_benefit_payments_text_after_link=os yw’r Tâl Incwm Uchel Budd-dal Plant yn effeithio arnoch chi neu’ch partner
 text.if_you_do_not_claim_child_benefit_text_before_link=Os nad ydych yn hawlio Budd-dal Plant, rydych fel arfer yn gymwys ar ei gyfer os ydych yn gyfrifol am blentyn sydd o dan 16 oed (neu o dan 20 oed os yw’n aros mewn addysg neu hyfforddiant cymeradwy), ac rydych yn byw yn y DU.
 text.if_you_do_not_claim_child_benefit_link_text=Gwiriwch a allwch hawlio Budd-dal Plant
-text.stays_in_education_or_training=os yw’ch plentyn yn aros mewn addysg neu hyfforddiant
-text.leaves_education_or_training=yn gadael hyfforddiant neu addysg
-text.has_any_other_change_in_their_circumstances_link_text=ag unrhyw newidiadau eraill yn ei amgylchiadau
 text.has_any_other_change_in_their_circumstances_text_after_link=megis gadael yr aelwyd
 
 #
@@ -444,7 +436,7 @@ label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=B
 label.not_enrolled.content=Rydych wedi cofrestru ar gyfer Hunanasesiad. I ddefnyddio’ch cyfrif Hunanasesiad ar-lein, mae’n rhaid i chi wneud cais i gael mynediad ato.
 label.not_enrolled.link.text=Gwneud cais i gael mynediad at eich Hunanasesiad
 
-label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=Mae gennych rif Yswiriant Gwladol er mwyn sicrhau bod eich cyfraniadau Yswiriant Gwladol a threth yn cael eu cofnodi yn erbyn eich enw chi’n unig.
+label.check_your_national_insurance_contributions_and_view_and_save_=Gwirio’ch cyfraniadau Yswiriant Gwladol, bwrw golwg dros eich rhif Yswiriant Gwladol a’i gadw.
 label.your_national_insurance_number_is_your_unique_identifier=Eich rhif Yswiriant Gwladol yw’ch dynodydd unigryw.
 
 label.view_your_national_insurance_letter=Bwrw golwg ar eich llythyr Yswiriant Gwladol
@@ -506,8 +498,6 @@ label.manage_your_marriage_allowance=Rheoli’ch Lwfans Priodasol
 label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you=Ar hyn o bryd, mae’ch partner yn trosglwyddo rhan o’i Lwfans Personol i chi.
 label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=Ar hyn o bryd, rydych yn trosglwyddo rhan o’ch Lwfans Personol i’ch partner.
 
-label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children=Taliad yn rhydd o dreth i helpu rhieni gyda chostau magu plant.
-label.tell_us_if_your_child_is_staying_in_full_time_education=Rhowch wybod i ni a yw’ch plentyn yn aros mewn addysg amser llawn
 label.a_payment_to_help_with_the_cost_of_bringing_up_children=Taliad i helpu gyda chostau magu plant
 label.make_or_manage_a_child_benefit_claim=Gwneud neu reoli hawliad am Fudd-dal Plant
 label.make_a_claim=Gwneud hawliad
@@ -516,6 +506,7 @@ label.manage_a_claim=Rheoli hawliad
 label.view_your_child_benefit_payment_history=Bwrw golwg dros hanes eich taliadau Budd-dal Plant
 label.view_your_proof_of_entitlement_to_child_benefit=Bwrw golwg dros eich tystiolaeth o hawl i Fudd-dal Plant
 label.high_income_child_benefit_charge=Tâl Treth Budd-dal Plant Incwm Uchel
+label.change_your_bank_details=Newid eich manylion banc
 
 # Pensions
 title.pensions=Pensiynau
@@ -602,6 +593,7 @@ label.check_if_you_are_due_a_tax_refund=rhoi gwybod i CThEM am newid cyfeiriad
 label.view_your_tax_code=gwirio’ch amcangyfrif o Dreth Incwm a’ch cod treth
 label.view_more_information_about_national_insurance_at=Gallwch weld rhagor o wybodaeth am Yswiriant Gwladol yn:
 label.www_gov_uk_national_insurance=www.gov.uk/yswiriant-gwladol
+label.www_gov_uk_national_insurance_link=https://www.gov.uk/yswiriant-gwladol
 label.or_our_youtube_channel_at=neu ar ein sianel YouTube yn:
 label.www_youtube_com_hmrcgovuk=www.youtube.com/HMRCgovuk
 label.it_is_not_proof_of=Nid yw’n dystiolaeth o’r canlynol:

@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{ChildBenefitSingleAccountToggle, ItsAdvertisementMessageToggle}
+import models.admin.ItsAdvertisementMessageToggle
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -47,7 +47,6 @@ class InterstitialController @Inject() (
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
-  viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
   viewChildBenefitsSummarySingleAccountInterstitialView: ViewChildBenefitsSummarySingleAccountInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
@@ -92,33 +91,16 @@ class InterstitialController @Inject() (
   private def currentUrl(implicit request: Request[AnyContent]) =
     configDecorator.pertaxFrontendHost + request.path
 
-  def displayChildBenefits: Action[AnyContent] = authenticate.async { implicit request =>
-    featureFlagService.get(ChildBenefitSingleAccountToggle).map { featureFlag =>
-      if (!featureFlag.isEnabled) {
-        Ok(
-          viewChildBenefitsSummaryInterstitialView(
-            redirectUrl = currentUrl,
-            taxCreditsEnabled = configDecorator.taxCreditsEnabled
-          )
-        )
-      } else {
-        Redirect(routes.InterstitialController.displayChildBenefitsSingleAccountView, MOVED_PERMANENTLY)
-      }
-    }
+  def displayChildBenefits: Action[AnyContent] = authenticate {
+    Redirect(routes.InterstitialController.displayChildBenefitsSingleAccountView, MOVED_PERMANENTLY)
   }
 
-  def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate.async { implicit request =>
-    featureFlagService.get(ChildBenefitSingleAccountToggle).map { featureFlag =>
-      if (featureFlag.isEnabled) {
-        Ok(
-          viewChildBenefitsSummarySingleAccountInterstitialView(
-            redirectUrl = currentUrl
-          )
-        )
-      } else {
-        errorRenderer.error(UNAUTHORIZED)
-      }
-    }
+  def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate { implicit request =>
+    Ok(
+      viewChildBenefitsSummarySingleAccountInterstitialView(
+        redirectUrl = currentUrl
+      )
+    )
   }
 
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>

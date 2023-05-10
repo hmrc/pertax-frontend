@@ -72,7 +72,6 @@ object FeatureFlagName {
   val allFeatureFlags =
     List(
       AddressTaxCreditsBrokerCallToggle,
-      ChildBenefitSingleAccountToggle,
       ItsAdvertisementMessageToggle,
       NationalInsuranceTileToggle,
       PaperlessInterruptToggle,
@@ -138,12 +137,6 @@ case object SingleAccountCheckToggle extends FeatureFlagName {
 
 case class DeletedToggle(name: String) extends FeatureFlagName {
   override def toString: String = name
-}
-
-case object ChildBenefitSingleAccountToggle extends FeatureFlagName {
-  override def toString: String = "child-benefit-single-account"
-
-  override val description: Option[String] = Some("Enable/disable the Child Benefit feature for single account")
 }
 
 case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {

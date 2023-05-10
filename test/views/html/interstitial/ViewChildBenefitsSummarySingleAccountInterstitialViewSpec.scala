@@ -85,6 +85,11 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
         doc,
         Messages("label.high_income_child_benefit_charge")
       )
+
+      hasLink(
+        doc,
+        Messages("label.change_your_bank_details")
+      )
     }
 
     "show incomplete when there is no NINO" in {
