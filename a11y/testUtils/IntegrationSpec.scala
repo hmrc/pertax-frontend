@@ -131,7 +131,7 @@ trait IntegrationSpec extends AnyWordSpec
         "microservice.services.breathing-space-if-proxy.port" -> server.port()
       )
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
