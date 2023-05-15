@@ -98,7 +98,8 @@ class HomeControllerErrorISpec extends IntegrationSpec {
           .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
       )
       server.stubFor(
-        get(urlEqualTo(s"/pertax/$generatedNino/authorise")).willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
+        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
       )
 
       val result: Future[Result] = route(app, request).get

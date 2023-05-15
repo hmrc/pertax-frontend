@@ -26,7 +26,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
       "microservice.services.taxcalc.port"               -> server.port(),
       "microservice.services.tai.port"                   -> server.port(),
       "microservice.services.enrolment-store-proxy.port" -> server.port(),
-      "microservice.services.pertax.port" -> server.port()
+      "microservice.services.pertax.port"                -> server.port()
     )
     .build()
 
@@ -48,7 +48,8 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
         .willReturn(aResponse().withStatus(NO_CONTENT))
     )
     server.stubFor(
-      get(urlEqualTo(s"/pertax/$generatedNino/authorise")).willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
+      get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+        .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
     )
 
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]

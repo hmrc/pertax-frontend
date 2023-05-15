@@ -26,7 +26,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       "feature.breathing-space-indicator.timeoutInSec" -> 4,
       "microservice.services.taxcalc.port"             -> server.port(),
       "microservice.services.tai.port"                 -> server.port(),
-      "microservice.services.pertax.port" -> server.port()
+      "microservice.services.pertax.port"              -> server.port()
     )
     .build()
 
@@ -42,7 +42,8 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
     beforeEachHomeController()
 
     server.stubFor(
-      get(urlEqualTo(s"/pertax/$generatedNino/authorise")).willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
+      get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+        .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
     )
 
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]

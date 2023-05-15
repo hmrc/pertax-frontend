@@ -1,7 +1,6 @@
 package controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo, get}
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo}
 import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.http.Status._
@@ -40,7 +39,8 @@ class HomeControllerPayeISpec extends IntegrationSpec {
     beforeEachHomeController()
 
     server.stubFor(
-      get(urlEqualTo(s"/pertax/$generatedNino/authorise")).willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
+      get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
+        .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
     )
 
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
