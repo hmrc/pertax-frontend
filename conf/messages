@@ -529,12 +529,14 @@ label.child_benefit=Child Benefit
 label.a_payment_to_help_with_the_cost_of_bringing_up_children=A payment to help with the cost of bringing up children.
 label.make_or_manage_a_child_benefit_claim=Make or manage a Child Benefit claim
 label.make_a_claim=Make a claim
+label.making_a_claim=Making a claim
 label.claim_child_benefit=Claim Child Benefit
 label.manage_a_claim=Manage a claim
 label.view_your_child_benefit_payment_history=View your Child Benefit payment history
 label.view_your_proof_of_entitlement_to_child_benefit=View your proof of entitlement to Child Benefit
 label.high_income_child_benefit_charge=High Income Child Benefit Charge
 label.change_your_bank_details=Change your bank details
+label.check_if_you_can_claim=Check if you can claim
 
 #
 # Pensions

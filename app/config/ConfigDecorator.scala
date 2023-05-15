@@ -222,6 +222,10 @@ class ConfigDecorator @Inject() (
 
   lazy val claimChildBenefitsWelsh: String = "https://www.gov.uk/budd-dal-plant/sut-i-hawlio"
 
+  lazy val childBenefit: String = "https://www.gov.uk/child-benefit"
+
+  lazy val childBenefitWelsh: String = "https://www.gov.uk/budd-dal-plant"
+
   lazy val reportChangesChildBenefit: String = "https://www.gov.uk/report-changes-child-benefit"
 
   lazy val reportChangesChildBenefitWelsh: String = "https://www.gov.uk/rhoi-gwybod-am-newidiadau-budd-dal-plant"
