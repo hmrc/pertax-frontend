@@ -31,8 +31,9 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
     )
     .build()
 
-  val sessionId                        = Some(SessionId("session-00000000-0000-0000-0000-000000000000"))
-  lazy val addressJourneyCachingHelper = app.injector.instanceOf[AddressJourneyCachingHelper]
+  val sessionId: Option[SessionId]                                  = Some(SessionId("session-00000000-0000-0000-0000-000000000000"))
+  lazy val addressJourneyCachingHelper: AddressJourneyCachingHelper =
+    app.injector.instanceOf[AddressJourneyCachingHelper]
 
   def assertContainsLink(doc: Document, text: String, href: String): Assertion =
     assert(
@@ -53,7 +54,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
     "return a SEE_OTHER and redirect to TCS Address change if the user is a TCS user" in {
       lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, true).futureValue
+      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, enabled = true).futureValue
 
       server.stubFor(
         get(urlEqualTo(citizenDetailsUrl))
@@ -107,7 +108,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
     "Show the tax credits question when the AddressTaxCreditsBrokerCallToggle is false" in {
       lazy val featureFlagService          = app.injector.instanceOf[FeatureFlagService]
-      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, false).futureValue
+      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, enabled = false).futureValue
       lazy val messagesApi                 = app.injector.instanceOf[MessagesApi]
       implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
@@ -181,7 +182,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
     "return a SEE_OTHER and redirect to PTA Address Change if the user is a non-TCS user" in {
       lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, true).futureValue
+      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, enabled = true).futureValue
 
       server.stubFor(
         get(urlEqualTo(citizenDetailsUrl))
@@ -236,7 +237,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
     "return a SEE_OTHER and redirect to the beginning of the PTA address change journey if the user skipped to tax credits url" in {
       lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, true).futureValue
+      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, enabled = true).futureValue
 
       server.stubFor(
         get(urlEqualTo(citizenDetailsUrl))
@@ -297,7 +298,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
     ).foreach { response =>
       s"return an INTERNAL_SERVER_ERROR and redirect to PTA Address Change if the call to TCS fails with a $response" in {
         lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-        featureFlagService.set(AddressTaxCreditsBrokerCallToggle, true).futureValue
+        featureFlagService.set(AddressTaxCreditsBrokerCallToggle, enabled = true).futureValue
 
         server.stubFor(
           get(urlEqualTo(citizenDetailsUrl))
