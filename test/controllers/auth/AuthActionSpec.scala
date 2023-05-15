@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,22 @@
 package controllers.auth
 
 import com.google.inject.Inject
+import config.BusinessHoursConfig
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
+import models.admin.{FeatureFlag, SingleAccountCheckToggle}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
-import play.api.test.{FakeHeaders, FakeRequest}
 import play.api.test.Helpers.{redirectLocation, _}
+import play.api.test.{FakeHeaders, FakeRequest}
+import services.admin.FeatureFlagService
+import testUtils.RetrievalOps._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
@@ -36,8 +40,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import testUtils.RetrievalOps._
-import util.EnrolmentsHelper
+import util.{BusinessHours, EnrolmentsHelper}
 
 import java.time.LocalDateTime
 import scala.concurrent.Future
@@ -64,16 +67,27 @@ class AuthActionSpec extends BaseSpec {
     }
   }
 
+  class FakeBusinessHours @Inject() (businessHoursConfig: BusinessHoursConfig)
+      extends BusinessHours(businessHoursConfig) {
+    override def isTrue(dateTime: LocalDateTime): Boolean = true
+  }
+
   type AuthRetrievals =
     Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
       String
     ] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~ Option[String]
 
-  val nino                   = Fixtures.fakeNino.nino
-  val fakeCredentials        = Credentials("foo", "bar")
-  val fakeCredentialStrength = CredentialStrength.strong
-  val fakeConfidenceLevel    = ConfidenceLevel.L200
-  val enrolmentHelper        = injected[EnrolmentsHelper]
+  val nino                                                       = Fixtures.fakeNino.nino
+  val fakeCredentials                                            = Credentials("foo", "bar")
+  val fakeCredentialStrength                                     = CredentialStrength.strong
+  val fakeConfidenceLevel                                        = ConfidenceLevel.L200
+  val enrolmentHelper                                            = injected[EnrolmentsHelper]
+  val mockFeatureFlagService                                     = mock[FeatureFlagService]
+  val fakeBusinessHours                                          = new FakeBusinessHours(injected[BusinessHoursConfig])
+  def messagesControllerComponents: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+    .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
 
   def fakeEnrolments(utr: String) = Set(
     Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
@@ -101,11 +115,12 @@ class AuthActionSpec extends BaseSpec {
     val authAction =
       new AuthActionImpl(
         mockAuthConnector,
-        config,
         sessionAuditor,
-        controllerComponents,
-        enrolmentsHelper
-      )
+        messagesControllerComponents,
+        enrolmentsHelper,
+        fakeBusinessHours,
+        mockFeatureFlagService
+      )(implicitly, config)
 
     new Harness(authAction)
   }
@@ -116,7 +131,6 @@ class AuthActionSpec extends BaseSpec {
   "A user without a L200 confidence level must" when {
     "be redirected to the IV uplift endpoint when" must {
       "the user is an Individual" in {
-
         val controller = retrievals(confidenceLevel = ConfidenceLevel.L50)
         val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
@@ -184,11 +198,12 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
-          enrolmentsHelper
-        )
+          messagesControllerComponents,
+          enrolmentsHelper,
+          fakeBusinessHours,
+          mockFeatureFlagService
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -203,11 +218,12 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
-          enrolmentsHelper
-        )
+          messagesControllerComponents,
+          enrolmentsHelper,
+          fakeBusinessHours,
+          mockFeatureFlagService
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -220,11 +236,12 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
-          enrolmentsHelper
-        )
+          messagesControllerComponents,
+          enrolmentsHelper,
+          fakeBusinessHours,
+          mockFeatureFlagService
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val request    =
         FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
@@ -244,11 +261,12 @@ class AuthActionSpec extends BaseSpec {
       val authAction =
         new AuthActionImpl(
           mockAuthConnector,
-          config,
           sessionAuditor,
-          controllerComponents,
-          enrolmentsHelper
-        )
+          messagesControllerComponents,
+          enrolmentsHelper,
+          fakeBusinessHours,
+          mockFeatureFlagService
+        )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
 
@@ -277,8 +295,11 @@ class AuthActionSpec extends BaseSpec {
       val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeEnrolments(utr)))
 
       val result = controller.onPageLoad(FakeRequest("", ""))
-      status(result) mustBe OK
-      contentAsString(result) must include(utr)
+
+      whenReady(result.failed) { ex =>
+        ex mustBe an[RuntimeException]
+        ex.getMessage mustBe "No nino found in session for an Individual with confidence level 200 and strong credentials"
+      }
     }
   }
 
@@ -318,6 +339,45 @@ class AuthActionSpec extends BaseSpec {
     val result = controller.onPageLoad(FakeRequest("", ""))
     status(result) mustBe OK
     contentAsString(result) must include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
+  }
+
+  "A user with a no SingleAccount enrolment should redirect" in {
+
+    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
+      Some(nino) ~
+        Some(Individual) ~
+        Enrolments(Set.empty) ~
+        Some(fakeCredentials) ~
+        Some(CredentialStrength.strong) ~
+        ConfidenceLevel.L200 ~
+        None ~
+        None ~
+        None
+    )
+
+    val authAction =
+      new AuthActionImpl(
+        mockAuthConnector,
+        sessionAuditor,
+        messagesControllerComponents,
+        enrolmentsHelper,
+        fakeBusinessHours,
+        mockFeatureFlagService
+      )(implicitly, config)
+
+    val controller = new Harness(authAction)
+
+    val result = controller.onPageLoad(
+      FakeRequest(
+        method = "GET",
+        uri = "https://example.com",
+        headers = FakeHeaders(Seq(HeaderNames.HOST -> "localhost")),
+        body = AnyContentAsEmpty
+      )
+    )
+
+    status(result) mustBe SEE_OTHER
+    redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=https%3A%2F%2Fexample.com")
   }
 
   "A user without a SCP Profile Url must continue to not have one" in {

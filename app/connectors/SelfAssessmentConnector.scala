@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,35 +16,30 @@
 
 package connectors
 
+import cats.data.EitherT
 import com.google.inject.Inject
-import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import metrics.HasMetrics
-import models.{SaEnrolmentRequest, SaEnrolmentResponse}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import models.SaEnrolmentRequest
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SelfAssessmentConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)(
-  implicit ec: ExecutionContext
-) extends HasMetrics {
+class SelfAssessmentConnector @Inject() (
+  http: HttpClient,
+  configDecorator: ConfigDecorator,
+  httpClientResponse: HttpClientResponse
+)(implicit
+  ec: ExecutionContext
+) {
 
   def enrolForSelfAssessment(
     saEnrolmentRequest: SaEnrolmentRequest
-  )(implicit hc: HeaderCarrier): Future[Option[SaEnrolmentResponse]] = {
+  )(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val url = s"${configDecorator.addTaxesFrontendUrl}/internal/self-assessment/enrol-for-sa"
-    withMetricsTimer("enrol-for-self-assessment") { timer =>
-      http.POST[SaEnrolmentRequest, Option[SaEnrolmentResponse]](url, saEnrolmentRequest) map {
-        case res @ Some(_) =>
-          timer.completeTimerAndIncrementSuccessCounter()
-          res
-        case res           =>
-          timer.completeTimerAndIncrementFailedCounter()
-          res
-      } recover { case _: Exception =>
-        timer.completeTimerAndIncrementFailedCounter()
-        None
-      }
-    }
+    httpClientResponse
+      .read(
+        http.POST[SaEnrolmentRequest, Either[UpstreamErrorResponse, HttpResponse]](url, saEnrolmentRequest)
+      )
   }
 }

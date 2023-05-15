@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import cats.data.EitherT
 import cats.implicits._
 import models.AgentClientStatus
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
@@ -125,7 +124,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
 
       val result = connector.getAgentClientStatus.value.futureValue
       result mustBe a[Left[_, _]]
-      result.left.get mustBe an[UpstreamErrorResponse]
+      result.swap.getOrElse(UpstreamErrorResponse("", OK)) mustBe an[UpstreamErrorResponse]
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,22 @@ package views.html.interstitial
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
+import models.admin.{FeatureFlag, ItsAdvertisementMessageToggle, NationalInsuranceTileToggle}
 import org.jsoup.nodes.Document
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import org.scalatest.Assertion
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.DateTimeTools.{current, previousAndCurrentTaxYear}
 import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.time.TaxYear
 import views.html.ViewSpec
+
+import scala.concurrent.Future
 
 class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
@@ -35,9 +42,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
   lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest                           = buildUserRequest(request = FakeRequest())
-
-  def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
-    document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
   val nextDeadlineTaxYear = (current.currentYear + 1).toString
   val saUtr               = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
@@ -57,6 +61,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
         nextDeadlineTaxYear,
         false,
         true,
+        true,
         false,
         previousAndCurrentTaxYear,
         user
@@ -75,6 +80,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             nextDeadlineTaxYear,
             true,
             false,
+            true,
             false,
             previousAndCurrentTaxYear,
             userRequest.saUserType
@@ -88,8 +94,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
       hasLink(
         doc,
-        Messages("label.view_manage_your_mtd_for_sa"),
-        s"${configDecorator.itsaViewUrl}"
+        Messages("label.view_manage_your_mtd_for_sa")
       )
     }
 
@@ -103,6 +108,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
               s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
               nextDeadlineTaxYear,
               false,
+              true,
               true,
               false,
               previousAndCurrentTaxYear,
@@ -123,8 +129,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
         hasLink(
           doc,
-          Messages("label.view_manage_sa_return"),
-          "/personal-account/self-assessment-summary"
+          Messages("label.view_manage_sa_return")
         )
       }
 
@@ -139,32 +144,27 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
         hasLink(
           selfAssessmentDoc,
-          messages("label.view_manage_sa_return"),
-          "/personal-account/self-assessment-summary"
+          messages("label.view_manage_sa_return")
         )
 
         hasLink(
           selfAssessmentDoc,
-          messages("label.complete_your_tax_return"),
-          s"/self-assessment-file/$previousAndCurrentTaxYear/ind/$saUtr/return?lang=eng"
+          messages("label.complete_your_tax_return")
         )
 
         hasLink(
           selfAssessmentDoc,
-          messages("label.make_a_payment"),
-          "/personal-account/self-assessment/make-payment"
+          messages("label.make_a_payment")
         )
 
         hasLink(
           selfAssessmentDoc,
-          messages("label.view_your_payments"),
-          s"/self-assessment/ind/$saUtr/account/payments"
+          messages("label.view_your_payments")
         )
 
         hasLink(
           selfAssessmentDoc,
-          messages("label.check_if_you_need_to_fill_in_a_tax_return"),
-          "https://www.gov.uk/check-if-you-need-a-tax-return"
+          messages("label.check_if_you_need_to_fill_in_a_tax_return")
         )
       }
 
@@ -176,8 +176,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
         hasLink(
           selfAssessmentDoc,
-          messages("label.activate_your_self_assessment"),
-          "/personal-account/self-assessment"
+          messages("label.activate_your_self_assessment")
         )
       }
 
@@ -189,8 +188,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
         hasLink(
           selfAssessmentDoc,
-          messages("label.find_out_how_to_access_self_assessment"),
-          "/personal-account/self-assessment"
+          messages("label.find_out_how_to_access_self_assessment")
         )
       }
 
@@ -203,8 +201,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
         hasLink(
           selfAssessmentDoc,
-          messages("label.not_enrolled.link.text"),
-          "/personal-account/sa-enrolment"
+          messages("label.not_enrolled.link.text")
         )
       }
     }
@@ -219,6 +216,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             false,
             false,
             true,
+            true,
             previousAndCurrentTaxYear,
             userRequest.saUserType
           ).toString
@@ -229,8 +227,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
       hasLink(
         doc,
-        Messages("body.seiss"),
-        s"${configDecorator.seissClaimsUrl}"
+        Messages("body.seiss")
       )
     }
 
@@ -241,6 +238,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
           viewSaAndItsaMergePageView(
             s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
+            true,
             true,
             true,
             true,
@@ -259,20 +257,47 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
       hasLink(
         doc,
-        Messages("label.view_manage_your_mtd_for_sa"),
-        s"${configDecorator.itsaViewUrl}"
+        Messages("label.view_manage_your_mtd_for_sa")
       )
 
       hasLink(
         doc,
-        Messages("label.access_your_sa_returns"),
-        "/personal-account/self-assessment-summary"
+        Messages("label.access_your_sa_returns")
       )
 
       hasLink(
         doc,
-        Messages("body.seiss"),
-        s"${configDecorator.seissClaimsUrl}"
+        Messages("body.seiss")
+      )
+    }
+
+    "show all content besides MTD ITSA message if mongo toggle is false" in {
+
+      val doc =
+        asDocument(
+          viewSaAndItsaMergePageView(
+            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
+            nextDeadlineTaxYear,
+            isItsa = false,
+            isSa = true,
+            itsaToggle = false,
+            isSeiss = true,
+            previousAndCurrentTaxYear,
+            userRequest.saUserType
+          ).toString
+        )
+
+      doc.text() must include(Messages("label.your_self_assessment"))
+      doc.text() must not include (Messages("label.making_tax_digital"))
+
+      hasLink(
+        doc,
+        Messages("body.seiss")
+      )
+
+      hasLink(
+        doc,
+        Messages("label.view_manage_sa_return")
       )
     }
 
@@ -283,6 +308,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
           viewSaAndItsaMergePageView(
             s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
+            true,
             true,
             true,
             true,
@@ -297,23 +323,21 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       doc.text() must include(Messages("label.self_assessment_tax_returns"))
       doc.text() must include(Messages("label.not_enrolled.content"))
       doc.text() must include(Messages("title.seiss"))
+      doc.text() must include(Messages("label.making_tax_digital"))
 
       hasLink(
         doc,
-        Messages("label.view_manage_your_mtd_for_sa"),
-        s"${configDecorator.itsaViewUrl}"
+        Messages("label.view_manage_your_mtd_for_sa")
       )
 
       hasLink(
         doc,
-        messages("label.not_enrolled.link.text"),
-        "/personal-account/sa-enrolment"
+        messages("label.not_enrolled.link.text")
       )
 
       hasLink(
         doc,
-        Messages("body.seiss"),
-        s"${configDecorator.seissClaimsUrl}"
+        Messages("body.seiss")
       )
     }
   }

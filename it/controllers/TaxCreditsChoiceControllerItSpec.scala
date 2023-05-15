@@ -2,42 +2,38 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import models.admin.AddressTaxCreditsBrokerCallToggle
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
+import services.admin.FeatureFlagService
 import testUtils.{FileHelper, IntegrationSpec}
-import uk.gov.hmrc.http.SessionId
+import uk.gov.hmrc.http.{SessionId, SessionKeys}
 
 class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "microservice.services.auth.port"                     -> server.port(),
-      "microservice.services.citizen-details.port"          -> server.port(),
-      "microservice.services.tcs-broker.port"               -> server.port(),
-      "microservice.services.cachable.session-cache.port"   -> server.port(),
-      "microservice.services.cachable.session-cache.host"   -> "127.0.0.1",
-      "feature.address-change-tax-credits-question.enabled" -> false,
-      "microservice.services.pertax.port"                   -> server.port()
-    )
-    .configure(
-      Map(
-        "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "metrics.enabled"               -> false
-      )
+      "microservice.services.auth.port"                   -> server.port(),
+      "microservice.services.citizen-details.port"        -> server.port(),
+      "microservice.services.tcs-broker.port"             -> server.port(),
+      "microservice.services.cachable.session-cache.port" -> server.port(),
+      "microservice.services.cachable.session-cache.host" -> "127.0.0.1",
+      "cookie.encryption.key"                             -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "sso.encryption.key"                                -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "queryParameter.encryption.key"                     -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "json.encryption.key"                               -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "metrics.enabled"                                   -> false
     )
     .build()
 
-  val sessionId                        = Some(SessionId("session-00000000-0000-0000-0000-000000000000"))
-  lazy val addressJourneyCachingHelper = app.injector.instanceOf[AddressJourneyCachingHelper]
+  val sessionId: Option[SessionId]                                  = Some(SessionId("session-00000000-0000-0000-0000-000000000000"))
+  lazy val addressJourneyCachingHelper: AddressJourneyCachingHelper =
+    app.injector.instanceOf[AddressJourneyCachingHelper]
 
   def assertContainsLink(doc: Document, text: String, href: String): Assertion =
     assert(
@@ -57,6 +53,8 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
     val cacheMap = s"/keystore/pertax-frontend"
 
     "return a SEE_OTHER and redirect to TCS Address change if the user is a TCS user" in {
+      lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
+      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, enabled = true).futureValue
 
       server.stubFor(
         get(urlEqualTo(citizenDetailsUrl))
@@ -99,23 +97,18 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
       )
 
-      server.stubFor(
-        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
-          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
-      )
-
-      val request = FakeRequest(GET, url)
-
-      val result = route(app, request)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result  = route(app, request)
 
       result.get.futureValue.header.status mustBe SEE_OTHER
-
       result.get.futureValue.header.headers.get("Location") mustBe Some(
         "http://localhost:9362/tax-credits-service/personal/change-address"
       )
     }
 
-    "Show the tax credits question when the toggle is true" in {
+    "Show the tax credits question when the AddressTaxCreditsBrokerCallToggle is false" in {
+      lazy val featureFlagService          = app.injector.instanceOf[FeatureFlagService]
+      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, enabled = false).futureValue
       lazy val messagesApi                 = app.injector.instanceOf[MessagesApi]
       implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
@@ -125,8 +118,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           "microservice.services.citizen-details.port"        -> server.port(),
           "microservice.services.tcs-broker.port"             -> server.port(),
           "microservice.services.cachable.session-cache.port" -> server.port(),
-          "microservice.services.cachable.session-cache.host" -> "127.0.0.1",
-          "microservice.services.pertax.port"                 -> server.port()
+          "microservice.services.cachable.session-cache.host" -> "127.0.0.1"
         )
         .configure(
           Map(
@@ -181,12 +173,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
       )
 
-      server.stubFor(
-        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
-          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
-      )
-
-      val request = FakeRequest(GET, url)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
       val result  = route(app, request)
 
       result.get.futureValue.header.status mustBe OK
@@ -194,6 +181,8 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
     }
 
     "return a SEE_OTHER and redirect to PTA Address Change if the user is a non-TCS user" in {
+      lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
+      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, enabled = true).futureValue
 
       server.stubFor(
         get(urlEqualTo(citizenDetailsUrl))
@@ -236,14 +225,8 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      server.stubFor(
-        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
-          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
-      )
-
-      val request = FakeRequest(GET, url)
-
-      val result = route(app, request)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result  = route(app, request)
 
       result.get.futureValue.header.status mustBe SEE_OTHER
 
@@ -253,6 +236,8 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
     }
 
     "return a SEE_OTHER and redirect to the beginning of the PTA address change journey if the user skipped to tax credits url" in {
+      lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
+      featureFlagService.set(AddressTaxCreditsBrokerCallToggle, enabled = true).futureValue
 
       server.stubFor(
         get(urlEqualTo(citizenDetailsUrl))
@@ -295,14 +280,8 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      server.stubFor(
-        get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
-          .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
-      )
-
-      val request = FakeRequest(GET, url)
-
-      val result = route(app, request)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result  = route(app, request)
 
       result.get.futureValue.header.status mustBe SEE_OTHER
 
@@ -318,6 +297,8 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       SERVICE_UNAVAILABLE
     ).foreach { response =>
       s"return an INTERNAL_SERVER_ERROR and redirect to PTA Address Change if the call to TCS fails with a $response" in {
+        lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
+        featureFlagService.set(AddressTaxCreditsBrokerCallToggle, enabled = true).futureValue
 
         server.stubFor(
           get(urlEqualTo(citizenDetailsUrl))
@@ -360,14 +341,8 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
             .willReturn(aResponse().withStatus(response))
         )
 
-        server.stubFor(
-          get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
-            .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
-        )
-
-        val request = FakeRequest(GET, url)
-
-        val result = route(app, request)
+        val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+        val result  = route(app, request)
 
         result.get.futureValue.header.status mustBe INTERNAL_SERVER_ERROR
 

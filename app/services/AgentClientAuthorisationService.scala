@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,14 +39,13 @@ class AgentClientAuthorisationService @Inject() (
   def getAgentClientStatus(implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_]): Future[Boolean] =
     if (agentClientAuthorisationEnabled) {
       agentClientAuthorisationConnector.getAgentClientStatus
-        .bimap(
+        .fold(
           _ => false,
           {
             case AgentClientStatus(false, false, false) => false
             case _                                      => true
           }
         )
-        .merge
         .recover {
           case FutureEarlyTimeout   =>
             logger.error(FutureEarlyTimeout.getMessage)

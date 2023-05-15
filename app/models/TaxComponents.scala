@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package models
 
 import play.api.libs.json.JsValue
 
-case class TaxComponents(taxComponents: Seq[String]) {
+case class TaxComponents(taxComponents: List[String]) {
 
   def isMarriageAllowanceRecipient: Boolean = taxComponents.contains("MarriageAllowanceReceived")
 
@@ -33,7 +33,7 @@ case class TaxComponents(taxComponents: Seq[String]) {
 object TaxComponents {
   def fromJsonTaxComponents(taxComponents: JsValue): TaxComponents = {
 
-    val componentTypes = (taxComponents \\ "componentType").map(_.as[String])
+    val componentTypes = (taxComponents \\ "componentType").map(_.as[String]).toList
 
     TaxComponents(componentTypes)
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,18 @@
 
 package controllers.address
 
+import cats.data.EitherT
 import config.ConfigDecorator
-import connectors._
+import connectors.AddressLookupConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models._
-import models.dto.{AddressDto, AddressPageVisitedDto, Dto}
+import models.addresslookup.RecordSet
+import models.dto.{AddressDto, Dto}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
-import org.mockito.stubbing.OngoingStubbing
+import play.api.http.Status.NO_CONTENT
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import services._
@@ -34,8 +35,8 @@ import testUtils.Fixtures._
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -45,13 +46,13 @@ import scala.concurrent.Future
 
 trait AddressBaseSpec extends BaseSpec {
 
-  val mockAuthJourney: AuthJourney                         = mock[AuthJourney]
-  val mockLocalSessionCache: LocalSessionCache             = mock[LocalSessionCache]
-  val mockAddressLookupService: AddressLookupService       = mock[AddressLookupService]
-  val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
-  val mockAddressMovedService: AddressMovedService         = mock[AddressMovedService]
-  val mockAuditConnector: AuditConnector                   = mock[AuditConnector]
-  val mockAgentClientAuthorisationService                  = mock[AgentClientAuthorisationService]
+  val mockAuthJourney: AuthJourney                       = mock[AuthJourney]
+  val mockLocalSessionCache: LocalSessionCache           = mock[LocalSessionCache]
+  val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
+  val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
+  val mockAddressMovedService: AddressMovedService       = mock[AddressMovedService]
+  val mockAuditConnector: AuditConnector                 = mock[AuditConnector]
+  val mockAgentClientAuthorisationService                = mock[AgentClientAuthorisationService]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
 
@@ -66,12 +67,12 @@ trait AddressBaseSpec extends BaseSpec {
 
   implicit lazy val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(
       mockAuthJourney,
       mockLocalSessionCache,
-      mockAddressLookupService,
-      mockCitizenDetailsConnector,
+      mockAddressLookupConnector,
+      mockCitizenDetailsService,
       mockAddressMovedService,
       mockEditAddressLockRepository,
       mockAuditConnector,
@@ -104,15 +105,16 @@ trait AddressBaseSpec extends BaseSpec {
 
     def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
 
-    def personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
+    def personDetailsResponse: PersonDetails = fakePersonDetails
 
     def eTagResponse: Option[ETag] = Some(ETag("115"))
 
-    def updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+    def updateAddressResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+      EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(NO_CONTENT, ""))))
 
     def getAddressesLockResponse: AddressesLock = AddressesLock(false, false)
 
-    def addressLookupResponse: AddressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+    def addressLookupResponse: RecordSet = oneAndTwoOtherPlacePafRecordSet
 
     def isInsertCorrespondenceAddressLockSuccessful: Boolean = true
 
@@ -126,45 +128,46 @@ trait AddressBaseSpec extends BaseSpec {
     when(mockLocalSessionCache.fetchAndGetEntry[Dto](any())(any(), any(), any())).thenReturn(
       Future.successful(fetchAndGetEntryDto: Option[Dto])
     )
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
+    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())).thenReturn(
       Future.successful(CacheMap("id", Map.empty))
-    }
-    when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
+    )
+    when(mockLocalSessionCache.fetch()(any(), any())).thenReturn(
       Future.successful(sessionCacheResponse)
-    }
-    when(mockLocalSessionCache.remove()(any(), any())) thenReturn {
+    )
+    when(mockLocalSessionCache.remove()(any(), any())).thenReturn(
       Future.successful(mock[HttpResponse])
-    }
-    when(mockAddressLookupService.lookup(any(), any())(any())) thenReturn {
-      Future.successful(addressLookupResponse)
-    }
-    when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
+    )
+    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
       Future.successful(AuditResult.Success)
-    }
-    when(mockCitizenDetailsConnector.personDetails(any())(any())) thenReturn {
-      Future.successful(personDetailsResponse)
-    }
-    when(mockCitizenDetailsConnector.getEtag(any())(any())) thenReturn {
-      Future.successful(eTagResponse)
-    }
-    when(mockCitizenDetailsConnector.updateAddress(any(), any(), any())(any())) thenReturn {
-      Future.successful(updateAddressResponse)
-    }
-    when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
+    )
+    when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+      EitherT[Future, UpstreamErrorResponse, PersonDetails](
+        Future.successful(Right(personDetailsResponse))
+      )
+    )
+    when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
+      EitherT[Future, UpstreamErrorResponse, Option[ETag]](
+        Future.successful(Right(eTagResponse))
+      )
+    )
+    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(
+      updateAddressResponse
+    )
+    when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
       Future.successful(isInsertCorrespondenceAddressLockSuccessful)
-    }
-    when(mockEditAddressLockRepository.get(any())) thenReturn {
+    )
+    when(mockEditAddressLockRepository.get(any())).thenReturn(
       Future.successful(getEditedAddressIndicators)
-    }
-    when(mockEditAddressLockRepository.getAddressesLock(any())(any())) thenReturn {
+    )
+    when(mockEditAddressLockRepository.getAddressesLock(any())(any())).thenReturn(
       Future.successful(getAddressesLockResponse)
-    }
-    when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())) thenReturn {
+    )
+    when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())).thenReturn(
       Future.successful(MovedToScotland)
-    }
-    when(mockAddressMovedService.toMessageKey(any[AddressChanged]())) thenReturn {
+    )
+    when(mockAddressMovedService.toMessageKey(any[AddressChanged]())).thenReturn(
       None
-    }
+    )
 
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

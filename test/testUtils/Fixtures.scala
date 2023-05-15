@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,27 +23,27 @@ import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.MockitoSugar
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.{BeforeAndAfterEach, Suite}
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc._
-import play.api.test.{FakeRequest, Helpers}
+import play.api.test.{FakeRequest, Helpers, Injecting}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
-import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
-import uk.gov.hmrc.time.DateTimeUtils._
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 
-import java.time.LocalDate
+import java.time.temporal.ChronoField
+import java.time.{Instant, LocalDate}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
@@ -119,7 +119,7 @@ trait PafFixtures {
 
 trait TaiFixtures {
 
-  def buildTaxComponents: TaxComponents = TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
+  def buildTaxComponents: TaxComponents = TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
 }
 
 trait TaxCalculationFixtures {
@@ -127,6 +127,7 @@ trait TaxCalculationFixtures {
 
   def buildTaxYearReconciliations: List[TaxYearReconciliation] =
     List(TaxYearReconciliation(2015, Balanced), TaxYearReconciliation(2016, Balanced))
+  def buildTrustedHelper: Option[TrustedHelper]                = Some(TrustedHelper("John", "Smith", "Some Url", "AH498813B"))
 }
 
 trait CitizenDetailsFixtures {
@@ -280,6 +281,10 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   val fakeNino = Nino(new Generator(new Random()).nextNino.nino)
 
+  val saUtr = new SaUtrGenerator().nextSaUtr
+
+  val etag = "1"
+
   def buildFakeRequestWithSessionId(method: String) =
     FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
 
@@ -289,7 +294,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
   ): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
-      SessionKeys.lastRequestTimestamp -> now.getMillis.toString
+      SessionKeys.lastRequestTimestamp -> Instant.now().get(ChronoField.MILLI_OF_SECOND).toString
     )
 
     FakeRequest(method, uri).withSession(session.toList: _*)
@@ -321,17 +326,19 @@ trait BaseSpec
     with PatienceConfiguration
     with BeforeAndAfterEach
     with MockitoSugar
-    with ScalaFutures {
+    with ScalaFutures
+    with Injecting {
   this: Suite =>
 
   implicit val hc = HeaderCarrier()
 
   val mockPartialRetriever = mock[FormPartialRetriever]
-  when(mockPartialRetriever.getPartialContent(any(), any(), any())(any(), any())) thenReturn Html("")
+  when(mockPartialRetriever.getPartialContentAsync(any(), any(), any())(any(), any()))
+    .thenReturn(Future.successful(Html("")))
 
   val mockEditAddressLockRepository = mock[EditAddressLockRepository]
 
-  val configValues =
+  val configValues: Map[String, Any] =
     Map(
       "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",

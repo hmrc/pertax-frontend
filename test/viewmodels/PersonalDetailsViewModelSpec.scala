@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,27 @@
 
 package viewmodels
 
+import cats.data.EitherT
 import config.ConfigDecorator
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
+import org.mockito.ArgumentMatchers.any
+import play.api.Application
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import views.html.ViewSpec
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
 import java.time.{Instant, LocalDate}
+import scala.concurrent.Future
 import scala.util.Random
 
 class PersonalDetailsViewModelSpec extends ViewSpec {
@@ -42,6 +49,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   lazy val addressView               = injected[AddressView]
   lazy val correspondenceAddressView = injected[CorrespondenceAddressView]
   lazy val countryHelper             = injected[CountryHelper]
+  lazy val mockPreferencesConnector  = mock[PreferencesFrontendConnector]
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser, None)
+    .overrides(
+      bind[PreferencesFrontendConnector].toInstance(mockPreferencesConnector)
+    )
+    .build()
 
   val fakeRequest = FakeRequest("", "")
   val userRequest = UserRequest(
@@ -127,16 +141,20 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       val expected = Some(
         PersonalDetailsTableRowModel(
           "paperless",
-          "label.paperless_settings",
-          HtmlFormat.raw(""),
-          "label.change",
-          "label.your_paperless_settings",
-          Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
+          messages("label.paperless_settings"),
+          HtmlFormat.raw(messages("label.paperless_opt_in_response")),
+          messages("label.paperless_opt_in_link"),
+          messages("label.paperless_opt_in_hidden"),
+          Some("link")
         )
       )
 
-      val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest)
-      actual mustBe expected
+      when(mockPreferencesConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn("link"): PaperlessMessages)
+      )
+
+      val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages, ec)
+      actual.futureValue mustBe expected
     }
   }
 
@@ -149,7 +167,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             "trusted_helpers",
             "label.trusted_helpers",
             HtmlFormat.raw(messages("label.manage_trusted_helpers")),
-            "label.change",
+            "label.manage",
             "label.your_trusted_helpers",
             Some(configDecorator.manageTrustedHelpersUrl)
           )
@@ -166,7 +184,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             "trusted_helpers",
             "label.trusted_helpers",
             HtmlFormat.raw(messages("label.manage_trusted_helpers")),
-            "label.change",
+            "label.manage",
             "label.your_trusted_helpers",
             Some(configDecorator.manageTrustedHelpersUrl)
           )

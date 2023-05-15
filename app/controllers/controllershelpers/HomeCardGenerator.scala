@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,60 +16,63 @@
 
 package controllers.controllershelpers
 
+import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import models._
+import models.admin._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
-import util.DateTimeTools.{current, previousAndCurrentTaxYear}
+import services.admin.FeatureFlagService
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
 
+import scala.concurrent.{ExecutionContext, Future}
+
 @Singleton
 class HomeCardGenerator @Inject() (
+  featureFlagService: FeatureFlagService,
   payAsYouEarnView: PayAsYouEarnView,
   taxCalculationView: TaxCalculationView,
-  selfAssessmentView: SelfAssessmentView,
   nationalInsuranceView: NationalInsuranceView,
   taxCreditsView: TaxCreditsView,
-  childBenefitView: ChildBenefitView,
+  childBenefitSingleAccountView: ChildBenefitSingleAccountView,
   marriageAllowanceView: MarriageAllowanceView,
   statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
-  seissView: SeissView,
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
   saAndItsaMergeView: SaAndItsaMergeView,
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig
-)(implicit configDecorator: ConfigDecorator) {
+)(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
 
   def getIncomeCards(
     taxComponentsState: TaxComponentsState,
     taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
-    taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
-    saActionNeeded: SelfAssessmentUserType,
-    showSeissCard: Boolean
-  )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
-    List(
-      getLatestNewsAndUpdatesCard(),
-      getPayAsYouEarnCard(taxComponentsState),
-      getTaxCalculationCard(taxCalculationStateCyMinusOne),
-      getTaxCalculationCard(taxCalculationStateCyMinusTwo),
-      getSaAndItsaMergeCard(),
-      getSelfAssessmentCard(saActionNeeded),
-      if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.saItsaTileEnabled)
-        Some(seissView())
-      else None,
-      getNationalInsuranceCard(),
-      if (request.trustedHelper.isEmpty) {
-        getAnnualTaxSummaryCard
-      } else {
-        None
-      }
-    ).flatten
+    taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation]
+  )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] =
+    Future
+      .sequence(
+        List(
+          Future.successful(getLatestNewsAndUpdatesCard()),
+          Future.successful(getPayAsYouEarnCard(taxComponentsState)),
+          getTaxCalculationCard(taxCalculationStateCyMinusOne),
+          getTaxCalculationCard(taxCalculationStateCyMinusTwo),
+          Future.successful(getSaAndItsaMergeCard()),
+          getNationalInsuranceCard(),
+          if (request.trustedHelper.isEmpty) {
+            getAnnualTaxSummaryCard.value
+          } else {
+            Future.successful(None)
+          }
+        )
+      )
+      .map(_.flatten)
 
   def getPayAsYouEarnCard(
     taxComponentsState: TaxComponentsState
@@ -83,23 +86,11 @@ class HomeCardGenerator @Inject() (
 
   def getTaxCalculationCard(
     taxYearReconciliations: Option[TaxYearReconciliation]
-  )(implicit messages: Messages): Option[HtmlFormat.Appendable] =
-    taxYearReconciliations
-      .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation)
-      .map(taxCalculationView(_))
-
-  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType)(implicit
-    request: UserRequest[AnyContent],
-    messages: Messages
-  ): Option[HtmlFormat.Appendable] =
-    if (!configDecorator.saItsaTileEnabled) {
-      saActionNeeded match {
-        case NonFilerSelfAssessmentUser => None
-        case saWithActionNeeded         =>
-          Some(selfAssessmentView(saWithActionNeeded, previousAndCurrentTaxYear, (current.currentYear + 1).toString))
-      }
-    } else {
-      None
+  )(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
+    featureFlagService.get(TaxcalcMakePaymentLinkToggle).map { toggle =>
+      taxYearReconciliations
+        .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation(_, toggle))
+        .map(taxCalculationView(_))
     }
 
   def getSaAndItsaMergeCard()(implicit
@@ -107,7 +98,7 @@ class HomeCardGenerator @Inject() (
     request: UserRequest[_]
   ): Option[HtmlFormat.Appendable] =
     if (
-      configDecorator.saItsaTileEnabled && request.trustedHelper.isEmpty &&
+      request.trustedHelper.isEmpty &&
       (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       Some(
@@ -123,18 +114,20 @@ class HomeCardGenerator @Inject() (
   def getAnnualTaxSummaryCard(implicit
     request: UserRequest[AnyContent],
     messages: Messages
-  ): Option[HtmlFormat.Appendable] =
-    if (configDecorator.isAtsTileEnabled) {
-      val url = if (request.isSaUserLoggedIntoCorrectAccount) {
-        configDecorator.annualTaxSaSummariesTileLink
-      } else {
-        configDecorator.annualTaxPayeSummariesTileLink
-      }
+  ): OptionT[Future, HtmlFormat.Appendable] =
+    OptionT(featureFlagService.get(TaxSummariesTileToggle).map { featureFlag =>
+      if (featureFlag.isEnabled) {
+        val url = if (request.isSaUserLoggedIntoCorrectAccount) {
+          configDecorator.annualTaxSaSummariesTileLink
+        } else {
+          configDecorator.annualTaxPayeSummariesTileLink
+        }
 
-      Some(taxSummariesView(url))
-    } else {
-      None
-    }
+        Some(taxSummariesView(url))
+      } else {
+        None
+      }
+    })
 
   def getLatestNewsAndUpdatesCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
     if (configDecorator.isNewsAndUpdatesTileEnabled && newsAndTilesConfig.getNewsAndContentModelList().nonEmpty) {
@@ -143,27 +136,34 @@ class HomeCardGenerator @Inject() (
       None
     }
 
-  def getNationalInsuranceCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
-    if (configDecorator.isNationalInsuranceCardEnabled) {
-      Some(nationalInsuranceView())
-    } else {
-      None
+  def getNationalInsuranceCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
+    featureFlagService.get(NationalInsuranceTileToggle).map { toggle =>
+      if (toggle.isEnabled) {
+        Some(nationalInsuranceView())
+      } else {
+        None
+      }
     }
 
   def getBenefitCards(
-    taxComponents: Option[TaxComponents]
-  )(implicit messages: Messages): Seq[Html] =
-    List(
-      getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
-      getChildBenefitCard(),
-      getMarriageAllowanceCard(taxComponents)
-    ).flatten
+    taxComponents: Option[TaxComponents],
+    trustedHelper: Option[TrustedHelper]
+  )(implicit messages: Messages): List[Html] =
+    if (trustedHelper.isEmpty) {
+      List(
+        getTaxCreditsCard(),
+        getChildBenefitCard(),
+        getMarriageAllowanceCard(taxComponents)
+      ).flatten
+    } else {
+      List.empty
+    }
 
-  def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(taxCreditsView(showTaxCreditsPaymentLink))
+  def getTaxCreditsCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
+    Some(taxCreditsView())
 
-  def getChildBenefitCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(childBenefitView())
+  def getChildBenefitCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    Some(childBenefitSingleAccountView())
 
   def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit
     messages: Messages

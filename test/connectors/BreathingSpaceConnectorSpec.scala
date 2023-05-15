@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import play.api.Application
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.util.Random
 
@@ -63,7 +63,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
       result mustBe a[Right[_, _]]
-      result.right.get mustBe true
+      result.getOrElse(HttpResponse(OK, "")) mustBe true
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
@@ -72,17 +72,16 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
       result mustBe a[Right[_, _]]
-      result.right.get mustBe false
+      result.getOrElse(HttpResponse(OK, "")) mustBe false
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
-    "return a BAD_GATEWAY for timeout response" in {
+    "return an UpstreamErrorResponse for timeout response" in {
       val delay: Int = 5000
       stubWithDelay(url, OK, None, Some(breathingSpaceTrueResponse), delay)
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-      result mustBe a[Left[_, _]]
-      result.left.get mustBe UpstreamErrorResponse(_: String, BAD_REQUEST)
+      result mustBe a[Left[UpstreamErrorResponse, _]]
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
@@ -96,12 +95,11 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
       BAD_REQUEST,
       UNPROCESSABLE_ENTITY
     ).foreach { httpResponse =>
-      s"return a $httpResponse when $httpResponse status is received" in {
+      s"return an UpstreamErrorResponse when $httpResponse status is received" in {
         stubGet(url, httpResponse, None)
 
         val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-        result mustBe a[Left[_, _]]
-        result mustBe UpstreamErrorResponse(_: String, httpResponse)
+        result mustBe a[Left[UpstreamErrorResponse, _]]
         verifyHeader(getRequestedFor(urlEqualTo(url)))
       }
     }

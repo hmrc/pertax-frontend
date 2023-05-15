@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUseServiceView}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future}
 
 class AddressErrorController @Inject() (
   authJourney: AuthJourney,
@@ -34,7 +34,7 @@ class AddressErrorController @Inject() (
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   cannotUseServiceView: CannotUseServiceView,
   addressAlreadyUpdatedView: AddressAlreadyUpdatedView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator)
     extends AddressController(authJourney, cc, displayAddressInterstitialView) {
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =

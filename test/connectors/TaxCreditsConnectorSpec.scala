@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package connectors
 
 import play.api.Application
-import testUtils.{FileHelper, WireMockHelper}
 import testUtils.Fixtures.fakeNino
+import testUtils.{FileHelper, WireMockHelper}
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
@@ -34,13 +34,15 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
   "TaxCreditsConnector" when {
     "checkForTaxCredits is called" must {
       "return a HttpResponse containing OK if tcs data for the given NINO is found" in {
-        val data   = FileHelper.loadFile("./test/resources/tcs/dashboard-data.json")
+        val data     = FileHelper.loadFile("./test/resources/tcs/dashboard-data.json")
         stubGet(url, OK, Some(data))
-        val result = connector.checkForTaxCredits(fakeNino).value.futureValue
+        val response = connector.checkForTaxCredits(fakeNino).value.futureValue
 
-        result mustBe a[Right[_, _]]
-        result.right.get mustBe HttpResponse(OK, _: String)
-        result.right.get.body mustBe data
+        response mustBe a[Right[_, _]]
+
+        val result = response.getOrElse(HttpResponse(IM_A_TEAPOT, "Invalid Response"))
+        result.status mustBe OK
+        result.body mustBe data
       }
 
       "return a UpstreamErrorException containing NOT_FOUND if tcs data for the given isn't found" in {

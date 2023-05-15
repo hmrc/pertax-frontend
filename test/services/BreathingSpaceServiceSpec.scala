@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,13 @@ import config.ConfigDecorator
 import connectors.BreathingSpaceConnector
 import models.BreathingSpaceIndicatorResponse
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.Configuration
 import play.api.http.Status._
 import play.api.i18n.Langs
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import testUtils.{BaseSpec, Fixtures}
 import util.FutureEarlyTimeout
 
 import scala.concurrent.Future

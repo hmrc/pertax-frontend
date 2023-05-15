@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ class SelfAssessmentController @Inject() (
     }
 
   def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
-    authJourney.minimumAuthWithSelfAssessment { implicit request =>
+    authJourney.authWithPersonalDetails { implicit request =>
       val retryUrl = routes.ApplicationController.uplift(continueUrl).url
 
       request.saUserType match {
@@ -88,11 +88,11 @@ class SelfAssessmentController @Inject() (
       }
     }
 
-  def redirectToEnrolForSa: Action[AnyContent] = authJourney.authWithSelfAssessment.async { implicit request =>
-    selfAssessmentService.getSaEnrolmentUrl map {
-      case Some(redirectUrl) => Redirect(redirectUrl)
-      case _                 => errorRenderer.error(INTERNAL_SERVER_ERROR)
-    }
+  def redirectToEnrolForSa: Action[AnyContent] = authJourney.authWithPersonalDetails.async { implicit request =>
+    selfAssessmentService.getSaEnrolmentUrl.fold(
+      _ => errorRenderer.error(INTERNAL_SERVER_ERROR),
+      response => response.map(url => Redirect(url)).getOrElse(errorRenderer.error(INTERNAL_SERVER_ERROR))
+    )
   }
 
   private def handleIvExemptAuditing(
@@ -107,7 +107,7 @@ class SelfAssessmentController @Inject() (
     )
 
   def requestAccess: Action[AnyContent] =
-    authJourney.minimumAuthWithSelfAssessment { implicit request =>
+    authJourney.authWithPersonalDetails { implicit request =>
       request.saUserType match {
         case NotEnrolledSelfAssessmentUser(_) =>
           val deadlineYear = current.finishYear.toString
@@ -115,4 +115,5 @@ class SelfAssessmentController @Inject() (
         case _                                => Redirect(routes.HomeController.index)
       }
     }
+
 }

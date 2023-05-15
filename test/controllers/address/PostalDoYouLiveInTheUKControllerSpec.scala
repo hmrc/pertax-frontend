@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package controllers.address
 import config.ConfigDecorator
 import models.dto.{AddressPageVisitedDto, Dto}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest

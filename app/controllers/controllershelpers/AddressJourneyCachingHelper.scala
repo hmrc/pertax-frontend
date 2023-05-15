@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package controllers.controllershelpers
 
 import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
-import controllers.bindable.AddrType
+import controllers.bindable.{AddrType}
 import models._
 import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._

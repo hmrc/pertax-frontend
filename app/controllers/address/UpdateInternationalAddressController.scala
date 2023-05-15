@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,22 +82,24 @@ class UpdateInternationalAddressController @Inject() (
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { _ =>
         addressJourneyEnforcer { _ => _ =>
-          AddressDto.internationalForm.bindFromRequest.fold(
-            formWithErrors =>
-              Future.successful(
-                BadRequest(updateInternationalAddressView(formWithErrors, typ, countryHelper.countries))
-              ),
-            addressDto =>
-              cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
-                typ match {
-                  case PostalAddrType =>
-                    cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
-                    Future.successful(Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
-                  case _              =>
-                    Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
+          AddressDto.internationalForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                Future.successful(
+                  BadRequest(updateInternationalAddressView(formWithErrors, typ, countryHelper.countries))
+                ),
+              addressDto =>
+                cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
+                  typ match {
+                    case PostalAddrType =>
+                      cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
+                      Future.successful(Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
+                    case _              =>
+                      Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
+                  }
                 }
-              }
-          )
+            )
         }
       }
     }

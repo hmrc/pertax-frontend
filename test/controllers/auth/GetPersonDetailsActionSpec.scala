@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 
 package controllers.auth
 
+import cats.data.EitherT
 import config.ConfigDecorator
-import connectors.{CitizenDetailsConnector, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -29,25 +28,25 @@ import play.api.mvc.Result
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.CitizenDetailsService
 import services.partials.MessageFrontendService
-import connectors.PersonDetailsNotFoundResponse
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import testUtils.BaseSpec
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
 
 class GetPersonDetailsActionSpec extends BaseSpec {
 
   val mockMessageFrontendService       = mock[MessageFrontendService]
-  val mockCitizenDetailsConnector      = mock[CitizenDetailsConnector]
+  val mockCitizenDetailsService        = mock[CitizenDetailsService]
   val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
-    .overrides(bind[CitizenDetailsConnector].toInstance(mockCitizenDetailsConnector))
+    .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
     .overrides(bind[ConfigDecorator].toInstance(configDecorator))
     .configure(Map("metrics.enabled" -> false))
     .build()
@@ -68,9 +67,8 @@ class GetPersonDetailsActionSpec extends BaseSpec {
       FakeRequest("", "")
     )
 
-  val personDetailsSuccessResponse = PersonDetailsSuccessResponse(
+  val personDetails =
     PersonDetails(Person(Some("TestFirstName"), None, None, None, None, None, None, None, None), None, None)
-  )
 
   val personDetailsBlock: UserRequest[_] => Future[Result] = userRequest => {
     val person = userRequest.personDetails match {
@@ -97,8 +95,8 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     "a user has PersonDetails in CitizenDetails" must {
 
       "add the PersonDetails to the request" in {
-        when(mockCitizenDetailsConnector.personDetails(any())(any()))
-          .thenReturn(Future.successful(personDetailsSuccessResponse))
+        when(mockCitizenDetailsService.personDetails(any())(any(), any()))
+          .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
 
         val result = harness(personDetailsBlock)(refinedRequest)
         status(result) mustBe OK
@@ -108,8 +106,12 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
     "when a user has no PersonDetails in CitizenDetails" must {
       "return the request it was passed" in {
-        when(mockCitizenDetailsConnector.personDetails(any())(any()))
-          .thenReturn(Future.successful(PersonDetailsNotFoundResponse))
+        when(mockCitizenDetailsService.personDetails(any())(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, PersonDetails](
+              Future.successful(Left(UpstreamErrorResponse("", NOT_FOUND)))
+            )
+          )
 
         val result = harness(personDetailsBlock)(refinedRequest)
         status(result) mustBe OK
@@ -120,8 +122,8 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
     "when the person details message count toggle is set to true" must {
       "return a request with the unread message count" in {
-        when(mockCitizenDetailsConnector.personDetails(any())(any()))
-          .thenReturn(Future.successful(personDetailsSuccessResponse))
+        when(mockCitizenDetailsService.personDetails(any())(any(), any()))
+          .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
 
         when(configDecorator.personDetailsMessageCountEnabled).thenReturn(true)
 
@@ -133,8 +135,8 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
     "when the person details message count toggle is set to false" must {
       "return a request with the unread message count" in {
-        when(mockCitizenDetailsConnector.personDetails(any())(any()))
-          .thenReturn(Future.successful(personDetailsSuccessResponse))
+        when(mockCitizenDetailsService.personDetails(any())(any(), any()))
+          .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
 
         when(configDecorator.personDetailsMessageCountEnabled).thenReturn(false)
 

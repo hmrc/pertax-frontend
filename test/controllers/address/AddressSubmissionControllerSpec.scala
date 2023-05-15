@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,8 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.GenericErrors
 import models.ETag
 import models.dto.DateDto
-import java.time.LocalDate
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
@@ -32,11 +30,13 @@ import play.api.mvc.{MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.Fixtures
+import testUtils.Fixtures._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
-import Fixtures._
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
+
+import java.time.LocalDate
 
 class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
@@ -48,7 +48,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
     def controller =
       new AddressSubmissionController(
-        mockCitizenDetailsConnector,
+        mockCitizenDetailsService,
         mockAddressMovedService,
         mockEditAddressLockRepository,
         mockAuthJourney,
@@ -259,7 +259,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
     }
 
     "redirect to start of journey if residentialSubmittedAddressDto is missing from the cache" in new LocalSetup {
@@ -309,7 +309,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) mustBe comparatorDataEvent(dataEvent, "postcodeAddressSubmitted", Some("GB101"), false)
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
     }
 
     "render the thank you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address, this time using postal type and having no postalSubmittedStartDateDto in the cache " in new LocalSetup {
@@ -345,7 +345,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         addressType = Some("Correspondence")
       )
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
     }
 
     "render the thank you page and log a manualAddressSubmitted audit event upon successful submission of a manually entered address" in new LocalSetup {
@@ -374,7 +374,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) mustBe comparatorDataEvent(dataEvent, "manualAddressSubmitted", None, false)
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
     }
 
     "render the thank you page and log a postcodeAddressModifiedSubmitted audit event upon successful of a modified address" in new LocalSetup {
@@ -409,7 +409,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         Some("11 Fake Street")
       )
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
     }
 
     "return 500 when fetching etag from citizen details fails" in new LocalSetup {

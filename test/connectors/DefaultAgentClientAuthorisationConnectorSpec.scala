@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 class DefaultAgentClientAuthorisationConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience {
 
@@ -65,7 +65,7 @@ class DefaultAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Wi
       val result = connector.getAgentClientStatus.value.futureValue
 
       result mustBe a[Left[_, _]]
-      result.left.get mustBe a[UpstreamErrorResponse]
+      result.swap.getOrElse(HttpResponse(IM_A_TEAPOT, "Invalid Response")) mustBe a[UpstreamErrorResponse]
     }
   }
 }

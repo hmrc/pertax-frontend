@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,8 @@ import config.ConfigDecorator
 import controllers.auth._
 import play.api.Logger
 import play.api.mvc._
-import services.IdentityVerificationSuccessResponse._
 import services._
-import uk.gov.hmrc.play.binders.Origin
+import controllers.bindable.Origin
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl, SafeRedirectUrl}
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -64,49 +63,50 @@ class ApplicationController @Inject() (
 
       journeyId match {
         case Some(jid) =>
-          identityVerificationFrontendService.getIVJourneyStatus(jid).map {
+          identityVerificationFrontendService
+            .getIVJourneyStatus(jid)
+            .map {
+              case Success =>
+                Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
 
-            case IdentityVerificationSuccessResponse(Success) =>
-              Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
+              case InsufficientEvidence =>
+                Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
 
-            case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
-              Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
+              case UserAborted =>
+                logErrorMessage(UserAborted.toString)
+                Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(UserAborted) =>
-              logErrorMessage(UserAborted)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
+              case FailedMatching =>
+                logErrorMessage(FailedMatching.toString)
+                Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(FailedMatching) =>
-              logErrorMessage(FailedMatching)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
+              case Incomplete =>
+                logErrorMessage(Incomplete.toString)
+                Unauthorized(failedIvIncompleteView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(Incomplete) =>
-              logErrorMessage(Incomplete)
-              Unauthorized(failedIvIncompleteView(retryUrl))
+              case PrecondFailed =>
+                logErrorMessage(PrecondFailed.toString)
+                Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(PrecondFailed) =>
-              logErrorMessage(PrecondFailed)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
+              case LockedOut =>
+                logErrorMessage(LockedOut.toString)
+                Unauthorized(lockedOutView(allowContinue = false))
 
-            case IdentityVerificationSuccessResponse(LockedOut) =>
-              logErrorMessage(LockedOut)
-              Unauthorized(lockedOutView(allowContinue = false))
+              case Timeout =>
+                logErrorMessage(Timeout.toString)
+                Unauthorized(timeOutView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(Timeout) =>
-              logErrorMessage(Timeout)
-              InternalServerError(timeOutView(retryUrl))
+              case TechnicalIssue =>
+                logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
+                InternalServerError(technicalIssuesView(retryUrl))
 
-            case IdentityVerificationSuccessResponse(TechnicalIssue) =>
-              logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
-              InternalServerError(technicalIssuesView(retryUrl))
-
-            case r =>
-              logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
-              InternalServerError(technicalIssuesView(retryUrl))
-          }
-        case None      =>
-          logger.error(s"No journeyId present when displaying IV uplift journey outcome")
-          Future.successful(BadRequest(technicalIssuesView(retryUrl)))
+              case _ =>
+                InternalServerError(technicalIssuesView(retryUrl))
+            }
+            .getOrElse(BadRequest(technicalIssuesView(retryUrl)))
+        case _         =>
+          logger.error("journeyId missing or incorect")
+          Future.successful(InternalServerError(technicalIssuesView(retryUrl)))
       }
     }
 
@@ -114,7 +114,7 @@ class ApplicationController @Inject() (
     logger.warn(s"Unable to confirm user identity: $reason")
 
   def signout(continueUrl: Option[RedirectUrl], origin: Option[Origin]): Action[AnyContent] =
-    authJourney.minimumAuthWithSelfAssessment { implicit request =>
+    Action {
       val safeUrl = continueUrl.flatMap { redirectUrl =>
         redirectUrl.getEither(OnlyRelative) match {
           case Right(safeRedirectUrl) => Some(safeRedirectUrl.url)

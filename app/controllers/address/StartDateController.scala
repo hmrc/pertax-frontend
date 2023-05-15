@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,25 +70,27 @@ class StartDateController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
-          dateDtoForm.bindFromRequest.fold(
-            formWithErrors => Future.successful(BadRequest(enterStartDateView(formWithErrors, typ))),
-            dateDto =>
-              cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map { _ =>
-                val proposedStartDate = dateDto.startDate
+          dateDtoForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors => Future.successful(BadRequest(enterStartDateView(formWithErrors, typ))),
+              dateDto =>
+                cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map { _ =>
+                  val proposedStartDate = dateDto.startDate
 
-                personDetails.address match {
-                  case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
-                    if (!currentStartDate.isBefore(proposedStartDate)) {
-                      BadRequest(
-                        cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate))
-                      )
-                    } else {
-                      Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                    }
-                  case _                                                                   => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                  personDetails.address match {
+                    case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
+                      if (!currentStartDate.isBefore(proposedStartDate)) {
+                        BadRequest(
+                          cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate))
+                        )
+                      } else {
+                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                      }
+                    case _                                                                   => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                  }
                 }
-              }
-          )
+            )
         }
       }
     }

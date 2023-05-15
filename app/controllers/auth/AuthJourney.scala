@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,10 @@ import play.api.mvc.{ActionBuilder, AnyContent}
 @ImplementedBy(classOf[AuthJourneyImpl])
 trait AuthJourney {
   val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent]
-  val authWithSelfAssessment: ActionBuilder[UserRequest, AnyContent]
-  val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest, AnyContent]
 }
 
 class AuthJourneyImpl @Inject() (
   authAction: AuthAction,
-  minimumAuthAction: MinimumAuthAction,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
   getPersonDetailsAction: GetPersonDetailsAction,
   pertaxAuthAction: PertaxAuthAction
@@ -37,11 +34,4 @@ class AuthJourneyImpl @Inject() (
 
   override val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
     authAction andThen pertaxAuthAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
-
-  override val authWithSelfAssessment: ActionBuilder[UserRequest, AnyContent] =
-    authAction andThen pertaxAuthAction andThen selfAssessmentStatusAction
-
-  override val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest, AnyContent] =
-    minimumAuthAction andThen selfAssessmentStatusAction
-
 }

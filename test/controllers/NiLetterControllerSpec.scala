@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,20 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.jsoup.Jsoup
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import testUtils.UserRequestFixture.buildUserRequest
 import views.html.print._
 
 import scala.concurrent.Future
 
-class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDetailsFixtures {
+class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
   val mockPdfGeneratorConnector       = mock[PdfGeneratorConnector]
   val mockAuthJourney                 = mock[AuthJourney]

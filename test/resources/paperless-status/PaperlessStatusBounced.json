@@ -1,0 +1,11 @@
+{
+  "status": {
+    "name": "BOUNCED_EMAIL",
+    "category": "ACTION_REQUIRED",
+    "text": "We cannot deliver emails to you. You need to take action before you can get Self Assessment tax letters online."
+  },
+  "url": {
+    "link": "http://localhost:9024/paperless/check-settings?returnUrl=VYBxyuFWQBQZAGpe5tSgmw%3D%3D&returnLinkText=VYBxyuFWQBQZAGpe5tSgmw%3D%3D",
+    "text": "Confirm or change your email address"
+  }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import connectors.PertaxConnector
 import controllers.auth.requests.AuthenticatedRequest
 import models.{ErrorView, PertaxResponse}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.HttpEntity
 import play.api.http.Status.{IM_A_TEAPOT, INTERNAL_SERVER_ERROR, SEE_OTHER, UNAUTHORIZED}
@@ -57,7 +56,7 @@ class PertaxAuthActionSpec extends BaseSpec {
   when(testAppConfig.pertaxUrl).thenReturn("PERTAX_URL")
 
   val pertaxAuthAction =
-    new PertaxAuthAction(mockPertaxConnector, internalServerErrorView, mainTemplateView, cc)(messagesApi, testAppConfig)
+    new PertaxAuthAction(mockPertaxConnector, internalServerErrorView, mainTemplateView, cc)(testAppConfig)
 
   val nino = new Generator(new Random()).nextNino
 

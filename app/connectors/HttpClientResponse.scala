@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,46 +18,37 @@ package connectors
 
 import cats.data.EitherT
 import com.google.inject.Inject
-import metrics.{Metrics, MetricsEnumeration}
 import play.api.Logging
 import play.api.http.Status.{BAD_GATEWAY, LOCKED, NOT_FOUND, TOO_MANY_REQUESTS}
 import uk.gov.hmrc.http.{HttpException, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HttpClientResponse @Inject() (metrics: Metrics)(implicit ec: ExecutionContext) extends Logging {
+class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Logging {
 
   def read(
-    response: Future[Either[UpstreamErrorResponse, HttpResponse]],
-    metricName: MetricsEnumeration.Value
+    response: Future[Either[UpstreamErrorResponse, HttpResponse]]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     EitherT(response.map {
       case Right(response)                                                                 =>
-        metrics.incrementSuccessCounter(metricName)
         Right(response)
       case Left(error) if error.statusCode == NOT_FOUND                                    =>
-        metrics.incrementFailedCounter(metricName)
         logger.info(error.message)
         Left(error)
       case Left(error) if error.statusCode == LOCKED                                       =>
-        metrics.incrementFailedCounter(metricName)
         logger.warn(error.message)
         Left(error)
       case Left(error) if error.statusCode >= 499 || error.statusCode == TOO_MANY_REQUESTS =>
-        metrics.incrementFailedCounter(metricName)
         logger.error(error.message)
         Left(error)
       case Left(error)                                                                     =>
-        metrics.incrementFailedCounter(metricName)
         logger.error(error.message, error)
         Left(error)
     } recover {
       case exception: HttpException =>
-        metrics.incrementFailedCounter(metricName)
         logger.error(exception.message)
         Left(UpstreamErrorResponse(exception.message, BAD_GATEWAY, BAD_GATEWAY))
       case exception: Exception     =>
-        metrics.incrementFailedCounter(metricName)
         throw exception
     })
 }

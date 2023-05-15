@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,19 @@
 package error
 
 import com.google.inject.Inject
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
 import play.api.i18n.Messages
 import play.api.mvc._
 import views.html.{ErrorView, NotFoundView, UnauthenticatedErrorView}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ErrorRenderer @Inject() (
   notFoundView: NotFoundView,
   errorView: ErrorView,
   unauthenticatedErrorTemplate: UnauthenticatedErrorView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends Results {
+) extends Results {
 
   def futureError(statusCode: Int)(implicit request: UserRequest[_], messages: Messages): Future[Result] =
     Future.successful(error(statusCode))

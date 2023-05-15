@@ -13,6 +13,6 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="controllers.auth.SessionAuditor" level="${logger.auth:-INFO}"/>
+    <logger name="controllers.auth.SessionAuditor" level="INFO"/>
 
 </configuration>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.binders.Origin
+import controllers.bindable.Origin
 import views.html.public.SessionTimeoutView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future}
 
 class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeoutView: SessionTimeoutView)(implicit
-  configDecorator: ConfigDecorator,
-  ec: ExecutionContext
+  configDecorator: ConfigDecorator
 ) extends PertaxBaseController(cc) {
 
   def governmentGatewayEntryPoint: Action[AnyContent] = Action.async { implicit request =>

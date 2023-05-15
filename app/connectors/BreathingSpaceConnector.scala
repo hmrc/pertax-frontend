@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,11 @@
 package connectors
 
 import cats.data.EitherT
-import com.codahale.metrics.Timer
 import com.google.inject.Inject
 import config.ConfigDecorator
-import metrics.{Metrics, MetricsEnumeration}
 import models.BreathingSpaceIndicator
 import play.api.Logging
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
@@ -34,53 +33,30 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class BreathingSpaceConnector @Inject() (
   val httpClient: HttpClient,
-  val metrics: Metrics,
   httpClientResponse: HttpClientResponse,
-  override val configDecorator: ConfigDecorator
+  configDecorator: ConfigDecorator
 ) extends Timeout
-    with Logging
-    with ServicesCircuitBreaker {
+    with Logging {
 
   lazy val baseUrl      = configDecorator.breathingSpcaeBaseUrl
   lazy val timeoutInSec =
-    configDecorator.breathingSpcaeTimeoutInSec
-  val metricName        = MetricsEnumeration.GET_BREATHING_SPACE_INDICATOR
-
-  override val externalServiceName = configDecorator.breathingSpaceAppName
+    configDecorator.breathingSpaceTimeoutInSec
 
   def getBreathingSpaceIndicator(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Boolean] = {
-    val timerContext: Timer.Context             = metrics.startTimer(metricName)
     val url                                     = s"$baseUrl/$nino/memorandum"
     implicit val bsHeaderCarrier: HeaderCarrier = hc
       .withExtraHeaders(
         "Correlation-Id" -> randomUUID.toString
       )
-    val result                                  = withTimeout(timeoutInSec seconds) {
-      withCircuitBreaker(
-        httpClient
-          .GET[HttpResponse](url)(HttpReadsLegacyRawReads.readRaw, bsHeaderCarrier, ec)
-      )(bsHeaderCarrier)
-        .map { response =>
-          timerContext.stop()
-          Right(response)
-        }
-    } recover {
-      case notFound: NotFoundException     =>
-        timerContext.stop()
-        Left(UpstreamErrorResponse(notFound.getMessage, notFound.responseCode, notFound.responseCode))
-      case badRequest: BadRequestException =>
-        timerContext.stop()
-        Left(UpstreamErrorResponse(badRequest.getMessage, badRequest.responseCode, badRequest.responseCode))
-      case error: UpstreamErrorResponse    =>
-        timerContext.stop()
-        Left(error)
-      case error                           =>
-        timerContext.stop()
-        throw error
+    val result                                  = withTimeout(timeoutInSec.seconds) {
+      httpClient
+        .GET[Either[UpstreamErrorResponse, HttpResponse]](url)(readEitherOf(readRaw), bsHeaderCarrier, ec)
     }
-    httpClientResponse.read(result, metricName).map(_.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
+    httpClientResponse
+      .read(result)
+      .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
 
 }

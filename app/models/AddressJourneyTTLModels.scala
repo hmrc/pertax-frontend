@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ object EditedAddress extends MongoJavatimeFormats.Implicits {
     } yield addressType match {
       case `editResidentialAddress`    => EditResidentialAddress(expireAt)
       case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
+      case _                           => throw new RuntimeException("Invalid address type")
     }
 }
 

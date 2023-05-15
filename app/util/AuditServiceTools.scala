@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ object AuditServiceTools {
         case saUser: SelfAssessmentUser => Some(("saUtr", saUser.saUtr.utr))
         case _                          => None
       },
-      Some("credId", request.credentials.providerId),
+      Some(("credId", request.credentials.providerId)),
       hc.deviceID.map(id => ("deviceId", id)),
       request.cookies.get("mdtpdf").map(fingerprint => ("deviceFingerprint", fingerprint.value))
     ).flatten.toMap

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
+import models.admin.{FeatureFlag, ItsAdvertisementMessageToggle}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.api.i18n.{Langs, Messages}
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
@@ -30,17 +30,18 @@ import play.api.test.Helpers._
 import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import services._
+import services.admin.FeatureFlagService
 import services.partials.{FormPartialService, SaPartialService}
+import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
-import testUtils.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewBreathingSpaceView, ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
+import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.Future
@@ -54,25 +55,22 @@ class InterstitialControllerSpec extends BaseSpec {
     lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
     val mockAuthJourney: AuthJourney                          = mock[AuthJourney]
     val mockNewsAndTileConfig: NewsAndTilesConfig             = mock[NewsAndTilesConfig]
-    val mockMessages                                          = mock[Messages]
+    val mockMessages: Messages                                = mock[Messages]
 
     def simulateFormPartialServiceFailure: Boolean
 
     def simulateSaPartialServiceFailure: Boolean
 
-    def paperlessResponse: ActivatePaperlessResponse
-
     def controller: InterstitialController =
       new InterstitialController(
         mock[FormPartialService],
         mock[SaPartialService],
-        mock[PreferencesFrontendService],
         mockAuthJourney,
         injected[WithBreadcrumbAction],
         injected[MessagesControllerComponents],
         injected[ErrorRenderer],
         injected[ViewNationalInsuranceInterstitialHomeView],
-        injected[ViewChildBenefitsSummaryInterstitialView],
+        injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
         injected[SelfAssessmentSummaryView],
         injected[Sa302InterruptView],
         injected[ViewNewsAndUpdatesView],
@@ -80,7 +78,8 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewBreathingSpaceView],
         injected[EnrolmentsHelper],
         injected[SeissService],
-        mockNewsAndTileConfig
+        mockNewsAndTileConfig,
+        injected[FeatureFlagService]
       )(config, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) {
@@ -102,10 +101,6 @@ class InterstitialControllerSpec extends BaseSpec {
             }
           }
         }
-
-        when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          Future.successful(paperlessResponse)
-        }
       }
   }
 
@@ -124,9 +119,8 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      lazy val simulateFormPartialServiceFailure            = false
-      lazy val simulateSaPartialServiceFailure              = false
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure   = false
 
       val testController: InterstitialController = controller
 
@@ -138,31 +132,107 @@ class InterstitialControllerSpec extends BaseSpec {
     }
   }
 
-  "Calling displayChildBenefits" must {
+  "Calling displayChildBenefits"                  must {
+    "return MOVED_PERMANENTLY to displayChildBenefitsSingleAccountView" in {
+      lazy val fakeRequest = FakeRequest("", "")
 
-    "call FormPartialService.getChildBenefitPartial and return 200 when called by authorised user" in new LocalSetup {
+      val mockAuthJourney = mock[AuthJourney]
 
-      lazy val simulateFormPartialServiceFailure            = false
-      lazy val simulateSaPartialServiceFailure              = false
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      )
 
-      val fakeRequestWithPath: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/foo")
+      val mockFeatureFlagService = mock[FeatureFlagService]
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService
+        )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "GovernmentGateway"),
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
               request = request
             )
           )
       })
 
-      val result: Future[Result] = controller.displayChildBenefits(fakeRequestWithPath)
+      val result = controller.displayChildBenefits()(fakeRequest)
+
+      status(result) mustBe MOVED_PERMANENTLY
+      redirectLocation(
+        result
+      ) mustBe Some(controllers.routes.InterstitialController.displayChildBenefitsSingleAccountView.url)
+    }
+  }
+  "Calling displayChildBenefitsSingleAccountView" must {
+    "return OK when tne feature toggled false for new Child Benefits" in {
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      )
+
+      val mockFeatureFlagService = mock[FeatureFlagService]
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService
+        )(stubConfigDecorator, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+              request = request
+            )
+          )
+      })
+
+      val result = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
 
       status(result) mustBe OK
-
     }
   }
 
@@ -170,9 +240,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "call FormPartialService.getSelfAssessmentPartial and return 200 when called by a high GG user" in new LocalSetup {
 
-      lazy val simulateFormPartialServiceFailure            = false
-      lazy val simulateSaPartialServiceFailure              = false
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure   = false
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -192,9 +261,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "call FormPartialService.getSelfAssessmentPartial and return return 401 for a high GG user not enrolled in SA" in new LocalSetup {
 
-      lazy val simulateFormPartialServiceFailure            = true
-      lazy val simulateSaPartialServiceFailure              = true
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      lazy val simulateFormPartialServiceFailure = true
+      lazy val simulateSaPartialServiceFailure   = true
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -214,9 +282,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "call FormPartialService.getSelfAssessmentPartial and return 401 for a user not logged in via GG" in new LocalSetup {
 
-      lazy val simulateFormPartialServiceFailure            = true
-      lazy val simulateSaPartialServiceFailure              = true
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      lazy val simulateFormPartialServiceFailure = true
+      lazy val simulateSaPartialServiceFailure   = true
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -238,11 +305,10 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "Calling getSa302" must {
 
-      "should return OK response when accessing with an SA user with a valid tax year" in new LocalSetup {
+      "return OK response when accessing with an SA user with a valid tax year" in new LocalSetup {
 
-        lazy val simulateFormPartialServiceFailure            = false
-        lazy val simulateSaPartialServiceFailure              = false
-        lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+        lazy val simulateFormPartialServiceFailure = false
+        lazy val simulateSaPartialServiceFailure   = false
 
         val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
@@ -266,11 +332,10 @@ class InterstitialControllerSpec extends BaseSpec {
         contentAsString(r) must include(saUtr.utr)
       }
 
-      "should return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
+      "return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
 
-        lazy val simulateFormPartialServiceFailure            = false
-        lazy val simulateSaPartialServiceFailure              = false
-        lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+        lazy val simulateFormPartialServiceFailure = false
+        lazy val simulateSaPartialServiceFailure   = false
 
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -291,35 +356,6 @@ class InterstitialControllerSpec extends BaseSpec {
   }
 
   "Calling displayNewsAndUpdates" must {
-
-    "call displayNewsAndUpdates and return 200 when called by authorised user using verify" in new LocalSetup {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "GovernmentGateway"),
-              request = request
-            )
-          )
-      })
-
-      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
-
-      lazy val simulateFormPartialServiceFailure            = false
-      lazy val simulateSaPartialServiceFailure              = false
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
-
-      val testController: InterstitialController = controller
-
-      val result: Future[Result] = testController.displayNewsAndUpdates("nicSection")(fakeRequest)
-
-      status(result) mustBe OK
-
-      contentAsString(result) must include("News and Updates")
-    }
-
     "call displayNewsAndUpdates and return 200 when called by authorised user using GG" in new LocalSetup {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -331,9 +367,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
       when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
 
-      lazy val simulateFormPartialServiceFailure            = false
-      lazy val simulateSaPartialServiceFailure              = false
-      lazy val paperlessResponse: ActivatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure   = false
 
       val testController: InterstitialController = controller
 
@@ -361,13 +396,12 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendService],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
           injected[ErrorRenderer],
           injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
           injected[ViewNewsAndUpdatesView],
@@ -375,7 +409,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService],
-          mock[NewsAndTilesConfig]
+          mock[NewsAndTilesConfig],
+          inject[FeatureFlagService]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -386,10 +421,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
           when(saPartialService.getSaAccountSummary(any())) thenReturn {
             Future.successful(HtmlPartial.Success(Some("Success"), Html("any")))
-          }
-
-          when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-            Future.successful(ActivatePaperlessNotAllowedResponse)
           }
         }
 
@@ -423,11 +454,10 @@ class InterstitialControllerSpec extends BaseSpec {
 
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure   = false
-      lazy val paperlessResponse                 = ActivatePaperlessNotAllowedResponse
 
-      val testController = controller
+      val testController: InterstitialController = controller
 
-      val result = testController.displayBreathingSpaceDetails(fakeRequest)
+      val result: Future[Result] = testController.displayBreathingSpaceDetails(fakeRequest)
 
       status(result) mustBe OK
 
@@ -452,13 +482,12 @@ class InterstitialControllerSpec extends BaseSpec {
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendService],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
           injected[ErrorRenderer],
           injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
           injected[ViewNewsAndUpdatesView],
@@ -466,20 +495,18 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService],
-          mockNewsAndTileConfig
+          mockNewsAndTileConfig,
+          inject[FeatureFlagService]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
           }
+
           when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
           when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
 
           when(saPartialService.getSaAccountSummary(any())) thenReturn {
             Future.successful(HtmlPartial.Success(Some("Success"), Html("any")))
-          }
-
-          when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-            Future.successful(ActivatePaperlessNotAllowedResponse)
           }
         }
 
@@ -502,7 +529,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayItsa" must {
 
-    "saItsaTileEnabled is false return Unauthorized" in {
+    "return OK" in {
       lazy val fakeRequest = FakeRequest("", "")
 
       val mockAuthJourney = mock[AuthJourney]
@@ -511,21 +538,20 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[Configuration],
         injected[Langs],
         injected[ServicesConfig]
-      ) {
-        override lazy val saItsaTileEnabled: Boolean = false
-      }
+      )
+
+      val mockFeatureFlagService = mock[FeatureFlagService]
 
       def controller: InterstitialController =
         new InterstitialController(
           mock[FormPartialService],
           mock[SaPartialService],
-          mock[PreferencesFrontendService],
           mockAuthJourney,
           injected[WithBreadcrumbAction],
           injected[MessagesControllerComponents],
           injected[ErrorRenderer],
           injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
           injected[ViewNewsAndUpdatesView],
@@ -533,57 +559,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewBreathingSpaceView],
           injected[EnrolmentsHelper],
           injected[SeissService],
-          mock[NewsAndTilesConfig]
-        )(stubConfigDecorator, ec)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "GovernmentGateway"),
-              request = request
-            )
-          )
-      })
-
-      val result = controller.displaySaAndItsaMergePage()(fakeRequest)
-
-      status(result) mustBe UNAUTHORIZED
-    }
-
-    "saItsaTileEnabled is true return OK" in {
-      lazy val fakeRequest = FakeRequest("", "")
-
-      val mockAuthJourney = mock[AuthJourney]
-
-      val stubConfigDecorator = new ConfigDecorator(
-        injected[Configuration],
-        injected[Langs],
-        injected[ServicesConfig]
-      ) {
-        override lazy val saItsaTileEnabled: Boolean = true
-      }
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mock[PreferencesFrontendService],
-          mockAuthJourney,
-          injected[WithBreadcrumbAction],
-          injected[MessagesControllerComponents],
-          injected[ErrorRenderer],
-          injected[ViewNationalInsuranceInterstitialHomeView],
-          injected[ViewChildBenefitsSummaryInterstitialView],
-          injected[SelfAssessmentSummaryView],
-          injected[Sa302InterruptView],
-          injected[ViewNewsAndUpdatesView],
-          injected[ViewSaAndItsaMergePageView],
-          injected[ViewBreathingSpaceView],
-          injected[EnrolmentsHelper],
-          injected[SeissService],
-          mock[NewsAndTilesConfig]
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -595,6 +572,9 @@ class InterstitialControllerSpec extends BaseSpec {
             )
           )
       })
+
+      when(mockFeatureFlagService.get(any()))
+        .thenReturn(Future.successful(FeatureFlag(ItsAdvertisementMessageToggle, isEnabled = true)))
 
       val result = controller.displaySaAndItsaMergePage()(fakeRequest)
 

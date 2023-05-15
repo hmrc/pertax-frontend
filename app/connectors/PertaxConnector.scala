@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,11 @@ package connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import config.ConfigDecorator
-import metrics.MetricsEnumeration
 import models.PertaxResponse
 import play.api.Logging
 import play.api.http.HeaderNames
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpException, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
@@ -47,8 +46,7 @@ class PertaxConnector @Inject() (
         httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
           s"$pertaxUrl/pertax/$nino/authorise",
           headers = Seq((HeaderNames.ACCEPT, "application/vnd.hmrc.1.0+json"))
-        ),
-        MetricsEnumeration.SINGLE_ACCOUNT_CHECK
+        )
       )
       .map(_.json.as[PertaxResponse])
 

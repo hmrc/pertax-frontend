@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,21 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
+import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.play.partials.HtmlPartial
-import testUtils.UserRequestFixture.buildUserRequest
 import views.html.message.{MessageDetailView, MessageInboxView}
 
 import scala.concurrent.Future
 
 class MessageControllerSpec extends BaseSpec {
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(mockMessageFrontendService, mock[CitizenDetailsConnector])
 
   val mockAuthJourney            = mock[AuthJourney]

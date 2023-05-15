@@ -1,17 +1,46 @@
 package address
 
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, urlMatching, status => _}
-import play.api.Application
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, status => _}
+import models.admin._
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
+import play.api.{Application, inject}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, status => getStatus, _}
+import services.admin.FeatureFlagService
 import testUtils.IntegrationSpec
-import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.http.SessionKeys
+
+import scala.concurrent.Future
 
 class RLSInterruptPageSpec extends IntegrationSpec {
 
-  val url = s"/personal-account"
+  val url                    = "/personal-account"
+  val mockFeatureFlagService = mock[FeatureFlagService]
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(
+      inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService)
+    )
+    .build()
+
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
+    .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+    .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, true)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
+    .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, true)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
+    .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, true)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+    .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
+    .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+    .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
+    .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
 
   "personal-account" must {
     "show rls interrupt" when {
@@ -54,7 +83,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
             .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
         )
 
-        val request = FakeRequest(GET, url).withHeaders(HeaderNames.authorisation -> "Bearer 1")
+        val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
 
         val result = route(app, request)
 
@@ -101,9 +130,8 @@ class RLSInterruptPageSpec extends IntegrationSpec {
             .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
         )
 
-        val request = FakeRequest(GET, url)
-
-        val result = route(app, request)
+        val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+        val result  = route(app, request)
 
         result.map(getStatus) mustBe Some(SEE_OTHER)
         result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
@@ -158,7 +186,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
             .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
         )
 
-        val request = FakeRequest(GET, url)
+        val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
 
         val result = route(app, request)
 
@@ -220,8 +248,8 @@ class RLSInterruptPageSpec extends IntegrationSpec {
       )
 
       val request = FakeRequest(GET, url)
-
-      val result = route(app, request)
+        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1", SessionKeys.sessionId -> "2")
+      val result  = route(app, request)
 
       result.map(getStatus) mustBe Some(OK)
     }

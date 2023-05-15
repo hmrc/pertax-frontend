@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,37 @@
 
 package controllers.controllershelpers
 
-import config.ConfigDecorator
+import com.google.inject.Inject
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import models.ActivatePaperlessRequiresUserActionResponse
+import models.admin.PaperlessInterruptToggle
 import play.api.mvc.Result
 import play.api.mvc.Results._
-import services.PreferencesFrontendService
+import services.admin.FeatureFlagService
+import uk.gov.hmrc.http.HttpReads.is2xx
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-trait PaperlessInterruptHelper {
-
-  def preferencesFrontendService: PreferencesFrontendService
+class PaperlessInterruptHelper @Inject() (
+  preferencesFrontendConnector: PreferencesFrontendConnector,
+  featureFlagService: FeatureFlagService
+) {
 
   def enforcePaperlessPreference(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], configDecorator: ConfigDecorator): Future[Result] =
-    if (configDecorator.enforcePaperlessPreferenceEnabled) {
-      preferencesFrontendService.getPaperlessPreference().flatMap {
-        case ActivatePaperlessRequiresUserActionResponse(redirectUrl) => Future.successful(Redirect(redirectUrl))
-        case _                                                        => block
+  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Result] =
+    featureFlagService.get(PaperlessInterruptToggle).flatMap { featureFlag =>
+      if (featureFlag.isEnabled) {
+        preferencesFrontendConnector
+          .getPaperlessPreference()
+          .foldF(
+            _ => block,
+            response =>
+              if (is2xx(response.status)) block
+              else Future.successful(Redirect((response.json \ "redirectUserTo").as[String]))
+          )
+      } else {
+        block
       }
-    } else {
-      block
     }
 }

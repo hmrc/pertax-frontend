@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,38 @@ final case class UserRequest[+A](
     case _                   => retrievedName.map(_.toString)
   }
 
-  def isSa: Boolean = saUserType != NonFilerSelfAssessmentUser
+  def isSa: Boolean = saUserType match {
+    case NonFilerSelfAssessmentUser => false
+    case _                          => true
+  }
 
   def isSaUserLoggedIntoCorrectAccount: Boolean = saUserType match {
     case ActivatedOnlineFilerSelfAssessmentUser(_) => true
     case _                                         => false
   }
+}
 
+object UserRequest {
+  def apply[A](
+    authenticatedRequest: AuthenticatedRequest[A],
+    retrievedName: Option[UserName],
+    saUserType: SelfAssessmentUserType,
+    personDetails: Option[PersonDetails],
+    unreadMessageCount: Option[Int],
+    breadcrumb: Option[Breadcrumb]
+  ): UserRequest[A] =
+    UserRequest(
+      authenticatedRequest.nino,
+      retrievedName,
+      saUserType,
+      authenticatedRequest.credentials,
+      authenticatedRequest.confidenceLevel,
+      personDetails,
+      authenticatedRequest.trustedHelper,
+      authenticatedRequest.enrolments,
+      authenticatedRequest.profile,
+      unreadMessageCount,
+      breadcrumb,
+      authenticatedRequest.request
+    )
 }

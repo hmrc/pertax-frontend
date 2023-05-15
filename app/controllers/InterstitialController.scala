@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,15 @@ import com.google.inject.Inject
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import controllers.controllershelpers.PaperlessInterruptHelper
 import error.ErrorRenderer
 import models._
+import models.admin.ItsAdvertisementMessageToggle
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
+import services.SeissService
+import services.admin.FeatureFlagService
 import services.partials.{FormPartialService, SaPartialService}
-import services.{PreferencesFrontendService, SeissService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
@@ -41,13 +42,12 @@ import scala.language.postfixOps
 class InterstitialController @Inject() (
   val formPartialService: FormPartialService,
   val saPartialService: SaPartialService,
-  val preferencesFrontendService: PreferencesFrontendService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
-  viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
+  viewChildBenefitsSummarySingleAccountInterstitialView: ViewChildBenefitsSummarySingleAccountInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
@@ -55,10 +55,10 @@ class InterstitialController @Inject() (
   viewBreathingSpaceView: ViewBreathingSpaceView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
-  newsAndTilesConfig: NewsAndTilesConfig
+  newsAndTilesConfig: NewsAndTilesConfig,
+  featureFlagService: FeatureFlagService
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
-    with PaperlessInterruptHelper
     with Logging {
 
   val saBreadcrumb: Breadcrumb =
@@ -91,31 +91,38 @@ class InterstitialController @Inject() (
   private def currentUrl(implicit request: Request[AnyContent]) =
     configDecorator.pertaxFrontendHost + request.path
 
-  def displayChildBenefits: Action[AnyContent] = authenticate { implicit request =>
+  def displayChildBenefits: Action[AnyContent] = authenticate {
+    Redirect(routes.InterstitialController.displayChildBenefitsSingleAccountView, MOVED_PERMANENTLY)
+  }
+
+  def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate { implicit request =>
     Ok(
-      viewChildBenefitsSummaryInterstitialView(
-        redirectUrl = currentUrl,
-        taxCreditsEnabled = configDecorator.taxCreditsEnabled
+      viewChildBenefitsSummarySingleAccountInterstitialView(
+        redirectUrl = currentUrl
       )
     )
   }
 
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
+    val saUserType = request.saUserType
+
     if (
-      configDecorator.saItsaTileEnabled && request.trustedHelper.isEmpty &&
+      request.trustedHelper.isEmpty &&
       (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       for {
-        hasSeissClaims <- seissService.hasClaims(request.saUserType)
+        hasSeissClaims    <- seissService.hasClaims(saUserType)
+        istaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
           redirectUrl = currentUrl(request),
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           request.isSa,
+          istaMessageToggle.isEnabled,
           hasSeissClaims,
           taxYear = previousAndCurrentTaxYear,
-          request.saUserType
+          saUserType
         )
       )
     } else {
@@ -138,17 +145,17 @@ class InterstitialController @Inject() (
       } yield Ok(
         selfAssessmentSummaryView(
           //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
-          formPartial =
-            if (configDecorator.partialUpgradeEnabled)
-              FormPartialUpgrade.upgrade(formPartial successfulContentOrEmpty)
-            else formPartial successfulContentOrElse Html(""),
-          saPartial =
-            if (configDecorator.partialUpgradeEnabled)
-              FormPartialUpgrade.upgrade(saPartial successfulContentOrEmpty)
-            else saPartial successfulContentOrElse Html("")
+          formPartial = if (configDecorator.partialUpgradeEnabled) {
+            FormPartialUpgrade.upgrade(formPartial successfulContentOrEmpty)
+          } else {
+            formPartial successfulContentOrElse Html("")
+          },
+          saPartial = saPartial successfulContentOrElse Html("")
         )
       )
-    } else errorRenderer.futureError(UNAUTHORIZED)
+    } else {
+      errorRenderer.futureError(UNAUTHORIZED)
+    }
 
   }
 

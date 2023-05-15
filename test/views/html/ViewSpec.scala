@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,15 @@ package views.html
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.scalatest.Assertion
 import org.scalatest.compatible.Assertion
 import play.api.i18n._
 import testUtils.BaseSpec
 
 trait ViewSpec extends BaseSpec {
+
+  def hasLink(document: Document, content: String): Assertion =
+    document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
   implicit lazy val messageProvider = injected[MessagesProvider]
 

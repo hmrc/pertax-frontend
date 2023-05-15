@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
     govukDetails: GovukDetails
 )
 
-@(year: String, saUtr: SaUtr)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(year: String, saUtr: SaUtr)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @insetContent = {
     @p(Text(messages("label.to_get_your_sa302_calculation")))

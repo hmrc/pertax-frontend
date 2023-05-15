@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ package services
 import cats.data.EitherT
 import connectors.TaxCreditsConnector
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.http.Status._
 import testUtils.BaseSpec
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import testUtils.Fixtures.fakeNino
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
@@ -41,7 +40,7 @@ class TaxCreditsServiceSpec extends BaseSpec {
             EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Right(HttpResponse(OK, ""))))
           )
 
-        val result = sut.checkForTaxCredits(Some(fakeNino)).futureValue
+        val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
 
         result mustBe Some(true)
       }
@@ -52,7 +51,7 @@ class TaxCreditsServiceSpec extends BaseSpec {
             EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Right(HttpResponse(OK, ""))))
           )
 
-        val result = sut.checkForTaxCredits(None).futureValue
+        val result = sut.checkForTaxCredits(None).value.futureValue
 
         result mustBe Some(false)
       }
@@ -63,7 +62,7 @@ class TaxCreditsServiceSpec extends BaseSpec {
             EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Left(UpstreamErrorResponse("", NOT_FOUND))))
           )
 
-        val result = sut.checkForTaxCredits(Some(fakeNino)).futureValue
+        val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
 
         result mustBe Some(false)
       }
@@ -80,7 +79,7 @@ class TaxCreditsServiceSpec extends BaseSpec {
               EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Left(UpstreamErrorResponse("", status))))
             )
 
-          val result = sut.checkForTaxCredits(Some(fakeNino)).futureValue
+          val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
 
           result mustBe None
         }

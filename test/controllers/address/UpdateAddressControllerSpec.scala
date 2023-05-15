@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,20 @@
 package controllers.address
 
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import models.dto.{AddressPageVisitedDto, DateDto, Dto, ResidencyChoiceDto}
-
-import java.time.LocalDate
+import models.dto.{AddressPageVisitedDto, DateDto, Dto}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.Fixtures
-import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
-import Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified}
+import testUtils.Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified}
+import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.personaldetails.UpdateAddressView
+
+import java.time.LocalDate
 
 class UpdateAddressControllerSpec extends AddressBaseSpec {
 

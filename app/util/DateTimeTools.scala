@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import java.time.LocalDate
 
 object DateTimeTools extends CurrentTaxYear with Logging {
-
   //Returns for example 1516 in March 2016
   def previousAndCurrentTaxYear: String = previousAndCurrentTaxYearFromGivenYear(current.currentYear)
 
@@ -31,5 +30,5 @@ object DateTimeTools extends CurrentTaxYear with Logging {
     (y - 1).toString.takeRight(2) + y.toString.takeRight(2)
   }
 
-  override def now: () => LocalDate = LocalDate.now
+  override def now: () => LocalDate = () => LocalDate.now
 }

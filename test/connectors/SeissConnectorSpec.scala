@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
   )
 
   def connector: SeissConnector = app.injector.instanceOf[SeissConnector]
+  val seissModelEmptyList       = List.empty[SeissModel]
 
   "SeissConnector" when {
     val requestBody: String =
@@ -103,7 +104,7 @@ class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
 
           val result = connector.getClaims(utr.toString()).value.futureValue
           result mustBe a[Right[_, _]]
-          result.right.get mustBe List(SeissModel("1234567890"))
+          result.getOrElse(seissModelEmptyList) mustBe List(SeissModel("1234567890"))
         }
       }
 
@@ -119,7 +120,7 @@ class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
 
           val result = connector.getClaims(utr.toString()).value.futureValue
           result mustBe a[Right[_, _]]
-          result.right.get mustBe empty
+          result.getOrElse(Seq("", "")) mustBe empty
         }
       }
 
@@ -140,7 +141,7 @@ class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
 
           val result = connector.getClaims(utr.toString()).value.futureValue
           result mustBe a[Left[_, _]]
-          result.left.get mustBe UpstreamErrorResponse(_: String, INTERNAL_SERVER_ERROR)
+          result.swap.getOrElse(seissModelEmptyList) mustBe UpstreamErrorResponse(_: String, INTERNAL_SERVER_ERROR)
         }
       }
 

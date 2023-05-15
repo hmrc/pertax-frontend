@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,10 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
     "show NINO section when a nino is present" in {
       val document = asDocument(view(Html(""), "asfa", userRequest.nino).toString)
       Option(document.select(".nino").first).isDefined mustBe true
+      document.body().toString must include(messages("label.check_your_national_insurance_contributions"))
+      document.body().toString must include(
+        messages("label.every_year_you_pay_national_insurance_contributions_to_qualify_")
+      )
     }
 
     "show incomplete when there is no NINO" in {

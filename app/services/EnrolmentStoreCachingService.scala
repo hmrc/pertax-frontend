@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,20 +45,14 @@ class EnrolmentStoreCachingService @Inject() (
       case _ =>
         enrolmentsConnector
           .getUserIdsWithEnrolments(saUtr.utr)
-          .flatMap[SelfAssessmentUserType]((response: Either[String, Seq[String]]) =>
-            response.fold(
-              error => {
-                logger.warn(error)
-                addSaUserTypeToCache(NonFilerSelfAssessmentUser)
-              },
-              ids =>
-                if (ids.nonEmpty) {
-                  addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
-                } else {
-                  addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
-                }
-            )
+          .foldF(
+            _ => addSaUserTypeToCache(NonFilerSelfAssessmentUser),
+            response =>
+              if (response.nonEmpty) {
+                addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
+              } else {
+                addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
+              }
           )
     }
-
 }

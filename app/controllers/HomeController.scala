@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,19 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import connectors.{TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
+import models.admin.{TaxComponentsToggle, TaxcalcToggle}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.time.CurrentTaxYear
 import viewmodels.HomeViewModel
@@ -36,10 +40,11 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
-  val preferencesFrontendService: PreferencesFrontendService,
-  taiService: TaiService,
-  taxCalculationService: TaxCalculationService,
+  paperlessInterruptHelper: PaperlessInterruptHelper,
+  taiConnector: TaiConnector,
+  taxCalculationConnector: TaxCalculationConnector,
   breathingSpaceService: BreathingSpaceService,
+  featureFlagService: FeatureFlagService,
   homeCardGenerator: HomeCardGenerator,
   homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
@@ -49,7 +54,6 @@ class HomeController @Inject() (
   rlsInterruptHelper: RlsInterruptHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
-    with PaperlessInterruptHelper
     with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
@@ -59,16 +63,20 @@ class HomeController @Inject() (
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
-      homePageCachingHelper.hasUserDismissedBanner.map(!_ && configDecorator.bannerHomePageIsEnabled)
+      if (configDecorator.bannerHomePageIsEnabled) {
+        homePageCachingHelper.hasUserDismissedBanner.map(!_)
+      } else {
+        Future.successful(false)
+      }
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
-      serviceCallResponses(request.nino, current.currentYear)
+      serviceCallResponses(request.nino, current.currentYear, request.trustedHelper)
 
     val saUserType = request.saUserType
 
     rlsInterruptHelper.enforceByRlsStatus(
       showUserResearchBanner flatMap { showUserResearchBanner =>
-        enforcePaperlessPreference {
+        paperlessInterruptHelper.enforcePaperlessPreference {
           for {
             (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
             showSeissCard                                                                   <- seissService.hasClaims(saUserType)
@@ -76,21 +84,16 @@ class HomeController @Inject() (
                                                                                                  case WithinPeriod => true
                                                                                                  case _            => false
                                                                                                }
+            incomeCards                                                                     <- homeCardGenerator.getIncomeCards(
+                                                                                                 taxSummaryState,
+                                                                                                 taxCalculationStateCyMinusOne,
+                                                                                                 taxCalculationStateCyMinusTwo
+                                                                                               )
           } yield {
 
-            val incomeCards: Seq[Html]  = homeCardGenerator.getIncomeCards(
-              taxSummaryState,
-              taxCalculationStateCyMinusOne,
-              taxCalculationStateCyMinusTwo,
-              saUserType,
-              showSeissCard
-            )
-            val benefitCards: Seq[Html] = if (request.trustedHelper.isEmpty) {
-              homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
-            } else {
-              Seq.empty
-            }
-            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
+            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
+            val benefitCards: Seq[Html] =
+              homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
 
             Ok(
               homeView(
@@ -110,32 +113,38 @@ class HomeController @Inject() (
     )
   }
 
-  private[controllers] def serviceCallResponses(ninoOpt: Option[Nino], year: Int)(implicit
-    hc: HeaderCarrier
+  private[controllers] def serviceCallResponses(ninoOpt: Option[Nino], year: Int, trustedHelper: Option[TrustedHelper])(
+    implicit hc: HeaderCarrier
   ): Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
     ninoOpt.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
       Future.successful((TaxComponentsDisabledState, None, None))
     ) { nino =>
-      val taxYr = if (configDecorator.taxcalcEnabled) {
-        taxCalculationService.getTaxYearReconciliations(nino)
-      } else {
-        Future.successful(Nil)
+      val taxYr = featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
+        if (toggle.isEnabled && trustedHelper.isEmpty)
+          taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxYearReconciliation]).merge
+        else
+          Future.successful(List.empty[TaxYearReconciliation])
       }
 
       val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
       val taxCalculationStateCyMinusTwo = taxYr.map(_.find(_.taxYear == year - 2))
 
-      val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
-        taiService.taxComponents(nino, year) map {
-          case TaxComponentsSuccessResponse(ts) =>
-            TaxComponentsAvailableState(ts)
-          case TaxComponentsUnavailableResponse =>
-            TaxComponentsNotAvailableState
-          case _                                =>
-            TaxComponentsUnreachableState
+      val taxSummaryState = featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
+        if (toggle.isEnabled) {
+          taiConnector
+            .taxComponents(nino, year)
+            .fold(
+              error =>
+                if (error.statusCode == BAD_REQUEST || error.statusCode == NOT_FOUND) {
+                  TaxComponentsNotAvailableState
+                } else {
+                  TaxComponentsUnreachableState
+                },
+              result => TaxComponentsAvailableState(TaxComponents.fromJsonTaxComponents(result.json))
+            )
+        } else {
+          Future.successful(TaxComponentsDisabledState)
         }
-      } else {
-        Future.successful(TaxComponentsDisabledState)
       }
 
       for {

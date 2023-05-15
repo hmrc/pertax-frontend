@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import controllers.auth.UserSessionAuditEvent.writes
 import controllers.auth.requests.AuthenticatedRequest
 import org.hamcrest.CustomMatcher
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import org.mockito.hamcrest.MockitoHamcrest.argThat
 import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
@@ -70,9 +69,18 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
     val tags        = buildTags(authenticatedRequest)
     argThat[ExtendedDataEvent](new CustomMatcher[ExtendedDataEvent]("eq expected ExtendedDataEvent") {
       override def matches(o: Any): Boolean = o match {
-        case ExtendedDataEvent(AuditServiceTools.auditSource, sessionAuditor.auditType, _, `tags`, `detailsJson`, _) =>
+        case ExtendedDataEvent(
+              AuditServiceTools.auditSource,
+              sessionAuditor.auditType,
+              _,
+              `tags`,
+              `detailsJson`,
+              _,
+              _,
+              _
+            ) =>
           true
-        case _                                                                                                       => false
+        case _ => false
       }
     })
   }

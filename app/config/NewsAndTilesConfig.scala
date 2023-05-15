@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,12 @@ import util.LocalDateUtilities
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Singleton
 class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtilities: LocalDateUtilities) {
+
+  implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(-_.toEpochDay)
 
   def getNewsAndContentModelList()(implicit messages: Messages): List[NewsAndContentModel] = {
     val config = configuration.underlying
@@ -49,7 +51,7 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
           if (localDateUtilities.isBetween(LocalDate.now(), localStartDate, localEndDate)) {
             val isDynamicOptional = configuration.getOptional[Boolean](s"feature.news.$newsSection.dynamic-content")
             isDynamicOptional match {
-              case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true))
+              case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate))
               case None    =>
                 val shortDescription = if (messages.lang.code equals "en") {
                   configuration.get[String](s"feature.news.$newsSection.short-description-en")
@@ -61,7 +63,7 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
                 } else {
                   configuration.get[String](s"feature.news.$newsSection.content-cy")
                 }
-                Some(NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false))
+                Some(NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false, localStartDate))
             }
           } else {
             None
@@ -69,9 +71,9 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
         }
         .toList
         .flatten
+        .sortBy(_.startDate)
     } else {
       List.empty
     }
-
   }
 }

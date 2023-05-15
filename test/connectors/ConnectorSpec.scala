@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,18 +29,14 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.{HeaderNames, MimeTypes, Status}
-import play.api.inject.BindingKey
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.Generator
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
-import scala.language.implicitConversions
-import scala.util.Random
 
 trait ConnectorSpec
     extends AnyWordSpec

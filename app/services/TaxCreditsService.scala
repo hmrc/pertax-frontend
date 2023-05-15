@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package services
 
+import cats.data.OptionT
 import cats.implicits.catsStdInstancesForFuture
 import com.google.inject.Inject
 import connectors.TaxCreditsConnector
@@ -27,15 +28,19 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TaxCreditsService @Inject() (taxCreditsConnector: TaxCreditsConnector)(implicit ec: ExecutionContext) {
 
-  def checkForTaxCredits(nino: Option[Nino])(implicit headerCarrier: HeaderCarrier): Future[Option[Boolean]] =
+  def checkForTaxCredits(nino: Option[Nino])(implicit headerCarrier: HeaderCarrier): OptionT[Future, Boolean] =
     if (nino.isEmpty) {
-      Future.successful(Some(false))
+      OptionT.some(false)
     } else {
-      taxCreditsConnector.checkForTaxCredits(nino.get) bimap (
-        error => if (error.statusCode == NOT_FOUND) Some(false) else None,
-        result => {
-          if (result.status == OK) Some(true) else Some(false)
-        }
+      OptionT(
+        taxCreditsConnector
+          .checkForTaxCredits(nino.get)
+          .fold(
+            error => if (error.statusCode == NOT_FOUND) Some(false) else None,
+            result =>
+              if (result.status == OK) Some(true)
+              else Some(false)
+          )
       )
-    }.merge
+    }
 }

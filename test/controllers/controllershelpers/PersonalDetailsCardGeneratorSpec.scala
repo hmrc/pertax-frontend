@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,14 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import java.time.LocalDate
-import org.mockito.Mockito._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import testUtils.{BaseSpec, Fixtures}
 import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.BaseSpec
+import testUtils.{BaseSpec, Fixtures}
 import views.html.cards.personaldetails._
+
+import java.time.LocalDate
 
 class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,19 @@
 
 package util
 
+import com.google.inject.Inject
+import config.ConfigDecorator
 import models._
+import play.api.Logging
+import play.api.i18n.Messages
+import play.api.mvc.{Request, Result}
+import play.api.mvc.Results.InternalServerError
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{Nino, SaUtr}
+import views.html.InternalServerErrorView
 
-class EnrolmentsHelper {
+class EnrolmentsHelper @Inject() (internalServerErrorView: InternalServerErrorView) extends Logging {
 
   private def fromString(value: String): EnrolmentStatus = value match {
     case "Activated"       => Activated
@@ -50,12 +57,23 @@ class EnrolmentsHelper {
           .map(key => SelfAssessmentEnrolment(SaUtr(key.value), fromString(enrolment.state)))
       }
 
-  def singleAccountEnrolmentPresent(enrolments: Set[Enrolment]): Boolean =
+  def singleAccountEnrolmentPresent(enrolments: Set[Enrolment], sessionNino: Nino)(implicit
+    request: Request[_],
+    configDecorator: ConfigDecorator,
+    messages: Messages
+  ): Either[Result, Boolean] =
     enrolments
-      .find(_.key == "HMRC-PT")
+      .filter(_.key == "HMRC-PT")
       .flatMap { enrolment =>
         enrolment.identifiers
-          .find(id => id.key == "NINO")
-      }
-      .nonEmpty
+          .filter(id => id.key == "NINO")
+      } match {
+      case enrolmentIdentifiers if enrolmentIdentifiers.isEmpty => Right(false)
+      case enrolmentIdentifiers
+          if enrolmentIdentifiers.exists(enrolmentIdentifier => Nino(enrolmentIdentifier.value) == sessionNino) =>
+        Right(true)
+      case _                                                    =>
+        logger.error("The nino in HMRC-PT enrolment does not match the one from the user session")
+        Left(InternalServerError(internalServerErrorView()))
+    }
 }

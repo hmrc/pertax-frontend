@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package viewmodels
 
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
@@ -27,20 +28,21 @@ import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
+import scala.concurrent.{ExecutionContext, Future}
+
 @Singleton
 class PersonalDetailsViewModel @Inject() (
   configDecorator: ConfigDecorator,
   countryHelper: CountryHelper,
   addressView: AddressView,
-  correspondenceAddressView: CorrespondenceAddressView
+  correspondenceAddressView: CorrespondenceAddressView,
+  preferencesFrontendConnector: PreferencesFrontendConnector
 ) {
 
   private def getMainAddress(
     personDetails: PersonDetails,
     optionalEditAddress: List[EditedAddress],
     taxCreditsAvailable: Boolean
-  )(implicit
-    messages: play.api.i18n.Messages
   ) = {
     val isMainAddressChangeLocked = optionalEditAddress.exists(
       _.isInstanceOf[EditResidentialAddress]
@@ -175,7 +177,7 @@ class PersonalDetailsViewModel @Inject() (
         "trusted_helpers",
         "label.trusted_helpers",
         HtmlFormat.raw(messages("label.manage_trusted_helpers")),
-        "label.change",
+        "label.manage",
         "label.your_trusted_helpers",
         Some(configDecorator.manageTrustedHelpersUrl)
       )
@@ -196,19 +198,27 @@ class PersonalDetailsViewModel @Inject() (
     )
 
   def getPaperlessSettingsRow(implicit
-    request: UserRequest[_]
-  ): Option[PersonalDetailsTableRowModel] =
-    Some(
-      PersonalDetailsTableRowModel(
-        "paperless",
-        "label.paperless_settings",
-        HtmlFormat.raw(""),
-        "label.change",
-        "label.your_paperless_settings",
-        Some(controllers.routes.PaperlessPreferencesController.managePreferences.url),
-        displayChangelink = request.trustedHelper.isEmpty
+    request: UserRequest[_],
+    messages: play.api.i18n.Messages,
+    ec: ExecutionContext
+  ): Future[Option[PersonalDetailsTableRowModel]] =
+    preferencesFrontendConnector
+      .getPaperlessStatus(request.uri, messages("label.continue"))
+      .fold(
+        _ => None,
+        response =>
+          Some(
+            PersonalDetailsTableRowModel(
+              "paperless",
+              messages("label.paperless_settings"),
+              HtmlFormat.raw(messages(response.responseText)),
+              messages(response.linkText),
+              messages(response.hiddenText.getOrElse("")),
+              Some(response.link),
+              displayChangelink = request.trustedHelper.isEmpty
+            )
+          )
       )
-    )
 
   def getSignInDetailsRow(implicit
     request: UserRequest[_],

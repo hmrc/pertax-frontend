@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,5 @@
 
 @(msg: String, href: Option[String] = None, classes: Option[String] = None, name: Option[String] = None, id: String = "submit", attrs: Map[String, String] = Map.empty, isStartButton: Boolean = false)(implicit messages: Messages)
 
-@attributes = @{
- attrs.map{
-  case(key, value) => Html(s" $key=${value.replace(" ", "&#32;")}")
- }
-}
 
 @govukButton(Button(content = Text(messages(msg)), href = href, classes = classes.getOrElse(""), name = name, attributes = attrs ++ Map("id" -> id), isStartButton = isStartButton))

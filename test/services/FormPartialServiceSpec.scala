@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,18 @@
 package services
 
 import config.ConfigDecorator
-import metrics.Metrics
+import connectors.EnhancedPartialRetriever
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
 import play.twirl.api.Html
 import services.partials.FormPartialService
 import testUtils.BaseSpec
-import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
-import util.EnhancedPartialRetriever
 import testUtils.Fixtures._
+import uk.gov.hmrc.play.partials.HtmlPartial
 
 import scala.concurrent.Future
 
 class FormPartialServiceSpec extends BaseSpec {
-  val mockEnhancedPartialRetriever = mock[EnhancedPartialRetriever]
+  val mockEnhancedPartialRetriever: EnhancedPartialRetriever = mock[EnhancedPartialRetriever]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
