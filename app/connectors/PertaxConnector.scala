@@ -47,8 +47,8 @@ class PertaxConnector @Inject() (
           s"$pertaxUrl/pertax/$nino/authorise",
           headers = Seq((HeaderNames.ACCEPT, "application/vnd.hmrc.1.0+json"))
         )
-    ).map(_.json.as[PertaxResponse])
-
+      )
+      .map(_.json.as[PertaxResponse])
 
   def loadPartial(url: String)(implicit request: RequestHeader, ec: ExecutionContext): Future[HtmlPartial] = {
     implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)

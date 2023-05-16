@@ -83,7 +83,9 @@ class PertaxAuthAction @Inject() (
                   logger.error(ex.getMessage, ex)
                   Future.successful(Left(InternalServerError(internalServerErrorView())))
 
-                case _ => Future.successful(Left(InternalServerError(internalServerErrorView())))
+                case _ =>
+                  logger.error("Unknown response from Pertax")
+                  Future.successful(Left(InternalServerError(internalServerErrorView())))
               }
           } else {
             Future.successful(Right(request))
