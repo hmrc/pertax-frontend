@@ -60,10 +60,11 @@ class HomeControllerChildBenefitsISpec extends IntegrationSpec {
       val resultSingleChildBenefit  = route(app, requestSingleChildBenefit)
 
       Helpers.status(resultSingleChildBenefit.get) mustBe OK
-      contentAsString(resultSingleChildBenefit.get) must include(Messages("label.make_or_manage_a_child_benefit_claim"))
+      contentAsString(resultSingleChildBenefit.get) must include(Messages("label.check_if_you_can_claim"))
+      contentAsString(resultSingleChildBenefit.get) must include(Messages("label.making_a_claim"))
+      contentAsString(resultSingleChildBenefit.get) must include(Messages("label.change_your_bank_details"))
       contentAsString(resultSingleChildBenefit.get) must include(Messages("label.make_a_claim"))
       contentAsString(resultSingleChildBenefit.get) must include(Messages("label.manage_a_claim"))
-      contentAsString(resultSingleChildBenefit.get) must include(Messages("label.claim_child_benefit"))
       contentAsString(resultSingleChildBenefit.get) must include(
         Messages("label.report_changes_that_affect_your_child_benefit")
       )
