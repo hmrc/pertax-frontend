@@ -39,7 +39,7 @@
 @(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, countries: List[Country])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @scriptElems = {
-    @autocompleteJavascript(CSPNonce.get)
+    @autocompleteJavascript()
     <script src='@controllers.routes.AssetsController.versioned("javascripts/autocompletePolyfill.js")'></script>
 }
 
@@ -62,7 +62,7 @@
     pageTitle = title.toString,
     showBackLink = true,
     yourProfileActive = true,
-    stylesheets = Some(autocompleteCss(CSPNonce.get)),
+    stylesheets = Some(autocompleteCss()),
     scripts = Some(scriptElems)
 ) {
 
