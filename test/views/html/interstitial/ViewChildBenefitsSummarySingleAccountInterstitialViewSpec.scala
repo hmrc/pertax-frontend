@@ -63,8 +63,8 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
           ).toString
         )
 
-      doc.text() must include(Messages("label.make_or_manage_a_child_benefit_claim"))
-      doc.text() must include(Messages("label.make_a_claim"))
+      doc.text() must include(Messages("label.child_benefit"))
+      doc.text() must include(Messages("label.making_a_claim"))
 
       hasLink(
         doc,
