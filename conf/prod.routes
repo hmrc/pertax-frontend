@@ -7,6 +7,8 @@ GET         /personal-account/your-address                                      
 GET         /personal-account/do-uplift                                                controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
 GET         /personal-account                                                          controllers.HomeController.index
 
+GET         /personal-account/iv-uplift-failure-journey                                controllers.UpliftController.uplift(redirectUrl: Option[SafeRedirectUrl])
+GET         /personal-account/identity-check-failed-outcome                            controllers.UpliftController.showUpliftFailedJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
 
 GET         /personal-account/full                                                     controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
 GET         /personal-account/identity-check-complete                                  controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
