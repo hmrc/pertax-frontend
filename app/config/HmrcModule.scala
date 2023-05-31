@@ -28,16 +28,17 @@ class HmrcModule extends Module {
     val useAgentClientAuthorisationCache = configuration
       .getOptional[Boolean]("feature.agent-client-authorisation.cached")
       .getOrElse(true)
-    if (useAgentClientAuthorisationCache)
+    if (useAgentClientAuthorisationCache) {
       Seq(
         bind[AgentClientAuthorisationConnector].to[CachingAgentClientAuthorisationConnector],
         bind[AgentClientAuthorisationConnector].qualifiedWith("default").to[DefaultAgentClientAuthorisationConnector],
         cacheBinding
       )
-    else
+    } else {
       Seq(
         bind[AgentClientAuthorisationConnector].to[DefaultAgentClientAuthorisationConnector],
         cacheBinding
       )
+    }
   }
 }

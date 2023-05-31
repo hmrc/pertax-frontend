@@ -56,12 +56,13 @@ class RlsInterruptHelper @Inject() (
           logger.info("Residential address rls: " + personDetails.address.exists(_.isRls))
           logger.info("Correspondence address rls: " + personDetails.correspondenceAddress.exists(_.isRls))
 
-          if (personDetails.address.exists(_.isRls) && !addressesLock.main)
+          if (personDetails.address.exists(_.isRls) && !addressesLock.main) {
             Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad))
-          else if (personDetails.correspondenceAddress.exists(_.isRls) && !addressesLock.postal)
+          } else if (personDetails.correspondenceAddress.exists(_.isRls) && !addressesLock.postal) {
             Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad))
-          else
+          } else {
             block
+          }
         }).getOrElse(block).flatten
       } else {
         logger.error("The RLS toggle is turned off")

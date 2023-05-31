@@ -33,11 +33,7 @@ object AddrType {
   }
 }
 sealed trait AddrType {
-  override def toString = ifIs("residential", "postal")
-
-  def ifIsResidential[T](value: T): Option[T] = ifIs(Some(value), None)
-
-  def ifIsPostal[T](value: T): Option[T] = ifIs(None, Some(value))
+  override def toString: String = ifIs("residential", "postal")
 
   def ifIs[T](residential: => T, postal: => T): T = this match {
     case ResidentialAddrType => residential

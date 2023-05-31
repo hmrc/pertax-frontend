@@ -38,8 +38,11 @@ class TaxCreditsService @Inject() (taxCreditsConnector: TaxCreditsConnector)(imp
           .fold(
             error => if (error.statusCode == NOT_FOUND) Some(false) else None,
             result =>
-              if (result.status == OK) Some(true)
-              else Some(false)
+              if (result.status == OK) {
+                Some(true)
+              } else {
+                Some(false)
+              }
           )
       )
     }

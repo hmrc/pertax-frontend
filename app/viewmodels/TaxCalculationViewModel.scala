@@ -79,7 +79,9 @@ object TaxCalculationViewModel {
           List(
             Link(text("label.make_a_payment"), MakePaymentUrl, "You missed the deadline to pay your tax")
           )
-        } else Nil
+        } else {
+          Nil
+        }
       )
 
     case (Underpaid(Some(amount), Some(dueDate), PaymentDue), taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
@@ -96,7 +98,9 @@ object TaxCalculationViewModel {
            List(
              Link(text("label.make_a_payment"), MakePaymentUrl, "Make a payment")
            )
-         } else Nil) :+ Link(
+         } else {
+           Nil
+         }) :+ Link(
           text("label.find_out_why_you_paid_too_little"),
           UnderpaidReasonsUrl(previousTaxYear),
           "Find out why you paid too little"
@@ -124,7 +128,9 @@ object TaxCalculationViewModel {
            List(
              Link(text("label.make_a_payment"), MakePaymentUrl, "Make a payment")
            )
-         } else Nil) :+
+         } else {
+           Nil
+         }) :+
           Link(
             text("label.find_out_why_you_paid_too_little"),
             UnderpaidReasonsUrl(previousTaxYear),
@@ -153,7 +159,9 @@ object TaxCalculationViewModel {
           List(
             Link(text("label.make_a_payment"), MakePaymentUrl, "You missed the deadline to pay your tax")
           )
-        } else Nil
+        } else {
+          Nil
+        }
       )
 
     case (Underpaid(Some(amount), Some(dueDate), PartPaid), taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
@@ -174,7 +182,9 @@ object TaxCalculationViewModel {
            List(
              Link(text("label.make_a_payment"), MakePaymentUrl, "Make a payment")
            )
-         } else Nil) :+
+         } else {
+           Nil
+         }) :+
           Link(
             text("label.find_out_why_you_paid_too_little"),
             UnderpaidReasonsUrl(previousTaxYear),
@@ -196,7 +206,9 @@ object TaxCalculationViewModel {
            List(
              Link(text("label.make_a_payment"), MakePaymentUrl, "Make a payment")
            )
-         } else Nil) :+
+         } else {
+           Nil
+         }) :+
           Link(
             text("label.find_out_why_you_paid_too_little"),
             UnderpaidReasonsUrl(previousTaxYear),

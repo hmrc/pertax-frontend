@@ -79,7 +79,7 @@ class HomeController @Inject() (
         paperlessInterruptHelper.enforcePaperlessPreference {
           for {
             (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
-            showSeissCard                                                                   <- seissService.hasClaims(saUserType)
+            _                                                                               <- seissService.hasClaims(saUserType)
             breathingSpaceIndicator                                                         <- breathingSpaceService.getBreathingSpaceIndicator(request.nino).map {
                                                                                                  case WithinPeriod => true
                                                                                                  case _            => false
@@ -120,10 +120,11 @@ class HomeController @Inject() (
       Future.successful((TaxComponentsDisabledState, None, None))
     ) { nino =>
       val taxYr = featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
-        if (toggle.isEnabled && trustedHelper.isEmpty)
+        if (toggle.isEnabled && trustedHelper.isEmpty) {
           taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxYearReconciliation]).merge
-        else
+        } else {
           Future.successful(List.empty[TaxYearReconciliation])
+        }
       }
 
       val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))

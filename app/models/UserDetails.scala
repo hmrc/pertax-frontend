@@ -16,12 +16,10 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
-case class UserDetails(authProviderType: String) {
-  def hasGovernmentGatewayAuthProvider = authProviderType == UserDetails.GovernmentGatewayAuthProvider
-}
+case class UserDetails(authProviderType: String)
 object UserDetails {
-  implicit val formats              = Json.format[UserDetails]
-  val GovernmentGatewayAuthProvider = "GovernmentGateway"
+  implicit val formats: OFormat[UserDetails] = Json.format[UserDetails]
+  val GovernmentGatewayAuthProvider          = "GovernmentGateway"
 }
