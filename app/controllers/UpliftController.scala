@@ -37,6 +37,7 @@ class UpliftController @Inject() (
   cc: MessagesControllerComponents,
   cannotConfirmIdentityView: CannotConfirmIdentityView,
   failedIvIncompleteView: FailedIvIncompleteView,
+  preconditionFailedView: PreconditionFailedView,
   technicalIssuesView: TechnicalIssuesView
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc)
@@ -79,7 +80,7 @@ class UpliftController @Inject() (
 
               case PrecondFailed =>
                 logErrorMessage(PrecondFailed.toString)
-                Unauthorized(cannotConfirmIdentityView(retryUrl))
+                Unauthorized(preconditionFailedView(retryUrl))
 
               case TechnicalIssue =>
                 logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")

@@ -1,0 +1,42 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.ConfigDecorator
+@import scala.concurrent.ExecutionContext
+@import components.{H1, P, Link}
+
+@this(
+    main: UnauthenticatedMainView,
+    h1: H1,
+    p: P,
+    link: Link
+)
+
+@(retryUrl: String)(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@main(
+    pageTitle = messages("label.we_cannot_confirm_your_identity")
+) {
+
+    @h1("label.we_cannot_confirm_your_identity")
+    @p(Text(messages("label.you_will_need_to_provide_your_national_insurance_number_to_continue")))
+    @p(Text(messages("label.you_can")))
+
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@link(retryUrl, "label.try_confirm_identity_again", inParagraph = true)</li>
+        <li>@link(configDecorator.generalQueriesUrl, "label.contact_hm_revenues_and_customs_for_help", inParagraph = true)</li>
+    </ul>
+}

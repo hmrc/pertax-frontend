@@ -95,6 +95,7 @@ class UpliftControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[MessagesControllerComponents],
         injected[CannotConfirmIdentityView],
         injected[FailedIvIncompleteView],
+        injected[PreconditionFailedView],
         injected[TechnicalIssuesView]
       )(config, ec)
 

@@ -187,6 +187,7 @@ label.you_can=Gallwch wneud y canlynol:
 label.contact_hm_revenues_and_customs_for_help=cysylltu â Chyllid a Thollau EM am gymorth
 label.try_confirm_identity_again=ceisio rhoi prawf o bwy ydych eto
 label.you_have_not_given_us_enough_information=Nid ydych wedi rhoi digon o wybodaeth i ni.
+label.you_will_need_to_provide_your_national_insurance_number_to_continue = Bydd angen i chi ddarparu eich rhif yswiriant gwladol i barhau.
 label.we_have_confirmed_your_identity=Rydym wedi cadarnhau pwy ydych
 label.you_can_sign_in_to_your_personal_tax_account=Gallwch bellach fewngofnodi i’ch cyfrif treth personol.
 label.you_have_been_signed_out=Rydych wedi cael eich allgofnodi

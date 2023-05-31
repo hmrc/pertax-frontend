@@ -265,6 +265,7 @@ label.you_can=You can:
 label.contact_hm_revenues_and_customs_for_help=contact HM Revenue and Customs for help
 label.try_confirm_identity_again=try to confirm your identity again
 label.you_have_not_given_us_enough_information=You have not given us enough information.
+label.you_will_need_to_provide_your_national_insurance_number_to_continue = You will need to provide your national insurance number to continue.
 label.we_have_confirmed_your_identity=We have confirmed your identity
 label.you_can_sign_in_to_your_personal_tax_account=You can now sign in to your personal tax account
 label.you_have_been_signed_out=You have been signed out
