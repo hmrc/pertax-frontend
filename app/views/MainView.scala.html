@@ -14,93 +14,93 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
+@import components.{FullWidthMainContent, Link, attorneyBanner, backLink}
 @import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.hmrcfrontend.config.AccountMenuConfig
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits.RichAccountMenu
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.{AccountMenu, SignOut, AccountHome, AccountMessages, CheckProgress, _}
-@import views.html.helper.CSPNonce
-@import components.{attorneyBanner, backLink, Link, FullWidthMainContent}
-@import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accountmenu.{AccountHome, AccountMenu, AccountMessages, SignOut, _}
 @import uk.gov.hmrc.ptafrontend.views.html._
+@import views.html.helper.CSPNonce
 
 @this(
-    hmrcLayout: HmrcLayout,
-    hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
-    hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
-    twoThirdsMainContent: TwoThirdsMainContent,
-    fullWidthMainContent: FullWidthMainContent,
-    twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
-    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-    govukPhaseBanner: GovukPhaseBanner,
-    configDecorator: ConfigDecorator,
-    link: Link,
-    backLink: backLink,
-    hmrcAccountMenu: HmrcAccountMenu,
-    banner: attorneyBanner,
-    ptaHead: PtaHead,
-    ptaScripts: PtaScripts
+        hmrcLayout: HmrcLayout,
+        hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
+        hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
+        twoThirdsMainContent: TwoThirdsMainContent,
+        fullWidthMainContent: FullWidthMainContent,
+        twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
+        hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+        govukPhaseBanner: GovukPhaseBanner,
+        configDecorator: ConfigDecorator,
+        link: Link,
+        backLink: backLink,
+        hmrcAccountMenu: HmrcAccountMenu,
+        banner: attorneyBanner,
+        ptaHead: PtaHead,
+        ptaScripts: PtaScripts
 )(implicit accountMenuConfig: AccountMenuConfig)
 
 @(
-    pageTitle: String,
-    serviceName: String = "label.your_personal_tax_account",
-    sidebarContent: Option[Html] = None,
-    beforeContentHtml: Option[Html] = None,
-    showBackLink: Boolean = false,
-    backLinkID: Boolean = true,
-    backLinkUrl: String = "#",
-    disableSessionExpired: Boolean = false,
-    fullWidth: Boolean = false,
-    stylesheets: Option[Html] = None,
-    scripts: Option[Html] = None,
-    accountHome: Boolean = false,
-    messagesActive: Boolean = false,
-    yourProfileActive: Boolean = false,
-    hideAccountMenu: Boolean = false,
-    showChildBenefitBanner: Boolean = false,
-    showUserResearchBanner: Boolean = false
+        pageTitle: String,
+        serviceName: String = "label.your_personal_tax_account",
+        sidebarContent: Option[Html] = None,
+        beforeContentHtml: Option[Html] = None,
+        showBackLink: Boolean = false,
+        backLinkID: Boolean = true,
+        backLinkUrl: String = "#",
+        disableSessionExpired: Boolean = false,
+        fullWidth: Boolean = false,
+        stylesheets: Option[Html] = None,
+        scripts: Option[Html] = None,
+        accountHome: Boolean = false,
+        messagesActive: Boolean = false,
+        yourProfileActive: Boolean = false,
+        hideAccountMenu: Boolean = false,
+        showChildBenefitBanner: Boolean = false,
+        showUserResearchBanner: Boolean = false
 )(content: Html)(implicit request: UserRequest[_], messages: Messages)
 
 @headBlock = {
     <meta name="format-detection" content="telephone=no" />
     <link rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
 
-    @stylesheets
+@stylesheets
 
-    @if(!disableSessionExpired){
-        @hmrcTimeoutDialogHelper(
-            signOutUrl = controllers.routes.SessionManagementController.timeOut.url,
-            keepAliveUrl = Some(controllers.routes.SessionManagementController.keepAlive.url),
-            timeout = Some(configDecorator.sessionTimeoutInSeconds),
-            countdown = Some(configDecorator.sessionCountdownInSeconds)
-        )
-    }
-    @ptaHead()
+@if(!disableSessionExpired){
+    @hmrcTimeoutDialogHelper(
+        signOutUrl = controllers.routes.SessionManagementController.timeOut.url,
+        keepAliveUrl = Some(controllers.routes.SessionManagementController.keepAlive.url),
+        timeout = Some(configDecorator.sessionTimeoutInSeconds),
+        countdown = Some(configDecorator.sessionCountdownInSeconds)
+    )
+}
+@ptaHead()
 }
 
 
 @beforeContent = {
-    @if(!hideAccountMenu && request.personDetails.nonEmpty) { @accountMenu }
+@if(!hideAccountMenu && request.personDetails.nonEmpty) { @accountMenu }
 
-    @if(showBackLink){
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
-                @backLink(backLinkUrl, backLinkID)
-            </div>
-            <div class="govuk-grid-column-one-half">
-                @hmrcLanguageSelectHelper()
-            </div>
+@if(showBackLink){
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+        @backLink(backLinkUrl, backLinkID)
         </div>
-    } else {
+        <div class="govuk-grid-column-one-half">
         @hmrcLanguageSelectHelper()
-    }
+        </div>
+    </div>
+} else {
+    @hmrcLanguageSelectHelper()
+}
 
-    @attorneyBanner
+@attorneyBanner
 
-    @if(beforeContentHtml.isDefined){
-        @beforeContentHtml
-    }
+@if(beforeContentHtml.isDefined){
+    @beforeContentHtml
+}
 }
 
 @attorneyBanner = @{
@@ -114,9 +114,9 @@
         signOut = SignOut(href = controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
         language = if(messages.lang.code == "cy") Cy else En,
         businessTaxAccount = request.saUserType match {
-                                case NonFilerSelfAssessmentUser => None
-                                case _ => Some(BusinessTaxAccount(href="#")) //TODO: double check plus add unit tests for all 5 sa cases.
-                            },
+            case NonFilerSelfAssessmentUser => None
+            case _ => Some(BusinessTaxAccount(href="#")) //TODO: double check plus add unit tests for all 5 sa cases.
+        },
         accountHome = AccountHome(active = accountHome),
         messages = AccountMessages(active = messagesActive, messageCount = request.unreadMessageCount),
         yourProfile = YourProfile(active = yourProfileActive)
@@ -127,26 +127,26 @@
     <script src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
-    @ptaScripts()
-    @scripts
+@ptaScripts()
+@scripts
 }
 
 @contentBlock = {
-    @content
+@content
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-    @hmrcReportTechnicalIssueHelper()
+@hmrcReportTechnicalIssueHelper()
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m">
-    @govukPhaseBanner(PhaseBanner(
-        tag = Some(Tag(
-            content = Text(messages("label.beta"))
-        )),
-        content = HtmlContent(messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_before_link") + " " +
-                        link(link= configDecorator.betaFeedbackUnauthenticatedUrl(configDecorator.deskproToken),
-                            messageKey="global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text",
-                            inParagraph = true) + " " +
-                        messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_after_link")
-        )
-    ))
+@govukPhaseBanner(PhaseBanner(
+    tag = Some(Tag(
+        content = Text(messages("label.beta"))
+    )),
+    content = HtmlContent(messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_before_link") + " " +
+            link(link= configDecorator.betaFeedbackUnauthenticatedUrl(configDecorator.deskproToken),
+                messageKey="global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text",
+                inParagraph = true) + " " +
+            messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_after_link")
+    )
+))
 }
 
 @fullPageTitle = @{
@@ -158,14 +158,14 @@
         <div class="hmrc-user-research-banner__container govuk-width-container">
             <div class="hmrc-user-research-banner__text">
                 <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
-                    @messages("label.help_improve_gov_uk")
+                @messages("label.help_improve_gov_uk")
                 </div>
                 <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href=@configDecorator.childBenefitLinkUrl.getOrElse("") target="_blank">
-                    @messages("label.child_benefit_survey_text")
+                @messages("label.child_benefit_survey_text")
                 </a>
             </div>
             <button class="govuk-link hmrc-user-research-banner__close">
-                @messages("label.no_thanks")
+            @messages("label.no_thanks")
             </button>
         </div>
     </div>
@@ -176,14 +176,14 @@
         <div class="hmrc-user-research-banner__container govuk-width-container">
             <div class="hmrc-user-research-banner__text">
                 <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
-                    @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageHeadingCy} else {@configDecorator.bannerHomePageHeadingEn}
+                @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageHeadingCy} else {@configDecorator.bannerHomePageHeadingEn}
                 </div>
                 <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href="@configDecorator.bannerHomePageLinkUrl" target="_blank">
-                    @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageLinkTextCy }else {@configDecorator.bannerHomePageLinkTextEn}
+                @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageLinkTextCy }else {@configDecorator.bannerHomePageLinkTextEn}
                 </a>
             </div>
             <button class="govuk-link hmrc-user-research-banner__close">
-                @messages("label.no_thanks")
+            @messages("label.no_thanks")
             </button>
         </div>
     </div>
@@ -209,4 +209,4 @@
                 twoThirdsMainContent(_)
             }
     })
-    )(contentBlock)
+)(contentBlock)

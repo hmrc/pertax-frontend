@@ -501,12 +501,14 @@ label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=Ar 
 label.a_payment_to_help_with_the_cost_of_bringing_up_children=Taliad i helpu gyda chostau magu plant
 label.make_or_manage_a_child_benefit_claim=Gwneud neu reoli hawliad am Fudd-dal Plant
 label.make_a_claim=Gwneud hawliad
+label.making_a_claim=Hawlio
 label.claim_child_benefit=Hawlio Budd-dal Plant
 label.manage_a_claim=Rheoli hawliad
 label.view_your_child_benefit_payment_history=Bwrw golwg dros hanes eich taliadau Budd-dal Plant
 label.view_your_proof_of_entitlement_to_child_benefit=Bwrw golwg dros eich tystiolaeth o hawl i Fudd-dal Plant
 label.high_income_child_benefit_charge=Tâl Treth Budd-dal Plant Incwm Uchel
 label.change_your_bank_details=Newid eich manylion banc
+label.check_if_you_can_claim=Gwirio a allwch hawlio
 
 # Pensions
 title.pensions=Pensiynau
