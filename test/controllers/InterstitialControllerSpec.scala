@@ -23,11 +23,11 @@ import error.ErrorRenderer
 import models._
 import models.admin.{FeatureFlag, ItsAdvertisementMessageToggle}
 import org.mockito.ArgumentMatchers.any
-import play.api.i18n.{Langs, Messages}
+import play.api.{Application, Configuration}
+import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import services._
 import services.admin.FeatureFlagService
@@ -140,7 +140,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       )
 
@@ -193,7 +192,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       )
 
@@ -382,7 +380,6 @@ class InterstitialControllerSpec extends BaseSpec {
     "return UNAUTHORIZED when toggled off" in {
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       ) {
         override lazy val isNewsAndUpdatesTileEnabled: Boolean = false
@@ -467,7 +464,6 @@ class InterstitialControllerSpec extends BaseSpec {
     "return UNAUTHORIZED when toggled off" in {
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       ) {
         override lazy val isBreathingSpaceIndicatorEnabled: Boolean = false
@@ -536,7 +532,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       )
 

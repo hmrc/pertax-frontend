@@ -33,8 +33,8 @@ sealed trait Reconciliation
 
 object Reconciliation {
 
-  implicit val reads: Reads[Reconciliation] = new Reads[Reconciliation] {
-    override def reads(json: JsValue): JsResult[Reconciliation] = json \ "_type" match {
+  implicit val reads: Reads[Reconciliation] = (json: JsValue) =>
+    json \ "_type" match {
 
       case JsDefined(JsString("balanced"))               => JsSuccess(Balanced)
       case JsDefined(JsString("underpaid_tolerance"))    => JsSuccess(UnderpaidTolerance)
@@ -47,14 +47,11 @@ object Reconciliation {
       case JsDefined(JsString("missing"))                => JsSuccess(Missing)
       case _                                             => JsError("Could not parse Reconciliation")
     }
-  }
 
   def underpaid(amount: Option[Double], dueDate: Option[LocalDate], status: UnderpaidStatus): Reconciliation =
     Underpaid(amount, dueDate, status)
 
   def overpaid(amount: Option[Double], status: OverpaidStatus): Reconciliation = Overpaid(amount, status)
-
-  def notReconciled: Reconciliation = NotReconciled
 }
 
 case class Underpaid(amount: Option[Double], dueDate: Option[LocalDate], status: UnderpaidStatus)
@@ -99,15 +96,13 @@ sealed trait UnderpaidStatus
 
 object UnderpaidStatus {
 
-  implicit val reads: Reads[UnderpaidStatus] = new Reads[UnderpaidStatus] {
-    override def reads(json: JsValue): JsResult[UnderpaidStatus] = json match {
-      case JsString("payment_due")   => JsSuccess(PaymentDue)
-      case JsString("part_paid")     => JsSuccess(PartPaid)
-      case JsString("paid_all")      => JsSuccess(PaidAll)
-      case JsString("payments_down") => JsSuccess(PaymentsDown)
-      case JsString("unknown")       => JsSuccess(Unknown)
-      case _                         => JsError("Could not parse Underpaid status")
-    }
+  implicit val reads: Reads[UnderpaidStatus] = {
+    case JsString("payment_due")   => JsSuccess(PaymentDue)
+    case JsString("part_paid")     => JsSuccess(PartPaid)
+    case JsString("paid_all")      => JsSuccess(PaidAll)
+    case JsString("payments_down") => JsSuccess(PaymentsDown)
+    case JsString("unknown")       => JsSuccess(Unknown)
+    case _                         => JsError("Could not parse Underpaid status")
   }
   case object PaymentDue extends UnderpaidStatus
 
@@ -125,17 +120,15 @@ sealed trait OverpaidStatus
 
 object OverpaidStatus {
 
-  implicit val reads: Reads[OverpaidStatus] = new Reads[OverpaidStatus] {
-    override def reads(json: JsValue): JsResult[OverpaidStatus] = json match {
-      case JsString("refund")             => JsSuccess(Refund)
-      case JsString("payment_processing") => JsSuccess(PaymentProcessing)
-      case JsString("payment_paid")       => JsSuccess(PaymentPaid)
-      case JsString("cheque_sent")        => JsSuccess(ChequeSent)
-      case JsString("sa_user")            => JsSuccess(SaUser)
-      case JsString("unable_to_claim")    => JsSuccess(UnableToClaim)
-      case JsString("unknown")            => JsSuccess(Unknown)
-      case _                              => JsError("Could not parse Overpaid status")
-    }
+  implicit val reads: Reads[OverpaidStatus] = {
+    case JsString("refund")             => JsSuccess(Refund)
+    case JsString("payment_processing") => JsSuccess(PaymentProcessing)
+    case JsString("payment_paid")       => JsSuccess(PaymentPaid)
+    case JsString("cheque_sent")        => JsSuccess(ChequeSent)
+    case JsString("sa_user")            => JsSuccess(SaUser)
+    case JsString("unable_to_claim")    => JsSuccess(UnableToClaim)
+    case JsString("unknown")            => JsSuccess(Unknown)
+    case _                              => JsError("Could not parse Overpaid status")
   }
 
   case object Refund extends OverpaidStatus

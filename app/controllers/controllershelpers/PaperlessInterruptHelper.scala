@@ -42,8 +42,11 @@ class PaperlessInterruptHelper @Inject() (
           .foldF(
             _ => block,
             response =>
-              if (is2xx(response.status)) block
-              else Future.successful(Redirect((response.json \ "redirectUserTo").as[String]))
+              if (is2xx(response.status)) {
+                block
+              } else {
+                Future.successful(Redirect((response.json \ "redirectUserTo").as[String]))
+              }
           )
       } else {
         block

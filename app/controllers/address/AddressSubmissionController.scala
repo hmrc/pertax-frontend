@@ -23,7 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import error.{ErrorRenderer, GenericErrors}
+import error.ErrorRenderer
 import models.dto.AddressDto
 import models.{AddressJourneyData, ETag}
 import play.api.Logging
@@ -50,8 +50,7 @@ class AddressSubmissionController @Inject() (
   errorRenderer: ErrorRenderer,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   reviewChangesView: ReviewChangesView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
-  genericErrors: GenericErrors
+  displayAddressInterstitialView: DisplayAddressInterstitialView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(authJourney, cc, displayAddressInterstitialView)
     with Logging {
@@ -192,7 +191,7 @@ class AddressSubmissionController @Inject() (
     case _              => "Residential"
   }
 
-  def ensuringSubmissionRequirements(typ: AddrType, journeyData: AddressJourneyData)(
+  private def ensuringSubmissionRequirements(typ: AddrType, journeyData: AddressJourneyData)(
     block: => Future[Result]
   ): Future[Result] =
     if (journeyData.submittedStartDateDto.isEmpty && typ == ResidentialAddrType) {
@@ -207,7 +206,7 @@ class AddressSubmissionController @Inject() (
     version: ETag,
     addressType: String
   )(implicit hc: HeaderCarrier, request: UserRequest[_]) =
-    if (addressWasUnmodified(originalAddressDto, addressDto))
+    if (addressWasUnmodified(originalAddressDto, addressDto)) {
       auditConnector.sendEvent(
         buildEvent(
           "postcodeAddressSubmitted",
@@ -216,7 +215,7 @@ class AddressSubmissionController @Inject() (
             .filter(!_._1.startsWith("originalLine")) - "originalPostcode"
         )
       )
-    else if (addressWasHeavilyModifiedOrManualEntry(originalAddressDto, addressDto))
+    } else if (addressWasHeavilyModifiedOrManualEntry(originalAddressDto, addressDto)) {
       auditConnector.sendEvent(
         buildEvent(
           "manualAddressSubmitted",
@@ -224,7 +223,7 @@ class AddressSubmissionController @Inject() (
           dataToAudit(addressDto, version.etag, addressType, None, originalAddressDto.flatMap(_.propertyRefNo))
         )
       )
-    else
+    } else {
       auditConnector.sendEvent(
         buildEvent(
           "postcodeAddressModifiedSubmitted",
@@ -238,4 +237,5 @@ class AddressSubmissionController @Inject() (
           )
         )
       )
+    }
 }

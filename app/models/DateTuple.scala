@@ -36,19 +36,18 @@ import models.DateFields.{day, month, year}
 import play.api.data.Forms._
 import play.api.data.Mapping
 
-import java.text.{DateFormatSymbols => JDateFormatSymbols}
 import java.time.LocalDate
 
 object DateTuple extends DateTuple
 
 trait DateTuple {
 
-  val dateTuple: Mapping[Option[LocalDate]] = dateTuple(validate = true)
+  val dateTuple: Mapping[Option[LocalDate]] = dateTuple()
 
   def mandatoryDateTuple(error: String): Mapping[LocalDate] =
     dateTuple.verifying(error, data => data.isDefined).transform(o => o.get, v => Option(v))
 
-  def dateTuple(validate: Boolean = true) =
+  def dateTuple(validate: Boolean = true): Mapping[Option[LocalDate]] =
     tuple(
       year  -> optional(text),
       month -> optional(text),
@@ -118,13 +117,12 @@ trait DateTuple {
                 None
               }
           }
-        case (a, b, c)                   => None
+        case (_, _, _)                   => None
       },
-      (date: Option[LocalDate]) =>
-        date match {
-          case Some(d) => (Some(d.getYear.toString), Some(d.getMonthValue.toString), Some(d.getDayOfMonth.toString))
-          case _       => (None, None, None)
-        }
+      {
+        case Some(d) => (Some(d.getYear.toString), Some(d.getMonthValue.toString), Some(d.getDayOfMonth.toString))
+        case _       => (None, None, None)
+      }
     )
 }
 
@@ -132,11 +130,4 @@ object DateFields {
   val day   = "day"
   val month = "month"
   val year  = "year"
-}
-
-object DateFormatSymbols {
-
-  val months = new JDateFormatSymbols().getMonths
-
-  val monthsWithIndexes = months.zipWithIndex.take(12).map { case (s, i) => ((i + 1).toString, s) }.toSeq
 }

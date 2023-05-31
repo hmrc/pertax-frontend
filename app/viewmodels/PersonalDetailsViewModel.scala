@@ -39,11 +39,7 @@ class PersonalDetailsViewModel @Inject() (
   preferencesFrontendConnector: PreferencesFrontendConnector
 ) {
 
-  private def getMainAddress(
-    personDetails: PersonDetails,
-    optionalEditAddress: List[EditedAddress],
-    taxCreditsAvailable: Boolean
-  ) = {
+  private def getMainAddress(personDetails: PersonDetails, optionalEditAddress: List[EditedAddress]) = {
     val isMainAddressChangeLocked = optionalEditAddress.exists(
       _.isInstanceOf[EditResidentialAddress]
     )
@@ -58,10 +54,11 @@ class PersonalDetailsViewModel @Inject() (
           linkUrl
         )
 
-      if (isMainAddressChangeLocked)
+      if (isMainAddressChangeLocked) {
         createAddressRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
-      else
+      } else {
         createAddressRow("label.change", Some(AddressRowModel.changeMainAddressUrl))
+      }
     }
   }
 
@@ -112,20 +109,20 @@ class PersonalDetailsViewModel @Inject() (
           "label.your.postal_address",
           linkUrl
         )
-      if (isCorrespondenceChangeLocked)
+      if (isCorrespondenceChangeLocked) {
         createRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
-      else {
+      } else {
         createRow("label.change", Some(AddressRowModel.changePostalAddressUrl))
       }
     }
 
-  def getAddressRow(addressModel: List[AddressJourneyTTLModel], taxCreditsAvailable: Boolean = false)(implicit
+  def getAddressRow(addressModel: List[AddressJourneyTTLModel])(implicit
     request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): AddressRowModel = {
     val optionalEditAddress                                    = addressModel.map(y => y.editedAddress)
     val mainAddressRow: Option[PersonalDetailsTableRowModel]   = request.personDetails
-      .flatMap(getMainAddress(_, optionalEditAddress, taxCreditsAvailable))
+      .flatMap(getMainAddress(_, optionalEditAddress))
     val postalAddressRow: Option[PersonalDetailsTableRowModel] = request.personDetails
       .flatMap(getPostalAddress(_, optionalEditAddress))
 

@@ -24,7 +24,6 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.MockitoSugar
 import play.api.Configuration
-import play.api.i18n.Langs
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import services.admin.FeatureFlagService
@@ -65,7 +64,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val mockFeatureFlagService    = mock[FeatureFlagService]
   private val stubConfigDecorator       = new ConfigDecorator(
     injected[Configuration],
-    injected[Langs],
     injected[ServicesConfig]
   )
 
@@ -297,7 +295,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "the tax summaries card is enabled" must {
       "always return the same markup for a SA user" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
 
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
@@ -321,7 +319,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       incorrectSaUsers.foreach { saType =>
         s"always return the same markup for a $saType user" in {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-            .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
+            .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
 
           implicit val payeRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(saUser = saType, request = FakeRequest())
@@ -336,14 +334,13 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       "return None" in {
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = false)))
 
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(request = FakeRequest())
 
         val stubConfigDecorator = new ConfigDecorator(
           injected[Configuration],
-          injected[Langs],
           injected[ServicesConfig]
         )
 
@@ -388,7 +385,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         val stubConfigDecorator = new ConfigDecorator(
           injected[Configuration],
-          injected[Langs],
           injected[ServicesConfig]
         )
 
@@ -418,7 +414,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         val stubConfigDecorator = new ConfigDecorator(
           injected[Configuration],
-          injected[Langs],
           injected[ServicesConfig]
         )
 
@@ -454,7 +449,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         val stubConfigDecorator = new ConfigDecorator(
           injected[Configuration],
-          injected[Langs],
           injected[ServicesConfig]
         )
 
@@ -490,7 +484,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         val stubConfigDecorator = new ConfigDecorator(
           injected[Configuration],
-          injected[Langs],
           injected[ServicesConfig]
         )
 
@@ -544,7 +537,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "return nothing when toggled off" in {
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       ) {
         override lazy val isNewsAndUpdatesTileEnabled: Boolean = false

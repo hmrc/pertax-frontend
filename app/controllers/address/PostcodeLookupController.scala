@@ -18,7 +18,7 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.{AddressLookupConnector}
+import connectors.AddressLookupConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType}
@@ -52,7 +52,7 @@ class PostcodeLookupController @Inject() (
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
-        cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
+        cachingHelper.gettingCachedJourneyData(typ) { _ =>
           cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, InternationalAddressChoiceDto(true))
           typ match {
             case PostalAddrType =>
@@ -79,8 +79,9 @@ class PostcodeLookupController @Inject() (
             formWithErrors => Future.successful(BadRequest(postcodeLookupView(formWithErrors, typ))),
             addressFinderDto => {
 
-              if (addressFinderDto.postcode.isEmpty)
+              if (addressFinderDto.postcode.isEmpty) {
                 logger.warn("post code is empty for processPostCodeLookupForm")
+              }
 
               for {
                 _          <- cachingHelper.addToCache(AddressFinderDtoId(typ), addressFinderDto)

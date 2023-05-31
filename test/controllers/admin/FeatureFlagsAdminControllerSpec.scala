@@ -16,9 +16,11 @@
 
 package controllers.admin
 
-import controllers.auth.InternalAuthAction
 import config.ConfigDecorator
+import controllers.auth.InternalAuthAction
+import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, TaxcalcToggle}
 import org.mockito.ArgumentMatchers.any
+import play.api.Configuration
 import play.api.http.Status
 import play.api.http.Status._
 import play.api.libs.json.{JsBoolean, Json}
@@ -30,10 +32,7 @@ import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.internalauth.client.Predicate.Permission
 import uk.gov.hmrc.internalauth.client.test.{BackendAuthComponentsStub, StubBehaviour}
-import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, TaxcalcToggle}
-import play.api.Configuration
-import play.api.i18n.Langs
-import uk.gov.hmrc.internalauth.client.{IAAction, Resource, ResourceLocation, ResourceType, Retrieval}
+import uk.gov.hmrc.internalauth.client._
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.Future
@@ -54,7 +53,7 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
   lazy val mockFeatureFlagService = mock[FeatureFlagService]
   lazy val fakeInternalAuthAction =
     new InternalAuthAction(
-      new ConfigDecorator(injected[Configuration], injected[Langs], injected[ServicesConfig]),
+      new ConfigDecorator(injected[Configuration], injected[ServicesConfig]),
       BackendAuthComponentsStub(mockStubBehaviour)
     )
 

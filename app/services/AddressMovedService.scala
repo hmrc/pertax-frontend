@@ -40,12 +40,13 @@ class AddressMovedService @Inject() (addressLookupService: AddressLookupConnecto
         val fromSubdivision = fromResponse.addresses.headOption.flatMap(_.address.subdivision)
         val toSubdivision   = toResponse.addresses.headOption.flatMap(_.address.subdivision)
 
-        if (hasMovedFromScotland(fromSubdivision, toSubdivision))
+        if (hasMovedFromScotland(fromSubdivision, toSubdivision)) {
           MovedFromScotland
-        else if (hasMovedToScotland(fromSubdivision, toSubdivision))
+        } else if (hasMovedToScotland(fromSubdivision, toSubdivision)) {
           MovedToScotland
-        else
+        } else {
           AnyOtherMove
+        }
       }
     }.getOrElse(AnyOtherMove)
 
@@ -67,9 +68,11 @@ class AddressMovedService @Inject() (addressLookupService: AddressLookupConnecto
   private def withAddressExists(fromAddressId: String, toAddressId: String)(
     f: => EitherT[Future, UpstreamErrorResponse, AddressChanged]
   ): EitherT[Future, UpstreamErrorResponse, AddressChanged] =
-    if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty)
+    if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty) {
       EitherT[Future, UpstreamErrorResponse, AddressChanged](Future.successful(Right(AnyOtherMove)))
-    else f
+    } else {
+      f
+    }
 
   private def containsScottishSubdivision(subdivision: Option[Country]): Boolean =
     subdivision.fold(false)(_.code.contains(scottishSubdivision))

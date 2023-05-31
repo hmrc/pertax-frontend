@@ -35,11 +35,11 @@ case class Address(
   `type`: Option[String],
   isRls: Boolean
 ) {
-  lazy val lines       = List(line1, line2, line3, line4, line5).flatten
-  lazy val fullAddress =
+  lazy val lines: Seq[String]        = List(line1, line2, line3, line4, line5).flatten
+  lazy val fullAddress: List[String] =
     List(line1, line2, line3, line4, line5, postcode.map(_.toUpperCase), internationalAddressCountry(country)).flatten
 
-  val excludedCountries = List(
+  val excludedCountries: Seq[Country] = List(
     Country("GREAT BRITAIN"),
     Country("SCOTLAND"),
     Country("ENGLAND"),
@@ -47,10 +47,11 @@ case class Address(
     Country("NORTHERN IRELAND")
   )
 
-  def internationalAddressCountry(country: Option[String]): Option[String] =
-    excludedCountries.contains(Country(country.getOrElse(""))) match {
-      case false => country
-      case _     => None
+  private def internationalAddressCountry(country: Option[String]): Option[String] =
+    if (excludedCountries.contains(Country(country.getOrElse("")))) {
+      None
+    } else {
+      country
     }
 
   def isWelshLanguageUnit: Boolean = {

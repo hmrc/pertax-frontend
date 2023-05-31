@@ -27,22 +27,23 @@ object Origin {
 
   private val Allowed = "^[\\w\\.-]{1,100}$".r
 
-  val Default = Origin("unknown")
+  private val Default = Origin("unknown")
 
-  implicit def queryBinder(implicit stringBinder: QueryStringBindable[String]) = new QueryStringBindable[Origin] {
-    def bind(key: String, params: Map[String, Seq[String]]) = {
-      val result = stringBinder.bind(key, params).map {
-        case Right(s) =>
-          Try(Origin(s)) match {
-            case Success(url) => Right(url)
-            case _            => Right(Default)
-          }
-        case _        => Right(Default)
+  implicit def queryBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[Origin] =
+    new QueryStringBindable[Origin] {
+      def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Origin]] = {
+        val result = stringBinder.bind(key, params).map {
+          case Right(s) =>
+            Try(Origin(s)) match {
+              case Success(url) => Right(url)
+              case _            => Right(Default)
+            }
+          case _        => Right(Default)
+        }
+        result.orElse(Some(Right(Default)))
       }
-      result.orElse(Some(Right(Default)))
+
+      def unbind(key: String, value: Origin): String = stringBinder.unbind(key, value.origin)
+
     }
-
-    def unbind(key: String, value: Origin) = stringBinder.unbind(key, value.origin)
-
-  }
 }

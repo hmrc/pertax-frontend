@@ -18,15 +18,15 @@ package models.dto
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class InternationalAddressChoiceDto(value: Boolean) extends Dto
 
 object InternationalAddressChoiceDto {
 
-  implicit val formats = Json.format[InternationalAddressChoiceDto]
+  implicit val formats: OFormat[InternationalAddressChoiceDto] = Json.format[InternationalAddressChoiceDto]
 
-  def form(errorMessageKey: Option[String] = None) = Form(
+  def form(errorMessageKey: Option[String] = None): Form[InternationalAddressChoiceDto] = Form(
     mapping(
       "internationalAddressChoice" -> optional(boolean)
         .verifying(errorMessageKey.getOrElse("error.international_address_select.required"), _.isDefined)

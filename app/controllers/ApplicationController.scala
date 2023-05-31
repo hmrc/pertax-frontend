@@ -18,11 +18,10 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.auth._
+import controllers.bindable.Origin
 import play.api.Logger
 import play.api.mvc._
 import services._
-import controllers.bindable.Origin
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl, SafeRedirectUrl}
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -34,7 +33,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ApplicationController @Inject() (
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
-  authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   successView: SuccessView,
   cannotConfirmIdentityView: CannotConfirmIdentityView,
