@@ -263,6 +263,40 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     }
 
+    "return 401 when IV journey outcome was PreconditionFailed" in new LocalSetup {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(PrecondFailed)))
+
+      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(result) mustBe UNAUTHORIZED
+
+    }
+
+    "return 401 when IV journey outcome was Incomplete" in new LocalSetup {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(Incomplete)))
+
+      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(result) mustBe UNAUTHORIZED
+
+    }
+
     "return bad request when continueUrl is not relative" in new LocalSetup {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
