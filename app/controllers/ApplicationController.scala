@@ -103,7 +103,7 @@ class ApplicationController @Inject() (
             }
             .getOrElse(BadRequest(technicalIssuesView(retryUrl)))
         case _         =>
-          logger.error("journeyId missing or incorect")
+          logger.error("journeyId missing or incorrect")
           Future.successful(InternalServerError(technicalIssuesView(retryUrl)))
       }
     }

@@ -43,28 +43,21 @@ class UpliftController @Inject() (
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
 
-  /*
-  Handle:
-  Incomplete -
-  Technical issues -
-  Precondition failed -
-  Insufficient evidence -
-   */
-
   private val logger = Logger(this.getClass)
 
   override def now: () => LocalDate = () => LocalDate.now()
 
-  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = Action.async {
-    Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
+  //"" - be an error return?
+  def returnOrigin(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = Action.async {
+    request =>
+      Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(request.headers.get("Referer").getOrElse(""))))
   }
 
   def showUpliftFailedJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
     Action.async { implicit request =>
       val journeyId =
         List(request.getQueryString("token"), request.getQueryString("journeyId")).flatten.headOption
-
-      val retryUrl = routes.UpliftController.uplift(continueUrl).url
+      val retryUrl  = routes.UpliftController.returnOrigin(continueUrl).url
 
       journeyId match {
         case Some(jid) =>
@@ -91,7 +84,7 @@ class UpliftController @Inject() (
             }
             .getOrElse(BadRequest(technicalIssuesView(retryUrl)))
         case _         =>
-          logger.error("journeyId missing or incorect")
+          logger.error("journeyId missing or incorrect")
           Future.successful(InternalServerError(technicalIssuesView(retryUrl)))
       }
     }
