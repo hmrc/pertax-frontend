@@ -29,9 +29,9 @@ import java.time.LocalDate
 
 @Singleton
 class ConfigDecorator @Inject() (
-  runModeConfiguration: Configuration,
-  servicesConfig: ServicesConfig
-) extends TaxcalcUrls {
+                                  runModeConfiguration: Configuration,
+                                  servicesConfig: ServicesConfig
+                                ) extends TaxcalcUrls {
 
   lazy val authProviderChoice: String = runModeConfiguration.get[String](s"external-url.auth-provider-choice.host")
 
@@ -129,7 +129,7 @@ class ConfigDecorator @Inject() (
     s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (
       if (lang.code equals "en") { "eng" }
       else { "cym" }
-    )
+      )
   lazy val ssoToActivateSaEnrolmentPinUrl                                          =
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
   lazy val ssoToRegisterForSaEnrolment: String                                     = transformUrlForSso(toPortalUrl("/home/services/enroll"))
@@ -140,7 +140,7 @@ class ConfigDecorator @Inject() (
     s"/self-assessment/ind/$saUtr/account/payments?lang=" + (
       if (lang.code equals "en") { "eng" }
       else { "cym" }
-    )
+      )
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String): String =
     s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
@@ -306,6 +306,10 @@ class ConfigDecorator @Inject() (
     servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
   lazy val preferenceFrontendTimeoutInSec: Int =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
+
+  lazy val addressLookupTimeoutInSec: Int =
+    servicesConfig.getInt("feature.address-lookup.timeoutInSec")
+
 }
 
 trait TaxcalcUrls {
