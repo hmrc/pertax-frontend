@@ -23,7 +23,7 @@ import models.addresslookup.{AddressLookup, RecordSet}
 import play.api.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.duration.DurationInt
@@ -38,24 +38,23 @@ final case class AddressLookupUnexpectedResponse(r: HttpResponse) extends Addres
 final case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
 
 @Singleton
-class AddressLookupConnector @Inject()(
-                                        configDecorator: ConfigDecorator,
-                                        val http: HttpClient,
-                                        val httpClientV2: HttpClientV2,
-                                        servicesConfig: ServicesConfig,
-                                        httpClientResponse: HttpClientResponse
-                                      ) extends Logging {
+class AddressLookupConnector @Inject() (
+  configDecorator: ConfigDecorator,
+  val httpClientV2: HttpClientV2,
+  servicesConfig: ServicesConfig,
+  httpClientResponse: HttpClientResponse
+) extends Logging {
 
   lazy val addressLookupUrl: String = servicesConfig.baseUrl("address-lookup")
 
   def lookup(postcode: String, filter: Option[String] = None)(implicit
-                                                              hc: HeaderCarrier,
-                                                              ec: ExecutionContext
+    hc: HeaderCarrier,
+    ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, RecordSet] = {
-    val pc = postcode.replaceAll(" ", "")
-    val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
+    val pc                 = postcode.replaceAll(" ", "")
+    val newHc              = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
     val addressRequestBody = AddressLookup(pc, filter)
-    val url = s"$addressLookupUrl/lookup"
+    val url                = s"$addressLookupUrl/lookup"
 
     httpClientResponse
       .read(
