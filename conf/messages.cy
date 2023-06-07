@@ -47,6 +47,7 @@ label.so_that_you_have_your_number_when_you_need_it_=Fel bod eich rhif Yswiriant
 label.so_that_you_have_your_number_when_you_need_it_you_can=Fel bod eich rhif Yswiriant Gwladol wrth law pryd bynnag y bydd ei angen arnoch, gallwch wneud y canlynol:
 label.view_and_get_a_copy_for_your_national_insurance_number_confirmation_letter=bwrw golwg dros eich llythyr sy’n cadarnhau eich rhif Yswiriant Gwladol, a chael copi ohono
 label.save_your_number_to_the_wallet_app_on_your_apple_phone=cadw’ch rhif Yswiriant Gwladol yn ap waled eich Apple iPhone
+label.you_will_need_your_ni_number_for_employment_applying_for_student_loan_and_claim_benefits=Bydd angen eich rhif Yswiriant Gwladol arnoch ar gyfer cyflogaeth, gwneud cais am fenthyciad myfyriwr ac i hawlio rhai budd-daliadau.
 label.hm_revenue_and_customs=Cyllid a Thollau EM
 label.your_national_insurance_letter=Eich llythyr Yswiriant Gwladol
 label.print_your_national_insurance_summary=Argraffu’ch crynodeb Yswiriant Gwladol
