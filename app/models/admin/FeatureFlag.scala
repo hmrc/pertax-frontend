@@ -80,7 +80,8 @@ object FeatureFlagName {
       TaxcalcMakePaymentLinkToggle,
       TaxcalcToggle,
       TaxComponentsToggle,
-      TaxSummariesTileToggle
+      TaxSummariesTileToggle,
+      AppleSaveAndViewNIToggle
     )
 }
 
@@ -145,9 +146,16 @@ case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable direct link to make a payment on taxcalc tile")
 }
 
+
 case object NpsShutteringToggle extends FeatureFlagName {
   override def toString: String            = "nps-shuttering-toggle"
   override val description: Option[String] = Some("Enable/disable the nps shuttering banner and subpage")
+}
+
+case object AppleSaveAndViewNIToggle extends FeatureFlagName {
+  override def toString: String = "apple-save-view-ni-toggle"
+  
+  override val description: Option[String] = Some("Enable/disable the new content for the Apple Save and View NI")
 }
 
 object FeatureFlagMongoFormats {

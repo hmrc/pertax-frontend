@@ -50,7 +50,8 @@ class FeatureFlagsController @Inject() (
           RlsInterruptToggle                -> true,
           PaperlessInterruptToggle          -> false,
           TaxSummariesTileToggle            -> true,
-          SingleAccountCheckToggle          -> false
+          SingleAccountCheckToggle          -> false,
+          AppleSaveAndViewNIToggle          -> false
         )
       )
       .map(_ => Ok("Default flags set"))

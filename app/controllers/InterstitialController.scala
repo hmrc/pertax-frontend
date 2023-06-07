@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import models.admin.{AppleSaveAndViewNIToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -73,20 +73,22 @@ class InterstitialController @Inject() (
       .addBreadcrumb(saBreadcrumb)
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
-    formPartialService.getNationalInsurancePartial.map { p =>
-      Ok(
-        viewNationalInsuranceInterstitialHomeView(
-          formPartial = if (configDecorator.partialUpgradeEnabled) {
-            //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
-            FormPartialUpgrade.upgrade(p successfulContentOrEmpty)
-          } else {
-            p successfulContentOrEmpty
-          },
-          redirectUrl = currentUrl,
-          request.nino
-        )
+    for {
+      nationalInsurancePartial <- formPartialService.getNationalInsurancePartial
+      appleSaveAndViewNIToggle <- featureFlagService.get(AppleSaveAndViewNIToggle)
+    } yield Ok(
+      viewNationalInsuranceInterstitialHomeView(
+        formPartial = if (configDecorator.partialUpgradeEnabled) {
+          //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
+          FormPartialUpgrade.upgrade(nationalInsurancePartial successfulContentOrEmpty)
+        } else {
+          nationalInsurancePartial successfulContentOrEmpty
+        },
+        redirectUrl = currentUrl,
+        request.nino,
+        appleSaveAndViewNIToggle.isEnabled
       )
-    }
+    )
   }
 
   private def currentUrl(implicit request: Request[AnyContent]) =
