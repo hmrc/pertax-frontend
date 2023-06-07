@@ -145,6 +145,11 @@ case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable direct link to make a payment on taxcalc tile")
 }
 
+case object NpsShutteringToggle extends FeatureFlagName {
+  override def toString: String            = "nps-shuttering-toggle"
+  override val description: Option[String] = Some("Enable/disable the nps shuttering banner and subpage")
+}
+
 object FeatureFlagMongoFormats {
   implicit val formats: Format[FeatureFlag] =
     Json.format[FeatureFlag]

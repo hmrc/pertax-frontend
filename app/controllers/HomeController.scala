@@ -24,7 +24,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
-import models.admin.{TaxComponentsToggle, TaxcalcToggle}
+import models.admin.{NpsShutteringToggle, TaxComponentsToggle, TaxcalcToggle}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
@@ -89,6 +89,8 @@ class HomeController @Inject() (
                                                                                                  taxCalculationStateCyMinusOne,
                                                                                                  taxCalculationStateCyMinusTwo
                                                                                                )
+            shutteringMessaging                                                             <- featureFlagService.get(NpsShutteringToggle)
+
           } yield {
 
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
@@ -104,7 +106,8 @@ class HomeController @Inject() (
                   showUserResearchBanner,
                   saUserType,
                   breathingSpaceIndicator
-                )
+                ),
+                shutteringMessaging.isEnabled
               )
             )
           }

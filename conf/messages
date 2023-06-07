@@ -695,3 +695,24 @@ profile.message.postalAddressRls = You need to update your postal address to rec
 
 label.return_to_your_profile_page=Return to your profile
 
+#*************************************************************
+# Nps Shuttering Page
+#*************************************************************
+npsshuttering.title = Services unavailable
+npsshuttering.cysp = Check your State Pension
+npsshuttering.taxRefund = Claim a Tax Refund
+npsshuttering.c2ni = Class 2 National Insurance
+npsshuttering.cocar = Company Car
+npsshuttering.ee = Employee Expenses
+npsshuttering.gmp = Guaranteed Minimum Pension
+npsshuttering.hts = Help to Save
+npsshuttering.lisa = Lifetime Individual Savings Account
+npsshuttering.tamc = Marriage Allowance
+npsshuttering.medben = Medical Benefits
+npsshuttering.paye = PAYE Check Your Income Tax Service
+npsshuttering.pla = Pensions Lifetime Allowance
+npsshuttering.pbik = Personal Benefits In Kind
+npsshuttering.ras = Relief At Source
+npsshuttering.repayments = Repayments
+npsshuttering.taxcalc = Tax Calculation
+npsshuttering.fandf = Trusted Helpers
