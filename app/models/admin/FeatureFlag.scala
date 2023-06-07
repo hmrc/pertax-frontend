@@ -80,7 +80,8 @@ object FeatureFlagName {
       TaxcalcMakePaymentLinkToggle,
       TaxcalcToggle,
       TaxComponentsToggle,
-      TaxSummariesTileToggle
+      TaxSummariesTileToggle,
+      AppleSaveAndViewNIToggle
     )
 }
 
