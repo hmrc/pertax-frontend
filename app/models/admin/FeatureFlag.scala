@@ -145,6 +145,12 @@ case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable direct link to make a payment on taxcalc tile")
 }
 
+case object AppleSaveAndViewNIToggle extends FeatureFlagName {
+  override def toString: String = "apple-save-view-ni-toggle"
+
+  override val description: Option[String] = Some("Enable/disable the new content for the Apple Save and View NI")
+}
+
 object FeatureFlagMongoFormats {
   implicit val formats: Format[FeatureFlag] =
     Json.format[FeatureFlag]

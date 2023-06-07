@@ -32,7 +32,7 @@
     govukInsetText: GovukInsetText
 )
 
-@(formPartial: Html, redirectUrl: String, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(formPartial: Html, redirectUrl: String, nino: Option[Nino], appleSaveAndViewNIToggle : Boolean )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.national_insurance_summary")
@@ -53,11 +53,21 @@
         @p(Text(messages("label.every_year_you_pay_national_insurance_contributions_to_qualify_")))
         @p(Text(messages("label.you_can_see_a_record_of_your_annual_contributions_")))
         @link(configDecorator.nationalInsuranceRecordUrl, messageKey = "label.check_your_national_insurance_contributions")
-
-        @h2("label.view_and_save_your_national_insurance_number")
-        @p(Text(messages("label.a_new_employer_will_ask_for_your_national_insurance_number_and_you_may_")))
-        @p(Text(messages("label.so_that_you_have_your_number_when_you_need_it_")))
-        @link(routes.NiLetterController.printNationalInsuranceNumber.url, messageKey = "label.view_and_save_your_national_insurance_number")
+        @if(appleSaveAndViewNIToggle) {
+            @h2("label.view_and_save_your_national_insurance_number")
+            @p(Text(messages("label.a_new_employer_will_ask_for_your_national_insurance_number_and_you_may_")))
+            @p(Text(messages("label.so_that_you_have_your_number_when_you_need_it_you_can")))
+            <ul class="govuk-list govuk-list--bullet">
+                <li>@messages("label.view_and_get_a_copy_for_your_national_insurance_number_confirmation_letter")</li>
+                <li>@messages("label.save_your_number_to_the_wallet_app_on_your_apple_phone")</li>
+            </ul>
+            @link(configDecorator.ptaNinoSaveUrl, messageKey = "label.view_and_save_your_national_insurance_number")
+        }else{
+            @h2("label.view_and_save_your_national_insurance_number")
+            @p(Text(messages("label.a_new_employer_will_ask_for_your_national_insurance_number_and_you_may_")))
+            @p(Text(messages("label.so_that_you_have_your_number_when_you_need_it_")))
+            @link(routes.NiLetterController.printNationalInsuranceNumber.url, messageKey = "label.view_and_save_your_national_insurance_number")
+        }
 
         <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
 
