@@ -306,7 +306,7 @@ class ConfigDecorator @Inject() (
     servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
   lazy val preferenceFrontendTimeoutInSec: Int =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
-  lazy val ptaNinoSaveUrl                      = "/save-your-national-insurance-number"
+  lazy val ptaNinoSaveUrl                      = "https://www.tax.service.gov.uk/save-your-national-insurance-number"
 }
 
 trait TaxcalcUrls {
