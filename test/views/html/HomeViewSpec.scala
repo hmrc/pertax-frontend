@@ -86,5 +86,23 @@ class HomeViewSpec extends ViewSpec {
       view must include(messages("label.home_page.utr"))
       view must include(utr)
     }
+
+    "show the Nps Shutter Banner when boolean is set to true" in {
+      implicit val userRequest = buildUserRequest(request = FakeRequest())
+      val view                 = home(homeViewModel, true).toString
+
+      view must include(
+        "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
+      )
+    }
+
+    "not how the Nps Shutter Banner when boolean is set to false" in {
+      implicit val userRequest = buildUserRequest(request = FakeRequest())
+      val view                 = home(homeViewModel, false).toString
+
+      view mustNot include(
+        "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
+      )
+    }
   }
 }
