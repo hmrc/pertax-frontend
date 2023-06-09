@@ -725,3 +725,4 @@ npsshuttering.ras = Rhyddhad wrth y ffynhonnell
 npsshuttering.repayments = Ad-daliadau
 npsshuttering.taxcalc = Cyfrifiad Treth
 npsshuttering.fandf = Cynorthwywyr Dibynadwy
+npsshuttering.chb = Budd-dal Plant
