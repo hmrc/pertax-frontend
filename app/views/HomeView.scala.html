@@ -18,15 +18,25 @@
 @import viewmodels.HomeViewModel
 @import scala.concurrent.ExecutionContext
 @import components.H2
+@import config.ConfigDecorator
 
 @this(
     main: MainView,
     hmrcPageHeading: HmrcPageHeading,
     govukInsetText: GovukInsetText,
-    h2: H2
+    h2: H2,
+    govukNotificationBanner : GovukNotificationBanner,
+    configDecorator: ConfigDecorator
 )
 
-@(viewModel: HomeViewModel)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(viewModel: HomeViewModel, shutteringMessaging: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+
+@bannerHtml = {
+    <p class="govuk-notification-banner__heading">
+        @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerParagraphCy }else {@configDecorator.shutterBannerParagraphEn}<br/>
+        <a class="govuk-notification-banner__link" href="@controllers.routes.InterstitialController.displayNpsShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
+    </p>
+}
 
 @main(
     pageTitle = messages("label.account_home"),
@@ -34,6 +44,13 @@
     showUserResearchBanner = viewModel.showUserResearchBanner,
     accountHome = true
 ) {
+
+
+    @if(shutteringMessaging) {
+        @govukNotificationBanner(NotificationBanner(
+            content = HtmlContent(bannerHtml)
+        ))
+    }
 
     <header class="hmrc-page-heading">
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>

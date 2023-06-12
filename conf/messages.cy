@@ -703,3 +703,26 @@ profile.message.mainAddressRls = Mae angen i chi ddiweddaru’ch prif gyfeiriad 
 profile.message.postalAddressRls = Mae angen i chi ddiweddaru’ch cyfeiriad post i gael post oddi wrth CThEM.
 
 label.return_to_your_profile_page = Dychwelyd i’ch proffil
+
+#*************************************************************
+# Nps Shuttering Page
+#*************************************************************
+npsshuttering.title = Y gwasanaethau na fyddant ar gael
+npsshuttering.cysp = Gwirioʼch Pensiwn y Wladwriaeth
+npsshuttering.taxRefund = Gwneud cais am ad-daliad treth
+npsshuttering.c2ni = Yswiriant Gwladol Dosbarth 2
+npsshuttering.cocar = Car cwmni
+npsshuttering.ee = Treuliau’r Cyflogai
+npsshuttering.gmp = Isafswm Pensiwn Gwarantedig
+npsshuttering.hts = Cymorth i Gynilo
+npsshuttering.lisa = Cyfrif Cynilo Unigol Gydol Oes
+npsshuttering.tamc = Lwfans Priodasol
+npsshuttering.medben = Buddiannau meddygol
+npsshuttering.paye = TWE – Gwasanaeth Gwirio’ch Treth Incwm
+npsshuttering.pla = Lwfans Oes Pensiwn
+npsshuttering.pbik = Buddiannau Personol
+npsshuttering.ras = Rhyddhad wrth y ffynhonnell
+npsshuttering.repayments = Ad-daliadau
+npsshuttering.taxcalc = Cyfrifiad Treth
+npsshuttering.fandf = Cynorthwywyr Dibynadwy
+npsshuttering.chb = Budd-dal Plant
