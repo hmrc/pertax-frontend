@@ -73,6 +73,8 @@ class ConfigDecorator @Inject() (
   lazy val preferencesFrontendService: String              = getExternalUrl(s"preferences-frontend").getOrElse("")
   private lazy val contactHost: String                     = getExternalUrl(s"contact-frontend.host").getOrElse("")
   lazy val taiHost: String                                 = getExternalUrl(s"tai-frontend.host").getOrElse("")
+  private lazy val saveYourNationalInsuranceNumberHost     =
+    getExternalUrl(s"save-your-national-insurance-number").getOrElse("")
 
   private lazy val identityVerificationHost: String           = getExternalUrl(s"identity-verification.host").getOrElse("")
   private lazy val identityVerificationPrefix: String         =
@@ -306,7 +308,7 @@ class ConfigDecorator @Inject() (
     servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
   lazy val preferenceFrontendTimeoutInSec: Int =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
-  lazy val ptaNinoSaveUrl                      = "https://www.tax.service.gov.uk/save-your-national-insurance-number"
+  lazy val ptaNinoSaveUrl: String              = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
 }
 
 trait TaxcalcUrls {

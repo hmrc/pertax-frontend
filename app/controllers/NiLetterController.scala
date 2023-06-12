@@ -21,8 +21,10 @@ import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
+import models.admin.AppleSaveAndViewNIToggle
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.http.BadRequestException
 import views.html.print._
 
@@ -39,7 +41,8 @@ class NiLetterController @Inject() (
   errorRenderer: ErrorRenderer,
   printNiNumberView: PrintNationalInsuranceNumberView,
   pdfWrapperView: NiLetterPDfWrapperView,
-  niLetterView: NiLetterView
+  niLetterView: NiLetterView,
+  featureFlagService: FeatureFlagService
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
@@ -47,16 +50,22 @@ class NiLetterController @Inject() (
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
         if (request.personDetails.isDefined) {
-          Future.successful(
-            Ok(
-              printNiNumberView(
-                request.personDetails.get,
-                LocalDate.now.format(DateTimeFormatter.ofPattern("MM/YY")),
-                configDecorator.saveNiLetterAsPdfLinkEnabled,
-                request.nino
+          featureFlagService.get(AppleSaveAndViewNIToggle).flatMap { toggle =>
+            if (toggle.isEnabled) {
+              Future.successful(Redirect(configDecorator.ptaNinoSaveUrl, MOVED_PERMANENTLY))
+            } else {
+              Future.successful(
+                Ok(
+                  printNiNumberView(
+                    request.personDetails.get,
+                    LocalDate.now.format(DateTimeFormatter.ofPattern("MM/YY")),
+                    configDecorator.saveNiLetterAsPdfLinkEnabled,
+                    request.nino
+                  )
+                )
               )
-            )
-          )
+            }
+          }
         } else {
           errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }
@@ -67,9 +76,13 @@ class NiLetterController @Inject() (
       implicit request =>
         if (configDecorator.saveNiLetterAsPdfLinkEnabled) {
           if (request.personDetails.isDefined) {
-            val saveNiLetterAsPDFCss = Source
-              .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL(true))
-              .mkString
+            val source               = Source
+              .fromURL(
+                controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL(secure = true)
+              )
+            val saveNiLetterAsPDFCss =
+              try source.mkString
+              finally source.close()
 
             val niLetter    =
               niLetterView(

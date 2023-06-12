@@ -20,12 +20,14 @@ import connectors.PdfGeneratorConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
+import models.admin.{AppleSaveAndViewNIToggle, FeatureFlag}
 import org.jsoup.Jsoup
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.admin.FeatureFlagService
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -36,11 +38,12 @@ import scala.concurrent.Future
 
 class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
-  val mockPdfGeneratorConnector       = mock[PdfGeneratorConnector]
-  val mockAuthJourney                 = mock[AuthJourney]
-  val mockInterstitialController      = mock[InterstitialController]
-  val mockHomeController              = mock[HomeController]
-  val mockRlsConfirmAddressController = mock[RlsController]
+  val mockPdfGeneratorConnector: PdfGeneratorConnector   = mock[PdfGeneratorConnector]
+  val mockAuthJourney: AuthJourney                       = mock[AuthJourney]
+  val mockInterstitialController: InterstitialController = mock[InterstitialController]
+  val mockHomeController: HomeController                 = mock[HomeController]
+  val mockRlsConfirmAddressController: RlsController     = mock[RlsController]
+  val mockFeatureFlagService: FeatureFlagService         = mock[FeatureFlagService]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -61,7 +64,8 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
       injected[ErrorRenderer],
       injected[PrintNationalInsuranceNumberView],
       injected[NiLetterPDfWrapperView],
-      injected[NiLetterView]
+      injected[NiLetterView],
+      mockFeatureFlagService
     )(
       config,
       ec
@@ -70,6 +74,13 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
   "Calling NiLetterController.printNationalInsuranceNumber" must {
 
     "call printNationalInsuranceNumber should return OK when called by a high GG user" in {
+
+      when(mockFeatureFlagService.get(AppleSaveAndViewNIToggle)).thenReturn(
+        Future.successful(
+          FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = false)
+        )
+      )
+
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
@@ -82,7 +93,35 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
       status(r) mustBe OK
     }
 
+    "call printNationalInsuranceNumber should return redirect when called by a high GG user and the appleSaveToggle is on" in {
+
+      when(mockFeatureFlagService.get(AppleSaveAndViewNIToggle)).thenReturn(
+        Future.successful(
+          FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = true)
+        )
+      )
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      lazy val r = controller.printNationalInsuranceNumber()(FakeRequest())
+
+      status(r) mustBe MOVED_PERMANENTLY
+
+      redirectLocation(r) mustBe Some(config.ptaNinoSaveUrl)
+    }
+
     "call printNationalInsuranceNumber should return OK when called by a verify user" in {
+      when(mockFeatureFlagService.get(AppleSaveAndViewNIToggle)).thenReturn(
+        Future.successful(
+          FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = false)
+        )
+      )
+
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
