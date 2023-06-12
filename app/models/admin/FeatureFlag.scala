@@ -81,7 +81,8 @@ object FeatureFlagName {
       TaxcalcToggle,
       TaxComponentsToggle,
       TaxSummariesTileToggle,
-      AppleSaveAndViewNIToggle
+      AppleSaveAndViewNIToggle,
+      NpsShutteringToggle
     )
 }
 
