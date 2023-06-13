@@ -720,7 +720,6 @@ npsshuttering.tamc = Lwfans Priodasol
 npsshuttering.medben = Buddiannau meddygol
 npsshuttering.paye = TWE – Gwasanaeth Gwirio’ch Treth Incwm
 npsshuttering.pla = Lwfans Oes Pensiwn
-npsshuttering.pbik = Buddiannau Personol
 npsshuttering.ras = Rhyddhad wrth y ffynhonnell
 npsshuttering.repayments = Ad-daliadau
 npsshuttering.taxcalc = Cyfrifiad Treth
