@@ -35,28 +35,68 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
 
     implicit val userRequest = buildUserRequest(request = FakeRequest())
 
-    val newsAndContentModel = new NewsAndContentModel(
+    val firstNewsAndContentModel = NewsAndContentModel(
       "nicSection",
       "1.25 percentage points uplift in National Insurance contributions (base64 encoded)",
-      "<p>base64 encoded content with html</p>",
+      "<p>base64 encoded content with html example 1</p>",
       false,
       LocalDate.now
     )
 
-    val doc =
-      asDocument(
+    val secondNewsAndContentModel = NewsAndContentModel(
+      "exampleSection",
+      "This is an example News item",
+      "<p>base64 encoded content with html example 2</p>",
+      false,
+      LocalDate.now
+    )
+
+    "show the select news item content and headlines for others" in {
+      val doc = asDocument(
         viewNewsAndUpdatesView(
           s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/news",
-          List[NewsAndContentModel](newsAndContentModel),
+          List[NewsAndContentModel](firstNewsAndContentModel, secondNewsAndContentModel),
           "nicSection"
         ).toString
       )
-    "show content" in {
 
-      doc.text() must include(Messages("label.news_and_updates"))
-      doc.text() must include("1.25 percentage points uplift in National Insurance contributions (base64 encoded)")
-      doc.text() must include("base64 encoded content with html")
+      val doc2 =
+        asDocument(
+          viewNewsAndUpdatesView(
+            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/news",
+            List[NewsAndContentModel](firstNewsAndContentModel, secondNewsAndContentModel),
+            "exampleSection"
+          ).toString
+        )
 
+      doc.getElementById("newsHeading").text() must include(firstNewsAndContentModel.shortDescription)
+      doc.html()                               must include(firstNewsAndContentModel.content)
+      doc.text()                               must include(messages("label.other_news_and_updates"))
+      doc.text()                               must include(secondNewsAndContentModel.shortDescription)
+      doc.html() mustNot include(secondNewsAndContentModel.content)
+
+      doc2.getElementById("newsHeading").text() must include(secondNewsAndContentModel.shortDescription)
+      doc2.html()                               must include(secondNewsAndContentModel.content)
+      doc2.text()                               must include(messages("label.other_news_and_updates"))
+      doc2.text()                               must include(firstNewsAndContentModel.shortDescription)
+      doc2.html() mustNot include(firstNewsAndContentModel.content)
+
+    }
+
+    "show the select news item content adn not Other new and updates heading" in {
+
+      val doc =
+        asDocument(
+          viewNewsAndUpdatesView(
+            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/news",
+            List[NewsAndContentModel](firstNewsAndContentModel),
+            "exampleSection"
+          ).toString
+        )
+
+      doc.getElementById("newsHeading").text() must include(firstNewsAndContentModel.shortDescription)
+      doc.html()                               must include(firstNewsAndContentModel.content)
+      doc.text() mustNot include(messages("label.other_news_and_updates"))
     }
 
   }

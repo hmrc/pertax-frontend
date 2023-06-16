@@ -44,6 +44,7 @@ import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class InterstitialControllerSpec extends BaseSpec {
@@ -366,7 +367,17 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(
+        List[NewsAndContentModel](
+          NewsAndContentModel(
+            "nicSection",
+            "1.25 percentage points uplift in National Insurance contributions (base64 encoded)",
+            "<p id=\"paragraph\">base64 encoded content with html</p>",
+            false,
+            LocalDate.now
+          )
+        )
+      )
 
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure   = false

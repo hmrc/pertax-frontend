@@ -16,7 +16,7 @@
 
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
-@import views.html.components.{H1, H2, Link, P}
+@import views.html.components.{H1, H2, H3, Link, P}
 
 @import scala.concurrent.ExecutionContext
 
@@ -24,47 +24,35 @@
     mainView: MainView,
     h1: H1,
     h2: H2,
+    h3: H3,
     p: P,
     link: Link
 )
 
 @(redirectUrl: String, newsAndContentModelList: List[NewsAndContentModel], selectedNewsSectionId: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
-@ptaScript = {
-    <script>
-            document.onreadystatechange = function () {
-                document.getElementById('@selectedNewsSectionId').focus();
-            }
-    </script>
-}
 
 @mainView(
     pageTitle = messages("label.news_and_updates"),
-    showBackLink = true,
-    scripts = Some(ptaScript)
+    showBackLink = true
 ) {
-    @h1("label.news_and_updates", elmId = Some("newsHeading"))
-    @if(newsAndContentModelList.size > 1) {
-        <div class="govuk-!-margin-bottom-7">
-            <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
-            @for(newsAndContentModel <- newsAndContentModelList) {
-                <li>
-                    <a class="govuk-link govuk-link--no-visited-state" href="./@newsAndContentModel.newsSectionName">@newsAndContentModel.shortDescription</a>
-                </li>
-            }
-            </ul>
-        </div>
-    }
+    @defining(newsAndContentModelList.find(_.newsSectionName == selectedNewsSectionId).getOrElse(newsAndContentModelList.head)) { selectedNewsSection =>
 
-    @for(newsAndContentModel <- newsAndContentModelList) {
-        <section class="app-markdown">
-            <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-            @if(selectedNewsSectionId.equals(newsAndContentModel.newsSectionName)) {
-                <div id="@newsAndContentModel.newsSectionName" tabindex="0"></div>
-            }
-            <h2 class="govuk-heading-m">@newsAndContentModel.shortDescription</h2>
-            <div>
-            @Html(newsAndContentModel.content)
+        @h1(selectedNewsSection.shortDescription, elmId = Some("newsHeading"))
+        @p(HtmlContent(messages(selectedNewsSection.content)))
+
+        @if(newsAndContentModelList.filter(_ != selectedNewsSection).nonEmpty) {
+            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+            @h3("label.other_news_and_updates")
+
+            <div class="govuk-!-margin-bottom-7">
+                <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
+                @for(newsAndContentModel <- newsAndContentModelList.filter(_ != selectedNewsSection)) {
+                    <li>
+                        <a class="govuk-link govuk-link--no-visited-state" href="./@newsAndContentModel.newsSectionName">@newsAndContentModel.shortDescription</a>
+                    </li>
+                }
+                </ul>
             </div>
-        </section>
+        }
     }
 }
