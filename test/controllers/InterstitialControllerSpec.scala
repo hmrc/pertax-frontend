@@ -391,6 +391,28 @@ class InterstitialControllerSpec extends BaseSpec {
       contentAsString(result) must include("News and Updates")
     }
 
+    "redirect to home when toggled on but no news items" in new LocalSetup {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure   = false
+
+      val testController: InterstitialController = controller
+
+      val result: Future[Result] = testController.displayNewsAndUpdates("nicSection")(fakeRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(controllers.routes.HomeController.index.url)
+
+    }
+
     "return UNAUTHORIZED when toggled off" in {
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
