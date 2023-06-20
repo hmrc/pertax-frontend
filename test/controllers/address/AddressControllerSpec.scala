@@ -96,5 +96,26 @@ class AddressControllerSpec extends AddressBaseSpec {
 
       }
     }
+
+    "show the InternalServerErrorView" when {
+
+      "the NpsOutageToggle is set to true" in {
+
+        when(mockFeatureFlagService.get(NpsOutageToggle))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, true)))
+
+        def userRequest[A]: UserRequest[A] =
+          buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
+
+        val expectedContent = "Success"
+
+        val result = SUT.addressJourneyEnforcer { _ => _ =>
+          Future(Ok(expectedContent))
+        }(userRequest)
+
+        status(result) mustBe OK
+        contentAsString(result) mustBe internalServerErrorView.apply()(userRequest, configDecorator, messages).body
+      }
+    }
   }
 }
