@@ -18,6 +18,7 @@ package controllers.address
 
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import models.admin.{FeatureFlag, NpsOutageToggle}
 import play.api.mvc.Request
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
@@ -32,7 +33,9 @@ class AddressControllerSpec extends AddressBaseSpec {
       extends AddressController(
         injected[AuthJourney],
         cc,
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        mockFeatureFlagService,
+        internalServerErrorView
       )
 
   "addressJourneyEnforcer" must {
@@ -40,6 +43,9 @@ class AddressControllerSpec extends AddressBaseSpec {
     "complete given block" when {
 
       "a nino and person details are present in the request" in {
+
+        when(mockFeatureFlagService.get(NpsOutageToggle))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
 
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
@@ -59,6 +65,9 @@ class AddressControllerSpec extends AddressBaseSpec {
 
       "a nino cannot be found in the request" in {
 
+        when(mockFeatureFlagService.get(NpsOutageToggle))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
 
@@ -71,6 +80,10 @@ class AddressControllerSpec extends AddressBaseSpec {
       }
 
       "person details cannot be found in the request" in {
+
+        when(mockFeatureFlagService.get(NpsOutageToggle))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+
         implicit def userRequest[A]: UserRequest[A] =
           buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
 

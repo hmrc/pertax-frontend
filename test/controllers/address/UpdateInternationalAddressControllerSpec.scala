@@ -46,7 +46,9 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         cc,
         injected[UpdateInternationalAddressView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        mockFeatureFlagService,
+        internalServerErrorView
       )
 
     def sessionCacheResponse: Option[CacheMap] =

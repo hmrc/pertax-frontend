@@ -48,7 +48,9 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
         errorRenderer,
         injected[AddressSelectorView],
         injected[DisplayAddressInterstitialView],
-        injected[AddressSelectorService]
+        injected[AddressSelectorService],
+        mockFeatureFlagService,
+        internalServerErrorView
       )
 
     def sessionCacheResponse: Option[CacheMap] =

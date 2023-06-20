@@ -30,9 +30,11 @@ import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
 import services._
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
@@ -51,9 +53,17 @@ class ClosePostalAddressController @Inject() (
   closeCorrespondenceAddressChoiceView: CloseCorrespondenceAddressChoiceView,
   confirmCloseCorrespondenceAddressView: ConfirmCloseCorrespondenceAddressView,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  featureFlagService: FeatureFlagService,
+  internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView)
+    extends AddressController(
+      authJourney,
+      cc,
+      displayAddressInterstitialView,
+      featureFlagService,
+      internalServerErrorView
+    )
     with Logging {
 
   def onPageLoad: Action[AnyContent] =
