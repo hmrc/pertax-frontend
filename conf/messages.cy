@@ -294,7 +294,7 @@ label.remove=Dileu
 # News
 #
 label.latest_news_and_updates=Y newyddion diweddaraf a diweddariadau
-label.other_news_and_updates=PLACEHOLDER
+label.other_news_and_updates=Newyddion a diweddariadau eraill
 label.news_and_updates=Newyddion a Diweddariadau
 label.percentage_points_uplift_in_NIC=Cynnydd o 1.25 pwynt canrannol yng nghyfraniadau Yswiriant Gwladol
 label.national_insurance_contributions_will_increase_by_1.25_percentage_points=O 6 Ebrill 2022 i 5 Ebrill 2023, bydd cyfraniadau Yswiriant Gwladol yn cynyddu 1.25 pwynt canrannol. Caiff hyn ei wario ar y GIG ac ar iechyd a gofal cymdeithasol yn y DU.
