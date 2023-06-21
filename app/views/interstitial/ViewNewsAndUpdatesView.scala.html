@@ -24,7 +24,6 @@
     mainView: MainView,
     h1: H1,
     h2: H2,
-    h3: H3,
     p: P,
     link: Link
 )
@@ -42,7 +41,7 @@
 
         @if(newsAndContentModelList.filter(_ != selectedNewsSection).nonEmpty) {
             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-            @h3("label.other_news_and_updates")
+            @h2("label.other_news_and_updates", classes = Some("govuk-heading-s"))
 
             <div class="govuk-!-margin-bottom-7">
                 <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
