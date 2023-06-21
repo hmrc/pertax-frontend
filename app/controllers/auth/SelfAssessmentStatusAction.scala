@@ -20,8 +20,10 @@ import com.google.inject.Inject
 import services.CitizenDetailsService
 import controllers.auth.requests._
 import models._
+import models.admin.NpsOutageToggle
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.EnrolmentStoreCachingService
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -33,18 +35,25 @@ class SelfAssessmentStatusAction @Inject() (
   CitizenDetailsService: CitizenDetailsService,
   enrolmentsCachingService: EnrolmentStoreCachingService,
   enrolmentsHelper: EnrolmentsHelper,
-  cc: ControllerComponents
+  cc: ControllerComponents,
+  featureFlagService: FeatureFlagService
 )(implicit ec: ExecutionContext)
     extends ActionRefiner[AuthenticatedRequest, UserRequest]
     with ActionFunction[AuthenticatedRequest, UserRequest] {
 
   private def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
-    CitizenDetailsService
-      .getMatchingDetails(nino)
-      .fold(
-        _ => None,
-        matchingDetails => matchingDetails.saUtr
-      )
+    featureFlagService.get(NpsOutageToggle).flatMap { toggle =>
+      if (!toggle.isEnabled) {
+        CitizenDetailsService
+          .getMatchingDetails(nino)
+          .fold(
+            _ => None,
+            matchingDetails => matchingDetails.saUtr
+          )
+      } else {
+        Future.successful(None)
+      }
+    }
 
   private def getSelfAssessmentUserType[A](implicit
     hc: HeaderCarrier,

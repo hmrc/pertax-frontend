@@ -19,6 +19,7 @@ package controllers.auth
 import cats.data.EitherT
 import controllers.auth.requests._
 import models._
+import models.admin.{FeatureFlag, NpsOutageToggle}
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
@@ -27,6 +28,7 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.admin.FeatureFlagService
 import services.{CitizenDetailsService, EnrolmentStoreCachingService}
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -40,10 +42,12 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
   private val saUtr                                    = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
   private val enrolmentsCachingService                 = mock[EnrolmentStoreCachingService]
+  val mockFeatureFlagService: FeatureFlagService       = mock[FeatureFlagService]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
     .overrides(bind[EnrolmentStoreCachingService].toInstance(enrolmentsCachingService))
+    .overrides(bind[FeatureFlagService].toInstance(mockFeatureFlagService))
     .configure(Map("metrics.enabled" -> false))
     .build()
 
@@ -121,6 +125,9 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
       userTypeList.foreach { case (userType, key) =>
         s"return $key when the enrolments caching service returns ${userType.toString}" in {
 
+          when(mockFeatureFlagService.get(NpsOutageToggle))
+            .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+
           when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
             .thenReturn(
               EitherT[Future, UpstreamErrorResponse, MatchingDetails](
@@ -133,7 +140,18 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
           val result = harness()(request)
           contentAsString(result) must include(s"${userType.toString}")
+          verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
         }
+      }
+      "return nothing when NpsOutageToggle is set to true" in {
+
+        when(mockFeatureFlagService.get(NpsOutageToggle))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, true)))
+
+        val result = harness()(request)
+
+        contentAsString(result) must include(s"Nino: ${request.nino.getOrElse("fail")}")
+        verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any(), any())
       }
     }
   }
@@ -141,6 +159,9 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
   "return NonFilerSelfAssessmentUser" when {
     "CitizenDetails has no matching SA account" in {
       implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest()
+
+      when(mockFeatureFlagService.get(NpsOutageToggle))
+        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
 
       when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
         .thenReturn(
