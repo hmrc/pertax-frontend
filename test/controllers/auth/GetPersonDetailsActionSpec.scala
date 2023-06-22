@@ -139,13 +139,14 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
     }
 
-    "when the NpsOutageToggle is set to false" must {
+    "when the NpsOutageToggle is set to true" must {
       "return None" in {
         when(mockFeatureFlagService.get(NpsOutageToggle))
           .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, true)))
 
-        val result = harness(unreadMessageCountBlock)(refinedRequest)
+        val result = harness(personDetailsBlock)(refinedRequest)
         status(result) mustBe OK
+        contentAsString(result) mustBe "Person Details: No Person Details Defined"
 
         verify(mockCitizenDetailsService, times(0)).personDetails(any())(any(), any())
       }
