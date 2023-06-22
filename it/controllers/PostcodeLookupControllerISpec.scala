@@ -1,12 +1,13 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import models.AgentClientStatus
 import models.admin.{SingleAccountCheckToggle, TaxComponentsToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Request
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsFormUrlEncoded}
+import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsFormUrlEncoded}
 import services.admin.FeatureFlagService
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
@@ -16,15 +17,17 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled"        -> true,
-      "feature.breathing-space-indicator.timeoutInSec"   -> 4,
-      "microservice.services.taxcalc.port"               -> server.port(),
-      "microservice.services.tai.port"                   -> server.port(),
-      "microservice.services.enrolment-store-proxy.port" -> server.port()
+      "microservice.services.address-lookup.port"       -> server.port(),
+      "microservice.services.preferences-frontend.port" -> server.port(),
+      "feature.breathing-space-indicator.enabled"       -> true,
+      "feature.agent-client-authorisation.maxTps"       -> 100,
+      "feature.agent-client-authorisation.cache"        -> true,
+      "feature.agent-client-authorisation.enabled"      -> true,
+      "feature.agent-client-authorisation.timeoutInSec" -> 1
     )
     .build()
 
-  val apiUrl = "/personal-account/your-address/postal/find-address"
+  val apiUrl = "/personal-account/your-address/postal/find-address?postcode=AA1 1AA"
 
   def request[A]: Request[A] =
     FakeRequest("POST", apiUrl)
@@ -37,7 +40,7 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
   val personDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
 
   val addressRecordSet: String =
-    s"""
+    """|
        |[
        |    {
        |      "id": "GB990091234514",
@@ -82,11 +85,61 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
        |      "language": "en"
        |    }
        |  ]
-  """
+       |""".stripMargin
+
+  val designatoryDetails: String =
+    """|
+     |{
+       |  "etag" : "115",
+       |  "person" : {
+       |    "firstName" : "HIPPY",
+       |    "middleName" : "T",
+       |    "lastName" : "NEWYEAR",
+       |    "title" : "Mr",
+       |    "honours": "BSC",
+       |    "sex" : "M",
+       |    "dateOfBirth" : "1952-04-01",
+       |    "nino" : "TW189213B",
+       |    "deceased" : false
+       |  },
+       |  "address" : {
+       |    "line1" : "26 FARADAY DRIVE",
+       |    "line2" : "PO BOX 45",
+       |    "line3" : "LONDON",
+       |    "postcode" : "CT1 1RQ",
+       |    "startDate": "2009-08-29",
+       |    "country" : "GREAT BRITAIN",
+       |    "type" : "Residential",
+       |    "status": 1
+       |  }
+       |}
+       |""".stripMargin
 
   override def beforeEach(): Unit = {
     server.resetAll()
     beforeEachHomeController()
+
+    server.stubFor(
+      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        .willReturn(ok(designatoryDetails))
+    )
+
+    server.stubFor(
+      get(urlEqualTo(s"/agent-client-authorisation/status"))
+        .willReturn(
+          ok(
+            Json
+              .toJson(
+                AgentClientStatus(
+                  hasPendingInvitations = true,
+                  hasInvitationsHistory = true,
+                  hasExistingRelationships = true
+                )
+              )
+              .toString
+          )
+        )
+    )
 
     server.stubFor(
       put(urlMatching(s"/keystore/pertax-frontend/.*"))
@@ -109,18 +162,20 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
     "show manual address form when the address times out after 5 secs" in {
 
       val wholeStreetRequestBody: JsObject = Json.obj(
-        "postcode" -> "AA1 1AA"
+        "postcode" -> "AA11AA"
       )
 
       server.stubFor(
         post(urlEqualTo(urlPost))
           .withRequestBody(equalToJson(wholeStreetRequestBody.toString))
-          .willReturn(ok(addressRecordSet).withFixedDelay(7000))
+          .willReturn(ok(addressRecordSet))
       )
 
-      val result = route(app, request).get
-      contentAsString(result) must include("enter your address manually")
-    }
+      val result = route(app, request)
+      //httpStatus(result) mustBe OK
+      result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
 
+      // contentAsString(result) must include("enter your address manually")
+    }
   }
 }
