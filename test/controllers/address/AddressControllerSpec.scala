@@ -113,7 +113,7 @@ class AddressControllerSpec extends AddressBaseSpec {
           Future(Ok(expectedContent))
         }(userRequest)
 
-        status(result) mustBe OK
+        status(result) mustBe INTERNAL_SERVER_ERROR
         contentAsString(result) mustBe internalServerErrorView.apply()(userRequest, configDecorator, messages).body
       }
     }

@@ -48,7 +48,7 @@ abstract class AddressController @Inject() (
   )(implicit request: UserRequest[_]): Future[Result] =
     featureFlagService.get(NpsOutageToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        Future.successful(Ok(internalServerErrorView()))
+        Future.successful(InternalServerError(internalServerErrorView()))
       } else {
         (for {
           payeAccount   <- request.nino
