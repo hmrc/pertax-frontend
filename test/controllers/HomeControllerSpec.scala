@@ -189,7 +189,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle))) thenReturn Future.successful(
       FeatureFlag(TaxSummariesTileToggle, false)
     )
-
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle))) thenReturn Future.successful(
+      FeatureFlag(NpsShutteringToggle, true)
+    )
   }
 
   "Calling HomeController.index" must {

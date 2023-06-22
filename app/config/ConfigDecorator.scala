@@ -301,11 +301,26 @@ class ConfigDecorator @Inject() (
   lazy val bannerHomePageLinkUrl: String    =
     runModeConfiguration.getOptional[String]("feature.banner.home.link.url").getOrElse("")
 
+  lazy val shutterBannerParagraphEn: String =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.paragraph.en").getOrElse("")
+  lazy val shutterBannerParagraphCy: String =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.paragraph.cy").getOrElse("")
+  lazy val shutterBannerLinkTextEn: String  =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.linkText.en").getOrElse("")
+  lazy val shutterBannerLinkTextCy: String  =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.linkText.cy").getOrElse("")
+
+  lazy val shutterPageParagraphEn: String =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.page.paragraph.en").getOrElse("")
+  lazy val shutterPageParagraphCy: String =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.page.paragraph.cy").getOrElse("")
+
   lazy val breathingSpcaeBaseUrl: String       = servicesConfig.baseUrl("breathing-space-if-proxy")
   lazy val breathingSpaceTimeoutInSec: Int     =
     servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
   lazy val preferenceFrontendTimeoutInSec: Int =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
+  lazy val ptaNinoSaveUrl                      = "https://www.tax.service.gov.uk/save-your-national-insurance-number"
 
   lazy val addressLookupTimeoutInSec: Int =
     servicesConfig.getInt("feature.address-lookup.timeoutInSec")

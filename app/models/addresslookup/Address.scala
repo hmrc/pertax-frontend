@@ -33,9 +33,9 @@ case class Address(
 ) {
 
   private val lineCountWithoutTown = 4
-  private val lineCountWithTown = 3
+  private val lineCountWithTown    = 3
   @JsonIgnore // needed because the name starts 'is...'
-  def isValid: Boolean = lines.nonEmpty && lines.size <= (if (town.isEmpty) lineCountWithoutTown else lineCountWithTown)
+  def isValid: Boolean             = lines.nonEmpty && lines.size <= (if (town.isEmpty) lineCountWithoutTown else lineCountWithTown)
 
   def line1: String = if (lines.nonEmpty) lines.head else ""
 

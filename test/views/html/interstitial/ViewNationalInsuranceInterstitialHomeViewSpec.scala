@@ -17,6 +17,8 @@
 package views.html.interstitial
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import testUtils.UserRequestFixture.buildUserRequest
@@ -24,15 +26,15 @@ import views.html.ViewSpec
 
 class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
 
-  lazy val view = injected[ViewNationalInsuranceInterstitialHomeView]
+  lazy val view: ViewNationalInsuranceInterstitialHomeView = injected[ViewNationalInsuranceInterstitialHomeView]
 
-  lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val userRequest                           = buildUserRequest(request = FakeRequest())
+  lazy implicit val configDecorator: ConfigDecorator            = injected[ConfigDecorator]
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
   "Rendering ViewNationalInsuranceInterstitialHomeView.scala.html" must {
 
     "show NINO section when a nino is present" in {
-      val document = asDocument(view(Html(""), "asfa", userRequest.nino).toString)
+      val document = asDocument(view(Html(""), "asfa", userRequest.nino, appleSaveAndViewNIToggle = false).toString)
       Option(document.select(".nino").first).isDefined mustBe true
       document.body().toString must include(messages("label.check_your_national_insurance_contributions"))
       document.body().toString must include(
@@ -41,9 +43,26 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
     }
 
     "show incomplete when there is no NINO" in {
-      val document = asDocument(view(Html(""), "http://google.com", None).toString)
+      val document = asDocument(view(Html(""), "https://google.com", None, appleSaveAndViewNIToggle = false).toString)
       Option(document.select(".nino").first).isDefined mustBe false
       document.body().toString must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
+    }
+
+    "show without apple view and save nino when the toggle is false" in {
+      val document = asDocument(view(Html(""), "asfa", userRequest.nino, appleSaveAndViewNIToggle = false).toString)
+      document.body().toString must include(
+        messages("label.so_that_you_have_your_number_when_you_need_it_")
+      )
+    }
+
+    "show with apple view and save nino when the toggle is true" in {
+      val document = asDocument(view(Html(""), "asfa", userRequest.nino, appleSaveAndViewNIToggle = true).toString)
+      document.body().toString must include(
+        messages("label.save_your_number_to_the_wallet_app_on_your_apple_phone")
+      )
+      document.body().toString must include(
+        messages("label.view_and_get_a_copy_for_your_national_insurance_number_confirmation_letter")
+      )
     }
 
   }

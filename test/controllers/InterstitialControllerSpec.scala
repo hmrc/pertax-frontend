@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{FeatureFlag, ItsAdvertisementMessageToggle}
+import models.admin.{FeatureFlag, ItsAdvertisementMessageToggle, NpsShutteringToggle}
 import org.mockito.ArgumentMatchers.any
 import play.api.{Application, Configuration}
 import play.api.i18n.Messages
@@ -40,7 +40,7 @@ import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util._
-import views.html.SelfAssessmentSummaryView
+import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 
@@ -76,6 +76,7 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewNewsAndUpdatesView],
         injected[ViewSaAndItsaMergePageView],
         injected[ViewBreathingSpaceView],
+        injected[NpsShutteringView],
         injected[EnrolmentsHelper],
         injected[SeissService],
         mockNewsAndTileConfig,
@@ -160,6 +161,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -212,6 +214,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -404,6 +407,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -489,6 +493,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mockNewsAndTileConfig,
@@ -552,6 +557,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -575,6 +581,117 @@ class InterstitialControllerSpec extends BaseSpec {
 
       status(result) mustBe OK
       contentAsString(result) must include("Your Self Assessment")
+    }
+  }
+
+  "Calling displayNpsShutteringPage" must {
+
+    "return OK when NpsShutteringToggle is true" in {
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[ServicesConfig]
+      )
+
+      val mockFeatureFlagService = mock[FeatureFlagService]
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService
+        )(stubConfigDecorator, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+              request = request
+            )
+          )
+      })
+
+      when(mockFeatureFlagService.get(NpsShutteringToggle))
+        .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = true)))
+
+      val result = controller.displayNpsShutteringPage()(fakeRequest)
+
+      status(result) mustBe OK
+      contentAsString(result) must include(
+        "The following services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
+      )
+    }
+
+    "return redirect back to the home page when NpsShutteringToggle is false" in {
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[ServicesConfig]
+      )
+
+      val mockFeatureFlagService = mock[FeatureFlagService]
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService
+        )(stubConfigDecorator, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+              request = request
+            )
+          )
+      })
+
+      when(mockFeatureFlagService.get(NpsShutteringToggle))
+        .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = false)))
+
+      val result = controller.displayNpsShutteringPage()(fakeRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.HomeController.index.url)
     }
   }
 }
