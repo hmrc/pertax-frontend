@@ -2,7 +2,7 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
-import models.admin.{SingleAccountCheckToggle, TaxComponentsToggle, TaxcalcToggle}
+import models.admin.{RlsInterruptToggle, SingleAccountCheckToggle, TaxComponentsToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Request
@@ -27,11 +27,11 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
     )
     .build()
 
-  val apiUrl = "/personal-account/your-address/postal/find-address?postcode=AA1 1AA"
+  val apiUrl = "/personal-account/your-address/postal/find-address"
 
   def request[A]: Request[A] =
     FakeRequest("POST", apiUrl)
-      .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
+      .withFormUrlEncodedBody("postcode" -> "AA1 1AA", "filter" -> "")
       .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
       .asInstanceOf[Request[A]]
 
@@ -155,11 +155,27 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
     featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
     featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
     featureFlagService.set(TaxComponentsToggle, enabled = true).futureValue
-
+    featureFlagService.set(RlsInterruptToggle, enabled = false).futureValue
   }
 
   "personal-account" must {
-    "show manual address form when the address times out after 5 secs" in {
+    "show edit address when the address service times out after 5 secs" in {
+
+      val wholeStreetRequestBody: JsObject = Json.obj(
+        "postcode" -> "AA11AA"
+      )
+
+      server.stubFor(
+        post(urlEqualTo(urlPost))
+          .withRequestBody(equalToJson(wholeStreetRequestBody.toString))
+          .willReturn(ok(addressRecordSet).withFixedDelay(7000))
+      )
+
+      val result = route(app, request)
+      result.map(redirectLocation) mustBe Some(Some("/personal-account/your-address/postal/edit-address"))
+    }
+
+    "show select address when the address service returns the set of adresses" in {
 
       val wholeStreetRequestBody: JsObject = Json.obj(
         "postcode" -> "AA11AA"
@@ -172,10 +188,7 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
       )
 
       val result = route(app, request)
-      //httpStatus(result) mustBe OK
-      result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
-
-      // contentAsString(result) must include("enter your address manually")
+      result.map(redirectLocation) mustBe Some(Some("/personal-account/your-address/postal/select-address"))
     }
   }
 }
