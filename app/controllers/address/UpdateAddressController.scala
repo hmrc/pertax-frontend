@@ -24,7 +24,9 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.{AddressDto, DateDto}
 import models.{SubmittedAddressDtoId, SubmittedStartDateId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.http.HeaderCarrier
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateAddressView
 
@@ -36,9 +38,17 @@ class UpdateAddressController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   updateAddressView: UpdateAddressView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  featureFlagService: FeatureFlagService,
+  internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      cc,
+      displayAddressInterstitialView,
+      featureFlagService,
+      internalServerErrorView
+    ) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

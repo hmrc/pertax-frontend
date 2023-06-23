@@ -82,7 +82,8 @@ object FeatureFlagName {
       TaxComponentsToggle,
       TaxSummariesTileToggle,
       AppleSaveAndViewNIToggle,
-      NpsShutteringToggle
+      NpsShutteringToggle,
+      NpsOutageToggle
     )
 }
 
@@ -156,6 +157,14 @@ case object AppleSaveAndViewNIToggle extends FeatureFlagName {
   override def toString: String = "apple-save-view-ni-toggle"
 
   override val description: Option[String] = Some("Enable/disable the new content for the Apple Save and View NI")
+}
+
+case object NpsOutageToggle extends FeatureFlagName {
+  override def toString: String = "nps-outage-toggle"
+
+  override val description: Option[String] = Some(
+    "Enable/disable calls to NPS so as not to cause errors during an NPS outage"
+  )
 }
 
 object FeatureFlagMongoFormats {

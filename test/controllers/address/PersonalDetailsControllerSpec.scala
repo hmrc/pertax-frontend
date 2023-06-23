@@ -57,7 +57,9 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         mockAgentClientAuthorisationService,
         cc,
         displayAddressInterstitialView,
-        injected[PersonalDetailsView]
+        injected[PersonalDetailsView],
+        mockFeatureFlagService,
+        internalServerErrorView
       )
   }
 

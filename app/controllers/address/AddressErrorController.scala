@@ -22,10 +22,12 @@ import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.admin.FeatureFlagService
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUseServiceView}
 
-import scala.concurrent.{Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 class AddressErrorController @Inject() (
   authJourney: AuthJourney,
@@ -33,9 +35,17 @@ class AddressErrorController @Inject() (
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   cannotUseServiceView: CannotUseServiceView,
-  addressAlreadyUpdatedView: AddressAlreadyUpdatedView
-)(implicit configDecorator: ConfigDecorator)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView) {
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView,
+  featureFlagService: FeatureFlagService,
+  internalServerErrorView: InternalServerErrorView
+)(implicit configDecorator: ConfigDecorator, executionContext: ExecutionContext)
+    extends AddressController(
+      authJourney,
+      cc,
+      displayAddressInterstitialView,
+      featureFlagService,
+      internalServerErrorView
+    ) {
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
