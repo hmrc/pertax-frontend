@@ -22,11 +22,15 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
+import models.admin.{AppleSaveAndViewNIToggle, FeatureFlag}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
@@ -43,22 +47,24 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
   private val generator = new Generator(new Random())
 
-  private val testNino: Nino         = generator.nextNino
-  lazy val configDecorator           = injected[ConfigDecorator]
-  lazy val personalDetailsViewModel  = injected[PersonalDetailsViewModel]
-  lazy val addressView               = injected[AddressView]
-  lazy val correspondenceAddressView = injected[CorrespondenceAddressView]
-  lazy val countryHelper             = injected[CountryHelper]
-  lazy val mockPreferencesConnector  = mock[PreferencesFrontendConnector]
+  private val testNino: Nino                                      = generator.nextNino
+  lazy val configDecorator: ConfigDecorator                       = injected[ConfigDecorator]
+  lazy val addressView: AddressView                               = injected[AddressView]
+  lazy val correspondenceAddressView: CorrespondenceAddressView   = injected[CorrespondenceAddressView]
+  lazy val countryHelper: CountryHelper                           = injected[CountryHelper]
+  lazy val mockPreferencesConnector: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
+  lazy val mockFeatureFlagService: FeatureFlagService             = mock[FeatureFlagService]
+  lazy val personalDetailsViewModel: PersonalDetailsViewModel     = injected[PersonalDetailsViewModel]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser, None)
     .overrides(
-      bind[PreferencesFrontendConnector].toInstance(mockPreferencesConnector)
+      bind[PreferencesFrontendConnector].toInstance(mockPreferencesConnector),
+      bind[FeatureFlagService].toInstance(mockFeatureFlagService)
     )
     .build()
 
-  val fakeRequest = FakeRequest("", "")
-  val userRequest = UserRequest(
+  val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
+  val userRequest: UserRequest[AnyContentAsEmpty.type] = UserRequest(
     None,
     None,
     ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -73,7 +79,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     fakeRequest
   )
 
-  val examplePerson = Person(
+  val examplePerson: Person = Person(
     Some("Example"),
     None,
     Some("User"),
@@ -85,13 +91,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     None
   )
 
-  val exampleDetails = PersonDetails(
+  val exampleDetails: PersonDetails = PersonDetails(
     examplePerson,
     None,
     None
   )
 
-  val testAddress = Address(
+  val testAddress: Address = Address(
     Some("1 Fake Street"),
     Some("Fake Town"),
     Some("Fake City"),
@@ -102,11 +108,19 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     Some(LocalDate.of(2015, 3, 15)),
     None,
     Some("Residential"),
-    false
+    isRls = false
   )
 
-  def editedAddress(): EditResidentialAddress         = EditResidentialAddress(Instant.now())
+  def editedAddress(): EditResidentialAddress = EditResidentialAddress(Instant.now())
+
   def editedOtherAddress(): EditCorrespondenceAddress = EditCorrespondenceAddress(Instant.now())
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockFeatureFlagService)
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
+      .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = false)))
+  }
 
   "getSignInDetailsRow" must {
     "return None" when {
@@ -195,6 +209,25 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   }
 
   "getPersonDetailsTable" must {
+    "contain the ninoSaveUrl" when {
+      "toggle is enabled" in {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
+          .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = true)))
+
+        val actual   = personalDetailsViewModel.getPersonDetailsTable(Some(testNino))(userRequest)
+        val expected = PersonalDetailsTableRowModel(
+          "national_insurance",
+          "label.national_insurance",
+          formattedNino(testNino),
+          "label.view_national_insurance_letter",
+          "",
+          Some(configDecorator.ptaNinoSaveUrl)
+        )
+
+        actual.futureValue mustBe List(expected)
+      }
+    }
+
     "contain name row" when {
       "name is defined in userRequest" in {
         val request  = userRequest.copy(personDetails = Some(exampleDetails))
@@ -209,7 +242,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           )
         val actual   = personalDetailsViewModel.getPersonDetailsTable(None)(request)
 
-        actual mustBe List(expected)
+        actual.futureValue mustBe List(expected)
       }
     }
 
@@ -217,7 +250,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "personal details is not defined" in {
         val request = userRequest.copy(personDetails = None)
         val actual  = personalDetailsViewModel.getPersonDetailsTable(None)(request)
-        actual.isEmpty mustBe true
+        actual.futureValue.isEmpty mustBe true
       }
 
       "name is empty" in {
@@ -225,7 +258,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           Some(exampleDetails.copy(person = examplePerson.copy(firstName = None, lastName = None)))
         )
         val actual  = personalDetailsViewModel.getPersonDetailsTable(None)(request)
-        actual.isEmpty mustBe true
+        actual.futureValue.isEmpty mustBe true
       }
     }
 
@@ -240,7 +273,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           "",
           Some(controllers.routes.NiLetterController.printNationalInsuranceNumber.url)
         )
-        actual mustBe List(expected)
+        actual.futureValue mustBe List(expected)
       }
     }
 
@@ -248,7 +281,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "nino is not defined" in {
         val request = userRequest.copy(personDetails = None)
         val actual  = personalDetailsViewModel.getPersonDetailsTable(None)(request)
-        actual.isEmpty mustBe true
+        actual.futureValue.isEmpty mustBe true
       }
     }
   }

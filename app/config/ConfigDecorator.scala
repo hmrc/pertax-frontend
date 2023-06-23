@@ -74,7 +74,7 @@ class ConfigDecorator @Inject() (
   private lazy val contactHost: String                     = getExternalUrl(s"contact-frontend.host").getOrElse("")
   lazy val taiHost: String                                 = getExternalUrl(s"tai-frontend.host").getOrElse("")
   private lazy val saveYourNationalInsuranceNumberHost     =
-    getExternalUrl(s"save-your-national-insurance-number").getOrElse("")
+    getExternalUrl(s"save-your-national-insurance-number.host").getOrElse("")
 
   private lazy val identityVerificationHost: String           = getExternalUrl(s"identity-verification.host").getOrElse("")
   private lazy val identityVerificationPrefix: String         =

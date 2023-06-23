@@ -22,7 +22,9 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
+import models.admin.AppleSaveAndViewNIToggle
 import play.twirl.api.HtmlFormat
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
 import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
@@ -36,8 +38,9 @@ class PersonalDetailsViewModel @Inject() (
   countryHelper: CountryHelper,
   addressView: AddressView,
   correspondenceAddressView: CorrespondenceAddressView,
-  preferencesFrontendConnector: PreferencesFrontendConnector
-) {
+  preferencesFrontendConnector: PreferencesFrontendConnector,
+  featureFlagService: FeatureFlagService
+)(implicit ec: ExecutionContext) {
 
   private def getMainAddress(personDetails: PersonDetails, optionalEditAddress: List[EditedAddress]) = {
     val isMainAddressChangeLocked = optionalEditAddress.exists(
@@ -109,6 +112,7 @@ class PersonalDetailsViewModel @Inject() (
           "label.your.postal_address",
           linkUrl
         )
+
       if (isCorrespondenceChangeLocked) {
         createRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
       } else {
@@ -134,7 +138,7 @@ class PersonalDetailsViewModel @Inject() (
 
   def getPersonDetailsTable(
     ninoToDisplay: Option[Nino]
-  )(implicit request: UserRequest[_]): Seq[PersonalDetailsTableRowModel] = {
+  )(implicit request: UserRequest[_]): Future[Seq[PersonalDetailsTableRowModel]] = {
     val nameRow: Option[PersonalDetailsTableRowModel] =
       request.name.map(name =>
         PersonalDetailsTableRowModel(
@@ -148,22 +152,31 @@ class PersonalDetailsViewModel @Inject() (
         )
       )
 
-    val ninoRow: Option[PersonalDetailsTableRowModel] =
-      ninoToDisplay.map(n =>
-        PersonalDetailsTableRowModel(
-          "national_insurance",
-          "label.national_insurance",
-          formattedNino(n),
-          "label.view_national_insurance_letter",
-          "",
-          Some(controllers.routes.NiLetterController.printNationalInsuranceNumber.url)
+    val ninoRow: Future[Option[PersonalDetailsTableRowModel]] = {
+      for {
+        appleSaveAndViewNIToggle <- featureFlagService.get(AppleSaveAndViewNIToggle)
+      } yield {
+        val urlToReturn = if (appleSaveAndViewNIToggle.isEnabled) {
+          configDecorator.ptaNinoSaveUrl
+        } else {
+          controllers.routes.NiLetterController.printNationalInsuranceNumber.url
+        }
+        ninoToDisplay.map(n =>
+          PersonalDetailsTableRowModel(
+            "national_insurance",
+            "label.national_insurance",
+            formattedNino(n),
+            "label.view_national_insurance_letter",
+            "",
+            Some(urlToReturn)
+          )
         )
-      )
+      }
+    }
 
-    Seq(
-      nameRow,
-      ninoRow
-    ).flatten[PersonalDetailsTableRowModel]
+    for {
+      ninoRowValue <- ninoRow
+    } yield Seq(nameRow, ninoRowValue).flatten[PersonalDetailsTableRowModel]
   }
 
   def getTrustedHelpersRow(implicit

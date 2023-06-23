@@ -21,10 +21,8 @@ import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
-import models.admin.AppleSaveAndViewNIToggle
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.admin.FeatureFlagService
 import uk.gov.hmrc.http.BadRequestException
 import views.html.print._
 
@@ -41,8 +39,7 @@ class NiLetterController @Inject() (
   errorRenderer: ErrorRenderer,
   printNiNumberView: PrintNationalInsuranceNumberView,
   pdfWrapperView: NiLetterPDfWrapperView,
-  niLetterView: NiLetterView,
-  featureFlagService: FeatureFlagService
+  niLetterView: NiLetterView
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
@@ -50,22 +47,16 @@ class NiLetterController @Inject() (
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
         if (request.personDetails.isDefined) {
-          featureFlagService.get(AppleSaveAndViewNIToggle).flatMap { toggle =>
-            if (toggle.isEnabled) {
-              Future.successful(Redirect(configDecorator.ptaNinoSaveUrl, MOVED_PERMANENTLY))
-            } else {
-              Future.successful(
-                Ok(
-                  printNiNumberView(
-                    request.personDetails.get,
-                    LocalDate.now.format(DateTimeFormatter.ofPattern("MM/YY")),
-                    configDecorator.saveNiLetterAsPdfLinkEnabled,
-                    request.nino
-                  )
-                )
+          Future.successful(
+            Ok(
+              printNiNumberView(
+                request.personDetails.get,
+                LocalDate.now.format(DateTimeFormatter.ofPattern("MM/YY")),
+                configDecorator.saveNiLetterAsPdfLinkEnabled,
+                request.nino
               )
-            }
-          }
+            )
+          )
         } else {
           errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }

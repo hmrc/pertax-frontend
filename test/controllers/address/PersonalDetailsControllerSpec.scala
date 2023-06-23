@@ -16,7 +16,7 @@
 
 package controllers.address
 
-import controllers.controllershelpers.{PersonalDetailsCardGenerator, RlsInterruptHelper}
+import controllers.controllershelpers.RlsInterruptHelper
 import models.PersonDetails
 import models.admin.{FeatureFlag, RlsInterruptToggle}
 import models.dto.AddressPageVisitedDto
@@ -24,7 +24,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.mvc.Request
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import repositories.EditAddressLockRepository
@@ -39,15 +39,15 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-    val mockFeatureFlagService        = mock[FeatureFlagService]
+
+    val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
 
     def rlsInterruptHelper = new RlsInterruptHelper(cc, injected[EditAddressLockRepository], mockFeatureFlagService)
 
     def controller =
       new PersonalDetailsController(
-        injected[PersonalDetailsCardGenerator],
         injected[PersonalDetailsViewModel],
         mockEditAddressLockRepository,
         mockAuthJourney,
@@ -65,7 +65,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
     "redirect to the profile-and-settings page" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] = None
 
-      val result = controller.redirectToYourProfile()(FakeRequest())
+      val result: Future[Result] = controller.redirectToYourProfile()(FakeRequest())
 
       status(result) mustBe MOVED_PERMANENTLY
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
@@ -76,16 +76,18 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
     "redirect to the rls interrupt page" when {
       "main address has an rls status with true" in new LocalSetup {
         override def sessionCacheResponse: Option[CacheMap] = None
+
         override def personDetailsResponse: PersonDetails = {
           val address = fakeAddress.copy(isRls = true)
           fakePersonDetails.copy(address = Some(address))
         }
+
         override def personDetailsForRequest: Option[PersonDetails] = {
           val address = fakeAddress.copy(isRls = true)
           Some(fakePersonDetails.copy(address = Some(address)))
         }
 
-        val result = controller.onPageLoad(FakeRequest())
+        val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some("/personal-account/update-your-address")
@@ -93,16 +95,18 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
       "postal address has an rls status with true" in new LocalSetup {
         override def sessionCacheResponse: Option[CacheMap] = None
+
         override def personDetailsResponse: PersonDetails = {
           val address = fakeAddress.copy(isRls = true)
           fakePersonDetails.copy(correspondenceAddress = Some(address))
         }
+
         override def personDetailsForRequest: Option[PersonDetails] = {
           val address = fakeAddress.copy(isRls = true)
           Some(fakePersonDetails.copy(address = Some(address)))
         }
 
-        val result = controller.onPageLoad(FakeRequest())
+        val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some("/personal-account/update-your-address")
@@ -115,12 +119,13 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
           val address = fakeAddress.copy(isRls = true)
           fakePersonDetails.copy(address = Some(address), correspondenceAddress = Some(address))
         }
+
         override def personDetailsForRequest: Option[PersonDetails] = {
           val address = fakeAddress.copy(isRls = true)
           Some(fakePersonDetails.copy(address = Some(address)))
         }
 
-        val result = controller.onPageLoad(FakeRequest())
+        val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some("/personal-account/update-your-address")
@@ -131,7 +136,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
       "no address has an rls status with true" in new LocalSetup {
         override def sessionCacheResponse: Option[CacheMap] = None
 
-        val result = controller.onPageLoad(FakeRequest())
+        val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
         status(result) mustBe OK
       }
@@ -151,7 +156,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1))
