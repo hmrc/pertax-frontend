@@ -19,7 +19,9 @@ package services.partials
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
+import models.admin.NpsOutageToggle
 import play.api.mvc.RequestHeader
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,13 +29,25 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class FormPartialService @Inject() (
   configDecorator: ConfigDecorator,
-  enhancedPartialRetriever: EnhancedPartialRetriever
+  enhancedPartialRetriever: EnhancedPartialRetriever,
+  featureFlagService: FeatureFlagService
 )(implicit executionContext: ExecutionContext) {
 
   def getNationalInsurancePartial(implicit request: RequestHeader): Future[HtmlPartial] =
-    enhancedPartialRetriever.loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
+    featureFlagService.get(NpsOutageToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        Future.successful(HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered"))
+      } else {
+        enhancedPartialRetriever.loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
+      }
+    }
 
   def getSelfAssessmentPartial(implicit request: RequestHeader): Future[HtmlPartial] =
-    enhancedPartialRetriever.loadPartial(configDecorator.selfAssessmentFormPartialLinkUrl)
-
+    featureFlagService.get(NpsOutageToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        Future.successful(HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered"))
+      } else {
+        enhancedPartialRetriever.loadPartial(configDecorator.selfAssessmentFormPartialLinkUrl)
+      }
+    }
 }
