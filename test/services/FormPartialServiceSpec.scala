@@ -56,7 +56,8 @@ class FormPartialServiceSpec extends BaseSpec {
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-        formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).map(p => p mustBe "")
+        val result = formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
+        result mustBe HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered")
         verify(mockEnhancedPartialRetriever, times(0)).loadPartial(any())(any(), any())
       }
     }
@@ -68,7 +69,8 @@ class FormPartialServiceSpec extends BaseSpec {
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-        formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).map(p => p mustBe "")
+        val result = formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
+        result mustBe HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered")
         verify(mockEnhancedPartialRetriever, times(0)).loadPartial(any())(any(), any())
       }
     }
@@ -79,7 +81,8 @@ class FormPartialServiceSpec extends BaseSpec {
       when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).map(p => p mustBe "<title/>")
+      val result = formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
+      result mustBe HtmlPartial.Success(Some("Title"), Html("<title/>"))
       verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any())(any(), any())
     }
 
@@ -89,7 +92,8 @@ class FormPartialServiceSpec extends BaseSpec {
       when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).map(p => p mustBe "<title/>")
+      val result = formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
+      result mustBe HtmlPartial.Success(Some("Title"), Html("<title/>"))
       verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any())(any(), any())
     }
   }
