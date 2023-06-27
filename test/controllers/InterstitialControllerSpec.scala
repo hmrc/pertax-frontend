@@ -77,6 +77,7 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewSaAndItsaMergePageView],
         injected[ViewBreathingSpaceView],
         injected[NpsShutteringView],
+        injected[TaxCreditsAddressInterstitialView],
         injected[EnrolmentsHelper],
         injected[SeissService],
         mockNewsAndTileConfig,
@@ -162,6 +163,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
           injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -215,6 +217,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
           injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -408,6 +411,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
           injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -494,6 +498,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
           injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mockNewsAndTileConfig,
@@ -558,6 +563,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
           injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -614,6 +620,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
           injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -669,6 +676,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
           injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -692,6 +700,61 @@ class InterstitialControllerSpec extends BaseSpec {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.HomeController.index.url)
+    }
+  }
+
+  "Calling displayTaxCreditsInterstitial" must {
+    "return OK with correct view" in {
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[ServicesConfig]
+      )
+
+      val mockFeatureFlagService = mock[FeatureFlagService]
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService
+        )(stubConfigDecorator, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+              request = request
+            )
+          )
+      })
+
+      val result = controller.displayTaxCreditsInterstitial()(fakeRequest)
+
+      status(result) mustBe OK
+      contentAsString(result) must include(
+        "Because you receive tax credits, you will need to change your claim in the Tax Credits Service."
+      )
     }
   }
 }

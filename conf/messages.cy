@@ -722,3 +722,11 @@ npsshuttering.repayments = Ad-daliadau
 npsshuttering.taxcalc = Cyfrifiad Treth
 npsshuttering.fandf = Cynorthwywyr Dibynadwy
 npsshuttering.chb = Budd-dal Plant
+
+#*************************************************************
+# Tax Credits CoA Interstitial Page
+#*************************************************************
+tax_credits.interstitial.title = Newid cyfeiriad
+tax_credits.interstitial.p1 = Gan eich bod yn cael credydau treth, bydd angen i chi newid eich hawliad yn y Gwasanaeth Credydau Treth
+tax_credits.interstitial.p2 = Fel arfer, mae’n cymryd hyd at 48 awr i’ch cyfeiriad gael ei ddiweddaru ar eich Cyfrif Treth Personol. Gall gymryd hyd at bythefnos ar rai adegau.
+tax_credits.interstitial.link_text = Yn eich blaen i’r Gwasanaeth Credydau Treth

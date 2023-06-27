@@ -123,7 +123,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         val argCaptorValue: Result = arg.getValue
         argCaptorValue.header.status mustBe SEE_OTHER
         redirectLocation(Future.successful(argCaptorValue)).get must include(
-          "tax-credits-service/personal/change-address"
+          "/personal-account/your-address/change-address-tax-credits"
         )
       }
 
@@ -201,7 +201,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         )
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/change-address-tax-credits")
     }
 
     "redirect to InternationalAddressChoice page when supplied with value = No (false)" in {
