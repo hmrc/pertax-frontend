@@ -52,7 +52,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
     val cacheMap = s"/keystore/pertax-frontend"
 
-    "return a SEE_OTHER and redirect to TCS Address change if the user is a TCS user" in {
+    "return a SEE_OTHER and redirect to the TCS Address change interstitial page if the user is a TCS user" in {
       lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
       featureFlagService.set(AddressTaxCreditsBrokerCallToggle, enabled = true).futureValue
 
@@ -102,7 +102,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
       result.get.futureValue.header.status mustBe SEE_OTHER
       result.get.futureValue.header.headers.get("Location") mustBe Some(
-        "http://localhost:9362/tax-credits-service/personal/change-address"
+        "/personal-account/your-address/change-address-tax-credits"
       )
     }
 
