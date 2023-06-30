@@ -19,6 +19,7 @@ package controllers.auth
 import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
+import models.admin.{FeatureFlag, NpsOutageToggle}
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
@@ -29,6 +30,7 @@ import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.CitizenDetailsService
+import services.admin.FeatureFlagService
 import services.partials.MessageFrontendService
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -40,14 +42,16 @@ import scala.concurrent.Future
 
 class GetPersonDetailsActionSpec extends BaseSpec {
 
-  val mockMessageFrontendService       = mock[MessageFrontendService]
-  val mockCitizenDetailsService        = mock[CitizenDetailsService]
-  val configDecorator: ConfigDecorator = mock[ConfigDecorator]
+  val mockMessageFrontendService                 = mock[MessageFrontendService]
+  val mockCitizenDetailsService                  = mock[CitizenDetailsService]
+  val configDecorator: ConfigDecorator           = mock[ConfigDecorator]
+  val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
     .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
     .overrides(bind[ConfigDecorator].toInstance(configDecorator))
+    .overrides(bind[FeatureFlagService].toInstance(mockFeatureFlagService))
     .configure(Map("metrics.enabled" -> false))
     .build()
 
@@ -88,6 +92,11 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     actionProvider.invokeBlock(request, block)
   }
 
+  override def beforeEach() = {
+    super.beforeEach()
+    reset(mockCitizenDetailsService)
+  }
+
   "GetPersonDetailsAction" when {
     when(mockMessageFrontendService.getUnreadMessageCount(any()))
       .thenReturn(Future.successful(Some(1)))
@@ -95,17 +104,25 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     "a user has PersonDetails in CitizenDetails" must {
 
       "add the PersonDetails to the request" in {
+        when(mockFeatureFlagService.get(NpsOutageToggle))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+
         when(mockCitizenDetailsService.personDetails(any())(any(), any()))
           .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
 
         val result = harness(personDetailsBlock)(refinedRequest)
         status(result) mustBe OK
         contentAsString(result) mustBe "Person Details: TestFirstName"
+
+        verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
       }
     }
 
     "when a user has no PersonDetails in CitizenDetails" must {
       "return the request it was passed" in {
+        when(mockFeatureFlagService.get(NpsOutageToggle))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+
         when(mockCitizenDetailsService.personDetails(any())(any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PersonDetails](
@@ -116,12 +133,30 @@ class GetPersonDetailsActionSpec extends BaseSpec {
         val result = harness(personDetailsBlock)(refinedRequest)
         status(result) mustBe OK
         contentAsString(result) mustBe "Person Details: No Person Details Defined"
+
+        verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
       }
 
     }
 
+    "when the NpsOutageToggle is set to true" must {
+      "return None" in {
+        when(mockFeatureFlagService.get(NpsOutageToggle))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, true)))
+
+        val result = harness(personDetailsBlock)(refinedRequest)
+        status(result) mustBe OK
+        contentAsString(result) mustBe "Person Details: No Person Details Defined"
+
+        verify(mockCitizenDetailsService, times(0)).personDetails(any())(any(), any())
+      }
+    }
+
     "when the person details message count toggle is set to true" must {
       "return a request with the unread message count" in {
+        when(mockFeatureFlagService.get(NpsOutageToggle))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+
         when(mockCitizenDetailsService.personDetails(any())(any(), any()))
           .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
 
@@ -130,11 +165,16 @@ class GetPersonDetailsActionSpec extends BaseSpec {
         val result = harness(unreadMessageCountBlock)(refinedRequest)
         status(result) mustBe OK
         contentAsString(result) mustBe "Person Details: 1"
+
+        verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
       }
     }
 
     "when the person details message count toggle is set to false" must {
       "return a request with the unread message count" in {
+        when(mockFeatureFlagService.get(NpsOutageToggle))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+
         when(mockCitizenDetailsService.personDetails(any())(any(), any()))
           .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
 
@@ -143,6 +183,8 @@ class GetPersonDetailsActionSpec extends BaseSpec {
         val result = harness(unreadMessageCountBlock)(refinedRequest)
         status(result) mustBe OK
         contentAsString(result) mustBe "Person Details: no message count present"
+
+        verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
       }
     }
   }

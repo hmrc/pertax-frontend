@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{AppleSaveAndViewNIToggle, ItsAdvertisementMessageToggle}
+import models.admin.{AppleSaveAndViewNIToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -32,7 +32,7 @@ import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
-import views.html.SelfAssessmentSummaryView
+import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 
@@ -53,6 +53,7 @@ class InterstitialController @Inject() (
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
+  npsShutteringView: NpsShutteringView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
@@ -186,6 +187,16 @@ class InterstitialController @Inject() (
       Ok(viewBreathingSpaceView(redirectUrl = currentUrl))
     } else {
       errorRenderer.error(UNAUTHORIZED)
+    }
+  }
+
+  def displayNpsShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>
+    featureFlagService.get(NpsShutteringToggle).flatMap { featureFlag =>
+      if (featureFlag.isEnabled) {
+        Future.successful(Ok(npsShutteringView()))
+      } else {
+        Future.successful(Redirect(routes.HomeController.index))
+      }
     }
   }
 

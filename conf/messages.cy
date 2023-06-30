@@ -174,6 +174,8 @@ label.return_to_your_account_home=Yn ôl i hafan eich cyfrif
 label.national_insurance_summary=Crynodeb Yswiriant Gwladol
 label.child_benefit=Budd-dal Plant
 label.report_changes_that_affect_your_child_benefit=Rhoi gwybod am newidiadau sy’n effeithio ar eich Budd-dal Plant
+label.guidance_for_when_your_child_turns_sixteen=Arweiniad ar gyfer pan fydd eich plentyn yn troi’n 16 oed
+label.extend_your_payment_while_your_child_stays_in_education=Ymestyn eich taliadau tra bo’ch plentyn yn aros mewn addysg
 label.tell_us_if_you_need_to=Rhowch wybod i ni os oes angen i chi:
 label.if_you_do_not_currently_claim_child_benefit=Os nad ydych yn gwneud cais am Fudd-dal Plant ar hyn o bryd
 label.any_updates_to_your_contact_details=Mae diweddariadau i’ch manylion cyswllt yn cymryd hyd at 2 ddiwrnod i ymddangos ar y safle hwn.
@@ -703,3 +705,22 @@ profile.message.mainAddressRls = Mae angen i chi ddiweddaru’ch prif gyfeiriad 
 profile.message.postalAddressRls = Mae angen i chi ddiweddaru’ch cyfeiriad post i gael post oddi wrth CThEM.
 
 label.return_to_your_profile_page = Dychwelyd i’ch proffil
+
+#*************************************************************
+# Nps Shuttering Page
+#*************************************************************
+npsshuttering.title = Y gwasanaethau na fyddant ar gael
+npsshuttering.cysp = Gwirioʼch Pensiwn y Wladwriaeth
+npsshuttering.taxRefund = Gwneud cais am ad-daliad treth
+npsshuttering.c2ni = Yswiriant Gwladol Dosbarth 2
+npsshuttering.cocar = Car cwmni
+npsshuttering.ee = Treuliau’r Cyflogai
+npsshuttering.hts = Cymorth i Gynilo
+npsshuttering.tamc = Lwfans Priodasol
+npsshuttering.medben = Buddiannau meddygol
+npsshuttering.paye = TWE – Gwasanaeth Gwirio’ch Treth Incwm
+npsshuttering.pla = Lwfans Oes Pensiwn
+npsshuttering.repayments = Ad-daliadau
+npsshuttering.taxcalc = Cyfrifiad Treth
+npsshuttering.fandf = Cynorthwywyr Dibynadwy
+npsshuttering.chb = Budd-dal Plant

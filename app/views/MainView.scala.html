@@ -81,7 +81,7 @@
 
 
 @beforeContent = {
-@if(!hideAccountMenu && request.personDetails.nonEmpty) { @accountMenu }
+@if(!hideAccountMenu) { @accountMenu }
 
 @if(showBackLink){
     <div class="govuk-grid-row">

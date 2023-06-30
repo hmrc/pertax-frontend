@@ -24,9 +24,11 @@ import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
 import services.AgentClientAuthorisationService
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildPersonDetailsEvent
 import viewmodels.PersonalDetailsViewModel
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PersonalDetailsView
 
@@ -42,11 +44,19 @@ class PersonalDetailsController @Inject() (
   agentClientAuthorisationService: AgentClientAuthorisationService,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  personalDetailsView: PersonalDetailsView
+  personalDetailsView: PersonalDetailsView,
+  featureFlagService: FeatureFlagService,
+  internalServerErrorView: InternalServerErrorView
 )(implicit
   configDecorator: ConfigDecorator,
   ec: ExecutionContext
-) extends AddressController(authJourney, cc, displayAddressInterstitialView) {
+) extends AddressController(
+      authJourney,
+      cc,
+      displayAddressInterstitialView,
+      featureFlagService,
+      internalServerErrorView
+    ) {
 
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>
     Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad, MOVED_PERMANENTLY))

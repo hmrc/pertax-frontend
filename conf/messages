@@ -243,6 +243,8 @@ label.back_to_account_home=Back to account home
 label.return_to_your_account_home=Return to your account home
 label.national_insurance_summary=National Insurance summary
 label.report_changes_that_affect_your_child_benefit=Report changes that affect your Child Benefit
+label.guidance_for_when_your_child_turns_sixteen=Guidance for when your child turns 16
+label.extend_your_payment_while_your_child_stays_in_education=Extend your payments while your child stays in education
 label.tell_us_if_you_need_to=Tell us if you need to:
 label.if_you_do_not_currently_claim_child_benefit=If you do not currently claim Child Benefit
 label.any_updates_to_your_contact_details=Any updates to your contact details take up to 2 days to appear on this site.
@@ -698,3 +700,21 @@ profile.message.postalAddressRls = You need to update your postal address to rec
 
 label.return_to_your_profile_page=Return to your profile
 
+#*************************************************************
+# Nps Shuttering Page
+#*************************************************************
+npsshuttering.title = Services unavailable
+npsshuttering.cysp = Check your State Pension
+npsshuttering.taxRefund = Claim a Tax Refund
+npsshuttering.c2ni = Class 2 National Insurance
+npsshuttering.cocar = Company Car
+npsshuttering.ee = Employee Expenses
+npsshuttering.hts = Help to Save
+npsshuttering.tamc = Marriage Allowance
+npsshuttering.medben = Medical Benefits
+npsshuttering.paye = PAYE Check Your Income Tax Service
+npsshuttering.pla = Pensions Lifetime Allowance
+npsshuttering.repayments = Repayments
+npsshuttering.taxcalc = Tax Calculation
+npsshuttering.fandf = Trusted Helpers
+npsshuttering.chb = Child Benefit

@@ -47,7 +47,13 @@ class TaxCreditsChoiceController @Inject() (
   taxCreditsChoiceView: TaxCreditsChoiceView,
   val sessionCache: LocalSessionCache
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView)
+    extends AddressController(
+      authJourney,
+      cc,
+      displayAddressInterstitialView,
+      featureFlagService,
+      internalServerErrorView
+    )
     with Logging {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>

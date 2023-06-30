@@ -25,7 +25,9 @@ import models.dto.DateDto
 import models.{Address, SubmittedStartDateId}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.play.language.LanguageUtils
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
 
@@ -38,9 +40,17 @@ class StartDateController @Inject() (
   languageUtils: LanguageUtils,
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressView: CannotUpdateAddressView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  featureFlagService: FeatureFlagService,
+  internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      cc,
+      displayAddressInterstitialView,
+      featureFlagService,
+      internalServerErrorView
+    ) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
