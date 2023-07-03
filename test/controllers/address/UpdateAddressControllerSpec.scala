@@ -42,7 +42,9 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         cc,
         injected[UpdateAddressView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        mockFeatureFlagService,
+        internalServerErrorView
       )
 
     def sessionCacheResponse: Option[CacheMap] =

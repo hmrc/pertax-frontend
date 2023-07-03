@@ -57,7 +57,9 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         errorRenderer,
         injected[UpdateAddressConfirmationView],
         injected[ReviewChangesView],
-        injected[DisplayAddressInterstitialView]
+        injected[DisplayAddressInterstitialView],
+        mockFeatureFlagService,
+        internalServerErrorView
       )(config, ec)
   }
 

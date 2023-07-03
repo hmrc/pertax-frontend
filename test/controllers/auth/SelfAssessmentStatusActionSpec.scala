@@ -133,6 +133,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
           val result = harness()(request)
           contentAsString(result) must include(s"${userType.toString}")
+          verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
         }
       }
     }

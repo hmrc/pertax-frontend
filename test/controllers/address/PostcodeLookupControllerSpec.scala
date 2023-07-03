@@ -48,7 +48,9 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         cc,
         injected[PostcodeLookupView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        mockFeatureFlagService,
+        internalServerErrorView
       )
 
     def sessionCacheResponse: Option[CacheMap] = None

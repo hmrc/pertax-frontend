@@ -24,6 +24,8 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedInternationalAddressChoiceId
 import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.admin.FeatureFlagService
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.InternationalAddressChoiceView
 
@@ -34,9 +36,17 @@ class DoYouLiveInTheUKController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   internationalAddressChoiceView: InternationalAddressChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  featureFlagService: FeatureFlagService,
+  internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      cc,
+      displayAddressInterstitialView,
+      featureFlagService,
+      internalServerErrorView
+    ) {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>

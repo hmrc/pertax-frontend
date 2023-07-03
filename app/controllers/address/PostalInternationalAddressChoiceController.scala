@@ -19,11 +19,13 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import controllers.bindable.{PostalAddrType}
+import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedInternationalAddressChoiceId
 import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.admin.FeatureFlagService
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PostalInternationalAddressChoiceView
 
@@ -34,9 +36,17 @@ class PostalDoYouLiveInTheUKController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   postalInternationalAddressChoiceView: PostalInternationalAddressChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  featureFlagService: FeatureFlagService,
+  internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      cc,
+      displayAddressInterstitialView,
+      featureFlagService,
+      internalServerErrorView
+    ) {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
