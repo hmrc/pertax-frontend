@@ -16,15 +16,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 class PostcodeLookupControllerISpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .configure(
-      "microservice.services.address-lookup.port"       -> server.port(),
-      "microservice.services.preferences-frontend.port" -> server.port(),
-      "feature.breathing-space-indicator.enabled"       -> true,
-      "feature.agent-client-authorisation.maxTps"       -> 100,
-      "feature.agent-client-authorisation.cache"        -> true,
-      "feature.agent-client-authorisation.enabled"      -> true,
-      "feature.agent-client-authorisation.timeoutInSec" -> 1
-    )
+    .configure("microservice.services.address-lookup.port" -> server.port(), "feature.address-lookup.timeoutInSec" -> 1)
     .build()
 
   val apiUrl = "/personal-account/your-address/postal/find-address"
@@ -168,7 +160,7 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
       server.stubFor(
         post(urlEqualTo(urlPost))
           .withRequestBody(equalToJson(wholeStreetRequestBody.toString))
-          .willReturn(ok(addressRecordSet).withFixedDelay(7000))
+          .willReturn(ok(addressRecordSet).withFixedDelay(2000))
       )
 
       val result = route(app, request)
