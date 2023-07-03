@@ -67,9 +67,13 @@ class NiLetterController @Inject() (
       implicit request =>
         if (configDecorator.saveNiLetterAsPdfLinkEnabled) {
           if (request.personDetails.isDefined) {
-            val saveNiLetterAsPDFCss = Source
-              .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL(true))
-              .mkString
+            val source               = Source
+              .fromURL(
+                controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL(secure = true)
+              )
+            val saveNiLetterAsPDFCss =
+              try source.mkString
+              finally source.close()
 
             val niLetter    =
               niLetterView(

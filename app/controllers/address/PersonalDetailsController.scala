@@ -19,7 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator, RlsInterruptHelper}
+import controllers.controllershelpers.{AddressJourneyCachingHelper, RlsInterruptHelper}
 import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
@@ -35,7 +35,6 @@ import views.html.personaldetails.PersonalDetailsView
 import scala.concurrent.{ExecutionContext, Future}
 
 class PersonalDetailsController @Inject() (
-  val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
   val personalDetailsViewModel: PersonalDetailsViewModel,
   val editAddressLockRepository: EditAddressLockRepository,
   authJourney: AuthJourney,
@@ -91,10 +90,9 @@ class PersonalDetailsController @Inject() (
                .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
         paperLessPreference <- personalDetailsViewModel.getPaperlessSettingsRow
+        personalDetails     <- personalDetailsViewModel.getPersonDetailsTable(request.nino)
 
       } yield {
-        val personalDetails      = personalDetailsViewModel
-          .getPersonDetailsTable(request.nino)
         val addressDetails       = personalDetailsViewModel.getAddressRow(addressModel)
         val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow
         val paperlessHelpers     = paperLessPreference

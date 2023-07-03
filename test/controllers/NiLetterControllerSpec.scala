@@ -36,11 +36,11 @@ import scala.concurrent.Future
 
 class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
-  val mockPdfGeneratorConnector       = mock[PdfGeneratorConnector]
-  val mockAuthJourney                 = mock[AuthJourney]
-  val mockInterstitialController      = mock[InterstitialController]
-  val mockHomeController              = mock[HomeController]
-  val mockRlsConfirmAddressController = mock[RlsController]
+  val mockPdfGeneratorConnector: PdfGeneratorConnector   = mock[PdfGeneratorConnector]
+  val mockAuthJourney: AuthJourney                       = mock[AuthJourney]
+  val mockInterstitialController: InterstitialController = mock[InterstitialController]
+  val mockHomeController: HomeController                 = mock[HomeController]
+  val mockRlsConfirmAddressController: RlsController     = mock[RlsController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
