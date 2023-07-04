@@ -44,6 +44,7 @@ import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class InterstitialControllerSpec extends BaseSpec {
@@ -366,7 +367,17 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(
+        List[NewsAndContentModel](
+          NewsAndContentModel(
+            "nicSection",
+            "1.25 percentage points uplift in National Insurance contributions (base64 encoded)",
+            "<p id=\"paragraph\">base64 encoded content with html</p>",
+            false,
+            LocalDate.now
+          )
+        )
+      )
 
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure   = false
@@ -378,6 +389,28 @@ class InterstitialControllerSpec extends BaseSpec {
       status(result) mustBe OK
 
       contentAsString(result) must include("News and Updates")
+    }
+
+    "redirect to home when toggled on but no news items" in new LocalSetup {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure   = false
+
+      val testController: InterstitialController = controller
+
+      val result: Future[Result] = testController.displayNewsAndUpdates("nicSection")(fakeRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(controllers.routes.HomeController.index.url)
+
     }
 
     "return UNAUTHORIZED when toggled off" in {
