@@ -29,9 +29,9 @@ import java.time.LocalDate
 
 @Singleton
 class ConfigDecorator @Inject() (
-                                  runModeConfiguration: Configuration,
-                                  servicesConfig: ServicesConfig
-                                ) extends TaxcalcUrls {
+  runModeConfiguration: Configuration,
+  servicesConfig: ServicesConfig
+) extends TaxcalcUrls {
 
   lazy val authProviderChoice: String = runModeConfiguration.get[String](s"external-url.auth-provider-choice.host")
 
@@ -73,7 +73,7 @@ class ConfigDecorator @Inject() (
   lazy val preferencesFrontendService: String              = getExternalUrl(s"preferences-frontend").getOrElse("")
   private lazy val contactHost: String                     = getExternalUrl(s"contact-frontend.host").getOrElse("")
   lazy val taiHost: String                                 = getExternalUrl(s"tai-frontend.host").getOrElse("")
-  private lazy val saveYourNationalInsuranceNumberHost =
+  private lazy val saveYourNationalInsuranceNumberHost     =
     getExternalUrl(s"save-your-national-insurance-number.host").getOrElse("")
 
   private lazy val identityVerificationHost: String           = getExternalUrl(s"identity-verification.host").getOrElse("")
@@ -131,7 +131,7 @@ class ConfigDecorator @Inject() (
     s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (
       if (lang.code equals "en") { "eng" }
       else { "cym" }
-      )
+    )
   lazy val ssoToActivateSaEnrolmentPinUrl                                          =
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
   lazy val ssoToRegisterForSaEnrolment: String                                     = transformUrlForSso(toPortalUrl("/home/services/enroll"))
@@ -142,7 +142,7 @@ class ConfigDecorator @Inject() (
     s"/self-assessment/ind/$saUtr/account/payments?lang=" + (
       if (lang.code equals "en") { "eng" }
       else { "cym" }
-      )
+    )
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String): String =
     s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
@@ -322,7 +322,7 @@ class ConfigDecorator @Inject() (
     servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
   lazy val preferenceFrontendTimeoutInSec: Int  =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
-  lazy val ptaNinoSaveUrl: String              = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
+  lazy val ptaNinoSaveUrl: String               = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
   lazy val guidanceForWhenYourChildTurnsSixteen = "https://www.gov.uk/child-benefit-16-19"
 
   lazy val guidanceForWhenYourChildTurnsSixteenWelsh = "https://www.gov.uk/budd-dal-plant-16-19"
