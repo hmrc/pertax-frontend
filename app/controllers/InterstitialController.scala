@@ -54,6 +54,7 @@ class InterstitialController @Inject() (
   viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
   npsShutteringView: NpsShutteringView,
+  taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
@@ -192,6 +193,10 @@ class InterstitialController @Inject() (
     } else {
       errorRenderer.error(UNAUTHORIZED)
     }
+  }
+
+  def displayTaxCreditsInterstitial: Action[AnyContent] = authenticate { implicit request =>
+    Ok(taxCreditsAddressInterstitialView())
   }
 
   def displayNpsShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>

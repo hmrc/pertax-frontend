@@ -67,7 +67,7 @@ class TaxCreditsChoiceController @Inject() (
               .fold(InternalServerError(internalServerErrorView())) {
                 case true  =>
                   cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
-                  Redirect(configDecorator.tcsChangeAddressUrl)
+                  Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
                 case false =>
                   cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
                   Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
@@ -108,7 +108,7 @@ class TaxCreditsChoiceController @Inject() (
                           case _    =>
                             logger.error(s"Could not insert address lock for user $request.nino.get.withoutSuffix")
                         }
-                      Redirect(configDecorator.tcsChangeAddressUrl)
+                      Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
                     } else {
                       Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
                     }
