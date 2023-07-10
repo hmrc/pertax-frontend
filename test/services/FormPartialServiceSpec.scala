@@ -18,14 +18,15 @@ package services
 
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
-import models.admin.{FeatureFlag, NpsOutageToggle}
+import models.admin.NpsOutageToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.twirl.api.Html
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.partials.FormPartialService
 import testUtils.BaseSpec
 import testUtils.Fixtures._
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.partials.HtmlPartial
 
 import scala.concurrent.Future

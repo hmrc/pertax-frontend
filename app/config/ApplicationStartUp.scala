@@ -14,14 +14,27 @@
  * limitations under the License.
  */
 
-package models
+package config
 
-import models.admin.FeatureFlagName
-import play.api.libs.json.JsString
-import testUtils.BaseSpec
+import models.admin._
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagNamesLibrary
 
-class FeatureFlagNameSpec extends BaseSpec {
-  FeatureFlagName.allFeatureFlags.foreach { toggle: FeatureFlagName =>
-    JsString(toggle.toString).as[FeatureFlagName] mustBe toggle
-  }
+class ApplicationStartUp {
+  FeatureFlagNamesLibrary.addFlags(
+    List(
+      AddressTaxCreditsBrokerCallToggle,
+      TaxcalcToggle,
+      NationalInsuranceTileToggle,
+      ItsAdvertisementMessageToggle,
+      TaxComponentsToggle,
+      RlsInterruptToggle,
+      PaperlessInterruptToggle,
+      TaxSummariesTileToggle,
+      SingleAccountCheckToggle,
+      TaxcalcMakePaymentLinkToggle,
+      NpsShutteringToggle,
+      AppleSaveAndViewNIToggle,
+      NpsOutageToggle
+    )
+  )
 }

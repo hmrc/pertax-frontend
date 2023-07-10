@@ -18,12 +18,13 @@ package controllers.address
 
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import models.admin.{FeatureFlag, NpsOutageToggle}
+import models.admin.NpsOutageToggle
 import play.api.mvc.Request
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
 

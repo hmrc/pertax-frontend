@@ -22,7 +22,8 @@ object AppDependencies {
     "org.jsoup"          % "jsoup"                            % "1.15.4",
     "org.typelevel"     %% "cats-core"                        % "2.9.0",
     "uk.gov.hmrc"       %% s"internal-auth-client-$playVersion" % "1.4.0",
-    "org.apache.commons" % "commons-text"               % "1.10.0",
+    "org.apache.commons" % "commons-text"                     % "1.10.0",
+    "uk.gov.hmrc"       %% "mongo-feature-toggles-client"     % "0.2.0",
     ehcache
   )
 

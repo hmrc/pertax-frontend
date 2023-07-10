@@ -18,7 +18,7 @@ package controllers.address
 
 import controllers.controllershelpers.RlsInterruptHelper
 import models.PersonDetails
-import models.admin.{FeatureFlag, RlsInterruptToggle}
+import models.admin.RlsInterruptToggle
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => meq}
@@ -28,8 +28,9 @@ import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import repositories.EditAddressLockRepository
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import viewmodels.PersonalDetailsViewModel
 import views.html.personaldetails.PersonalDetailsView
 

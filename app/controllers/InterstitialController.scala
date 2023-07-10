@@ -27,7 +27,7 @@ import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
 import services.SeissService
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._

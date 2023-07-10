@@ -25,7 +25,7 @@ import models.dto.DateDto
 import models.{Address, SubmittedStartDateId}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.language.LanguageUtils
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView

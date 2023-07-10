@@ -10,7 +10,7 @@ import play.api.http.Status._
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.{SessionId, SessionKeys}
 

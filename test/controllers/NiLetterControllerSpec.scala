@@ -20,7 +20,7 @@ import connectors.PdfGeneratorConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
-import models.admin.{AppleSaveAndViewNIToggle, FeatureFlag}
+import models.admin.AppleSaveAndViewNIToggle
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import play.api.Application
@@ -28,11 +28,12 @@ import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.print._
 
 import scala.concurrent.Future
