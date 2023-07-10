@@ -21,6 +21,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% s"internal-auth-client-$playVersion" % "1.4.0",
     "org.apache.commons" % "commons-text"               % "1.10.0",
     "uk.gov.hmrc"           %% "sca-wrapper"                      % "1.0.41",
+    "uk.gov.hmrc"       %% "mongo-feature-toggles-client"     % "0.2.0",
     ehcache
   )
 

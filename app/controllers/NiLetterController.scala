@@ -24,7 +24,7 @@ import error.ErrorRenderer
 import models.admin.AppleSaveAndViewNIToggle
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.http.BadRequestException
 import views.html.print._
 
