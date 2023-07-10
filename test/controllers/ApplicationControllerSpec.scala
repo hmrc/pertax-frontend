@@ -91,7 +91,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     def controller: ApplicationController =
       new ApplicationController(
         mockIdentityVerificationFrontendService,
-        mockAuthJourney,
         injected[MessagesControllerComponents],
         injected[SuccessView],
         injected[CannotConfirmIdentityView],

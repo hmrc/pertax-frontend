@@ -131,11 +131,14 @@ object SaDeadlineStatusCalculator {
   def getSaDeadlineStatus(dueDate: LocalDate)(implicit configDecorator: ConfigDecorator): Option[SaDeadlineStatus] = {
 
     val now                       = configDecorator.currentLocalDate
+    val validateMonth             = 12
+    val validateDay               = 14
+    val subtractDays              = 31
     val dueDateEquals31stJanuary  = dueDate.getMonthValue == 1 && dueDate.getDayOfMonth == 31
     val dueDatePassed             = now.isAfter(dueDate)
     val datePassed14thDec         =
-      now.isAfter(LocalDate.of(taxYearFor(configDecorator.currentLocalDate).currentYear, 12, 14))
-    val dateWithin30DaysOfDueDate = now.isAfter(dueDate.minusDays(31))
+      now.isAfter(LocalDate.of(taxYearFor(now).currentYear, validateMonth, validateDay))
+    val dateWithin30DaysOfDueDate = now.isAfter(dueDate.minusDays(subtractDays))
 
     (dueDateEquals31stJanuary, dueDatePassed, datePassed14thDec, dateWithin30DaysOfDueDate) match {
       case (true, false, true, _) => Some(SaDeadlineApproachingStatus)

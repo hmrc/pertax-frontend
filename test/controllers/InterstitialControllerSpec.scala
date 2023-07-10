@@ -21,13 +21,13 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{FeatureFlag, ItsAdvertisementMessageToggle}
+import models.admin.{FeatureFlag, ItsAdvertisementMessageToggle, NpsShutteringToggle}
 import org.mockito.ArgumentMatchers.any
-import play.api.i18n.{Langs, Messages}
+import play.api.{Application, Configuration}
+import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import services._
 import services.admin.FeatureFlagService
@@ -40,10 +40,11 @@ import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util._
-import views.html.SelfAssessmentSummaryView
+import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class InterstitialControllerSpec extends BaseSpec {
@@ -76,6 +77,8 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewNewsAndUpdatesView],
         injected[ViewSaAndItsaMergePageView],
         injected[ViewBreathingSpaceView],
+        injected[NpsShutteringView],
+        injected[TaxCreditsAddressInterstitialView],
         injected[EnrolmentsHelper],
         injected[SeissService],
         mockNewsAndTileConfig,
@@ -140,7 +143,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       )
 
@@ -161,6 +163,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -193,7 +197,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       )
 
@@ -214,6 +217,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -365,7 +370,17 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(
+        List[NewsAndContentModel](
+          NewsAndContentModel(
+            "nicSection",
+            "1.25 percentage points uplift in National Insurance contributions (base64 encoded)",
+            "<p id=\"paragraph\">base64 encoded content with html</p>",
+            false,
+            LocalDate.now
+          )
+        )
+      )
 
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure   = false
@@ -379,10 +394,31 @@ class InterstitialControllerSpec extends BaseSpec {
       contentAsString(result) must include("News and Updates")
     }
 
+    "redirect to home when toggled on but no news items" in new LocalSetup {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure   = false
+
+      val testController: InterstitialController = controller
+
+      val result: Future[Result] = testController.displayNewsAndUpdates("nicSection")(fakeRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(controllers.routes.HomeController.index.url)
+
+    }
+
     "return UNAUTHORIZED when toggled off" in {
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       ) {
         override lazy val isNewsAndUpdatesTileEnabled: Boolean = false
@@ -407,6 +443,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -467,7 +505,6 @@ class InterstitialControllerSpec extends BaseSpec {
     "return UNAUTHORIZED when toggled off" in {
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       ) {
         override lazy val isBreathingSpaceIndicatorEnabled: Boolean = false
@@ -493,6 +530,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mockNewsAndTileConfig,
@@ -536,7 +575,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       )
 
@@ -557,6 +595,8 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
           mock[NewsAndTilesConfig],
@@ -580,6 +620,174 @@ class InterstitialControllerSpec extends BaseSpec {
 
       status(result) mustBe OK
       contentAsString(result) must include("Your Self Assessment")
+    }
+  }
+
+  "Calling displayNpsShutteringPage" must {
+
+    "return OK when NpsShutteringToggle is true" in {
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[ServicesConfig]
+      )
+
+      val mockFeatureFlagService = mock[FeatureFlagService]
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService
+        )(stubConfigDecorator, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+              request = request
+            )
+          )
+      })
+
+      when(mockFeatureFlagService.get(NpsShutteringToggle))
+        .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = true)))
+
+      val result = controller.displayNpsShutteringPage()(fakeRequest)
+
+      status(result) mustBe OK
+      contentAsString(result) must include(
+        "The following services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
+      )
+    }
+
+    "return redirect back to the home page when NpsShutteringToggle is false" in {
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[ServicesConfig]
+      )
+
+      val mockFeatureFlagService = mock[FeatureFlagService]
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService
+        )(stubConfigDecorator, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+              request = request
+            )
+          )
+      })
+
+      when(mockFeatureFlagService.get(NpsShutteringToggle))
+        .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = false)))
+
+      val result = controller.displayNpsShutteringPage()(fakeRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.HomeController.index.url)
+    }
+  }
+
+  "Calling displayTaxCreditsInterstitial" must {
+    "return OK with correct view" in {
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[ServicesConfig]
+      )
+
+      val mockFeatureFlagService = mock[FeatureFlagService]
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService
+        )(stubConfigDecorator, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+              request = request
+            )
+          )
+      })
+
+      val result = controller.displayTaxCreditsInterstitial()(fakeRequest)
+
+      status(result) mustBe OK
+      contentAsString(result) must include(
+        "Because you receive tax credits, you will need to change your claim in the Tax Credits Service."
+      )
     }
   }
 }

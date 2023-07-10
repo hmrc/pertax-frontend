@@ -36,7 +36,9 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         cc,
         injected[PostalInternationalAddressChoiceView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        mockFeatureFlagService,
+        internalServerErrorView
       )
 
     def sessionCacheResponse: Option[CacheMap] =
@@ -107,7 +109,9 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
           mockAuthJourney,
           cc,
           injected[PostalInternationalAddressChoiceView],
-          displayAddressInterstitialView
+          displayAddressInterstitialView,
+          mockFeatureFlagService,
+          internalServerErrorView
         )(mockConfigDecorator, ec)
 
       override def currentRequest[A]: Request[A] =

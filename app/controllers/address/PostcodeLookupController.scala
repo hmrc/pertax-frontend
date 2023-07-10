@@ -18,7 +18,7 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.{AddressLookupConnector}
+import connectors.AddressLookupConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType}
@@ -29,9 +29,11 @@ import models.{AddressFinderDtoId, SelectedAddressRecordId, SelectedRecordSetId,
 import play.api.Logging
 import play.api.data.FormError
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.{buildAddressChangeEvent, buildEvent}
 import util.PertaxSessionKeys.{filter, postcode}
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PostcodeLookupView
 
@@ -44,15 +46,23 @@ class PostcodeLookupController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   postcodeLookupView: PostcodeLookupView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  featureFlagService: FeatureFlagService,
+  internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView)
+    extends AddressController(
+      authJourney,
+      cc,
+      displayAddressInterstitialView,
+      featureFlagService,
+      internalServerErrorView
+    )
     with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
-        cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
+        cachingHelper.gettingCachedJourneyData(typ) { _ =>
           cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, InternationalAddressChoiceDto(true))
           typ match {
             case PostalAddrType =>
@@ -79,8 +89,9 @@ class PostcodeLookupController @Inject() (
             formWithErrors => Future.successful(BadRequest(postcodeLookupView(formWithErrors, typ))),
             addressFinderDto => {
 
-              if (addressFinderDto.postcode.isEmpty)
+              if (addressFinderDto.postcode.isEmpty) {
                 logger.warn("post code is empty for processPostCodeLookupForm")
+              }
 
               for {
                 _          <- cachingHelper.addToCache(AddressFinderDtoId(typ), addressFinderDto)

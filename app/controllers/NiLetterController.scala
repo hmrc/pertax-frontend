@@ -21,8 +21,10 @@ import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
+import models.admin.AppleSaveAndViewNIToggle
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.http.BadRequestException
 import views.html.print._
 
@@ -35,6 +37,7 @@ class NiLetterController @Inject() (
   val pdfGeneratorConnector: PdfGeneratorConnector,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
+  featureFlagService: FeatureFlagService,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   printNiNumberView: PrintNationalInsuranceNumberView,
@@ -46,61 +49,79 @@ class NiLetterController @Inject() (
   def printNationalInsuranceNumber: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
-        if (request.personDetails.isDefined) {
-          Future.successful(
-            Ok(
-              printNiNumberView(
-                request.personDetails.get,
-                LocalDate.now.format(DateTimeFormatter.ofPattern("MM/YY")),
-                configDecorator.saveNiLetterAsPdfLinkEnabled,
-                request.nino
+        featureFlagService.get(AppleSaveAndViewNIToggle).flatMap { toggle =>
+          if (toggle.isEnabled) {
+            Future.successful(MovedPermanently(configDecorator.ptaNinoSaveUrl))
+          } else {
+            if (request.personDetails.isDefined) {
+              Future.successful(
+                Ok(
+                  printNiNumberView(
+                    request.personDetails.get,
+                    LocalDate.now.format(DateTimeFormatter.ofPattern("MM/YY")),
+                    configDecorator.saveNiLetterAsPdfLinkEnabled,
+                    request.nino
+                  )
+                )
               )
-            )
-          )
-        } else {
-          errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+            } else {
+              errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+            }
+          }
         }
     }
 
   def saveNationalInsuranceNumberAsPdf: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
-        if (configDecorator.saveNiLetterAsPdfLinkEnabled) {
-          if (request.personDetails.isDefined) {
-            val saveNiLetterAsPDFCss = Source
-              .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL(true))
-              .mkString
-
-            val niLetter    =
-              niLetterView(
-                request.personDetails.get,
-                LocalDate.now.format(DateTimeFormatter.ofPattern("MM/YY")),
-                request.nino
-              ).toString()
-            val htmlPayload = pdfWrapperView()
-              .toString()
-              .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss")
-              .replace("<!-- niLetterPlaceHolder -->", niLetter)
-              .filter(_ >= ' ')
-              .trim
-              .replaceAll("  +", "")
-
-            pdfGeneratorConnector.generatePdf(htmlPayload).map {
-              case response if response.status == OK =>
-                Ok(response.bodyAsBytes.toArray)
-                  .as("application/pdf")
-                  .withHeaders(
-                    "Content-Disposition" -> s"attachment; filename=${Messages("label.your_national_insurance_letter")
-                      .replaceAll(" ", "-")}.pdf"
-                  )
-              case response                          =>
-                throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
-            }
+        featureFlagService.get(AppleSaveAndViewNIToggle).flatMap { toggle =>
+          if (toggle.isEnabled) {
+            Future.successful(MovedPermanently(configDecorator.ptaNinoSaveUrl))
           } else {
-            errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+            if (configDecorator.saveNiLetterAsPdfLinkEnabled) {
+              if (request.personDetails.isDefined) {
+                val source               = Source
+                  .fromURL(
+                    controllers.routes.AssetsController
+                      .versioned("css/saveNiLetterAsPDF.css")
+                      .absoluteURL(secure = true)
+                  )
+                val saveNiLetterAsPDFCss =
+                  try source.mkString
+                  finally source.close()
+
+                val niLetter    =
+                  niLetterView(
+                    request.personDetails.get,
+                    LocalDate.now.format(DateTimeFormatter.ofPattern("MM/YY")),
+                    request.nino
+                  ).toString()
+                val htmlPayload = pdfWrapperView()
+                  .toString()
+                  .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss")
+                  .replace("<!-- niLetterPlaceHolder -->", niLetter)
+                  .filter(_ >= ' ')
+                  .trim
+                  .replaceAll("  +", "")
+
+                pdfGeneratorConnector.generatePdf(htmlPayload).map {
+                  case response if response.status == OK =>
+                    Ok(response.bodyAsBytes.toArray)
+                      .as("application/pdf")
+                      .withHeaders(
+                        "Content-Disposition" -> s"attachment; filename=${Messages("label.your_national_insurance_letter")
+                          .replaceAll(" ", "-")}.pdf"
+                      )
+                  case response                          =>
+                    throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
+                }
+              } else {
+                errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+              }
+            } else {
+              errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+            }
           }
-        } else {
-          errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }
     }
 }

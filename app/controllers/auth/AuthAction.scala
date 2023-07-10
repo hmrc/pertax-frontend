@@ -50,18 +50,18 @@ class AuthActionImpl @Inject() (
     with AuthAction
     with AuthorisedFunctions {
 
-  def addRedirect(profileUrl: Option[String]): Option[String] =
+  private def addRedirect(profileUrl: Option[String]): Option[String] =
     for {
       url <- profileUrl
       res <- Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
     } yield res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
 
-  object LT200 {
+  private object LT200 {
     def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
       if (confLevel.level < ConfidenceLevel.L200.level) Some(confLevel) else None
   }
 
-  object GTOE200 {
+  private object GTOE200 {
     def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
       if (confLevel.level >= ConfidenceLevel.L200.level) Some(confLevel) else None
   }
@@ -150,14 +150,17 @@ class AuthActionImpl @Inject() (
           featureFlagService.get(SingleAccountCheckToggle).flatMap { toggle =>
             (toggle.isEnabled, businessHours.isTrue(LocalDateTime.now())) match {
               case (true, true) =>
-                implicit val request = authenticatedRequest
+                implicit val request: AuthenticatedRequest[A] = authenticatedRequest
                 enrolmentsHelper
                   .singleAccountEnrolmentPresent(enrolments, domain.Nino(nino))
                   .fold(
                     left => Future.successful(left),
                     status =>
-                      if (status) updatedResult
-                      else Future.successful(Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri)))
+                      if (status) {
+                        updatedResult
+                      } else {
+                        Future.successful(Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri)))
+                      }
                   )
               case _            => updatedResult
             }

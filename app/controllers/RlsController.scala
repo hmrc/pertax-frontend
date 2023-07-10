@@ -58,11 +58,17 @@ class RlsController @Inject() (
     editAddressLockRepository.getAddressesLock(request.nino.map(_.withoutSuffix).getOrElse("Nino")).flatMap {
       case AddressesLock(residentialLock, postalLock) =>
         val residentialDetail =
-          if (residentialLock) "residentialAddressUpdated" -> Some("true")
-          else "residentialRLS"                            -> Some(mainAddress.exists(_.isRls).toString)
+          if (residentialLock) {
+            "residentialAddressUpdated" -> Some("true")
+          } else {
+            "residentialRLS" -> Some(mainAddress.exists(_.isRls).toString)
+          }
         val postalDetail      =
-          if (postalLock) "postalAddressUpdated" -> Some("true")
-          else "postalRLS"                       -> Some(postalAddress.exists(_.isRls).toString)
+          if (postalLock) {
+            "postalAddressUpdated" -> Some("true")
+          } else {
+            "postalRLS" -> Some(postalAddress.exists(_.isRls).toString)
+          }
 
         auditConnector.sendEvent(
           buildEvent(
@@ -88,18 +94,20 @@ class RlsController @Inject() (
               .map { personDetails =>
                 val mainAddress   =
                   personDetails.address.map { address =>
-                    if (address.isRls && !residentialLock)
+                    if (address.isRls && !residentialLock) {
                       address
-                    else
+                    } else {
                       address.copy(isRls = false)
+                    }
                   }
                 val postalAddress =
                   personDetails.correspondenceAddress
                     .map { address =>
-                      if (address.isRls && !postalLock)
+                      if (address.isRls && !postalLock) {
                         address
-                      else
+                      } else {
                         address.copy(isRls = false)
+                      }
                     }
                 if (mainAddress.exists(_.isRls) || postalAddress.exists(_.isRls)) {
                   auditRls(mainAddress, postalAddress)

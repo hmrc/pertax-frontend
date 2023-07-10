@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.ItsAdvertisementMessageToggle
+import models.admin.{AppleSaveAndViewNIToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -32,7 +32,7 @@ import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
-import views.html.SelfAssessmentSummaryView
+import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 
@@ -53,6 +53,8 @@ class InterstitialController @Inject() (
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
+  npsShutteringView: NpsShutteringView,
+  taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
@@ -72,20 +74,22 @@ class InterstitialController @Inject() (
       .addBreadcrumb(saBreadcrumb)
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
-    formPartialService.getNationalInsurancePartial.map { p =>
-      Ok(
-        viewNationalInsuranceInterstitialHomeView(
-          formPartial = if (configDecorator.partialUpgradeEnabled) {
-            //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
-            FormPartialUpgrade.upgrade(p successfulContentOrEmpty)
-          } else {
-            p successfulContentOrEmpty
-          },
-          redirectUrl = currentUrl,
-          request.nino
-        )
+    for {
+      nationalInsurancePartial <- formPartialService.getNationalInsurancePartial
+      appleSaveAndViewNIToggle <- featureFlagService.get(AppleSaveAndViewNIToggle)
+    } yield Ok(
+      viewNationalInsuranceInterstitialHomeView(
+        formPartial = if (configDecorator.partialUpgradeEnabled) {
+          //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
+          FormPartialUpgrade.upgrade(nationalInsurancePartial successfulContentOrEmpty)
+        } else {
+          nationalInsurancePartial successfulContentOrEmpty
+        },
+        redirectUrl = currentUrl,
+        request.nino,
+        appleSaveAndViewNIToggle.isEnabled
       )
-    }
+    )
   }
 
   private def currentUrl(implicit request: Request[AnyContent]) =
@@ -172,8 +176,12 @@ class InterstitialController @Inject() (
   def displayNewsAndUpdates(newsSectionId: String): Action[AnyContent] = authenticate { implicit request =>
     if (configDecorator.isNewsAndUpdatesTileEnabled) {
       val models = newsAndTilesConfig.getNewsAndContentModelList()
-      //service to get the dynamic content send the models and get the details from the dynamic list
-      Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, models, newsSectionId))
+      if (models.nonEmpty) {
+        //service to get the dynamic content send the models and get the details from the dynamic list
+        Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, models, newsSectionId))
+      } else {
+        Redirect(routes.HomeController.index)
+      }
     } else {
       errorRenderer.error(UNAUTHORIZED)
     }
@@ -184,6 +192,20 @@ class InterstitialController @Inject() (
       Ok(viewBreathingSpaceView(redirectUrl = currentUrl))
     } else {
       errorRenderer.error(UNAUTHORIZED)
+    }
+  }
+
+  def displayTaxCreditsInterstitial: Action[AnyContent] = authenticate { implicit request =>
+    Ok(taxCreditsAddressInterstitialView())
+  }
+
+  def displayNpsShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>
+    featureFlagService.get(NpsShutteringToggle).flatMap { featureFlag =>
+      if (featureFlag.isEnabled) {
+        Future.successful(Ok(npsShutteringView()))
+      } else {
+        Future.successful(Redirect(routes.HomeController.index))
+      }
     }
   }
 

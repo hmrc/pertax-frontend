@@ -19,7 +19,7 @@ package models.dto
 import models.DateTuple._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
@@ -29,15 +29,23 @@ case class DateDto(
 
 object DateDto {
 
-  implicit val formats = Json.format[DateDto]
+  implicit val formats: OFormat[DateDto] = Json.format[DateDto]
 
-  def build(day: Int, month: Int, year: Int) = DateDto(LocalDate.of(year, month, day))
+  def build(day: Int, month: Int, year: Int): DateDto = DateDto(LocalDate.of(year, month, day))
 
-  def form(today: LocalDate) = Form(
-    mapping(
-      "startDate" -> mandatoryDateTuple("error.enter_a_date")
-        .verifying("error.date_in_future", !_.isAfter(today))
-        .verifying("error.enter_valid_date", !_.isBefore(LocalDate.of(1000, 1, 1)))
-    )(DateDto.apply)(DateDto.unapply)
-  )
+  def form(today: LocalDate): Form[DateDto] = {
+    val yearValidation  = 1000
+    val monthValidation = 1
+    val dayValidation   = 1
+    Form(
+      mapping(
+        "startDate" -> mandatoryDateTuple("error.enter_a_date")
+          .verifying("error.date_in_future", !_.isAfter(today))
+          .verifying(
+            "error.enter_valid_date",
+            !_.isBefore(LocalDate.of(yearValidation, monthValidation, dayValidation))
+          )
+      )(DateDto.apply)(DateDto.unapply)
+    )
+  }
 }

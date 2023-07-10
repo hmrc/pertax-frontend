@@ -48,7 +48,10 @@ label.you_can_see_a_record_of_your_annual_contributions_=You can see a record of
 label.view_and_save_your_national_insurance_number=View and save your National Insurance number
 label.a_new_employer_will_ask_for_your_national_insurance_number_and_you_may_=A new employer will ask for your National Insurance number and you may also need it at other times, such as applying for a student loan or for certain benefits.
 label.so_that_you_have_your_number_when_you_need_it_=So that you have your number when you need it, you can view and get a copy of your National Insurance number confirmation letter.
-
+label.so_that_you_have_your_number_when_you_need_it_you_can=So that you have your number when you need it, you can:
+label.view_and_get_a_copy_for_your_national_insurance_number_confirmation_letter=view and get a copy of your National Insurance number confirmation letter
+label.save_your_number_to_the_wallet_app_on_your_apple_phone=save your number to the Wallet app on your Apple iPhone
+label.you_will_need_your_ni_number_for_employment_applying_for_student_loan_and_claim_benefits=You will need your National Insurance number for employment, applying for a student loan and to claim certain benefits.
 label.hm_revenue_and_customs=HM Revenue and Customs
 label.keep_this_number_in_a_safe_place_do_not_destroy_this_letter=Keep this number in a safe place. Do not destroy this letter.
 label.about_your_national_insurance_number=About your National Insurance number
@@ -240,6 +243,8 @@ label.back_to_account_home=Back to account home
 label.return_to_your_account_home=Return to your account home
 label.national_insurance_summary=National Insurance summary
 label.report_changes_that_affect_your_child_benefit=Report changes that affect your Child Benefit
+label.guidance_for_when_your_child_turns_sixteen=Guidance for when your child turns 16
+label.extend_your_payment_while_your_child_stays_in_education=Extend your payments while your child stays in education
 label.tell_us_if_you_need_to=Tell us if you need to:
 label.if_you_do_not_currently_claim_child_benefit=If you do not currently claim Child Benefit
 label.any_updates_to_your_contact_details=Any updates to your contact details take up to 2 days to appear on this site.
@@ -469,6 +474,7 @@ body.seiss=View your SEISS grants
 # News
 #
 label.latest_news_and_updates=Latest news and updates
+label.other_news_and_updates=Other news and updates
 label.news_and_updates=News and Updates
 label.percentage_points_uplift_in_NIC=1.25 percentage points uplift in National Insurance contributions
 label.national_insurance_contributions_will_increase_by_1.25_percentage_points=From 6 April 2022 to 5 April 2023 National Insurance contributions will increase by 1.25 percentage points. This will be spent on the NHS, health and social care in the UK.
@@ -529,12 +535,14 @@ label.child_benefit=Child Benefit
 label.a_payment_to_help_with_the_cost_of_bringing_up_children=A payment to help with the cost of bringing up children.
 label.make_or_manage_a_child_benefit_claim=Make or manage a Child Benefit claim
 label.make_a_claim=Make a claim
+label.making_a_claim=Making a claim
 label.claim_child_benefit=Claim Child Benefit
 label.manage_a_claim=Manage a claim
 label.view_your_child_benefit_payment_history=View your Child Benefit payment history
 label.view_your_proof_of_entitlement_to_child_benefit=View your proof of entitlement to Child Benefit
 label.high_income_child_benefit_charge=High Income Child Benefit Charge
 label.change_your_bank_details=Change your bank details
+label.check_if_you_can_claim=Check if you can claim
 
 #
 # Pensions
@@ -693,3 +701,29 @@ profile.message.postalAddressRls = You need to update your postal address to rec
 
 label.return_to_your_profile_page=Return to your profile
 
+#*************************************************************
+# Nps Shuttering Page
+#*************************************************************
+npsshuttering.title = Services unavailable
+npsshuttering.cysp = Check your State Pension
+npsshuttering.taxRefund = Claim a Tax Refund
+npsshuttering.c2ni = Class 2 National Insurance
+npsshuttering.cocar = Company Car
+npsshuttering.ee = Employee Expenses
+npsshuttering.hts = Help to Save
+npsshuttering.tamc = Marriage Allowance
+npsshuttering.medben = Medical Benefits
+npsshuttering.paye = PAYE Check Your Income Tax Service
+npsshuttering.pla = Pensions Lifetime Allowance
+npsshuttering.repayments = Repayments
+npsshuttering.taxcalc = Tax Calculation
+npsshuttering.fandf = Trusted Helpers
+npsshuttering.chb = Child Benefit
+
+#*************************************************************
+# Tax Credits CoA Interstitial Page
+#*************************************************************
+tax_credits.interstitial.title = Change of address
+tax_credits.interstitial.p1 = Because you receive tax credits, you will need to change your claim in the Tax Credits Service.
+tax_credits.interstitial.p2 = It usually takes up to 48 hours for your change of address to be updated in your personal tax account. There are times when it may take up to 2 weeks.
+tax_credits.interstitial.link_text = Continue to the Tax Credits Service

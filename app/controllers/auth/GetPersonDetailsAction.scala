@@ -21,11 +21,13 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
+import models.admin.{FeatureFlag, NpsOutageToggle}
 import play.api.http.Status.LOCKED
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.CitizenDetailsService
+import services.admin.FeatureFlagService
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -38,7 +40,8 @@ class GetPersonDetailsAction @Inject() (
   messageFrontendService: MessageFrontendService,
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
-  manualCorrespondenceView: ManualCorrespondenceView
+  manualCorrespondenceView: ManualCorrespondenceView,
+  featureFlagService: FeatureFlagService
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends ActionRefiner[UserRequest, UserRequest]
     with ActionFunction[UserRequest, UserRequest]
@@ -73,17 +76,20 @@ class GetPersonDetailsAction @Inject() (
 
   private def getPersonDetails()(implicit request: UserRequest[_]): EitherT[Future, Result, Option[PersonDetails]] = {
 
-    implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    request.nino match {
-      case Some(nino) =>
-        citizenDetailsService.personDetails(nino).transform {
-          case Right(response)                           => Right(Some(response))
-          case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
-          case _                                         => Right(None)
-        }
-      case _          => throw new RuntimeException("There is some problem with NINO. It is either missing or incorrect")
+    EitherT[Future, Result, FeatureFlag](featureFlagService.get(NpsOutageToggle).map(Right(_))).flatMap { toggle =>
+      request.nino match {
+        case Some(nino) =>
+          if (!toggle.isEnabled) {
+            citizenDetailsService.personDetails(nino)(hc, ec).transform {
+              case Right(response)                           => Right(Some(response))
+              case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
+              case _                                         => Right(None)
+            }
+          } else EitherT.rightT[Future, Result](None)
+        case _          => throw new RuntimeException("There is some problem with NINO. It is either missing or incorrect")
+      }
     }
   }
 

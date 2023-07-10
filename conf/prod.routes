@@ -45,6 +45,8 @@ POST        /personal-account/your-address/residential/do-you-live-in-the-uk    
 GET         /personal-account/your-address/postal/is-your-postal-address-in-the-uk     controllers.address.PostalDoYouLiveInTheUKController.onPageLoad
 POST        /personal-account/your-address/postal/is-your-postal-address-in-the-uk     controllers.address.PostalDoYouLiveInTheUKController.onSubmit
 
+GET         /personal-account/your-address/change-address-tax-credits                  controllers.InterstitialController.displayTaxCreditsInterstitial
+
 GET         /personal-account/your-address/:typ/cannot-use-the-service                 controllers.address.AddressErrorController.cannotUseThisService(typ: AddrType)
 GET         /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onPageLoad(typ: AddrType)
 POST        /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onSubmit(typ: AddrType)
@@ -86,6 +88,8 @@ GET         /personal-account/keep-alive                                        
 GET         /personal-account/timeout                                                  controllers.SessionManagementController.timeOut
 
 GET         /personal-account/preferences                                              controllers.PaperlessPreferencesController.managePreferences
+
+GET         /personal-account/services-unavailable                                     controllers.InterstitialController.displayNpsShutteringPage
 
 GET         /personal-account/assets/*file                                             controllers.AssetsController.versioned(path="/public", file: Asset)
 

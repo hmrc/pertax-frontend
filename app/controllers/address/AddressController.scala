@@ -22,17 +22,22 @@ import controllers.PertaxBaseController
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
+import models.admin.NpsOutageToggle
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 
-import scala.concurrent.{Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 abstract class AddressController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator)
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  featureFlagService: FeatureFlagService,
+  internalServerErrorView: InternalServerErrorView
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def authenticate: ActionBuilder[UserRequest, AnyContent] =
@@ -41,13 +46,19 @@ abstract class AddressController @Inject() (
   def addressJourneyEnforcer(
     block: Nino => PersonDetails => Future[Result]
   )(implicit request: UserRequest[_]): Future[Result] =
-    (for {
-      payeAccount   <- request.nino
-      personDetails <- request.personDetails
-    } yield block(payeAccount)(personDetails)).getOrElse {
-      Future.successful {
-        val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController.onPageLoad.url
-        Ok(displayAddressInterstitialView(continueUrl))
+    featureFlagService.get(NpsOutageToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        Future.successful(InternalServerError(internalServerErrorView()))
+      } else {
+        (for {
+          payeAccount   <- request.nino
+          personDetails <- request.personDetails
+        } yield block(payeAccount)(personDetails)).getOrElse {
+          Future.successful {
+            val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController.onPageLoad.url
+            Ok(displayAddressInterstitialView(continueUrl))
+          }
+        }
       }
     }
 }

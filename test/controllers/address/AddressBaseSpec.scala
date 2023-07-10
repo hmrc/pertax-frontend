@@ -25,12 +25,14 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models._
 import models.addresslookup.RecordSet
+import models.admin.{FeatureFlag, NpsOutageToggle}
 import models.dto.{AddressDto, Dto}
 import org.mockito.ArgumentMatchers.any
 import play.api.http.Status.NO_CONTENT
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import services._
+import services.admin.FeatureFlagService
 import testUtils.Fixtures._
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
@@ -39,6 +41,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateAddressConfirmationView
 
@@ -53,6 +56,7 @@ trait AddressBaseSpec extends BaseSpec {
   val mockAddressMovedService: AddressMovedService       = mock[AddressMovedService]
   val mockAuditConnector: AuditConnector                 = mock[AuditConnector]
   val mockAgentClientAuthorisationService                = mock[AgentClientAuthorisationService]
+  val mockFeatureFlagService                             = mock[FeatureFlagService]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
 
@@ -62,6 +66,7 @@ trait AddressBaseSpec extends BaseSpec {
   lazy val errorRenderer: ErrorRenderer                                   = injected[ErrorRenderer]
   lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = injected[DisplayAddressInterstitialView]
   lazy val updateAddressConfirmationView: UpdateAddressConfirmationView   = injected[UpdateAddressConfirmationView]
+  lazy val internalServerErrorView: InternalServerErrorView               = injected[InternalServerErrorView]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
@@ -179,5 +184,7 @@ trait AddressBaseSpec extends BaseSpec {
           ).asInstanceOf[UserRequest[A]]
         )
     })
+
+    when(mockFeatureFlagService.get(NpsOutageToggle)).thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
   }
 }

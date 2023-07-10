@@ -22,7 +22,9 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.http.cache.client.CacheMap
+import views.html.InternalServerErrorView
 import views.html.personaldetails._
 
 class AddressErrorControllerSpec extends AddressBaseSpec {
@@ -41,7 +43,9 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
         cc,
         displayAddressInterstitialView,
         injected[CannotUseServiceView],
-        injected[AddressAlreadyUpdatedView]
+        injected[AddressAlreadyUpdatedView],
+        injected[FeatureFlagService],
+        injected[InternalServerErrorView]
       )
   }
 

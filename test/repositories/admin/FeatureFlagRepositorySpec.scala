@@ -41,6 +41,8 @@ class FeatureFlagRepositorySpec extends BaseSpec with DefaultPlayMongoRepository
     .configure(Map("mongodb.uri" -> mongoUri) ++ configValues)
     .build()
 
+  override val checkTtlIndex = false
+
   lazy val repository = app.injector.instanceOf[FeatureFlagRepository]
 
   "getFlag" must {

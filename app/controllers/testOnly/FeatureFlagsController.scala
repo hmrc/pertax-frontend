@@ -51,6 +51,7 @@ class FeatureFlagsController @Inject() (
           PaperlessInterruptToggle          -> false,
           TaxSummariesTileToggle            -> true,
           SingleAccountCheckToggle          -> false,
+          AppleSaveAndViewNIToggle          -> false,
           PertaxBackendToggle               -> true
         )
       )

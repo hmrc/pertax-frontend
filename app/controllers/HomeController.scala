@@ -24,7 +24,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
-import models.admin.{TaxComponentsToggle, TaxcalcToggle}
+import models.admin.{NpsShutteringToggle, TaxComponentsToggle, TaxcalcToggle}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
@@ -79,7 +79,7 @@ class HomeController @Inject() (
         paperlessInterruptHelper.enforcePaperlessPreference {
           for {
             (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
-            showSeissCard                                                                   <- seissService.hasClaims(saUserType)
+            _                                                                               <- seissService.hasClaims(saUserType)
             breathingSpaceIndicator                                                         <- breathingSpaceService.getBreathingSpaceIndicator(request.nino).map {
                                                                                                  case WithinPeriod => true
                                                                                                  case _            => false
@@ -89,6 +89,8 @@ class HomeController @Inject() (
                                                                                                  taxCalculationStateCyMinusOne,
                                                                                                  taxCalculationStateCyMinusTwo
                                                                                                )
+            shutteringMessaging                                                             <- featureFlagService.get(NpsShutteringToggle)
+
           } yield {
 
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
@@ -104,7 +106,8 @@ class HomeController @Inject() (
                   showUserResearchBanner,
                   saUserType,
                   breathingSpaceIndicator
-                )
+                ),
+                shutteringMessaging.isEnabled
               )
             )
           }
@@ -120,10 +123,11 @@ class HomeController @Inject() (
       Future.successful((TaxComponentsDisabledState, None, None))
     ) { nino =>
       val taxYr = featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
-        if (toggle.isEnabled && trustedHelper.isEmpty)
+        if (toggle.isEnabled && trustedHelper.isEmpty) {
           taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxYearReconciliation]).merge
-        else
+        } else {
           Future.successful(List.empty[TaxYearReconciliation])
+        }
       }
 
       val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))

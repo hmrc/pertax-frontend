@@ -7,7 +7,6 @@ import sbt._
 import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "pertax-frontend"
@@ -41,7 +40,6 @@ lazy val microservice = Project(appName, file("."))
     playSettings,
     scoverageSettings,
     scalaSettings,
-    publishingSettings,
     defaultSettings(),
     libraryDependencies ++= AppDependencies.all,
     PlayKeys.playDefaultPort := 9232,
@@ -75,6 +73,10 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.hmrcfrontend.views.html.helpers._"
     )
   )
+
+ThisBuild / libraryDependencySchemes ++= Seq(
+  "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+)
 
 lazy val testSettings = Seq(
   unmanagedSourceDirectories ++= Seq(

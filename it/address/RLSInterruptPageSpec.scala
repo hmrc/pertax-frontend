@@ -46,6 +46,10 @@ class RLSInterruptPageSpec extends IntegrationSpec {
     .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
     .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
+    .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, true)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
+    .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
 
   "personal-account" must {
     "show rls interrupt" when {

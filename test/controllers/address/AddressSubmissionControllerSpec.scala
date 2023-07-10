@@ -18,7 +18,6 @@ package controllers.address
 
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import error.GenericErrors
 import models.ETag
 import models.dto.DateDto
 import org.mockito.ArgumentCaptor
@@ -59,7 +58,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         injected[UpdateAddressConfirmationView],
         injected[ReviewChangesView],
         injected[DisplayAddressInterstitialView],
-        injected[GenericErrors]
+        mockFeatureFlagService,
+        internalServerErrorView
       )(config, ec)
   }
 

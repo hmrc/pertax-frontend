@@ -20,7 +20,6 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
 import org.jsoup.nodes.Document
-import org.scalatest.Assertion
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, AnyContentAsEmpty}
 import play.api.test.FakeRequest
@@ -63,12 +62,22 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
           ).toString
         )
 
-      doc.text() must include(Messages("label.make_or_manage_a_child_benefit_claim"))
-      doc.text() must include(Messages("label.make_a_claim"))
+      doc.text() must include(Messages("label.child_benefit"))
+      doc.text() must include(Messages("label.making_a_claim"))
 
       hasLink(
         doc,
         Messages("label.report_changes_that_affect_your_child_benefit")
+      )
+
+      hasLink(
+        doc,
+        Messages("label.guidance_for_when_your_child_turns_sixteen")
+      )
+
+      hasLink(
+        doc,
+        Messages("label.extend_your_payment_while_your_child_stays_in_education")
       )
 
       hasLink(

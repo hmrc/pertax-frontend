@@ -23,16 +23,18 @@ import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import error.{ErrorRenderer, GenericErrors}
+import error.ErrorRenderer
 import models.dto.AddressDto
 import models.{AddressJourneyData, ETag}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
+import services.admin.FeatureFlagService
 import services.{AddressMovedService, CitizenDetailsService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
 
@@ -51,9 +53,16 @@ class AddressSubmissionController @Inject() (
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   reviewChangesView: ReviewChangesView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  genericErrors: GenericErrors
+  featureFlagService: FeatureFlagService,
+  internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(authJourney, cc, displayAddressInterstitialView)
+    extends AddressController(
+      authJourney,
+      cc,
+      displayAddressInterstitialView,
+      featureFlagService,
+      internalServerErrorView
+    )
     with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
@@ -192,7 +201,7 @@ class AddressSubmissionController @Inject() (
     case _              => "Residential"
   }
 
-  def ensuringSubmissionRequirements(typ: AddrType, journeyData: AddressJourneyData)(
+  private def ensuringSubmissionRequirements(typ: AddrType, journeyData: AddressJourneyData)(
     block: => Future[Result]
   ): Future[Result] =
     if (journeyData.submittedStartDateDto.isEmpty && typ == ResidentialAddrType) {
@@ -207,7 +216,7 @@ class AddressSubmissionController @Inject() (
     version: ETag,
     addressType: String
   )(implicit hc: HeaderCarrier, request: UserRequest[_]) =
-    if (addressWasUnmodified(originalAddressDto, addressDto))
+    if (addressWasUnmodified(originalAddressDto, addressDto)) {
       auditConnector.sendEvent(
         buildEvent(
           "postcodeAddressSubmitted",
@@ -216,7 +225,7 @@ class AddressSubmissionController @Inject() (
             .filter(!_._1.startsWith("originalLine")) - "originalPostcode"
         )
       )
-    else if (addressWasHeavilyModifiedOrManualEntry(originalAddressDto, addressDto))
+    } else if (addressWasHeavilyModifiedOrManualEntry(originalAddressDto, addressDto)) {
       auditConnector.sendEvent(
         buildEvent(
           "manualAddressSubmitted",
@@ -224,7 +233,7 @@ class AddressSubmissionController @Inject() (
           dataToAudit(addressDto, version.etag, addressType, None, originalAddressDto.flatMap(_.propertyRefNo))
         )
       )
-    else
+    } else {
       auditConnector.sendEvent(
         buildEvent(
           "postcodeAddressModifiedSubmitted",
@@ -238,4 +247,5 @@ class AddressSubmissionController @Inject() (
           )
         )
       )
+    }
 }

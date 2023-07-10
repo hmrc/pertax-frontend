@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
-import play.api.i18n.{Lang, Langs}
+import play.api.i18n.Lang
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -30,7 +30,6 @@ import java.time.LocalDate
 @Singleton
 class ConfigDecorator @Inject() (
   runModeConfiguration: Configuration,
-  langs: Langs,
   servicesConfig: ServicesConfig
 ) extends TaxcalcUrls {
 
@@ -46,11 +45,12 @@ class ConfigDecorator @Inject() (
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
-  val sessionCacheTtl: Int = runModeConfiguration.getOptional[Int]("feature.session-cache.ttl").getOrElse(15)
+  private val defaultSessionCacheTtl = 15
+  val sessionCacheTtl: Int           =
+    runModeConfiguration.getOptional[Int]("feature.session-cache.ttl").getOrElse(defaultSessionCacheTtl)
 
   def seissUrl: String = servicesConfig.baseUrl("self-employed-income-support")
 
-  private lazy val contactFrontendService    = servicesConfig.baseUrl("contact-frontend")
   private lazy val formFrontendService       = servicesConfig.baseUrl("dfs-digital-forms-frontend")
   lazy val pertaxFrontendService: String     = servicesConfig.baseUrl("pertax-frontend")
   lazy val businessTaxAccountService: String = servicesConfig.baseUrl("business-tax-account")
@@ -69,66 +69,71 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.getOptional[String](s"external-url.$key")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
-  lazy val seissFrontendHost: String               = getExternalUrl(s"self-employed-income-support-frontend.host").getOrElse("")
-  lazy val incomeTaxViewChangeFrontendHost: String =
+  lazy val seissFrontendHost: String                       = getExternalUrl(s"self-employed-income-support-frontend.host").getOrElse("")
+  private lazy val incomeTaxViewChangeFrontendHost: String =
     getExternalUrl(s"income-tax-view-change-frontend.host").getOrElse("")
-  lazy val preferencesFrontendService: String      = getExternalUrl(s"preferences-frontend").getOrElse("")
-  lazy val contactHost: String                     = getExternalUrl(s"contact-frontend.host").getOrElse("")
-  lazy val taiHost: String                         = getExternalUrl(s"tai-frontend.host").getOrElse("")
-  lazy val formTrackingHost: String                = getExternalUrl(s"tracking-frontend.host").getOrElse("")
+  lazy val preferencesFrontendService: String              = getExternalUrl(s"preferences-frontend").getOrElse("")
+  private lazy val contactHost: String                     = getExternalUrl(s"contact-frontend.host").getOrElse("")
+  lazy val taiHost: String                                 = getExternalUrl(s"tai-frontend.host").getOrElse("")
+  private lazy val saveYourNationalInsuranceNumberHost     =
+    getExternalUrl(s"save-your-national-insurance-number.host").getOrElse("")
 
-  lazy val identityVerificationHost: String           = getExternalUrl(s"identity-verification.host").getOrElse("")
-  lazy val identityVerificationPrefix: String         = getExternalUrl(s"identity-verification.prefix").getOrElse("mdtp")
-  lazy val basGatewayFrontendHost: String             = getExternalUrl(s"bas-gateway-frontend.host").getOrElse("")
-  lazy val taxEnrolmentAssignmentFrontendHost: String =
+  private lazy val identityVerificationHost: String           = getExternalUrl(s"identity-verification.host").getOrElse("")
+  private lazy val identityVerificationPrefix: String         =
+    getExternalUrl(s"identity-verification.prefix").getOrElse("mdtp")
+  lazy val basGatewayFrontendHost: String                     = getExternalUrl(s"bas-gateway-frontend.host").getOrElse("")
+  private lazy val taxEnrolmentAssignmentFrontendHost: String =
     getExternalUrl(s"tax-enrolment-assignment-frontend.host").getOrElse("")
-  lazy val pertaxFrontendHost: String                 = getExternalUrl(s"pertax-frontend.host").getOrElse("")
-  lazy val pertaxFrontendForAuthHost: String          = getExternalUrl(s"pertax-frontend.auth-host").getOrElse("")
-  lazy val feedbackSurveyFrontendHost: String         = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
-  lazy val tcsFrontendHost: String                    = getExternalUrl(s"tcs-frontend.host").getOrElse("")
-  lazy val nispFrontendHost: String                   = getExternalUrl(s"nisp-frontend.host").getOrElse("")
-  lazy val taxCalcFrontendHost: String                = getExternalUrl(s"taxcalc-frontend.host").getOrElse("")
-  lazy val dfsFrontendHost: String                    = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
-  lazy val fandfFrontendHost: String                  = getExternalUrl(s"fandf-frontend.host").getOrElse("")
-  lazy val agentClientManagementFrontendHost: String  =
+  lazy val pertaxFrontendHost: String                         = getExternalUrl(s"pertax-frontend.host").getOrElse("")
+  lazy val pertaxFrontendForAuthHost: String                  = getExternalUrl(s"pertax-frontend.auth-host").getOrElse("")
+  private lazy val feedbackSurveyFrontendHost: String         = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
+  private lazy val tcsFrontendHost: String                    = getExternalUrl(s"tcs-frontend.host").getOrElse("")
+  private lazy val nispFrontendHost: String                   = getExternalUrl(s"nisp-frontend.host").getOrElse("")
+  lazy val taxCalcFrontendHost: String                        = getExternalUrl(s"taxcalc-frontend.host").getOrElse("")
+  private lazy val dfsFrontendHost: String                    = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
+  private lazy val fandfFrontendHost: String                  = getExternalUrl(s"fandf-frontend.host").getOrElse("")
+  private lazy val agentClientManagementFrontendHost: String  =
     getExternalUrl("agent-client-management-frontend.host").getOrElse("")
 
-  lazy val saFrontendHost                               = getExternalUrl(s"sa-frontend.host").getOrElse("")
-  lazy val childBenefitViewFrontend: String             = getExternalUrl(s"child-benefit-view-frontend.host").getOrElse("")
-  lazy val governmentGatewayLostCredentialsFrontendHost =
+  private lazy val saFrontendHost                               = getExternalUrl(s"sa-frontend.host").getOrElse("")
+  private lazy val childBenefitViewFrontend: String             = getExternalUrl(s"child-benefit-view-frontend.host").getOrElse("")
+  private lazy val governmentGatewayLostCredentialsFrontendHost =
     getExternalUrl(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
 
-  lazy val enrolmentManagementFrontendHost: String   = getExternalUrl(s"enrolment-management-frontend.host").getOrElse("")
-  lazy val ssoUrl: Option[String]                    = getExternalUrl("sso-portal.host")
-  lazy val annualTaxSummariesUrl: String             = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
-  lazy val isNewsAndUpdatesTileEnabled: Boolean      =
+  private lazy val enrolmentManagementFrontendHost: String =
+    getExternalUrl(s"enrolment-management-frontend.host").getOrElse("")
+  lazy val ssoUrl: Option[String]                          = getExternalUrl("sso-portal.host")
+  private lazy val annualTaxSummariesUrl: String           = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
+  lazy val isNewsAndUpdatesTileEnabled: Boolean            =
     runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
-  lazy val isBreathingSpaceIndicatorEnabled: Boolean =
+  lazy val isBreathingSpaceIndicatorEnabled: Boolean       =
     servicesConfig.getBoolean("feature.breathing-space-indicator.enabled")
-  lazy val annualTaxSaSummariesTileLink              = s"$annualTaxSummariesUrl/annual-tax-summary"
-  lazy val annualTaxPayeSummariesTileLink            = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
+  lazy val annualTaxSaSummariesTileLink                    = s"$annualTaxSummariesUrl/annual-tax-summary"
+  lazy val annualTaxPayeSummariesTileLink                  = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
-  lazy val childBenefitLinkUrl         = Some(
+  lazy val childBenefitLinkUrl: Option[String] = Some(
     "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"
   )
-  lazy val isSeissTileEnabled: Boolean =
+  lazy val isSeissTileEnabled: Boolean         =
     runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean
 
-  lazy val portalBaseUrl: String = runModeConfiguration.get[String]("external-url.sso-portal.host")
-  def toPortalUrl(path: String)  = new URL(portalBaseUrl + path)
+  lazy val portalBaseUrl: String     = runModeConfiguration.get[String]("external-url.sso-portal.host")
+  def toPortalUrl(path: String): URL = new URL(portalBaseUrl + path)
 
   def transformUrlForSso(url: URL): String =
     s"$basGatewayFrontendHost/bas-gateway/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
 
-  def sa302Url(saUtr: String, taxYear: String) =
+  def sa302Url(saUtr: String, taxYear: String): String =
     s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
 
-  def displayNewsAndUpdatesUrl(newsSectionId: String) =
+  def displayNewsAndUpdatesUrl(newsSectionId: String): String =
     s"/personal-account/news/$newsSectionId"
 
   def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang): String =
-    s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (if (lang.code equals "en") "eng"
-                                                                                else "cym")
+    s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (
+      if (lang.code equals "en") { "eng" }
+      else { "cym" }
+    )
   lazy val ssoToActivateSaEnrolmentPinUrl                                          =
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
   lazy val ssoToRegisterForSaEnrolment: String                                     = transformUrlForSso(toPortalUrl("/home/services/enroll"))
@@ -136,29 +141,25 @@ class ConfigDecorator @Inject() (
   def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String): String             =
     transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
   def viewSaPaymentsUrl(saUtr: String, lang: Lang): String                         =
-    s"/self-assessment/ind/$saUtr/account/payments?lang=" + (if (lang.code equals "en") "eng"
-                                                             else "cym")
+    s"/self-assessment/ind/$saUtr/account/payments?lang=" + (
+      if (lang.code equals "en") { "eng" }
+      else { "cym" }
+    )
 
-  def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) =
+  def betaFeedbackUnauthenticatedUrl(aDeskproToken: String): String =
     s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
 
   lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
 
-  lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
-
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val deskproToken    = "PTA"
 
-  lazy val accessibilityStatementToggle: Boolean =
-    runModeConfiguration.getOptional[Boolean](s"accessibility-statement.toggle").getOrElse(false)
-  lazy val accessibilityBaseUrl: String          = servicesConfig.getString("accessibility-statement.baseUrl")
-  lazy private val accessibilityRedirectUrl      =
+  private lazy val accessibilityBaseUrl: String = servicesConfig.getString("accessibility-statement.baseUrl")
+  lazy private val accessibilityRedirectUrl     =
     servicesConfig.getString("accessibility-statement.redirectUrl")
 
-  def accessibilityStatementUrl(referrer: String) =
+  def accessibilityStatementUrl(referrer: String): String =
     s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${SafeRedirectUrl(accessibilityBaseUrl + referrer).encodedUrl}"
-
-  lazy val formTrackingServiceUrl = s"$formTrackingHost/track"
 
   lazy val notShownSaRecoverYourUserId =
     s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account-access?origin=${enc(defaultOrigin.toString)}"
@@ -177,12 +178,12 @@ class ConfigDecorator @Inject() (
       .orElse(runModeConfiguration.getOptional[String]("appName"))
       .getOrElse("undefined")
 
-  val ehCacheTtlInSeconds: Int = runModeConfiguration.getOptional[Int]("ehCache.ttlInSeconds").getOrElse(600)
+  private val defaultEhCacheTtlInSeconds = 600
+  val ehCacheTtlInSeconds: Int           =
+    runModeConfiguration.getOptional[Int]("ehCache.ttlInSeconds").getOrElse(defaultEhCacheTtlInSeconds)
 
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
   lazy val generalQueriesUrl     = "https://www.gov.uk/contact-hmrc"
-
-  lazy val healthAndSocialCareLevyUrl = "https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy"
 
   def makingTaxDigitalForIncomeTaxUrl(lang: Lang): String =
     if (lang.code equals "en") { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax" }
@@ -200,6 +201,7 @@ class ConfigDecorator @Inject() (
   lazy val multiFactorAuthenticationUpliftUrl = s"$basGatewayFrontendHost/bas-gateway/uplift-mfa"
   lazy val tcsChangeAddressUrl                = s"$tcsFrontendHost/tax-credits-service/personal/change-address"
   lazy val tcsServiceRouterUrl                = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
+  lazy val tcsDoYouLiveInUkUrl                = s"$tcsFrontendHost/tax-credits-service/your-details/live-in-the-uk"
   lazy val updateAddressShortFormUrl          = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
   lazy val changeNameLinkUrl                  =
     s"$dfsFrontendHost/digital-forms/form/notification-of-a-change-in-personal-details/draft/guide"
@@ -209,20 +211,13 @@ class ConfigDecorator @Inject() (
   lazy val personalAccountYourAddress         = "/personal-account/your-address"
   lazy val personalAccount                    = "/personal-account"
 
-  lazy val childBenefitsApplyForExtension   =
-    s"$dfsFrontendHost/digital-forms/form/Application-for-extension-of-Child-Benefit/draft/guide"
-  lazy val childBenefitsReportChange        =
-    s"$dfsFrontendHost/digital-forms/form/Child-Benefit-Claimant-Change-of-Circumstances/draft/guide"
-  lazy val childBenefitsAuthoriseTaxAdvisor =
-    s"$dfsFrontendHost/digital-forms/form/authorise-a-tax-adviser-for-high-income-child-benefit-charge-matters/draft/guide"
-  lazy val childBenefitsStopOrRestart       =
-    s"$dfsFrontendHost/digital-forms/form/high-income-child-benefit-tax-charge/draft/guide"
-
-  lazy val childBenefitsCheckIfYouCanClaim: String = "https://www.gov.uk/child-benefit/overview"
-
   lazy val claimChildBenefits: String = "https://www.gov.uk/child-benefit/how-to-claim"
 
   lazy val claimChildBenefitsWelsh: String = "https://www.gov.uk/budd-dal-plant/sut-i-hawlio"
+
+  lazy val childBenefit: String = "https://www.gov.uk/child-benefit"
+
+  lazy val childBenefitWelsh: String = "https://www.gov.uk/budd-dal-plant"
 
   lazy val reportChangesChildBenefit: String = "https://www.gov.uk/report-changes-child-benefit"
 
@@ -247,25 +242,19 @@ class ConfigDecorator @Inject() (
   lazy val pertaxFrontendBackLink: String = runModeConfiguration
     .get[String]("external-url.pertax-frontend.host") + routes.HomeController.index.url
 
-  lazy val welshLangEnabled: Boolean  = langs.availables.exists(l => l.code == "cy")
   lazy val taxCreditsEnabled: Boolean =
     runModeConfiguration.getOptional[String]("feature.tax-credits.enabled").getOrElse("true").toBoolean
 
   // Only used in HomeControllerSpec
-  lazy val allowLowConfidenceSAEnabled: Boolean  =
+  lazy val allowLowConfidenceSAEnabled: Boolean =
     runModeConfiguration.getOptional[String]("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
-  lazy val allowSaPreview: Boolean               =
+  lazy val allowSaPreview: Boolean              =
     runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
-  lazy val taxCreditsPaymentLinkEnabled: Boolean =
-    runModeConfiguration.getOptional[String]("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
-
-  lazy val nispEnabled: Boolean =
-    runModeConfiguration.getOptional[String]("feature.nisp.enabled").getOrElse("true").toBoolean
 
   lazy val saveNiLetterAsPdfLinkEnabled: Boolean =
     runModeConfiguration.getOptional[String]("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
 
-  lazy val personDetailsMessageCountEnabled =
+  lazy val personDetailsMessageCountEnabled: Boolean =
     runModeConfiguration.getOptional[String]("feature.person-details-message-count.enabled").getOrElse("true").toBoolean
 
   lazy val updateInternationalAddressInPta: Boolean =
@@ -276,17 +265,17 @@ class ConfigDecorator @Inject() (
   lazy val closePostalAddressEnabled: Boolean       =
     runModeConfiguration.getOptional[String]("feature.close-postal-address.enabled").getOrElse("false").toBoolean
 
-  lazy val getNinoFromCID: Boolean =
-    runModeConfiguration.getOptional[Boolean]("feature.get-nino-from-cid.enabled").getOrElse(false)
-
   lazy val partialUpgradeEnabled: Boolean =
     runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)
 
-  val enc: String => String = URLEncoder.encode(_: String, "UTF-8")
+  private val enc: String => String = URLEncoder.encode(_: String, "UTF-8")
 
-  lazy val sessionTimeoutInSeconds: Int   = runModeConfiguration.getOptional[Int]("ptaSession.timeout").getOrElse(900)
-  lazy val sessionTimeoutInMinutes: Int   = sessionTimeoutInSeconds / 60
-  lazy val sessionCountdownInSeconds: Int = runModeConfiguration.getOptional[Int]("ptaSession.countdown").getOrElse(120)
+  private val defaultSessionTimeoutInSeconds   = 900
+  lazy val sessionTimeoutInSeconds: Int        =
+    runModeConfiguration.getOptional[Int]("ptaSession.timeout").getOrElse(defaultSessionTimeoutInSeconds)
+  private val defaultSessionCountdownInSeconds = 120
+  lazy val sessionCountdownInSeconds: Int      =
+    runModeConfiguration.getOptional[Int]("ptaSession.countdown").getOrElse(defaultSessionCountdownInSeconds)
 
   lazy val itsaViewUrl = s"$incomeTaxViewChangeFrontendHost/report-quarterly/income-and-expenses/view?origin=PTA"
 
@@ -317,38 +306,52 @@ class ConfigDecorator @Inject() (
   lazy val bannerHomePageLinkUrl: String    =
     runModeConfiguration.getOptional[String]("feature.banner.home.link.url").getOrElse("")
 
-  lazy val breathingSpcaeBaseUrl: String   = servicesConfig.baseUrl("breathing-space-if-proxy")
-  lazy val breathingSpaceAppName           = "breathing-space-if-proxy"
-  lazy val breathingSpaceTimeoutInSec: Int =
-    servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
-  lazy val preferenceFrontendTimeoutInSec  =
-    servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
+  lazy val shutterBannerParagraphEn: String =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.paragraph.en").getOrElse("")
+  lazy val shutterBannerParagraphCy: String =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.paragraph.cy").getOrElse("")
+  lazy val shutterBannerLinkTextEn: String  =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.linkText.en").getOrElse("")
+  lazy val shutterBannerLinkTextCy: String  =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.linkText.cy").getOrElse("")
 
-  def numberOfCallsToTriggerStateChange(serviceName: String): Int = servicesConfig.getInt(
-    s"microservice.services.$serviceName.circuitBreaker.numberOfCallsToTriggerStateChange"
-  )
-  def unavailablePeriodDuration(serviceName: String): Int         = servicesConfig.getInt(
-    s"microservice.services.$serviceName.circuitBreaker.unavailablePeriodDurationInMillis"
-  )
-  def unstablePeriodDuration(serviceName: String): Int            = servicesConfig.getInt(
-    s"microservice.services.$serviceName.circuitBreaker.unstablePeriodDurationInMillis"
-  )
+  lazy val shutterPageParagraphEn: String =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.page.paragraph.en").getOrElse("")
+  lazy val shutterPageParagraphCy: String =
+    runModeConfiguration.getOptional[String]("feature.nps-shuttering.page.paragraph.cy").getOrElse("")
+
+  lazy val breathingSpcaeBaseUrl: String        = servicesConfig.baseUrl("breathing-space-if-proxy")
+  lazy val breathingSpaceTimeoutInSec: Int      =
+    servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
+  lazy val preferenceFrontendTimeoutInSec: Int  =
+    servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
+  lazy val ptaNinoSaveUrl: String               = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
+  lazy val guidanceForWhenYourChildTurnsSixteen = "https://www.gov.uk/child-benefit-16-19"
+
+  lazy val guidanceForWhenYourChildTurnsSixteenWelsh = "https://www.gov.uk/budd-dal-plant-16-19"
+
+  lazy val extendYourPaymentWhileYourChildStaysInEducation: String =
+    s"$childBenefitViewFrontend/child-benefit/staying-in-education/extend-payments"
 }
 
 trait TaxcalcUrls {
   self: ConfigDecorator =>
 
-  def underpaidUrlReasons(taxYear: Int) =
+  def underpaidUrlReasons(taxYear: Int): String =
     s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little/reasons"
-  def overpaidUrlReasons(taxYear: Int)  =
+  def overpaidUrlReasons(taxYear: Int): String  =
     s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much/reasons"
 
-  def underpaidUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little"
-  def overpaidUrl(taxYear: Int)  = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much"
+  def underpaidUrl(taxYear: Int): String =
+    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little"
+  def overpaidUrl(taxYear: Int): String  =
+    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much"
 
-  def rightAmountUrl(taxYear: Int)   = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/right-amount"
-  def notEmployedUrl(taxYear: Int)   = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/not-employed"
-  def notCalculatedUrl(taxYear: Int) =
+  def rightAmountUrl(taxYear: Int): String   =
+    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/right-amount"
+  def notEmployedUrl(taxYear: Int): String   =
+    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/not-employed"
+  def notCalculatedUrl(taxYear: Int): String =
     s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/not-yet-calculated"
 
   lazy val taxPaidUrl = s"${self.taxCalcFrontendHost}/tax-you-paid/status"

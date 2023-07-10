@@ -44,7 +44,10 @@ label.you_can_see_a_record_of_your_annual_contributions_=Gallwch fwrw golwg dros
 label.view_and_save_your_national_insurance_number=Bwrw golwg dros eich rhif Yswiriant Gwladol a’i gadw
 label.a_new_employer_will_ask_for_your_national_insurance_number_and_you_may_=Bydd cyflogwr newydd yn gofyn am eich rhif Yswiriant Gwladol. Mae’n bosibl y bydd arnoch angen eich rhif Yswiriant Gwladol ar adegau eraill hefyd, megis wrth wneud cais am Fenthyciad Myfyriwr neu fudd-daliadau penodol.
 label.so_that_you_have_your_number_when_you_need_it_=Fel bod eich rhif Yswiriant Gwladol wrth law pryd bynnag y bydd ei angen arnoch, gallwch fwrw golwg dros eich llythyr sy’n cadarnhau eich rhif Yswiriant Gwladol, a chael copi ohono.
-
+label.so_that_you_have_your_number_when_you_need_it_you_can=Fel bod eich rhif Yswiriant Gwladol wrth law pryd bynnag y bydd ei angen arnoch, gallwch wneud y canlynol:
+label.view_and_get_a_copy_for_your_national_insurance_number_confirmation_letter=bwrw golwg dros eich llythyr sy’n cadarnhau eich rhif Yswiriant Gwladol, a chael copi ohono
+label.save_your_number_to_the_wallet_app_on_your_apple_phone=cadw’ch rhif Yswiriant Gwladol yn ap waled eich Apple iPhone
+label.you_will_need_your_ni_number_for_employment_applying_for_student_loan_and_claim_benefits=Bydd angen eich rhif Yswiriant Gwladol arnoch ar gyfer cyflogaeth, gwneud cais am fenthyciad myfyriwr ac i hawlio rhai budd-daliadau.
 label.hm_revenue_and_customs=Cyllid a Thollau EM
 label.your_national_insurance_letter=Eich llythyr Yswiriant Gwladol
 label.print_your_national_insurance_summary=Argraffu’ch crynodeb Yswiriant Gwladol
@@ -171,6 +174,8 @@ label.return_to_your_account_home=Yn ôl i hafan eich cyfrif
 label.national_insurance_summary=Crynodeb Yswiriant Gwladol
 label.child_benefit=Budd-dal Plant
 label.report_changes_that_affect_your_child_benefit=Rhoi gwybod am newidiadau sy’n effeithio ar eich Budd-dal Plant
+label.guidance_for_when_your_child_turns_sixteen=Arweiniad ar gyfer pan fydd eich plentyn yn troi’n 16 oed
+label.extend_your_payment_while_your_child_stays_in_education=Ymestyn eich taliadau tra bo’ch plentyn yn aros mewn addysg
 label.tell_us_if_you_need_to=Rhowch wybod i ni os oes angen i chi:
 label.if_you_do_not_currently_claim_child_benefit=Os nad ydych yn gwneud cais am Fudd-dal Plant ar hyn o bryd
 label.any_updates_to_your_contact_details=Mae diweddariadau i’ch manylion cyswllt yn cymryd hyd at 2 ddiwrnod i ymddangos ar y safle hwn.
@@ -291,6 +296,7 @@ label.remove=Dileu
 # News
 #
 label.latest_news_and_updates=Y newyddion diweddaraf a diweddariadau
+label.other_news_and_updates=Newyddion a diweddariadau eraill
 label.news_and_updates=Newyddion a Diweddariadau
 label.percentage_points_uplift_in_NIC=Cynnydd o 1.25 pwynt canrannol yng nghyfraniadau Yswiriant Gwladol
 label.national_insurance_contributions_will_increase_by_1.25_percentage_points=O 6 Ebrill 2022 i 5 Ebrill 2023, bydd cyfraniadau Yswiriant Gwladol yn cynyddu 1.25 pwynt canrannol. Caiff hyn ei wario ar y GIG ac ar iechyd a gofal cymdeithasol yn y DU.
@@ -501,12 +507,14 @@ label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=Ar 
 label.a_payment_to_help_with_the_cost_of_bringing_up_children=Taliad i helpu gyda chostau magu plant
 label.make_or_manage_a_child_benefit_claim=Gwneud neu reoli hawliad am Fudd-dal Plant
 label.make_a_claim=Gwneud hawliad
+label.making_a_claim=Hawlio
 label.claim_child_benefit=Hawlio Budd-dal Plant
 label.manage_a_claim=Rheoli hawliad
 label.view_your_child_benefit_payment_history=Bwrw golwg dros hanes eich taliadau Budd-dal Plant
 label.view_your_proof_of_entitlement_to_child_benefit=Bwrw golwg dros eich tystiolaeth o hawl i Fudd-dal Plant
 label.high_income_child_benefit_charge=Tâl Treth Budd-dal Plant Incwm Uchel
 label.change_your_bank_details=Newid eich manylion banc
+label.check_if_you_can_claim=Gwirio a allwch hawlio
 
 # Pensions
 title.pensions=Pensiynau
@@ -698,3 +706,30 @@ profile.message.mainAddressRls = Mae angen i chi ddiweddaru’ch prif gyfeiriad 
 profile.message.postalAddressRls = Mae angen i chi ddiweddaru’ch cyfeiriad post i gael post oddi wrth CThEM.
 
 label.return_to_your_profile_page = Dychwelyd i’ch proffil
+
+#*************************************************************
+# Nps Shuttering Page
+#*************************************************************
+npsshuttering.title = Y gwasanaethau na fyddant ar gael
+npsshuttering.cysp = Gwirioʼch Pensiwn y Wladwriaeth
+npsshuttering.taxRefund = Gwneud cais am ad-daliad treth
+npsshuttering.c2ni = Yswiriant Gwladol Dosbarth 2
+npsshuttering.cocar = Car cwmni
+npsshuttering.ee = Treuliau’r Cyflogai
+npsshuttering.hts = Cymorth i Gynilo
+npsshuttering.tamc = Lwfans Priodasol
+npsshuttering.medben = Buddiannau meddygol
+npsshuttering.paye = TWE – Gwasanaeth Gwirio’ch Treth Incwm
+npsshuttering.pla = Lwfans Oes Pensiwn
+npsshuttering.repayments = Ad-daliadau
+npsshuttering.taxcalc = Cyfrifiad Treth
+npsshuttering.fandf = Cynorthwywyr Dibynadwy
+npsshuttering.chb = Budd-dal Plant
+
+#*************************************************************
+# Tax Credits CoA Interstitial Page
+#*************************************************************
+tax_credits.interstitial.title = Newid cyfeiriad
+tax_credits.interstitial.p1 = Gan eich bod yn cael credydau treth, bydd angen i chi newid eich hawliad yn y Gwasanaeth Credydau Treth
+tax_credits.interstitial.p2 = Fel arfer, mae’n cymryd hyd at 48 awr i’ch cyfeiriad gael ei ddiweddaru ar eich Cyfrif Treth Personol. Gall gymryd hyd at bythefnos ar rai adegau.
+tax_credits.interstitial.link_text = Yn eich blaen i’r Gwasanaeth Credydau Treth

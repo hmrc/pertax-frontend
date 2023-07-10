@@ -23,7 +23,6 @@ import models.BreathingSpaceIndicatorResponse
 import org.mockito.ArgumentMatchers.any
 import play.api.Configuration
 import play.api.http.Status._
-import play.api.i18n.Langs
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
@@ -59,7 +58,6 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
-        injected[Langs],
         injected[ServicesConfig]
       ) {
         override lazy val isBreathingSpaceIndicatorEnabled: Boolean = false
