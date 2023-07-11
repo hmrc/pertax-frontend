@@ -2,6 +2,8 @@ package address
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
+import models.admin.{AgentClientAuthorisationToggle, AppleSaveAndViewNIToggle, NpsOutageToggle, RlsInterruptToggle, SingleAccountCheckToggle}
+import org.mockito.{ArgumentMatchers, MockitoSugar}
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.libs.json.Json
@@ -11,11 +13,14 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import java.util.UUID
 import scala.concurrent.Future
+import play.api.inject.bind
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
-class PersonalDetailsControllerSpec extends IntegrationSpec {
+class PersonalDetailsControllerSpec extends IntegrationSpec with MockitoSugar {
   val designatoryDetails =
     s"""|
        |{
@@ -44,14 +49,31 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
        |}
        |""".stripMargin
 
+  lazy val mockFeatureFlagService = mock[FeatureFlagService]
+
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(
+      bind[FeatureFlagService].toInstance(mockFeatureFlagService)
+    )
     .configure(
       "feature.agent-client-authorisation.maxTps"       -> 100,
       "feature.agent-client-authorisation.cache"        -> true,
-      "feature.agent-client-authorisation.enabled"      -> true,
       "feature.agent-client-authorisation.timeoutInSec" -> 1
     )
     .build()
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockFeatureFlagService)
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
+      .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
+      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
+      .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, false)))
+  }
 
   def request: FakeRequest[AnyContentAsEmpty.type] = {
     val uuid = UUID.randomUUID().toString
@@ -77,12 +99,18 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
           .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString))
       )
 
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientAuthorisationToggle)))
+        .thenReturn(Future.successful(FeatureFlag(AgentClientAuthorisationToggle, true)))
+
       val result: Future[Result] = route(app, request).get
       contentAsString(result).contains(agentLink)
       server.verify(1, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))
     }
 
     "show manage your agent link in 2 request but only one request to backend due to cache" in {
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientAuthorisationToggle)))
+        .thenReturn(Future.successful(FeatureFlag(AgentClientAuthorisationToggle, true)))
 
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
@@ -111,6 +139,9 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
     }
 
     "loads between 1sec and 3sec due to early timeout on agent link" in {
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientAuthorisationToggle)))
+        .thenReturn(Future.successful(FeatureFlag(AgentClientAuthorisationToggle, true)))
 
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
