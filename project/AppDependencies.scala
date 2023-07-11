@@ -5,7 +5,7 @@ import sbt._
 object AppDependencies {
 
   private val playVersion = "play-28"
-  private val hmrcMongoVersion = "1.2.0"
+  private val hmrcMongoVersion = "1.3.0"
   private val bootstrapVersion = "7.19.0"
 
   val compile: Seq[ModuleID] = Seq(
@@ -21,7 +21,6 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "play-frontend-pta"                % "0.4.0",
     "org.jsoup"          % "jsoup"                            % "1.15.4",
     "org.typelevel"     %% "cats-core"                        % "2.9.0",
-    "uk.gov.hmrc"       %% s"internal-auth-client-$playVersion" % "1.4.0",
     "org.apache.commons" % "commons-text"                     % "1.10.0",
     "uk.gov.hmrc"       %% "mongo-feature-toggles-client"     % "0.2.0",
     ehcache
