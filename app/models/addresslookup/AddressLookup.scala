@@ -16,10 +16,16 @@
 
 package models.addresslookup
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.ws.BodyWritable
 
 case class AddressLookup(postcode: String, filter: Option[String])
 
 object AddressLookup {
   implicit val writes: Writes[AddressLookup] = Json.writes[AddressLookup]
+
+  implicit def jsonBodyWritable[T](implicit
+                                   writes: Writes[T],
+                                   jsValueBodyWritable: BodyWritable[JsValue]
+                                  ): BodyWritable[T] = jsValueBodyWritable.map(writes.writes)
 }

@@ -332,6 +332,10 @@ class ConfigDecorator @Inject() (
 
   lazy val extendYourPaymentWhileYourChildStaysInEducation: String =
     s"$childBenefitViewFrontend/child-benefit/staying-in-education/extend-payments"
+
+  lazy val addressLookupTimeoutInSec: Int =
+    servicesConfig.getInt("feature.address-lookup.timeoutInSec")
+
 }
 
 trait TaxcalcUrls {
