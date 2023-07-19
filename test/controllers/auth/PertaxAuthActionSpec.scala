@@ -20,7 +20,7 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.PertaxConnector
 import controllers.auth.requests.UserRequest
-import models.admin.{FeatureFlag, PertaxBackendToggle}
+import models.admin.PertaxBackendToggle
 import models.{ErrorView, PertaxResponse, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
@@ -34,12 +34,13 @@ import play.api.mvc.{ControllerComponents, ResponseHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
 import play.twirl.api.Html
-import services.admin.FeatureFlagService
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import views.html.{InternalServerErrorView, MainView}
 
