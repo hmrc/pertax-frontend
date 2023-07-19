@@ -2,7 +2,7 @@ package address
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
-import models.admin.{AgentClientAuthorisationToggle, AppleSaveAndViewNIToggle, NpsOutageToggle, RlsInterruptToggle, SingleAccountCheckToggle}
+import models.admin.{AgentClientAuthorisationToggle, AppleSaveAndViewNIToggle, NpsOutageToggle, PertaxBackendToggle, RlsInterruptToggle, SingleAccountCheckToggle}
 import org.mockito.{ArgumentMatchers, MockitoSugar}
 import play.api.Application
 import play.api.http.Status.OK
@@ -13,11 +13,9 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import java.util.UUID
 import scala.concurrent.Future
-import play.api.inject.bind
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 class PersonalDetailsControllerSpec extends IntegrationSpec with MockitoSugar {
@@ -49,12 +47,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec with MockitoSugar {
        |}
        |""".stripMargin
 
-  lazy val mockFeatureFlagService = mock[FeatureFlagService]
-
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(
-      bind[FeatureFlagService].toInstance(mockFeatureFlagService)
-    )
     .configure(
       "feature.agent-client-authorisation.maxTps"       -> 100,
       "feature.agent-client-authorisation.cache"        -> true,
@@ -73,6 +66,8 @@ class PersonalDetailsControllerSpec extends IntegrationSpec with MockitoSugar {
       .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
       .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
+      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
   }
 
   def request: FakeRequest[AnyContentAsEmpty.type] = {

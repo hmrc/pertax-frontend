@@ -28,9 +28,10 @@ trait AuthJourney {
 class AuthJourneyImpl @Inject() (
   authAction: AuthAction,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
+  pertaxAuthAction: PertaxAuthAction,
   getPersonDetailsAction: GetPersonDetailsAction
 ) extends AuthJourney {
 
   override val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
-    authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
+    authAction andThen selfAssessmentStatusAction andThen pertaxAuthAction andThen getPersonDetailsAction
 }

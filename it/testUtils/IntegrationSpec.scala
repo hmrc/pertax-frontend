@@ -1,8 +1,12 @@
 package testUtils
 
 import akka.Done
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, serverError, urlEqualTo, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import models.admin.NpsOutageToggle
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.{reset, when}
+import org.mockito.MockitoSugar.mock
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
@@ -14,11 +18,14 @@ import play.api.http.Status.NOT_FOUND
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
+import play.api.inject.bind
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with Matchers {
 
@@ -39,10 +46,10 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
   implicit override val patienceConfig: PatienceConfig =
     PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
 
-  lazy val messagesApi: MessagesApi    = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
-
-  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  lazy val messagesApi: MessagesApi              = app.injector.instanceOf[MessagesApi]
+  implicit lazy val messages: Messages           = MessagesImpl(Lang("en"), messagesApi)
+  implicit lazy val ec: ExecutionContext         = app.injector.instanceOf[ExecutionContext]
+  val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   val generatedNino: Nino  = new Generator().nextNino
   val generatedUtr: String = new Generator().nextAtedUtr.utr
@@ -104,7 +111,8 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
-        api.inject.bind[AsyncCacheApi].toInstance(mockCacheApi)
+        api.inject.bind[AsyncCacheApi].toInstance(mockCacheApi),
+        bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       )
       .configure(
         "microservice.services.citizen-details.port"            -> server.port(),
@@ -120,6 +128,9 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
+    reset(mockFeatureFlagService)
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
+      .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
   }
 
   def beforeEachHomeController(

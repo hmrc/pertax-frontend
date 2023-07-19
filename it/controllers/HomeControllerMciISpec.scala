@@ -1,16 +1,18 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
+import models.admin.{NpsOutageToggle, PertaxBackendToggle, SingleAccountCheckToggle, TaxcalcToggle}
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -43,13 +45,19 @@ class HomeControllerMciISpec extends IntegrationSpec {
     )
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
 
-    lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-    featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
-    featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
   }
 
   "personal-account" must {
     "Return LOCKED status and display the MCI error page when designatory-details returns LOCKED" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
+        .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe LOCKED
       contentAsString(result).contains(

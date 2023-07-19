@@ -1,7 +1,9 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{SingleAccountCheckToggle, TaxComponentsToggle, TaxcalcToggle}
+import models.admin.{ItsAdvertisementMessageToggle, NationalInsuranceTileToggle, NpsOutageToggle, NpsShutteringToggle, PaperlessInterruptToggle, PertaxBackendToggle, RlsInterruptToggle, SingleAccountCheckToggle, TaxComponentsToggle, TaxSummariesTileToggle, TaxcalcMakePaymentLinkToggle, TaxcalcToggle}
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
@@ -9,10 +11,10 @@ import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -47,10 +49,12 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
         .willReturn(aResponse().withStatus(NO_CONTENT))
     )
 
-    lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-    featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
-    featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
-    featureFlagService.set(TaxComponentsToggle, enabled = true).futureValue
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, true)))
   }
 
   "personal-account" must {
@@ -114,6 +118,27 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
 
       server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
+        .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
+        .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
+        .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+        .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
+        .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ItsAdvertisementMessageToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ItsAdvertisementMessageToggle, false)))
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK

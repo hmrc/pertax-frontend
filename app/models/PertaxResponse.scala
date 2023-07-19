@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package models.addresslookup
+package models
 
-import play.api.libs.json.{JsValue, Json, Writes}
-import play.api.libs.ws.BodyWritable
+import play.api.libs.json.Json
 
-case class AddressLookup(postcode: String, filter: Option[String])
+case class PertaxResponse(
+  code: String,
+  message: String,
+  errorView: Option[ErrorView] = None,
+  redirect: Option[String] = None
+)
 
-object AddressLookup {
-  implicit val writes: Writes[AddressLookup] = Json.writes[AddressLookup]
-
-  implicit def jsonBodyWritable[T](implicit
-    writes: Writes[T],
-    jsValueBodyWritable: BodyWritable[JsValue]
-  ): BodyWritable[T] = jsValueBodyWritable.map(writes.writes)
+object PertaxResponse {
+  implicit val formats = Json.format[PertaxResponse]
 }

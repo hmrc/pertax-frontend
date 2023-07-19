@@ -63,6 +63,8 @@ class ConfigDecorator @Inject() (
   lazy val addTaxesFrontendUrl: String = servicesConfig.baseUrl("add-taxes-frontend")
   lazy val addTaxesPtaOrigin: String   = "pta-sa"
 
+  lazy val pertaxUrl: String = servicesConfig.baseUrl("pertax")
+
   private def getExternalUrl(key: String): Option[String] =
     runModeConfiguration.getOptional[String](s"external-url.$key")
 
@@ -330,6 +332,10 @@ class ConfigDecorator @Inject() (
 
   lazy val extendYourPaymentWhileYourChildStaysInEducation: String =
     s"$childBenefitViewFrontend/child-benefit/staying-in-education/extend-payments"
+
+  lazy val addressLookupTimeoutInSec: Int =
+    servicesConfig.getInt("feature.address-lookup.timeoutInSec")
+
 }
 
 trait TaxcalcUrls {

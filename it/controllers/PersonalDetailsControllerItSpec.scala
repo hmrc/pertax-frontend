@@ -1,14 +1,19 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import models.admin.{AgentClientAuthorisationToggle, AppleSaveAndViewNIToggle, PertaxBackendToggle, RlsInterruptToggle, SingleAccountCheckToggle}
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.i18n._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
+import scala.concurrent.Future
 
 class PersonalDetailsControllerItSpec extends IntegrationSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -116,6 +121,17 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
       )
     ).foreach { case (key, texts) =>
       s"show $key status for Contact preferences" in {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+          .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
+          .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
+          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientAuthorisationToggle)))
+          .thenReturn(Future.successful(FeatureFlag(AgentClientAuthorisationToggle, false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
+          .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, false)))
+
         server.stubFor(
           get(urlMatching("/paperless/status.*"))
             .willReturn(ok(paperlessStatusMessage(key)))

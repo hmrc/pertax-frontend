@@ -1,15 +1,17 @@
 package controllers
 
-import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
+import models.admin.{NationalInsuranceTileToggle, NpsShutteringToggle, PaperlessInterruptToggle, PertaxBackendToggle, RlsInterruptToggle, SingleAccountCheckToggle, TaxComponentsToggle, TaxSummariesTileToggle, TaxcalcMakePaymentLinkToggle, TaxcalcToggle}
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -32,12 +34,30 @@ class HomeControllerChildBenefitsISpec extends IntegrationSpec {
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
 
   override def beforeEach(): Unit = {
+    super.beforeEach()
     server.resetAll()
     beforeEachHomeController()
 
-    lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-    featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
-    featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
+      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
+      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
+      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
+      .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, false)))
   }
 
   "personal-account" must {

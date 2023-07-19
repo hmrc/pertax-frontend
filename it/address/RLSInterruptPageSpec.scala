@@ -4,11 +4,9 @@ import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, sta
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
-import play.api.{Application, inject}
+import play.api.Application
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, status => getStatus, _}
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -17,35 +15,39 @@ import scala.concurrent.Future
 
 class RLSInterruptPageSpec extends IntegrationSpec {
 
-  val url                    = "/personal-account"
-  val mockFeatureFlagService = mock[FeatureFlagService]
+  val url = "/personal-account"
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(
-      inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService)
+    .configure(
+      "microservice.services.pertax.port" -> server.port()
     )
     .build()
 
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-    .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-    .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-    .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-    .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-    .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-    .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-    .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
-    .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
-    .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-    .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
+      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
+      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
+      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
+      .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
+      .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+  }
 
   "personal-account" must {
     "show rls interrupt" when {

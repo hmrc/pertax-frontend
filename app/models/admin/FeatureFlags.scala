@@ -93,3 +93,11 @@ case object AgentClientAuthorisationToggle extends FeatureFlagName {
     "Enable/disable calls to agent-client-authorisation service from Profile and Setting page"
   )
 }
+
+case object PertaxBackendToggle extends FeatureFlagName {
+  override val name: String = "pertax-backend-toggle"
+
+  override val description: Option[String] = Some(
+    "Enable/disable pertax backend during auth"
+  )
+}
