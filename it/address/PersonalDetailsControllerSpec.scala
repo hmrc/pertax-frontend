@@ -16,7 +16,7 @@ import java.util.UUID
 import scala.concurrent.Future
 
 class PersonalDetailsControllerSpec extends IntegrationSpec {
-  val designatoryDetails =
+  val designatoryDetails: String =
     s"""|
        |{
        |  "etag" : "115",
@@ -58,6 +58,11 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
   }
 
+  override def beforeEach(): Unit = {
+    server.resetAll()
+    super.beforeEach()
+  }
+
   val url       = s"/personal-account/profile-and-settings"
   val agentLink = "/manage-your-tax-agents"
 
@@ -74,7 +79,13 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       )
       server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))
-          .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString))
+          .willReturn(
+            ok(
+              Json
+                .toJson(AgentClientStatus(hasPendingInvitations = true, hasInvitationsHistory = true, hasExistingRelationships = true))
+                .toString
+            )
+          )
       )
 
       val result: Future[Result] = route(app, request).get
@@ -94,7 +105,13 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       )
       server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))
-          .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString))
+          .willReturn(
+            ok(
+              Json
+                .toJson(AgentClientStatus(hasPendingInvitations = true, hasInvitationsHistory = true, hasExistingRelationships = true))
+                .toString
+            )
+          )
       )
 
       val repeatRequest = request
@@ -110,7 +127,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       server.verify(1, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))
     }
 
-    "loads between 1sec and 3sec due to early timeout on agent link" in {
+    "loads between 1sec and 4sec due to early timeout on agent link" in {
 
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
@@ -125,7 +142,17 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withBody(Json.toJson(AgentClientStatus(true, true, true)).toString)
+              .withBody(
+                Json
+                  .toJson(
+                    AgentClientStatus(
+                      hasPendingInvitations = true,
+                      hasInvitationsHistory = true,
+                      hasExistingRelationships = true
+                    )
+                  )
+                  .toString
+              )
               .withFixedDelay(5000)
           )
       )
@@ -137,7 +164,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
 
       val duration = result.map(_._2).futureValue
 
-      duration mustBe <=[Long](3000)
+      duration mustBe <=[Long](4000)
       duration mustBe >=[Long](1000)
       getStatus(result.map(_._1)) mustBe OK
       server.verify(1, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))

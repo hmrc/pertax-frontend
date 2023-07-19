@@ -29,12 +29,13 @@ import play.api.mvc.Request
 import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.{Limiters, Throttle, Timeout}
+import util.{FutureEarlyTimeout, Limiters, Throttle}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
@@ -93,17 +94,16 @@ class CachingAgentClientAuthorisationConnector @Inject() (
 
 @Singleton
 class DefaultAgentClientAuthorisationConnector @Inject() (
-  val httpClient: HttpClient,
+  val httpClientV2: HttpClientV2,
   servicesConfig: ServicesConfig,
   httpClientResponse: HttpClientResponse,
   limiters: Limiters
 ) extends AgentClientAuthorisationConnector
     with Throttle
-    with Timeout
     with Logging {
   val rateLimiter: RateLimiter = limiters.rateLimiterForGetClientStatus
-  lazy val baseUrl             = servicesConfig.baseUrl("agent-client-authorisation")
-  lazy val timeoutInSec        =
+  lazy val baseUrl: String     = servicesConfig.baseUrl("agent-client-authorisation")
+  lazy val timeoutInSec: Int   =
     servicesConfig.getInt("feature.agent-client-authorisation.timeoutInSec")
 
   override def getAgentClientStatus(implicit
@@ -111,12 +111,17 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
     ec: ExecutionContext,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] = {
+    val url    = s"$baseUrl/agent-client-authorisation/status"
     val result =
       withThrottle {
-        withTimeout(timeoutInSec.seconds) {
-          httpClient
-            .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$baseUrl/agent-client-authorisation/status")
-        }
+        httpClientV2
+          .get(url"$url")
+          .transform(_.withRequestTimeout(timeoutInSec.seconds))
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
+          .recoverWith { case exception: GatewayTimeoutException =>
+            logger.error(exception.message)
+            Future.failed(FutureEarlyTimeout)
+          }
       }
     httpClientResponse.read(result).map { response =>
       response.json.as[AgentClientStatus]
