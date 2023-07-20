@@ -25,7 +25,6 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits.{readEitherOf, readRaw}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{GatewayTimeoutException, _}
-import util.FutureEarlyTimeout
 
 import java.util.UUID.randomUUID
 import scala.concurrent.duration._
@@ -56,7 +55,7 @@ class BreathingSpaceConnector @Inject() (
         .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
         .recoverWith { case exception: GatewayTimeoutException =>
           logger.error(exception.message)
-          Future.failed(FutureEarlyTimeout)
+          Future.failed(exception)
         }
     httpClientResponse
       .read(result)
