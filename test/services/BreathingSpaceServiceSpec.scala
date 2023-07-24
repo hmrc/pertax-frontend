@@ -17,16 +17,17 @@
 package services
 
 import cats.data.EitherT
-import config.ConfigDecorator
 import connectors.BreathingSpaceConnector
 import models.BreathingSpaceIndicatorResponse
+import models.admin.BreathingSpaceIndicatorToggle
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import play.api.Configuration
 import play.api.http.Status._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.FutureEarlyTimeout
 
 import scala.concurrent.Future
@@ -35,64 +36,68 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
   private val mockBreathingSpaceConnector: BreathingSpaceConnector =
     mock[BreathingSpaceConnector]
+  private val mockFeatureFlagService: FeatureFlagService           =
+    mock[FeatureFlagService]
 
-  def sut: BreathingSpaceService =
-    new BreathingSpaceService(config, mockBreathingSpaceConnector)
+  override def beforeEach(): Unit = {
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle))) thenReturn Future.successful(
+      FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)
+    )
+
+    super.beforeEach()
+  }
 
   val nino: Nino = Fixtures.fakeNino
 
   "BreathingSpaceService getBreathingSpaceIndicator is called" must {
 
     "return BreathingSpaceIndicatorResponse.WithinPeriod when Nino is Some(_) and response from connector is true" in {
-
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(EitherT[Future, UpstreamErrorResponse, Boolean](Future(Right(true))))
+
+      val sut: BreathingSpaceService =
+        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe BreathingSpaceIndicatorResponse.WithinPeriod
-
     }
 
     "return BreathingSpaceIndicatorResponse.StatusUnknown when isBreathingSpaceIndicatorEnabled is false" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle))) thenReturn Future.successful(
+        FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = false)
+      )
 
-      val stubConfigDecorator = new ConfigDecorator(
-        injected[Configuration],
-        injected[ServicesConfig]
-      ) {
-        override lazy val isBreathingSpaceIndicatorEnabled: Boolean = false
-      }
+      val sut: BreathingSpaceService =
+        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
-      def newSut: BreathingSpaceService =
-        new BreathingSpaceService(stubConfigDecorator, mockBreathingSpaceConnector)
-
-      newSut
+      sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
-
     }
 
     "return BreathingSpaceIndicatorResponse.StatusUnknown when Nino is None" in {
+      val sut: BreathingSpaceService =
+        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
         .getBreathingSpaceIndicator(None)
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
-
     }
 
     "return BreathingSpaceIndicatorResponse.OutOfPeriod when response from connector is false" in {
-
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(EitherT[Future, UpstreamErrorResponse, Boolean](Future(Right(false))))
+
+      val sut: BreathingSpaceService =
+        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe BreathingSpaceIndicatorResponse.OutOfPeriod
-
     }
 
     "return BreathingSpaceIndicatorResponse.NotFound when response from connector is Left NOT_FOUND response" in {
-
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](
@@ -100,13 +105,15 @@ class BreathingSpaceServiceSpec extends BaseSpec {
           )
         )
 
+      val sut: BreathingSpaceService =
+        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
+
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe BreathingSpaceIndicatorResponse.NotFound
     }
 
     "return BreathingSpaceIndicatorResponse.StatusUnknown when response from connector is Left INTERNAL_SERVER_ERROR response" in {
-
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](
@@ -114,13 +121,15 @@ class BreathingSpaceServiceSpec extends BaseSpec {
           )
         )
 
+      val sut: BreathingSpaceService =
+        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
+
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
     "return BreathingSpaceIndicatorResponse.StatusUnknown when response from connector is Left TOO_MANY_REQUESTS response" in {
-
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](
@@ -128,17 +137,22 @@ class BreathingSpaceServiceSpec extends BaseSpec {
           )
         )
 
+      val sut: BreathingSpaceService =
+        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
+
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
     "throws BadRequestException when BadRequestException is thrown from connector" in {
-
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(new BadRequestException("BAD REQUEST")))
         )
+
+      val sut: BreathingSpaceService =
+        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
@@ -146,11 +160,13 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "throws UnauthorizedException when UnauthorizedException is thrown from connector" in {
-
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(new UnauthorizedException("Unauthorized")))
         )
+
+      val sut: BreathingSpaceService =
+        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
@@ -158,11 +174,13 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "throws HttpException when HttpException is thrown from connector" in {
-
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(new HttpException("FORBIDDEN", FORBIDDEN)))
         )
+
+      val sut: BreathingSpaceService =
+        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
         .getBreathingSpaceIndicator(Some(nino))
@@ -170,17 +188,17 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "return false when FutureEarlyTimeout is thrown from connector" in {
-
       when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(FutureEarlyTimeout))
         )
 
+      val sut: BreathingSpaceService =
+        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
+
       sut
         .getBreathingSpaceIndicator(Some(nino))
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
-
     }
-
   }
 }

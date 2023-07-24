@@ -101,3 +101,10 @@ case object PertaxBackendToggle extends FeatureFlagName {
     "Enable/disable pertax backend during auth"
   )
 }
+
+case object BreathingSpaceIndicatorToggle extends FeatureFlagName {
+  override val name: String                = "breathing-space-indicator-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable calls to Breathing space"
+  )
+}
