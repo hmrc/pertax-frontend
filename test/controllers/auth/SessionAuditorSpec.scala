@@ -16,12 +16,10 @@
 
 package controllers.auth
 
-import controllers.auth.UserSessionAuditEvent.writes
 import controllers.auth.requests.AuthenticatedRequest
 import org.hamcrest.CustomMatcher
 import org.mockito.ArgumentMatchers.any
 import org.mockito.hamcrest.MockitoHamcrest.argThat
-import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
@@ -65,7 +63,8 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
   )
 
   def eqExtendedDataEvent[A](authenticatedRequest: AuthenticatedRequest[A]): ExtendedDataEvent = {
-    val detailsJson = Json.toJson(writes(sessionAuditor.userSessionAuditEventFromRequest(authenticatedRequest)))
+    val detailsJson =
+      UserSessionAuditEvent.writes(sessionAuditor.userSessionAuditEventFromRequest(authenticatedRequest))
     val tags        = buildTags(authenticatedRequest)
     argThat[ExtendedDataEvent](new CustomMatcher[ExtendedDataEvent]("eq expected ExtendedDataEvent") {
       override def matches(o: Any): Boolean = o match {

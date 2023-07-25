@@ -33,8 +33,8 @@ import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector, enrolmentsHelper: EnrolmentsHelper)(
-  implicit ec: ExecutionContext
+class SessionAuditor @Inject() (auditConnector: AuditConnector, enrolmentsHelper: EnrolmentsHelper)(implicit
+  ec: ExecutionContext
 ) extends AuditTags
     with Logging {
 
