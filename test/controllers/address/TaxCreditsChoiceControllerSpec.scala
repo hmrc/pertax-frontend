@@ -31,7 +31,6 @@ import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.admin.FeatureFlagService
 import services.{LocalSessionCache, TaxCreditsService}
 import testUtils.BaseSpec
 import testUtils.Fixtures.buildPersonDetailsCorrespondenceAddress
@@ -42,23 +41,21 @@ import scala.concurrent.Future
 
 class TaxCreditsChoiceControllerSpec extends BaseSpec {
 
-  val mockTaxCreditsService: TaxCreditsService   = mock[TaxCreditsService]
-  val mockLocalSessionCache: LocalSessionCache   = mock[LocalSessionCache]
-  val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
-  val mockAddressJourneyCachingHelper            = mock[AddressJourneyCachingHelper]
+  val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
+  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
+  val mockAddressJourneyCachingHelper          = mock[AddressJourneyCachingHelper]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder(saUserType, personDetailsForRequest)
     .overrides(
       bind[LocalSessionCache].toInstance(mockLocalSessionCache),
       bind[TaxCreditsService].toInstance(mockTaxCreditsService),
-      bind[FeatureFlagService].toInstance(mockFeatureFlagService),
       bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper)
     )
     .build()
 
   override def beforeEach(): Unit = {
-    reset(mockLocalSessionCache, mockTaxCreditsService, mockFeatureFlagService, mockAddressJourneyCachingHelper)
     super.beforeEach()
+    reset(mockLocalSessionCache, mockTaxCreditsService, mockAddressJourneyCachingHelper)
   }
 
   def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
@@ -148,7 +145,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         val result = controller.onPageLoad(currentRequest)
 
         status(result) mustBe OK
-        verify(mockFeatureFlagService, times(2)).get(any())
+        verify(mockFeatureFlagService, times(3)).get(any())
         verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
         verify(mockTaxCreditsService, times(1)).checkForTaxCredits(any())(any())
         val argCaptorValue: Result = arg.getValue
@@ -173,7 +170,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         val result = controller.onPageLoad(currentRequest)
 
         status(result) mustBe OK
-        verify(mockFeatureFlagService, times(2)).get(any())
+        verify(mockFeatureFlagService, times(3)).get(any())
         verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
         verify(mockTaxCreditsService, times(0)).checkForTaxCredits(any())(any())
         val argCaptorValue: Result = arg.getValue

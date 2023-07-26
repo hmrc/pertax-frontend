@@ -82,7 +82,7 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[EnrolmentsHelper],
         injected[SeissService],
         mockNewsAndTileConfig,
-        injected[FeatureFlagService]
+        mockFeatureFlagService
       )(config, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) {

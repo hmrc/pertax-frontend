@@ -46,7 +46,6 @@
         pageTitle: String,
         serviceName: String = "label.your_personal_tax_account",
         sidebarContent: Option[Html] = None,
-        beforeContentHtml: Option[Html] = None,
         showBackLink: Boolean = false,
         backLinkID: Boolean = true,
         backLinkUrl: String = "#",
@@ -98,9 +97,6 @@
 
 @attorneyBanner
 
-@if(beforeContentHtml.isDefined){
-    @beforeContentHtml
-}
 }
 
 @attorneyBanner = @{

@@ -17,17 +17,17 @@
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
+import models.admin.{FeatureFlag, SCAWrapperToggle}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
-import org.mockito.Mockito.reset
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import org.scalatest.Assertion
-import play.api.Application
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
-import play.api.inject.bind
+import play.api.{Application, inject}
 import play.api.mvc.{AnyContentAsEmpty, Request}
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import services.LocalSessionCache
+import services.admin.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
@@ -39,14 +39,17 @@ import views.html.MainView
 
 import java.time.LocalDate
 import java.util.UUID
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 class MainViewSpec extends IntegrationSpec {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
 
+  val mockFeatureFlagService = mock[FeatureFlagService]
+
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService))
     .configure(
       Map(
         "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
@@ -95,6 +98,9 @@ class MainViewSpec extends IntegrationSpec {
   implicit lazy val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
   trait LocalSetup {
+
+    when(mockFeatureFlagService.get(SCAWrapperToggle))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
     def buildUserRequest[A](
       nino: Option[Nino] = Some(testNino),

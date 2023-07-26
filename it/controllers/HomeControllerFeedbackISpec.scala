@@ -1,6 +1,6 @@
 package controllers
 
-import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
+import models.admin.{SCAWrapperToggle, SingleAccountCheckToggle, TaxcalcToggle}
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
@@ -39,6 +39,7 @@ class HomeControllerFeedbackISpec extends IntegrationSpec {
     lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
     featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
     featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
+    featureFlagService.set(SCAWrapperToggle, enabled = false).futureValue
   }
 
   "personal-account" must {

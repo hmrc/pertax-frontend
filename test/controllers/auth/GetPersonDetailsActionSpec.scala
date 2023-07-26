@@ -19,8 +19,9 @@ package controllers.auth
 import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.admin.{FeatureFlag, NpsOutageToggle}
+import models.admin.{FeatureFlag, NpsOutageToggle, SCAWrapperToggle}
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
@@ -42,10 +43,9 @@ import scala.concurrent.Future
 
 class GetPersonDetailsActionSpec extends BaseSpec {
 
-  val mockMessageFrontendService                 = mock[MessageFrontendService]
-  val mockCitizenDetailsService                  = mock[CitizenDetailsService]
-  val configDecorator: ConfigDecorator           = mock[ConfigDecorator]
-  val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+  val mockMessageFrontendService       = mock[MessageFrontendService]
+  val mockCitizenDetailsService        = mock[CitizenDetailsService]
+  val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))

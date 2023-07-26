@@ -82,7 +82,6 @@ class AuthActionSpec extends BaseSpec {
   val fakeCredentialStrength                                     = CredentialStrength.strong
   val fakeConfidenceLevel                                        = ConfidenceLevel.L200
   val enrolmentHelper                                            = injected[EnrolmentsHelper]
-  val mockFeatureFlagService                                     = mock[FeatureFlagService]
   val fakeBusinessHours                                          = new FakeBusinessHours(injected[BusinessHoursConfig])
   def messagesControllerComponents: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
@@ -123,6 +122,12 @@ class AuthActionSpec extends BaseSpec {
       )(implicitly, config)
 
     new Harness(authAction)
+  }
+
+  override def beforeEach() = {
+    super.beforeEach()
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
   }
 
   val ivRedirectUrl =

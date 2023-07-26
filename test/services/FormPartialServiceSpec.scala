@@ -22,7 +22,6 @@ import models.admin.{FeatureFlag, NpsOutageToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.twirl.api.Html
-import services.admin.FeatureFlagService
 import services.partials.FormPartialService
 import testUtils.BaseSpec
 import testUtils.Fixtures._
@@ -32,11 +31,10 @@ import scala.concurrent.Future
 
 class FormPartialServiceSpec extends BaseSpec {
   val mockEnhancedPartialRetriever: EnhancedPartialRetriever = mock[EnhancedPartialRetriever]
-  val mockFeatureFlagService: FeatureFlagService             = mock[FeatureFlagService]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockEnhancedPartialRetriever, mockFeatureFlagService)
+    reset(mockEnhancedPartialRetriever)
   }
 
   trait LocalSetup {

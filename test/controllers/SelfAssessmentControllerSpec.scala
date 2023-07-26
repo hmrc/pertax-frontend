@@ -62,8 +62,10 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     )
     .build()
 
-  override def beforeEach(): Unit =
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     reset(mockAuditConnector, mockAuthAction, mockSelfAssessmentStatusAction)
+  }
 
   trait LocalSetup {
 

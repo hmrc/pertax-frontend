@@ -51,7 +51,6 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
   private val configDecorator: ConfigDecorator = mock[ConfigDecorator]
   private val mockPertaxConnector              = mock[PertaxConnector]
-  private val mockFeatureFlagService           = mock[FeatureFlagService]
   val internalServerErrorView                  = app.injector.instanceOf[InternalServerErrorView]
   val mainView                                 = app.injector.instanceOf[MainView]
   private val cc                               = app.injector.instanceOf[ControllerComponents]

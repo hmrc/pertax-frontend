@@ -53,13 +53,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   lazy val correspondenceAddressView: CorrespondenceAddressView   = injected[CorrespondenceAddressView]
   lazy val countryHelper: CountryHelper                           = injected[CountryHelper]
   lazy val mockPreferencesConnector: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
-  lazy val mockFeatureFlagService: FeatureFlagService             = mock[FeatureFlagService]
   lazy val personalDetailsViewModel: PersonalDetailsViewModel     = injected[PersonalDetailsViewModel]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser, None)
     .overrides(
-      bind[PreferencesFrontendConnector].toInstance(mockPreferencesConnector),
-      bind[FeatureFlagService].toInstance(mockFeatureFlagService)
+      bind[PreferencesFrontendConnector].toInstance(mockPreferencesConnector)
     )
     .build()
 
@@ -117,7 +115,6 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockFeatureFlagService)
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
       .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = false)))
   }

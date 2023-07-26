@@ -56,7 +56,6 @@ trait AddressBaseSpec extends BaseSpec {
   val mockAddressMovedService: AddressMovedService       = mock[AddressMovedService]
   val mockAuditConnector: AuditConnector                 = mock[AuditConnector]
   val mockAgentClientAuthorisationService                = mock[AgentClientAuthorisationService]
-  val mockFeatureFlagService                             = mock[FeatureFlagService]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
 
@@ -72,7 +71,8 @@ trait AddressBaseSpec extends BaseSpec {
 
   implicit lazy val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  override def beforeEach(): Unit =
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     reset(
       mockAuthJourney,
       mockLocalSessionCache,
@@ -83,6 +83,7 @@ trait AddressBaseSpec extends BaseSpec {
       mockAuditConnector,
       mockAgentClientAuthorisationService
     )
+  }
 
   val thisYearStr: String = "2019"
 

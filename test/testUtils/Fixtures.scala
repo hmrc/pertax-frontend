@@ -21,9 +21,10 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, FakeAuthJourney}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
+import models.admin._
 import models.dto.AddressDto
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -37,6 +38,7 @@ import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers, Injecting}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
@@ -348,6 +350,8 @@ trait BaseSpec
       "auditing.enabled"              -> false
     )
 
+  val mockFeatureFlagService = mock[FeatureFlagService]
+
   protected def localGuiceApplicationBuilder(
     saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
     personDetails: Option[PersonDetails] = None
@@ -356,7 +360,8 @@ trait BaseSpec
       .overrides(
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
         bind[EditAddressLockRepository].toInstance(mockEditAddressLockRepository),
-        bind[AuthJourney].toInstance(new FakeAuthJourney(saUser, personDetails))
+        bind[AuthJourney].toInstance(new FakeAuthJourney(saUser, personDetails)),
+        bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       )
       .configure(configValues)
 
@@ -369,6 +374,38 @@ trait BaseSpec
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
 
   def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockFeatureFlagService)
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
+      FeatureFlag(SCAWrapperToggle, false)
+    )
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
+      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
+      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
+      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
+      .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
+      .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
+      .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, false)))
+  }
 
 }
 trait ActionBuilderFixture extends ActionBuilder[UserRequest, AnyContent] {

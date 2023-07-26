@@ -66,13 +66,15 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     )
     .build()
 
-  override def beforeEach(): Unit =
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     reset(
       mockIdentityVerificationFrontendService,
       mockAuthAction,
       mockSelfAssessmentStatusAction,
       mockAuthJourney
     )
+  }
 
   trait LocalSetup {
 

@@ -51,6 +51,8 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
     .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, false)))
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
     .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
+    .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
   override def beforeEach() = {
     super.beforeEach()

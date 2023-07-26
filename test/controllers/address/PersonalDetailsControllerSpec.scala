@@ -28,7 +28,6 @@ import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import repositories.EditAddressLockRepository
-import services.admin.FeatureFlagService
 import uk.gov.hmrc.http.cache.client.CacheMap
 import viewmodels.PersonalDetailsViewModel
 import views.html.personaldetails.PersonalDetailsView
@@ -40,7 +39,6 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
   trait LocalSetup extends AddressControllerSetup {
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
-    val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
 

@@ -27,8 +27,7 @@ import testUtils.BaseSpec
 
 class FeatureFlagsControllerSpec extends BaseSpec {
 
-  implicit val mcc                = inject[MessagesControllerComponents]
-  lazy val mockFeatureFlagService = mock[FeatureFlagService]
+  implicit val mcc = inject[MessagesControllerComponents]
 
   val controller = new FeatureFlagsController(mcc, mockFeatureFlagService)
 

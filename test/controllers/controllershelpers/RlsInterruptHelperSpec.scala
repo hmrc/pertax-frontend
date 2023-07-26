@@ -37,14 +37,9 @@ import scala.concurrent.Future
 
 class RlsInterruptHelperSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(bind[FeatureFlagService].toInstance(mockFeatureFlagService))
-    .build()
-
   val okBlock: Result = Ok("Block")
 
-  val interrupt: Result      = SeeOther("/personal-account/update-your-address")
-  val mockFeatureFlagService = mock[FeatureFlagService]
+  val interrupt: Result = SeeOther("/personal-account/update-your-address")
 
   implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
@@ -64,11 +59,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
     None,
     FakeRequest()
   )
-
-  override def beforeEach(): Unit = {
-    reset(mockFeatureFlagService)
-    super.beforeEach()
-  }
 
   "enforceByRlsStatus" when {
     "the enforce getAddressStatusFromCID toggle is set to true" must {

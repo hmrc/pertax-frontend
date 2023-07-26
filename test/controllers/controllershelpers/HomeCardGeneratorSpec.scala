@@ -61,7 +61,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val saAndItsaMergeView        = injected[SaAndItsaMergeView]
   private val enrolmentsHelper          = injected[EnrolmentsHelper]
   private val newsAndTilesConfig        = mock[NewsAndTilesConfig]
-  private val mockFeatureFlagService    = mock[FeatureFlagService]
   private val stubConfigDecorator       = new ConfigDecorator(
     injected[Configuration],
     injected[ServicesConfig]
