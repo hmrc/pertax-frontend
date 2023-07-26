@@ -16,23 +16,4 @@
 
 package util
 
-import akka.actor.ActorSystem
-import play.api.Logging
-
-import scala.concurrent._
-import scala.concurrent.duration._
-
 case object FutureEarlyTimeout extends RuntimeException
-
-trait Timeout extends Logging {
-  private val system: ActorSystem = ActorSystem()
-
-  def withTimeout[A](timeoutDuration: FiniteDuration)(block: => Future[A])(implicit ec: ExecutionContext): Future[A] = {
-    val delayedFuture =
-      akka.pattern.after(timeoutDuration, system.scheduler) {
-        Future.failed(FutureEarlyTimeout)
-      }
-
-    Future.firstCompletedOf(Seq(block, delayedFuture))
-  }
-}
