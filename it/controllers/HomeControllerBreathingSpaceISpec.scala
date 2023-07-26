@@ -1,7 +1,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{NationalInsuranceTileToggle, NpsOutageToggle, NpsShutteringToggle, PaperlessInterruptToggle, PertaxBackendToggle, RlsInterruptToggle, SingleAccountCheckToggle, TaxComponentsToggle, TaxSummariesTileToggle, TaxcalcMakePaymentLinkToggle, TaxcalcToggle}
+import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -77,6 +77,8 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
       .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
       .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+      .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
   }
 
   "personal-account" must {

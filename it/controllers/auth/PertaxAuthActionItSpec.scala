@@ -5,10 +5,10 @@ import config.ConfigDecorator
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
+import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, status => getStatus, _}
-import play.api.Application
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -29,27 +29,29 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
+      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, false)))
+      .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+      .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+      .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
@@ -70,7 +72,7 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
       }
       "Pertax toggle is off" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, isEnabled = false)))
 
         val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
         val result  = route(app, request)
