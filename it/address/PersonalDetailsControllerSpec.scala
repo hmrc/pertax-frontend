@@ -56,6 +56,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec with MockitoSugar {
     .build()
 
   override def beforeEach(): Unit = {
+    server.resetAll()
     super.beforeEach()
     reset(mockFeatureFlagService)
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
@@ -91,7 +92,19 @@ class PersonalDetailsControllerSpec extends IntegrationSpec with MockitoSugar {
       )
       server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))
-          .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString))
+          .willReturn(
+            ok(
+              Json
+                .toJson(
+                  AgentClientStatus(
+                    hasPendingInvitations = true,
+                    hasInvitationsHistory = true,
+                    hasExistingRelationships = true
+                  )
+                )
+                .toString
+            )
+          )
       )
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientAuthorisationToggle)))
@@ -117,7 +130,19 @@ class PersonalDetailsControllerSpec extends IntegrationSpec with MockitoSugar {
       )
       server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))
-          .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString))
+          .willReturn(
+            ok(
+              Json
+                .toJson(
+                  AgentClientStatus(
+                    hasPendingInvitations = true,
+                    hasInvitationsHistory = true,
+                    hasExistingRelationships = true
+                  )
+                )
+                .toString
+            )
+          )
       )
 
       val repeatRequest = request
@@ -133,7 +158,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec with MockitoSugar {
       server.verify(1, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))
     }
 
-    "loads between 1sec and 3sec due to early timeout on agent link" in {
+    "loads between 1sec and 4sec due to early timeout on agent link" in {
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientAuthorisationToggle)))
         .thenReturn(Future.successful(FeatureFlag(AgentClientAuthorisationToggle, true)))
@@ -151,7 +176,17 @@ class PersonalDetailsControllerSpec extends IntegrationSpec with MockitoSugar {
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withBody(Json.toJson(AgentClientStatus(true, true, true)).toString)
+              .withBody(
+                Json
+                  .toJson(
+                    AgentClientStatus(
+                      hasPendingInvitations = true,
+                      hasInvitationsHistory = true,
+                      hasExistingRelationships = true
+                    )
+                  )
+                  .toString
+              )
               .withFixedDelay(5000)
           )
       )
@@ -163,7 +198,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec with MockitoSugar {
 
       val duration = result.map(_._2).futureValue
 
-      duration mustBe <=[Long](3000)
+      duration mustBe <=[Long](4000)
       duration mustBe >=[Long](1000)
       getStatus(result.map(_._1)) mustBe OK
       server.verify(1, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))

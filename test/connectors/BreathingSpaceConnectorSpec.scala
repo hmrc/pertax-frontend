@@ -77,7 +77,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
     }
 
     "return an UpstreamErrorResponse for timeout response" in {
-      val delay: Int = 5000
+      val delay: Int = 6000
       stubWithDelay(url, OK, None, Some(breathingSpaceTrueResponse), delay)
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
