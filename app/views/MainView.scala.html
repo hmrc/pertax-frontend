@@ -176,19 +176,15 @@
         <div class="hmrc-user-research-banner__container govuk-width-container">
             <div class="hmrc-user-research-banner__text">
                 <div class="hmrc-user-research-banner__title govuk-!-font-weight-bold">
-                    @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageHeadingCy} else {@configDecorator.bannerHomePageHeadingEn}
+                @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageHeadingCy} else {@configDecorator.bannerHomePageHeadingEn}
                 </div>
-                <p class="govuk-body govuk-!-font-size-19 govuk-!-font-weight-light">
-                    <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href="@configDecorator.bannerHomePageLinkUrl" target="_blank">
-                        @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageLinkTextCy }else {@configDecorator.bannerHomePageLinkTextEn}
-                    </a>
-                </p>
-                <p class="govuk-!-font-size-16 govuk-!-margin-bottom-1">
-                    <a class="govuk-link govuk-link--inverse">
-                        @messages("label.no_thanks")
-                    </a>
-                </p>
+                <a class="govuk-link hmrc-user-research-banner__link" rel="noopener noreferrer" href="@configDecorator.bannerHomePageLinkUrl" target="_blank">
+                @if(messages.lang.code == "cy"){ @configDecorator.bannerHomePageLinkTextCy }else {@configDecorator.bannerHomePageLinkTextEn}
+                </a>
             </div>
+            <button class="govuk-button govuk-button--secondary hmrc-user-research-banner__close">
+                @messages("label.no_thanks")
+            </button>
         </div>
     </div>
 }
