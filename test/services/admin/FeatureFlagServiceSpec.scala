@@ -31,7 +31,6 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import repositories.admin.FeatureFlagRepository
-import testUtils.BaseSpec
 
 import scala.jdk.CollectionConverters._
 import scala.concurrent.Future

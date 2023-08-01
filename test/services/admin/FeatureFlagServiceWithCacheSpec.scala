@@ -22,7 +22,6 @@ import play.api.inject.bind
 import config.ConfigDecorator
 import models.admin.{DeletedToggle, FeatureFlag, FeatureFlagName, SingleAccountCheckToggle, TaxcalcToggle}
 import org.mockito.MockitoSugar
-import org.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture

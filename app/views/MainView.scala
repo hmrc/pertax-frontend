@@ -88,24 +88,19 @@ class MainViewImpl @Inject() (
     yourProfileActive: Boolean = false,
     hideAccountMenu: Boolean = false,
     showChildBenefitBanner: Boolean = false,
-    showUserResearchBanner: Boolean = false
+    showUserResearchBanner: Boolean = true
   )(contentBlock: Html)(implicit request: UserRequest[_], messages: Messages): HtmlFormat.Appendable = {
     val scaWrapperToggle =
       Await.result(featureFlagService.get(SCAWrapperToggle), Duration(appConfig.SCAWrapperFutureTimeout, SECONDS))
     val fullPageTitle    = s"$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"
-    val attorney         = Try(request.asInstanceOf[UserRequest[_]]) match {
-      case Failure(_: java.lang.ClassCastException) => None
-      case Success(value)                           => value.trustedHelper
-      case Failure(exception)                       => throw exception
-    }
 
     if (scaWrapperToggle.isEnabled) {
       logger.debug(s"SCA Wrapper layout used for request `${request.uri}``")
       wrapperService.layout(
         content = contentBlock,
         pageTitle = Some(fullPageTitle),
-        serviceNameKey = Some(messages("label.your_personal_tax_account")),
-        serviceNameUrl = None,
+        serviceNameKey = Some(messages(serviceName)),
+        serviceNameUrl = Some(appConfig.personalAccount),
         sidebarContent = sidebarContent,
         signoutUrl = controllers.routes.ApplicationController
           .signout(Some(RedirectUrl(appConfig.getFeedbackSurveyUrl(appConfig.defaultOrigin))), None)
@@ -113,16 +108,12 @@ class MainViewImpl @Inject() (
         //timeOutUrl: Option[String] = appConfig.timeOutUrl,
         //keepAliveUrl: String = appConfig.keepAliveUrl,
         showBackLinkJS = showBackLink,
-        //backLinkUrl: Option[String] = None,
+        backLinkUrl = if (!backLinkUrl.equals("#")) Some(backLinkUrl) else None,
         //showSignOutInHeader: Boolean = false,
         scripts = Seq(additionalScripts(scripts)),
         styleSheets = Seq(headBlock(stylesheets)),
-        bannerConfig =
-          if (showChildBenefitBanner)
-            BannerConfig(true, false, true, false)
-          else
-            BannerConfig(false, false, true, true),
-        optTrustedHelper = attorney,
+        bannerConfig = BannerConfig(showChildBenefitBanner, false, true, showUserResearchBanner),
+        optTrustedHelper = request.trustedHelper,
         fullWidth = fullWidth,
         //hideMenuBar: Boolean = false,
         disableSessionExpired = disableSessionExpired

@@ -22,12 +22,9 @@ import models.admin.{FeatureFlag, RlsInterruptToggle}
 import models.{AddressesLock, NonFilerSelfAssessmentUser, UserName}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import play.api.Application
-import play.api.inject.bind
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
-import services.admin.FeatureFlagService
 import testUtils.Fixtures.{buildFakeAddress, buildFakeCorrespondenceAddress, buildFakePersonDetails}
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel

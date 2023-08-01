@@ -19,9 +19,8 @@ package controllers.auth
 import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.admin.{FeatureFlag, NpsOutageToggle, SCAWrapperToggle}
+import models.admin.{FeatureFlag, NpsOutageToggle}
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind

@@ -2,21 +2,26 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
+import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserDetails, UserName}
 import models.admin._
+import org.jsoup.Jsoup
 import org.mockito.{ArgumentMatchers, MockitoSugar}
-import org.mockito.MockitoSugar.mock
 import play.api.{Application, inject}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import services.admin.FeatureFlagService
-import testUtils.{IntegrationSpec, WireMockHelper}
+import testUtils.IntegrationSpec
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
+import java.time.LocalDate
 import java.util.UUID
 import scala.concurrent.Future
 import scala.util.Random
@@ -42,7 +47,7 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
   def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
 
-  val messageCount                                 = Random.nextInt(100) + 1
+  val messageCount                                 = Random.between(1, 100)
   val wrapperDataResponse                          = Json
     .toJson(
       WrapperDataResponse(
@@ -97,6 +102,69 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       )
     )
     .toString
+
+  private val generator = new Generator(new Random())
+
+  private val testNino: Nino = generator.nextNino
+
+  val fakePersonDetails: PersonDetails = PersonDetails(
+    Person(
+      Some("John"),
+      None,
+      Some("Doe"),
+      Some("JD"),
+      Some("Mr"),
+      None,
+      Some("M"),
+      Some(LocalDate.parse("1975-12-03")),
+      Some(testNino)
+    ),
+    Some(
+      Address(
+        Some("1 Fake Street"),
+        Some("Fake Town"),
+        Some("Fake City"),
+        Some("Fake Region"),
+        None,
+        Some("AA1 1AA"),
+        None,
+        Some(LocalDate.of(2015, 3, 15)),
+        None,
+        Some("Residential"),
+        false
+      )
+    ),
+    None
+  )
+
+  def buildUserRequest[A](
+    nino: Option[Nino] = Some(testNino),
+    userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+    saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
+      SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+    ),
+    credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
+    confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
+    personDetails: Option[PersonDetails] = Some(fakePersonDetails),
+    trustedHelper: Option[TrustedHelper] = None,
+    profile: Option[String] = None,
+    messageCount: Option[Int] = None,
+    request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+  ): UserRequest[A] =
+    UserRequest(
+      nino,
+      userName,
+      saUser,
+      credentials,
+      confidenceLevel,
+      personDetails,
+      trustedHelper,
+      Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
+      profile,
+      messageCount,
+      None,
+      request
+    )
 
   override def beforeEach() = {
     super.beforeEach()
@@ -260,6 +328,18 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
           contentAsString(result) must include("Profile and Settings")
           contentAsString(result) must include("/personal-account/profile-and-settings")
         }
+      }
+
+      "render the beta link" in {
+
+        val result: Future[Result] = route(app, request).get
+        val content                = Jsoup.parse(contentAsString(result))
+
+        content.getElementsByClass("govuk-phase-banner").get(0).text() must include("beta")
+
+        content.getElementsByClass("govuk-phase-banner").get(0).html() must include(
+          "/contact/beta-feedback?service=PTA"
+        )
       }
     }
   }
