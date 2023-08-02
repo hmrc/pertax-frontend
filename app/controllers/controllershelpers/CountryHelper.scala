@@ -165,6 +165,7 @@ class CountryHelper @Inject() () {
     Country("Rep Of Bosnia-Herzegovina"),
     Country("Republic Of Croatia"),
     Country("Former Yug Rep Of Macedonia"),
+    Country("The Republic of North Macedonia"),
     Country("Republic Of Slovenia"),
     Country("Afghanistan"),
     Country("Algeria"),
