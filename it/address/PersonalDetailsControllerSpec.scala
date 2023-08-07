@@ -82,7 +82,13 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
           .willReturn(
             ok(
               Json
-                .toJson(AgentClientStatus(hasPendingInvitations = true, hasInvitationsHistory = true, hasExistingRelationships = true))
+                .toJson(
+                  AgentClientStatus(
+                    hasPendingInvitations = true,
+                    hasInvitationsHistory = true,
+                    hasExistingRelationships = true
+                  )
+                )
                 .toString
             )
           )
@@ -108,7 +114,13 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
           .willReturn(
             ok(
               Json
-                .toJson(AgentClientStatus(hasPendingInvitations = true, hasInvitationsHistory = true, hasExistingRelationships = true))
+                .toJson(
+                  AgentClientStatus(
+                    hasPendingInvitations = true,
+                    hasInvitationsHistory = true,
+                    hasExistingRelationships = true
+                  )
+                )
                 .toString
             )
           )
