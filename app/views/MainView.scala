@@ -105,8 +105,8 @@ class MainViewImpl @Inject() (
         signoutUrl = controllers.routes.ApplicationController
           .signout(Some(RedirectUrl(appConfig.getFeedbackSurveyUrl(appConfig.defaultOrigin))), None)
           .url,
-        //timeOutUrl: Option[String] = appConfig.timeOutUrl,
-        //keepAliveUrl: String = appConfig.keepAliveUrl,
+        timeOutUrl = Some(controllers.routes.SessionManagementController.timeOut.url),
+        keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
         showBackLinkJS = showBackLink,
         backLinkUrl = if (!backLinkUrl.equals("#")) Some(backLinkUrl) else None,
         //showSignOutInHeader: Boolean = false,
