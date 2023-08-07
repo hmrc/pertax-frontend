@@ -19,7 +19,7 @@ package controllers.auth
 import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.admin.{FeatureFlag, NpsOutageToggle}
+import models.admin.{FeatureFlag, NpsOutageToggle, SCAWrapperToggle}
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
@@ -153,6 +153,9 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
     "when the person details message count toggle is set to true" must {
       "return a request with the unread message count" in {
+        when(mockFeatureFlagService.get(SCAWrapperToggle))
+          .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
+
         when(mockFeatureFlagService.get(NpsOutageToggle))
           .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
 
