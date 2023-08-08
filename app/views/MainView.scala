@@ -115,7 +115,7 @@ class MainViewImpl @Inject() (
         bannerConfig = BannerConfig(showChildBenefitBanner, false, true, showUserResearchBanner),
         optTrustedHelper = request.trustedHelper,
         fullWidth = fullWidth,
-        //hideMenuBar: Boolean = false,
+        hideMenuBar = hideAccountMenu,
         disableSessionExpired = disableSessionExpired
       )(messages, HeaderCarrierConverter.fromRequest(request), request)
     } else {
