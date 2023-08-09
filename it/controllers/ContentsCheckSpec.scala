@@ -27,7 +27,7 @@ import scala.util.Random
 class ContentsCheckSpec extends IntegrationSpec {
   val mockFeatureFlagService = mock[FeatureFlagService]
 
-  case class ExpectedData(title: String)
+  case class ExpectedData(title: String, attorneyBannerPresent: Boolean = true)
   def getExpectedData(key: String): ExpectedData =
     key match {
       case "id-check-complete"          =>
@@ -35,7 +35,7 @@ class ContentsCheckSpec extends IntegrationSpec {
       case "sign-in"                    =>
         ExpectedData("Sign in - Personal tax account - GOV.UK")
       case "sa-home"                    =>
-        ExpectedData("Your Self Assessment - Personal tax account - GOV.UK")
+        ExpectedData("Your Self Assessment - Personal tax account - GOV.UK", false)
       case "sa-reset-password"          =>
         ExpectedData("You need to reset your password - Personal tax account - GOV.UK")
       case "sa-sign-in-again"           =>
@@ -64,7 +64,8 @@ class ContentsCheckSpec extends IntegrationSpec {
         )
       case "self-assessment-summary"    =>
         ExpectedData(
-          "Self Assessment summary - Personal tax account - GOV.UK"
+          "Self Assessment summary - Personal tax account - GOV.UK",
+          false
         )
       case "national-insurance-summary" =>
         ExpectedData("National Insurance summary - Personal tax account - GOV.UK")
@@ -275,6 +276,49 @@ class ContentsCheckSpec extends IntegrationSpec {
 
   val cacheMap = s"/keystore/pertax-frontend"
 
+  val authResponseAttorney =
+    s"""
+       |{
+       |    "confidenceLevel": 200,
+       |    "nino": "$generatedNino",
+       |    "name": {
+       |        "name": "John",
+       |        "lastName": "Smith"
+       |    },
+       |    "loginTimes": {
+       |        "currentLogin": "2021-06-07T10:52:02.594Z",
+       |        "previousLogin": null
+       |    },
+       |    "optionalCredentials": {
+       |        "providerId": "4911434741952698",
+       |        "providerType": "GovernmentGateway"
+       |    },
+       |    "authProviderId": {
+       |        "ggCredId": "xyz"
+       |    },
+       |    "externalId": "testExternalId",
+       |    "allEnrolments": [
+       |       {
+       |          "key":"HMRC-PT",
+       |          "identifiers": [
+       |             {
+       |                "key":"NINO",
+       |                "value": "$generatedNino"
+       |             }
+       |          ]
+       |       }
+       |    ],
+       |    "affinityGroup": "Individual",
+       |    "credentialStrength": "strong",
+       |    "trustedHelper": {
+       |      "principalName": "principalName",
+       |      "attorneyName": "attorneyName",
+       |      "returnLinkUrl": "returnLink",
+       |      "principalNino": "$generatedNino"
+       |    }
+       |}
+       |""".stripMargin
+
   val authResponseSA =
     s"""
        |{
@@ -329,7 +373,11 @@ class ContentsCheckSpec extends IntegrationSpec {
     "calling authenticated pages"   must {
       urls.foreach { case (url, expectedData: ExpectedData) =>
         s"pass content checks at url $url" in {
-          server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
+          if (expectedData.attorneyBannerPresent) {
+            server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseAttorney)))
+          } else {
+            server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
+          }
           val result: Future[Result] = route(app, request(url)).get
           val content                = Jsoup.parse(contentAsString(result))
 
@@ -386,6 +434,15 @@ class ContentsCheckSpec extends IntegrationSpec {
           val reportIssueLink = content.getElementsByClass("hmrc-report-technical-issue").get(0).attr("href")
           reportIssueText must include("Is this page not working properly? (opens in new tab)")
           reportIssueLink must include("/contact/report-technical-problem")
+
+          if (expectedData.attorneyBannerPresent) {
+            val attorneyBannerElement = content.getElementById("attorneyBanner")
+            attorneyBannerElement.hasClass("pta-attorney-banner") mustBe true
+          } else {
+            val attorneyBannerElement = content.getElementById("attorneyBanner")
+            attorneyBannerElement mustBe null
+          }
+
         }
       }
     }
@@ -432,7 +489,6 @@ class ContentsCheckSpec extends IntegrationSpec {
           val menuItems = content
             .getElementsByClass("hmrc-account-menu__link")
           menuItems.toString mustBe ""
-
         }
       }
     }
