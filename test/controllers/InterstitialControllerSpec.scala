@@ -21,16 +21,16 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import play.api.{Application, Configuration}
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import services._
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.partials.{FormPartialService, SaPartialService}
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
@@ -38,12 +38,13 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util._
-import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
+import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -377,7 +378,7 @@ class InterstitialControllerSpec extends BaseSpec {
             "nicSection",
             "1.25 percentage points uplift in National Insurance contributions (base64 encoded)",
             "<p id=\"paragraph\">base64 encoded content with html</p>",
-            false,
+            isDynamic = false,
             LocalDate.now
           )
         )
@@ -482,20 +483,52 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayBreathingSpaceDetails" must {
 
-    "call displayBreathingSpaceDetails and return 200 when called by authorised user using GG" in new LocalSetup {
+    "call displayBreathingSpaceDetails and return 200 when called by authorised user using GG" in {
+
+      val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+      val stubConfigDecorator                        = new ConfigDecorator(
+        injected[Configuration],
+        injected[ServicesConfig]
+      )
+      val mockAuthJourney: AuthJourney               = mock[AuthJourney]
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            buildUserRequest(request = request)
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              request = request
+            )
           )
       })
 
-      lazy val simulateFormPartialServiceFailure = false
-      lazy val simulateSaPartialServiceFailure   = false
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+        .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
 
-      val testController: InterstitialController = controller
+      def testController: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[NpsShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService
+        )(stubConfigDecorator, ec)
 
+      lazy val fakeRequest       = FakeRequest("", "")
       val result: Future[Result] = testController.displayBreathingSpaceDetails(fakeRequest)
 
       status(result) mustBe OK
@@ -504,15 +537,14 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return UNAUTHORIZED when toggled off" in {
-      val stubConfigDecorator = new ConfigDecorator(
+      val stubConfigDecorator: ConfigDecorator = new ConfigDecorator(
         injected[Configuration],
         injected[ServicesConfig]
-      ) {
-        override lazy val isBreathingSpaceIndicatorEnabled: Boolean = false
-      }
+      )
 
       lazy val fakeRequest = FakeRequest("", "")
 
+      val mockFeatureFlagService                    = mock[FeatureFlagService]
       val mockAuthJourney                           = mock[AuthJourney]
       val mockNewsAndTileConfig: NewsAndTilesConfig = mock[NewsAndTilesConfig]
 
@@ -536,7 +568,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[EnrolmentsHelper],
           injected[SeissService],
           mockNewsAndTileConfig,
-          inject[FeatureFlagService]
+          mockFeatureFlagService
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -548,6 +580,9 @@ class InterstitialControllerSpec extends BaseSpec {
           when(saPartialService.getSaAccountSummary(any())) thenReturn {
             Future.successful(HtmlPartial.Success(Some("Success"), Html("any")))
           }
+
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+            .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = false)))
         }
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
