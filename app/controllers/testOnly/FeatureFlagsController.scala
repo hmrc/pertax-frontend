@@ -47,7 +47,10 @@ class FeatureFlagsController @Inject() (
           AppleSaveAndViewNIToggle          -> false,
           PertaxBackendToggle               -> true,
           AgentClientAuthorisationToggle    -> true,
-          BreathingSpaceIndicatorToggle     -> true
+          BreathingSpaceIndicatorToggle     -> true,
+          TaxcalcMakePaymentLinkToggle      -> true,
+          NpsShutteringToggle               -> false,
+          NpsOutageToggle                   -> false
         )
       )
       .map(_ => Ok("Default flags set"))
