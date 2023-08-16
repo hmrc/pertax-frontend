@@ -34,7 +34,10 @@ class ApplicationStartUp {
       TaxcalcMakePaymentLinkToggle,
       NpsShutteringToggle,
       AppleSaveAndViewNIToggle,
-      NpsOutageToggle
+      NpsOutageToggle,
+      PertaxBackendToggle,
+      AgentClientAuthorisationToggle,
+      BreathingSpaceIndicatorToggle
     )
   )
 }
