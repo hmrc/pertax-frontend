@@ -1,4 +1,3 @@
-import play.core.PlayVersion.current
 import play.sbt.PlayImport._
 import sbt._
 
@@ -10,12 +9,10 @@ object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc"       %% s"bootstrap-frontend-$playVersion" % bootstrapVersion,
     "uk.gov.hmrc"       %% "play-partials"                    % s"8.4.0-$playVersion",
     "uk.gov.hmrc"       %% "http-caching-client"              % s"10.0.0-$playVersion",
     "uk.gov.hmrc"       %% "tax-year"                         % "3.2.0",
     "uk.gov.hmrc"       %% "domain"                           % s"8.3.0-$playVersion",
-    "uk.gov.hmrc.mongo" %% s"hmrc-mongo-$playVersion"         % hmrcMongoVersion,
     "io.lemonlabs"      %% "scala-uri"                        % "4.0.3",
     "uk.gov.hmrc"       %% "play-frontend-hmrc"               % s"7.7.0-$playVersion",
     "uk.gov.hmrc"       %% "play-frontend-pta"                % "0.4.0",
