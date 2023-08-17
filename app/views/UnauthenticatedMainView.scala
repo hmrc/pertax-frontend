@@ -76,7 +76,7 @@ class UnauthenticatedMainViewImpl @Inject() (
       case Failure(exception)                       => throw exception
     }
 
-    if (scaWrapperToggle.isEnabled) {
+    if (!scaWrapperToggle.isEnabled) {
       logger.debug(s"SCA Wrapper layout used for request `${request.uri}``")
 
       wrapperService.layout(
@@ -85,7 +85,9 @@ class UnauthenticatedMainViewImpl @Inject() (
         serviceNameKey = Some(messages("label.your_personal_tax_account")),
         serviceNameUrl = Some(appConfig.personalAccount),
         //sidebarContent: Option[Html] = None,
-        signoutUrl = controllers.routes.SessionManagementController.timeOut.url,
+        signoutUrl = controllers.routes.ApplicationController
+          .signout(Some(RedirectUrl(appConfig.getFeedbackSurveyUrl(appConfig.defaultOrigin))), None)
+          .url,
         timeOutUrl = Some(controllers.routes.SessionManagementController.timeOut.url),
         keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
         showBackLinkJS = showBackLink,
