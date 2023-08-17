@@ -76,7 +76,7 @@ class UnauthenticatedMainViewImpl @Inject() (
       case Failure(exception)                       => throw exception
     }
 
-    if (!scaWrapperToggle.isEnabled) {
+    if (scaWrapperToggle.isEnabled) {
       logger.debug(s"SCA Wrapper layout used for request `${request.uri}``")
 
       wrapperService.layout(
