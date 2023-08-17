@@ -27,15 +27,15 @@ import scala.util.Random
 class ContentsCheckSpec extends IntegrationSpec {
   val mockFeatureFlagService = mock[FeatureFlagService]
 
-  case class ExpectedData(title: String, attorneyBannerPresent: Boolean = true)
+  case class ExpectedData(title: String, attorneyBannerPresent: Boolean = true, signOutInHeader: Boolean = false)
   def getExpectedData(key: String): ExpectedData =
     key match {
       case "id-check-complete"          =>
-        ExpectedData("Service unavailable - Personal tax account - GOV.UK")
+        ExpectedData("Service unavailable - Personal tax account - GOV.UK", signOutInHeader = true)
       case "sign-in"                    =>
         ExpectedData("Sign in - Personal tax account - GOV.UK")
       case "sa-home"                    =>
-        ExpectedData("Your Self Assessment - Personal tax account - GOV.UK", false)
+        ExpectedData("Your Self Assessment - Personal tax account - GOV.UK", attorneyBannerPresent = false)
       case "sa-reset-password"          =>
         ExpectedData("You need to reset your password - Personal tax account - GOV.UK")
       case "sa-sign-in-again"           =>
@@ -65,7 +65,7 @@ class ContentsCheckSpec extends IntegrationSpec {
       case "self-assessment-summary"    =>
         ExpectedData(
           "Self Assessment summary - Personal tax account - GOV.UK",
-          false
+          attorneyBannerPresent = false
         )
       case "national-insurance-summary" =>
         ExpectedData("National Insurance summary - Personal tax account - GOV.UK")
@@ -489,6 +489,13 @@ class ContentsCheckSpec extends IntegrationSpec {
           val menuItems = content
             .getElementsByClass("hmrc-account-menu__link")
           menuItems.toString mustBe ""
+
+          val signOutLink =
+            content.getElementsByClass("govuk-link hmrc-sign-out-nav__link").text()
+          if (expectedData.signOutInHeader)
+            signOutLink must include("Sign out")
+          else
+            signOutLink mustNot include("Sign out")
         }
       }
     }

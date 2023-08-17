@@ -90,7 +90,7 @@ class UnauthenticatedMainViewImpl @Inject() (
         keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
         showBackLinkJS = showBackLink,
         //backLinkUrl: Option[String] = None,
-        //showSignOutInHeader: Boolean = false,
+        showSignOutInHeader = !disableSessionExpired,
         scripts = Seq(additionalScripts(None)),
         styleSheets = Seq(headBlock(None)),
         //bannerConfig: BannerConfig = defaultBannerConfig,
