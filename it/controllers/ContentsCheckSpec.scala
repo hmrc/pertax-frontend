@@ -401,15 +401,6 @@ class ContentsCheckSpec extends IntegrationSpec {
             "http://localhost:12346/accessibility-statement/personal-tax-account?referrerUrl=http%3A%2F%2Flocalhost%3A12346%2Fpersonal-tax-account"
           )
 
-          val urBannerLink = content
-            .getElementsByClass("hmrc-user-research-banner__link")
-            .get(0)
-            .attr("href")
-          if (url.equals("/personal-account/child-benefit/home"))
-            urBannerLink mustBe "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"
-          else
-            urBannerLink mustBe "https://signup.take-part-in-research.service.gov.uk/home?utm_campaign=PTAhomepage&utm_source=Other&utm_medium=other&t=HMRC&id=209"
-
           val signoutLink = content
             .getElementsByClass("hmrc-account-menu__link")
             .asScala

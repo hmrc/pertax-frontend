@@ -54,7 +54,6 @@ trait MainView {
     messagesActive: Boolean = false,
     yourProfileActive: Boolean = false,
     hideAccountMenu: Boolean = false,
-    showChildBenefitBanner: Boolean = false,
     showUserResearchBanner: Boolean = false
   )(contentBlock: Html)(implicit
     request: UserRequest[_],
@@ -87,7 +86,6 @@ class MainViewImpl @Inject() (
     messagesActive: Boolean = false,
     yourProfileActive: Boolean = false,
     hideAccountMenu: Boolean = false,
-    showChildBenefitBanner: Boolean = false,
     showUserResearchBanner: Boolean = true
   )(contentBlock: Html)(implicit request: UserRequest[_], messages: Messages): HtmlFormat.Appendable = {
     val scaWrapperToggle =
@@ -112,7 +110,7 @@ class MainViewImpl @Inject() (
         //showSignOutInHeader: Boolean = false,
         scripts = Seq(additionalScripts(scripts)),
         styleSheets = Seq(headBlock(stylesheets)),
-        bannerConfig = BannerConfig(showChildBenefitBanner, false, true, showUserResearchBanner),
+        bannerConfig = BannerConfig(false, false, true, showUserResearchBanner),
         optTrustedHelper = request.trustedHelper,
         fullWidth = fullWidth,
         hideMenuBar = hideAccountMenu,
@@ -135,7 +133,6 @@ class MainViewImpl @Inject() (
         messagesActive,
         yourProfileActive,
         hideAccountMenu,
-        showChildBenefitBanner,
         showUserResearchBanner
       )(
         contentBlock
