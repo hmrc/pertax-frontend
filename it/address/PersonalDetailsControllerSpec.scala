@@ -2,6 +2,9 @@ package address
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
+import models.admin.{FeatureFlag, HmrcAccountToggle}
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.libs.json.Json
@@ -59,8 +62,9 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
   }
 
   override def beforeEach(): Unit = {
-    server.resetAll()
     super.beforeEach()
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(HmrcAccountToggle)))
+      .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, false)))
   }
 
   val url       = s"/personal-account/profile-and-settings"

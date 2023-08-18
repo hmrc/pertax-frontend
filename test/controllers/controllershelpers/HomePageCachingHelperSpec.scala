@@ -32,8 +32,10 @@ class HomePageCachingHelperSpec extends BaseSpec {
     .overrides(bind[LocalSessionCache].toInstance(mock[LocalSessionCache]))
     .build()
 
-  override def beforeEach(): Unit =
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     reset(injected[LocalSessionCache])
+  }
 
   "Calling HomePageCachingHelper.hasUserDismissedUrInvitation" must {
     trait LocalSetup {

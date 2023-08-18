@@ -21,7 +21,8 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, FakeAuthJourney}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
-import models.admin._
+import models.admin.FeatureFlag
+import models.admin.FeatureFlagName.allFeatureFlags
 import models.dto.AddressDto
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentMatchers, MockitoSugar}
@@ -377,37 +378,14 @@ trait BaseSpec
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockFeatureFlagService)
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-      FeatureFlag(SCAWrapperToggle, false)
-    )
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
-      .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, false)))
+    org.mockito.MockitoSugar.reset(mockFeatureFlagService)
+    allFeatureFlags.foreach { flag =>
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
+        .thenReturn(Future.successful(FeatureFlag(flag, false)))
+    }
   }
-
 }
+
 trait ActionBuilderFixture extends ActionBuilder[UserRequest, AnyContent] {
   override def invokeBlock[A](a: Request[A], block: UserRequest[A] => Future[Result]): Future[Result]
   override def parser: BodyParser[AnyContent]               = Helpers.stubBodyParser()

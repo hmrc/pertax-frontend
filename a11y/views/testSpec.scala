@@ -2,18 +2,16 @@ package views
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{AddressTaxCreditsBrokerCallToggle, AppleSaveAndViewNIToggle, FeatureFlag, ItsAdvertisementMessageToggle, NationalInsuranceTileToggle, NpsOutageToggle, NpsShutteringToggle, PaperlessInterruptToggle, PertaxBackendToggle, RlsInterruptToggle, SCAWrapperToggle, SingleAccountCheckToggle, TaxComponentsToggle, TaxSummariesTileToggle, TaxcalcMakePaymentLinkToggle, TaxcalcToggle}
+import models.admin.{FeatureFlag, SCAWrapperToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.{reset, when}
-import org.mockito.MockitoSugar.mock
-import play.api.{Application, inject}
+import org.mockito.Mockito.when
+import play.api.Application
 import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
-import services.admin.FeatureFlagService
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -25,8 +23,6 @@ import scala.concurrent.Future
 import scala.util.Random
 
 class testSpec extends IntegrationSpec {
-
-  val mockFeatureFlagService = mock[FeatureFlagService]
 
   case class ExpectedData(title: String)
   def getExpectedData(key: String): ExpectedData =
@@ -177,35 +173,8 @@ class testSpec extends IntegrationSpec {
 
   override def beforeEach() = {
     super.beforeEach()
-    reset(mockFeatureFlagService)
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, false)))
-    when(mockFeatureFlagService.get(NpsOutageToggle))
-      .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
-    when(mockFeatureFlagService.get(AppleSaveAndViewNIToggle))
-      .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, false)))
-    when(mockFeatureFlagService.get(AddressTaxCreditsBrokerCallToggle))
-      .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
-    when(mockFeatureFlagService.get(ItsAdvertisementMessageToggle))
-      .thenReturn(Future.successful(FeatureFlag(ItsAdvertisementMessageToggle, false)))
+    when(mockFeatureFlagService.get(SCAWrapperToggle))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
@@ -257,7 +226,6 @@ class testSpec extends IntegrationSpec {
   }
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService))
     .configure(
       "feature.breathing-space-indicator.enabled"                     -> true,
       "feature.breathing-space-indicator.timeoutInSec"                -> 4,

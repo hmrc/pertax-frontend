@@ -53,6 +53,7 @@ class FeatureFlagServiceWithCacheSpec
     .build()
 
   override def beforeEach(): Unit = {
+    super.beforeEach()
     reset(mockAppConfig, mockFeatureFlagRepository)
     FeatureFlagName.allFeatureFlags.foreach { flag =>
       cache.remove(flag.toString)

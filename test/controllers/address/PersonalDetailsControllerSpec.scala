@@ -18,7 +18,7 @@ package controllers.address
 
 import controllers.controllershelpers.RlsInterruptHelper
 import models.PersonDetails
-import models.admin.{FeatureFlag, RlsInterruptToggle}
+import models.admin.{FeatureFlag, HmrcAccountToggle, RlsInterruptToggle}
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => meq}
@@ -41,6 +41,8 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(HmrcAccountToggle)))
+      .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, isEnabled = false)))
 
     def rlsInterruptHelper = new RlsInterruptHelper(cc, injected[EditAddressLockRepository], mockFeatureFlagService)
 
@@ -69,6 +71,20 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe MOVED_PERMANENTLY
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
+    }
+
+    "redirect to hmrc-account" when {
+      "hmrc-account is enabled" in new LocalSetup {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(HmrcAccountToggle)))
+          .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, isEnabled = true)))
+
+        override def sessionCacheResponse: Option[CacheMap] = None
+
+        val result: Future[Result] = controller.redirectToYourProfile()(FakeRequest())
+
+        status(result) mustBe MOVED_PERMANENTLY
+        redirectLocation(result) mustBe Some("http://localhost:10600/hmrc-account")
+      }
     }
   }
 
@@ -165,6 +181,29 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
           meq(AddressPageVisitedDto(true))
         )(any(), any(), any())
       verify(mockEditAddressLockRepository, times(1)).get(any())
+    }
+
+    "redirect to hmrc-account" when {
+      "HmrcAccountToggle is enabled" in new LocalSetup {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(HmrcAccountToggle)))
+          .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, isEnabled = true)))
+
+        override def sessionCacheResponse: Option[CacheMap] =
+          Some(
+            CacheMap(
+              "id",
+              Map(
+                "addressPageVisitedDto" -> Json
+                  .toJson(AddressPageVisitedDto(true))
+              )
+            )
+          )
+
+        val result: Future[Result] = controller.onPageLoad(FakeRequest())
+        status(result) mustBe MOVED_PERMANENTLY
+        redirectLocation(result) mustBe Some("http://localhost:10600/hmrc-account")
+
+      }
     }
   }
 }

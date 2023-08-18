@@ -3,6 +3,11 @@ package testUtils
 import akka.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import models.admin.FeatureFlag
+import models.admin.FeatureFlagName.allFeatureFlags
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
@@ -13,6 +18,7 @@ import play.api.cache.AsyncCacheApi
 import play.api.http.Status.NOT_FOUND
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
+import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.{Generator, Nino}
 
 import java.time.LocalDateTime
@@ -35,6 +41,7 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
 
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
+  val mockFeatureFlagService      = mock[FeatureFlagService]
 
   implicit override val patienceConfig: PatienceConfig =
     PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
@@ -104,7 +111,8 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
-        api.inject.bind[AsyncCacheApi].toInstance(mockCacheApi)
+        api.inject.bind[AsyncCacheApi].toInstance(mockCacheApi),
+        api.inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       )
       .configure(
         "microservice.services.citizen-details.port"            -> server.port(),
@@ -117,6 +125,12 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+    org.mockito.MockitoSugar.reset(mockFeatureFlagService)
+    allFeatureFlags.foreach { flag =>
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
+        .thenReturn(Future.successful(FeatureFlag(flag, false)))
+    }
+
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))

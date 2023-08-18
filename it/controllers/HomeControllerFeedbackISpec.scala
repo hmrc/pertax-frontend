@@ -1,13 +1,14 @@
 package controllers
 
-import models.admin.{SCAWrapperToggle, SingleAccountCheckToggle, TaxcalcToggle}
+import models.admin.{FeatureFlag, SingleAccountCheckToggle}
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
-import services.admin.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 
@@ -33,13 +34,11 @@ class HomeControllerFeedbackISpec extends IntegrationSpec {
   }
 
   override def beforeEach(): Unit = {
-    server.resetAll()
+    super.beforeEach()
     beforeEachHomeController()
 
-    lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-    featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
-    featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
-    featureFlagService.set(SCAWrapperToggle, enabled = false).futureValue
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
   }
 
   "personal-account" must {
