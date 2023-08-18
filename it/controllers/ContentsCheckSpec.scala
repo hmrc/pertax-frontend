@@ -398,7 +398,7 @@ class ContentsCheckSpec extends IntegrationSpec {
             .filter(_.contains("accessibility-statement"))
             .head
           accessibilityStatement must include(
-            "http://localhost:12346/accessibility-statement/personal-tax-account?referrerUrl=http%3A%2F%2Flocalhost%3A12346%2Fpersonal-tax-account"
+            "http://localhost:12346/accessibility-statement/personal-account?referrerUrl=http%3A%2F%2Flocalhost%3A12346%2Fpersonal-account"
           )
 
           val urBannerLink = content
@@ -474,7 +474,7 @@ class ContentsCheckSpec extends IntegrationSpec {
             .filter(_.contains("accessibility-statement"))
             .head
           accessibilityStatement must include(
-            "http://localhost:12346/accessibility-statement/personal-tax-account?referrerUrl=http%3A%2F%2Flocalhost%3A12346%2Fpersonal-tax-account"
+            "http://localhost:12346/accessibility-statement/personal-account?referrerUrl=http%3A%2F%2Flocalhost%3A12346%2Fpersonal-account"
           )
 
           val urBannerLink = content
