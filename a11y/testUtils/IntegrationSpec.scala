@@ -43,6 +43,7 @@ trait IntegrationSpec extends AnyWordSpec
   val configTaxYear = 2021
   val testTaxYear = configTaxYear - 1
   val generatedNino = new Generator().nextNino
+  val generatedUtr: String = new Generator().nextAtedUtr.utr
 
   val authResponse =
     s"""

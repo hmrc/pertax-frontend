@@ -21,14 +21,12 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.http.Status.OK
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
-import services.admin.FeatureFlagService
 import scala.concurrent.Future
 import testUtils.BaseSpec
 
 class FeatureFlagsControllerSpec extends BaseSpec {
 
-  implicit val mcc                = inject[MessagesControllerComponents]
-  lazy val mockFeatureFlagService = mock[FeatureFlagService]
+  implicit val mcc = inject[MessagesControllerComponents]
 
   val controller = new FeatureFlagsController(mcc, mockFeatureFlagService)
 

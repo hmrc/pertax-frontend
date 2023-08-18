@@ -26,7 +26,6 @@ import org.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import services.admin.FeatureFlagService
 import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -61,7 +60,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val saAndItsaMergeView        = injected[SaAndItsaMergeView]
   private val enrolmentsHelper          = injected[EnrolmentsHelper]
   private val newsAndTilesConfig        = mock[NewsAndTilesConfig]
-  private val mockFeatureFlagService    = mock[FeatureFlagService]
   private val stubConfigDecorator       = new ConfigDecorator(
     injected[Configuration],
     injected[ServicesConfig]

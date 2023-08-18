@@ -1,14 +1,14 @@
-package views
+package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, put, urlEqualTo, urlMatching, urlPathMatching}
 import models.admin.{AddressTaxCreditsBrokerCallToggle, AppleSaveAndViewNIToggle, FeatureFlag, ItsAdvertisementMessageToggle, NationalInsuranceTileToggle, NpsOutageToggle, NpsShutteringToggle, PaperlessInterruptToggle, PertaxBackendToggle, RlsInterruptToggle, SCAWrapperToggle, SingleAccountCheckToggle, TaxComponentsToggle, TaxSummariesTileToggle, TaxcalcMakePaymentLinkToggle, TaxcalcToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.{reset, when}
 import org.mockito.MockitoSugar.mock
-import play.api.{Application, inject}
 import play.api.http.Status.OK
+import play.api.{Application, inject}
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
@@ -18,25 +18,24 @@ import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
-import uk.gov.hmrc.scalatestaccessibilitylinter.domain.OutputFormat
 
 import java.util.UUID
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.Random
 
-class testSpec extends IntegrationSpec {
-
+class ContentsCheckSpec extends IntegrationSpec {
   val mockFeatureFlagService = mock[FeatureFlagService]
 
-  case class ExpectedData(title: String)
+  case class ExpectedData(title: String, attorneyBannerPresent: Boolean = true, signOutInHeader: Boolean = false)
   def getExpectedData(key: String): ExpectedData =
     key match {
       case "id-check-complete"          =>
-        ExpectedData("Service unavailable - Personal tax account - GOV.UK")
+        ExpectedData("Service unavailable - Personal tax account - GOV.UK", signOutInHeader = true)
       case "sign-in"                    =>
         ExpectedData("Sign in - Personal tax account - GOV.UK")
       case "sa-home"                    =>
-        ExpectedData("Your Self Assessment - Personal tax account - GOV.UK")
+        ExpectedData("Your Self Assessment - Personal tax account - GOV.UK", attorneyBannerPresent = false)
       case "sa-reset-password"          =>
         ExpectedData("You need to reset your password - Personal tax account - GOV.UK")
       case "sa-sign-in-again"           =>
@@ -65,7 +64,8 @@ class testSpec extends IntegrationSpec {
         )
       case "self-assessment-summary"    =>
         ExpectedData(
-          "Self Assessment summary - Personal tax account - GOV.UK"
+          "Self Assessment summary - Personal tax account - GOV.UK",
+          attorneyBannerPresent = false
         )
       case "national-insurance-summary" =>
         ExpectedData("National Insurance summary - Personal tax account - GOV.UK")
@@ -178,6 +178,9 @@ class testSpec extends IntegrationSpec {
   override def beforeEach() = {
     super.beforeEach()
     reset(mockFeatureFlagService)
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
+      FeatureFlag(SCAWrapperToggle, true)
+    )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
@@ -273,6 +276,49 @@ class testSpec extends IntegrationSpec {
 
   val cacheMap = s"/keystore/pertax-frontend"
 
+  val authResponseAttorney =
+    s"""
+       |{
+       |    "confidenceLevel": 200,
+       |    "nino": "$generatedNino",
+       |    "name": {
+       |        "name": "John",
+       |        "lastName": "Smith"
+       |    },
+       |    "loginTimes": {
+       |        "currentLogin": "2021-06-07T10:52:02.594Z",
+       |        "previousLogin": null
+       |    },
+       |    "optionalCredentials": {
+       |        "providerId": "4911434741952698",
+       |        "providerType": "GovernmentGateway"
+       |    },
+       |    "authProviderId": {
+       |        "ggCredId": "xyz"
+       |    },
+       |    "externalId": "testExternalId",
+       |    "allEnrolments": [
+       |       {
+       |          "key":"HMRC-PT",
+       |          "identifiers": [
+       |             {
+       |                "key":"NINO",
+       |                "value": "$generatedNino"
+       |             }
+       |          ]
+       |       }
+       |    ],
+       |    "affinityGroup": "Individual",
+       |    "credentialStrength": "strong",
+       |    "trustedHelper": {
+       |      "principalName": "principalName",
+       |      "attorneyName": "attorneyName",
+       |      "returnLinkUrl": "returnLink",
+       |      "principalNino": "$generatedNino"
+       |    }
+       |}
+       |""".stripMargin
+
   val authResponseSA =
     s"""
        |{
@@ -326,45 +372,83 @@ class testSpec extends IntegrationSpec {
   "/personal-account/" when {
     "calling authenticated pages"   must {
       urls.foreach { case (url, expectedData: ExpectedData) =>
-        s"pass content checks at url $url with SCA wrapper toggle set to true" in {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, true)
-          )
-          server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
+        s"pass content checks at url $url" in {
+          if (expectedData.attorneyBannerPresent) {
+            server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseAttorney)))
+          } else {
+            server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
+          }
           val result: Future[Result] = route(app, request(url)).get
           val content                = Jsoup.parse(contentAsString(result))
 
+          status(result) mustBe OK
           content.title() mustBe expectedData.title
 
-          status(result) mustBe OK
-
-          contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)
-
-        }
-        s"pass content checks at url $url with SCA wrapper toggle set to false" in {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, false)
+          val govUkBanner = content.getElementsByClass("govuk-phase-banner")
+          govUkBanner.size() mustBe 1
+          govUkBanner.get(0).getElementsByClass("govuk-link").get(0).attr("href") must include(
+            "http://localhost:9250/contact/beta-feedback?service=PTA"
           )
-          server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
-          val result: Future[Result] = route(app, request(url)).get
-          val content                = Jsoup.parse(contentAsString(result))
 
-          content.title() mustBe expectedData.title
+          val accessibilityStatement = content
+            .getElementsByClass("govuk-footer__link")
+            .asScala
+            .toList
+            .map(_.attr("href"))
+            .filter(_.contains("accessibility-statement"))
+            .head
+          accessibilityStatement must include(
+            "http://localhost:12346/accessibility-statement/personal-tax-account?referrerUrl=http%3A%2F%2Flocalhost%3A12346%2Fpersonal-tax-account"
+          )
 
-          status(result) mustBe OK
+          val urBannerLink = content
+            .getElementsByClass("hmrc-user-research-banner__link")
+            .get(0)
+            .attr("href")
+          if (url.equals("/personal-account/child-benefit/home"))
+            urBannerLink mustBe "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"
+          else
+            urBannerLink mustBe "https://signup.take-part-in-research.service.gov.uk/home?utm_campaign=PTAhomepage&utm_source=Other&utm_medium=other&t=HMRC&id=209"
 
-          contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)
+          val signoutLink = content
+            .getElementsByClass("hmrc-account-menu__link")
+            .asScala
+            .toList
+            .find(_.html().contains("Sign out"))
+            .get
+            .attr("href")
+          signoutLink mustBe "/personal-account/signout?continueUrl=http%3A%2F%2Flocalhost%3A9514%2Ffeedback%2FPERTAX"
+
+          val displayedMessageCount = content.getElementsByClass("hmrc-notification-badge").get(0).text()
+          displayedMessageCount mustBe messageCount.toString
+
+          val menuItems = content.getElementsByClass("hmrc-account-menu")
+          for (menuItem <- menuWrapperData)
+            menuItems.text() must include(menuItem.text)
+
+          val languageToggle = content.getElementsByClass("hmrc-language-select__list")
+          languageToggle.text() must include("English")
+          languageToggle.text() must include("Cymraeg")
+
+          val reportIssueText = content.getElementsByClass("hmrc-report-technical-issue").get(0).text()
+          val reportIssueLink = content.getElementsByClass("hmrc-report-technical-issue").get(0).attr("href")
+          reportIssueText must include("Is this page not working properly? (opens in new tab)")
+          reportIssueLink must include("/contact/report-technical-problem")
+
+          if (expectedData.attorneyBannerPresent) {
+            val attorneyBannerElement = content.getElementById("attorneyBanner")
+            attorneyBannerElement.hasClass("pta-attorney-banner") mustBe true
+          } else {
+            val attorneyBannerElement = content.getElementById("attorneyBanner")
+            attorneyBannerElement mustBe null
+          }
 
         }
-
       }
     }
     "calling unauthenticated pages" must {
       unauthUrls.foreach { case (url, expectedData: ExpectedData) =>
-        s"pass content checks at url $url with SCA wrapper toggle set to true" in {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, true)
-          )
+        s"pass content checks at url $url" in {
           server.stubFor(
             WireMock
               .get(urlMatching("/mdtp/journey/journeyId/1234"))
@@ -372,30 +456,46 @@ class testSpec extends IntegrationSpec {
           )
 
           val result: Future[Result] = route(app, FakeRequest(GET, url)).get
-
           val content                = Jsoup.parse(contentAsString(result))
+
           content.title() mustBe expectedData.title
 
-          contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)
-
-        }
-        s"pass content checks at url $url with SCA wrapper toggle set to false" in {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, false)
-          )
-          server.stubFor(
-            WireMock
-              .get(urlMatching("/mdtp/journey/journeyId/1234"))
-              .willReturn(ok(s""""{"journeyResult": "LockedOut"}""".stripMargin))
+          val govUkBanner = content.getElementsByClass("govuk-phase-banner")
+          govUkBanner.size() mustBe 1
+          govUkBanner.get(0).getElementsByClass("govuk-link").get(0).attr("href") must include(
+            "http://localhost:9250/contact/beta-feedback?service=PTA"
           )
 
-          val result: Future[Result] = route(app, FakeRequest(GET, url)).get
+          val accessibilityStatement = content
+            .getElementsByClass("govuk-footer__link")
+            .asScala
+            .toList
+            .map(_.attr("href"))
+            .filter(_.contains("accessibility-statement"))
+            .head
+          accessibilityStatement must include(
+            "http://localhost:12346/accessibility-statement/personal-tax-account?referrerUrl=http%3A%2F%2Flocalhost%3A12346%2Fpersonal-tax-account"
+          )
 
-          val content                = Jsoup.parse(contentAsString(result))
-          content.title() mustBe expectedData.title
+          val urBannerLink = content
+            .getElementsByClass("hmrc-user-research-banner__link")
+            .get(0)
+            .attr("href")
+          if (url.equals("/personal-account/child-benefit/home"))
+            urBannerLink mustBe "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"
+          else
+            urBannerLink mustBe "https://signup.take-part-in-research.service.gov.uk/home?utm_campaign=PTAhomepage&utm_source=Other&utm_medium=other&t=HMRC&id=209"
 
-          contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)
+          val menuItems = content
+            .getElementsByClass("hmrc-account-menu__link")
+          menuItems.toString mustBe ""
 
+          val signOutLink =
+            content.getElementsByClass("govuk-link hmrc-sign-out-nav__link").text()
+          if (expectedData.signOutInHeader)
+            signOutLink must include("Sign out")
+          else
+            signOutLink mustNot include("Sign out")
         }
       }
     }

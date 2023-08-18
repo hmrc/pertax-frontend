@@ -17,25 +17,37 @@
 package services.admin
 
 import akka.Done
-import org.mockito.ArgumentCaptor
+import org.mockito.{ArgumentCaptor, MockitoSugar}
 import org.mockito.ArgumentMatchers.any
 import play.api.cache.AsyncCacheApi
 import play.api.inject.bind
 import config.ConfigDecorator
 import models.admin.{AddressTaxCreditsBrokerCallToggle, NationalInsuranceTileToggle, TaxcalcToggle}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.PatienceConfiguration
+import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.inject.guice.GuiceApplicationBuilder
 import repositories.admin.FeatureFlagRepository
-import testUtils.BaseSpec
 
 import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 
-class FeatureFlagServiceSpec extends BaseSpec {
+class FeatureFlagServiceSpec
+    extends AnyWordSpec
+    with GuiceOneAppPerSuite
+    with Matchers
+    with PatienceConfiguration
+    with BeforeAndAfterEach
+    with MockitoSugar {
 
   val mockConfigDecorator       = mock[ConfigDecorator]
   val mockFeatureFlagRepository = mock[FeatureFlagRepository]
   val mockCache                 = mock[AsyncCacheApi]
 
-  override implicit lazy val app = localGuiceApplicationBuilder()
+  override implicit lazy val app = GuiceApplicationBuilder()
     .overrides(
       bind[ConfigDecorator].toInstance(mockConfigDecorator),
       bind[FeatureFlagRepository].toInstance(mockFeatureFlagRepository),
@@ -46,7 +58,7 @@ class FeatureFlagServiceSpec extends BaseSpec {
   override def beforeEach(): Unit =
     reset(mockConfigDecorator, mockFeatureFlagRepository, mockCache)
 
-  val featureFlagService = inject[FeatureFlagService]
+  val featureFlagService = app.injector.instanceOf[FeatureFlagService]
 
   "set" must {
     "set a feature flag" in {

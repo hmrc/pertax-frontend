@@ -21,17 +21,31 @@ import play.api.cache.AsyncCacheApi
 import play.api.inject.bind
 import config.ConfigDecorator
 import models.admin.{DeletedToggle, FeatureFlag, FeatureFlagName, SingleAccountCheckToggle, TaxcalcToggle}
+import org.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.PatienceConfiguration
+import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.inject.guice.GuiceApplicationBuilder
 import repositories.admin.FeatureFlagRepository
-import testUtils.BaseSpec
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 
-class FeatureFlagServiceWithCacheSpec extends BaseSpec {
+class FeatureFlagServiceWithCacheSpec
+    extends AnyWordSpec
+    with GuiceOneAppPerSuite
+    with Matchers
+    with PatienceConfiguration
+    with BeforeAndAfterEach
+    with MockitoSugar {
 
   val mockAppConfig             = mock[ConfigDecorator]
   val mockFeatureFlagRepository = mock[FeatureFlagRepository]
 
-  override implicit lazy val app = localGuiceApplicationBuilder()
+  override implicit lazy val app = GuiceApplicationBuilder()
     .overrides(
       bind[ConfigDecorator].toInstance(mockAppConfig),
       bind[FeatureFlagRepository].toInstance(mockFeatureFlagRepository)
@@ -46,8 +60,8 @@ class FeatureFlagServiceWithCacheSpec extends BaseSpec {
     cache.remove("*$*$allFeatureFlags*$*$")
   }
 
-  lazy val featureFlagService = inject[FeatureFlagService]
-  lazy val cache              = inject[AsyncCacheApi]
+  lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
+  lazy val cache              = app.injector.instanceOf[AsyncCacheApi]
 
   "getAll" must {
     "get all the feature flags defaulted to false" when {

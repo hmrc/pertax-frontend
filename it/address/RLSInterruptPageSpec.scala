@@ -50,6 +50,8 @@ class RLSInterruptPageSpec extends IntegrationSpec {
     .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, true)))
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
     .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
+    .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
   "personal-account" must {
     "show rls interrupt" when {

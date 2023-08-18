@@ -42,10 +42,9 @@ import scala.concurrent.Future
 
 class GetPersonDetailsActionSpec extends BaseSpec {
 
-  val mockMessageFrontendService                 = mock[MessageFrontendService]
-  val mockCitizenDetailsService                  = mock[CitizenDetailsService]
-  val configDecorator: ConfigDecorator           = mock[ConfigDecorator]
-  val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+  val mockMessageFrontendService       = mock[MessageFrontendService]
+  val mockCitizenDetailsService        = mock[CitizenDetailsService]
+  val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
@@ -95,11 +94,11 @@ class GetPersonDetailsActionSpec extends BaseSpec {
   override def beforeEach() = {
     super.beforeEach()
     reset(mockCitizenDetailsService)
+    when(mockMessageFrontendService.getUnreadMessageCount(any()))
+      .thenReturn(Future.successful(Some(1)))
   }
 
   "GetPersonDetailsAction" when {
-    when(mockMessageFrontendService.getUnreadMessageCount(any()))
-      .thenReturn(Future.successful(Some(1)))
 
     "a user has PersonDetails in CitizenDetails" must {
 
@@ -154,6 +153,7 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
     "when the person details message count toggle is set to true" must {
       "return a request with the unread message count" in {
+
         when(mockFeatureFlagService.get(NpsOutageToggle))
           .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
 

@@ -24,20 +24,20 @@ import views.html.ViewSpec
 
 class ViewBreathingSpaceViewSpec extends ViewSpec {
 
-  lazy val viewBreathingSpaceView = injected[ViewBreathingSpaceView]
+  lazy val viewBreathingSpaceView: ViewBreathingSpaceView = injected[ViewBreathingSpaceView]
 
   lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest                           = buildUserRequest(request = FakeRequest())
 
   "Rendering ViewBreathingSpaceView.scala.html" must {
 
-    implicit val userRequest = buildUserRequest(request = FakeRequest())
-
-    val doc =
-      asDocument(
-        viewBreathingSpaceView(s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/breathing-space").toString
-      )
     "show content" in {
+      implicit val userRequest = buildUserRequest(request = FakeRequest())
+
+      val doc =
+        asDocument(
+          viewBreathingSpaceView(s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/breathing-space").toString
+        )
 
       doc.text() must include(Messages("label.you_are_in_breathing_space"))
       doc.text() must include(Messages("label.add_interest_or_charges_to_your_debt"))

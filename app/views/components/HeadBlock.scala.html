@@ -15,14 +15,9 @@
  *@
 
 @this()
+@(stylesheets: Option[Html])
 
-@(href: String = "#", backLinkID: Boolean = true, attrs: Map[String, String] = Map.empty)(implicit messages: Messages)
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
 
-@attrValues = @{
-  attrs.map{
-    case(key, value) => key + "=" + value
-  }
-}
-    <a href="@href" class="govuk-back-link print-hidden" @attrValues @if(backLinkID){id="back-link"} >@messages("label.back")</a>
-
-
+    @stylesheets

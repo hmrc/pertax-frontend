@@ -42,11 +42,9 @@
 @(
     pageTitle: String,
     sidebarContent: Option[Html] = None,
-    beforeContentHtml: Option[Html] = None,
     showBackLink: Boolean = false,
     disableSessionExpired: Boolean = false,
-    fullWidth: Boolean = false,
-    scripts: Option[Html] = None
+    fullWidth: Boolean = false
 )(content: Html)(implicit request: Request[_], messages: Messages)
 
 @headBlock = {
@@ -78,10 +76,6 @@
         </div>
     } else {
         @hmrcLanguageSelectHelper()
-    }
-
-    @if(beforeContentHtml.isDefined){
-        @beforeContentHtml
     }
 }
 
