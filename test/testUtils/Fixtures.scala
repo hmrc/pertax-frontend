@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, FakeAuthJourney}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
-import models.admin.FeatureFlag
+import models.admin.{FeatureFlag, SCAWrapperToggle}
 import models.admin.FeatureFlagName.allFeatureFlags
 import models.dto.AddressDto
 import org.mockito.ArgumentMatchers.any
@@ -383,6 +383,8 @@ trait BaseSpec
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, false)))
     }
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
   }
 }
 

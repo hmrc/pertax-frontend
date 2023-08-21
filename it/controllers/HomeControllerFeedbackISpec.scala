@@ -5,7 +5,6 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
-import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
@@ -45,10 +44,7 @@ class HomeControllerFeedbackISpec extends IntegrationSpec {
     "show the correct feedback link" in {
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
-      contentAsString(result).contains(
-        Messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text")
-      ) mustBe true
-      contentAsString(result).contains("/contact/beta-feedback-unauthenticated") mustBe true
+      contentAsString(result).contains("/contact/beta-feedback") mustBe true
     }
   }
 }

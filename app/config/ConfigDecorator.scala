@@ -148,7 +148,7 @@ class ConfigDecorator @Inject() (
     )
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String): String =
-    s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
+    s"$contactHost/contact/beta-feedback?service=$aDeskproToken"
 
   lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
 

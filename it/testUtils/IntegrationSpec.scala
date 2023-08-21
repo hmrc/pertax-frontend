@@ -3,7 +3,7 @@ package testUtils
 import akka.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.admin.FeatureFlag
+import models.admin.{FeatureFlag, SCAWrapperToggle}
 import models.admin.FeatureFlagName.allFeatureFlags
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -130,6 +130,8 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, false)))
     }
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
