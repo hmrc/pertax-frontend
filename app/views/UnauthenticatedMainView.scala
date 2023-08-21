@@ -85,12 +85,14 @@ class UnauthenticatedMainViewImpl @Inject() (
         serviceNameKey = Some(messages("label.your_personal_tax_account")),
         serviceNameUrl = Some(appConfig.personalAccount),
         //sidebarContent: Option[Html] = None,
-        signoutUrl = controllers.routes.SessionManagementController.timeOut.url,
+        signoutUrl = controllers.routes.ApplicationController
+          .signout(Some(RedirectUrl(appConfig.getFeedbackSurveyUrl(appConfig.defaultOrigin))), None)
+          .url,
         timeOutUrl = Some(controllers.routes.SessionManagementController.timeOut.url),
         keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
         showBackLinkJS = showBackLink,
         //backLinkUrl: Option[String] = None,
-        //showSignOutInHeader: Boolean = false,
+        showSignOutInHeader = !disableSessionExpired,
         scripts = Seq(additionalScripts(None)),
         styleSheets = Seq(headBlock(None)),
         //bannerConfig: BannerConfig = defaultBannerConfig,
