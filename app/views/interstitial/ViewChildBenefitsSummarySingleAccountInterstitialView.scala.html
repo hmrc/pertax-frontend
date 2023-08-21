@@ -70,7 +70,7 @@
         }
     }
 
-    @main(pageTitle = messages("label.child_benefit"), showChildBenefitBanner = true, showBackLink = true) {
+    @main(pageTitle = messages("label.child_benefit"), showBackLink = true) {
 
         @h1(messages("label.child_benefit"), classes = Some("govuk-heading-l govuk-!-padding-bottom-6"))
         @if(request.nino.isDefined) {
