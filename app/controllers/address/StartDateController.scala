@@ -84,7 +84,7 @@ class StartDateController @Inject() (
             .bindFromRequest()
             .fold(
               formWithErrors => Future.successful(BadRequest(enterStartDateView(formWithErrors, typ))),
-              (dateDto: DateDto) =>
+              dateDto =>
                 cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map { _ =>
                   val proposedStartDate = dateDto.startDate
 
