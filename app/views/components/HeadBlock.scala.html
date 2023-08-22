@@ -15,9 +15,11 @@
  *@
 
 @this()
-@(stylesheets: Option[Html])
+@import views.html.helper.CSPNonce
+
+@(scripts: Option[Html])(implicit request: UserRequest[_])
 
     <meta name="format-detection" content="telephone=no" />
-    <link rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
+    <link @CSPNonce.attr rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
 
     @stylesheets
