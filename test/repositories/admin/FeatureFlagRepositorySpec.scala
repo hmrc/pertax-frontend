@@ -19,11 +19,23 @@ package repositories.admin
 import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, FeatureFlagName, SingleAccountCheckToggle}
 import org.mongodb.scala.MongoWriteException
 import org.mongodb.scala.bson.BsonDocument
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.PatienceConfiguration
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
-import testUtils.BaseSpec
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class FeatureFlagRepositorySpec extends BaseSpec with DefaultPlayMongoRepositorySupport[FeatureFlag] {
+class FeatureFlagRepositorySpec
+    extends AnyWordSpec
+    with GuiceOneAppPerSuite
+    with Matchers
+    with PatienceConfiguration
+    with BeforeAndAfterEach
+    with DefaultPlayMongoRepositorySupport[FeatureFlag] {
 
   override protected lazy val optSchema = Some(BsonDocument("""
       { bsonType: "object"
@@ -37,8 +49,8 @@ class FeatureFlagRepositorySpec extends BaseSpec with DefaultPlayMongoRepository
       }
     """))
 
-  override implicit lazy val app = localGuiceApplicationBuilder()
-    .configure(Map("mongodb.uri" -> mongoUri) ++ configValues)
+  override implicit lazy val app = GuiceApplicationBuilder()
+    .configure(Map("mongodb.uri" -> mongoUri))
     .build()
 
   override val checkTtlIndex = false

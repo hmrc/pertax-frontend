@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.admin.{FeatureFlag, PaperlessInterruptToggle, RlsInterruptToggle}
+import models.admin.{FeatureFlag, RlsInterruptToggle}
 import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -28,7 +28,6 @@ import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
-import services.admin.FeatureFlagService
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -40,13 +39,10 @@ import scala.concurrent.Future
 
 class RlsControllerSpec extends BaseSpec {
 
-  val mockAuthJourney        = mock[AuthJourney]
-  val mockAuditConnector     = mock[AuditConnector]
-  val mockFeatureFlagService = mock[FeatureFlagService]
+  val mockAuthJourney    = mock[AuthJourney]
+  val mockAuditConnector = mock[AuditConnector]
 
   when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-    .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, true)))
 
   def controller: RlsController =
     new RlsController(
@@ -59,6 +55,12 @@ class RlsControllerSpec extends BaseSpec {
       injected[CheckYourAddressInterruptView],
       injected[InternalServerErrorView]
     )(injected[ConfigDecorator], ec)
+
+  override def beforeEach() = {
+    super.beforeEach()
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
+      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+  }
 
   "rlsInterruptOnPageLoad" must {
     "return internal server error" when {

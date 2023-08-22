@@ -52,7 +52,8 @@ class FeatureFlagsController @Inject() (
           TaxSummariesTileToggle            -> true,
           SingleAccountCheckToggle          -> false,
           AppleSaveAndViewNIToggle          -> false,
-          PertaxBackendToggle               -> true
+          PertaxBackendToggle               -> true,
+          SCAWrapperToggle                  -> true
         )
       )
       .map(_ => Ok("Default flags set"))

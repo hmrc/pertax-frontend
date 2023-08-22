@@ -27,7 +27,6 @@ import play.api.libs.json.{JsBoolean, Json}
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{await, contentAsString, defaultAwaitTimeout, status}
-import services.admin.FeatureFlagService
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.internalauth.client.Predicate.Permission
@@ -50,7 +49,6 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
     )
 
   lazy val mockStubBehaviour      = mock[StubBehaviour]
-  lazy val mockFeatureFlagService = mock[FeatureFlagService]
   lazy val fakeInternalAuthAction =
     new InternalAuthAction(
       new ConfigDecorator(injected[Configuration], injected[ServicesConfig]),
@@ -61,7 +59,7 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockStubBehaviour, mockFeatureFlagService)
+    reset(mockStubBehaviour)
     when(mockStubBehaviour.stubAuth(Some(expectedPermission), Retrieval.username))
       .thenReturn(Future.successful(Retrieval.Username("Test")))
   }

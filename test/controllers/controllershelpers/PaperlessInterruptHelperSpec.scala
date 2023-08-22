@@ -31,7 +31,6 @@ import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.admin.FeatureFlagService
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
@@ -43,13 +42,11 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
-      bind[FeatureFlagService].toInstance(mockFeatureFlagService),
       bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
     )
     .build()
 
   lazy val paperlessInterruptHelper         = app.injector.instanceOf[PaperlessInterruptHelper]
-  lazy val mockFeatureFlagService           = mock[FeatureFlagService]
   lazy val mockPreferencesFrontendConnector = mock[PreferencesFrontendConnector]
 
   val okBlock: Result = Ok("Block")

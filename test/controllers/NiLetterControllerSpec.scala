@@ -28,7 +28,6 @@ import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.admin.FeatureFlagService
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -44,15 +43,13 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
   val mockInterstitialController: InterstitialController = mock[InterstitialController]
   val mockHomeController: HomeController                 = mock[HomeController]
   val mockRlsConfirmAddressController: RlsController     = mock[RlsController]
-  val mockFeatureFlagService: FeatureFlagService         = mock[FeatureFlagService]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[PdfGeneratorConnector].toInstance(mockPdfGeneratorConnector),
       bind[HomeController].toInstance(mockHomeController),
-      bind[RlsController].toInstance(mockRlsConfirmAddressController),
-      bind[FeatureFlagService].toInstance(mockFeatureFlagService)
+      bind[RlsController].toInstance(mockRlsConfirmAddressController)
     )
     .configure(configValues)
     .build()

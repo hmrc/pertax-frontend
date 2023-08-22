@@ -15,14 +15,10 @@
  *@
 
 @this()
+@(scripts: Option[Html])
 
-@(href: String = "#", backLinkID: Boolean = true, attrs: Map[String, String] = Map.empty)(implicit messages: Messages)
-
-@attrValues = @{
-  attrs.map{
-    case(key, value) => key + "=" + value
-  }
-}
-    <a href="@href" class="govuk-back-link print-hidden" @attrValues @if(backLinkID){id="back-link"} >@messages("label.back")</a>
-
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
+    @scripts
 

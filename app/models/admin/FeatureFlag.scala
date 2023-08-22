@@ -84,7 +84,8 @@ object FeatureFlagName {
       AppleSaveAndViewNIToggle,
       NpsShutteringToggle,
       NpsOutageToggle,
-      PertaxBackendToggle
+      PertaxBackendToggle,
+      SCAWrapperToggle
     )
 }
 
@@ -173,6 +174,13 @@ case object NpsOutageToggle extends FeatureFlagName {
 
   override val description: Option[String] = Some(
     "Enable/disable calls to NPS so as not to cause errors during an NPS outage"
+  )
+}
+
+case object SCAWrapperToggle extends FeatureFlagName {
+  override def toString: String            = "sca-wrapper-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable the SCA Wrapper layout"
   )
 }
 

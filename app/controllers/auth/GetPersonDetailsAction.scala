@@ -21,7 +21,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
-import models.admin.{FeatureFlag, NpsOutageToggle}
+import models.admin.{FeatureFlag, NpsOutageToggle, SCAWrapperToggle}
 import play.api.http.Status.LOCKED
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
@@ -68,10 +68,12 @@ class GetPersonDetailsAction @Inject() (
     }
 
   def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
-    if (configDecorator.personDetailsMessageCountEnabled) {
-      messageFrontendService.getUnreadMessageCount
-    } else {
-      Future.successful(None)
+    featureFlagService.get(SCAWrapperToggle).flatMap { toggle =>
+      if (configDecorator.personDetailsMessageCountEnabled && !toggle.isEnabled) {
+        messageFrontendService.getUnreadMessageCount
+      } else {
+        Future.successful(None)
+      }
     }
 
   private def getPersonDetails()(implicit request: UserRequest[_]): EitherT[Future, Result, Option[PersonDetails]] = {
