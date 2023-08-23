@@ -14,10 +14,11 @@
  * limitations under the License.
  *@
 
-@this()
 @import views.html.helper.CSPNonce
 
-@(scripts: Option[Html])(implicit request: UserRequest[_])
+@this()
+
+@(scripts: Option[Html])(implicit request: Request[_])
 
 
     <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
