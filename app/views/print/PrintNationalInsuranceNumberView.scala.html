@@ -16,6 +16,7 @@
 
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
+@import views.html.helper.CSPNonce
 
 @this(
     main: MainView,
@@ -26,7 +27,7 @@
 @(personDetails: models.PersonDetails, dateString: String, saveNiLetterAsPdfLinkEnabled: Boolean, nino : Option[Nino])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @stylesheet = {
-    <link rel="stylesheet" href='@routes.AssetsController.versioned("stylesheets/partials/print-this-document.css")'>
+    <link @CSPNonce.attr rel="stylesheet" href='@routes.AssetsController.versioned("stylesheets/partials/print-this-document.css")'>
 }
 
 @main(
