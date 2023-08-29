@@ -83,7 +83,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         val result: Future[Result] = controller.redirectToYourProfile()(FakeRequest())
 
         status(result) mustBe MOVED_PERMANENTLY
-        redirectLocation(result) mustBe Some("http://localhost:10600/hmrc-account")
+        redirectLocation(result) mustBe Some("http://localhost:10600/hmrc-account/update-your-details")
       }
     }
   }
@@ -201,7 +201,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
         val result: Future[Result] = controller.onPageLoad(FakeRequest())
         status(result) mustBe MOVED_PERMANENTLY
-        redirectLocation(result) mustBe Some("http://localhost:10600/hmrc-account")
+        redirectLocation(result) mustBe Some("http://localhost:10600/hmrc-account/update-your-details")
 
       }
     }

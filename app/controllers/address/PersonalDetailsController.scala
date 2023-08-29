@@ -62,7 +62,7 @@ class PersonalDetailsController @Inject() (
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>
     featureFlagService.get(HmrcAccountToggle).map { toggle =>
       if (toggle.isEnabled) {
-        Redirect(s"${configDecorator.hmrcAccountUrl}/hmrc-account", MOVED_PERMANENTLY)
+        Redirect(configDecorator.hmrcAccountUrl, MOVED_PERMANENTLY)
       } else {
         Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad, MOVED_PERMANENTLY)
       }
@@ -73,7 +73,7 @@ class PersonalDetailsController @Inject() (
     authenticate.async { implicit request =>
       featureFlagService.get(HmrcAccountToggle).flatMap { toggle =>
         if (toggle.isEnabled) {
-          Future.successful(Redirect(s"${configDecorator.hmrcAccountUrl}/hmrc-account", MOVED_PERMANENTLY))
+          Future.successful(Redirect(configDecorator.hmrcAccountUrl, MOVED_PERMANENTLY))
         } else {
           import models.dto.AddressPageVisitedDto
 
