@@ -63,7 +63,9 @@ class ConfigDecorator @Inject() (
   lazy val addTaxesFrontendUrl: String = servicesConfig.baseUrl("add-taxes-frontend")
   lazy val addTaxesPtaOrigin: String   = "pta-sa"
 
-  lazy val pertaxUrl: String = servicesConfig.baseUrl("pertax")
+  lazy val pertaxUrl: String      = servicesConfig.baseUrl("pertax")
+  lazy val hmrcAccountUrl: String =
+    s"${servicesConfig.baseUrl("sca-change-of-circumstances-frontend")}/hmrc-account/update-your-details"
 
   private def getExternalUrl(key: String): Option[String] =
     runModeConfiguration.getOptional[String](s"external-url.$key")
@@ -147,7 +149,7 @@ class ConfigDecorator @Inject() (
     )
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String): String =
-    s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
+    s"$contactHost/contact/beta-feedback?service=$aDeskproToken"
 
   lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
 

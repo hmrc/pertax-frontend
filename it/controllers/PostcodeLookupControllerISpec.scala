@@ -2,16 +2,19 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
-import models.admin.{RlsInterruptToggle, SingleAccountCheckToggle, TaxComponentsToggle, TaxcalcToggle}
+import models.admin.{FeatureFlag, SingleAccountCheckToggle, TaxComponentsToggle}
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsFormUrlEncoded}
-import services.admin.FeatureFlagService
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+
+import scala.concurrent.Future
 
 class PostcodeLookupControllerISpec extends IntegrationSpec {
 
@@ -108,7 +111,7 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
        |""".stripMargin
 
   override def beforeEach(): Unit = {
-    server.resetAll()
+    super.beforeEach()
     beforeEachHomeController()
 
     server.stubFor(
@@ -143,11 +146,10 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
         .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
     )
 
-    lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-    featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
-    featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
-    featureFlagService.set(TaxComponentsToggle, enabled = true).futureValue
-    featureFlagService.set(RlsInterruptToggle, enabled = false).futureValue
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, false)))
   }
 
   "personal-account" must {

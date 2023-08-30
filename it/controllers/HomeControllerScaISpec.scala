@@ -7,12 +7,11 @@ import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDe
 import models.admin._
 import org.jsoup.Jsoup
 import org.mockito.{ArgumentMatchers, MockitoSugar}
-import play.api.{Application, inject}
+import play.api.Application
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
-import services.admin.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
@@ -28,10 +27,7 @@ import scala.util.Random
 
 class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
 
-  val mockFeatureFlagService = mock[FeatureFlagService]
-
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService))
     .configure(
       "feature.breathing-space-indicator.enabled"                     -> true,
       "feature.breathing-space-indicator.timeoutInSec"                -> 4,
@@ -170,8 +166,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
       .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
@@ -182,14 +176,8 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, false)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
       .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, true)))
   }

@@ -47,7 +47,10 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
     bind[SessionCacheRepository].toInstance(mockSessionCacheRepository)
   )
 
-  override def beforeEach(): Unit = reset(mockAgentClientAuthorisationConnector, mockSessionCacheRepository)
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockAgentClientAuthorisationConnector, mockSessionCacheRepository)
+  }
 
   def connector: CachingAgentClientAuthorisationConnector = injected[CachingAgentClientAuthorisationConnector]
   val url                                                 = "/agent-client-authorisation/status"

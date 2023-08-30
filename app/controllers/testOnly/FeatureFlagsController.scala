@@ -53,7 +53,8 @@ class FeatureFlagsController @Inject() (
           SingleAccountCheckToggle          -> false,
           AppleSaveAndViewNIToggle          -> false,
           PertaxBackendToggle               -> true,
-          SCAWrapperToggle                  -> true
+          SCAWrapperToggle                  -> true,
+          HmrcAccountToggle                 -> false
         )
       )
       .map(_ => Ok("Default flags set"))

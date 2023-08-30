@@ -19,7 +19,7 @@ package controllers.auth
 import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.admin.{FeatureFlag, NpsOutageToggle}
+import models.admin.{FeatureFlag, NpsOutageToggle, SCAWrapperToggle}
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
@@ -152,21 +152,26 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     }
 
     "when the person details message count toggle is set to true" must {
-      "return a request with the unread message count" in {
+      "return a request with the unread message count" when {
+        "SCA wrapper toggle is false" in {
 
-        when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+          when(mockFeatureFlagService.get(NpsOutageToggle))
+            .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
 
-        when(mockCitizenDetailsService.personDetails(any())(any(), any()))
-          .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
+          when(mockFeatureFlagService.get(SCAWrapperToggle))
+            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
-        when(configDecorator.personDetailsMessageCountEnabled).thenReturn(true)
+          when(mockCitizenDetailsService.personDetails(any())(any(), any()))
+            .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
 
-        val result = harness(unreadMessageCountBlock)(refinedRequest)
-        status(result) mustBe OK
-        contentAsString(result) mustBe "Person Details: 1"
+          when(configDecorator.personDetailsMessageCountEnabled).thenReturn(true)
 
-        verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
+          val result = harness(unreadMessageCountBlock)(refinedRequest)
+          status(result) mustBe OK
+          contentAsString(result) mustBe "Person Details: 1"
+
+          verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
+        }
       }
     }
 

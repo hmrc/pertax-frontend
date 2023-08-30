@@ -5,12 +5,10 @@ import config.ConfigDecorator
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, status => getStatus, _}
-import play.api.{Application, inject}
-import services.admin.FeatureFlagService
+import play.api.Application
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import views.html.InternalServerErrorView
@@ -19,46 +17,33 @@ import scala.concurrent.Future
 
 class PertaxAuthActionItSpec extends IntegrationSpec {
 
-  val url                    = "/personal-account"
-  val mockFeatureFlagService = mock[FeatureFlagService]
+  val url = "/personal-account"
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
       "microservice.services.pertax.port" -> server.port()
     )
-    .overrides(
-      inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService)
-    )
     .build()
-
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-    .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-    .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-    .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-    .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-    .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-    .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-    .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
-    .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle)))
-    .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, false)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-    .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-    .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
   override def beforeEach() = {
     super.beforeEach()
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
+      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
       .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, true)))
   }

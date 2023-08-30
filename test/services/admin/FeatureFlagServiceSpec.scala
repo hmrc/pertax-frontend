@@ -55,8 +55,10 @@ class FeatureFlagServiceSpec
     )
     .build()
 
-  override def beforeEach(): Unit =
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     reset(mockConfigDecorator, mockFeatureFlagRepository, mockCache)
+  }
 
   val featureFlagService = app.injector.instanceOf[FeatureFlagService]
 

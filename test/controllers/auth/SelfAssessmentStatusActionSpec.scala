@@ -47,8 +47,10 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
     .configure(Map("metrics.enabled" -> false))
     .build()
 
-  override def beforeEach(): Unit =
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     reset(mockCitizenDetailsService)
+  }
 
   def harness[A]()(implicit request: AuthenticatedRequest[A]): Future[Result] = {
 

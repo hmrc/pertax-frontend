@@ -1,14 +1,15 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{SingleAccountCheckToggle, TaxcalcToggle}
+import models.admin.{FeatureFlag, SingleAccountCheckToggle}
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
-import services.admin.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 
@@ -34,7 +35,8 @@ class HomeControllerMciISpec extends IntegrationSpec {
   }
 
   override def beforeEach(): Unit = {
-    server.resetAll()
+    super.beforeEach()
+
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(
@@ -43,9 +45,8 @@ class HomeControllerMciISpec extends IntegrationSpec {
     )
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
 
-    lazy val featureFlagService = app.injector.instanceOf[FeatureFlagService]
-    featureFlagService.set(TaxcalcToggle, enabled = false).futureValue
-    featureFlagService.set(SingleAccountCheckToggle, enabled = true).futureValue
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
   }
 
   "personal-account" must {

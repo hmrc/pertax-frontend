@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlMatching}
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
 import models.admin.{FeatureFlag, SCAWrapperToggle}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
+import org.jsoup.select.NodeFilter
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
 import org.scalatest.Assertion
-import play.api.{Application, inject}
-import play.api.mvc.{AnyContentAsEmpty, Request}
+import play.api.Application
+import play.api.libs.json.Json
+import play.api.libs.typedmap.TypedMap
+import play.api.mvc.request.{Cell, RequestAttrKey}
+import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies, Request}
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import services.admin.FeatureFlagService
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
@@ -35,28 +40,29 @@ import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.utils.Keys
 import views.html.MainView
 
 import java.time.LocalDate
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
+import scala.jdk.CollectionConverters._
 
 class MainViewSpec extends IntegrationSpec {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
 
-  val mockFeatureFlagService = mock[FeatureFlagService]
-
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService))
     .configure(
       Map(
-        "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
-        "metrics.enabled"               -> false
+        "cookie.encryption.key"                                         -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "sso.encryption.key"                                            -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "queryParameter.encryption.key"                                 -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "json.encryption.key"                                           -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "metrics.enabled"                                               -> false,
+        "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port()}"
       )
     )
     .build()
@@ -97,10 +103,34 @@ class MainViewSpec extends IntegrationSpec {
 
   implicit lazy val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
+  val wrapperDataResponse = Json
+    .toJson(
+      WrapperDataResponse(
+        Seq(
+          MenuItemConfig("id", "NewLayout Item", "link", false, 0, None, None),
+          MenuItemConfig("signout", "Sign out", "link", false, 0, None, None)
+        ),
+        PtaMinMenuConfig("MenuName", "BackName")
+      )
+    )
+    .toString
+
   trait LocalSetup {
 
     when(mockFeatureFlagService.get(SCAWrapperToggle))
-      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
+
+    server.stubFor(
+      WireMock
+        .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
+        .willReturn(ok(s"""{"count": 0}"""))
+    )
+
+    server.stubFor(
+      WireMock
+        .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
+        .willReturn(ok(wrapperDataResponse))
+    )
 
     def buildUserRequest[A](
       nino: Option[Nino] = Some(testNino),
@@ -217,7 +247,10 @@ class MainViewSpec extends IntegrationSpec {
 
       "show the number of unread messages in the Messages link" when {
 
-        "unread message count is populated in the request" in new LocalSetup {
+        "the sca-wrapper toggle is disabled" in new LocalSetup {
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
+            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
+
           val msgCount                                                           = 21
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(request = FakeRequest(), messageCount = Some(msgCount))
@@ -231,17 +264,23 @@ class MainViewSpec extends IntegrationSpec {
       }
 
       "render the Your Profile link" in new LocalSetup {
-        assertContainsLink(doc, "Profile and settings", "/personal-account/your-profile")
+        assertContainsLink(doc, "Profile and settings", "/personal-account/profile-and-settings")
       }
 
       "render the BTA link" when {
         "the user is GG and has SA enrolments" in new LocalSetup {
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
+            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
+
           assertContainsLink(doc, "Business tax account", "/business-account")
         }
       }
 
       "do not render the BTA link" when {
         "the user is GG and not an SA user" in new LocalSetup {
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
+            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
+
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequestNoSA()
 
           assert(doc.getElementsContainingText("Business tax account").isEmpty)
@@ -249,6 +288,8 @@ class MainViewSpec extends IntegrationSpec {
       }
 
       "render the sign out link" in new LocalSetup {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
+          .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
         val href = controllers.routes.ApplicationController
           .signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None)
@@ -261,6 +302,8 @@ class MainViewSpec extends IntegrationSpec {
     "displaying the page body" must {
 
       "render the back link" in new LocalSetup {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
+          .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
         val backLink = doc.getElementById("back-link")
 

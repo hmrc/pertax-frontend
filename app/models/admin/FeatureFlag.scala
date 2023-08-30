@@ -85,7 +85,8 @@ object FeatureFlagName {
       NpsShutteringToggle,
       NpsOutageToggle,
       PertaxBackendToggle,
-      SCAWrapperToggle
+      SCAWrapperToggle,
+      HmrcAccountToggle
     )
 }
 
@@ -181,6 +182,14 @@ case object SCAWrapperToggle extends FeatureFlagName {
   override def toString: String            = "sca-wrapper-toggle"
   override val description: Option[String] = Some(
     "Enable/disable the SCA Wrapper layout"
+  )
+}
+
+case object HmrcAccountToggle extends FeatureFlagName {
+  override def toString: String = "hmrc-account-toggle"
+
+  override val description: Option[String] = Some(
+    "Enable/disable the hmrc-account service replacing the Profile and Settings page"
   )
 }
 
