@@ -65,7 +65,7 @@ class ConfigDecorator @Inject() (
 
   lazy val pertaxUrl: String      = servicesConfig.baseUrl("pertax")
   lazy val hmrcAccountUrl: String =
-    s"${getExternalUrl("sca-change-of-circumstances-frontend.host")}/hmrc-account/update-your-details"
+    s"${getExternalUrl("sca-change-of-circumstances-frontend.host").getOrElse("")}/hmrc-account/update-your-details"
 
   private def getExternalUrl(key: String): Option[String] =
     runModeConfiguration.getOptional[String](s"external-url.$key")
