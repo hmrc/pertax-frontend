@@ -50,10 +50,10 @@ class PertaxAuthAction @Inject() (
     with Logging {
 
   override def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] = {
-    implicit val hc: HeaderCarrier           =
+    implicit val hc: HeaderCarrier                        =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    implicit val implicitConfigDecorator     = configDecorator
-    implicit val userRequest: UserRequest[A] = request
+    implicit val implicitConfigDecorator: ConfigDecorator = configDecorator
+    implicit val userRequest: UserRequest[A]              = request
 
     featureFlagService.get(PertaxBackendToggle).flatMap { toggle =>
       request.nino match {

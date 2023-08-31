@@ -91,7 +91,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
     "the pertax API returns an ACCESS_GRANTED response" must {
       "load the request" in {
         when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-          FeatureFlag(PertaxBackendToggle, true)
+          FeatureFlag(PertaxBackendToggle, isEnabled = true)
         )
         when(mockPertaxConnector.pertaxAuthorise(any())(any()))
           .thenReturn(
@@ -108,7 +108,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
     "the pertax API response returns a NO_HMRC_PT_ENROLMENT response" must {
       "redirect to the returned location" in {
         when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-          FeatureFlag(PertaxBackendToggle, true)
+          FeatureFlag(PertaxBackendToggle, isEnabled = true)
         )
         when(mockPertaxConnector.pertaxAuthorise(any())(any()))
           .thenReturn(
@@ -150,7 +150,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
           .thenReturn(Future.successful(HtmlPartial.Success(None, Html("Should be in the resulting view"))))
 
         when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-          FeatureFlag(PertaxBackendToggle, true)
+          FeatureFlag(PertaxBackendToggle, isEnabled = true)
         )
 
         val result = pertaxAuthAction.refine(expectedRequest).futureValue
@@ -162,27 +162,49 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
       }
     }
 
-//    "the pertax API response returns an unexpected response" must {
-//      "throw an internal server error" in {
-//        when(mockPertaxConnector.pertaxAuthorise(any())(any()))
-//          .thenReturn(
-//            EitherT[Future, UpstreamErrorResponse, PertaxResponse](
-//              Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
-//            )
-//          )
-//        when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-//          FeatureFlag(PertaxBackendToggle, true)
-//        )
-//
-//        val result = pertaxAuthAction.refine(expectedRequest).futureValue
-//
-//        result mustBe a[Right[_, _]]
-//        val resultValue = result.swap.getOrElse(Result(ResponseHeader(IM_A_TEAPOT, Map("" -> "")), HttpEntity.NoEntity))
-//        resultValue.header.status mustBe INTERNAL_SERVER_ERROR
-//        contentAsString(Future.successful(resultValue)) must include(
-//          messages("global.error.InternalServerError500.pta.title")
-//        )
-//      }
-//    }
+    "the toggle not enabled" must {
+      "return success and the expected request" in {
+
+        when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
+          FeatureFlag(PertaxBackendToggle, isEnabled = false)
+        )
+
+        val result = pertaxAuthAction.refine(expectedRequest).futureValue
+
+        result mustBe a[Right[_, _]]
+        result must be(Right(expectedRequest))
+      }
+    }
+
+    "the request has no nino" must {
+      "return success and the expected request" in {
+
+        val expectedRequest: UserRequest[_] =
+          UserRequest(
+            None,
+            None,
+            WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+            Credentials("", "GovernmentGateway"),
+            ConfidenceLevel.L50,
+            None,
+            None,
+            Set(),
+            None,
+            None,
+            None,
+            fakeRequest
+          )
+
+        when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
+          FeatureFlag(PertaxBackendToggle, isEnabled = true)
+        )
+
+        val result = pertaxAuthAction.refine(expectedRequest).futureValue
+
+        result mustBe a[Right[_, _]]
+        result must be(Right(expectedRequest))
+      }
+    }
+
   }
 }
