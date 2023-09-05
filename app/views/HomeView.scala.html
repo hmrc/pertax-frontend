@@ -38,6 +38,49 @@
     </p>
 }
 
+    @alertBannerHtml = {
+            @viewModel.showAlertBanner.map { bannerContents =>
+                @if(bannerContents.paperlessNotify && bannerContents.bouncedEmailNotify && bannerContents.rlsNotify) {
+                    <p class="govuk-notification-banner__heading">@messages("alert_banner.multiple_alert.heading")</p>
+                    <ul>
+                        <li><a href="">@messages("alert_banner.multiple_alert_paperless.link")</a></li>
+                        <li><a href="">@messages("alert_banner.multiple_alert_bounced_email.link")</a> @messages("alert_banner.multiple_alert_bounced_email.p1")</li>
+                        <li><a href="">@messages("alert_banner.multiple_alert_rls.link")</a> @messages("alert_banner.multiple_alert_rls.p1")</li>
+                    </ul>
+                }
+                @if(!bannerContents.paperlessNotify && bannerContents.bouncedEmailNotify && bannerContents.rlsNotify) {
+                    <p class="govuk-notification-banner__heading">@messages("alert_banner.multiple_alert.heading")</p>
+                    <ul>
+                        <li><a href="">@messages("alert_banner.multiple_alert_bounced_email.link")</a> @messages("alert_banner.multiple_alert_bounced_email.p1")</li>
+                        <li><a href="">@messages("alert_banner.multiple_alert_rls.link")</a> @messages("alert_banner.multiple_alert_rls.p1")</li>
+                    </ul>
+                }
+                @if(bannerContents.paperlessNotify && !bannerContents.bouncedEmailNotify && bannerContents.rlsNotify) {
+                    <p class="govuk-notification-banner__heading">@messages("alert_banner.multiple_alert.heading")</p>
+                    <ul>
+                        <li><a href="">@messages("alert_banner.multiple_alert_paperless.link")</a></li>
+                        <li><a href="">@messages("alert_banner.multiple_alert_rls.link")</a> @messages("alert_banner.multiple_alert_rls.p1")</li>
+                    </ul>
+                }
+                @if(bannerContents.paperlessNotify && bannerContents.bouncedEmailNotify && !bannerContents.rlsNotify) {
+                    <p class="govuk-notification-banner__heading">@messages("alert_banner.multiple_alert.heading")</p>
+                    <ul>
+                        <li><a href="">@messages("alert_banner.multiple_alert_paperless.link")</a></li>
+                        <li><a href="">@messages("alert_banner.multiple_alert_bounced_email.link")</a> @messages("alert_banner.multiple_alert_bounced_email.p1")</li>
+                    </ul>
+                }
+                @if(bannerContents.paperlessNotify && !bannerContents.bouncedEmailNotify && !bannerContents.rlsNotify) {
+                    <p class="govuk-notification-banner__heading">@messages("alert_banner.single_alert_paperless.p1") <a href="">@messages("alert_banner.single_alert_paperless.link")</a></p>
+                }
+                @if(!bannerContents.paperlessNotify && bannerContents.bouncedEmailNotify && !bannerContents.rlsNotify) {
+                    <p class="govuk-notification-banner__heading">@messages("alert_banner.single_alert_bounced_email.p1") <a href="">@messages("alert_banner.single_alert_bounced_email.link")</a> @messages("alert_banner.single_alert_bounced_email.p2")</p>
+                }
+                @if(!bannerContents.paperlessNotify && !bannerContents.bouncedEmailNotify && bannerContents.rlsNotify) {
+                    <p class="govuk-notification-banner__heading">@messages("alert_banner.single_alert_rls.p1") <a href="">@messages("alert_banner.single_alert_rls.link")</a></p>
+                }
+            }
+    }
+
 @main(
     pageTitle = messages("label.account_home"),
     fullWidth = true,
@@ -49,6 +92,12 @@
     @if(shutteringMessaging) {
         @govukNotificationBanner(NotificationBanner(
             content = HtmlContent(bannerHtml)
+        ))
+    }
+
+    @if(viewModel.showAlertBanner.nonEmpty) {
+        @govukNotificationBanner(NotificationBanner(
+            content = HtmlContent(alertBannerHtml)
         ))
     }
 

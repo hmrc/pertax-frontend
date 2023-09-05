@@ -92,10 +92,13 @@ class HomeController @Inject() (
             shutteringMessaging                                                             <- featureFlagService.get(NpsShutteringToggle)
 
           } yield {
-
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
             val benefitCards: Seq[Html] =
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
+            val showAlertBanner         =
+              Some(
+                ShowAlertBanner(paperlessNotify = true, bouncedEmailNotify = true, rlsNotify = false)
+              ) // Hardcoded as an example, needs logic
 
             Ok(
               homeView(
@@ -105,7 +108,8 @@ class HomeController @Inject() (
                   pensionCards,
                   showUserResearchBanner,
                   saUserType,
-                  breathingSpaceIndicator
+                  breathingSpaceIndicator,
+                  showAlertBanner
                 ),
                 shutteringMessaging.isEnabled
               )
