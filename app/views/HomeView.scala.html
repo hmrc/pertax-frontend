@@ -37,14 +37,15 @@
         <a class="govuk-notification-banner__link" href="@controllers.routes.InterstitialController.displayNpsShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
     </p>
 }
+
     @alertBannerHtml = {
             @viewModel.showAlertBanner.map { bannerContents =>
                 @if(Seq(bannerContents.paperlessNotify, bannerContents.bouncedEmailNotify, bannerContents.rlsNotify).count(_ == true) > 1) {
                     <p class="govuk-notification-banner__heading">@messages("alert_banner.multiple_alert.heading")</p>
-                    <ul>
+                    <ul class="govuk-list govuk-list--bullet">
                         @if(bannerContents.paperlessNotify){ <li><a href="">@messages("alert_banner.multiple_alert_paperless.link")</a></li> }
-                        @if(bannerContents.bouncedEmailNotify){<li><a href="">@messages("alert_banner.multiple_alert_bounced_email.link")</a> @messages("alert_banner.multiple_alert_bounced_email.p1")</li> }
-                        @if(bannerContents.rlsNotify){<li><a href="">@messages("alert_banner.multiple_alert_rls.link")</a> @messages("alert_banner.multiple_alert_rls.p1")</li> }
+                        @if(bannerContents.bouncedEmailNotify){ <li><a href="">@messages("alert_banner.multiple_alert_bounced_email.link")</a> @messages("alert_banner.multiple_alert_bounced_email.p1")</li> }
+                        @if(bannerContents.rlsNotify){ <li><a href="">@messages("alert_banner.multiple_alert_rls.link")</a> @messages("alert_banner.multiple_alert_rls.p1")</li> }
                     </ul>
                 }
                 @if(bannerContents.paperlessNotify && !bannerContents.bouncedEmailNotify && !bannerContents.rlsNotify) {
@@ -71,7 +72,7 @@
         ))
     }
 
-    @if(viewModel.showAlertBanner.nonEmpty) {
+    @if(viewModel.showAlertBanner.isDefined) {
         @govukNotificationBanner(NotificationBanner(
             content = HtmlContent(alertBannerHtml)
         ))
