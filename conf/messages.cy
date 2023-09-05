@@ -686,3 +686,20 @@ tax_credits.interstitial.title = Newid cyfeiriad
 tax_credits.interstitial.p1 = Gan eich bod yn cael credydau treth, bydd angen i chi newid eich hawliad yn y Gwasanaeth Credydau Treth
 tax_credits.interstitial.p2 = Fel arfer, mae’n cymryd hyd at 48 awr i’ch cyfeiriad gael ei ddiweddaru ar eich Cyfrif Treth Personol. Gall gymryd hyd at bythefnos ar rai adegau.
 tax_credits.interstitial.link_text = Yn eich blaen i’r Gwasanaeth Credydau Treth
+
+#*************************************************************
+# Alert Banner
+#*************************************************************
+alert_banner.multiple_alert.heading = We are having difficulties contacting you. You need to:
+alert_banner.multiple_alert_paperless.link = verify your email address
+alert_banner.multiple_alert_bounced_email.p1 = so we can send you emails
+alert_banner.multiple_alert_bounced_email.link = check your email address
+alert_banner.multiple_alert_rls.p1 = so we can send you letters
+alert_banner.multiple_alert_rls.link = check or update your address
+alert_banner.single_alert_paperless.p1 = You need to
+alert_banner.single_alert_paperless.link = verify your email address
+alert_banner.single_alert_bounced_email.p1 = We are having trouble sending you emails. Please
+alert_banner.single_alert_bounced_email.p2 = now.
+alert_banner.single_alert_bounced_email.link = check your email address
+alert_banner.single_alert_rls.p1 = We are having trouble sending you letters. Please
+alert_banner.single_alert_rls.link = check your address
