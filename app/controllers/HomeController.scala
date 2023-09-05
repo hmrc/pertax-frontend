@@ -97,7 +97,7 @@ class HomeController @Inject() (
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
             val showAlertBanner         =
               Some(
-                ShowAlertBanner(paperlessNotify = true, bouncedEmailNotify = true, rlsNotify = false)
+                ShowAlertBanner(paperlessNotify = true, bouncedEmailNotify = false, rlsNotify = false)
               ) // Hardcoded as an example, needs logic
 
             Ok(
