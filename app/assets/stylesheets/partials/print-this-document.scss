@@ -15,6 +15,10 @@
   margin-left: 1em;
 }
 
+body:not(.js-enabled) .print-this {
+  display: none;
+}
+
 .print-this__link, .save-this__link {
      color: #000;
      font-size: 16px;
