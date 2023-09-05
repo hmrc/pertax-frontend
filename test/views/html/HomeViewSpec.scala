@@ -35,7 +35,8 @@ class HomeViewSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, None, true)
+  val homeViewModel =
+    HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, None)
 
   "Rendering HomeView.scala.html" must {
 
