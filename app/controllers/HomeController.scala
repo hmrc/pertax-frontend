@@ -95,10 +95,7 @@ class HomeController @Inject() (
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
             val benefitCards: Seq[Html] =
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
-            val showAlertBanner         =
-              Some(
-                ShowAlertBanner(paperlessNotify = false, bouncedEmailNotify = false, rlsNotify = false)
-              ) // TODO - Hardcoded as an example, needs logic
+            val showAlertBanner         = Some(VerifyEmailAlert)
 
             Ok(
               homeView(

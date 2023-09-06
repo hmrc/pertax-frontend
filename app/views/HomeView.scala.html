@@ -16,7 +16,7 @@
 
 @import controllers.auth.requests.UserRequest
 @import viewmodels.HomeViewModel
-@import scala.concurrent.ExecutionContext
+@import models.ShowAlertBanner
 @import components.H2
 @import config.ConfigDecorator
 
@@ -39,25 +39,14 @@
 }
 
     @alertBannerHtml = {
-            @viewModel.showAlertBanner.map { bannerContents =>
-                @if(Seq(bannerContents.paperlessNotify, bannerContents.bouncedEmailNotify, bannerContents.rlsNotify).count(_ == true) > 1) {
-                    <p class="govuk-notification-banner__heading">@messages("alert_banner.multiple_alert.heading")</p>
-                    <ul class="govuk-list govuk-list--bullet">
-                        @if(bannerContents.paperlessNotify){ <li><a href="">@messages("alert_banner.multiple_alert_paperless.link")</a></li> }
-                        @if(bannerContents.bouncedEmailNotify){ <li><a href="">@messages("alert_banner.multiple_alert_bounced_email.link")</a> @messages("alert_banner.multiple_alert_bounced_email.p1")</li> }
-                        @if(bannerContents.rlsNotify){ <li><a href="">@messages("alert_banner.multiple_alert_rls.link")</a> @messages("alert_banner.multiple_alert_rls.p1")</li> }
-                    </ul>
-                }
-                @if(bannerContents.paperlessNotify && !bannerContents.bouncedEmailNotify && !bannerContents.rlsNotify) {
-                    <p class="govuk-notification-banner__heading">@messages("alert_banner.single_alert_paperless.p1") <a href="">@messages("alert_banner.single_alert_paperless.link")</a></p>
-                }
-                @if(!bannerContents.paperlessNotify && bannerContents.bouncedEmailNotify && !bannerContents.rlsNotify) {
-                    <p class="govuk-notification-banner__heading">@messages("alert_banner.single_alert_bounced_email.p1") <a href="">@messages("alert_banner.single_alert_bounced_email.link")</a> @messages("alert_banner.single_alert_bounced_email.p2")</p>
-                }
-                @if(!bannerContents.paperlessNotify && !bannerContents.bouncedEmailNotify && bannerContents.rlsNotify) {
-                    <p class="govuk-notification-banner__heading">@messages("alert_banner.single_alert_rls.p1") <a href="">@messages("alert_banner.single_alert_rls.link")</a></p>
-                }
+        @viewModel.showAlertBanner.map { alert =>
+            @if(alert.isInstanceOf[VerifyEmailAlert.type]){
+                <p class="govuk-notification-banner__heading">@messages("alert_banner.single_alert_paperless.p1") <a href="">@messages("alert_banner.single_alert_paperless.link")</a></p>
             }
+            @if(alert.isInstanceOf[BouncedEmailAlert.type]){
+                <p class="govuk-notification-banner__heading">@messages("alert_banner.single_alert_bounced_email.p1") <a href="">@messages("alert_banner.single_alert_bounced_email.link")</a> @messages("alert_banner.single_alert_bounced_email.p2")</p>
+            }
+        }
     }
 
 @main(

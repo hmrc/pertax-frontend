@@ -16,4 +16,8 @@
 
 package models
 
-case class ShowAlertBanner(paperlessNotify: Boolean, bouncedEmailNotify: Boolean, rlsNotify: Boolean)
+sealed trait ShowAlertBanner
+
+case object VerifyEmailAlert extends ShowAlertBanner
+
+case object BouncedEmailAlert extends ShowAlertBanner
