@@ -16,7 +16,7 @@
 
 package viewmodels
 
-import models.{SelfAssessmentUser, SelfAssessmentUserType, ShowAlertBanner}
+import models.{PaperlessMessages, SelfAssessmentUser, SelfAssessmentUserType}
 import play.twirl.api.Html
 
 final case class HomeViewModel(
@@ -26,7 +26,7 @@ final case class HomeViewModel(
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
-  showAlertBanner: Option[ShowAlertBanner]
+  showAlertBanner: Option[PaperlessMessages]
 )
 
 object HomeViewModel {
@@ -37,7 +37,7 @@ object HomeViewModel {
     showUserResearchBanner: Boolean,
     selfAssessmentUserType: SelfAssessmentUserType,
     breathingSpaceIndicator: Boolean,
-    showAlertBanner: Option[ShowAlertBanner]
+    showAlertBanner: Option[PaperlessMessages]
   ): HomeViewModel = {
 
     val utr: Option[String] = selfAssessmentUserType match {

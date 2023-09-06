@@ -18,7 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.{TaiConnector, TaxCalculationConnector}
+import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
@@ -41,6 +41,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
+  preferencesFrontendConnector: PreferencesFrontendConnector,
   taiConnector: TaiConnector,
   taxCalculationConnector: TaxCalculationConnector,
   breathingSpaceService: BreathingSpaceService,
@@ -91,11 +92,14 @@ class HomeController @Inject() (
                                                                                                )
             shutteringMessaging                                                             <- featureFlagService.get(NpsShutteringToggle)
 
+            paperlessStatus <-
+              preferencesFrontendConnector.getPaperlessStatus(request.uri, "").fold(_ => None, message => Some(message))
+
           } yield {
-            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
-            val benefitCards: Seq[Html] =
+            val pensionCards: Seq[Html]                    = homeCardGenerator.getPensionCards()
+            val benefitCards: Seq[Html]                    =
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
-            val showAlertBanner         = Some(VerifyEmailAlert)
+            val showAlertBanner: Option[PaperlessMessages] = Some(PaperlessStatusUnverified())
 
             Ok(
               homeView(
