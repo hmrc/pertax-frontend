@@ -99,7 +99,7 @@ class HomeController @Inject() (
             val pensionCards: Seq[Html]                    = homeCardGenerator.getPensionCards()
             val benefitCards: Seq[Html]                    =
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
-            val showAlertBanner: Option[PaperlessMessages] = Some(PaperlessStatusUnverified())
+            val showAlertBanner: Option[PaperlessMessages] = Some(PaperlessStatusBounced())
 
             Ok(
               homeView(

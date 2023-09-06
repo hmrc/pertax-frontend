@@ -40,10 +40,12 @@
     @alertBannerHtml = {
         @viewModel.showAlertBanner.map { alert =>
             @if(alert.isInstanceOf[PaperlessStatusUnverified]){
-                <p class="govuk-notification-banner__heading">@messages("alert_banner.single_alert_paperless.p1") <a href="">@messages("alert_banner.single_alert_paperless.link")</a></p>
+@*//                TODO - Needs DC link *@
+                <p class="govuk-notification-banner__heading">@messages("alert_banner.alert_unverified_email.p1") <a href="">@messages("alert_banner.alert_unverified_email.link")</a></p>
             }
             @if(alert.isInstanceOf[PaperlessStatusBounced]){
-                <p class="govuk-notification-banner__heading">@messages("alert_banner.single_alert_bounced_email.p1") <a href="">@messages("alert_banner.single_alert_bounced_email.link")</a> @messages("alert_banner.single_alert_bounced_email.p2")</p>
+@*//                TODO - Needs DC link *@
+                <p class="govuk-notification-banner__heading">@messages("alert_banner.alert_bounced_email.p1") <a href="">@messages("alert_banner.alert_bounced_email.link")</a> @messages("alert_banner.alert_bounced_email.p2")</p>
             }
         }
     }
