@@ -24,7 +24,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
-import models.admin.{NpsShutteringToggle, TaxComponentsToggle, TaxcalcToggle}
+import models.admin.{AlertBannerToggle, NpsShutteringToggle, TaxComponentsToggle, TaxcalcToggle}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
@@ -92,13 +92,28 @@ class HomeController @Inject() (
                                                                                                )
             shutteringMessaging                                                             <- featureFlagService.get(NpsShutteringToggle)
 
-            paperlessStatus <-
-              preferencesFrontendConnector.getPaperlessStatus(request.uri, "").fold(_ => None, message => Some(message))
+            bannerAlert <- featureFlagService.get(AlertBannerToggle)
+
+            paperlessStatus =
+              if (bannerAlert.isEnabled) {
+                preferencesFrontendConnector
+                  .getPaperlessStatus(request.uri, "")
+                  .fold(_ => None, message => Some(message))
+              } else {
+                Future.successful(None)
+              }
 
           } yield {
-            val pensionCards: Seq[Html]                    = homeCardGenerator.getPensionCards()
-            val benefitCards: Seq[Html]                    =
+            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
+            val benefitCards: Seq[Html] =
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
+
+            println("x" * 100)
+            println(bannerAlert.isEnabled)
+
+            println(paperlessStatus)
+            println("x" * 100)
+
             val showAlertBanner: Option[PaperlessMessages] = Some(PaperlessStatusBounced())
 
             Ok(
