@@ -91,30 +91,25 @@ class HomeController @Inject() (
                                                                                                  taxCalculationStateCyMinusTwo
                                                                                                )
             shutteringMessaging                                                             <- featureFlagService.get(NpsShutteringToggle)
-
-            bannerAlert <- featureFlagService.get(AlertBannerToggle)
-
-            paperlessStatus =
+            bannerAlert                                                                     <- featureFlagService.get(AlertBannerToggle)
+            paperlessStatus                                                                 <-
               if (bannerAlert.isEnabled) {
                 preferencesFrontendConnector
                   .getPaperlessStatus(request.uri, "")
                   .fold(_ => None, message => Some(message))
+                  .map {
+                    case Some(paperlessStatus)
+                        if paperlessStatus == PaperlessStatusBounced() || paperlessStatus == PaperlessStatusUnverified() =>
+                      Some(paperlessStatus)
+                    case _ => None
+                  }
               } else {
                 Future.successful(None)
               }
-
           } yield {
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
             val benefitCards: Seq[Html] =
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
-
-            println("x" * 100)
-            println(bannerAlert.isEnabled)
-
-            println(paperlessStatus)
-            println("x" * 100)
-
-            val showAlertBanner: Option[PaperlessMessages] = Some(PaperlessStatusBounced())
 
             Ok(
               homeView(
@@ -125,7 +120,7 @@ class HomeController @Inject() (
                   showUserResearchBanner,
                   saUserType,
                   breathingSpaceIndicator,
-                  showAlertBanner
+                  paperlessStatus
                 ),
                 shutteringMessaging.isEnabled
               )
