@@ -25,6 +25,7 @@ import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper,
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
 import models.admin.{AlertBannerToggle, NpsShutteringToggle, TaxComponentsToggle, TaxcalcToggle}
+import play.api.i18n.Messages
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
@@ -33,6 +34,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.Tools
 import viewmodels.HomeViewModel
 import views.html.HomeView
 
@@ -52,7 +54,8 @@ class HomeController @Inject() (
   cc: MessagesControllerComponents,
   homeView: HomeView,
   seissService: SeissService,
-  rlsInterruptHelper: RlsInterruptHelper
+  rlsInterruptHelper: RlsInterruptHelper,
+  tools: Tools
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
@@ -61,6 +64,20 @@ class HomeController @Inject() (
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
+
+  // TODO - Change from String
+  private def verifyOrBouncedHandler(verifyOrBounced: Option[PaperlessMessages])(implicit request: UserRequest[_]): Option[String] = {
+    val url =
+      s"${configDecorator.preferencesFrontendUrl}/paperless"
+    val absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
+
+    verifyOrBounced.map {
+      case PaperlessStatusBounced(link) =>
+        s"$url/email-bounce?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools.encryptAndEncode(link)}"
+      case PaperlessStatusUnverified(link) =>
+        s"$url/email-re-verify?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools.encryptAndEncode(link)}"
+    }
+  }
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
@@ -120,7 +137,8 @@ class HomeController @Inject() (
                   showUserResearchBanner,
                   saUserType,
                   breathingSpaceIndicator,
-                  paperlessStatus
+                  paperlessStatus,
+                  verifyOrBouncedHandler(paperlessStatus)
                 ),
                 shutteringMessaging.isEnabled
               )
