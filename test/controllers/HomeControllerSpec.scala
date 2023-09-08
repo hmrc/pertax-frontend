@@ -955,7 +955,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
-        .thenReturn(EitherT[Future, UpstreamErrorResponse, PaperlessMessages](Future.successful(Right(PaperlessStatusBounced()))))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, PaperlessMessages](Future.successful(Right(PaperlessStatusBounced())))
+        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -964,7 +966,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
         .configure(
           "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled" -> true
+          "feature.taxcalc.enabled"        -> true
         )
         .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
@@ -983,7 +985,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
-        .thenReturn(EitherT[Future, UpstreamErrorResponse, PaperlessMessages](Future.successful(Right(PaperlessStatusBounced()))))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, PaperlessMessages](Future.successful(Right(PaperlessStatusBounced())))
+        )
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
@@ -992,7 +996,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
         .configure(
           "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled" -> true
+          "feature.taxcalc.enabled"        -> true
         )
         .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()

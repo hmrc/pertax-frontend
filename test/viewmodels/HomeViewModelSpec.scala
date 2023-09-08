@@ -25,8 +25,8 @@ class HomeViewModelSpec extends BaseSpec {
   val utr = new SaUtrGenerator().nextSaUtr.utr
 
   "have no UTR for a non SA user" in {
-    val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, NonFilerSelfAssessmentUser, false, None)
-    homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, None, false, None)
+    val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, NonFilerSelfAssessmentUser, false, None, None)
+    homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, None, false, None, None)
   }
 
   Seq(
@@ -36,8 +36,8 @@ class HomeViewModelSpec extends BaseSpec {
     NotEnrolledSelfAssessmentUser(SaUtr(utr))
   ).map { saUserType =>
     s"have a UTR for a ${saUserType.toString}" in {
-      val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, saUserType, true, None)
-      homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true, None)
+      val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, saUserType, true, None, None)
+      homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true, None, None)
     }
   }
 }
