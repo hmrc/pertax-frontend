@@ -17,6 +17,7 @@
 package viewmodels
 
 import models.{PaperlessMessages, SelfAssessmentUser, SelfAssessmentUserType}
+import play.api.mvc.Result
 import play.twirl.api.Html
 
 final case class HomeViewModel(

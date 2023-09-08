@@ -98,4 +98,38 @@ class PreferencesFrontendConnector @Inject() (
       )
       .map(_.json.as[PaperlessMessages])
   }
+
+  def getPageIfBouncedEmail(returnMessage: String)(implicit
+    request: UserRequest[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    def absoluteUrl = configDecorator.pertaxFrontendHost + url
+
+    val fullUrl =
+      s"$preferencesFrontendUrl/paperless/email-bounce?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
+        .encryptAndEncode(returnMessage)}"
+    httpClientResponse
+      .read(
+        httpClientV2
+          .get(url"$fullUrl")
+          .transform(_.withRequestTimeout(configDecorator.preferenceFrontendTimeoutInSec.seconds))
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      )
+  }
+  def getPageIfReVerifyEmail(returnMessage: String)(implicit
+    request: UserRequest[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    def absoluteUrl = configDecorator.pertaxFrontendHost + url
+
+    val fullUrl =
+      s"$preferencesFrontendUrl/paperless/email-re-verify?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
+        .encryptAndEncode(returnMessage)}"
+    httpClientResponse
+      .read(
+        httpClientV2
+          .get(url"$fullUrl")
+          .transform(_.withRequestTimeout(configDecorator.preferenceFrontendTimeoutInSec.seconds))
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      )
+  }
+
 }

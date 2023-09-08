@@ -55,7 +55,6 @@ class ConfigDecorator @Inject() (
   lazy val pertaxFrontendService: String     = servicesConfig.baseUrl("pertax-frontend")
   lazy val businessTaxAccountService: String = servicesConfig.baseUrl("business-tax-account")
   lazy val tcsBrokerHost: String             = servicesConfig.baseUrl("tcs-broker")
-  lazy val preferencesFrontendUrl: String    = servicesConfig.baseUrl("preferences-frontend")
 
   private lazy val payApiUrl = servicesConfig.baseUrl("pay-api")
 
@@ -103,12 +102,20 @@ class ConfigDecorator @Inject() (
   private lazy val governmentGatewayLostCredentialsFrontendHost =
     getExternalUrl(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
 
-  private lazy val enrolmentManagementFrontendHost: String =
+  private lazy val enrolmentManagementFrontendHost: String                    =
     getExternalUrl(s"enrolment-management-frontend.host").getOrElse("")
-  lazy val ssoUrl: Option[String]                          = getExternalUrl("sso-portal.host")
-  private lazy val annualTaxSummariesUrl: String           = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
-  lazy val isNewsAndUpdatesTileEnabled: Boolean            =
+  lazy val ssoUrl: Option[String]                                             = getExternalUrl("sso-portal.host")
+  private lazy val annualTaxSummariesUrl: String                              = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
+  lazy val isNewsAndUpdatesTileEnabled: Boolean                               =
     runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
+  lazy val isBreathingSpaceIndicatorEnabled: Boolean                          =
+    servicesConfig.getBoolean("feature.breathing-space-indicator.enabled")
+  lazy val annualTaxSaSummariesTileLink                                       = s"$annualTaxSummariesUrl/annual-tax-summary"
+  lazy val annualTaxPayeSummariesTileLink                                     = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
+  def preferencedBouncedEmailLink(returnUrl: String, returnLinkText: String)  =
+    s"$preferencesFrontendService/paperless/email-bounce?returnUrl=$returnUrl&returnLinkText=$returnLinkText"
+  def preferencedReVerifyEmailLink(returnUrl: String, returnLinkText: String) =
+    s"$preferencesFrontendService/paperless/email-re-verify?returnUrl=$returnUrl&returnLinkText=$returnLinkText"
   lazy val annualTaxSaSummariesTileLink                    = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink                  = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 

@@ -199,7 +199,7 @@ class PersonalDetailsViewModel @Inject() (
     ec: ExecutionContext
   ): Future[Option[PersonalDetailsTableRowModel]] =
     preferencesFrontendConnector
-      .getPaperlessStatus(request.uri, messages("label.continue"))
+      .getPaperlessStatus(request.uri, messages("label.continue")) // TODO - Why the message?
       .fold(
         _ => None,
         response =>

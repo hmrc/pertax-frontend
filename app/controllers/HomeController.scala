@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.OptionT
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
@@ -65,17 +66,15 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  // TODO - Change from String
-  private def verifyOrBouncedHandler(verifyOrBounced: Option[PaperlessMessages])(implicit request: UserRequest[_]): Option[String] = {
-    val url =
-      s"${configDecorator.preferencesFrontendUrl}/paperless"
+  private def verifyOrBouncedHandler(
+    verifyOrBounced: Option[PaperlessMessages]
+  )(implicit request: UserRequest[_]): Option[String] = {
     val absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
-
     verifyOrBounced.map {
-      case PaperlessStatusBounced(link) =>
-        s"$url/email-bounce?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools.encryptAndEncode(link)}"
+      case PaperlessStatusBounced(link)    =>
+        configDecorator.preferencedBouncedEmailLink(tools.encryptAndEncode(absoluteUrl), tools.encryptAndEncode(link))
       case PaperlessStatusUnverified(link) =>
-        s"$url/email-re-verify?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools.encryptAndEncode(link)}"
+        configDecorator.preferencedReVerifyEmailLink(tools.encryptAndEncode(absoluteUrl), tools.encryptAndEncode(link))
     }
   }
 
@@ -112,13 +111,15 @@ class HomeController @Inject() (
             paperlessStatus                                                                 <-
               if (bannerAlert.isEnabled) {
                 preferencesFrontendConnector
-                  .getPaperlessStatus(request.uri, "")
+                  .getPaperlessStatus(request.uri, "") // TODO - Is return message needed?
                   .fold(_ => None, message => Some(message))
                   .map {
                     case Some(paperlessStatus)
-                        if paperlessStatus == PaperlessStatusBounced() || paperlessStatus == PaperlessStatusUnverified() =>
+                        if paperlessStatus.isInstanceOf[PaperlessStatusBounced] || paperlessStatus
+                          .isInstanceOf[PaperlessStatusUnverified] =>
                       Some(paperlessStatus)
-                    case _ => None
+                    case _ =>
+                      None
                   }
               } else {
                 Future.successful(None)
