@@ -191,6 +191,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle))) thenReturn Future.successful(
       FeatureFlag(NpsShutteringToggle, isEnabled = true)
     )
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle))) thenReturn Future.successful(
+      FeatureFlag(AlertBannerToggle, true)
+    )
   }
 
   "Calling HomeController.index" must {
@@ -944,6 +947,62 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       resultCYM1 mustBe Some(TaxYearReconciliation(2016, Balanced))
       resultCYM2 mustBe Some(TaxYearReconciliation(2015, Balanced))
+    }
+
+    "return a 200 status and 2 calls to retrieve Paperless Status instead of 1 if AlertFlagToggle is enabled" in new LocalSetup {
+
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
+        .thenReturn(EitherT[Future, UpstreamErrorResponse, PaperlessMessages](Future.successful(Right(PaperlessStatusBounced()))))
+
+      lazy val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaiConnector].toInstance(mockTaiService),
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled" -> true
+        )
+        .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
+        .build()
+
+      val controller: HomeController = app.injector.instanceOf[HomeController]
+
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      status(r) mustBe OK
+
+      verify(mockPreferencesFrontendConnector, times(2)).getPaperlessStatus(any(), any())(any())
+    }
+
+    "return a 200 status and 1 call to retrieve Paperless Status instead of 2 if AlertFlagToggle is disabled" in new LocalSetup {
+
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
+        .thenReturn(EitherT[Future, UpstreamErrorResponse, PaperlessMessages](Future.successful(Right(PaperlessStatusBounced()))))
+
+      lazy val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[TaiConnector].toInstance(mockTaiService),
+          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
+        )
+        .configure(
+          "feature.tax-components.enabled" -> true,
+          "feature.taxcalc.enabled" -> true
+        )
+        .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
+        .build()
+
+      val controller: HomeController = app.injector.instanceOf[HomeController]
+
+      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      status(r) mustBe OK
+
+      verify(mockPreferencesFrontendConnector, times(1)).getPaperlessStatus(any(), any())(any())
     }
   }
 }
