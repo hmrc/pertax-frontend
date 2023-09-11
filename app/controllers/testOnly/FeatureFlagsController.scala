@@ -46,6 +46,8 @@ class FeatureFlagsController @Inject() (
           SingleAccountCheckToggle          -> false,
           AppleSaveAndViewNIToggle          -> false,
           PertaxBackendToggle               -> true,
+          SCAWrapperToggle                  -> true,
+          HmrcAccountToggle                 -> false,
           AgentClientAuthorisationToggle    -> true,
           BreathingSpaceIndicatorToggle     -> true,
           TaxcalcMakePaymentLinkToggle      -> true,
