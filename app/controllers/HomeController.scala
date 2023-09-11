@@ -97,7 +97,6 @@ class HomeController @Inject() (
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear, request.trustedHelper)
-
     val saUserType = request.saUserType
 
     rlsInterruptHelper.enforceByRlsStatus(
@@ -120,7 +119,7 @@ class HomeController @Inject() (
             paperlessStatus                                                                 <-
               if (bannerAlert.isEnabled) {
                 preferencesFrontendConnector
-                  .getPaperlessStatus(request.uri, "") // TODO - Is return message needed?
+                  .getPaperlessStatus(request.uri, "")
                   .fold(_ => None, message => Some(message))
                   .map {
                     case Some(paperlessStatus: PaperlessStatusBounced)    =>
