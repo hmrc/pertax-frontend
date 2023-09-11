@@ -25,7 +25,6 @@ import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper,
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
 import models.admin.{AlertBannerToggle, NpsShutteringToggle, TaxComponentsToggle, TaxcalcToggle}
-import play.api.i18n.Messages
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
@@ -69,11 +68,22 @@ class HomeController @Inject() (
     verifyOrBounced: Option[PaperlessMessages]
   )(implicit request: UserRequest[_]): Option[String] = {
     val absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
-    verifyOrBounced.map {
-      case PaperlessStatusBounced(link)    =>
-        configDecorator.preferencedBouncedEmailLink(tools.encryptAndEncode(absoluteUrl), tools.encryptAndEncode(link))
-      case PaperlessStatusUnverified(link) =>
-        configDecorator.preferencedReVerifyEmailLink(tools.encryptAndEncode(absoluteUrl), tools.encryptAndEncode(link))
+    verifyOrBounced match {
+      case Some(paperlessStatus) if paperlessStatus.isInstanceOf[PaperlessStatusBounced]    =>
+        Some(
+          configDecorator.preferencedBouncedEmailLink(
+            tools.encryptAndEncode(absoluteUrl),
+            tools.encryptAndEncode(paperlessStatus.link)
+          )
+        )
+      case Some(paperlessStatus) if paperlessStatus.isInstanceOf[PaperlessStatusUnverified] =>
+        Some(
+          configDecorator.preferencedBouncedEmailLink(
+            tools.encryptAndEncode(absoluteUrl),
+            tools.encryptAndEncode(paperlessStatus.link)
+          )
+        )
+      case _                                                                                => None
     }
   }
 
