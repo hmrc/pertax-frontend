@@ -211,9 +211,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaiConnector].toInstance(mockTaiService),
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
         )
-        .configure(
-          "feature.taxcalc.enabled"        -> true
-        )
         .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
 
@@ -238,9 +235,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .overrides(
           bind[TaiConnector].toInstance(mockTaiService),
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
-        )
-        .configure(
-          "feature.taxcalc.enabled"        -> true
         )
         .overrides(
           bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
