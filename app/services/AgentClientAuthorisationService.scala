@@ -54,21 +54,5 @@ class AgentClientAuthorisationService @Inject() (
       } else {
         Future.successful(false)
       }
-    if (agentClientAuthorisationEnabled) {
-      agentClientAuthorisationConnector.getAgentClientStatus
-        .fold(
-          _ => false,
-          {
-            case AgentClientStatus(false, false, false) => false
-            case _                                      => true
-          }
-        )
-        .recover {
-          case FutureEarlyTimeout   =>
-            false
-          case RateLimitedException => false
-        }
-    } else {
-      Future.successful(false)
     }
 }
