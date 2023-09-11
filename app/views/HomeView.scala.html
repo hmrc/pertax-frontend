@@ -41,7 +41,7 @@
         @viewModel.showAlertBanner.map { alert =>
             @viewModel.verifyOrBouncedUrl.map { url =>
                 @if(alert.isInstanceOf[PaperlessStatusUnverified]) {
-                    <p class="govuk-notification-banner__heading">@messages("alert_banner.alert_unverified_email.p1") <a href=@url>@messages("alert_banner.alert_unverified_email.link")</a></p>
+                    <p class="govuk-notification-banner__heading">@messages("alert_banner.alert_unverified_email.p1") <a href=@url>@messages("alert_banner.alert_unverified_email.link")</a>.</p>
                 }
                 @if(alert.isInstanceOf[PaperlessStatusBounced]) {
                     <p class="govuk-notification-banner__heading">@messages("alert_banner.alert_bounced_email.p1") <a href=@url>@messages("alert_banner.alert_bounced_email.link")</a>
