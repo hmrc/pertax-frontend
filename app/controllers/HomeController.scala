@@ -69,21 +69,21 @@ class HomeController @Inject() (
   )(implicit request: UserRequest[_]): Option[String] = {
     val absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
     verifyOrBounced match {
-      case Some(paperlessStatus) if paperlessStatus.isInstanceOf[PaperlessStatusBounced]    =>
+      case Some(paperlessStatus: PaperlessStatusBounced)    =>
         Some(
           configDecorator.preferencedBouncedEmailLink(
             tools.encryptAndEncode(absoluteUrl),
             tools.encryptAndEncode(paperlessStatus.link)
           )
         )
-      case Some(paperlessStatus) if paperlessStatus.isInstanceOf[PaperlessStatusUnverified] =>
+      case Some(paperlessStatus: PaperlessStatusUnverified) =>
         Some(
           configDecorator.preferencedBouncedEmailLink(
             tools.encryptAndEncode(absoluteUrl),
             tools.encryptAndEncode(paperlessStatus.link)
           )
         )
-      case _                                                                                => None
+      case _                                                => None
     }
   }
 
@@ -123,11 +123,11 @@ class HomeController @Inject() (
                   .getPaperlessStatus(request.uri, "") // TODO - Is return message needed?
                   .fold(_ => None, message => Some(message))
                   .map {
-                    case Some(paperlessStatus)
-                        if paperlessStatus.isInstanceOf[PaperlessStatusBounced] || paperlessStatus
-                          .isInstanceOf[PaperlessStatusUnverified] =>
+                    case Some(paperlessStatus: PaperlessStatusBounced)    =>
                       Some(paperlessStatus)
-                    case _ =>
+                    case Some(paperlessStatus: PaperlessStatusUnverified) =>
+                      Some(paperlessStatus)
+                    case _                                                =>
                       None
                   }
               } else {
