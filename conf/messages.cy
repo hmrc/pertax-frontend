@@ -690,8 +690,8 @@ tax_credits.interstitial.link_text = Yn eich blaen i’r Gwasanaeth Credydau Tre
 #*************************************************************
 # Alert Banner
 #*************************************************************
-alert_banner.alert_unverified_email.p1 = You need to
-alert_banner.alert_unverified_email.link = verify your email address
-alert_banner.alert_bounced_email.p1 = We are having trouble sending you emails. Please
-alert_banner.alert_bounced_email.p2 = now.
-alert_banner.alert_bounced_email.link = check your email address
+alert_banner.alert_unverified_email.p1 = Mae angen i chi
+alert_banner.alert_unverified_email.link = ddilysu’ch cyfeiriad e-bost
+alert_banner.alert_bounced_email.p1 = Rydym yn cael trafferth anfon e-byst atoch. Gwiriwch
+alert_banner.alert_bounced_email.p2 = nawr.
+alert_banner.alert_bounced_email.link = eich cyfeiriad e-bost

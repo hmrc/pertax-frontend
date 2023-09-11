@@ -105,5 +105,39 @@ class HomeViewSpec extends ViewSpec {
         "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
       )
     }
+
+    "show the alert banner with the bounced email message if PaperlessStatusBounced is in the view model" in {
+      implicit val userRequest = buildUserRequest(request = FakeRequest())
+      val view                 = home(
+        homeViewModel.copy(showAlertBanner = Some(PaperlessStatusBounced()), verifyOrBouncedUrl = Some("")),
+        true
+      ).toString
+
+      view must include(messages("alert_banner.alert_bounced_email.p1"))
+      view must include(messages("alert_banner.alert_bounced_email.p2"))
+      view must include(messages("alert_banner.alert_bounced_email.link"))
+    }
+
+    "show the alert banner with the bounced email message if PaperlessStatusUnverified is in the view model" in {
+      implicit val userRequest = buildUserRequest(request = FakeRequest())
+      val view                 = home(
+        homeViewModel.copy(showAlertBanner = Some(PaperlessStatusUnverified()), verifyOrBouncedUrl = Some("")),
+        true
+      ).toString
+
+      view must include(messages("alert_banner.alert_unverified_email.p1"))
+      view must include(messages("alert_banner.alert_unverified_email.link"))
+    }
+
+    "not show the alert banner if no PaperlessMessages exists in the view model" in {
+      implicit val userRequest = buildUserRequest(request = FakeRequest())
+      val view                 = home(homeViewModel, true).toString
+
+      view must not include (messages("alert_banner.alert_unverified_email.p1"))
+      view must not include (messages("alert_banner.alert_unverified_email.link"))
+      view must not include (messages("alert_banner.alert_bounced_email.p1"))
+      view must not include (messages("alert_banner.alert_bounced_email.p2"))
+      view must not include (messages("alert_banner.alert_bounced_email.link"))
+    }
   }
 }
