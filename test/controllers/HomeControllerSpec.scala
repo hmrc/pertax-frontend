@@ -949,7 +949,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 200 status and no calls to PreferencesFrontendConnector if AlertFlagToggle is disabled" in new LocalSetup {
-
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -974,7 +973,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 200 status and one call to PreferencesFrontendConnector if AlertFlagToggle is enabled" in new LocalSetup {
-
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
