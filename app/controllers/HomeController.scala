@@ -97,7 +97,7 @@ class HomeController @Inject() (
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear, request.trustedHelper)
-    val saUserType = request.saUserType
+    val saUserType                                                                                            = request.saUserType
 
     rlsInterruptHelper.enforceByRlsStatus(
       showUserResearchBanner flatMap { showUserResearchBanner =>

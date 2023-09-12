@@ -954,7 +954,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-        FeatureFlag(AlertBannerToggle, false)
+        FeatureFlag(AlertBannerToggle, isEnabled = false)
       )
       when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
         .thenReturn(
@@ -963,22 +963,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaiConnector].toInstance(mockTaiService),
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
           bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
-        )
-        .configure(
-          "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled"        -> true
         )
         .build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
-
       val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
-
       verify(mockPreferencesFrontendConnector, never).getPaperlessStatus(any(), any())(any())
     }
 
@@ -988,7 +979,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-        FeatureFlag(AlertBannerToggle, true)
+        FeatureFlag(AlertBannerToggle, isEnabled = true)
       )
       when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
         .thenReturn(
@@ -997,22 +988,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaiConnector].toInstance(mockTaiService),
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
           bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
-        )
-        .configure(
-          "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled"        -> true
         )
         .build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
-
       val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
-
       verify(mockPreferencesFrontendConnector, times(1)).getPaperlessStatus(any(), any())(any())
     }
   }
