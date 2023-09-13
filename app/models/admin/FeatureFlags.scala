@@ -18,6 +18,29 @@ package models.admin
 
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagName
 
+object AllFeatureFlags {
+  val list = List(
+    AddressTaxCreditsBrokerCallToggle,
+    TaxcalcToggle,
+    NationalInsuranceTileToggle,
+    ItsAdvertisementMessageToggle,
+    TaxComponentsToggle,
+    RlsInterruptToggle,
+    PaperlessInterruptToggle,
+    TaxSummariesTileToggle,
+    SingleAccountCheckToggle,
+    TaxcalcMakePaymentLinkToggle,
+    NpsShutteringToggle,
+    NpsOutageToggle,
+    AppleSaveAndViewNIToggle,
+    SCAWrapperToggle,
+    HmrcAccountToggle,
+    AgentClientAuthorisationToggle,
+    PertaxBackendToggle,
+    BreathingSpaceIndicatorToggle
+  )
+}
+
 case object AddressTaxCreditsBrokerCallToggle extends FeatureFlagName {
   override val name: String                = "address-tax-credits-broker-call"
   override val description: Option[String] = Some(

@@ -20,26 +20,5 @@ import models.admin._
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagNamesLibrary
 
 class ApplicationStartUp {
-  FeatureFlagNamesLibrary.addFlags(
-    List(
-      AddressTaxCreditsBrokerCallToggle,
-      TaxcalcToggle,
-      NationalInsuranceTileToggle,
-      ItsAdvertisementMessageToggle,
-      TaxComponentsToggle,
-      RlsInterruptToggle,
-      PaperlessInterruptToggle,
-      TaxSummariesTileToggle,
-      SingleAccountCheckToggle,
-      TaxcalcMakePaymentLinkToggle,
-      NpsShutteringToggle,
-      AppleSaveAndViewNIToggle,
-      NpsOutageToggle,
-      SCAWrapperToggle,
-      HmrcAccountToggle,
-      AgentClientAuthorisationToggle,
-      PertaxBackendToggle,
-      AgentClientAuthorisationToggle
-    )
-  )
+  FeatureFlagNamesLibrary.addFlags(AllFeatureFlags.list)
 }

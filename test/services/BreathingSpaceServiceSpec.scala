@@ -27,7 +27,6 @@ import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.FutureEarlyTimeout
 
 import scala.concurrent.Future
@@ -36,15 +35,12 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
   private val mockBreathingSpaceConnector: BreathingSpaceConnector =
     mock[BreathingSpaceConnector]
-  private val mockFeatureFlagService: FeatureFlagService           =
-    mock[FeatureFlagService]
 
   override def beforeEach(): Unit = {
+    super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle))) thenReturn Future.successful(
       FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)
     )
-
-    super.beforeEach()
   }
 
   val nino: Nino = Fixtures.fakeNino

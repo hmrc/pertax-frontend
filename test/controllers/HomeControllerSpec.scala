@@ -41,6 +41,7 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.time.CurrentTaxYear
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -80,14 +81,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   trait LocalSetup {
 
-    lazy val authProviderType: String                      = UserDetails.GovernmentGatewayAuthProvider
-    lazy val nino: Nino                                    = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetails          = Fixtures.buildPersonDetails
-    lazy val confidenceLevel: ConfidenceLevel              = ConfidenceLevel.L200
-    lazy val withPaye: Boolean                             = true
-    lazy val year                                          = 2017
-    lazy val trustedHelper: Option[TrustedHelper]          = None
-    lazy val truestedHelperResponse: Option[TrustedHelper] = Fixtures.buildTrustedHelper
+    lazy val authProviderType: String                     = UserDetails.GovernmentGatewayAuthProvider
+    lazy val nino: Nino                                   = Fixtures.fakeNino
+    lazy val personDetailsResponse: PersonDetails         = Fixtures.buildPersonDetails
+    lazy val confidenceLevel: ConfidenceLevel             = ConfidenceLevel.L200
+    lazy val withPaye: Boolean                            = true
+    lazy val year                                         = 2017
+    lazy val trustedHelper: Option[TrustedHelper]         = None
+    lazy val trustedHelperResponse: Option[TrustedHelper] = Fixtures.buildTrustedHelper
 
     lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse]             =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
@@ -894,7 +895,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year, truestedHelperResponse))
+      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year, trustedHelperResponse))
 
       resultCYm1 mustBe None
       resultCYm2 mustBe None

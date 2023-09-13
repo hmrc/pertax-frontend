@@ -2,7 +2,7 @@ package views
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{FeatureFlag, SCAWrapperToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, SCAWrapperToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -15,6 +15,7 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.scalatestaccessibilitylinter.domain.OutputFormat
 
@@ -175,6 +176,8 @@ class testSpec extends IntegrationSpec {
     super.beforeEach()
     when(mockFeatureFlagService.get(SCAWrapperToggle))
       .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
+    when(mockFeatureFlagService.get(BreathingSpaceIndicatorToggle))
+      .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, true)))
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
