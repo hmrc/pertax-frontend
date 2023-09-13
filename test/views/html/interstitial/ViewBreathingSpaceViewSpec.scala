@@ -32,11 +32,9 @@ class ViewBreathingSpaceViewSpec extends ViewSpec {
   "Rendering ViewBreathingSpaceView.scala.html" must {
 
     "show content" in {
-      implicit val userRequest = buildUserRequest(request = FakeRequest())
-
       val doc =
         asDocument(
-          viewBreathingSpaceView(s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/breathing-space").toString
+          viewBreathingSpaceView().toString
         )
 
       doc.text() must include(Messages("label.you_are_in_breathing_space"))
@@ -46,6 +44,5 @@ class ViewBreathingSpaceViewSpec extends ViewSpec {
       )
       doc.text() must include(Messages("label.take_enforcement_action_against_you"))
     }
-
   }
 }

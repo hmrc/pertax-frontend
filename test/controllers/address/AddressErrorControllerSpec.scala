@@ -16,7 +16,7 @@
 
 package controllers.address
 
-import controllers.bindable.{PostalAddrType, ResidentialAddrType}
+import controllers.bindable.ResidentialAddrType
 import models.dto._
 import play.api.libs.json.Json
 import play.api.mvc._
