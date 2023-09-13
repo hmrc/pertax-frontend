@@ -35,34 +35,34 @@ class TaxCreditsServiceSpec extends BaseSpec {
   "TaxCreditsService" when {
     "I call checkForTaxCredits" must {
       "return Some(true) if TCS data is available for a given NINO" in {
-        when(connector.checkForTaxCredits(any())(any()))
+        when(connector.getTaxCreditsExclusionStatus(any())(any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Right(HttpResponse(OK, ""))))
           )
 
-        val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
+        val result = sut.isAddressChangeInPTA(Some(fakeNino)).value.futureValue
 
         result mustBe Some(true)
       }
 
       "return Some(false) if no NINO is provided" in {
-        when(connector.checkForTaxCredits(any())(any()))
+        when(connector.getTaxCreditsExclusionStatus(any())(any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Right(HttpResponse(OK, ""))))
           )
 
-        val result = sut.checkForTaxCredits(None).value.futureValue
+        val result = sut.isAddressChangeInPTA(None).value.futureValue
 
         result mustBe Some(false)
       }
 
       "return Some(false) if TCS data is NOT_FOUND for a given NINO" in {
-        when(connector.checkForTaxCredits(any())(any()))
+        when(connector.getTaxCreditsExclusionStatus(any())(any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Left(UpstreamErrorResponse("", NOT_FOUND))))
           )
 
-        val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
+        val result = sut.isAddressChangeInPTA(Some(fakeNino)).value.futureValue
 
         result mustBe Some(false)
       }
@@ -74,12 +74,12 @@ class TaxCreditsServiceSpec extends BaseSpec {
         SERVICE_UNAVAILABLE
       ).foreach { status =>
         s"return None if TCS data is $status for a given NINO" in {
-          when(connector.checkForTaxCredits(any())(any()))
+          when(connector.getTaxCreditsExclusionStatus(any())(any()))
             .thenReturn(
               EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Left(UpstreamErrorResponse("", status))))
             )
 
-          val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
+          val result = sut.isAddressChangeInPTA(Some(fakeNino)).value.futureValue
 
           result mustBe None
         }

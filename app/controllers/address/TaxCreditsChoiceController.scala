@@ -63,15 +63,22 @@ class TaxCreditsChoiceController @Inject() (
         .flatMap { toggle =>
           if (toggle.isEnabled) {
             taxCreditsService
-              .checkForTaxCredits(Some(nino))
-              .fold(InternalServerError(internalServerErrorView())) {
-                case true  =>
-                  cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
-                  Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
-                case false =>
-                  cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
-                  Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
-              }
+              .isAddressChangeInPTA(nino)
+              .fold(
+                _ => Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl)),
+                maybeChangeInPTA =>
+                  maybeChangeInPTA.fold(
+                    Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+                  ) { isAddressChangeInPTA =>
+                    if (isAddressChangeInPTA) {
+                      cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
+                      Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                    } else {
+                      cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
+                      Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
+                    }
+                  }
+              )
           } else {
             Future.successful(
               Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))

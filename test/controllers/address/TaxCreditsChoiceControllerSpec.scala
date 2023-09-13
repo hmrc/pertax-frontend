@@ -85,7 +85,8 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
         when(mockFeatureFlagService.get(NpsOutageToggle))
           .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
-        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(OptionT.fromOption[Future](Some(false)))
+        when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
+          .thenReturn(OptionT.fromOption[Future](Some(false)))
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
 
@@ -94,7 +95,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         status(result) mustBe OK
         verify(mockFeatureFlagService, times(2)).get(any())
         verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
-        verify(mockTaxCreditsService, times(1)).checkForTaxCredits(any())(any())
+        verify(mockTaxCreditsService, times(1)).isAddressChangeInPTA(any())(any())
         val argCaptorValue: Result = arg.getValue
         argCaptorValue.header.status mustBe SEE_OTHER
         redirectLocation(Future.successful(argCaptorValue)) mustBe Some(
@@ -109,7 +110,8 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
         when(mockFeatureFlagService.get(NpsOutageToggle))
           .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
-        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(OptionT.fromOption[Future](Some(true)))
+        when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
+          .thenReturn(OptionT.fromOption[Future](Some(true)))
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
 
@@ -120,7 +122,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         status(result) mustBe OK
         verify(mockFeatureFlagService, times(2)).get(any())
         verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
-        verify(mockTaxCreditsService, times(1)).checkForTaxCredits(any())(any())
+        verify(mockTaxCreditsService, times(1)).isAddressChangeInPTA(any())(any())
         val argCaptorValue: Result = arg.getValue
         argCaptorValue.header.status mustBe SEE_OTHER
         redirectLocation(Future.successful(argCaptorValue)).get must include(
@@ -135,7 +137,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
         when(mockFeatureFlagService.get(NpsOutageToggle))
           .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
-        when(mockTaxCreditsService.checkForTaxCredits(any())(any()))
+        when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
           .thenReturn(OptionT.fromOption[Future](None: Option[Boolean]))
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
@@ -147,7 +149,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         status(result) mustBe OK
         verify(mockFeatureFlagService, times(3)).get(any())
         verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
-        verify(mockTaxCreditsService, times(1)).checkForTaxCredits(any())(any())
+        verify(mockTaxCreditsService, times(1)).isAddressChangeInPTA(any())(any())
         val argCaptorValue: Result = arg.getValue
         argCaptorValue.header.status mustBe INTERNAL_SERVER_ERROR
       }
@@ -161,7 +163,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
         when(mockFeatureFlagService.get(NpsOutageToggle))
           .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
-        when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(null)
+        when(mockTaxCreditsService.isAddressChangeInPTA(any())(any())).thenReturn(null)
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
 
@@ -172,7 +174,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         status(result) mustBe OK
         verify(mockFeatureFlagService, times(3)).get(any())
         verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
-        verify(mockTaxCreditsService, times(0)).checkForTaxCredits(any())(any())
+        verify(mockTaxCreditsService, times(0)).isAddressChangeInPTA(any())(any())
         val argCaptorValue: Result = arg.getValue
         argCaptorValue.header.status mustBe OK
         contentAsString(Future.successful(argCaptorValue)) must include("Do you get tax credits?")

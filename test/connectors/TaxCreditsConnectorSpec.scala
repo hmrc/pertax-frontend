@@ -36,7 +36,7 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
       "return a HttpResponse containing OK if tcs data for the given NINO is found" in {
         val data     = FileHelper.loadFile("./test/resources/tcs/dashboard-data.json")
         stubGet(url, OK, Some(data))
-        val response = connector.checkForTaxCredits(fakeNino).value.futureValue
+        val response = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
 
         response mustBe a[Right[_, _]]
 
@@ -47,7 +47,7 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
 
       "return a UpstreamErrorException containing NOT_FOUND if tcs data for the given isn't found" in {
         stubGet(url, NOT_FOUND, None)
-        val result = connector.checkForTaxCredits(fakeNino).value.futureValue
+        val result = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
 
         result mustBe a[Left[_, _]]
         result.left mustBe UpstreamErrorResponse(_: String, NOT_FOUND)
@@ -61,7 +61,7 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
       ).foreach { status =>
         s"return an UpstreamErrorException containing INTERNAL_SERVER_ERROR when $status is returned from TCS Broker" in {
           stubGet(url, status, None)
-          val result = connector.checkForTaxCredits(fakeNino).value.futureValue
+          val result = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
 
           result mustBe a[Left[_, _]]
           result.left mustBe UpstreamErrorResponse(_: String, status)
