@@ -20,7 +20,6 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
-import controllers.controllershelpers.AddressJourneyCachingHelper
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.admin.FeatureFlagService
 import views.html.InternalServerErrorView
@@ -31,7 +30,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AddressErrorController @Inject() (
   authJourney: AuthJourney,
-  cachingHelper: AddressJourneyCachingHelper,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   cannotUseServiceView: CannotUseServiceView,
@@ -52,7 +50,7 @@ class AddressErrorController @Inject() (
       Future.successful(InternalServerError(cannotUseServiceView(typ)))
     }
 
-  def showAddressAlreadyUpdated(typ: AddrType): Action[AnyContent] =
+  def showAddressAlreadyUpdated: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         Future.successful(Ok(addressAlreadyUpdatedView()))

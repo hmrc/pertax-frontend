@@ -54,6 +54,9 @@ lazy val microservice = Project(appName, file("."))
       "-Wconf:cat=unused&src=.*Routes\\.scala:s",
       "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
       "-Wconf:cat=unused&src=.*JavaScriptReverseRoutes\\.scala:s"
+//      "-Ywarn-dead-code",
+//      "-Ywarn-unused",
+//      "-Ywarn-value-discard"
     ),
     routesImport ++= Seq(
       "uk.gov.hmrc.play.bootstrap.binders._",

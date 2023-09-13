@@ -39,11 +39,9 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
 
   def controller: PaperlessPreferencesController =
     new PaperlessPreferencesController(
-      mockPreferencesFrontendPartialService,
       mockAuthJourney,
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
-      injected[ErrorRenderer],
       injected[Tools]
     )(config) {}
 

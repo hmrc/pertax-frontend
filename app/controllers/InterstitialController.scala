@@ -189,7 +189,7 @@ class InterstitialController @Inject() (
 
   def displayBreathingSpaceDetails: Action[AnyContent] = authenticate { implicit request =>
     if (configDecorator.isBreathingSpaceIndicatorEnabled) {
-      Ok(viewBreathingSpaceView(redirectUrl = currentUrl))
+      Ok(viewBreathingSpaceView())
     } else {
       errorRenderer.error(UNAUTHORIZED)
     }

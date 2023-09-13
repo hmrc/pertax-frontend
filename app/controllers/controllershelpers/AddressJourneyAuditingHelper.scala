@@ -51,7 +51,7 @@ object AddressJourneyAuditingHelper {
       s"${prefix}Postcode" -> addressDto.postcode,
       s"${prefix}Country"  -> addressDto.country,
       s"${prefix}UPRN"     -> addressDto.propertyRefNo
-    ).foldLeft(List[(String, Option[String])]())((acc, cur) => cur._2.fold(acc)(x => cur :: acc)).toMap
+    ).foldLeft(List[(String, Option[String])]())((acc, cur) => cur._2.fold(acc)(_ => cur :: acc)).toMap
 
   def dataToAudit(
     addressDto: AddressDto,
@@ -77,7 +77,7 @@ object AddressJourneyAuditingHelper {
       "submittedLine5"    -> address.line5,
       "submittedPostcode" -> address.postcode,
       "submittedCountry"  -> address.country
-    ).foldLeft(List[(String, Option[String])]())((acc, cur) => cur._2.fold(acc)(x => cur :: acc)).toMap ++
+    ).foldLeft(List[(String, Option[String])]())((acc, cur) => cur._2.fold(acc)(_ => cur :: acc)).toMap ++
       Map(
         "etag"        -> Some(etag),
         "addressType" -> Some(addressType)

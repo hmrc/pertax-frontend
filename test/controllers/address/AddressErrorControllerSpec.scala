@@ -39,7 +39,6 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
     def controller: AddressErrorController =
       new AddressErrorController(
         mockAuthJourney,
-        addressJourneyCachingHelper,
         cc,
         displayAddressInterstitialView,
         injected[CannotUseServiceView],
@@ -63,7 +62,7 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
 
     "display the showAddressAlreadyUpdated page" in new LocalSetup {
 
-      val result = controller.showAddressAlreadyUpdated(PostalAddrType)(currentRequest)
+      val result = controller.showAddressAlreadyUpdated(currentRequest)
 
       status(result) mustBe OK
       contentAsString(result) must include("Your address has already been updated")
