@@ -36,7 +36,7 @@ class AlertBannerHelperSpec extends BaseSpec {
 
   val helper: AlertBannerHelper                                           = inject[AlertBannerHelper]
   lazy val mockPreferencesFrontendConnector: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
-  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type]           =
     UserRequestFixture.buildUserRequest(request = FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
   override def beforeEach(): Unit = {
@@ -62,7 +62,7 @@ class AlertBannerHelperSpec extends BaseSpec {
               Future.successful(Right(PaperlessStatusBounced()))
             )
           )
-        helper.alertBannerStatus().futureValue mustBe a[Option[PaperlessStatusBounced]]
+        helper.alertBannerStatus.futureValue.map(_ mustBe a[PaperlessStatusBounced])
       }
       "return Some[PaperlessStatusUnverified] when unverified status retrieved from PreferencesFrontendConnector and toggle is set to true" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
@@ -74,7 +74,7 @@ class AlertBannerHelperSpec extends BaseSpec {
               Future.successful(Right(PaperlessStatusUnverified()))
             )
           )
-        helper.alertBannerStatus().futureValue mustBe a[Option[PaperlessStatusUnverified]]
+        helper.alertBannerStatus.futureValue.map(_ mustBe a[PaperlessStatusUnverified])
       }
       "return None when any other status is retrieved from PreferencesFrontendConnector and toggle is set to true" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
@@ -86,16 +86,16 @@ class AlertBannerHelperSpec extends BaseSpec {
               Future.successful(Right(PaperlessStatusReopt()))
             )
           )
-        helper.alertBannerStatus().futureValue mustBe None
+        helper.alertBannerStatus.futureValue mustBe None
       }
       "return None if toggle is set to false" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
           FeatureFlag(AlertBannerToggle, isEnabled = false)
         )
-        helper.alertBannerStatus().futureValue mustBe None
+        helper.alertBannerStatus.futureValue mustBe None
       }
     }
-    "alertBannerUrl is called" must {
+    "alertBannerUrl is called"    must {
       "return an option containing the bounced email link when bounced email is passed and the toggle is set to true" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
           FeatureFlag(AlertBannerToggle, isEnabled = true)

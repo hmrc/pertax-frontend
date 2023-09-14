@@ -34,7 +34,7 @@ class AlertBannerHelper @Inject() (
   tools: Tools
 ) {
 
-  def alertBannerStatus()(implicit
+  def alertBannerStatus(implicit
     request: UserRequest[AnyContent],
     ec: ExecutionContext
   ): Future[Option[PaperlessMessages]] =

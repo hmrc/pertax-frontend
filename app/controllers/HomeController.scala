@@ -18,13 +18,13 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
+import connectors.{TaiConnector, TaxCalculationConnector}
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
-import models.admin.{AlertBannerToggle, NpsShutteringToggle, TaxComponentsToggle, TaxcalcToggle}
+import models.admin.{NpsShutteringToggle, TaxComponentsToggle, TaxcalcToggle}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
@@ -33,7 +33,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.{AlertBannerHelper, Tools}
+import util.AlertBannerHelper
 import viewmodels.HomeViewModel
 import views.html.HomeView
 
