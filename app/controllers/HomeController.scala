@@ -33,7 +33,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.Tools
+import util.{AlertBannerHelper, Tools}
 import viewmodels.HomeViewModel
 import views.html.HomeView
 
@@ -54,6 +54,7 @@ class HomeController @Inject() (
   homeView: HomeView,
   seissService: SeissService,
   rlsInterruptHelper: RlsInterruptHelper,
+  alertBannerHelper: AlertBannerHelper,
   tools: Tools
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
@@ -63,29 +64,6 @@ class HomeController @Inject() (
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
-
-  private def verifyOrBouncedHandler(
-    verifyOrBounced: Option[PaperlessMessages]
-  )(implicit request: UserRequest[_]): Option[String] = {
-    val absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
-    verifyOrBounced match {
-      case Some(paperlessStatus: PaperlessStatusBounced)    =>
-        Some(
-          configDecorator.preferencedBouncedEmailLink(
-            tools.encryptAndEncode(absoluteUrl),
-            tools.encryptAndEncode(paperlessStatus.link)
-          )
-        )
-      case Some(paperlessStatus: PaperlessStatusUnverified) =>
-        Some(
-          configDecorator.preferencedBouncedEmailLink(
-            tools.encryptAndEncode(absoluteUrl),
-            tools.encryptAndEncode(paperlessStatus.link)
-          )
-        )
-      case _                                                => None
-    }
-  }
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
@@ -115,23 +93,8 @@ class HomeController @Inject() (
                                                                                                  taxCalculationStateCyMinusTwo
                                                                                                )
             shutteringMessaging                                                             <- featureFlagService.get(NpsShutteringToggle)
-            bannerAlert                                                                     <- featureFlagService.get(AlertBannerToggle)
-            paperlessStatus                                                                 <-
-              if (bannerAlert.isEnabled) {
-                preferencesFrontendConnector
-                  .getPaperlessStatus(request.uri, "")
-                  .fold(_ => None, message => Some(message))
-                  .map {
-                    case Some(paperlessStatus: PaperlessStatusBounced)    =>
-                      Some(paperlessStatus)
-                    case Some(paperlessStatus: PaperlessStatusUnverified) =>
-                      Some(paperlessStatus)
-                    case _                                                =>
-                      None
-                  }
-              } else {
-                Future.successful(None)
-              }
+            paperlessStatus                                                                 <- alertBannerHelper.alertBannerStatus
+            alertBannerUrl                                                                  <- alertBannerHelper.alertBannerUrl(paperlessStatus)
           } yield {
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
             val benefitCards: Seq[Html] =
@@ -147,7 +110,7 @@ class HomeController @Inject() (
                   saUserType,
                   breathingSpaceIndicator,
                   paperlessStatus,
-                  verifyOrBouncedHandler(paperlessStatus)
+                  alertBannerUrl
                 ),
                 shutteringMessaging.isEnabled
               )

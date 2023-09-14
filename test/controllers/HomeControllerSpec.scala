@@ -967,7 +967,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      val r: Future[Result]          = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
       verify(mockPreferencesFrontendConnector, never).getPaperlessStatus(any(), any())(any())
     }
@@ -991,7 +991,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      val r: Future[Result]          = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
       verify(mockPreferencesFrontendConnector, times(1)).getPaperlessStatus(any(), any())(any())
     }
