@@ -42,7 +42,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
-  preferencesFrontendConnector: PreferencesFrontendConnector,
   taiConnector: TaiConnector,
   taxCalculationConnector: TaxCalculationConnector,
   breathingSpaceService: BreathingSpaceService,
@@ -54,8 +53,7 @@ class HomeController @Inject() (
   homeView: HomeView,
   seissService: SeissService,
   rlsInterruptHelper: RlsInterruptHelper,
-  alertBannerHelper: AlertBannerHelper,
-  tools: Tools
+  alertBannerHelper: AlertBannerHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {

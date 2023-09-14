@@ -962,7 +962,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
+          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector),
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
         )
         .build()
 
@@ -986,7 +987,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
+          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector),
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
         )
         .build()
 
