@@ -18,6 +18,7 @@
 @import viewmodels.HomeViewModel
 @import components.H2
 @import config.ConfigDecorator
+@import views.html.components.AlertBanner
 
 @this(
     main: MainView,
@@ -25,6 +26,7 @@
     govukInsetText: GovukInsetText,
     h2: H2,
     govukNotificationBanner : GovukNotificationBanner,
+        alertBanner: AlertBanner,
     configDecorator: ConfigDecorator
 )
 
@@ -36,20 +38,6 @@
         <a class="govuk-notification-banner__link" href="@controllers.routes.InterstitialController.displayNpsShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
     </p>
 }
-
-    @alertBannerHtml = {
-        @viewModel.showAlertBanner.map { alert =>
-            @viewModel.verifyOrBouncedUrl.map { url =>
-                @if(alert.isInstanceOf[PaperlessStatusUnverified]) {
-                    <p class="govuk-notification-banner__heading">@messages("alert_banner.alert_unverified_email.p1") <a href=@url>@messages("alert_banner.alert_unverified_email.link")</a>.</p>
-                }
-                @if(alert.isInstanceOf[PaperlessStatusBounced]) {
-                    <p class="govuk-notification-banner__heading">@messages("alert_banner.alert_bounced_email.p1") <a href=@url>@messages("alert_banner.alert_bounced_email.link")</a>
-                        @messages("alert_banner.alert_bounced_email.p2")</p>
-                }
-            }
-        }
-    }
 
 @main(
     pageTitle = messages("label.account_home"),
@@ -63,11 +51,7 @@
         ))
     }
 
-    @if(viewModel.showAlertBanner.isDefined) {
-        @govukNotificationBanner(NotificationBanner(
-            content = HtmlContent(alertBannerHtml)
-        ))
-    }
+    @alertBanner(viewModel)
 
     <header class="hmrc-page-heading">
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
