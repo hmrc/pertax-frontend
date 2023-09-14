@@ -29,13 +29,18 @@
     <link rel="stylesheet" href='@routes.AssetsController.versioned("stylesheets/partials/print-this-document.css")'>
 }
 
+@script = {
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/print.js")'></script>
+}
+
 @main(
     pageTitle = messages("label.print_your_national_insurance_summary"),
     serviceName = messages("label.national_insurance"),
     showBackLink = true,
     fullWidth = true,
     yourProfileActive = true,
-    stylesheets = Some(stylesheet)
+    stylesheets = Some(stylesheet),
+    scripts = Some(script)
 ) {
 
     @hmrcPageHeading(PageHeading(
@@ -45,7 +50,7 @@
 
     <div class="print-this">
         <img class="print-this__icon" src='@controllers.routes.AssetsController.versioned("images/icon-print.svg")' alt="Print Icon" aria-hidden="true"/>
-        <a class="print-this__link" href="javascript:window.print()" data-journey-click="print - click:Your National Insurance letter:@messages("label.print")">@messages("label.print")</a>
+        <a class="print-this__link" href="#" id="printLink" data-journey-click="print - click:Your National Insurance letter:@messages("label.print")">@messages("label.print")</a>
     </div>
     @if(saveNiLetterAsPdfLinkEnabled) {
         <div class="save-this">
