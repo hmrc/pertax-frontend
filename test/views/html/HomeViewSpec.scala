@@ -18,9 +18,11 @@ package views.html
 
 import config.ConfigDecorator
 import models._
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import play.api.test.FakeRequest
+import play.twirl.api.Html
 import testUtils.Fixtures
 import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.SaUtrGenerator
@@ -36,7 +38,7 @@ class HomeViewSpec extends ViewSpec {
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   val homeViewModel =
-    HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, None, None)
+    HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty)
 
   "Rendering HomeView.scala.html" must {
 
@@ -106,38 +108,24 @@ class HomeViewSpec extends ViewSpec {
       )
     }
 
-    "show the alert banner with the bounced email message if PaperlessStatusBounced is in the view model" in {
+    "show the alert banner if there is some alert content" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
-      val view                 = home(
-        homeViewModel.copy(showAlertBanner = Some(PaperlessStatusBounced()), verifyOrBouncedUrl = Some("")),
-        true
-      ).toString
+      val view                 = Jsoup.parse(
+        home(
+          homeViewModel.copy(alertBannerContent = List(Html("something to alert"))),
+          true
+        ).toString
+      )
 
-      view must include(messages("alert_banner.alert_bounced_email.p1"))
-      view must include(messages("alert_banner.alert_bounced_email.p2"))
-      view must include(messages("alert_banner.alert_bounced_email.link"))
+      view.getElementById("alert-banner") must not be null
+      view.toString                       must include("something to alert")
     }
 
-    "show the alert banner with the bounced email message if PaperlessStatusUnverified is in the view model" in {
+    "not show the alert banner if no alert content" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
-      val view                 = home(
-        homeViewModel.copy(showAlertBanner = Some(PaperlessStatusUnverified()), verifyOrBouncedUrl = Some("")),
-        true
-      ).toString
+      val view                 = Jsoup.parse(home(homeViewModel, true).toString)
 
-      view must include(messages("alert_banner.alert_unverified_email.p1"))
-      view must include(messages("alert_banner.alert_unverified_email.link"))
-    }
-
-    "not show the alert banner if no PaperlessMessages exists in the view model" in {
-      implicit val userRequest = buildUserRequest(request = FakeRequest())
-      val view                 = home(homeViewModel, true).toString
-
-      view must not include (messages("alert_banner.alert_unverified_email.p1"))
-      view must not include (messages("alert_banner.alert_unverified_email.link"))
-      view must not include (messages("alert_banner.alert_bounced_email.p1"))
-      view must not include (messages("alert_banner.alert_bounced_email.p2"))
-      view must not include (messages("alert_banner.alert_bounced_email.link"))
+      view.getElementById("alert-banner") mustBe null
     }
   }
 }

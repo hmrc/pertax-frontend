@@ -52,7 +52,7 @@ class FeatureFlagsController @Inject() (
           NpsShutteringToggle               -> false,
           NpsOutageToggle                   -> false
           HmrcAccountToggle                 -> false,
-          AlertBannerToggle                 -> true
+          AlertBannerPaperlessStatusToggle  -> true
         )
       )
       .map(_ => Ok("Default flags set"))

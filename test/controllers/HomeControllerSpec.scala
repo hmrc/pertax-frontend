@@ -952,12 +952,15 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-        FeatureFlag(AlertBannerToggle, isEnabled = false)
-      )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle))) thenReturn Future
+        .successful(
+          FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = false)
+        )
       when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
         .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, PaperlessMessages](Future.successful(Right(PaperlessStatusBounced())))
+          EitherT[Future, UpstreamErrorResponse, PaperlessMessagesStatus](
+            Future.successful(Right(PaperlessStatusBounced()))
+          )
         )
 
       lazy val app: Application = localGuiceApplicationBuilder()
@@ -977,12 +980,15 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-        FeatureFlag(AlertBannerToggle, isEnabled = true)
-      )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle))) thenReturn Future
+        .successful(
+          FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = true)
+        )
       when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
         .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, PaperlessMessages](Future.successful(Right(PaperlessStatusBounced())))
+          EitherT[Future, UpstreamErrorResponse, PaperlessMessagesStatus](
+            Future.successful(Right(PaperlessStatusBounced()))
+          )
         )
 
       lazy val app: Application = localGuiceApplicationBuilder()

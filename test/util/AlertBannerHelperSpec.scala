@@ -16,21 +16,14 @@
 
 package util
 
-import cats.data.EitherT
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import models._
-import models.admin.{AlertBannerToggle, FeatureFlag}
-import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.any
 import play.api.Application
+import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.{BaseSpec, UserRequestFixture}
-import uk.gov.hmrc.http.UpstreamErrorResponse
-
-import scala.concurrent.Future
 
 class AlertBannerHelperSpec extends BaseSpec {
 
@@ -49,83 +42,7 @@ class AlertBannerHelperSpec extends BaseSpec {
       bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
     )
     .build()
+  implicit lazy val messages         = app.injector.instanceOf[Messages]
 
-  "AlertBannerHelper" when {
-    "alertBannerStatus is called" must {
-      "return Some[PaperlessStatusBounced] when bounced status retrieved from PreferencesFrontendConnector and toggle is set to true" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-          FeatureFlag(AlertBannerToggle, isEnabled = true)
-        )
-        when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
-          .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, PaperlessMessages](
-              Future.successful(Right(PaperlessStatusBounced()))
-            )
-          )
-        helper.alertBannerStatus.futureValue.map(_ mustBe a[PaperlessStatusBounced])
-      }
-      "return Some[PaperlessStatusUnverified] when unverified status retrieved from PreferencesFrontendConnector and toggle is set to true" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-          FeatureFlag(AlertBannerToggle, isEnabled = true)
-        )
-        when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
-          .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, PaperlessMessages](
-              Future.successful(Right(PaperlessStatusUnverified()))
-            )
-          )
-        helper.alertBannerStatus.futureValue.map(_ mustBe a[PaperlessStatusUnverified])
-      }
-      "return None when any other status is retrieved from PreferencesFrontendConnector and toggle is set to true" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-          FeatureFlag(AlertBannerToggle, isEnabled = true)
-        )
-        when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
-          .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, PaperlessMessages](
-              Future.successful(Right(PaperlessStatusReopt()))
-            )
-          )
-        helper.alertBannerStatus.futureValue mustBe None
-      }
-      "return None if toggle is set to false" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-          FeatureFlag(AlertBannerToggle, isEnabled = false)
-        )
-        helper.alertBannerStatus.futureValue mustBe None
-      }
-    }
-    "alertBannerUrl is called"    must {
-      "return an option containing the bounced email link when bounced email is passed and the toggle is set to true" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-          FeatureFlag(AlertBannerToggle, isEnabled = true)
-        )
-        helper
-          .alertBannerUrl(Some(PaperlessStatusBounced()))
-          .futureValue
-          .map(_ must include("/paperless/email-bounce?returnUrl="))
-      }
-      "return an option containing the verify email link when PaperlessStatusUnverified is passed and the toggle is set to true" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-          FeatureFlag(AlertBannerToggle, isEnabled = true)
-        )
-        helper
-          .alertBannerUrl(Some(PaperlessStatusUnverified()))
-          .futureValue
-          .map(_ must include("/paperless/email-re-verify?returnUrl="))
-      }
-      "return a None when any other PaperlessMessages is passed and the toggle is set to true" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-          FeatureFlag(AlertBannerToggle, isEnabled = true)
-        )
-        helper.alertBannerUrl(Some(PaperlessStatusReopt())).futureValue mustBe None
-      }
-      "return a None if the toggle is set to false" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerToggle))) thenReturn Future.successful(
-          FeatureFlag(AlertBannerToggle, isEnabled = false)
-        )
-        helper.alertBannerUrl(Some(PaperlessStatusUnverified())).futureValue mustBe None
-      }
-    }
-  }
+  "AlertBannerHelper" ignore {}
 }

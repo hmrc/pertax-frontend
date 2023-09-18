@@ -16,73 +16,72 @@
 
 package util
 
+import cats.implicits.catsStdInstancesForFuture
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.AlertBannerToggle
+import models.admin.AlertBannerPaperlessStatusToggle
+import play.api.i18n.Messages
 import play.api.mvc.AnyContent
+import play.twirl.api.Html
 import services.admin.FeatureFlagService
-
+import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, unverifiedEmail}
 import scala.concurrent.{ExecutionContext, Future}
 
 class AlertBannerHelper @Inject() (
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService,
   configDecorator: ConfigDecorator,
-  tools: Tools
+  tools: Tools,
+  bouncedEmailView: bouncedEmail,
+  unverifiedEmailView: unverifiedEmail
 ) {
 
-  def alertBannerStatus(implicit
+  def getContent(implicit
     request: UserRequest[AnyContent],
-    ec: ExecutionContext
-  ): Future[Option[PaperlessMessages]] =
-    featureFlagService.get(AlertBannerToggle).flatMap { toggle =>
+    ec: ExecutionContext,
+    messages: Messages
+  ): Future[List[Html]] =
+    for {
+      paperlessContent <- getPaperlessStatusBannerContent
+    } yield List(
+      paperlessContent
+    ).flatten
+
+  def getPaperlessStatusBannerContent(implicit
+    request: UserRequest[AnyContent],
+    ec: ExecutionContext,
+    messages: Messages
+  ): Future[Option[Html]] =
+    featureFlagService.get(AlertBannerPaperlessStatusToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
+        val absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
         preferencesFrontendConnector
           .getPaperlessStatus(request.uri, "")
-          .fold(_ => None, message => Some(message))
-          .map {
-            case Some(paperlessStatus: PaperlessStatusBounced)    =>
-              Some(paperlessStatus)
-            case Some(paperlessStatus: PaperlessStatusUnverified) =>
-              Some(paperlessStatus)
-            case _                                                =>
-              None
-          }
+          .fold(
+            _ => None,
+            {
+              case paperlessStatus: PaperlessStatusBounced =>
+                val bounceLink = configDecorator.preferencedBouncedEmailLink(
+                  tools.encryptAndEncode(absoluteUrl),
+                  tools.encryptAndEncode(paperlessStatus.link)
+                )
+                Some(bouncedEmailView(bounceLink))
+
+              case paperlessStatus: PaperlessStatusUnverified =>
+                val unverifiedLink = configDecorator.preferencedReVerifyEmailLink(
+                  tools.encryptAndEncode(absoluteUrl),
+                  tools.encryptAndEncode(paperlessStatus.link)
+                )
+                Some(unverifiedEmailView(unverifiedLink))
+              case _                                          =>
+                None
+            }
+          )
       } else {
         Future.successful(None)
       }
     }
-
-  def alertBannerUrl(
-    verifyOrBounced: Option[PaperlessMessages]
-  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Option[String]] = {
-    val absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
-
-    featureFlagService.get(AlertBannerToggle).map { toggle =>
-      if (toggle.isEnabled) {
-        verifyOrBounced match {
-          case Some(paperlessStatus: PaperlessStatusBounced)    =>
-            Some(
-              configDecorator.preferencedBouncedEmailLink(
-                tools.encryptAndEncode(absoluteUrl),
-                tools.encryptAndEncode(paperlessStatus.link)
-              )
-            )
-          case Some(paperlessStatus: PaperlessStatusUnverified) =>
-            Some(
-              configDecorator.preferencedReVerifyEmailLink(
-                tools.encryptAndEncode(absoluteUrl),
-                tools.encryptAndEncode(paperlessStatus.link)
-              )
-            )
-          case _                                                => None
-        }
-      } else {
-        None
-      }
-    }
-  }
 }

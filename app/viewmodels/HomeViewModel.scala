@@ -16,7 +16,7 @@
 
 package viewmodels
 
-import models.{PaperlessMessages, SelfAssessmentUser, SelfAssessmentUserType}
+import models.{SelfAssessmentUser, SelfAssessmentUserType}
 import play.twirl.api.Html
 
 final case class HomeViewModel(
@@ -26,8 +26,7 @@ final case class HomeViewModel(
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
-  showAlertBanner: Option[PaperlessMessages],
-  verifyOrBouncedUrl: Option[String]
+  alertBannerContent: List[Html]
 )
 
 object HomeViewModel {
@@ -38,8 +37,7 @@ object HomeViewModel {
     showUserResearchBanner: Boolean,
     selfAssessmentUserType: SelfAssessmentUserType,
     breathingSpaceIndicator: Boolean,
-    showAlertBanner: Option[PaperlessMessages],
-    verifyOrBouncedUrl: Option[String]
+    alertBannerContent: List[Html]
   ): HomeViewModel = {
 
     val utr: Option[String] = selfAssessmentUserType match {
@@ -54,8 +52,7 @@ object HomeViewModel {
       showUserResearchBanner,
       utr,
       breathingSpaceIndicator,
-      showAlertBanner,
-      verifyOrBouncedUrl
+      alertBannerContent
     )
   }
 }

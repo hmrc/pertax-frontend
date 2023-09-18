@@ -18,7 +18,7 @@
 @import viewmodels.HomeViewModel
 @import components.H2
 @import config.ConfigDecorator
-@import views.html.components.AlertBanner
+@import views.html.components.alertBanner.AlertBanner
 
 @this(
     main: MainView,
@@ -51,7 +51,7 @@
         ))
     }
 
-    @alertBanner(viewModel)
+    @alertBanner(viewModel.alertBannerContent)
 
     <header class="hmrc-page-heading">
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>

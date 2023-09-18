@@ -87,7 +87,7 @@ object FeatureFlagName {
       PertaxBackendToggle,
       SCAWrapperToggle,
       HmrcAccountToggle,
-      AlertBannerToggle
+      AlertBannerPaperlessStatusToggle
     )
 }
 
@@ -125,11 +125,6 @@ case object TaxComponentsToggle extends FeatureFlagName {
 case object RlsInterruptToggle extends FeatureFlagName {
   override def toString: String            = "rls-interrupt-toggle"
   override val description: Option[String] = Some("Enable/disable the interrupt for return letter to sender (RLS)")
-}
-
-case object PaperlessInterruptToggle extends FeatureFlagName {
-  override def toString: String            = "enforce-paperless-preference"
-  override val description: Option[String] = Some("Enable/disable the interrupt for paperless setting")
 }
 
 case object TaxSummariesTileToggle extends FeatureFlagName {
@@ -194,11 +189,16 @@ case object HmrcAccountToggle extends FeatureFlagName {
   )
 }
 
-case object AlertBannerToggle extends FeatureFlagName {
-  override def toString: String = "alert-banner-toggle"
+case object PaperlessInterruptToggle extends FeatureFlagName {
+  override def toString: String            = "enforce-paperless-preference"
+  override val description: Option[String] = Some("Enable/disable the interrupt for paperless setting")
+}
+
+case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
+  override def toString: String = "alert-banner-paperless-status-toggle"
 
   override val description: Option[String] = Some(
-    "Enable/disable the alert banner to display alert for bounced or unverified email on the home page"
+    "Enable/disable paperless alerts in alert banner on the home page"
   )
 }
 

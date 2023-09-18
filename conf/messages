@@ -684,10 +684,11 @@ tax_credits.interstitial.link_text = Continue to the Tax Credits Service
 #*************************************************************
 # Alert Banner
 #*************************************************************
-alert_banner.alert_unverified_email.p1 = You need to
-alert_banner.alert_unverified_email.link = verify your email address
-alert_banner.alert_bounced_email.p1 = We are having trouble sending you emails. Please
-alert_banner.alert_bounced_email.p2 = now.
-alert_banner.alert_bounced_email.link = check your email address
+alert_banner.paperlessStatus.unverified_email.p1 = You need to
+alert_banner.paperlessStatus.unverified_email.link = verify your email address
+alert_banner.paperlessStatus.bounced_email.p1 = We are having trouble sending you emails.
+alert_banner.paperlessStatus.bounced_email.p2.start = Please
+alert_banner.paperlessStatus.bounced_email.link = check your email address
+alert_banner.paperlessStatus.bounced_email.p2.end = now.
 
 

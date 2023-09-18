@@ -91,8 +91,7 @@ class HomeController @Inject() (
                                                                                                  taxCalculationStateCyMinusTwo
                                                                                                )
             shutteringMessaging                                                             <- featureFlagService.get(NpsShutteringToggle)
-            paperlessStatus                                                                 <- alertBannerHelper.alertBannerStatus
-            alertBannerUrl                                                                  <- alertBannerHelper.alertBannerUrl(paperlessStatus)
+            alertBannerContent                                                              <- alertBannerHelper.getContent
           } yield {
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
             val benefitCards: Seq[Html] =
@@ -107,8 +106,7 @@ class HomeController @Inject() (
                   showUserResearchBanner,
                   saUserType,
                   breathingSpaceIndicator,
-                  paperlessStatus,
-                  alertBannerUrl
+                  alertBannerContent
                 ),
                 shutteringMessaging.isEnabled
               )
