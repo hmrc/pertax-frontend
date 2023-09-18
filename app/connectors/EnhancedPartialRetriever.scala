@@ -44,7 +44,6 @@ class EnhancedPartialRetriever @Inject() (
         HtmlPartial.Failure(Some(ex.responseCode))
       case _                 =>
         HtmlPartial.Failure(None)
-
     }
   }
 }

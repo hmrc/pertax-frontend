@@ -119,7 +119,6 @@ class InterstitialController @Inject() (
         istaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
-          redirectUrl = currentUrl(request),
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           request.isSa,
@@ -178,7 +177,7 @@ class InterstitialController @Inject() (
       val models = newsAndTilesConfig.getNewsAndContentModelList()
       if (models.nonEmpty) {
         //service to get the dynamic content send the models and get the details from the dynamic list
-        Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, models, newsSectionId))
+        Ok(viewNewsAndUpdatesView(models, newsSectionId))
       } else {
         Redirect(routes.HomeController.index)
       }

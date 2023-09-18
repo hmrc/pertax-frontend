@@ -67,7 +67,7 @@ class GetPersonDetailsAction @Inject() (
       }.value
     }
 
-  def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
+  private def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
     featureFlagService.get(SCAWrapperToggle).flatMap { toggle =>
       if (configDecorator.personDetailsMessageCountEnabled && !toggle.isEnabled) {
         messageFrontendService.getUnreadMessageCount

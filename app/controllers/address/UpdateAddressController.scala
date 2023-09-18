@@ -61,8 +61,6 @@ class UpdateAddressController @Inject() (
               updateAddressView(
                 addressForm.discardingErrors,
                 typ,
-                journeyData.addressFinderDto,
-                journeyData.addressLookupServiceDown,
                 showEnterAddressHeader
               )
             )
@@ -85,8 +83,6 @@ class UpdateAddressController @Inject() (
                     updateAddressView(
                       formWithErrors,
                       typ,
-                      journeyData.addressFinderDto,
-                      journeyData.addressLookupServiceDown,
                       showEnterAddressHeader
                     )
                   )

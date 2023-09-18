@@ -41,7 +41,7 @@ object AddressJourneyAuditingHelper {
       (changeCount > 2)
     }
 
-  def addressDtoToAuditData(addressDto: AddressDto, prefix: String): Map[String, Option[String]] =
+  private def addressDtoToAuditData(addressDto: AddressDto, prefix: String): Map[String, Option[String]] =
     Map(
       s"${prefix}Line1"    -> Some(addressDto.line1),
       s"${prefix}Line2"    -> Some(addressDto.line2),

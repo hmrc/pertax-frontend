@@ -52,7 +52,7 @@ class FeatureFlagsAdminController @Inject() (
     val flags = request.body.asJson
       .map(_.as[Seq[FeatureFlag]])
       .getOrElse(Seq.empty)
-      .map(flag => (flag.name -> flag.isEnabled))
+      .map(flag => flag.name -> flag.isEnabled)
       .toMap
     featureFlagService.setAll(flags).map(_ => NoContent)
   }

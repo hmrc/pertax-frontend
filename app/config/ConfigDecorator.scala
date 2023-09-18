@@ -113,10 +113,7 @@ class ConfigDecorator @Inject() (
   lazy val annualTaxSaSummariesTileLink                    = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink                  = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
-  lazy val childBenefitLinkUrl: Option[String] = Some(
-    "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"
-  )
-  lazy val isSeissTileEnabled: Boolean         =
+  lazy val isSeissTileEnabled: Boolean =
     runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean
 
   lazy val portalBaseUrl: String     = runModeConfiguration.get[String]("external-url.sso-portal.host")
@@ -201,7 +198,6 @@ class ConfigDecorator @Inject() (
 
   lazy val identityVerificationUpliftUrl      = s"$identityVerificationHost/$identityVerificationPrefix/uplift"
   lazy val multiFactorAuthenticationUpliftUrl = s"$basGatewayFrontendHost/bas-gateway/uplift-mfa"
-  lazy val tcsChangeAddressUrl                = s"$tcsFrontendHost/tax-credits-service/personal/change-address"
   lazy val tcsServiceRouterUrl                = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
   lazy val tcsDoYouLiveInUkUrl                = s"$tcsFrontendHost/tax-credits-service/your-details/live-in-the-uk"
   lazy val updateAddressShortFormUrl          = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
@@ -338,7 +334,7 @@ class ConfigDecorator @Inject() (
   lazy val addressLookupTimeoutInSec: Int =
     servicesConfig.getInt("feature.address-lookup.timeoutInSec")
 
-  val SCAWrapperFutureTimeout = servicesConfig.getInt("sca-wrapper.future-timeout")
+  val SCAWrapperFutureTimeout: Int = servicesConfig.getInt("sca-wrapper.future-timeout")
 
 }
 

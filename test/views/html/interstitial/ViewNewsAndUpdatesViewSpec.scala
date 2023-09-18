@@ -17,8 +17,9 @@
 package views.html.interstitial
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import models.NewsAndContentModel
-import play.api.i18n.Messages
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
@@ -27,19 +28,17 @@ import java.time.LocalDate
 
 class ViewNewsAndUpdatesViewSpec extends ViewSpec {
 
-  lazy val viewNewsAndUpdatesView                    = injected[ViewNewsAndUpdatesView]
-  lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val userRequest                           = buildUserRequest(request = FakeRequest())
+  lazy val viewNewsAndUpdatesView: ViewNewsAndUpdatesView       = injected[ViewNewsAndUpdatesView]
+  lazy implicit val configDecorator: ConfigDecorator            = injected[ConfigDecorator]
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
   "Rendering ViewNewsAndUpdatesView.scala.html" must {
-
-    implicit val userRequest = buildUserRequest(request = FakeRequest())
 
     val firstNewsAndContentModel = NewsAndContentModel(
       "nicSection",
       "1.25 percentage points uplift in National Insurance contributions (base64 encoded)",
       "<p>base64 encoded content with html example 1</p>",
-      false,
+      isDynamic = false,
       LocalDate.now
     )
 
@@ -47,14 +46,13 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
       "exampleSection",
       "This is an example News item",
       "<p>base64 encoded content with html example 2</p>",
-      false,
+      isDynamic = false,
       LocalDate.now
     )
 
     "show the select news item content and headlines for others" in {
       val doc = asDocument(
         viewNewsAndUpdatesView(
-          s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/news",
           List[NewsAndContentModel](firstNewsAndContentModel, secondNewsAndContentModel),
           "nicSection"
         ).toString
@@ -63,7 +61,6 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
       val doc2 =
         asDocument(
           viewNewsAndUpdatesView(
-            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/news",
             List[NewsAndContentModel](firstNewsAndContentModel, secondNewsAndContentModel),
             "exampleSection"
           ).toString
@@ -80,7 +77,6 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
       doc2.text()                               must include(messages("label.other_news_and_updates"))
       doc2.text()                               must include(firstNewsAndContentModel.shortDescription)
       doc2.html() mustNot include(firstNewsAndContentModel.content)
-
     }
 
     "show the select news item content adn not Other new and updates heading" in {
@@ -88,7 +84,6 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewNewsAndUpdatesView(
-            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/news",
             List[NewsAndContentModel](firstNewsAndContentModel),
             "exampleSection"
           ).toString
@@ -98,6 +93,5 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
       doc.html()                               must include(firstNewsAndContentModel.content)
       doc.text() mustNot include(messages("label.other_news_and_updates"))
     }
-
   }
 }

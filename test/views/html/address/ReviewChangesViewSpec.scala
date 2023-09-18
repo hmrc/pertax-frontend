@@ -44,7 +44,7 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertNotContainText(result(PostalAddrType), messages("label.is_your_main_address_in_the_uk"))
     }
 
-    "when postal address has been changed display link to PostalDoYouLiveInTheUKController" in {
+    "when postal address has been changed display link to PostalInternationalAddressChoiceController" in {
 
       assertContainsLink(
         result(PostalAddrType),
