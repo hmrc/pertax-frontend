@@ -50,7 +50,7 @@ class AlertBannerHelper @Inject() (
       paperlessContent
     ).flatten
 
-  def getPaperlessStatusBannerContent(implicit
+  private[AlertBannerHelper] def getPaperlessStatusBannerContent(implicit
     request: UserRequest[AnyContent],
     ec: ExecutionContext,
     messages: Messages
