@@ -63,7 +63,7 @@ class InterstitialController @Inject() (
     extends PertaxBaseController(cc)
     with Logging {
 
-  val saBreadcrumb: Breadcrumb =
+  private val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
   private val authenticate: ActionBuilder[UserRequest, AnyContent]   =

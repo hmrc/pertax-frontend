@@ -109,7 +109,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val result = controller.handleSelfAssessment()(FakeRequest())
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage.url)
+      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage().url)
     }
 
     "return 200 when called with a GG user that is has a UTR but no enrolment" in new LocalSetup {
@@ -149,7 +149,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage.url)
+      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage().url)
     }
 
     "render the page for a user who has a SAUtr but has never enrolled" in new LocalSetup {

@@ -16,7 +16,7 @@
 
 package models.addresslookup
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class Country(
   // ISO3166-1 or ISO3166-2 code, e.g. "GB" or "GB-ENG" (note that "GB" is the official
@@ -29,13 +29,13 @@ case class Country(
 ) {}
 
 object Country {
-  implicit val formats = Json.format[Country]
+  implicit val formats: OFormat[Country] = Json.format[Country]
   // note that "GB" is the official ISO code for UK, although "UK" is a reserved synonym and is less confusing
-  val UK               = Country("UK", "United Kingdom")
-  val GB               = Country("GB", "United Kingdom") // special case provided for in ISO-3166
-  val GG               = Country("GG", "Guernsey")
-  val IM               = Country("IM", "Isle of Man")
-  val JE               = Country("JE", "Jersey")
+  val UK: Country                        = Country("UK", "United Kingdom")
+  private val GB: Country                = Country("GB", "United Kingdom") // special case provided for in ISO-3166
+  private val GG                         = Country("GG", "Guernsey")
+  private val IM                         = Country("IM", "Isle of Man")
+  val JE                                 = Country("JE", "Jersey")
 
   val England         = Country("GB-ENG", "England")
   val Scotland        = Country("GB-SCT", "Scotland")
