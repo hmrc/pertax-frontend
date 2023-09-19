@@ -19,7 +19,7 @@ import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.scalatestaccessibilitylinter.AccessibilityMatchers
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
 
