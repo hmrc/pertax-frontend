@@ -52,7 +52,6 @@ class ConfigDecorator @Inject() (
   def seissUrl: String = servicesConfig.baseUrl("self-employed-income-support")
 
   private lazy val formFrontendService       = servicesConfig.baseUrl("dfs-digital-forms-frontend")
-  lazy val pertaxFrontendService: String     = servicesConfig.baseUrl("pertax-frontend")
   lazy val businessTaxAccountService: String = servicesConfig.baseUrl("business-tax-account")
   lazy val tcsBrokerHost: String             = servicesConfig.baseUrl("tcs-broker")
 
@@ -198,6 +197,7 @@ class ConfigDecorator @Inject() (
 
   lazy val identityVerificationUpliftUrl      = s"$identityVerificationHost/$identityVerificationPrefix/uplift"
   lazy val multiFactorAuthenticationUpliftUrl = s"$basGatewayFrontendHost/bas-gateway/uplift-mfa"
+  lazy val tcsChangeAddressUrl                = s"$tcsFrontendHost/tax-credits-service/personal/change-address"
   lazy val tcsServiceRouterUrl                = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
   lazy val updateAddressShortFormUrl          = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
   lazy val changeNameLinkUrl                  =
