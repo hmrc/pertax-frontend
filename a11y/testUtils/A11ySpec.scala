@@ -44,8 +44,6 @@ trait A11ySpec extends AnyWordSpec
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
 
-  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-
   lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   implicit override val patienceConfig: PatienceConfig = PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
