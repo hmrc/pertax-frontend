@@ -50,11 +50,11 @@ class FormPartialServiceSpec extends BaseSpec {
     "form list for National insurance return empty" when {
       "NpsOutgaeToggle is enabled" in new LocalSetup {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = true)))
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-        val result = formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
+        val result: HtmlPartial = formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
         result mustBe HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered")
         verify(mockEnhancedPartialRetriever, times(0)).loadPartial(any())(any(), any())
       }
@@ -63,11 +63,11 @@ class FormPartialServiceSpec extends BaseSpec {
     "form list for Self-assessment return empty" when {
       "NpsOutgaeToggle is enabled" in new LocalSetup {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = true)))
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-        val result = formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
+        val result: HtmlPartial = formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
         result mustBe HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered")
         verify(mockEnhancedPartialRetriever, times(0)).loadPartial(any())(any(), any())
       }
@@ -75,22 +75,22 @@ class FormPartialServiceSpec extends BaseSpec {
 
     "return form list for National insurance" in new LocalSetup {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
       when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      val result = formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
+      val result: HtmlPartial = formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
       result mustBe HtmlPartial.Success(Some("Title"), Html("<title/>"))
       verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any())(any(), any())
     }
 
     "return form list for Self-assessment" in new LocalSetup {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
       when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      val result = formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
+      val result: HtmlPartial = formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
       result mustBe HtmlPartial.Success(Some("Title"), Html("<title/>"))
       verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any())(any(), any())
     }

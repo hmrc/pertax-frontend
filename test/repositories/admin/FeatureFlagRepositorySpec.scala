@@ -24,9 +24,11 @@ import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class FeatureFlagRepositorySpec
@@ -37,7 +39,7 @@ class FeatureFlagRepositorySpec
     with BeforeAndAfterEach
     with DefaultPlayMongoRepositorySupport[FeatureFlag] {
 
-  override protected lazy val optSchema = Some(BsonDocument("""
+  override protected lazy val optSchema: Option[BsonDocument] = Some(BsonDocument("""
       { bsonType: "object"
       , required: [ "_id", "name", "isEnabled" ]
       , properties:
@@ -49,13 +51,13 @@ class FeatureFlagRepositorySpec
       }
     """))
 
-  override implicit lazy val app = GuiceApplicationBuilder()
+  override implicit lazy val app: Application = GuiceApplicationBuilder()
     .configure(Map("mongodb.uri" -> mongoUri))
     .build()
 
   override val checkTtlIndex = false
 
-  lazy val repository = app.injector.instanceOf[FeatureFlagRepository]
+  lazy val repository: FeatureFlagRepository = app.injector.instanceOf[FeatureFlagRepository]
 
   "getFlag" must {
     "return None if there is no record" in {
@@ -69,12 +71,12 @@ class FeatureFlagRepositorySpec
     "insert and read a record in mongo" in {
 
       val result = (for {
-        _      <- repository.setFeatureFlag(AddressTaxCreditsBrokerCallToggle, true)
+        _      <- repository.setFeatureFlag(AddressTaxCreditsBrokerCallToggle, enabled = true)
         result <- findAll()
       } yield result).futureValue
 
       result mustBe List(
-        FeatureFlag(AddressTaxCreditsBrokerCallToggle, true, AddressTaxCreditsBrokerCallToggle.description)
+        FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true, AddressTaxCreditsBrokerCallToggle.description)
       )
     }
   }
@@ -82,13 +84,13 @@ class FeatureFlagRepositorySpec
   "setFeatureFlag" must {
     "replace a record not create a new one" in {
       val result = (for {
-        _      <- repository.setFeatureFlag(AddressTaxCreditsBrokerCallToggle, true)
-        _      <- repository.setFeatureFlag(AddressTaxCreditsBrokerCallToggle, false)
+        _      <- repository.setFeatureFlag(AddressTaxCreditsBrokerCallToggle, enabled = true)
+        _      <- repository.setFeatureFlag(AddressTaxCreditsBrokerCallToggle, enabled = false)
         result <- findAll()
       } yield result).futureValue
 
       result mustBe List(
-        FeatureFlag(AddressTaxCreditsBrokerCallToggle, false, AddressTaxCreditsBrokerCallToggle.description)
+        FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false, AddressTaxCreditsBrokerCallToggle.description)
       )
     }
   }
@@ -114,12 +116,12 @@ class FeatureFlagRepositorySpec
   "getAllFeatureFlags" must {
     "get a list of all the feature toggles" in {
       val allFlags: Seq[FeatureFlag] = (for {
-        _      <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true, AddressTaxCreditsBrokerCallToggle.description))
+        _      <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true, AddressTaxCreditsBrokerCallToggle.description))
         result <- repository.getAllFeatureFlags
       } yield result).futureValue
 
       allFlags mustBe List(
-        FeatureFlag(AddressTaxCreditsBrokerCallToggle, true, AddressTaxCreditsBrokerCallToggle.description)
+        FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true, AddressTaxCreditsBrokerCallToggle.description)
       )
     }
   }
@@ -127,7 +129,7 @@ class FeatureFlagRepositorySpec
   "deleteFeatureFlag" must {
     "delete a mongo record" in {
       val allFlags: Boolean = (for {
-        _      <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true, AddressTaxCreditsBrokerCallToggle.description))
+        _      <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true, AddressTaxCreditsBrokerCallToggle.description))
         result <- repository.deleteFeatureFlag(AddressTaxCreditsBrokerCallToggle)
       } yield result).futureValue
 
@@ -140,8 +142,8 @@ class FeatureFlagRepositorySpec
     "not allow duplicates" in {
       val result = intercept[MongoWriteException] {
         await(for {
-          _ <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true))
-          _ <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false))
+          _ <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true))
+          _ <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false))
         } yield true)
       }
       result.getCode mustBe 11000

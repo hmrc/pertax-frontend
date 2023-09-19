@@ -29,6 +29,7 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import repositories.admin.FeatureFlagRepository
 
@@ -43,11 +44,11 @@ class FeatureFlagServiceSpec
     with BeforeAndAfterEach
     with MockitoSugar {
 
-  val mockConfigDecorator       = mock[ConfigDecorator]
-  val mockFeatureFlagRepository = mock[FeatureFlagRepository]
-  val mockCache                 = mock[AsyncCacheApi]
+  val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+  val mockFeatureFlagRepository: FeatureFlagRepository = mock[FeatureFlagRepository]
+  val mockCache: AsyncCacheApi = mock[AsyncCacheApi]
 
-  override implicit lazy val app = GuiceApplicationBuilder()
+  override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(
       bind[ConfigDecorator].toInstance(mockConfigDecorator),
       bind[FeatureFlagRepository].toInstance(mockFeatureFlagRepository),
@@ -60,14 +61,14 @@ class FeatureFlagServiceSpec
     reset(mockConfigDecorator, mockFeatureFlagRepository, mockCache)
   }
 
-  val featureFlagService = app.injector.instanceOf[FeatureFlagService]
+  val featureFlagService: FeatureFlagService = app.injector.instanceOf[FeatureFlagService]
 
   "set" must {
     "set a feature flag" in {
       when(mockCache.remove(any())).thenReturn(Future.successful(Done))
       when(mockFeatureFlagRepository.setFeatureFlag(any(), any())).thenReturn(Future.successful(true))
 
-      val result = featureFlagService.set(NationalInsuranceTileToggle, true).futureValue
+      val result = featureFlagService.set(NationalInsuranceTileToggle, enabled = true).futureValue
 
       result mustBe true
       val eventCaptor             = ArgumentCaptor.forClass(classOf[String])
@@ -87,7 +88,7 @@ class FeatureFlagServiceSpec
       when(mockFeatureFlagRepository.setFeatureFlags(any()))
         .thenReturn(Future.successful(()))
 
-      val result = featureFlagService
+      val result: Unit = featureFlagService
         .setAll(
           Map(AddressTaxCreditsBrokerCallToggle -> false, NationalInsuranceTileToggle -> true, TaxcalcToggle -> true)
         )

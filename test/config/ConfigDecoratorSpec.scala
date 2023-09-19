@@ -64,7 +64,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       lazy val configDecorator: ConfigDecorator =
         new ConfigDecorator(injected[Configuration], injected[ServicesConfig]) {
-          override lazy val portalBaseUrl = portalBaseUrlToTest.getOrElse("")
+          override lazy val portalBaseUrl: String = portalBaseUrlToTest.getOrElse("")
         }
     }
 

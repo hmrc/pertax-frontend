@@ -18,9 +18,11 @@ package models
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
+
 import java.time.LocalDate
 import play.api.Application
 import play.api.inject.bind
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -29,8 +31,8 @@ import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 
 class TaxCalculationStateSpec extends BaseSpec {
 
-  lazy val fakeRequest = FakeRequest("", "")
-  lazy val userRequest = UserRequest(
+  lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
+  lazy val userRequest: UserRequest[AnyContentAsEmpty.type] = UserRequest(
     None,
     None,
     ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -52,60 +54,60 @@ class TaxCalculationStateSpec extends BaseSpec {
   "Calling buildFromTaxCalcSummary without a P302 business reason" must {
 
     trait TaxCalculationStateSimpleSpecSetup {
-      lazy val factory = injected[TaxCalculationStateFactory]
+      lazy val factory: TaxCalculationStateFactory = injected[TaxCalculationStateFactory]
     }
 
     "return a TaxCalcRefundState when called with a TaxCalculation with a P800 status of Overpaid and paymentStatus of REFUND" in new TaxCalculationStateSimpleSpecSetup {
-      val taxCalculation = TaxCalculation("Overpaid", 1000.0, 2015, Some("REFUND"), None, None, None)
-      val result         = factory.buildFromTaxCalculation(Some(taxCalculation))
+      val taxCalculation: TaxCalculation = TaxCalculation("Overpaid", 1000.0, 2015, Some("REFUND"), None, None, None)
+      val result: TaxCalculationState = factory.buildFromTaxCalculation(Some(taxCalculation))
       result mustBe TaxCalculationOverpaidRefundState(1000.0, 2015, 2016)
     }
 
     "return a TaxCalculationPaymentProcessingState when called with a TaxCalculation with a P800 status of Overpaid and paymentStatus of PAYMENT_PROCESSING" in new TaxCalculationStateSimpleSpecSetup {
-      val taxCalculation = TaxCalculation("Overpaid", 1000.0, 2015, Some("PAYMENT_PROCESSING"), None, None, None)
-      val result         = factory.buildFromTaxCalculation(Some(taxCalculation))
+      val taxCalculation: TaxCalculation = TaxCalculation("Overpaid", 1000.0, 2015, Some("PAYMENT_PROCESSING"), None, None, None)
+      val result: TaxCalculationState = factory.buildFromTaxCalculation(Some(taxCalculation))
       result mustBe TaxCalculationOverpaidPaymentProcessingState(1000.0)
     }
 
     "return a TaxCalculationPaymentPaidState when called with a TaxCalculation with a P800 status of Overpaid and paymentStatus of PAYMENT_PAID" in new TaxCalculationStateSimpleSpecSetup {
-      val taxCalculation =
+      val taxCalculation: TaxCalculation =
         TaxCalculation("Overpaid", 1000.0, 2015, Some("PAYMENT_PAID"), Some("2016-05-19"), None, None)
-      val result         = factory.buildFromTaxCalculation(Some(taxCalculation))
+      val result: TaxCalculationState = factory.buildFromTaxCalculation(Some(taxCalculation))
       result mustBe TaxCalculationOverpaidPaymentPaidState(1000.0, Some(LocalDate.parse("2016-05-19")))
     }
 
     "return a TaxCalculationPaymentChequeSentState when called with a TaxCalculation with a P800 status of Overpaid and paymentStatus of CHEQUE_SENT" in new TaxCalculationStateSimpleSpecSetup {
-      val taxCalculation = TaxCalculation("Overpaid", 1000.0, 2015, Some("CHEQUE_SENT"), Some("2016-05-19"), None, None)
-      val result         = factory.buildFromTaxCalculation(Some(taxCalculation))
+      val taxCalculation: TaxCalculation = TaxCalculation("Overpaid", 1000.0, 2015, Some("CHEQUE_SENT"), Some("2016-05-19"), None, None)
+      val result: TaxCalculationState = factory.buildFromTaxCalculation(Some(taxCalculation))
       result mustBe TaxCalculationOverpaidPaymentChequeSentState(1000.0, Some(LocalDate.parse("2016-05-19")))
     }
 
     "return a TaxCalculation not found when called without a TaxCalculation" in new TaxCalculationStateSimpleSpecSetup {
-      val result = factory.buildFromTaxCalculation(None)
+      val result: TaxCalculationState = factory.buildFromTaxCalculation(None)
       result mustBe TaxCalculationUnkownState
     }
 
     "return a TaxCalculationPaymentDueState when called with a TaxCalculation with a P800 status of Underpaid and a paymentStatus of PAYMENT_DUE" in new TaxCalculationStateSimpleSpecSetup {
-      val taxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PAYMENT_DUE"), None, None, None)
-      val result         = factory.buildFromTaxCalculation(Some(taxCalculation))
+      val taxCalculation: TaxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PAYMENT_DUE"), None, None, None)
+      val result: TaxCalculationState = factory.buildFromTaxCalculation(Some(taxCalculation))
       result mustBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2015, 2016, None, None)
     }
 
     "return a TaxCalculationPartPaidState when called with a TaxCalculation with a P800 status of Underpaid and a paymentStatus of PART_PAID" in new TaxCalculationStateSimpleSpecSetup {
-      val taxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PART_PAID"), None, None, None)
-      val result         = factory.buildFromTaxCalculation(Some(taxCalculation))
+      val taxCalculation: TaxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PART_PAID"), None, None, None)
+      val result: TaxCalculationState = factory.buildFromTaxCalculation(Some(taxCalculation))
       result mustBe TaxCalculationUnderpaidPartPaidState(1000.0, 2015, 2016, None, None)
     }
 
     "return a TaxCalculationPaidAllState when called with a TaxCalculation with a P800 status of Underpaid and a paymentStatus of PAID_ALL" in new TaxCalculationStateSimpleSpecSetup {
-      val taxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PAID_ALL"), None, None, None)
-      val result         = factory.buildFromTaxCalculation(Some(taxCalculation))
+      val taxCalculation: TaxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PAID_ALL"), None, None, None)
+      val result: TaxCalculationState = factory.buildFromTaxCalculation(Some(taxCalculation))
       result mustBe TaxCalculationUnderpaidPaidAllState(2015, 2016, None)
     }
 
     "return a TaxCalculationPaymentsDownState when called with a TaxCalculation with a P800 status of Underpaid and a paymentStatus of PAYMENTS_DOWN" in new TaxCalculationStateSimpleSpecSetup {
-      val taxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PAYMENTS_DOWN"), None, None, None)
-      val result         = factory.buildFromTaxCalculation(Some(taxCalculation))
+      val taxCalculation: TaxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PAYMENTS_DOWN"), None, None, None)
+      val result: TaxCalculationState = factory.buildFromTaxCalculation(Some(taxCalculation))
       result mustBe TaxCalculationUnderpaidPaymentsDownState(2015, 2016)
     }
   }
@@ -117,14 +119,14 @@ class TaxCalculationStateSpec extends BaseSpec {
       def paymentStatus: String
       def dueDate: String
 
-      lazy val factory = {
+      lazy val factory: TaxCalculationStateFactory = {
         when(injected[ConfigDecorator].currentLocalDate) thenReturn LocalDate.parse(currentDate)
         injected[TaxCalculationStateFactory]
       }
 
-      lazy val taxCalculation =
+      lazy val taxCalculation: TaxCalculation =
         TaxCalculation("Underpaid", 1000.0, 2017, Some(paymentStatus), None, Some("P302"), Some(dueDate))
-      lazy val result         = factory.buildFromTaxCalculation(Some(taxCalculation))
+      lazy val result: TaxCalculationState = factory.buildFromTaxCalculation(Some(taxCalculation))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of None and due date when\n" +

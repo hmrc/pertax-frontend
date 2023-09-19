@@ -20,7 +20,7 @@ import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 
 object Addresses {
 
-  val englandRecordSet = RecordSet(
+  val englandRecordSet: RecordSet = RecordSet(
     Seq(
       AddressRecord(
         "some id",
@@ -97,7 +97,7 @@ object Addresses {
     )
   )
 
-  val scotlandRecordSet = RecordSet(
+  val scotlandRecordSet: RecordSet = RecordSet(
     Seq(
       AddressRecord(
         "some id",
@@ -174,7 +174,7 @@ object Addresses {
     )
   )
 
-  val expectedSimpleLines = Seq(
+  val expectedSimpleLines: Seq[String] = Seq(
     "1 Too many addresses crescent",
     "2 Too many addresses crescent",
     "10 Too many addresses crescent",
@@ -332,7 +332,7 @@ object Addresses {
     )
   )
 
-  val expectedComplexLines = Seq(
+  val expectedComplexLines: Seq[String] = Seq(
     "Flat 1 The Curtains Up Comeragh Road",
     "Flat 1B The Curtains Up Comeragh Road",
     "Flat 2 The Curtains Up Comeragh Road",
@@ -347,7 +347,7 @@ object Addresses {
     "Flat B 78 Comeragh Road"
   )
 
-  val badDataRecordSet = RecordSet(
+  val badDataRecordSet: RecordSet = RecordSet(
     Seq(
       AddressRecord(
         "some id",
@@ -400,5 +400,5 @@ object Addresses {
     )
   )
 
-  val expectedBadDataLines = Seq("2 Too many addresses crescent", "10 Too many addresses crescent", "", "")
+  val expectedBadDataLines: Seq[String] = Seq("2 Too many addresses crescent", "10 Too many addresses crescent", "", "")
 }

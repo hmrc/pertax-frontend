@@ -22,10 +22,10 @@ import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 
 class HomeViewModelSpec extends BaseSpec {
 
-  val utr = new SaUtrGenerator().nextSaUtr.utr
+  val utr: String = new SaUtrGenerator().nextSaUtr.utr
 
   "have no UTR for a non SA user" in {
-    val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, NonFilerSelfAssessmentUser, false)
+    val homeViewModel = HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, NonFilerSelfAssessmentUser, breathingSpaceIndicator = false)
     homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, None, false)
   }
 
@@ -34,9 +34,9 @@ class HomeViewModelSpec extends BaseSpec {
     NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr)),
     WrongCredentialsSelfAssessmentUser(SaUtr(utr)),
     NotEnrolledSelfAssessmentUser(SaUtr(utr))
-  ).map { saUserType =>
+  ).foreach { saUserType =>
     s"have a UTR for a ${saUserType.toString}" in {
-      val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, saUserType, true)
+      val homeViewModel = HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, saUserType, breathingSpaceIndicator = true)
       homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true)
     }
   }

@@ -23,8 +23,8 @@ import views.html.cards.home.ChildBenefitSingleAccountView
 
 class ChildBenefitSingleAccountViewSpec extends ViewSpec {
 
-  val childBenefitSingleAccountView: ChildBenefitSingleAccountView = injected[ChildBenefitSingleAccountView]
-  implicit val configDecorator: ConfigDecorator                    = injected[ConfigDecorator]
+  val childBenefitSingleAccountView: ChildBenefitSingleAccountView = injected[ChildBenefitSingleAccountView]()
+  implicit val configDecorator: ConfigDecorator                    = injected[ConfigDecorator]()
 
   val nextDeadlineTaxYear = "2021"
 

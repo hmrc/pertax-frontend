@@ -30,9 +30,9 @@ import views.html.ViewSpec
 
 class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
-  lazy val viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView = injected[ViewSaAndItsaMergePageView]
+  lazy val viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView = injected[ViewSaAndItsaMergePageView]()
 
-  lazy implicit val configDecorator: ConfigDecorator            = injected[ConfigDecorator]
+  lazy implicit val configDecorator: ConfigDecorator            = injected[ConfigDecorator]()
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
   val nextDeadlineTaxYear: String = (current.currentYear + 1).toString

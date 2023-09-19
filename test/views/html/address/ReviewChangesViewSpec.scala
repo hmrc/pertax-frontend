@@ -18,24 +18,28 @@ package views.html.address
 
 import config.ConfigDecorator
 import controllers.address.routes
+import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import models.dto.AddressDto
+import org.jsoup.nodes.Document
+import play.api.Application
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.personaldetails.ReviewChangesView
 
 class ReviewChangesViewSpec extends ViewSpec {
-  override implicit lazy val app = localGuiceApplicationBuilder().build()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
-  lazy val view = injected[ReviewChangesView]
+  lazy val view: ReviewChangesView = injected[ReviewChangesView]()
 
-  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val userRequest                      = buildUserRequest(request = FakeRequest())
-  val address                                   =
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]()
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+  val address: AddressDto =
     AddressDto("AddressLine1", "AddressLine2", None, None, None, Some("TestPostcode"), None, None)
 
-  def result(addressType: AddrType) = asDocument(view(addressType, address, "yes.label", true, None, false).toString)
+  def result(addressType: AddrType): Document = asDocument(view(addressType, address, "yes.label", isUkAddress = true, None, displayDateAddressChanged = false).toString)
 
   "rendering ReviewChangesView" must {
     "when postal address has been changed display 'is your address in the uk'" in {

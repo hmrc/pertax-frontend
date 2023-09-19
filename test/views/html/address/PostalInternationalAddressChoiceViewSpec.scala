@@ -17,7 +17,9 @@
 package views.html.address
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import models.dto.InternationalAddressChoiceDto
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
@@ -25,10 +27,10 @@ import views.html.personaldetails.PostalInternationalAddressChoiceView
 
 class PostalInternationalAddressChoiceViewSpec extends ViewSpec {
 
-  lazy val view = injected[PostalInternationalAddressChoiceView]
+  lazy val view: PostalInternationalAddressChoiceView = injected[PostalInternationalAddressChoiceView]()
 
-  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val userRequest                      = buildUserRequest(request = FakeRequest())
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]()
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
   "rendering PostalInternationalAddressChoiceView" must {
     "must render the correct h1 appropriate to postal address when form has the default error message" in {

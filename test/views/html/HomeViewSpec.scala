@@ -17,79 +17,80 @@
 package views.html
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import models._
 import org.jsoup.nodes.Document
-import org.jsoup.select.Elements
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.Fixtures
+import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.SaUtrGenerator
-import testUtils.UserRequestFixture.buildUserRequest
 import viewmodels.HomeViewModel
 
 import scala.jdk.CollectionConverters._
 
 class HomeViewSpec extends ViewSpec {
 
-  lazy val home = injected[HomeView]
+  lazy val home: HomeView = injected[HomeView]()
 
-  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]()
 
-  val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, None, true)
+  val homeViewModel: HomeViewModel = HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true)
 
   "Rendering HomeView.scala.html" must {
 
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
-      implicit val userRequest =
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(Fixtures.buildPersonDetails), userName = None, request = FakeRequest())
 
-      lazy val document: Document = asDocument(home(homeViewModel, false).toString)
+      lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
 
       document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
       document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false
     }
 
     "show the users name and not 'Your account' when the user has no details but is a GG user" in {
-      implicit val userRequest = buildUserRequest(
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         personDetails = None,
         userName = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         request = FakeRequest()
       )
 
-      lazy val document: Document = asDocument(home(homeViewModel, false).toString)
+      lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
 
       document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
       document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false
     }
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
-      implicit val userRequest = buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
 
-      lazy val document: Document = asDocument(home(homeViewModel, false).toString)
+      lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
 
       document.select("h1").asScala.exists(e => e.text == "Your account") mustBe true
     }
 
     "must not show the UTR if the user is not a self assessment user" in {
-      implicit val userRequest = buildUserRequest(request = FakeRequest())
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
-      val view = home(homeViewModel, false).toString
+      val view = home(homeViewModel, shutteringMessaging = false).toString
 
       view must not contain messages("label.home_page.utr")
     }
 
     "must show the UTR if the user is a self assessment user" in {
-      implicit val userRequest = buildUserRequest(request = FakeRequest())
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val utr                  = new SaUtrGenerator().nextSaUtr.utr
-      val view                 = home(homeViewModel.copy(saUtr = Some(utr)), false).toString
+      val view                 = home(homeViewModel.copy(saUtr = Some(utr)), shutteringMessaging = false).toString
 
       view must include(messages("label.home_page.utr"))
       view must include(utr)
     }
 
     "show the Nps Shutter Banner when boolean is set to true" in {
-      implicit val userRequest = buildUserRequest(request = FakeRequest())
-      val view                 = home(homeViewModel, true).toString
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val view                 = home(homeViewModel, shutteringMessaging = true).toString
 
       view must include(
         "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
@@ -97,8 +98,8 @@ class HomeViewSpec extends ViewSpec {
     }
 
     "not how the Nps Shutter Banner when boolean is set to false" in {
-      implicit val userRequest = buildUserRequest(request = FakeRequest())
-      val view                 = home(homeViewModel, false).toString
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val view                 = home(homeViewModel, shutteringMessaging = false).toString
 
       view mustNot include(
         "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
