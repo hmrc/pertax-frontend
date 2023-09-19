@@ -14,11 +14,12 @@
  * limitations under the License.
  *@
 
-@this()
-@(scripts: Option[Html])
+@this(autocompleteJavascript: HmrcAccessibleAutocompleteJavascript)
+@(scripts: Option[Html])(implicit request: Request[_])
 
     <script src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
     <script src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
+    @autocompleteJavascript()
     @scripts
 

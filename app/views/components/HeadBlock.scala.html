@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
-@this()
-@(stylesheets: Option[Html])
+@this(autocompleteCss: HmrcAccessibleAutocompleteCss)
+@(stylesheets: Option[Html])(implicit request: Request[_])
 
     <meta name="format-detection" content="telephone=no" />
     <link rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
-
+    @autocompleteCss()
     @stylesheets
