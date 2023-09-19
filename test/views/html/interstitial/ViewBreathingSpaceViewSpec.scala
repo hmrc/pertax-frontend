@@ -28,7 +28,7 @@ class ViewBreathingSpaceViewSpec extends ViewSpec {
 
   lazy val viewBreathingSpaceView: ViewBreathingSpaceView = injected[ViewBreathingSpaceView]()
 
-  lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]()
+  lazy implicit val configDecorator: ConfigDecorator            = injected[ConfigDecorator]()
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
   "Rendering ViewBreathingSpaceView.scala.html" must {

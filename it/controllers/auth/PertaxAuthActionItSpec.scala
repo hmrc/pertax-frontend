@@ -25,27 +25,27 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
     )
     .build()
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, isEnabled = true)))
   }
 
   "personal-account" must {
@@ -62,7 +62,7 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
       }
       "Pertax toggle is off" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, isEnabled = false)))
 
         val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
         val result  = route(app, request)

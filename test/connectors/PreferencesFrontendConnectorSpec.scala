@@ -42,11 +42,11 @@ import uk.gov.hmrc.http.{HttpResponse, SessionKeys, UpstreamErrorResponse}
 
 class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
-  val mockMetrics: Metrics = mock[Metrics]
+  val mockMetrics: Metrics               = mock[Metrics]
   val mockMetricRegistry: MetricRegistry = mock[MetricRegistry]
-  val mockTimer: Timer = mock[Timer]
-  val mockContext: Context = mock[Context]
-  val mockCounter: Counter = mock[Counter]
+  val mockTimer: Timer                   = mock[Timer]
+  val mockContext: Context               = mock[Context]
+  val mockCounter: Counter               = mock[Counter]
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[Metrics].toInstance(mockMetrics))

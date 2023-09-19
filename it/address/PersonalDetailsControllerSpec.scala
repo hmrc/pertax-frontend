@@ -64,7 +64,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(HmrcAccountToggle)))
-      .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, false)))
+      .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, isEnabled = false)))
   }
 
   val url       = s"/personal-account/profile-and-settings"

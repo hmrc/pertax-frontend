@@ -44,9 +44,9 @@ class FeatureFlagServiceSpec
     with BeforeAndAfterEach
     with MockitoSugar {
 
-  val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+  val mockConfigDecorator: ConfigDecorator             = mock[ConfigDecorator]
   val mockFeatureFlagRepository: FeatureFlagRepository = mock[FeatureFlagRepository]
-  val mockCache: AsyncCacheApi = mock[AsyncCacheApi]
+  val mockCache: AsyncCacheApi                         = mock[AsyncCacheApi]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(

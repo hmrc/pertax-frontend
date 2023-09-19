@@ -103,7 +103,8 @@ class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with Integ
   }
 
   "Calling getMessageCount" must {
-    def messageCount: Future[Option[Int]] = messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))
+    def messageCount: Future[Option[Int]] =
+      messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))
 
     "return None unread messages when http client throws an exception" in {
       server.stubFor(

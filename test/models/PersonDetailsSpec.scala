@@ -34,7 +34,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
     "Produce firstname lastname when someone has both" in new LocalSetup {
 
       val firstName: Option[String] = Some("Firstname")
-      val lastName: Option[String] = Some("Lastname")
+      val lastName: Option[String]  = Some("Lastname")
 
       pd.shortName mustBe Some("Firstname Lastname")
     }
@@ -42,7 +42,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
     "Produce nothing when only lastname is present" in new LocalSetup {
 
       val firstName: Option[String] = None
-      val lastName: Option[String] = Some("Lastname")
+      val lastName: Option[String]  = Some("Lastname")
 
       pd.shortName mustBe None
     }
@@ -50,7 +50,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
     "Produce nothing when only firstname is present" in new LocalSetup {
 
       val firstName: Option[String] = Some("Firstname")
-      val lastName: Option[String] = None
+      val lastName: Option[String]  = None
 
       pd.shortName mustBe None
     }
@@ -136,13 +136,15 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
   "Calling Address.isWelshLanguageUnit" must {
     "return false when the address doesn't match a Welsh Language Unit" in {
 
-      val address = Address(None, None, None, None, None, postcode = Some("AA1 1AA"), None, None, None, None, isRls = false)
+      val address =
+        Address(None, None, None, None, None, postcode = Some("AA1 1AA"), None, None, None, None, isRls = false)
 
       address.isWelshLanguageUnit mustBe false
     }
     "return true when the address does match a Welsh Language Unit" in {
 
-      val address = Address(None, None, None, None, None, postcode = Some("CF145Sh"), None, None, None, None, isRls = false)
+      val address =
+        Address(None, None, None, None, None, postcode = Some("CF145Sh"), None, None, None, None, isRls = false)
 
       address.isWelshLanguageUnit mustBe true
     }

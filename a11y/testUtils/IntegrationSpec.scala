@@ -16,10 +16,10 @@ import play.api
 import play.api.cache.AsyncCacheApi
 import play.api.inject.guice.GuiceApplicationBuilder
 import services.admin.FeatureFlagService
-import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.scalatestaccessibilitylinter.AccessibilityMatchers
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
 
@@ -44,16 +44,18 @@ trait IntegrationSpec extends AnyWordSpec
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
 
-  val mockFeatureFlagService = mock[FeatureFlagService]
+  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
-  implicit override val patienceConfig = PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
+  val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+
+  implicit override val patienceConfig: PatienceConfig = PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
 
   val configTaxYear = 2021
-  val testTaxYear = configTaxYear - 1
-  val generatedNino = new Generator().nextNino
+  val testTaxYear: Int = configTaxYear - 1
+  val generatedNino: Nino = new Generator().nextNino
   val generatedUtr: String = new Generator().nextAtedUtr.utr
 
-  val authResponse =
+  val authResponse: String =
     s"""
        |{
        |    "confidenceLevel": 200,
@@ -90,7 +92,7 @@ trait IntegrationSpec extends AnyWordSpec
        |}
        |""".stripMargin
 
-  val citizenResponse =
+  val citizenResponse: String =
     s"""|
        |{
         |  "name": {
@@ -107,7 +109,7 @@ trait IntegrationSpec extends AnyWordSpec
         |}
         |""".stripMargin
 
-  val designatoryDetailsResponse =
+  val designatoryDetailsResponse: String =
     s"""{
        |"person":{
        |  "firstName":"John",
@@ -146,7 +148,7 @@ trait IntegrationSpec extends AnyWordSpec
     org.mockito.MockitoSugar.reset(mockFeatureFlagService)
     allFeatureFlags.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
-        .thenReturn(Future.successful(FeatureFlag(flag, false)))
+        .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
     }
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))

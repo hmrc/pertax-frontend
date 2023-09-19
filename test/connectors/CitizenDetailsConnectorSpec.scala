@@ -217,7 +217,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
 
     "return OK containing an SAUTR when the service returns an SAUTR" in new LocalSetup {
-      val saUtr: String = new SaUtrGenerator().nextSaUtr.utr
+      val saUtr: String                                       = new SaUtrGenerator().nextSaUtr.utr
       stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr)).toString()))
 
       val result: Either[UpstreamErrorResponse, HttpResponse] =

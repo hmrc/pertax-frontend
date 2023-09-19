@@ -116,7 +116,13 @@ class FeatureFlagRepositorySpec
   "getAllFeatureFlags" must {
     "get a list of all the feature toggles" in {
       val allFlags: Seq[FeatureFlag] = (for {
-        _      <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true, AddressTaxCreditsBrokerCallToggle.description))
+        _      <- insert(
+                    FeatureFlag(
+                      AddressTaxCreditsBrokerCallToggle,
+                      isEnabled = true,
+                      AddressTaxCreditsBrokerCallToggle.description
+                    )
+                  )
         result <- repository.getAllFeatureFlags
       } yield result).futureValue
 
@@ -129,7 +135,13 @@ class FeatureFlagRepositorySpec
   "deleteFeatureFlag" must {
     "delete a mongo record" in {
       val allFlags: Boolean = (for {
-        _      <- insert(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true, AddressTaxCreditsBrokerCallToggle.description))
+        _      <- insert(
+                    FeatureFlag(
+                      AddressTaxCreditsBrokerCallToggle,
+                      isEnabled = true,
+                      AddressTaxCreditsBrokerCallToggle.description
+                    )
+                  )
         result <- repository.deleteFeatureFlag(AddressTaxCreditsBrokerCallToggle)
       } yield result).futureValue
 

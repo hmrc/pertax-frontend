@@ -36,7 +36,8 @@ class HomeViewSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]()
 
-  val homeViewModel: HomeViewModel = HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true)
+  val homeViewModel: HomeViewModel =
+    HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true)
 
   "Rendering HomeView.scala.html" must {
 
@@ -64,7 +65,8 @@ class HomeViewSpec extends ViewSpec {
     }
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
 
       lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
 
@@ -81,8 +83,8 @@ class HomeViewSpec extends ViewSpec {
 
     "must show the UTR if the user is a self assessment user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val utr                  = new SaUtrGenerator().nextSaUtr.utr
-      val view                 = home(homeViewModel.copy(saUtr = Some(utr)), shutteringMessaging = false).toString
+      val utr                                                       = new SaUtrGenerator().nextSaUtr.utr
+      val view                                                      = home(homeViewModel.copy(saUtr = Some(utr)), shutteringMessaging = false).toString
 
       view must include(messages("label.home_page.utr"))
       view must include(utr)
@@ -90,7 +92,7 @@ class HomeViewSpec extends ViewSpec {
 
     "show the Nps Shutter Banner when boolean is set to true" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                 = home(homeViewModel, shutteringMessaging = true).toString
+      val view                                                      = home(homeViewModel, shutteringMessaging = true).toString
 
       view must include(
         "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
@@ -99,7 +101,7 @@ class HomeViewSpec extends ViewSpec {
 
     "not how the Nps Shutter Banner when boolean is set to false" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                 = home(homeViewModel, shutteringMessaging = false).toString
+      val view                                                      = home(homeViewModel, shutteringMessaging = false).toString
 
       view mustNot include(
         "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."

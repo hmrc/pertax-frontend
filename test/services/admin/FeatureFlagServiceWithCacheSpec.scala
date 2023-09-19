@@ -43,7 +43,7 @@ class FeatureFlagServiceWithCacheSpec
     with BeforeAndAfterEach
     with MockitoSugar {
 
-  val mockAppConfig: ConfigDecorator = mock[ConfigDecorator]
+  val mockAppConfig: ConfigDecorator                   = mock[ConfigDecorator]
   val mockFeatureFlagRepository: FeatureFlagRepository = mock[FeatureFlagRepository]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
@@ -63,7 +63,7 @@ class FeatureFlagServiceWithCacheSpec
   }
 
   lazy val featureFlagService: FeatureFlagService = app.injector.instanceOf[FeatureFlagService]
-  lazy val cache: AsyncCacheApi = app.injector.instanceOf[AsyncCacheApi]
+  lazy val cache: AsyncCacheApi                   = app.injector.instanceOf[AsyncCacheApi]
 
   "getAll" must {
     "get all the feature flags defaulted to false" when {
@@ -90,7 +90,8 @@ class FeatureFlagServiceWithCacheSpec
       }
 
       "some toggles are in Mongo" in {
-        val mongoFlags           = List(FeatureFlag(SingleAccountCheckToggle, isEnabled = true), FeatureFlag(TaxcalcToggle, isEnabled = true))
+        val mongoFlags           =
+          List(FeatureFlag(SingleAccountCheckToggle, isEnabled = true), FeatureFlag(TaxcalcToggle, isEnabled = true))
         val expectedFeatureFlags = FeatureFlagName.allFeatureFlags
           .map(FeatureFlag(_, isEnabled = false))
           .filterNot(flag => mongoFlags.map(_.name.toString).contains(flag.name.toString)) ::: mongoFlags
@@ -107,7 +108,10 @@ class FeatureFlagServiceWithCacheSpec
       val expectedFeatureFlags = FeatureFlagName.allFeatureFlags.map(FeatureFlag(_, isEnabled = false))
       when(mockFeatureFlagRepository.getAllFeatureFlags).thenReturn(
         Future.successful(
-          List(FeatureFlag(DeletedToggle("deleted-toggle"), isEnabled = true), FeatureFlag(DeletedToggle("deleted-toggle2"), isEnabled = true))
+          List(
+            FeatureFlag(DeletedToggle("deleted-toggle"), isEnabled = true),
+            FeatureFlag(DeletedToggle("deleted-toggle2"), isEnabled = true)
+          )
         )
       )
       when(mockFeatureFlagRepository.deleteFeatureFlag(any())).thenReturn(Future.successful(true))
@@ -163,7 +167,8 @@ class FeatureFlagServiceWithCacheSpec
     }
 
     "get all feature flags but Mongo returns None" in {
-      implicit def ordering: Ordering[FeatureFlagName] = (x: FeatureFlagName, y: FeatureFlagName) => x.toString.compareTo(y.toString)
+      implicit def ordering: Ordering[FeatureFlagName] =
+        (x: FeatureFlagName, y: FeatureFlagName) => x.toString.compareTo(y.toString)
       val expectedFeatureFlags                         = FeatureFlagName.allFeatureFlags.map(name => FeatureFlag(name, isEnabled = false))
       when(mockFeatureFlagRepository.getAllFeatureFlags).thenReturn(Future.successful(List.empty))
 

@@ -35,9 +35,17 @@ class MainAddressViewSpec extends ViewSpec {
 
   lazy val view: MainAddressView = injected[MainAddressView]()
 
-  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]()
+  implicit val configDecorator: ConfigDecorator                 = injected[ConfigDecorator]()
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-  val result: Document = asDocument(view(Fixtures.buildFakePersonDetails, taxCreditsEnabled = true, hasCorrespondenceAddress = false, isLocked = false, List[Country]()).toString)
+  val result: Document                                          = asDocument(
+    view(
+      Fixtures.buildFakePersonDetails,
+      taxCreditsEnabled = true,
+      hasCorrespondenceAddress = false,
+      isLocked = false,
+      List[Country]()
+    ).toString
+  )
 
   "when on main address change PostalAddress points to InternationalPostalAddressChoiceController" in {
 

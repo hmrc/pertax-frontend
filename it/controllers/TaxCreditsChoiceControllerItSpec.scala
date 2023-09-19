@@ -57,7 +57,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
     "return a SEE_OTHER and redirect to the TCS Address change interstitial page if the user is a TCS user" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
 
       server.stubFor(
         get(urlEqualTo(citizenDetailsUrl))
@@ -164,7 +164,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
     "return a SEE_OTHER and redirect to PTA Address Change if the user is a non-TCS user" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
 
       server.stubFor(
         get(urlEqualTo(citizenDetailsUrl))
@@ -219,7 +219,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
     "return a SEE_OTHER and redirect to the beginning of the PTA address change journey if the user skipped to tax credits url" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
 
       server.stubFor(
         get(urlEqualTo(citizenDetailsUrl))
@@ -280,7 +280,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
     ).foreach { response =>
       s"return an INTERNAL_SERVER_ERROR and redirect to PTA Address Change if the call to TCS fails with a $response" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
 
         server.stubFor(
           get(urlEqualTo(citizenDetailsUrl))

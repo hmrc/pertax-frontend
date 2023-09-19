@@ -41,7 +41,7 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
 
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
-  val mockFeatureFlagService      = mock[FeatureFlagService]
+  val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   implicit override val patienceConfig: PatienceConfig =
     PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
@@ -128,10 +128,10 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
     org.mockito.MockitoSugar.reset(mockFeatureFlagService)
     allFeatureFlags.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
-        .thenReturn(Future.successful(FeatureFlag(flag, false)))
+        .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
     }
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))

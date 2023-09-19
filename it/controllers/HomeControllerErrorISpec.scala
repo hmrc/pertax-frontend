@@ -55,7 +55,7 @@ class HomeControllerErrorISpec extends IntegrationSpec {
     beforeEachHomeController(auth = false, memorandum = false)
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
   }
 
   "personal-account" must {

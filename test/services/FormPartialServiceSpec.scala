@@ -54,7 +54,8 @@ class FormPartialServiceSpec extends BaseSpec {
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-        val result: HtmlPartial = formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
+        val result: HtmlPartial =
+          formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
         result mustBe HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered")
         verify(mockEnhancedPartialRetriever, times(0)).loadPartial(any())(any(), any())
       }
@@ -67,7 +68,8 @@ class FormPartialServiceSpec extends BaseSpec {
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-        val result: HtmlPartial = formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
+        val result: HtmlPartial =
+          formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
         result mustBe HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered")
         verify(mockEnhancedPartialRetriever, times(0)).loadPartial(any())(any(), any())
       }
@@ -79,7 +81,8 @@ class FormPartialServiceSpec extends BaseSpec {
       when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      val result: HtmlPartial = formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
+      val result: HtmlPartial =
+        formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
       result mustBe HtmlPartial.Success(Some("Title"), Html("<title/>"))
       verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any())(any(), any())
     }
