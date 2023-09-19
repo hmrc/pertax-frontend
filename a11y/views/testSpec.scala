@@ -12,7 +12,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
-import testUtils.{FileHelper, IntegrationSpec}
+import testUtils.{A11ySpec, FileHelper}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
@@ -22,7 +22,7 @@ import java.util.UUID
 import scala.concurrent.Future
 import scala.util.Random
 
-class testSpec extends IntegrationSpec {
+class testSpec extends A11ySpec {
 
   case class ExpectedData(title: String)
   def getExpectedData(key: String): ExpectedData =

@@ -23,7 +23,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
 
-trait IntegrationSpec extends AnyWordSpec
+trait A11ySpec extends AnyWordSpec
   with GuiceOneAppPerSuite
   with WireMockHelper
   with ScalaFutures
