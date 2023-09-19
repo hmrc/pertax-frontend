@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{FeatureFlag, BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
 import org.mockito.ArgumentMatchers
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
