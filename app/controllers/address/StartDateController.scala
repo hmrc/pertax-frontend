@@ -90,7 +90,7 @@ class StartDateController @Inject() (
 
                   personDetails.address match {
                     case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
-                      if (false && !currentStartDate.isBefore(proposedStartDate)) {
+                      if (!currentStartDate.isBefore(proposedStartDate)) {
                         BadRequest(
                           cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate))
                         )
