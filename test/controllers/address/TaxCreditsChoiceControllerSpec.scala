@@ -74,7 +74,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
     Future.successful(mock[HttpResponse])
   }
 
-  val controller: TaxCreditsChoiceController = injected[TaxCreditsChoiceController]
+  val controller: TaxCreditsChoiceController = inject[TaxCreditsChoiceController]
 
   "onPageLoad" when {
     "Tax-credit-broker call is used" must {

@@ -59,7 +59,7 @@ class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with Integ
       request = FakeRequest("", "")
     )
 
-  val messageFrontendService: MessageFrontendService = injected[MessageFrontendService]
+  val messageFrontendService: MessageFrontendService = inject[MessageFrontendService]
 
   "Calling getMessageListPartial" must {
     "return message partial for list of messages" in {

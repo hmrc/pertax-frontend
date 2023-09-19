@@ -80,8 +80,8 @@ class AuthActionSpec extends BaseSpec {
   val fakeCredentials: Credentials                               = Credentials("foo", "bar")
   val fakeCredentialStrength: String                             = CredentialStrength.strong
   val fakeConfidenceLevel: ConfidenceLevel                       = ConfidenceLevel.L200
-  val enrolmentHelper: EnrolmentsHelper                          = injected[EnrolmentsHelper]
-  val fakeBusinessHours                                          = new FakeBusinessHours(injected[BusinessHoursConfig])
+  val enrolmentHelper: EnrolmentsHelper                          = inject[EnrolmentsHelper]
+  val fakeBusinessHours                                          = new FakeBusinessHours(inject[BusinessHoursConfig])
   def messagesControllerComponents: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))

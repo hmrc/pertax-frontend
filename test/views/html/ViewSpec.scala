@@ -27,9 +27,9 @@ trait ViewSpec extends BaseSpec {
   def hasLink(document: Document, content: String): Assertion =
     document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
-  implicit lazy val messageProvider: MessagesProvider = injected[MessagesProvider]()
+  implicit lazy val messageProvider: MessagesProvider = inject[MessagesProvider]
 
-  lazy val messagesApi: MessagesApi = injected[MessagesApi]()
+  lazy val messagesApi: MessagesApi = inject[MessagesApi]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 

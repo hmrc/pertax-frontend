@@ -38,7 +38,7 @@ class FeatureFlagsController @Inject() (
     }
   }
 
-  def setDefaults: Action[AnyContent] = Action.async {
+  def setDefaults(): Action[AnyContent] = Action.async {
     featureFlagService
       .setAll(
         Map(

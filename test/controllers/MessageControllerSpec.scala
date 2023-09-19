@@ -53,10 +53,10 @@ class MessageControllerSpec extends BaseSpec {
     new MessageController(
       mockMessageFrontendService,
       mockAuthJourney,
-      injected[WithBreadcrumbAction],
-      injected[MessagesControllerComponents],
-      injected[MessageInboxView],
-      injected[MessageDetailView]
+      inject[WithBreadcrumbAction],
+      inject[MessagesControllerComponents],
+      inject[MessageInboxView],
+      inject[MessageDetailView]
     )(config, ec) {
       when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)

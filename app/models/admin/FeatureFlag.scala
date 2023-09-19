@@ -36,21 +36,17 @@ sealed trait FeatureFlagName {
 object FeatureFlagName {
   implicit val writes: Writes[FeatureFlagName] = (o: FeatureFlagName) => JsString(o.toString)
 
-  implicit val reads: Reads[FeatureFlagName] = new Reads[FeatureFlagName] {
-    override def reads(json: JsValue): JsResult[FeatureFlagName] =
-      allFeatureFlags
-        .find(flag => JsString(flag.toString) == json)
-        .map(JsSuccess(_))
-        .getOrElse(JsError(s"Unknown FeatureFlagName `${json.toString}`"))
-  }
+  implicit val reads: Reads[FeatureFlagName] = (json: JsValue) =>
+    allFeatureFlags
+      .find(flag => JsString(flag.toString) == json)
+      .map(JsSuccess(_))
+      .getOrElse(JsError(s"Unknown FeatureFlagName `${json.toString}`"))
 
-  val mongoReads: Reads[FeatureFlagName] = new Reads[FeatureFlagName] {
-    override def reads(json: JsValue): JsResult[FeatureFlagName] =
-      allFeatureFlags
-        .find(flag => JsString(flag.toString) == json)
-        .map(JsSuccess(_))
-        .getOrElse(JsSuccess(DeletedToggle(json.as[String])))
-  }
+  private val mongoReads: Reads[FeatureFlagName] = (json: JsValue) =>
+    allFeatureFlags
+      .find(flag => JsString(flag.toString) == json)
+      .map(JsSuccess(_))
+      .getOrElse(JsSuccess(DeletedToggle(json.as[String])))
 
   implicit val formats: Format[FeatureFlagName] =
     Format(mongoReads, writes)
@@ -69,7 +65,7 @@ object FeatureFlagName {
       value.toString
   }
 
-  val allFeatureFlags =
+  val allFeatureFlags: List[FeatureFlagName] =
     List(
       AddressTaxCreditsBrokerCallToggle,
       ItsAdvertisementMessageToggle,
@@ -191,9 +187,4 @@ case object HmrcAccountToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Enable/disable the hmrc-account service replacing the Profile and Settings page"
   )
-}
-
-object FeatureFlagMongoFormats {
-  implicit val formats: Format[FeatureFlag] =
-    Json.format[FeatureFlag]
 }

@@ -46,9 +46,9 @@ class StartDateControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         cc,
         addressJourneyCachingHelper,
-        injected[LanguageUtils],
-        injected[EnterStartDateView],
-        injected[CannotUpdateAddressView],
+        inject[LanguageUtils],
+        inject[EnterStartDateView],
+        inject[CannotUpdateAddressView],
         displayAddressInterstitialView,
         mockFeatureFlagService,
         internalServerErrorView

@@ -32,9 +32,9 @@ import views.html.cards.personaldetails.PostalAddressView
 class PostalAddressViewSpec extends ViewSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
-  lazy val view: PostalAddressView = injected[PostalAddressView]()
+  lazy val view: PostalAddressView = inject[PostalAddressView]
 
-  implicit val configDecorator: ConfigDecorator                 = injected[ConfigDecorator]()
+  implicit val configDecorator: ConfigDecorator                 = inject[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
   val result: Document                                          = asDocument(
     view(Fixtures.buildFakePersonDetails, isLocked = false, List[Country](), closePostalAddressEnabled = true).toString

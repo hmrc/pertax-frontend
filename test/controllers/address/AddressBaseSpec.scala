@@ -58,17 +58,17 @@ trait AddressBaseSpec extends BaseSpec {
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
 
-  lazy val messagesApi: MessagesApi = injected[MessagesApi]
+  lazy val messagesApi: MessagesApi = inject[MessagesApi]
 
-  lazy val cc: MessagesControllerComponents                               = injected[MessagesControllerComponents]
-  lazy val errorRenderer: ErrorRenderer                                   = injected[ErrorRenderer]
-  lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = injected[DisplayAddressInterstitialView]
-  lazy val updateAddressConfirmationView: UpdateAddressConfirmationView   = injected[UpdateAddressConfirmationView]
-  lazy val internalServerErrorView: InternalServerErrorView               = injected[InternalServerErrorView]
+  lazy val cc: MessagesControllerComponents                               = inject[MessagesControllerComponents]
+  lazy val errorRenderer: ErrorRenderer                                   = inject[ErrorRenderer]
+  lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = inject[DisplayAddressInterstitialView]
+  lazy val updateAddressConfirmationView: UpdateAddressConfirmationView   = inject[UpdateAddressConfirmationView]
+  lazy val internalServerErrorView: InternalServerErrorView               = inject[InternalServerErrorView]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  implicit lazy val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  implicit lazy val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
   override def beforeEach(): Unit = {
     super.beforeEach()

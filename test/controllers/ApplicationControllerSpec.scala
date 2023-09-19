@@ -94,13 +94,13 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     def controller: ApplicationController =
       new ApplicationController(
         mockIdentityVerificationFrontendService,
-        injected[MessagesControllerComponents],
-        injected[SuccessView],
-        injected[CannotConfirmIdentityView],
-        injected[FailedIvIncompleteView],
-        injected[LockedOutView],
-        injected[TimeOutView],
-        injected[TechnicalIssuesView]
+        inject[MessagesControllerComponents],
+        inject[SuccessView],
+        inject[CannotConfirmIdentityView],
+        inject[FailedIvIncompleteView],
+        inject[LockedOutView],
+        inject[TimeOutView],
+        inject[TechnicalIssuesView]
       )(config, ec)
 
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any(), any())) thenReturn {

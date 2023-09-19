@@ -47,12 +47,12 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   private val generator = new Generator(new Random())
 
   private val testNino: Nino                                      = generator.nextNino
-  lazy val configDecorator: ConfigDecorator                       = injected[ConfigDecorator]()
-  lazy val addressView: AddressView                               = injected[AddressView]()
-  lazy val correspondenceAddressView: CorrespondenceAddressView   = injected[CorrespondenceAddressView]()
-  lazy val countryHelper: CountryHelper                           = injected[CountryHelper]()
+  lazy val configDecorator: ConfigDecorator                       = inject[ConfigDecorator]
+  lazy val addressView: AddressView                               = inject[AddressView]
+  lazy val correspondenceAddressView: CorrespondenceAddressView   = inject[CorrespondenceAddressView]
+  lazy val countryHelper: CountryHelper                           = inject[CountryHelper]
   lazy val mockPreferencesConnector: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
-  lazy val personalDetailsViewModel: PersonalDetailsViewModel     = injected[PersonalDetailsViewModel]()
+  lazy val personalDetailsViewModel: PersonalDetailsViewModel     = inject[PersonalDetailsViewModel]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser, None)
     .overrides(

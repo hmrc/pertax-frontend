@@ -372,10 +372,6 @@ trait BaseSpec
 
   lazy val config: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
-
-  def injected[T](): T = app.injector.instanceOf[T]
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     org.mockito.MockitoSugar.reset(mockFeatureFlagService)

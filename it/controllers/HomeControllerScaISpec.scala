@@ -43,8 +43,8 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
   def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
 
-  val messageCount: Int = Random.between(1, 100)
-  val wrapperDataResponse: String = Json
+  val messageCount: Int                            = Random.between(1, 100)
+  val wrapperDataResponse: String                  = Json
     .toJson(
       WrapperDataResponse(
         Seq(

@@ -58,13 +58,13 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
     new NiLetterController(
       mockPdfGeneratorConnector,
       mockAuthJourney,
-      injected[WithBreadcrumbAction],
+      inject[WithBreadcrumbAction],
       mockFeatureFlagService,
-      injected[MessagesControllerComponents],
-      injected[ErrorRenderer],
-      injected[PrintNationalInsuranceNumberView],
-      injected[NiLetterPDfWrapperView],
-      injected[NiLetterView]
+      inject[MessagesControllerComponents],
+      inject[ErrorRenderer],
+      inject[PrintNationalInsuranceNumberView],
+      inject[NiLetterPDfWrapperView],
+      inject[NiLetterView]
     )(
       config,
       ec

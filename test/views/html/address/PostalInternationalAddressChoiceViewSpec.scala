@@ -27,9 +27,9 @@ import views.html.personaldetails.PostalInternationalAddressChoiceView
 
 class PostalInternationalAddressChoiceViewSpec extends ViewSpec {
 
-  lazy val view: PostalInternationalAddressChoiceView = injected[PostalInternationalAddressChoiceView]()
+  lazy val view: PostalInternationalAddressChoiceView = inject[PostalInternationalAddressChoiceView]
 
-  implicit val configDecorator: ConfigDecorator                 = injected[ConfigDecorator]()
+  implicit val configDecorator: ConfigDecorator                 = inject[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
   "rendering PostalInternationalAddressChoiceView" must {

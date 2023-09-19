@@ -34,13 +34,13 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
   def controller: SaWrongCredentialsController =
     new SaWrongCredentialsController(
       fakeAuthJourney,
-      injected[MessagesControllerComponents],
-      injected[SignedInWrongAccountView],
-      injected[DoYouKnowOtherCredentialsView],
-      injected[SignInAgainView],
-      injected[DoYouKnowUserIdView],
-      injected[NeedToResetPasswordView],
-      injected[FindYourUserIdView]
+      inject[MessagesControllerComponents],
+      inject[SignedInWrongAccountView],
+      inject[DoYouKnowOtherCredentialsView],
+      inject[SignInAgainView],
+      inject[DoYouKnowUserIdView],
+      inject[NeedToResetPasswordView],
+      inject[FindYourUserIdView]
     )(config)
 
   "processDoYouKnowOtherCredentials" must {

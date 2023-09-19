@@ -29,8 +29,6 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
-sealed trait AddressLookupResponse
-
 @Singleton
 class AddressLookupConnector @Inject() (
   configDecorator: ConfigDecorator,

@@ -16,9 +16,9 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 object Country {
-  implicit val formats = Json.format[Country]
+  implicit val formats: OFormat[Country] = Json.format[Country]
 }
 case class Country(countryName: String)

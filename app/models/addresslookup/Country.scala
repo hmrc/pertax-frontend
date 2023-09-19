@@ -35,17 +35,15 @@ object Country {
   private val GB: Country                = Country("GB", "United Kingdom") // special case provided for in ISO-3166
   private val GG                         = Country("GG", "Guernsey")
   private val IM                         = Country("IM", "Isle of Man")
-  val JE                                 = Country("JE", "Jersey")
+  private val JE                         = Country("JE", "Jersey")
 
-  val England         = Country("GB-ENG", "England")
-  val Scotland        = Country("GB-SCT", "Scotland")
-  val Wales           = Country("GB-WLS", "Wales")
-  val Cymru           = Country("GB-CYM", "Cymru")
-  val NorthernIreland = Country("GB-NIR", "Northern Ireland")
+  val England: Country        = Country("GB-ENG", "England")
+  val Scotland: Country       = Country("GB-SCT", "Scotland")
+  private val Wales           = Country("GB-WLS", "Wales")
+  private val Cymru           = Country("GB-CYM", "Cymru")
+  private val NorthernIreland = Country("GB-NIR", "Northern Ireland")
 
   private val all = List(UK, GB, GG, IM, JE, England, Scotland, Wales, Cymru, NorthernIreland)
 
   def find(code: String): Option[Country] = all.find(_.code == code)
-
-  def findByName(name: String): Option[Country] = all.find(_.name == name)
 }

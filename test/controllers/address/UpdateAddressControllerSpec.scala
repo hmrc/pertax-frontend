@@ -43,7 +43,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         mockAuthJourney,
         cc,
-        injected[UpdateAddressView],
+        inject[UpdateAddressView],
         displayAddressInterstitialView,
         mockFeatureFlagService,
         internalServerErrorView

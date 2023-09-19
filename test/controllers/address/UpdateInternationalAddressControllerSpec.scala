@@ -42,12 +42,12 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
     def controller: UpdateInternationalAddressController =
       new UpdateInternationalAddressController(
-        injected[CountryHelper],
+        inject[CountryHelper],
         addressJourneyCachingHelper,
         mockAuditConnector,
         mockAuthJourney,
         cc,
-        injected[UpdateInternationalAddressView],
+        inject[UpdateInternationalAddressView],
         displayAddressInterstitialView,
         mockFeatureFlagService,
         internalServerErrorView

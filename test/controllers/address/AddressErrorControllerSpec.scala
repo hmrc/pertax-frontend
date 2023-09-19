@@ -43,10 +43,10 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         cc,
         displayAddressInterstitialView,
-        injected[CannotUseServiceView],
-        injected[AddressAlreadyUpdatedView],
-        injected[FeatureFlagService],
-        injected[InternalServerErrorView]
+        inject[CannotUseServiceView],
+        inject[AddressAlreadyUpdatedView],
+        inject[FeatureFlagService],
+        inject[InternalServerErrorView]
       )
   }
 

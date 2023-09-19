@@ -48,7 +48,7 @@ class FeatureFlagRepository @Inject() (
     )
     with Transactions {
 
-  private implicit val tc = TransactionConfiguration.strict
+  private implicit val tc: TransactionConfiguration = TransactionConfiguration.strict
 
   def deleteFeatureFlag(name: FeatureFlagName): Future[Boolean] =
     collection

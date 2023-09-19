@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AddressMovedServiceSpec extends BaseSpec {
 
-  implicit val executionContext: ExecutionContext  = injected[ExecutionContext]
+  implicit val executionContext: ExecutionContext  = inject[ExecutionContext]
   val addressLookupService: AddressLookupConnector = mock[AddressLookupConnector]
   val fromPostcode                                 = "AA1 1AA"
   val toPostcode                                   = "AA1 2AA"

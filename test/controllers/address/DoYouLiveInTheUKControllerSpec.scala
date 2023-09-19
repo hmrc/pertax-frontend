@@ -37,7 +37,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         mockAuthJourney,
         cc,
-        injected[InternationalAddressChoiceView],
+        inject[InternationalAddressChoiceView],
         displayAddressInterstitialView,
         mockFeatureFlagService,
         internalServerErrorView
@@ -97,7 +97,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
           addressJourneyCachingHelper,
           mockAuthJourney,
           cc,
-          injected[InternationalAddressChoiceView],
+          inject[InternationalAddressChoiceView],
           displayAddressInterstitialView,
           mockFeatureFlagService,
           internalServerErrorView

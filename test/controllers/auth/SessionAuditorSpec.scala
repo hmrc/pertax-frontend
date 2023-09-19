@@ -38,7 +38,7 @@ import scala.concurrent.Future
 class SessionAuditorSpec extends BaseSpec with AuditTags {
 
   val auditConnector: AuditConnector                   = mock[AuditConnector]
-  val enrolmentsHelper: EnrolmentsHelper               = injected[EnrolmentsHelper]
+  val enrolmentsHelper: EnrolmentsHelper               = inject[EnrolmentsHelper]
   val sessionAuditor                                   = new SessionAuditor(auditConnector, enrolmentsHelper)
   val testRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 

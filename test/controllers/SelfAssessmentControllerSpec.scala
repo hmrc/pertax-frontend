@@ -75,14 +75,14 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     def controller: SelfAssessmentController =
       new SelfAssessmentController(
         fakeAuthJourney,
-        injected[WithBreadcrumbAction],
+        inject[WithBreadcrumbAction],
         mockAuditConnector,
         mockSelfAssessmentService,
-        injected[MessagesControllerComponents],
-        injected[ErrorRenderer],
-        injected[FailedIvContinueToActivateSaView],
-        injected[CannotConfirmIdentityView],
-        injected[RequestAccessToSelfAssessmentView]
+        inject[MessagesControllerComponents],
+        inject[ErrorRenderer],
+        inject[FailedIvContinueToActivateSaView],
+        inject[CannotConfirmIdentityView],
+        inject[RequestAccessToSelfAssessmentView]
       )(config, ec)
 
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {

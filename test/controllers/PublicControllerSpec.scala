@@ -26,7 +26,7 @@ import views.html.public.SessionTimeoutView
 
 class PublicControllerSpec extends BaseSpec {
 
-  private def controller = new PublicController(injected[MessagesControllerComponents], injected[SessionTimeoutView])(
+  private def controller = new PublicController(inject[MessagesControllerComponents], inject[SessionTimeoutView])(
     config
   )
 

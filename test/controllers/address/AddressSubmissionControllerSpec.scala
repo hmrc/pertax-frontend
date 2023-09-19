@@ -54,11 +54,11 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         new AddressJourneyCachingHelper(mockLocalSessionCache),
         mockAuditConnector,
-        injected[MessagesControllerComponents],
+        inject[MessagesControllerComponents],
         errorRenderer,
-        injected[UpdateAddressConfirmationView],
-        injected[ReviewChangesView],
-        injected[DisplayAddressInterstitialView],
+        inject[UpdateAddressConfirmationView],
+        inject[ReviewChangesView],
+        inject[DisplayAddressInterstitialView],
         mockFeatureFlagService,
         internalServerErrorView
       )(config, ec)

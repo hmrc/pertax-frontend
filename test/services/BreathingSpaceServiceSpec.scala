@@ -57,8 +57,8 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     "return BreathingSpaceIndicatorResponse.StatusUnknown when isBreathingSpaceIndicatorEnabled is false" in {
 
       val stubConfigDecorator = new ConfigDecorator(
-        injected[Configuration],
-        injected[ServicesConfig]
+        inject[Configuration],
+        inject[ServicesConfig]
       ) {
         override lazy val isBreathingSpaceIndicatorEnabled: Boolean = false
       }

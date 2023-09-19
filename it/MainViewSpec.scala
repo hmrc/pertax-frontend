@@ -311,7 +311,7 @@ class MainViewSpec extends IntegrationSpec {
         "a trusted helper is set in the request" in new LocalSetup {
           val principalName                                                      = "John Doe"
           val url                                                                = "/return-url"
-          val helper: TrustedHelper = TrustedHelper(
+          val helper: TrustedHelper                                              = TrustedHelper(
             principalName,
             "Attorney name",
             url,

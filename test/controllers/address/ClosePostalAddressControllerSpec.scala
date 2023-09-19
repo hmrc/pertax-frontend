@@ -63,9 +63,9 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         cc,
         errorRenderer,
-        injected[CloseCorrespondenceAddressChoiceView],
-        injected[ConfirmCloseCorrespondenceAddressView],
-        injected[UpdateAddressConfirmationView],
+        inject[CloseCorrespondenceAddressChoiceView],
+        inject[ConfirmCloseCorrespondenceAddressView],
+        inject[UpdateAddressConfirmationView],
         displayAddressInterstitialView,
         mockFeatureFlagService,
         internalServerErrorView

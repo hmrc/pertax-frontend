@@ -28,7 +28,7 @@ import scala.reflect.ClassTag
 
 trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with Matchers {
 
-  val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
+  val mockCacheApi: AsyncCacheApi                = new AsyncCacheApi {
     override def set(key: String, value: Any, expiration: Duration): Future[Done] = Future.successful(Done)
 
     override def remove(key: String): Future[Done] = Future.successful(Done)

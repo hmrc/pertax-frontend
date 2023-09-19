@@ -33,9 +33,9 @@ class MainAddressViewSpec extends ViewSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
-  lazy val view: MainAddressView = injected[MainAddressView]()
+  lazy val view: MainAddressView = inject[MainAddressView]
 
-  implicit val configDecorator: ConfigDecorator                 = injected[ConfigDecorator]()
+  implicit val configDecorator: ConfigDecorator                 = inject[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
   val result: Document                                          = asDocument(
     view(

@@ -31,7 +31,7 @@ class AddressControllerSpec extends AddressBaseSpec {
 
   object SUT
       extends AddressController(
-        injected[AuthJourney],
+        inject[AuthJourney],
         cc,
         displayAddressInterstitialView,
         mockFeatureFlagService,

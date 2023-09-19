@@ -38,7 +38,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.Future
 
 class FeatureFlagsAdminControllerSpec extends BaseSpec {
-  implicit val cc: ControllerComponents = injected[ControllerComponents]
+  implicit val cc: ControllerComponents = inject[ControllerComponents]
   val nino: Nino                        = Fixtures.fakeNino
   val expectedPermission: Permission    =
     Permission(
@@ -52,7 +52,7 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
   lazy val mockStubBehaviour: StubBehaviour = mock[StubBehaviour]
   lazy val fakeInternalAuthAction           =
     new InternalAuthAction(
-      new ConfigDecorator(injected[Configuration], injected[ServicesConfig]),
+      new ConfigDecorator(inject[Configuration], inject[ServicesConfig]),
       BackendAuthComponentsStub(mockStubBehaviour)
     )
 

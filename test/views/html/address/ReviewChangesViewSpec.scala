@@ -32,9 +32,9 @@ import views.html.personaldetails.ReviewChangesView
 class ReviewChangesViewSpec extends ViewSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
-  lazy val view: ReviewChangesView = injected[ReviewChangesView]()
+  lazy val view: ReviewChangesView = inject[ReviewChangesView]
 
-  implicit val configDecorator: ConfigDecorator                 = injected[ConfigDecorator]()
+  implicit val configDecorator: ConfigDecorator                 = inject[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
   val address: AddressDto                                       =
     AddressDto("AddressLine1", "AddressLine2", None, None, None, Some("TestPostcode"), None, None)

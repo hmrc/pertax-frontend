@@ -34,9 +34,9 @@ class FeatureFlagService @Inject() (
 )(implicit
   ec: ExecutionContext
 ) extends Logging {
-  val cacheValidFor: FiniteDuration   =
+  private val cacheValidFor: FiniteDuration =
     Duration(configDecorator.ehCacheTtlInSeconds, Seconds)
-  private val allFeatureFlagsCacheKey = "*$*$allFeatureFlags*$*$"
+  private val allFeatureFlagsCacheKey       = "*$*$allFeatureFlags*$*$"
 
   def set(flagName: FeatureFlagName, enabled: Boolean): Future[Boolean] =
     for {
@@ -51,7 +51,7 @@ class FeatureFlagService @Inject() (
     cache.getOrElseUpdate(flagName.toString, cacheValidFor) {
       featureFlagRepository
         .getFeatureFlag(flagName)
-        .map(_.getOrElse(FeatureFlag(flagName, false)))
+        .map(_.getOrElse(FeatureFlag(flagName, isEnabled = false)))
     }
 
   def getAll: Future[List[FeatureFlag]] =
@@ -71,7 +71,7 @@ class FeatureFlagService @Inject() (
             if (featureFlags.map(_.name).contains(missingFlag)) {
               featureFlags
             } else {
-              FeatureFlag(missingFlag, false) :: featureFlags
+              FeatureFlag(missingFlag, isEnabled = false) :: featureFlags
             }
           }
           .reverse

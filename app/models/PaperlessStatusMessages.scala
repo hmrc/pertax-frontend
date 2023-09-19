@@ -38,10 +38,8 @@ object PaperlessMessages {
     PaperlessStatusNoEmail().responseCode       -> JsSuccess(PaperlessStatusNoEmail(link))
   ).getOrElse(key, JsError("Invalid response code for paperless status"))
 
-  implicit val reads: Reads[PaperlessMessages] = new Reads[PaperlessMessages] {
-    override def reads(json: JsValue): JsResult[PaperlessMessages] =
-      getPaperlessMessage((json \ "status" \ "name").as[String], (json \ "url" \ "link").as[String])
-  }
+  implicit val reads: Reads[PaperlessMessages] = (json: JsValue) =>
+    getPaperlessMessage((json \ "status" \ "name").as[String], (json \ "url" \ "link").as[String])
 }
 
 case class PaperlessStatusNewCustomer(link: String = "") extends PaperlessMessages {

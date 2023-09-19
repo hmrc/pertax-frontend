@@ -47,9 +47,9 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         cc,
         errorRenderer,
-        injected[AddressSelectorView],
-        injected[DisplayAddressInterstitialView],
-        injected[AddressSelectorService],
+        inject[AddressSelectorView],
+        inject[DisplayAddressInterstitialView],
+        inject[AddressSelectorService],
         mockFeatureFlagService,
         internalServerErrorView
       )

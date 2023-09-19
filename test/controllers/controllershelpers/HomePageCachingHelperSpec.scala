@@ -34,7 +34,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(injected[LocalSessionCache])
+    reset(inject[LocalSessionCache])
   }
 
   "Calling HomePageCachingHelper.hasUserDismissedUrInvitation" must {
@@ -44,9 +44,9 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
       lazy val cachingHelper: HomePageCachingHelper = {
 
-        val c = injected[HomePageCachingHelper]
+        val c = inject[HomePageCachingHelper]
 
-        when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
+        when(inject[LocalSessionCache].fetch()(any(), any())) thenReturn {
 
           Future.successful {
             urBannerDismissedValueInSessionCache.map { myBool =>
@@ -91,9 +91,9 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
       lazy val cachingHelper: HomePageCachingHelper = {
 
-        val c = injected[HomePageCachingHelper]
+        val c = inject[HomePageCachingHelper]
 
-        when(injected[LocalSessionCache].cache(any(), any())(any(), any(), any())) thenReturn {
+        when(inject[LocalSessionCache].cache(any(), any())(any(), any(), any())) thenReturn {
           Future.successful(CacheMap("id", Map.empty))
         }
         c

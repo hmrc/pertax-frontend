@@ -31,11 +31,11 @@ import uk.gov.hmrc.domain.{Generator, Nino, SaUtr}
 import scala.util.Random
 
 class EnrolmentsHelperSpec extends BaseSpec {
-  val sut: EnrolmentsHelper                                 = injected[EnrolmentsHelper]()
+  val sut: EnrolmentsHelper                                 = inject[EnrolmentsHelper]
   val nino: Nino                                            = Fixtures.fakeNino
   implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   implicit val configDecorator: ConfigDecorator             = app.injector.instanceOf[ConfigDecorator]
-  lazy val messagesApi: MessagesApi                         = injected[MessagesApi]()
+  lazy val messagesApi: MessagesApi                         = inject[MessagesApi]
   implicit lazy val messages: Messages                      = MessagesImpl(Lang("en"), messagesApi)
 
   "singleAccountEnrolmentPresent" when {

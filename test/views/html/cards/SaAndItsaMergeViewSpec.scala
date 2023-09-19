@@ -22,8 +22,8 @@ import views.html.cards.home.SaAndItsaMergeView
 
 class SaAndItsaMergeViewSpec extends ViewSpec {
 
-  val saAndItsaMergeView: SaAndItsaMergeView    = injected[SaAndItsaMergeView]()
-  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]()
+  val saAndItsaMergeView: SaAndItsaMergeView    = inject[SaAndItsaMergeView]
+  implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
   val nextDeadlineTaxYear = "2021"
 

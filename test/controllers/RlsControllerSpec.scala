@@ -48,13 +48,13 @@ class RlsControllerSpec extends BaseSpec {
     new RlsController(
       mockAuthJourney,
       mockAuditConnector,
-      injected[AddressJourneyCachingHelper],
+      inject[AddressJourneyCachingHelper],
       mockEditAddressLockRepository,
       mockFeatureFlagService,
-      injected[MessagesControllerComponents],
-      injected[CheckYourAddressInterruptView],
-      injected[InternalServerErrorView]
-    )(injected[ConfigDecorator], ec)
+      inject[MessagesControllerComponents],
+      inject[CheckYourAddressInterruptView],
+      inject[InternalServerErrorView]
+    )(inject[ConfigDecorator], ec)
 
   override def beforeEach(): Unit = {
     super.beforeEach()

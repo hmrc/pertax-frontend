@@ -32,9 +32,9 @@ import scala.jdk.CollectionConverters._
 
 class HomeViewSpec extends ViewSpec {
 
-  lazy val home: HomeView = injected[HomeView]()
+  lazy val home: HomeView = inject[HomeView]
 
-  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]()
+  implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
   val homeViewModel: HomeViewModel =
     HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true)

@@ -25,10 +25,10 @@ import views.html.{InternalServerErrorView, UnauthenticatedErrorView, ViewSpec}
 
 class LocalErrorHandlerSpec extends ViewSpec {
 
-  lazy val internalServerError: InternalServerErrorView = injected[InternalServerErrorView]
-  lazy val standardError: UnauthenticatedErrorView      = injected[UnauthenticatedErrorView]
+  lazy val internalServerError: InternalServerErrorView = inject[InternalServerErrorView]
+  lazy val standardError: UnauthenticatedErrorView      = inject[UnauthenticatedErrorView]
 
-  implicit val configDecorator: ConfigDecorator                 = injected[ConfigDecorator]
+  implicit val configDecorator: ConfigDecorator                 = inject[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
   "standardErrorTemplate" in {

@@ -25,9 +25,9 @@ import views.html.cards.home.TaxCalculationView
 
 class TaxCalculationViewSpec extends ViewSpec {
 
-  val taxCalculation: TaxCalculationView = injected[TaxCalculationView]()
+  val taxCalculation: TaxCalculationView = inject[TaxCalculationView]
 
-  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]()
+  implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
   "TaxCalculation card" must {
 

@@ -19,7 +19,7 @@ package connectors
 import com.google.inject.Inject
 import play.api.Logging
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.{HttpClient, HttpException}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpException}
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,7 +31,7 @@ class EnhancedPartialRetriever @Inject() (
 
   def loadPartial(url: String)(implicit request: RequestHeader, ec: ExecutionContext): Future[HtmlPartial] = {
 
-    implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+    implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
 
     http.GET[HtmlPartial](url) map {
       case partial: HtmlPartial.Success =>
