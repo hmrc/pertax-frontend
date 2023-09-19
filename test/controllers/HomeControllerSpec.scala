@@ -87,7 +87,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val withPaye: Boolean                             = true
     lazy val year                                          = 2017
     lazy val trustedHelper: Option[TrustedHelper]          = None
-    lazy val truestedHelperResponse: Option[TrustedHelper] = Fixtures.buildTrustedHelper
+    lazy val trustedHelperResponse: Option[TrustedHelper] = Fixtures.buildTrustedHelper
 
     lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse]             =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
@@ -211,10 +211,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaiConnector].toInstance(mockTaiService),
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
         )
-        .configure(
-          "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled"        -> true
-        )
         .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
 
@@ -239,10 +235,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .overrides(
           bind[TaiConnector].toInstance(mockTaiService),
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
-        )
-        .configure(
-          "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled"        -> true
         )
         .overrides(
           bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
@@ -894,14 +886,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year, truestedHelperResponse))
+      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year, trustedHelperResponse))
 
       resultCYm1 mustBe None
       resultCYm2 mustBe None
       verify(mockTaxCalculationService, times(0)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
-    "return only  CY-1 None and CY-2 None when get TaxYearReconcillation returns Nil" in new LocalSetup {
+    "return only  CY-1 None and CY-2 None when get TaxYearReconciliation returns Nil" in new LocalSetup {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
         FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )

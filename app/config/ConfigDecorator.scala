@@ -199,7 +199,6 @@ class ConfigDecorator @Inject() (
   lazy val identityVerificationUpliftUrl      = s"$identityVerificationHost/$identityVerificationPrefix/uplift"
   lazy val multiFactorAuthenticationUpliftUrl = s"$basGatewayFrontendHost/bas-gateway/uplift-mfa"
   lazy val tcsServiceRouterUrl                = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
-  lazy val tcsDoYouLiveInUkUrl                = s"$tcsFrontendHost/tax-credits-service/your-details/live-in-the-uk"
   lazy val updateAddressShortFormUrl          = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
   lazy val changeNameLinkUrl                  =
     s"$dfsFrontendHost/digital-forms/form/notification-of-a-change-in-personal-details/draft/guide"
