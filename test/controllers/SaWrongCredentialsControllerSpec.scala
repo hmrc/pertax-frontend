@@ -31,7 +31,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
     WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))
   )
 
-  def controller =
+  def controller: SaWrongCredentialsController =
     new SaWrongCredentialsController(
       fakeAuthJourney,
       injected[MessagesControllerComponents],

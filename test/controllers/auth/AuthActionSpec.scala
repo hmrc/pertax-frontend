@@ -51,7 +51,7 @@ class AuthActionSpec extends BaseSpec {
     .configure(Map("metrics.enabled" -> false))
     .build()
 
-  val mockAuthConnector                          = mock[AuthConnector]
+  val mockAuthConnector: AuthConnector           = mock[AuthConnector]
   def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
   val enrolmentsHelper: EnrolmentsHelper         = app.injector.instanceOf[EnrolmentsHelper]
   val sessionAuditor                             =
@@ -72,24 +72,24 @@ class AuthActionSpec extends BaseSpec {
   }
 
   type AuthRetrievals =
-    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
-      String
-    ] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~ Option[String]
+    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
+      Option[String] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~
+      Option[String]
 
-  val nino                                                       = Fixtures.fakeNino.nino
-  val fakeCredentials                                            = Credentials("foo", "bar")
-  val fakeCredentialStrength                                     = CredentialStrength.strong
-  val fakeConfidenceLevel                                        = ConfidenceLevel.L200
-  val enrolmentHelper                                            = injected[EnrolmentsHelper]
+  val nino: String                                               = Fixtures.fakeNino.nino
+  val fakeCredentials: Credentials                               = Credentials("foo", "bar")
+  val fakeCredentialStrength: String                             = CredentialStrength.strong
+  val fakeConfidenceLevel: ConfidenceLevel                       = ConfidenceLevel.L200
+  val enrolmentHelper: EnrolmentsHelper                          = injected[EnrolmentsHelper]
   val fakeBusinessHours                                          = new FakeBusinessHours(injected[BusinessHoursConfig])
   def messagesControllerComponents: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-    .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+    .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
 
-  def fakeEnrolments(utr: String) = Set(
+  def fakeEnrolments(utr: String): Set[Enrolment] = Set(
     Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
-    Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.toString)), "None", None)
+    Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino)), "None", None)
   )
 
   def retrievals(
@@ -123,10 +123,10 @@ class AuthActionSpec extends BaseSpec {
     new Harness(authAction)
   }
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
   }
 
   val ivRedirectUrl =

@@ -18,14 +18,14 @@ package controllers.address
 
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.ETag
+import models.{Address, ETag}
 import models.dto.DateDto
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request}
+import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.Fixtures
@@ -36,6 +36,7 @@ import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
 
 import java.time.LocalDate
+import scala.concurrent.Future
 
 class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
@@ -45,7 +46,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
-    def controller =
+    def controller: AddressSubmissionController =
       new AddressSubmissionController(
         mockCitizenDetailsService,
         mockAddressMovedService,
@@ -66,7 +67,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
   "onPageLoad" must {
 
     "return 200 if only SubmittedAddressDto is present in keystore for postal" in new LocalSetup {
-      override def sessionCacheResponse =
+      override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
@@ -76,14 +77,14 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect back to start of journey if SubmittedAddressDto is missing from keystore for non-postal" in new LocalSetup {
-      override def sessionCacheResponse =
+      override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
@@ -93,7 +94,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
@@ -101,21 +102,21 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     }
 
     "redirect back to start of journey if SubmittedAddressDto is missing from keystore for postal" in new LocalSetup {
-      override def sessionCacheResponse = Some(
+      override def sessionCacheResponse: Option[CacheMap] = Some(
         CacheMap(
           "id",
           Map()
         )
       )
 
-      val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
     "display the appropriate label for address when the residential address has changed" in new LocalSetup {
-      override def sessionCacheResponse =
+      override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
@@ -128,14 +129,14 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       contentAsString(result) must include(Messages("label.your_new_address"))
       contentAsString(result) must include(Messages("label.when_you_started_living_here"))
     }
 
     "display the appropriate label for address when the residential address has not changed" in new LocalSetup {
-      override def sessionCacheResponse =
+      override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
@@ -146,7 +147,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       contentAsString(result) must include(Messages("label.your_address"))
       contentAsString(result) mustNot include(Messages("label.when_you_started_living_here"))
@@ -162,7 +163,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       includeOriginals: Boolean,
       submittedLine1: Option[String] = Some("1 Fake Street"),
       addressType: Option[String] = Some("Residential")
-    ) = DataEvent(
+    ): DataEvent = DataEvent(
       "pertax-frontend",
       auditType,
       dataEvent.eventId,
@@ -178,13 +179,13 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         "submittedCountry"  -> None,
         "addressType"       -> addressType,
         "submittedUPRN"     -> uprn,
-        "originalLine1"     -> Some("1 Fake Street").filter(x => includeOriginals),
-        "originalLine2"     -> Some("Fake Town").filter(x => includeOriginals),
-        "originalLine3"     -> Some("Fake City").filter(x => includeOriginals),
-        "originalLine4"     -> Some("Fake Region").filter(x => includeOriginals),
-        "originalPostcode"  -> Some("AA1 1AA").filter(x => includeOriginals),
-        "originalCountry"   -> Some("Country(UK,United Kingdom)").filter(x => includeOriginals),
-        "originalUPRN"      -> uprn.filter(x => includeOriginals)
+        "originalLine1"     -> Some("1 Fake Street").filter(_ => includeOriginals),
+        "originalLine2"     -> Some("Fake Town").filter(_ => includeOriginals),
+        "originalLine3"     -> Some("Fake City").filter(_ => includeOriginals),
+        "originalLine4"     -> Some("Fake Region").filter(_ => includeOriginals),
+        "originalPostcode"  -> Some("AA1 1AA").filter(_ => includeOriginals),
+        "originalCountry"   -> Some("Country(UK,United Kingdom)").filter(_ => includeOriginals),
+        "originalUPRN"      -> uprn.filter(_ => includeOriginals)
       ).map(t => t._2.map((t._1, _))).flatten.toMap,
       dataEvent.generatedAt
     )
@@ -202,7 +203,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
@@ -229,7 +230,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         FakeRequest("POST", "/test")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
@@ -239,7 +240,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     }
 
     "render the thank-you page if postalSubmittedStartDateDto is not in the cache, and the journey type is PostalAddrType" in new LocalSetup {
-      override lazy val fakeAddress                       =
+      override lazy val fakeAddress: Address              =
         buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
@@ -255,7 +256,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         FakeRequest("POST", "/test")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -277,7 +278,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         FakeRequest("POST", "/test")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
@@ -301,19 +302,24 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
-      pruneDataEvent(dataEvent) mustBe comparatorDataEvent(dataEvent, "postcodeAddressSubmitted", Some("GB101"), false)
+      pruneDataEvent(dataEvent) mustBe comparatorDataEvent(
+        dataEvent,
+        "postcodeAddressSubmitted",
+        Some("GB101"),
+        includeOriginals = false
+      )
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
     }
 
     "render the thank you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address, this time using postal type and having no postalSubmittedStartDateDto in the cache " in new LocalSetup {
-      override lazy val fakeAddress                       =
+      override lazy val fakeAddress: Address              =
         buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
@@ -331,7 +337,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified: _*)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
       val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
@@ -341,7 +347,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         dataEvent,
         "postcodeAddressSubmitted",
         Some("GB101"),
-        false,
+        includeOriginals = false,
         addressType = Some("Correspondence")
       )
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -366,19 +372,24 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         FakeRequest("POST", "/test")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
-      pruneDataEvent(dataEvent) mustBe comparatorDataEvent(dataEvent, "manualAddressSubmitted", None, false)
+      pruneDataEvent(dataEvent) mustBe comparatorDataEvent(
+        dataEvent,
+        "manualAddressSubmitted",
+        None,
+        includeOriginals = false
+      )
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
     }
 
     "render the thank you page and log a postcodeAddressModifiedSubmitted audit event upon successful of a modified address" in new LocalSetup {
-      override lazy val fakeAddress                       = buildFakeAddress.copy(line1 = Some("11 Fake Street"), isRls = false)
+      override lazy val fakeAddress: Address              = buildFakeAddress.copy(line1 = Some("11 Fake Street"), isRls = false)
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
@@ -395,7 +406,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         FakeRequest("POST", "/test")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
@@ -405,7 +416,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         dataEvent,
         "postcodeAddressModifiedSubmitted",
         Some("GB101"),
-        true,
+        includeOriginals = true,
         Some("11 Fake Street")
       )
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -416,7 +427,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       override def eTagResponse: Option[ETag] = None
 
-      override lazy val fakeAddress                       =
+      override lazy val fakeAddress: Address              =
         buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
@@ -432,7 +443,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         FakeRequest("POST", "/test")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(PostalAddrType)(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR
     }

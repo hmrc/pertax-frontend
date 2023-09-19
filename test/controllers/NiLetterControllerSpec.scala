@@ -74,7 +74,7 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
     "redirect to nino service when feature flag is true" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, true)))
+        .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = true)))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -94,7 +94,7 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
     "redirect to nino service when feature flag is true" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, true)))
+        .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = true)))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -111,7 +111,7 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
     "call printNationalInsuranceNumber should return OK when called by a high GG user" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = false)))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -127,7 +127,7 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
     "call printNationalInsuranceNumber should return OK when called by a verify user" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = false)))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

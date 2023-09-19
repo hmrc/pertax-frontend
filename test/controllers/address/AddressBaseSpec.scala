@@ -48,13 +48,13 @@ import scala.concurrent.Future
 
 trait AddressBaseSpec extends BaseSpec {
 
-  val mockAuthJourney: AuthJourney                       = mock[AuthJourney]
-  val mockLocalSessionCache: LocalSessionCache           = mock[LocalSessionCache]
-  val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
-  val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
-  val mockAddressMovedService: AddressMovedService       = mock[AddressMovedService]
-  val mockAuditConnector: AuditConnector                 = mock[AuditConnector]
-  val mockAgentClientAuthorisationService                = mock[AgentClientAuthorisationService]
+  val mockAuthJourney: AuthJourney                                         = mock[AuthJourney]
+  val mockLocalSessionCache: LocalSessionCache                             = mock[LocalSessionCache]
+  val mockAddressLookupConnector: AddressLookupConnector                   = mock[AddressLookupConnector]
+  val mockCitizenDetailsService: CitizenDetailsService                     = mock[CitizenDetailsService]
+  val mockAddressMovedService: AddressMovedService                         = mock[AddressMovedService]
+  val mockAuditConnector: AuditConnector                                   = mock[AuditConnector]
+  val mockAgentClientAuthorisationService: AgentClientAuthorisationService = mock[AgentClientAuthorisationService]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
 
@@ -114,10 +114,10 @@ trait AddressBaseSpec extends BaseSpec {
 
     def eTagResponse: Option[ETag] = Some(ETag("115"))
 
-    def updateAddressResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(NO_CONTENT, ""))))
 
-    def getAddressesLockResponse: AddressesLock = AddressesLock(false, false)
+    def getAddressesLockResponse: AddressesLock = AddressesLock(main = false, postal = false)
 
     def addressLookupResponse: RecordSet = oneAndTwoOtherPlacePafRecordSet
 
@@ -156,7 +156,7 @@ trait AddressBaseSpec extends BaseSpec {
       )
     )
     when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(
-      updateAddressResponse
+      updateAddressResponse()
     )
     when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
       Future.successful(isInsertCorrespondenceAddressLockSuccessful)
@@ -181,10 +181,11 @@ trait AddressBaseSpec extends BaseSpec {
             request = currentRequest[A],
             personDetails = personDetailsForRequest,
             saUser = saUserType
-          ).asInstanceOf[UserRequest[A]]
+          )
         )
     })
 
-    when(mockFeatureFlagService.get(NpsOutageToggle)).thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+    when(mockFeatureFlagService.get(NpsOutageToggle))
+      .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
   }
 }

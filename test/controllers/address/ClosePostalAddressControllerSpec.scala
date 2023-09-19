@@ -23,7 +23,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.Request
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.Fixtures
@@ -43,7 +43,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
 
-    val expectedAddressConfirmationView = updateAddressConfirmationView(
+    val expectedAddressConfirmationView: String = updateAddressConfirmationView(
       PostalAddrType,
       closedPostalAddress = true,
       Some(fakeAddress.fullAddress),
@@ -78,7 +78,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       includeOriginals: Boolean,
       submittedLine1: Option[String] = Some("1 Fake Street"),
       addressType: Option[String] = Some("Residential")
-    ) = DataEvent(
+    ): DataEvent = DataEvent(
       "pertax-frontend",
       auditType,
       dataEvent.eventId,
@@ -94,13 +94,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
         "submittedCountry"  -> None,
         "addressType"       -> addressType,
         "submittedUPRN"     -> uprn,
-        "originalLine1"     -> Some("1 Fake Street").filter(x => includeOriginals),
-        "originalLine2"     -> Some("Fake Town").filter(x => includeOriginals),
-        "originalLine3"     -> Some("Fake City").filter(x => includeOriginals),
-        "originalLine4"     -> Some("Fake Region").filter(x => includeOriginals),
-        "originalPostcode"  -> Some("AA1 1AA").filter(x => includeOriginals),
-        "originalCountry"   -> Some("Country(UK,United Kingdom)").filter(x => includeOriginals),
-        "originalUPRN"      -> uprn.filter(x => includeOriginals)
+        "originalLine1"     -> Some("1 Fake Street").filter(_ => includeOriginals),
+        "originalLine2"     -> Some("Fake Town").filter(_ => includeOriginals),
+        "originalLine3"     -> Some("Fake City").filter(_ => includeOriginals),
+        "originalLine4"     -> Some("Fake Region").filter(_ => includeOriginals),
+        "originalPostcode"  -> Some("AA1 1AA").filter(_ => includeOriginals),
+        "originalCountry"   -> Some("Country(UK,United Kingdom)").filter(_ => includeOriginals),
+        "originalUPRN"      -> uprn.filter(_ => includeOriginals)
       ).map(t => t._2.map((t._1, _))).flatten.toMap,
       dataEvent.generatedAt
     )
@@ -114,7 +114,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
   "onPageLoad" must {
 
     "display the closeCorrespondenceAddressChoice form that contains the view address" in new LocalSetup {
-      val result = controller.onPageLoad(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
       contentAsString(result) must include(buildFakeAddress.line1.getOrElse("line6"))
 
@@ -141,7 +141,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("onPageLoad" -> "true")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/close-correspondence-address-confirm")
@@ -153,14 +153,14 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("onPageLoad" -> "false")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
-      val result = controller.onSubmit(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(FakeRequest())
 
       status(result) mustBe BAD_REQUEST
     }
@@ -179,7 +179,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
   "confirmPageLoad" should {
 
     "return OK when confirmPageLoad is called" in new LocalSetup {
-      val result = controller.confirmPageLoad(FakeRequest())
+      val result: Future[Result] = controller.confirmPageLoad(FakeRequest())
       status(result) mustBe OK
     }
 
@@ -196,7 +196,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
   "confirmSubmit" should {
 
-    def submitComparatorDataEvent(dataEvent: DataEvent, auditType: String, uprn: Option[String]) = DataEvent(
+    def submitComparatorDataEvent(dataEvent: DataEvent, auditType: String): DataEvent = DataEvent(
       "pertax-frontend",
       auditType,
       dataEvent.eventId,
@@ -219,7 +219,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       override def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
-      val result = controller.confirmSubmit(FakeRequest())
+      val result: Future[Result] = controller.confirmSubmit(FakeRequest())
 
       status(result) mustBe OK
       contentAsString(result) mustBe expectedAddressConfirmationView
@@ -228,7 +228,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
-      pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+      pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted")
 
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any(), any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
@@ -238,7 +238,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditCorrespondenceAddress(Instant.now())))
-      val result                                                            = controller.confirmSubmit(FakeRequest())
+      val result: Future[Result]                                            = controller.confirmSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad.url)
@@ -253,7 +253,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditResidentialAddress(Instant.now())))
 
-      val result = controller.confirmSubmit(FakeRequest())
+      val result: Future[Result] = controller.confirmSubmit(FakeRequest())
 
       status(result) mustBe OK
       contentAsString(result) mustBe expectedAddressConfirmationView
@@ -262,19 +262,19 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
-      pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+      pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted")
 
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any(), any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 400 if a BAD_REQUEST is received from citizen-details" in new LocalSetup {
-      override def updateAddressResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+      override def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future.successful(Left(UpstreamErrorResponse("", BAD_REQUEST)))
         )
 
-      val result = controller.confirmSubmit()(FakeRequest())
+      val result: Future[Result] = controller.confirmSubmit()(FakeRequest())
 
       status(result) mustBe BAD_REQUEST
       verify(mockCitizenDetailsService, times(1))
@@ -283,12 +283,12 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "return 500 if an unexpected error (418) is received from citizen-details" in new LocalSetup {
-      override def updateAddressResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+      override def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future.successful(Left(UpstreamErrorResponse("", IM_A_TEAPOT)))
         )
 
-      val result = controller.confirmSubmit()(FakeRequest())
+      val result: Future[Result] = controller.confirmSubmit()(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       verify(mockCitizenDetailsService, times(1))
@@ -297,14 +297,14 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "return 500 if a 5xx is received from citizen-details" in new LocalSetup {
-      override def updateAddressResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+      override def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
         )
 
       override def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
-      val result = controller.confirmSubmit()(FakeRequest())
+      val result: Future[Result] = controller.confirmSubmit()(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any(), any())
@@ -316,7 +316,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/").asInstanceOf[Request[A]]
 
-      val result = controller.confirmSubmit(currentRequest)
+      val result: Future[Result] = controller.confirmSubmit(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
 
@@ -324,7 +324,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
-      pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+      pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted")
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any(), any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
@@ -334,7 +334,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
-      val result = controller.confirmSubmit(currentRequest)
+      val result: Future[Result] = controller.confirmSubmit(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
     }

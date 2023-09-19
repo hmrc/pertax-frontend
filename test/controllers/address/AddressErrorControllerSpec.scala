@@ -27,6 +27,8 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.InternalServerErrorView
 import views.html.personaldetails._
 
+import scala.concurrent.Future
+
 class AddressErrorControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
@@ -51,7 +53,7 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
   "cannotUseThisService" must {
 
     "display the cannot use this service page" in new LocalSetup {
-      val result = controller.cannotUseThisService(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.cannotUseThisService(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsString(result) must include("You cannot use this service to update your address")
@@ -62,7 +64,7 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
 
     "display the showAddressAlreadyUpdated page" in new LocalSetup {
 
-      val result = controller.showAddressAlreadyUpdated(currentRequest)
+      val result: Future[Result] = controller.showAddressAlreadyUpdated(currentRequest)
 
       status(result) mustBe OK
       contentAsString(result) must include("Your address has already been updated")

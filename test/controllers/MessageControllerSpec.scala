@@ -16,11 +16,13 @@
 
 package controllers
 
+import akka.stream.Materializer
 import connectors.CitizenDetailsConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
+import play.api.Application
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -40,12 +42,12 @@ class MessageControllerSpec extends BaseSpec {
     reset(mockMessageFrontendService, mock[CitizenDetailsConnector])
   }
 
-  val mockAuthJourney            = mock[AuthJourney]
-  val mockMessageFrontendService = mock[MessageFrontendService]
+  val mockAuthJourney: AuthJourney                       = mock[AuthJourney]
+  val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
 
-  override implicit lazy val app = localGuiceApplicationBuilder().build()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
-  implicit lazy val mat = app.materializer
+  implicit lazy val mat: Materializer = app.materializer
 
   def controller: MessageController =
     new MessageController(

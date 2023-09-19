@@ -28,6 +28,7 @@ import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{await, contentAsString, defaultAwaitTimeout, status}
 import testUtils.{BaseSpec, Fixtures}
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.internalauth.client.Predicate.Permission
 import uk.gov.hmrc.internalauth.client.test.{BackendAuthComponentsStub, StubBehaviour}
@@ -37,9 +38,9 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.Future
 
 class FeatureFlagsAdminControllerSpec extends BaseSpec {
-  implicit val cc        = injected[ControllerComponents]
-  val nino               = Fixtures.fakeNino
-  val expectedPermission =
+  implicit val cc: ControllerComponents = injected[ControllerComponents]
+  val nino: Nino                        = Fixtures.fakeNino
+  val expectedPermission: Permission    =
     Permission(
       resource = Resource(
         resourceType = ResourceType("ddcn-live-admin-frontend"),
@@ -48,8 +49,8 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
       action = IAAction("ADMIN")
     )
 
-  lazy val mockStubBehaviour      = mock[StubBehaviour]
-  lazy val fakeInternalAuthAction =
+  lazy val mockStubBehaviour: StubBehaviour = mock[StubBehaviour]
+  lazy val fakeInternalAuthAction           =
     new InternalAuthAction(
       new ConfigDecorator(injected[Configuration], injected[ServicesConfig]),
       BackendAuthComponentsStub(mockStubBehaviour)
@@ -67,7 +68,9 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
   "GET /get" must {
     "returns a list of toggles" when {
       "all is well" in {
-        when(mockFeatureFlagService.getAll).thenReturn(Future.successful(List(FeatureFlag(TaxcalcToggle, true))))
+        when(mockFeatureFlagService.getAll).thenReturn(
+          Future.successful(List(FeatureFlag(TaxcalcToggle, isEnabled = true)))
+        )
 
         val result = sut.get(
           FakeRequest().withHeaders("Authorization" -> "Token some-token")
@@ -84,7 +87,9 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
         when(mockStubBehaviour.stubAuth(Some(expectedPermission), Retrieval.username))
           .thenReturn(Future.failed(UpstreamErrorResponse("Unauthorized", Status.UNAUTHORIZED)))
 
-        when(mockFeatureFlagService.getAll).thenReturn(Future.successful(List(FeatureFlag(TaxcalcToggle, true))))
+        when(mockFeatureFlagService.getAll).thenReturn(
+          Future.successful(List(FeatureFlag(TaxcalcToggle, isEnabled = true)))
+        )
 
         val result = sut.get(
           FakeRequest().withHeaders("Authorization" -> "Token some-token")
@@ -123,7 +128,12 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
           FakeRequest()
             .withHeaders("Authorization" -> "Token some-token")
             .withJsonBody(
-              Json.toJson(List(FeatureFlag(TaxcalcToggle, true), FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
+              Json.toJson(
+                List(
+                  FeatureFlag(TaxcalcToggle, isEnabled = true),
+                  FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)
+                )
+              )
             )
         )
 
@@ -142,7 +152,10 @@ class FeatureFlagsAdminControllerSpec extends BaseSpec {
                 .withHeaders("Authorization" -> "Token some-token")
                 .withJsonBody(
                   Json.toJson(
-                    List(FeatureFlag(TaxcalcToggle, true), FeatureFlag(AddressTaxCreditsBrokerCallToggle, false))
+                    List(
+                      FeatureFlag(TaxcalcToggle, isEnabled = true),
+                      FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)
+                    )
                   )
                 )
             )

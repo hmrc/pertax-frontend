@@ -44,9 +44,10 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(HmrcAccountToggle)))
       .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, isEnabled = false)))
 
-    def rlsInterruptHelper = new RlsInterruptHelper(cc, injected[EditAddressLockRepository], mockFeatureFlagService)
+    def rlsInterruptHelper: RlsInterruptHelper =
+      new RlsInterruptHelper(cc, injected[EditAddressLockRepository], mockFeatureFlagService)
 
-    def controller =
+    def controller: PersonalDetailsController =
       new PersonalDetailsController(
         injected[PersonalDetailsViewModel],
         mockEditAddressLockRepository,

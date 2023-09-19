@@ -41,9 +41,9 @@ import scala.concurrent.Future
 
 class TaxCreditsChoiceControllerSpec extends BaseSpec {
 
-  val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAddressJourneyCachingHelper          = mock[AddressJourneyCachingHelper]
+  val mockTaxCreditsService: TaxCreditsService                     = mock[TaxCreditsService]
+  val mockLocalSessionCache: LocalSessionCache                     = mock[LocalSessionCache]
+  val mockAddressJourneyCachingHelper: AddressJourneyCachingHelper = mock[AddressJourneyCachingHelper]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder(saUserType, personDetailsForRequest)
     .overrides(
@@ -74,7 +74,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
     Future.successful(mock[HttpResponse])
   }
 
-  val controller = injected[TaxCreditsChoiceController]
+  val controller: TaxCreditsChoiceController = injected[TaxCreditsChoiceController]
 
   "onPageLoad" when {
     "Tax-credit-broker call is used" must {
@@ -82,9 +82,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         val arg = ArgumentCaptor.forClass(classOf[Result])
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
         when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
         when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(OptionT.fromOption[Future](Some(false)))
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
@@ -106,9 +106,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         val arg = ArgumentCaptor.forClass(classOf[Result])
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
         when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
         when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(OptionT.fromOption[Future](Some(true)))
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
@@ -132,9 +132,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         val arg = ArgumentCaptor.forClass(classOf[Result])
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
         when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
         when(mockTaxCreditsService.checkForTaxCredits(any())(any()))
           .thenReturn(OptionT.fromOption[Future](None: Option[Boolean]))
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
@@ -158,9 +158,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         val arg = ArgumentCaptor.forClass(classOf[Result])
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
         when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
         when(mockTaxCreditsService.checkForTaxCredits(any())(any())).thenReturn(null)
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
@@ -186,9 +186,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
       val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(NpsOutageToggle))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
       when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
         Future.successful(sessionCacheResponse)
       }
@@ -215,9 +215,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
       val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(NpsOutageToggle))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
       when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
         Future.successful(sessionCacheResponse)
       }
@@ -244,9 +244,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         Future.successful(sessionCacheResponse)
       }
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(NpsOutageToggle))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
 
       val result = controller.onSubmit(FakeRequest())
 

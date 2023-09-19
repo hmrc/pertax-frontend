@@ -25,7 +25,7 @@ import models.CreatePayment
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import testUtils.UserRequestFixture.buildUserRequest
@@ -40,10 +40,10 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
 
-  lazy val fakeRequest = FakeRequest("", "")
+  lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
 
-  val mockPayConnector = mock[PayApiConnector]
-  val mockAuthJourney  = mock[AuthJourney]
+  val mockPayConnector: PayApiConnector = mock[PayApiConnector]
+  val mockAuthJourney: AuthJourney      = mock[AuthJourney]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -51,7 +51,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
     )
     .build()
 
-  def controller =
+  def controller: PaymentsController =
     new PaymentsController(
       mockPayConnector,
       mockAuthJourney,
@@ -71,7 +71,6 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
   "makePayment" must {
     "redirect to the response's nextUrl" in {
-
       val expectedNextUrl       = "someNextUrl"
       val createPaymentResponse = CreatePayment("someJourneyId", expectedNextUrl)
 

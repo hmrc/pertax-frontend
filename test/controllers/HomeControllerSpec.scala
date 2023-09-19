@@ -176,19 +176,19 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     )
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
-      FeatureFlag(TaxComponentsToggle, true)
+      FeatureFlag(TaxComponentsToggle, isEnabled = true)
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle))) thenReturn Future.successful(
-      FeatureFlag(RlsInterruptToggle, true)
+      FeatureFlag(RlsInterruptToggle, isEnabled = true)
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle))) thenReturn Future.successful(
-      FeatureFlag(PaperlessInterruptToggle, true)
+      FeatureFlag(PaperlessInterruptToggle, isEnabled = true)
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle))) thenReturn Future.successful(
-      FeatureFlag(TaxSummariesTileToggle, false)
+      FeatureFlag(TaxSummariesTileToggle, isEnabled = false)
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle))) thenReturn Future.successful(
-      FeatureFlag(NpsShutteringToggle, true)
+      FeatureFlag(NpsShutteringToggle, isEnabled = true)
     )
   }
 
@@ -266,7 +266,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         FeatureFlag(TaxcalcToggle, isEnabled = false)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, false)
+        FeatureFlag(TaxcalcToggle, isEnabled = false)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
@@ -394,10 +394,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, true)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, true)
+        FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(
@@ -452,10 +452,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, true)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, true)
+        FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(
@@ -510,10 +510,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, true)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, true)
+        FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(
@@ -568,10 +568,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, true)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, true)
+        FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(
@@ -596,10 +596,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, true)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, true)
+        FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(
@@ -753,7 +753,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, false)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = false)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder()

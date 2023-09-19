@@ -48,13 +48,13 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
   override implicit lazy val app: Application = GuiceApplicationBuilder().build()
 
-  private val configDecorator: ConfigDecorator = mock[ConfigDecorator]
-  private val mockPertaxConnector              = mock[PertaxConnector]
-  val internalServerErrorView                  = app.injector.instanceOf[InternalServerErrorView]
-  val mainView                                 = app.injector.instanceOf[MainView]
-  private val cc                               = app.injector.instanceOf[ControllerComponents]
-  val messagesApi                              = inject[MessagesApi]
-  implicit lazy val messages: Messages         = MessagesImpl(Lang("en"), messagesApi).messages
+  private val configDecorator: ConfigDecorator         = mock[ConfigDecorator]
+  private val mockPertaxConnector                      = mock[PertaxConnector]
+  val internalServerErrorView: InternalServerErrorView = app.injector.instanceOf[InternalServerErrorView]
+  val mainView: MainView                               = app.injector.instanceOf[MainView]
+  private val cc                                       = app.injector.instanceOf[ControllerComponents]
+  val messagesApi: MessagesApi                         = inject[MessagesApi]
+  implicit lazy val messages: Messages                 = MessagesImpl(Lang("en"), messagesApi).messages
 
   val pertaxAuthAction =
     new PertaxAuthAction(
@@ -90,7 +90,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
     "the pertax API returns an ACCESS_GRANTED response" must {
       "load the request" in {
         when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-          FeatureFlag(PertaxBackendToggle, true)
+          FeatureFlag(PertaxBackendToggle, isEnabled = true)
         )
         when(mockPertaxConnector.pertaxAuthorise(any())(any()))
           .thenReturn(
@@ -107,7 +107,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
     "the pertax API response returns a NO_HMRC_PT_ENROLMENT response" must {
       "redirect to the returned location" in {
         when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-          FeatureFlag(PertaxBackendToggle, true)
+          FeatureFlag(PertaxBackendToggle, isEnabled = true)
         )
         when(mockPertaxConnector.pertaxAuthorise(any())(any()))
           .thenReturn(
@@ -149,7 +149,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
           .thenReturn(Future.successful(HtmlPartial.Success(None, Html("Should be in the resulting view"))))
 
         when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-          FeatureFlag(PertaxBackendToggle, true)
+          FeatureFlag(PertaxBackendToggle, isEnabled = true)
         )
 
         val result = pertaxAuthAction.refine(expectedRequest).futureValue
