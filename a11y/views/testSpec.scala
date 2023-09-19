@@ -231,7 +231,7 @@ class testSpec extends IntegrationSpec {
       "feature.breathing-space-indicator.timeoutInSec"                -> 4,
       "microservice.services.taxcalc.port"                            -> server.port(),
       "microservice.services.tai.port"                                -> server.port(),
-      "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port()}",
+//      "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port()}",
       "microservice.services.cachable.session-cache.port"             -> server.port(),
       "microservice.services.cachable.session-cache.host"             -> "127.0.0.1"
     )
