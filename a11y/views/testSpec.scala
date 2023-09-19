@@ -89,7 +89,7 @@ class testSpec extends IntegrationSpec {
       case key => throw new RuntimeException(s"Expected data are missin for `$key`")
     }
 
-  val urls = Map(
+  val urls: Map[String, ExpectedData] = Map(
     "/personal-account"                                                      -> getExpectedData("/"),
     "/personal-account/profile-and-settings"                                 -> getExpectedData("profile-and-settings"),
     "/personal-account/your-address/residential/do-you-live-in-the-uk"       -> getExpectedData("live-in-uk"),
@@ -109,13 +109,13 @@ class testSpec extends IntegrationSpec {
     "/personal-account/self-assessment-home"                                 -> getExpectedData("sa-home")
   )
 
-  val unauthUrls = Map(
+  val unauthUrls: Map[String, ExpectedData] = Map(
     "/personal-account/signin"                  -> getExpectedData("sign-in"),
     "/personal-account/identity-check-complete" -> getExpectedData("id-check-complete")
   )
 
-  val messageCount        = Random.between(1, 100)
-  val menuWrapperData     = Seq(
+  val messageCount: Int = Random.between(1, 100)
+  val menuWrapperData: Seq[MenuItemConfig] = Seq(
     MenuItemConfig(
       "home",
       "Account Home",
@@ -162,7 +162,7 @@ class testSpec extends IntegrationSpec {
       None
     )
   )
-  val wrapperDataResponse = Json
+  val wrapperDataResponse: String = Json
     .toJson(
       WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"))
     )
@@ -171,10 +171,10 @@ class testSpec extends IntegrationSpec {
   val personDetailsUrl: String = s"/citizen-details/$generatedNino/designatory-details"
   val tcsBrokerUrl             = s"/tcs/$generatedNino/dashboard-data"
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.get(SCAWrapperToggle))
-      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
@@ -237,11 +237,11 @@ class testSpec extends IntegrationSpec {
     )
     .build()
 
-  val uuid = UUID.randomUUID().toString
+  val uuid: String = UUID.randomUUID().toString
 
   val cacheMap = s"/keystore/pertax-frontend"
 
-  val authResponseSA =
+  val authResponseSA: String =
     s"""
        |{
        |    "confidenceLevel": 200,
@@ -296,7 +296,7 @@ class testSpec extends IntegrationSpec {
       urls.foreach { case (url, expectedData: ExpectedData) =>
         s"pass content checks at url $url with SCA wrapper toggle set to true" in {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, true)
+            FeatureFlag(SCAWrapperToggle, isEnabled = true)
           )
           server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
           val result: Future[Result] = route(app, request(url)).get
@@ -311,7 +311,7 @@ class testSpec extends IntegrationSpec {
         }
         s"pass content checks at url $url with SCA wrapper toggle set to false" in {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, false)
+            FeatureFlag(SCAWrapperToggle, isEnabled = false)
           )
           server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
           val result: Future[Result] = route(app, request(url)).get
@@ -331,7 +331,7 @@ class testSpec extends IntegrationSpec {
       unauthUrls.foreach { case (url, expectedData: ExpectedData) =>
         s"pass content checks at url $url with SCA wrapper toggle set to true" in {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, true)
+            FeatureFlag(SCAWrapperToggle, isEnabled = true)
           )
           server.stubFor(
             WireMock
@@ -349,7 +349,7 @@ class testSpec extends IntegrationSpec {
         }
         s"pass content checks at url $url with SCA wrapper toggle set to false" in {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, false)
+            FeatureFlag(SCAWrapperToggle, isEnabled = false)
           )
           server.stubFor(
             WireMock
