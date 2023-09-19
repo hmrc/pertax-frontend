@@ -21,8 +21,9 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import models.admin.{FeatureFlag, BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
 import org.mockito.ArgumentMatchers
+import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
@@ -819,11 +820,16 @@ class InterstitialControllerSpec extends BaseSpec {
       })
 
       val result = controller.displayTaxCreditsInterstitial()(fakeRequest)
+      val html   = Jsoup.parse(contentAsString(result))
 
       status(result) mustBe OK
-      contentAsString(result) must include(
+      html.html() must include(
         "Because you receive tax credits, you will need to change your claim in the Tax Credits Service."
       )
+      html.title() mustBe "Change of address - Personal tax account - GOV.UK"
+      html
+        .getElementById("proceed")
+        .attr("href") mustBe "http://localhost:9362/tax-credits-service/personal/change-address"
     }
   }
 }
