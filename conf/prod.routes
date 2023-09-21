@@ -4,13 +4,13 @@ GET         /personal-account/signed-out                                        
 GET         /personal-account/tax-credits-summary                                      controllers.PublicController.redirectToTaxCreditsService()
 GET         /personal-account/your-address                                             controllers.PublicController.redirectToYourProfile()
 
-GET         /personal-account/do-uplift                                                controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
+GET         /personal-account/do-uplift                                                controllers.ApplicationController.uplift(redirectUrl: Option[RedirectUrl])
 GET         /personal-account                                                          controllers.HomeController.index
 
 
-GET         /personal-account/full                                                     controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
-GET         /personal-account/identity-check-complete                                  controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
-GET         /personal-account/identity-check-failed                                    controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
+GET         /personal-account/full                                                     controllers.ApplicationController.uplift(redirectUrl: Option[RedirectUrl])
+GET         /personal-account/identity-check-complete                                  controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[RedirectUrl])
+GET         /personal-account/identity-check-failed                                    controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[RedirectUrl])
 
 GET         /personal-account/signout                                                  controllers.ApplicationController.signout(continueUrl: Option[RedirectUrl], origin: Option[Origin])
 
@@ -18,7 +18,7 @@ GET         /personal-account/dismiss-ur-banner                                 
 
 GET         /personal-account/self-assessment                                          controllers.SelfAssessmentController.handleSelfAssessment
 GET         /personal-account/self-assessment/request-access                           controllers.SelfAssessmentController.requestAccess
-GET         /personal-account/sa-continue                                              controllers.SelfAssessmentController.ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl])
+GET         /personal-account/sa-continue                                              controllers.SelfAssessmentController.ivExemptLandingPage(continueUrl: Option[RedirectUrl])
 GET         /personal-account/self-assessment/make-payment                             controllers.PaymentsController.makePayment
 
 GET         /personal-account/self-assessment/signed-in-wrong-account                  controllers.SaWrongCredentialsController.landingPage

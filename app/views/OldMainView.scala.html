@@ -172,7 +172,7 @@
     serviceName = Some(messages(serviceName)),
     serviceUrl = Some(configDecorator.personalAccount),
     isWelshTranslationAvailable = true,
-    accessibilityStatementUrl = Some(configDecorator.accessibilityStatementUrl(request.uri)),
+    accessibilityStatementUrl = Some(configDecorator.accessibilityStatementUrl(request.uri).toString()),
     displayHmrcBanner = false,
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),

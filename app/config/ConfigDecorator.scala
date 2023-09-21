@@ -21,8 +21,8 @@ import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
 import play.api.i18n.Lang
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.http.StringContextOps
 
 import java.net.{URL, URLEncoder}
 import java.time.LocalDate
@@ -160,8 +160,8 @@ class ConfigDecorator @Inject() (
   lazy private val accessibilityRedirectUrl     =
     servicesConfig.getString("accessibility-statement.redirectUrl")
 
-  def accessibilityStatementUrl(referrer: String): String =
-    s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${SafeRedirectUrl(accessibilityBaseUrl + referrer).encodedUrl}"
+  def accessibilityStatementUrl(referrer: String): URL =
+    url"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${accessibilityBaseUrl + referrer}"
 
   lazy val notShownSaRecoverYourUserId =
     s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account-access?origin=${enc(defaultOrigin.toString)}"
@@ -191,8 +191,8 @@ class ConfigDecorator @Inject() (
     if (lang.code equals "en") { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax" }
     else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
-  def taxEnrolmentDeniedRedirect(url: String): String =
-    s"$taxEnrolmentAssignmentFrontendHost/protect-tax-info?redirectUrl=${SafeRedirectUrl(url).encodedUrl}"
+  def taxEnrolmentDeniedRedirect(url: String): URL =
+    url"$taxEnrolmentAssignmentFrontendHost/protect-tax-info?redirectUrl=$url"
 
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
