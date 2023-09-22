@@ -56,11 +56,9 @@ class PertaxAuthAction @Inject() (
     implicit val userRequest: UserRequest[A]              = request
 
     featureFlagService.get(PertaxBackendToggle).flatMap { toggle =>
-      request.nino match {
-        case Some(nino) =>
           if (toggle.isEnabled) {
             pertaxConnector
-              .pertaxAuthorise(nino.nino)
+              .pertaxAuthorise(request.authNino)
               .value
               .flatMap {
                 case Right(PertaxResponse("ACCESS_GRANTED", _, _, _))                    =>
@@ -91,10 +89,8 @@ class PertaxAuthAction @Inject() (
           } else {
             Future.successful(Right(request))
           }
-        case None       => Future.successful(Right(request))
       }
     }
-  }
 
   override protected implicit val executionContext: ExecutionContext = cc.executionContext
 }

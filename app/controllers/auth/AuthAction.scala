@@ -128,7 +128,8 @@ class AuthActionImpl @Inject() (
             .asInstanceOf[Request[A]]
 
           val authenticatedRequest = AuthenticatedRequest[A](
-            Some(Nino(nino)),
+            Nino(nino),
+            Some(trustedHelper.fold(domain.Nino(nino))(helper => domain.Nino(helper.principalNino))),
             credentials,
             confidenceLevel,
             Some(

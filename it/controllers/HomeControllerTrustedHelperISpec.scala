@@ -32,6 +32,7 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
   val url          = s"/personal-account"
   val uuid: String = UUID.randomUUID().toString
   val pertaxUrl    = s"/pertax/$generatedNino/authorise"
+  val authUrl      = s"/auth/authorise"
 
   @tailrec
   private def generateHelperNino: Nino = {
@@ -43,7 +44,7 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
     }
   }
 
-  val generatedHelperNino = generateHelperNino
+  val generatedHelperNino: Nino = generateHelperNino
 
   val authTrustedHelperResponse: String =
     s"""
@@ -96,7 +97,7 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
     beforeEachHomeController(memorandum = false)
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, isEnabled = true)))
 
     server.stubFor(
       get(urlPathEqualTo(pertaxUrl))
@@ -113,8 +114,9 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
-      //server.verify(1, getRequestedFor(urlEqualTo(pertaxUrl)))
+      server.verify(1, getRequestedFor(urlEqualTo(pertaxUrl)))
       server.verify(1, getRequestedFor(urlEqualTo(s"/citizen-details/nino/$generatedHelperNino")))
+      server.verify(1, getRequestedFor(urlEqualTo(authUrl)))
 
     }
   }

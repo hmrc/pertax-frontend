@@ -71,6 +71,7 @@ class SelfAssessmentStatusAction @Inject() (
     getSelfAssessmentUserType(hc, request).map { saType =>
       Right(
         UserRequest(
+          request.authNino,
           request.nino,
           request.name,
           saType,

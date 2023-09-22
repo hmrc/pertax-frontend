@@ -23,6 +23,7 @@ import models.PertaxResponse
 import play.api.Logging
 import play.api.http.HeaderNames
 import play.api.mvc.RequestHeader
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpException, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
@@ -39,12 +40,12 @@ class PertaxConnector @Inject() (
   private val pertaxUrl = configDecorator.pertaxUrl
 
   def pertaxAuthorise(
-    nino: String
+    nino: Nino
   )(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, PertaxResponse] =
     httpClientResponse
       .read(
         httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
-          s"$pertaxUrl/pertax/$nino/authorise",
+          s"$pertaxUrl/pertax/${nino.nino}/authorise",
           headers = Seq((HeaderNames.ACCEPT, "application/vnd.hmrc.1.0+json"))
         )
       )
