@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import models.OverpaidStatus._
 import models.UnderpaidStatus._
 import models._
-import models.admin.FeatureFlag
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import viewmodels.Message.text
 
 case class TaxCalculationViewModel(

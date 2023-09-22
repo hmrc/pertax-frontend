@@ -2,7 +2,7 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, put, urlEqualTo, urlMatching, urlPathMatching}
-import models.admin.{FeatureFlag, SCAWrapperToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, SCAWrapperToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -15,6 +15,7 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
 import java.util.UUID
@@ -177,6 +178,9 @@ class ContentsCheckSpec extends IntegrationSpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
       FeatureFlag(SCAWrapperToggle, true)
     )
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle))) thenReturn Future.successful(
+      FeatureFlag(BreathingSpaceIndicatorToggle, true)
+    )
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
@@ -229,7 +233,6 @@ class ContentsCheckSpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled"                     -> true,
       "feature.breathing-space-indicator.timeoutInSec"                -> 4,
       "microservice.services.taxcalc.port"                            -> server.port(),
       "microservice.services.tai.port"                                -> server.port(),

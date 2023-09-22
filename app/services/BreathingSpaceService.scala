@@ -18,38 +18,41 @@ package services
 
 import cats.implicits._
 import com.google.inject.Inject
-import config.ConfigDecorator
 import connectors.BreathingSpaceConnector
 import models.BreathingSpaceIndicatorResponse
+import models.admin.BreathingSpaceIndicatorToggle
 import play.api.http.Status._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class BreathingSpaceService @Inject() (
-  configDecorator: ConfigDecorator,
-  breathingSpaceConnector: BreathingSpaceConnector
+  breathingSpaceConnector: BreathingSpaceConnector,
+  featureFlagService: FeatureFlagService
 ) {
 
   def getBreathingSpaceIndicator(
     ninoOpt: Option[Nino]
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[BreathingSpaceIndicatorResponse] =
-    if (configDecorator.isBreathingSpaceIndicatorEnabled) {
-      ninoOpt match {
-        case Some(nino) =>
-          breathingSpaceConnector
-            .getBreathingSpaceIndicator(nino)
-            .fold(
-              errorResponse => breathingSpaceIndicatorResponseForErrorResponse(errorResponse),
-              breathingSpaceIndicator => BreathingSpaceIndicatorResponse.fromBoolean(breathingSpaceIndicator)
-            )
-            .recover { case _ => BreathingSpaceIndicatorResponse.StatusUnknown }
-        case _          => Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)
+    featureFlagService.get(BreathingSpaceIndicatorToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        ninoOpt match {
+          case Some(nino) =>
+            breathingSpaceConnector
+              .getBreathingSpaceIndicator(nino)
+              .fold(
+                errorResponse => breathingSpaceIndicatorResponseForErrorResponse(errorResponse),
+                breathingSpaceIndicator => BreathingSpaceIndicatorResponse.fromBoolean(breathingSpaceIndicator)
+              )
+              .recover { case _ => BreathingSpaceIndicatorResponse.StatusUnknown }
+          case _          => Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)
+        }
+      } else {
+        Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)
       }
-    } else {
-      Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)
     }
 
   private def breathingSpaceIndicatorResponseForErrorResponse(

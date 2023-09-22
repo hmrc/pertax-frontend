@@ -24,7 +24,7 @@ import controllers.controllershelpers.CountryHelper
 import models._
 import models.admin.AppleSaveAndViewNIToggle
 import play.twirl.api.HtmlFormat
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
 import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}

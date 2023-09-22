@@ -2,7 +2,7 @@ package address
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
-import models.admin.{FeatureFlag, HmrcAccountToggle}
+import models.admin.{AgentClientAuthorisationToggle, HmrcAccountToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -14,6 +14,7 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -65,6 +66,8 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(HmrcAccountToggle)))
       .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientAuthorisationToggle)))
+      .thenReturn(Future.successful(FeatureFlag(AgentClientAuthorisationToggle, true)))
   }
 
   val url       = s"/personal-account/profile-and-settings"

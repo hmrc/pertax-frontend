@@ -2,7 +2,7 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag}
+import models.admin.AddressTaxCreditsBrokerCallToggle
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -14,6 +14,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.{SessionId, SessionKeys}
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
 

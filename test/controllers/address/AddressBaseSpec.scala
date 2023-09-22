@@ -25,7 +25,6 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models._
 import models.addresslookup.RecordSet
-import models.admin.{FeatureFlag, NpsOutageToggle}
 import models.dto.{AddressDto, Dto}
 import org.mockito.ArgumentMatchers.any
 import play.api.http.Status.NO_CONTENT
@@ -184,7 +183,5 @@ trait AddressBaseSpec extends BaseSpec {
           ).asInstanceOf[UserRequest[A]]
         )
     })
-
-    when(mockFeatureFlagService.get(NpsOutageToggle)).thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
   }
 }

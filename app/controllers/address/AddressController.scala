@@ -24,7 +24,7 @@ import controllers.auth.requests.UserRequest
 import models.PersonDetails
 import models.admin.NpsOutageToggle
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView

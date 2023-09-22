@@ -21,12 +21,11 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, FakeAuthJourney}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
-import models.admin.{FeatureFlag, SCAWrapperToggle}
-import models.admin.FeatureFlagName.allFeatureFlags
+import models.admin._
 import models.dto.AddressDto
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentMatchers, MockitoSugar}
-import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.{BeforeAndAfterEach, Suite}
@@ -39,11 +38,12 @@ import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers, Injecting}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
-import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import java.time.temporal.ChronoField
 import java.time.{Instant, LocalDate}
@@ -326,10 +326,10 @@ trait BaseSpec
     extends AnyWordSpec
     with GuiceOneAppPerSuite
     with Matchers
-    with PatienceConfiguration
     with BeforeAndAfterEach
     with MockitoSugar
     with ScalaFutures
+    with IntegrationPatience
     with Injecting {
   this: Suite =>
 
@@ -379,7 +379,7 @@ trait BaseSpec
   override def beforeEach(): Unit = {
     super.beforeEach()
     org.mockito.MockitoSugar.reset(mockFeatureFlagService)
-    allFeatureFlags.foreach { flag =>
+    AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, false)))
     }

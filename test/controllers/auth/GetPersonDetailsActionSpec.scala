@@ -19,24 +19,23 @@ package controllers.auth
 import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.admin.{FeatureFlag, NpsOutageToggle, SCAWrapperToggle}
+import models.admin.{NpsOutageToggle, SCAWrapperToggle}
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.CitizenDetailsService
-import services.admin.FeatureFlagService
 import services.partials.MessageFrontendService
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
 
@@ -46,11 +45,10 @@ class GetPersonDetailsActionSpec extends BaseSpec {
   val mockCitizenDetailsService        = mock[CitizenDetailsService]
   val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
-  override lazy val app: Application = GuiceApplicationBuilder()
+  override lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
     .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
     .overrides(bind[ConfigDecorator].toInstance(configDecorator))
-    .overrides(bind[FeatureFlagService].toInstance(mockFeatureFlagService))
     .configure(Map("metrics.enabled" -> false))
     .build()
 
@@ -103,9 +101,6 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     "a user has PersonDetails in CitizenDetails" must {
 
       "add the PersonDetails to the request" in {
-        when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
-
         when(mockCitizenDetailsService.personDetails(any())(any(), any()))
           .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
 
@@ -154,10 +149,6 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     "when the person details message count toggle is set to true" must {
       "return a request with the unread message count" when {
         "SCA wrapper toggle is false" in {
-
-          when(mockFeatureFlagService.get(NpsOutageToggle))
-            .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
-
           when(mockFeatureFlagService.get(SCAWrapperToggle))
             .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
