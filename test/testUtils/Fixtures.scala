@@ -38,7 +38,7 @@ import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers, Injecting}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
-import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper

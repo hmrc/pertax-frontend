@@ -1,7 +1,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{FeatureFlag, PertaxBackendToggle}
+import models.admin.PertaxBackendToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -12,6 +12,7 @@ import play.api.test.FakeRequest
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
 import scala.annotation.tailrec
@@ -116,6 +117,7 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
       httpStatus(result) mustBe OK
       server.verify(1, getRequestedFor(urlEqualTo(pertaxUrl)))
       server.verify(1, getRequestedFor(urlEqualTo(s"/citizen-details/nino/$generatedHelperNino")))
+
     }
   }
 }
