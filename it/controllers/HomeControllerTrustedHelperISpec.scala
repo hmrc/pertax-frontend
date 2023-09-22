@@ -116,8 +116,6 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
       httpStatus(result) mustBe OK
       server.verify(1, getRequestedFor(urlEqualTo(pertaxUrl)))
       server.verify(1, getRequestedFor(urlEqualTo(s"/citizen-details/nino/$generatedHelperNino")))
-      server.verify(1, getRequestedFor(urlEqualTo(authUrl)))
-
     }
   }
 }

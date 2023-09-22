@@ -49,13 +49,13 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
   override implicit lazy val app: Application = GuiceApplicationBuilder().build()
 
-  private val configDecorator: ConfigDecorator = mock[ConfigDecorator]
-  private val mockPertaxConnector              = mock[PertaxConnector]
-  val internalServerErrorView                  = app.injector.instanceOf[InternalServerErrorView]
-  val mainView                                 = app.injector.instanceOf[MainView]
-  private val cc                               = app.injector.instanceOf[ControllerComponents]
-  val messagesApi                              = inject[MessagesApi]
-  implicit lazy val messages: Messages         = MessagesImpl(Lang("en"), messagesApi).messages
+  private val configDecorator: ConfigDecorator         = mock[ConfigDecorator]
+  private val mockPertaxConnector                      = mock[PertaxConnector]
+  val internalServerErrorView: InternalServerErrorView = app.injector.instanceOf[InternalServerErrorView]
+  val mainView: MainView                               = app.injector.instanceOf[MainView]
+  private val cc                                       = app.injector.instanceOf[ControllerComponents]
+  val messagesApi: MessagesApi                         = inject[MessagesApi]
+  implicit lazy val messages: Messages                 = MessagesImpl(Lang("en"), messagesApi).messages
 
   val pertaxAuthAction =
     new PertaxAuthAction(
@@ -73,6 +73,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
   private val fakeRequest             = FakeRequest("GET", "/personal-account")
   val expectedRequest: UserRequest[_] =
     UserRequest(
+      Fixtures.fakeNino,
       Some(Fixtures.fakeNino),
       None,
       WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -167,36 +168,6 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
         when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
           FeatureFlag(PertaxBackendToggle, isEnabled = false)
-        )
-
-        val result = pertaxAuthAction.refine(expectedRequest).futureValue
-
-        result mustBe a[Right[_, _]]
-        result must be(Right(expectedRequest))
-      }
-    }
-
-    "the request has no nino" must {
-      "return success and the expected request" in {
-
-        val expectedRequest: UserRequest[_] =
-          UserRequest(
-            None,
-            None,
-            WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-            Credentials("", "GovernmentGateway"),
-            ConfidenceLevel.L50,
-            None,
-            None,
-            Set(),
-            None,
-            None,
-            None,
-            fakeRequest
-          )
-
-        when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-          FeatureFlag(PertaxBackendToggle, isEnabled = true)
         )
 
         val result = pertaxAuthAction.refine(expectedRequest).futureValue

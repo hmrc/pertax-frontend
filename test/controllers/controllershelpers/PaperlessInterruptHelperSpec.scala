@@ -47,12 +47,13 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
     )
     .build()
 
-  lazy val paperlessInterruptHelper         = app.injector.instanceOf[PaperlessInterruptHelper]
-  lazy val mockPreferencesFrontendConnector = mock[PreferencesFrontendConnector]
+  lazy val paperlessInterruptHelper: PaperlessInterruptHelper             = app.injector.instanceOf[PaperlessInterruptHelper]
+  lazy val mockPreferencesFrontendConnector: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
 
   val okBlock: Result = Ok("Block")
 
   implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+    Fixtures.fakeNino,
     Some(Fixtures.fakeNino),
     Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     NonFilerSelfAssessmentUser,
@@ -73,7 +74,7 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
     "the enforce paperless preference toggle is set to true" must {
       "Redirect to paperless interrupt page for a user who has no enrolments" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))
 
         when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn {
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
@@ -90,7 +91,7 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
 
       "return the result of a passed in block" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = false)))
 
         when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn {
           EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
@@ -102,7 +103,7 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
 
       "Return the result of the block when getPaperlessPreference does not return Right" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))
 
         when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn {
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
@@ -118,7 +119,7 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
     "the enforce paperless preference toggle is set to false" must {
       "return the result of a passed in block" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = false)))
 
         val result = paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock))
         result.futureValue mustBe okBlock

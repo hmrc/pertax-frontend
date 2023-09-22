@@ -22,22 +22,22 @@ import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
-//import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Nino, SaUtrGenerator}
 
 class AuthenticatedRequestSpec extends BaseSpec {
 
-  val utr                 = new SaUtrGenerator().nextSaUtr.utr
-  val fakeCredentials     = Credentials("foo", "bar")
-  val fakeConfidenceLevel = ConfidenceLevel.L200
-  val saEnrolments        = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
-  val userName            = Some(UserName(Name(Some("Firstname"), Some("Lastname"))))
+  val utr: String                          = new SaUtrGenerator().nextSaUtr.utr
+  val fakeCredentials: Credentials         = Credentials("foo", "bar")
+  val fakeConfidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
+  val saEnrolments: Set[Enrolment]         = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
+  val userName: Option[UserName]           = Some(UserName(Name(Some("Firstname"), Some("Lastname"))))
 
   val nino: Nino = uk.gov.hmrc.domain.Nino("AA123456A")
 
   def authenticatedRequest(): AuthenticatedRequest[AnyContent] = AuthenticatedRequest[AnyContent](
+    authNino = nino,
     nino = Some(nino),
     credentials = fakeCredentials,
     confidenceLevel = fakeConfidenceLevel,
