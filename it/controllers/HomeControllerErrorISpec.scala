@@ -1,7 +1,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{FeatureFlag, SingleAccountCheckToggle}
+import models.admin.SingleAccountCheckToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -13,6 +13,7 @@ import play.api.test.Helpers.{GET, defaultAwaitTimeout, redirectLocation, route,
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.time.LocalDateTime
 import java.util.UUID

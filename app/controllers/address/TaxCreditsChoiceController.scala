@@ -27,7 +27,7 @@ import models.dto.TaxCreditsChoiceDto
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.{LocalSessionCache, TaxCreditsService}
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView

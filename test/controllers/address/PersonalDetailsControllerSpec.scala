@@ -18,7 +18,7 @@ package controllers.address
 
 import controllers.controllershelpers.RlsInterruptHelper
 import models.PersonDetails
-import models.admin.{FeatureFlag, HmrcAccountToggle, RlsInterruptToggle}
+import models.admin.{HmrcAccountToggle, RlsInterruptToggle}
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => meq}
@@ -29,6 +29,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import viewmodels.PersonalDetailsViewModel
 import views.html.personaldetails.PersonalDetailsView
 

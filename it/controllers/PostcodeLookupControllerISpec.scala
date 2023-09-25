@@ -2,7 +2,7 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
-import models.admin.{FeatureFlag, SingleAccountCheckToggle, TaxComponentsToggle}
+import models.admin.{SingleAccountCheckToggle, TaxComponentsToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -13,6 +13,7 @@ import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, route, writ
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
 

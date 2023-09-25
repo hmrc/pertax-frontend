@@ -19,9 +19,10 @@ package viewmodels
 import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
 import models._
-import models.admin.{FeatureFlag, TaxcalcMakePaymentLinkToggle}
+import models.admin.TaxcalcMakePaymentLinkToggle
 import org.jsoup.nodes.Document
 import testUtils.BetterOptionValues
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.language.LanguageUtils
 import views.html.ViewSpec
 import views.html.cards.home.TaxCalculationView

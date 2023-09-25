@@ -21,12 +21,11 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, FakeAuthJourney}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
-import models.admin.FeatureFlagName.allFeatureFlags
-import models.admin.{FeatureFlag, SCAWrapperToggle}
+import models.admin._
 import models.dto.AddressDto
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentMatchers, MockitoSugar}
-import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.{BeforeAndAfterEach, Suite}
@@ -39,10 +38,11 @@ import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers, Injecting}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
-import services.admin.FeatureFlagService
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.FormPartialRetriever
 
 import java.time.temporal.ChronoField
@@ -52,7 +52,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 trait PafFixtures {
-  val exampleCountryUK: Country    = Country("UK", "United Kingdom")
+  val exampleCountryUK: Country = Country("UK", "United Kingdom")
   val subDivision: Option[Country] = Some(Country("GB-ENG", "England"))
 
   val fakeStreetPafAddressRecord: AddressRecord = AddressRecord(
@@ -68,7 +68,7 @@ trait PafFixtures {
     "en"
   )
 
-  val oneOtherPlacePafAddress: PafAddress               =
+  val oneOtherPlacePafAddress: PafAddress =
     PafAddress(
       List("2 Other Place", "Some District"),
       Some("Anytown"),
@@ -77,7 +77,7 @@ trait PafFixtures {
       subDivision,
       exampleCountryUK
     )
-  val twoOtherPlacePafAddress: PafAddress               =
+  val twoOtherPlacePafAddress: PafAddress =
     PafAddress(
       List("3 Other Place", "Some District"),
       Some("Anytown"),
@@ -96,8 +96,8 @@ trait PafFixtures {
       exampleCountryUK
     )
 
-  val oneOtherPlacePafAddressRecord: AddressRecord               = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
-  val twoOtherPlacePafAddressRecord: AddressRecord               = AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
+  val oneOtherPlacePafAddressRecord: AddressRecord = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
+  val twoOtherPlacePafAddressRecord: AddressRecord = AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
   val otherPlacePafDifferentPostcodeAddressRecord: AddressRecord =
     AddressRecord("GB990091234516", otherPlacePafDifferentPostcodeAddress, "en")
 
@@ -125,8 +125,7 @@ trait TaiFixtures {
 }
 
 trait TaxCalculationFixtures {
-  def buildTaxCalculation: TaxCalculation =
-    TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
+  def buildTaxCalculation: TaxCalculation = TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
 
   def buildTaxYearReconciliations: List[TaxYearReconciliation] =
     List(TaxYearReconciliation(2015, Balanced), TaxYearReconciliation(2016, Balanced))
@@ -252,7 +251,7 @@ trait CitizenDetailsFixtures {
     ("postcode", "AA11AA")
   )
 
-  def fakeStreetTupleListAddressForManualyEntered: List[(String, String)] = List(
+  def fakeStreetTupleListAddressForManuallyEntered: List[(String, String)] = List(
     ("line1", "1 Fake Street"),
     ("line2", "Fake Town"),
     ("line3", "Fake City"),
@@ -292,9 +291,9 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
     FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
 
   def buildFakeRequestWithAuth(
-    method: String,
-    uri: String = "/personal-account"
-  ): FakeRequest[AnyContentAsEmpty.type] = {
+                                method: String,
+                                uri: String = "/personal-account"
+                              ): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> Instant.now().get(ChronoField.MILLI_OF_SECOND).toString
@@ -323,13 +322,13 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 }
 
 trait BaseSpec
-    extends AnyWordSpec
+  extends AnyWordSpec
     with GuiceOneAppPerSuite
     with Matchers
-    with PatienceConfiguration
     with BeforeAndAfterEach
     with MockitoSugar
     with ScalaFutures
+    with IntegrationPatience
     with Injecting {
   this: Suite =>
 
@@ -354,9 +353,9 @@ trait BaseSpec
   val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   protected def localGuiceApplicationBuilder(
-    saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
-    personDetails: Option[PersonDetails] = None
-  ): GuiceApplicationBuilder =
+                                              saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
+                                              personDetails: Option[PersonDetails] = None
+                                            ): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
@@ -375,7 +374,7 @@ trait BaseSpec
   override def beforeEach(): Unit = {
     super.beforeEach()
     org.mockito.MockitoSugar.reset(mockFeatureFlagService)
-    allFeatureFlags.foreach { flag =>
+    AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
     }

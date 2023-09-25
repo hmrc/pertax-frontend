@@ -2,7 +2,7 @@ package address
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
-import models.admin.{FeatureFlag, HmrcAccountToggle}
+import models.admin.{AgentClientAuthorisationToggle, HmrcAccountToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -14,6 +14,7 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -22,30 +23,30 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
   val designatoryDetails: String =
     s"""|
        |{
-       |  "etag" : "115",
-       |  "person" : {
-       |    "firstName" : "HIPPY",
-       |    "middleName" : "T",
-       |    "lastName" : "NEWYEAR",
-       |    "title" : "Mr",
-       |    "honours": "BSC",
-       |    "sex" : "M",
-       |    "dateOfBirth" : "1952-04-01",
-       |    "nino" : "$generatedNino",
-       |    "deceased" : false
-       |  },
-       |  "address" : {
-       |    "line1" : "26 FARADAY DRIVE",
-       |    "line2" : "PO BOX 45",
-       |    "line3" : "LONDON",
-       |    "postcode" : "CT1 1RQ",
-       |    "startDate": "2009-08-29",
-       |    "country" : "GREAT BRITAIN",
-       |    "type" : "Residential",
-       |    "status": 0
-       |  }
-       |}
-       |""".stripMargin
+        |  "etag" : "115",
+        |  "person" : {
+        |    "firstName" : "HIPPY",
+        |    "middleName" : "T",
+        |    "lastName" : "NEWYEAR",
+        |    "title" : "Mr",
+        |    "honours": "BSC",
+        |    "sex" : "M",
+        |    "dateOfBirth" : "1952-04-01",
+        |    "nino" : "$generatedNino",
+        |    "deceased" : false
+        |  },
+        |  "address" : {
+        |    "line1" : "26 FARADAY DRIVE",
+        |    "line2" : "PO BOX 45",
+        |    "line3" : "LONDON",
+        |    "postcode" : "CT1 1RQ",
+        |    "startDate": "2009-08-29",
+        |    "country" : "GREAT BRITAIN",
+        |    "type" : "Residential",
+        |    "status": 0
+        |  }
+        |}
+        |""".stripMargin
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
@@ -65,6 +66,8 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(HmrcAccountToggle)))
       .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, isEnabled = false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientAuthorisationToggle)))
+      .thenReturn(Future.successful(FeatureFlag(AgentClientAuthorisationToggle, isEnabled = true)))
   }
 
   val url       = s"/personal-account/profile-and-settings"

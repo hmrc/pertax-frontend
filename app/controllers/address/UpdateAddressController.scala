@@ -24,7 +24,7 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.{AddressDto, DateDto}
 import models.{SubmittedAddressDtoId, SubmittedStartDateId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView

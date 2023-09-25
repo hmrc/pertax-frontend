@@ -32,11 +32,11 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
   lazy val viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView = inject[ViewSaAndItsaMergePageView]
 
-  lazy implicit val configDecorator: ConfigDecorator            = inject[ConfigDecorator]
+  lazy implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
   val nextDeadlineTaxYear: String = (current.currentYear + 1).toString
-  val saUtr: SaUtr                = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   trait SelfAssessmentLocalSetup {
 
@@ -49,13 +49,13 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
     def selfAssessmentDoc: Document = asDocument(
       viewSaAndItsaMergePageView(
-        nextDeadlineTaxYear = nextDeadlineTaxYear,
+        nextDeadlineTaxYear,
         isItsa = false,
         isSa = true,
         itsaToggle = true,
         isSeiss = false,
-        taxYear = previousAndCurrentTaxYear,
-        saActionNeeded = user
+        previousAndCurrentTaxYear,
+        user
       ).toString
     )
   }
@@ -67,13 +67,13 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewSaAndItsaMergePageView(
-            nextDeadlineTaxYear = nextDeadlineTaxYear,
+            nextDeadlineTaxYear,
             isItsa = true,
             isSa = false,
             itsaToggle = true,
             isSeiss = false,
-            taxYear = previousAndCurrentTaxYear,
-            saActionNeeded = userRequest.saUserType
+            previousAndCurrentTaxYear,
+            userRequest.saUserType
           ).toString
         )
 
@@ -95,13 +95,13 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
         val doc =
           asDocument(
             viewSaAndItsaMergePageView(
-              nextDeadlineTaxYear = nextDeadlineTaxYear,
+              nextDeadlineTaxYear,
               isItsa = false,
               isSa = true,
               itsaToggle = true,
               isSeiss = false,
-              taxYear = previousAndCurrentTaxYear,
-              saActionNeeded = userRequest.saUserType
+              previousAndCurrentTaxYear,
+              userRequest.saUserType
             ).toString
           )
 
@@ -200,13 +200,13 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewSaAndItsaMergePageView(
-            nextDeadlineTaxYear = nextDeadlineTaxYear,
+            nextDeadlineTaxYear,
             isItsa = false,
             isSa = false,
             itsaToggle = true,
             isSeiss = true,
-            taxYear = previousAndCurrentTaxYear,
-            saActionNeeded = userRequest.saUserType
+            previousAndCurrentTaxYear,
+            userRequest.saUserType
           ).toString
         )
 
@@ -224,13 +224,13 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewSaAndItsaMergePageView(
-            nextDeadlineTaxYear = nextDeadlineTaxYear,
+            nextDeadlineTaxYear,
             isItsa = true,
             isSa = true,
             itsaToggle = true,
             isSeiss = true,
-            taxYear = previousAndCurrentTaxYear,
-            saActionNeeded = ActivatedOnlineFilerSelfAssessmentUser(saUtr)
+            previousAndCurrentTaxYear,
+            ActivatedOnlineFilerSelfAssessmentUser(saUtr)
           ).toString
         )
 
@@ -263,13 +263,13 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewSaAndItsaMergePageView(
-            nextDeadlineTaxYear = nextDeadlineTaxYear,
+            nextDeadlineTaxYear,
             isItsa = false,
             isSa = true,
             itsaToggle = false,
             isSeiss = true,
-            taxYear = previousAndCurrentTaxYear,
-            saActionNeeded = userRequest.saUserType
+            previousAndCurrentTaxYear,
+            userRequest.saUserType
           ).toString
         )
 
@@ -292,13 +292,13 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewSaAndItsaMergePageView(
-            nextDeadlineTaxYear = nextDeadlineTaxYear,
+            nextDeadlineTaxYear,
             isItsa = true,
             isSa = true,
             itsaToggle = true,
             isSeiss = true,
-            taxYear = previousAndCurrentTaxYear,
-            saActionNeeded = NotEnrolledSelfAssessmentUser(saUtr)
+            previousAndCurrentTaxYear,
+            NotEnrolledSelfAssessmentUser(saUtr)
           ).toString
         )
 

@@ -25,7 +25,7 @@ import models.admin._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import util.DateTimeTools.current
 import util.EnrolmentsHelper

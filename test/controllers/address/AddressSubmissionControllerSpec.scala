@@ -361,7 +361,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "residentialSubmittedAddressDto"   -> Json.toJson(
-                asAddressDto(fakeStreetTupleListAddressForManualyEntered)
+                asAddressDto(fakeStreetTupleListAddressForManuallyEntered)
               ),
               "residentialSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )

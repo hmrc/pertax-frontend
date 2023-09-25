@@ -22,48 +22,48 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{AppleSaveAndViewNIToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import models.admin.{AppleSaveAndViewNIToggle, BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
 import services.SeissService
-import services.admin.FeatureFlagService
 import services.partials.{FormPartialService, SaPartialService}
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
-import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
+import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
 class InterstitialController @Inject() (
-  val formPartialService: FormPartialService,
-  val saPartialService: SaPartialService,
-  authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction,
-  cc: MessagesControllerComponents,
-  errorRenderer: ErrorRenderer,
-  viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
-  viewChildBenefitsSummarySingleAccountInterstitialView: ViewChildBenefitsSummarySingleAccountInterstitialView,
-  selfAssessmentSummaryView: SelfAssessmentSummaryView,
-  sa302InterruptView: Sa302InterruptView,
-  viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
-  viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
-  viewBreathingSpaceView: ViewBreathingSpaceView,
-  npsShutteringView: NpsShutteringView,
-  taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
-  enrolmentsHelper: EnrolmentsHelper,
-  seissService: SeissService,
-  newsAndTilesConfig: NewsAndTilesConfig,
-  featureFlagService: FeatureFlagService
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends PertaxBaseController(cc)
+                                         val formPartialService: FormPartialService,
+                                         val saPartialService: SaPartialService,
+                                         authJourney: AuthJourney,
+                                         withBreadcrumbAction: WithBreadcrumbAction,
+                                         cc: MessagesControllerComponents,
+                                         errorRenderer: ErrorRenderer,
+                                         viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
+                                         viewChildBenefitsSummarySingleAccountInterstitialView: ViewChildBenefitsSummarySingleAccountInterstitialView,
+                                         selfAssessmentSummaryView: SelfAssessmentSummaryView,
+                                         sa302InterruptView: Sa302InterruptView,
+                                         viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
+                                         viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
+                                         viewBreathingSpaceView: ViewBreathingSpaceView,
+                                         npsShutteringView: NpsShutteringView,
+                                         taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
+                                         enrolmentsHelper: EnrolmentsHelper,
+                                         seissService: SeissService,
+                                         newsAndTilesConfig: NewsAndTilesConfig,
+                                         featureFlagService: FeatureFlagService
+                                       )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+  extends PertaxBaseController(cc)
     with Logging {
 
-  private val saBreadcrumb: Breadcrumb =
+  val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
   private val authenticate: ActionBuilder[UserRequest, AnyContent]   =
@@ -112,7 +112,7 @@ class InterstitialController @Inject() (
 
     if (
       request.trustedHelper.isEmpty &&
-      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
+        (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       for {
         hasSeissClaims    <- seissService.hasClaims(saUserType)
@@ -186,11 +186,13 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displayBreathingSpaceDetails: Action[AnyContent] = authenticate { implicit request =>
-    if (configDecorator.isBreathingSpaceIndicatorEnabled) {
-      Ok(viewBreathingSpaceView())
-    } else {
-      errorRenderer.error(UNAUTHORIZED)
+  def displayBreathingSpaceDetails: Action[AnyContent] = authenticate.async { implicit request =>
+    featureFlagService.get(BreathingSpaceIndicatorToggle).flatMap { featureFlag =>
+      if (featureFlag.isEnabled) {
+        Future.successful(Ok(viewBreathingSpaceView()))
+      } else {
+        Future.successful(errorRenderer.error(UNAUTHORIZED))
+      }
     }
   }
 
