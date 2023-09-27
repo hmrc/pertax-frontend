@@ -16,4 +16,4 @@
 ->         /pertax-frontend/  mongoFeatureTogglesTestOnly.Routes
 ->         /personal-account/  mongoFeatureTogglesTestOnly.Routes
 
-PUT         /personal-account/test-only/setDefaultFlags  controllers.testOnly.FeatureFlagsController.setDefaults
+PUT         /personal-account/test-only/setDefaultFlags  controllers.testOnly.FeatureFlagsController.setDefaults()
