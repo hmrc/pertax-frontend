@@ -56,6 +56,36 @@ class ConfigDecoratorSpec extends BaseSpec {
       "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax"
   }
 
+  "checking the lang in the tax return url" when {
+    "checking for English completeYourTaxReturn url" in {
+      val taxYear         = "2020"
+      lazy val lang: Lang = Lang("en")
+      config.completeYourTaxReturnUrl(saUtr, taxYear, lang) mustBe
+        s"https://localhost/self-assessment-file/2020/ind/$saUtr/return?lang=eng"
+    }
+
+    "checking for Welsh completeYourTaxReturn url" in {
+      val taxYear         = "2020"
+      lazy val lang: Lang = Lang("cym")
+      config.completeYourTaxReturnUrl(saUtr, taxYear, lang) mustBe
+        s"https://localhost/self-assessment-file/2020/ind/$saUtr/return?lang=cym"
+    }
+  }
+
+  "checking the lang in the view sa payments url" when {
+    "checking for English viewSaPayments url" in {
+      lazy val lang: Lang = Lang("en")
+      config.viewSaPaymentsUrl(saUtr, lang) mustBe
+        s"/self-assessment/ind/$saUtr/account/payments?lang=eng"
+    }
+
+    "checking for Welsh viewSaPayments url" in {
+      lazy val lang: Lang = Lang("cym")
+      config.viewSaPaymentsUrl(saUtr, lang) mustBe
+        s"/self-assessment/ind/$saUtr/account/payments?lang=cym"
+    }
+  }
+
   "Calling toPortalUrl" must {
 
     trait LocalSetup {
@@ -64,7 +94,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       lazy val configDecorator: ConfigDecorator =
         new ConfigDecorator(injected[Configuration], injected[ServicesConfig]) {
-          override lazy val portalBaseUrl = portalBaseUrlToTest.getOrElse("")
+          override lazy val portalBaseUrl: String = portalBaseUrlToTest.getOrElse("")
         }
     }
 

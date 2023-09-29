@@ -31,6 +31,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
 import play.api.test.Helpers.{redirectLocation, _}
 import play.api.test.{FakeHeaders, FakeRequest}
+import services.partials.MessageFrontendService
 import testUtils.RetrievalOps._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
@@ -57,6 +58,8 @@ class AuthActionSpec extends BaseSpec {
   val enrolmentsHelper: EnrolmentsHelper         = app.injector.instanceOf[EnrolmentsHelper]
   val sessionAuditor                             =
     new SessionAuditorFake(app.injector.instanceOf[AuditConnector], enrolmentsHelper)
+
+  val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
 
   class Harness(authAction: AuthAction) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -124,10 +127,10 @@ class AuthActionSpec extends BaseSpec {
     new Harness(authAction)
   }
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
   }
 
   val ivRedirectUrl =
