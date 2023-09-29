@@ -14,11 +14,15 @@
  * limitations under the License.
  *@
 
-@this()
-@(scripts: Option[Html])
+@import views.html.helper.CSPNonce
 
-    <script src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
-    <script src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
-    <script src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
+@this()
+
+@(scripts: Option[Html])(implicit request: Request[_])
+
+
+    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
+    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
+    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
     @scripts
 
