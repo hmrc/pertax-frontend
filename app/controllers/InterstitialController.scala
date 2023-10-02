@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{AppleSaveAndViewNIToggle, BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import models.admin.{AppleSaveAndViewNIToggle, BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, ShowNpsOutageBannerToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -202,7 +202,7 @@ class InterstitialController @Inject() (
   }
 
   def displayNpsShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>
-    featureFlagService.get(NpsShutteringToggle).flatMap { featureFlag =>
+    featureFlagService.get(ShowNpsOutageBannerToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {
         Future.successful(Ok(npsShutteringView()))
       } else {

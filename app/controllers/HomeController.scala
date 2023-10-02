@@ -24,7 +24,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
-import models.admin.{NpsShutteringToggle, TaxComponentsToggle, TaxcalcToggle}
+import models.admin.{ShowNpsOutageBannerToggle, TaxComponentsToggle, TaxcalcToggle}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
@@ -89,7 +89,7 @@ class HomeController @Inject() (
                                                                                                  taxCalculationStateCyMinusOne,
                                                                                                  taxCalculationStateCyMinusTwo
                                                                                                )
-            shutteringMessaging                                                             <- featureFlagService.get(NpsShutteringToggle)
+            shutteringMessaging                                                             <- featureFlagService.get(ShowNpsOutageBannerToggle)
 
           } yield {
 

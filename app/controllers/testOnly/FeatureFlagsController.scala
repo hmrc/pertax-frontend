@@ -31,7 +31,7 @@ class FeatureFlagsController @Inject() (
 )(implicit ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
-  def setDefaults: Action[AnyContent] = Action.async {
+  def setDefaults(): Action[AnyContent] = Action.async {
     featureFlagService
       .setAll(
         Map(
@@ -51,8 +51,10 @@ class FeatureFlagsController @Inject() (
           AgentClientAuthorisationToggle    -> true,
           BreathingSpaceIndicatorToggle     -> true,
           TaxcalcMakePaymentLinkToggle      -> true,
-          NpsShutteringToggle               -> false,
-          NpsOutageToggle                   -> false
+          ShowNpsOutageBannerToggle         -> false,
+          AddressJourneyEnforcerToggle      -> true,
+          GetPersonFromCitizenDetailsToggle -> true,
+          DfsDigitalFormFrontendShuttered   -> false
         )
       )
       .map(_ => Ok("Default flags set"))

@@ -18,7 +18,7 @@ package controllers.address
 
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import models.admin.NpsOutageToggle
+import models.admin.AddressJourneyEnforcerToggle
 import play.api.mvc.Request
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
@@ -45,8 +45,8 @@ class AddressControllerSpec extends AddressBaseSpec {
 
       "a nino and person details are present in the request" in {
 
-        when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        when(mockFeatureFlagService.get(AddressJourneyEnforcerToggle))
+          .thenReturn(Future.successful(FeatureFlag(AddressJourneyEnforcerToggle, isEnabled = true)))
 
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
@@ -66,8 +66,8 @@ class AddressControllerSpec extends AddressBaseSpec {
 
       "a nino cannot be found in the request" in {
 
-        when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        when(mockFeatureFlagService.get(AddressJourneyEnforcerToggle))
+          .thenReturn(Future.successful(FeatureFlag(AddressJourneyEnforcerToggle, isEnabled = true)))
 
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
@@ -82,8 +82,8 @@ class AddressControllerSpec extends AddressBaseSpec {
 
       "person details cannot be found in the request" in {
 
-        when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        when(mockFeatureFlagService.get(AddressJourneyEnforcerToggle))
+          .thenReturn(Future.successful(FeatureFlag(AddressJourneyEnforcerToggle, isEnabled = true)))
 
         implicit def userRequest[A]: UserRequest[A] =
           buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
@@ -100,10 +100,10 @@ class AddressControllerSpec extends AddressBaseSpec {
 
     "show the InternalServerErrorView" when {
 
-      "the NpsOutageToggle is set to true" in {
+      "the AddressJourneyEnforcerToggle is set to false" in {
 
-        when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, true)))
+        when(mockFeatureFlagService.get(AddressJourneyEnforcerToggle))
+          .thenReturn(Future.successful(FeatureFlag(AddressJourneyEnforcerToggle, isEnabled = false)))
 
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])

@@ -19,7 +19,7 @@ package models.admin
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagName
 
 object AllFeatureFlags {
-  val list = List(
+  val list: List[FeatureFlagName] = List(
     AddressTaxCreditsBrokerCallToggle,
     TaxcalcToggle,
     NationalInsuranceTileToggle,
@@ -30,14 +30,16 @@ object AllFeatureFlags {
     TaxSummariesTileToggle,
     SingleAccountCheckToggle,
     TaxcalcMakePaymentLinkToggle,
-    NpsShutteringToggle,
-    NpsOutageToggle,
+    ShowNpsOutageBannerToggle,
     AppleSaveAndViewNIToggle,
     SCAWrapperToggle,
     HmrcAccountToggle,
     AgentClientAuthorisationToggle,
     PertaxBackendToggle,
-    BreathingSpaceIndicatorToggle
+    BreathingSpaceIndicatorToggle,
+    AddressJourneyEnforcerToggle,
+    GetPersonFromCitizenDetailsToggle,
+    DfsDigitalFormFrontendShuttered
   )
 }
 
@@ -93,21 +95,14 @@ case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable direct link to make a payment on taxcalc tile")
 }
 
-case object NpsShutteringToggle extends FeatureFlagName {
-  override val name: String                = "nps-shuttering-toggle"
-  override val description: Option[String] = Some("Enable/disable the nps shuttering banner and subpage")
+case object ShowNpsOutageBannerToggle extends FeatureFlagName {
+  override val name: String                = "show-nps-outage-banner"
+  override val description: Option[String] = Some("Enable/disable the show nps outage banner")
 }
 
 case object AppleSaveAndViewNIToggle extends FeatureFlagName {
   override val name: String                = "apple-save-view-ni-toggle"
   override val description: Option[String] = Some("Enable/disable the new content for the Apple Save and View NI")
-}
-
-case object NpsOutageToggle extends FeatureFlagName {
-  override val name: String                = "nps-outage-toggle"
-  override val description: Option[String] = Some(
-    "Enable/disable calls to NPS so as not to cause errors during an NPS outage"
-  )
 }
 
 case object SCAWrapperToggle extends FeatureFlagName {
@@ -142,5 +137,26 @@ case object BreathingSpaceIndicatorToggle extends FeatureFlagName {
   override val name: String                = "breathing-space-indicator-toggle"
   override val description: Option[String] = Some(
     "Enable/disable calls to Breathing space"
+  )
+}
+
+case object AddressJourneyEnforcerToggle extends FeatureFlagName {
+  override val name: String                = "address-journey-enforcer-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable call to for address journey"
+  )
+}
+
+case object GetPersonFromCitizenDetailsToggle extends FeatureFlagName {
+  override val name: String                = "get-person-from-citizen-details-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable call to designatory-details"
+  )
+}
+
+case object DfsDigitalFormFrontendShuttered extends FeatureFlagName {
+  override val name: String                = "dfs-digital-forms-frontend-shuttered"
+  override val description: Option[String] = Some(
+    "Enable/disable indicating whether the dfs digital forms frontend is shuttered"
   )
 }
