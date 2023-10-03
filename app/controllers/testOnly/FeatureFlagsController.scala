@@ -35,26 +35,27 @@ class FeatureFlagsController @Inject() (
     featureFlagService
       .setAll(
         Map(
-          AddressTaxCreditsBrokerCallToggle -> false,
-          TaxcalcToggle                     -> true,
-          NationalInsuranceTileToggle       -> true,
-          ItsAdvertisementMessageToggle     -> true,
-          TaxComponentsToggle               -> true,
-          RlsInterruptToggle                -> true,
-          PaperlessInterruptToggle          -> false,
-          TaxSummariesTileToggle            -> true,
-          SingleAccountCheckToggle          -> false,
-          AppleSaveAndViewNIToggle          -> false,
-          PertaxBackendToggle               -> true,
-          SCAWrapperToggle                  -> true,
-          HmrcAccountToggle                 -> false,
-          AgentClientAuthorisationToggle    -> true,
-          BreathingSpaceIndicatorToggle     -> true,
-          TaxcalcMakePaymentLinkToggle      -> true,
-          ShowNpsOutageBannerToggle         -> false,
-          AddressJourneyEnforcerToggle      -> true,
-          GetPersonFromCitizenDetailsToggle -> true,
-          DfsDigitalFormFrontendShuttered   -> false
+          AddressTaxCreditsBrokerCallToggle     -> false,
+          TaxcalcToggle                         -> true,
+          NationalInsuranceTileToggle           -> true,
+          ItsAdvertisementMessageToggle         -> true,
+          TaxComponentsToggle                   -> true,
+          RlsInterruptToggle                    -> true,
+          PaperlessInterruptToggle              -> false,
+          TaxSummariesTileToggle                -> true,
+          SingleAccountCheckToggle              -> false,
+          AppleSaveAndViewNIToggle              -> false,
+          PertaxBackendToggle                   -> true,
+          SCAWrapperToggle                      -> true,
+          HmrcAccountToggle                     -> false,
+          AgentClientAuthorisationToggle        -> true,
+          BreathingSpaceIndicatorToggle         -> true,
+          TaxcalcMakePaymentLinkToggle          -> true,
+          ShowNpsOutageBannerToggle             -> false,
+          AddressJourneyEnforcerToggle          -> true,
+          GetPersonFromCitizenDetailsToggle     -> true,
+          DfsDigitalFormFrontendShutteredToggle -> false,
+          AddressChangeAllowedToggle            -> true
         )
       )
       .map(_ => Ok("Default flags set"))

@@ -18,7 +18,7 @@ package services
 
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
-import models.admin.DfsDigitalFormFrontendShuttered
+import models.admin.DfsDigitalFormFrontendShutteredToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.twirl.api.Html
@@ -50,8 +50,8 @@ class FormPartialServiceSpec extends BaseSpec {
 
     "form list for National insurance return empty" when {
       "DfsDigitalFormFrontendShuttered is enabled" in new LocalSetup {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendShuttered)))
-          .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendShuttered, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendShutteredToggle)))
+          .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendShutteredToggle, isEnabled = true)))
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
@@ -64,8 +64,8 @@ class FormPartialServiceSpec extends BaseSpec {
 
     "form list for Self-assessment return empty" when {
       "DfsDigitalFormFrontendShuttered is enabled" in new LocalSetup {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendShuttered)))
-          .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendShuttered, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendShutteredToggle)))
+          .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendShutteredToggle, isEnabled = true)))
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
@@ -77,8 +77,8 @@ class FormPartialServiceSpec extends BaseSpec {
     }
 
     "return form list for National insurance" in new LocalSetup {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendShuttered)))
-        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendShuttered, isEnabled = false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendShutteredToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendShutteredToggle, isEnabled = false)))
       when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
@@ -89,8 +89,8 @@ class FormPartialServiceSpec extends BaseSpec {
     }
 
     "return form list for Self-assessment" in new LocalSetup {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendShuttered)))
-        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendShuttered, isEnabled = false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendShutteredToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendShutteredToggle, isEnabled = false)))
       when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 

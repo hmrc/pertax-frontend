@@ -293,7 +293,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           Some(controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url)
         )
 
-        actual.mainAddress mustBe Some(expected)
+        actual.futureValue.mainAddress mustBe Some(expected)
       }
 
       "main address is defined and it has been changed" in {
@@ -312,7 +312,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           None
         )
 
-        actual.mainAddress mustBe Some(expected)
+        actual.futureValue.mainAddress mustBe Some(expected)
       }
     }
 
@@ -320,7 +320,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "person details is not defined" in {
         val request = userRequest.copy(personDetails = None)
         val actual  = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
-        actual.mainAddress.isEmpty mustBe true
+        actual.futureValue.mainAddress.isEmpty mustBe true
       }
 
       "address is not defined" in {
@@ -328,7 +328,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           exampleDetails.copy(address = None, person = examplePerson.copy(firstName = None, lastName = None))
         val request = userRequest.copy(personDetails = Some(details))
         val actual  = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
-        actual.mainAddress.isEmpty mustBe true
+        actual.futureValue.mainAddress.isEmpty mustBe true
       }
     }
 
@@ -347,7 +347,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           Some(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url)
         )
 
-        actual.postalAddress mustBe Some(expected)
+        actual.futureValue.postalAddress mustBe Some(expected)
       }
 
       "postal address is defined and it has been changed" in {
@@ -366,7 +366,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           None
         )
 
-        actual.postalAddress mustBe Some(expected)
+        actual.futureValue.postalAddress mustBe Some(expected)
       }
 
       "postal address is not defined and main address is defined" in {
@@ -384,7 +384,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           isPostalAddressSame = true
         )
 
-        actual.postalAddress mustBe Some(expectedPostalAddress)
+        actual.futureValue.postalAddress mustBe Some(expectedPostalAddress)
       }
     }
 
@@ -394,7 +394,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
         val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
 
-        actual.postalAddress.isEmpty mustBe true
+        actual.futureValue.postalAddress.isEmpty mustBe true
       }
     }
   }

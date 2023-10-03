@@ -39,7 +39,8 @@ object AllFeatureFlags {
     BreathingSpaceIndicatorToggle,
     AddressJourneyEnforcerToggle,
     GetPersonFromCitizenDetailsToggle,
-    DfsDigitalFormFrontendShuttered
+    DfsDigitalFormFrontendShutteredToggle,
+    AddressChangeAllowedToggle
   )
 }
 
@@ -154,9 +155,16 @@ case object GetPersonFromCitizenDetailsToggle extends FeatureFlagName {
   )
 }
 
-case object DfsDigitalFormFrontendShuttered extends FeatureFlagName {
-  override val name: String                = "dfs-digital-forms-frontend-shuttered"
+case object DfsDigitalFormFrontendShutteredToggle extends FeatureFlagName {
+  override val name: String                = "dfs-digital-forms-frontend-shuttered-toggle"
   override val description: Option[String] = Some(
     "Enable/disable indicating whether the dfs digital forms frontend is shuttered"
+  )
+}
+
+case object AddressChangeAllowedToggle extends FeatureFlagName {
+  override val name: String                = "address-change-allowed-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable indicating whether the address change is allowed in profile and settings page"
   )
 }

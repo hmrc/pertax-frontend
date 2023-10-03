@@ -100,11 +100,11 @@ class PersonalDetailsController @Inject() (
             _ <- cachingHelper
                    .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
+            addressDetails      <- personalDetailsViewModel.getAddressRow(addressModel)
             paperLessPreference <- personalDetailsViewModel.getPaperlessSettingsRow
             personalDetails     <- personalDetailsViewModel.getPersonDetailsTable(request.nino)
 
           } yield {
-            val addressDetails       = personalDetailsViewModel.getAddressRow(addressModel)
             val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow
             val paperlessHelpers     = paperLessPreference
             val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
