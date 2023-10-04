@@ -33,6 +33,6 @@
     @h1("label.confirm_your_identity")
     @p(Text(messages("label.before_you_continue_we_need_to_check")))
     @p(Text(messages("label.we_re_going_to_ask_you_some_security_questions")))
-    @button("global.label.continue_button", href = Some(controllers.routes.ApplicationController.uplift(redirectUrl.map(SafeRedirectUrl.apply)).url),  id="continue")
+    @button("global.label.continue_button", href = Some(controllers.routes.ApplicationController.uplift(redirectUrl.map(RedirectUrl.apply)).url),  id="continue")
 
 }

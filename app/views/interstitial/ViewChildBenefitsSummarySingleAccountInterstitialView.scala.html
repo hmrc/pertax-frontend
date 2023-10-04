@@ -91,6 +91,6 @@
             </ul>
         } else {
             @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")), classes = Some("govuk-body-l"))
-            @button("global.label.continue_button", href = Some(routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl))).url), id = "continue")
+            @button("global.label.continue_button", href = Some(routes.ApplicationController.uplift(Some(RedirectUrl(redirectUrl))).url), id = "continue")
         }
     }

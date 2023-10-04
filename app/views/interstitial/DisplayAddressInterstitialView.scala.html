@@ -33,6 +33,6 @@
 
     @h1("label.profile")
     @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")))
-    @button(msg = "global.label.continue_button", href=Some(controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(continueUrl))).url))
+    @button(msg = "global.label.continue_button", href=Some(controllers.routes.ApplicationController.uplift(Some(RedirectUrl(continueUrl))).url))
 
 }
