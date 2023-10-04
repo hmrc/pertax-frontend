@@ -22,19 +22,19 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{AppleSaveAndViewNIToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import models.admin.{AppleSaveAndViewNIToggle, BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
 import services.SeissService
-import services.admin.FeatureFlagService
 import services.partials.{FormPartialService, SaPartialService}
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
-import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
+import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -187,11 +187,13 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displayBreathingSpaceDetails: Action[AnyContent] = authenticate { implicit request =>
-    if (configDecorator.isBreathingSpaceIndicatorEnabled) {
-      Ok(viewBreathingSpaceView(redirectUrl = currentUrl))
-    } else {
-      errorRenderer.error(UNAUTHORIZED)
+  def displayBreathingSpaceDetails: Action[AnyContent] = authenticate.async { implicit request =>
+    featureFlagService.get(BreathingSpaceIndicatorToggle).flatMap { featureFlag =>
+      if (featureFlag.isEnabled) {
+        Future.successful(Ok(viewBreathingSpaceView(redirectUrl = currentUrl)))
+      } else {
+        Future.successful(errorRenderer.error(UNAUTHORIZED))
+      }
     }
   }
 

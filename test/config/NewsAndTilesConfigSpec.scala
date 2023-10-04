@@ -55,25 +55,26 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "childBenefits",
           "",
           "",
-          true,
+          isDynamic = true,
           LocalDate.now()
         ),
         NewsAndContentModel(
           "payeEmployments",
           "",
           "",
-          true,
+          isDynamic = true,
           LocalDate.now().minusWeeks(1)
         ),
         NewsAndContentModel(
           "hmrcApp",
           "",
           "",
-          true,
+          isDynamic = true,
           LocalDate.now().minusWeeks(2)
         )
       )
     }
+
     "read configuration and create a list without expired entries" in {
       val app = localGuiceApplicationBuilder()
         .configure(
@@ -97,11 +98,12 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "hmrcApp",
           "",
           "",
-          true,
+          isDynamic = true,
           LocalDate.now().minusWeeks(2)
         )
       )
     }
+
     "read configuration and create an empty list if all entries have expired" in {
       val app = localGuiceApplicationBuilder()
         .configure(

@@ -22,7 +22,7 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
-import models.admin.{AppleSaveAndViewNIToggle, FeatureFlag}
+import models.admin.AppleSaveAndViewNIToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
@@ -34,6 +34,7 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.ViewSpec
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
@@ -62,6 +63,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
   val userRequest: UserRequest[AnyContentAsEmpty.type] = UserRequest(
+    testNino,
     None,
     None,
     ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -111,12 +113,6 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   def editedAddress(): EditResidentialAddress = EditResidentialAddress(Instant.now())
 
   def editedOtherAddress(): EditCorrespondenceAddress = EditCorrespondenceAddress(Instant.now())
-
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
-      .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = false)))
-  }
 
   "getSignInDetailsRow" must {
     "return None" when {

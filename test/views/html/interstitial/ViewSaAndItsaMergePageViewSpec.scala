@@ -19,7 +19,7 @@ package views.html.interstitial
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.{FeatureFlag, ItsAdvertisementMessageToggle, NationalInsuranceTileToggle}
+import models.admin.{ItsAdvertisementMessageToggle, NationalInsuranceTileToggle}
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -27,7 +27,7 @@ import org.scalatest.Assertion
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.DateTimeTools.{current, previousAndCurrentTaxYear}
 import testUtils.UserRequestFixture.buildUserRequest

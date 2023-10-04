@@ -45,7 +45,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
       )
 
       val result = pertaxConnector
-        .pertaxAuthorise(Fixtures.fakeNino.nino)
+        .pertaxAuthorise(Fixtures.fakeNino)
         .value
         .futureValue
         .getOrElse(PertaxResponse("INCORRECT RESPONSE", "INCORRECT", None, None))
@@ -63,7 +63,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
       )
 
       val result = pertaxConnector
-        .pertaxAuthorise(Fixtures.fakeNino.nino)
+        .pertaxAuthorise(Fixtures.fakeNino)
         .value
         .futureValue
         .getOrElse(PertaxResponse("INCORRECT RESPONSE", "INCORRECT", None, None))
@@ -86,7 +86,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
       )
 
       val result = pertaxConnector
-        .pertaxAuthorise(Fixtures.fakeNino.nino)
+        .pertaxAuthorise(Fixtures.fakeNino)
         .value
         .futureValue
         .getOrElse(PertaxResponse("INCORRECT RESPONSE", "INCORRECT", None, None))
@@ -109,7 +109,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
       )
 
       val result = pertaxConnector
-        .pertaxAuthorise(Fixtures.fakeNino.nino)
+        .pertaxAuthorise(Fixtures.fakeNino)
         .value
         .futureValue
         .getOrElse(PertaxResponse("INCORRECT RESPONSE", "INCORRECT", None, None))
@@ -139,7 +139,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
           )
 
           val result = pertaxConnector
-            .pertaxAuthorise(Fixtures.fakeNino.nino)
+            .pertaxAuthorise(Fixtures.fakeNino)
             .value
             .futureValue
             .swap

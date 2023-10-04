@@ -29,7 +29,7 @@ import models.{AddressFinderDtoId, SelectedAddressRecordId, SelectedRecordSetId,
 import play.api.Logging
 import play.api.data.FormError
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.{buildAddressChangeEvent, buildEvent}
 import util.PertaxSessionKeys.{filter, postcode}
