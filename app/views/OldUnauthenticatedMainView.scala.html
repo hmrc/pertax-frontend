@@ -114,7 +114,7 @@
     serviceUrl = Some(configDecorator.personalAccount),
     signOutUrl = if(!disableSessionExpired){Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url)}else{None},
     isWelshTranslationAvailable = true,
-    accessibilityStatementUrl = Some(configDecorator.accessibilityStatementUrl(request.uri).toString()),
+    accessibilityStatementUrl = Some(configDecorator.accessibilityStatementUrl(request.uri)),
     displayHmrcBanner = false,
     additionalHeadBlock = Some(headBlock),
     beforeContentBlock = Some(beforeContent),

@@ -22,7 +22,6 @@ import controllers.routes
 import play.api.Configuration
 import play.api.i18n.Lang
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.http.StringContextOps
 
 import java.net.{URL, URLEncoder}
 import java.time.LocalDate
@@ -160,8 +159,9 @@ class ConfigDecorator @Inject() (
   lazy private val accessibilityRedirectUrl     =
     servicesConfig.getString("accessibility-statement.redirectUrl")
 
-  def accessibilityStatementUrl(referrer: String): URL =
-    url"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${accessibilityBaseUrl + referrer}"
+  private val enc: String => String                       = URLEncoder.encode(_: String, "UTF-8")
+  def accessibilityStatementUrl(referrer: String): String =
+    s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${enc(accessibilityBaseUrl + referrer)}"
 
   lazy val notShownSaRecoverYourUserId =
     s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account-access?origin=${enc(defaultOrigin.toString)}"
@@ -191,8 +191,8 @@ class ConfigDecorator @Inject() (
     if (lang.code equals "en") { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax" }
     else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
-  def taxEnrolmentDeniedRedirect(url: String): URL =
-    url"$taxEnrolmentAssignmentFrontendHost/protect-tax-info?redirectUrl=$url"
+  def taxEnrolmentDeniedRedirect(url: String): String =
+    s"$taxEnrolmentAssignmentFrontendHost/protect-tax-info?redirectUrl=${enc(url)}"
 
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
@@ -269,8 +269,6 @@ class ConfigDecorator @Inject() (
 
   lazy val partialUpgradeEnabled: Boolean =
     runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)
-
-  private val enc: String => String = URLEncoder.encode(_: String, "UTF-8")
 
   private val defaultSessionTimeoutInSeconds   = 900
   lazy val sessionTimeoutInSeconds: Int        =
