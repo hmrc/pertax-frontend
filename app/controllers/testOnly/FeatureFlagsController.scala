@@ -54,7 +54,7 @@ class FeatureFlagsController @Inject() (
           ShowOutageBannerToggle                -> false,
           AddressJourneyEnforcerToggle          -> true,
           GetPersonFromCitizenDetailsToggle     -> true,
-          DfsDigitalFormFrontendShutteredToggle -> false,
+          DfsDigitalFormFrontendAvailableToggle -> true,
           AddressChangeAllowedToggle            -> true
         )
       )

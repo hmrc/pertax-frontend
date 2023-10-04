@@ -399,8 +399,8 @@ trait BaseSpec
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
       .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendShutteredToggle)))
-      .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendShutteredToggle, isEnabled = false)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+      .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
 
   }
 }

@@ -39,7 +39,7 @@ object AllFeatureFlags {
     BreathingSpaceIndicatorToggle,
     AddressJourneyEnforcerToggle,
     GetPersonFromCitizenDetailsToggle,
-    DfsDigitalFormFrontendShutteredToggle,
+    DfsDigitalFormFrontendAvailableToggle,
     AddressChangeAllowedToggle
   )
 }
@@ -155,10 +155,10 @@ case object GetPersonFromCitizenDetailsToggle extends FeatureFlagName {
   )
 }
 
-case object DfsDigitalFormFrontendShutteredToggle extends FeatureFlagName {
-  override val name: String                = "dfs-digital-forms-frontend-shuttered-toggle"
+case object DfsDigitalFormFrontendAvailableToggle extends FeatureFlagName {
+  override val name: String                = "dfs-digital-forms-frontend-available-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable indicating whether the dfs digital forms frontend is shuttered"
+    "Enable/disable indicating whether the dfs digital forms frontend is available or shuttered"
   )
 }
 
