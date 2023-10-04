@@ -188,8 +188,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle))) thenReturn Future.successful(
       FeatureFlag(TaxSummariesTileToggle, isEnabled = false)
     )
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowNpsOutageBannerToggle))) thenReturn Future.successful(
-      FeatureFlag(ShowNpsOutageBannerToggle, isEnabled = true)
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowOutageBannerToggle))) thenReturn Future.successful(
+      FeatureFlag(ShowOutageBannerToggle, isEnabled = true)
     )
   }
 

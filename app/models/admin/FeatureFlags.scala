@@ -30,7 +30,7 @@ object AllFeatureFlags {
     TaxSummariesTileToggle,
     SingleAccountCheckToggle,
     TaxcalcMakePaymentLinkToggle,
-    ShowNpsOutageBannerToggle,
+    ShowOutageBannerToggle,
     AppleSaveAndViewNIToggle,
     SCAWrapperToggle,
     HmrcAccountToggle,
@@ -96,8 +96,8 @@ case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable direct link to make a payment on taxcalc tile")
 }
 
-case object ShowNpsOutageBannerToggle extends FeatureFlagName {
-  override val name: String                = "show-nps-outage-banner"
+case object ShowOutageBannerToggle extends FeatureFlagName {
+  override val name: String                = "show-outage-banner-toggle"
   override val description: Option[String] = Some("Enable/disable the show nps outage banner")
 }
 

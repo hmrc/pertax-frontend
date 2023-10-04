@@ -51,7 +51,7 @@ class FeatureFlagsController @Inject() (
           AgentClientAuthorisationToggle        -> true,
           BreathingSpaceIndicatorToggle         -> true,
           TaxcalcMakePaymentLinkToggle          -> true,
-          ShowNpsOutageBannerToggle             -> false,
+          ShowOutageBannerToggle             -> false,
           AddressJourneyEnforcerToggle          -> true,
           GetPersonFromCitizenDetailsToggle     -> true,
           DfsDigitalFormFrontendShutteredToggle -> false,
