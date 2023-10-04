@@ -36,7 +36,7 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import controllers.bindable.Origin
-import uk.gov.hmrc.play.bootstrap.binders.{RedirectUrl, SafeRedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.time.CurrentTaxYear
 import views.html.iv.failure._
 import views.html.iv.success.SuccessView
@@ -166,7 +166,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result = controller.showUpliftJourneyOutcome(Some(SafeRedirectUrl("/relative/url")))(
+      val result = controller.showUpliftJourneyOutcome(Some(RedirectUrl("/relative/url")))(
         buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
       )
       status(result) mustBe OK
