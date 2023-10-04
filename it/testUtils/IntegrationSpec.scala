@@ -3,7 +3,7 @@ package testUtils
 import akka.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.admin.{AddressChangeAllowedToggle, AddressJourneyEnforcerToggle, AllFeatureFlags, GetPersonFromCitizenDetailsToggle, SCAWrapperToggle}
+import models.admin.{AddressChangeAllowedToggle, AddressJourneyEnforcerToggle, AllFeatureFlags, DfsDigitalFormFrontendShutteredToggle, GetPersonFromCitizenDetailsToggle, SCAWrapperToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.mockito.MockitoSugar.mock
@@ -143,6 +143,9 @@ trait IntegrationSpec
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
       .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendShutteredToggle)))
+      .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendShutteredToggle, isEnabled = false)))
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))

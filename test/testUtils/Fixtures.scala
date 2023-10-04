@@ -38,12 +38,12 @@ import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers, Injecting}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
-import uk.gov.hmrc.play.partials.FormPartialRetriever
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.play.partials.FormPartialRetriever
 
 import java.time.temporal.ChronoField
 import java.time.{Instant, LocalDate}
@@ -296,9 +296,9 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
     FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
 
   def buildFakeRequestWithAuth(
-                                method: String,
-                                uri: String = "/personal-account"
-                              ): FakeRequest[AnyContentAsEmpty.type] = {
+    method: String,
+    uri: String = "/personal-account"
+  ): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> Instant.now().get(ChronoField.MILLI_OF_SECOND).toString
@@ -327,7 +327,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 }
 
 trait BaseSpec
-  extends AnyWordSpec
+    extends AnyWordSpec
     with GuiceOneAppPerSuite
     with Matchers
     with BeforeAndAfterEach
@@ -358,9 +358,9 @@ trait BaseSpec
   val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   protected def localGuiceApplicationBuilder(
-                                              saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
-                                              personDetails: Option[PersonDetails] = None
-                                            ): GuiceApplicationBuilder =
+    saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
+    personDetails: Option[PersonDetails] = None
+  ): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
@@ -398,6 +398,9 @@ trait BaseSpec
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
       .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendShutteredToggle)))
+      .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendShutteredToggle, isEnabled = false)))
 
   }
 }
