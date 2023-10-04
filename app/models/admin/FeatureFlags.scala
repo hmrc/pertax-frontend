@@ -98,7 +98,7 @@ case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
 
 case object ShowOutageBannerToggle extends FeatureFlagName {
   override val name: String                = "show-outage-banner-toggle"
-  override val description: Option[String] = Some("Enable/disable the show nps outage banner")
+  override val description: Option[String] = Some("Enable/disable the show outage banner")
 }
 
 case object AppleSaveAndViewNIToggle extends FeatureFlagName {
