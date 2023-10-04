@@ -44,6 +44,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
   val rlsInterruptHelper: RlsInterruptHelper = app.injector.instanceOf[RlsInterruptHelper]
 
   implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+    Fixtures.fakeNino,
     Some(Fixtures.fakeNino),
     Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     NonFilerSelfAssessmentUser,
@@ -63,7 +64,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "return the result of the block when residential and correspondence are not 1" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
         result mustBe okBlock
@@ -71,11 +72,12 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "redirect to /personal-account/check-your-address when residential address status is 1" in {
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Fixtures.fakeNino,
           Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
@@ -96,11 +98,12 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "redirect to /personal-account/check-your-address when correspondence address status is 1" in {
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Fixtures.fakeNino,
           Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
@@ -123,11 +126,12 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "redirect to /personal-account/check-your-address when both residential and correspondence address status is 1" in {
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Fixtures.fakeNino,
           Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
@@ -153,11 +157,12 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "return the result as s block when residential address status is 1 and residential address has been updated" in {
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(true, false)))
+          .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Fixtures.fakeNino,
           Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
@@ -178,11 +183,12 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "return the result as a block when postal address status is 1 and postal address has been updated" in {
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, true)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Fixtures.fakeNino,
           Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
@@ -205,11 +211,12 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "return result as a block when both residential and correspondence address status is 1 and both addresses have been updated" in {
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(true, true)))
+          .thenReturn(Future.successful(AddressesLock(main = true, postal = true)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Fixtures.fakeNino,
           Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
@@ -235,11 +242,12 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "redirect to /personal-account/check-your-address when both residential and correspondence address status is 1 and residential address has been updated" in {
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(true, false)))
+          .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Fixtures.fakeNino,
           Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
@@ -265,11 +273,12 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "redirect to /personal-account/check-your-address when both residential and correspondence address status is 1 and correspondence address has been updated" in {
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, true)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Fixtures.fakeNino,
           Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
@@ -298,11 +307,12 @@ class RlsInterruptHelperSpec extends BaseSpec {
     "the enforce rlsInterruptToggle toggle is set to false" must {
       "return the result of a passed in block" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = false)))
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Fixtures.fakeNino,
           Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,

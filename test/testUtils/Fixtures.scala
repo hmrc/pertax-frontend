@@ -53,6 +53,7 @@ import scala.reflect.ClassTag
 import scala.util.Random
 
 trait PafFixtures {
+
   val exampleCountryUK: Country    = Country("UK", "United Kingdom")
   val subDivision: Option[Country] = Some(Country("GB-ENG", "England"))
 
@@ -69,7 +70,7 @@ trait PafFixtures {
     "en"
   )
 
-  val oneOtherPlacePafAddress: PafAddress               =
+  val oneOtherPlacePafAddress: PafAddress =
     PafAddress(
       List("2 Other Place", "Some District"),
       Some("Anytown"),
@@ -78,7 +79,8 @@ trait PafFixtures {
       subDivision,
       exampleCountryUK
     )
-  val twoOtherPlacePafAddress: PafAddress               =
+
+  val twoOtherPlacePafAddress: PafAddress =
     PafAddress(
       List("3 Other Place", "Some District"),
       Some("Anytown"),
@@ -87,6 +89,7 @@ trait PafFixtures {
       Some(Country("GB-SCT", "Scotland")),
       exampleCountryUK
     )
+
   val otherPlacePafDifferentPostcodeAddress: PafAddress =
     PafAddress(
       List("3 Other Place", "Some District"),
@@ -293,9 +296,9 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
     FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
 
   def buildFakeRequestWithAuth(
-    method: String,
-    uri: String = "/personal-account"
-  ): FakeRequest[AnyContentAsEmpty.type] = {
+                                method: String,
+                                uri: String = "/personal-account"
+                              ): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> Instant.now().get(ChronoField.MILLI_OF_SECOND).toString
@@ -324,7 +327,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 }
 
 trait BaseSpec
-    extends AnyWordSpec
+  extends AnyWordSpec
     with GuiceOneAppPerSuite
     with Matchers
     with BeforeAndAfterEach
@@ -355,9 +358,9 @@ trait BaseSpec
   val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   protected def localGuiceApplicationBuilder(
-    saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
-    personDetails: Option[PersonDetails] = None
-  ): GuiceApplicationBuilder =
+                                              saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
+                                              personDetails: Option[PersonDetails] = None
+                                            ): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
@@ -395,6 +398,7 @@ trait BaseSpec
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
       .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+
   }
 }
 
