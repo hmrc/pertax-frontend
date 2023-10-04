@@ -662,7 +662,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayNpsShutteringPage" must {
 
-    "return OK when NpsShutteringToggle is true" in {
+    "return OK when ShowOutageBannerToggle is true" in {
       lazy val fakeRequest = FakeRequest("", "")
 
       val mockAuthJourney = mock[AuthJourney]
@@ -718,7 +718,7 @@ class InterstitialControllerSpec extends BaseSpec {
       )
     }
 
-    "return redirect back to the home page when NpsShutteringToggle is false" in {
+    "return redirect back to the home page when ShowOutageBannerToggle is false" in {
       lazy val fakeRequest = FakeRequest("", "")
 
       val mockAuthJourney = mock[AuthJourney]

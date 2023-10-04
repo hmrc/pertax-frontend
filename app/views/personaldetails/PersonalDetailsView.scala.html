@@ -14,10 +14,9 @@
  * limitations under the License.
  *@
 
+@import components.{H1, H2, P}
 @import controllers.auth.requests.UserRequest
 @import viewmodels.{AddressRowModel, ExtraLinks, PersonalDetailsTableRowModel}
-@import scala.concurrent.ExecutionContext
-@import components.{H1, H2, P}
 
 @this(
     main: MainView,
@@ -33,7 +32,8 @@
     trustedHelpers: Option[PersonalDetailsTableRowModel],
     paperlessHelpers: Option[PersonalDetailsTableRowModel],
     signinDetailsHelpers: Option[PersonalDetailsTableRowModel],
-    manageTaxAgent: Option[PersonalDetailsTableRowModel]
+    manageTaxAgent: Option[PersonalDetailsTableRowModel],
+    addressChangeAllowed: Boolean
 )(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil) = {
@@ -87,9 +87,11 @@
             <dd class="govuk-summary-list__value">
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href=@AddressRowModel.changeMainAddressUrl>
-                    @messages("label.change") <span class="govuk-visually-hidden">@messages("label.your_main_home")</span>
-                </a>
+                @if(addressChangeAllowed) {
+                    <a class="govuk-link" href=@AddressRowModel.changeMainAddressUrl>
+                        @messages("label.change") <span class="govuk-visually-hidden">@messages("label.your_main_home")</span>
+                    </a>
+                }
             </dd>
         </div>
     } else {
@@ -100,9 +102,11 @@
             <dd class="govuk-summary-list__value">
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href=@AddressRowModel.changePostalAddressUrl>
-                    @messages("label.change") <span class="govuk-visually-hidden">@messages("label.your.postal_address")</span>
-                </a>
+                @if(addressChangeAllowed) {
+                    <a class="govuk-link" href=@AddressRowModel.changeMainAddressUrl>
+                        @messages("label.change") <span class="govuk-visually-hidden">@messages("label.your_main_home")</span>
+                    </a>
+                }
             </dd>
         </div>
     }
@@ -119,8 +123,8 @@
         @h2("label.profile")
         <dl class="govuk-summary-list">
             @personalDetails.map(row => rowsPresenter(row))
-            @addressRowsPresenter(addressDetails.mainAddress, true)
-            @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink().toList)
+            @addressRowsPresenter(addressDetails.mainAddress, isMainAddress = true)
+            @addressRowsPresenter(addressDetails.postalAddress, isMainAddress = false, addressDetails.extraPostalAddressLink().toList)
         </dl>
         @h2("label.settings")
         <dl class="govuk-summary-list">

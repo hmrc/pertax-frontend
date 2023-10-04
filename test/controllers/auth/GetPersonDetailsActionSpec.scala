@@ -134,7 +134,7 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
     }
 
-    "when the NpsOutageToggle is set to true" must {
+    "when the ShowOutageBannerToggle is set to true" must {
       "return None" in {
         when(mockFeatureFlagService.get(ShowOutageBannerToggle))
           .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = true)))
