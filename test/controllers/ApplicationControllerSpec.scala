@@ -156,12 +156,12 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a redirect response with the provided URL if redirectUrl is defined" in new LocalSetup {
-      val redirectUrl = Some(RedirectUrl("https://example.com"))
+      val redirectUrl = Some(RedirectUrl("/redirect_url"))
 
       val result: Future[Result] = controller.uplift(redirectUrl)(FakeRequest())
 
       status(result)           must equal(SEE_OTHER)
-      redirectLocation(result) must equal(Some("https://example.com"))
+      redirectLocation(result) must equal(Some("/redirect_url"))
     }
 
     "return a redirect response to HomeController index if redirectUrl is not defined" in new LocalSetup {
