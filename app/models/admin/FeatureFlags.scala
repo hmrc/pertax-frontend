@@ -31,7 +31,6 @@ object AllFeatureFlags {
     SingleAccountCheckToggle,
     TaxcalcMakePaymentLinkToggle,
     ShowOutageBannerToggle,
-    AppleSaveAndViewNIToggle,
     SCAWrapperToggle,
     HmrcAccountToggle,
     AgentClientAuthorisationToggle,
@@ -99,11 +98,6 @@ case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
 case object ShowOutageBannerToggle extends FeatureFlagName {
   override val name: String                = "show-outage-banner-toggle"
   override val description: Option[String] = Some("Enable/disable the show outage banner")
-}
-
-case object AppleSaveAndViewNIToggle extends FeatureFlagName {
-  override val name: String                = "apple-save-view-ni-toggle"
-  override val description: Option[String] = Some("Enable/disable the new content for the Apple Save and View NI")
 }
 
 case object SCAWrapperToggle extends FeatureFlagName {

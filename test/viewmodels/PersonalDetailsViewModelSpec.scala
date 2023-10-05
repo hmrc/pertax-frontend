@@ -22,8 +22,6 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
-import models.admin.AppleSaveAndViewNIToggle
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
@@ -34,7 +32,6 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.ViewSpec
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
@@ -202,10 +199,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
   "getPersonDetailsTable" must {
     "contain the ninoSaveUrl" when {
-      "toggle is enabled" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = true)))
-
+      "nino is defined in model" in {
         val actual   = personalDetailsViewModel.getPersonDetailsTable(Some(testNino))(userRequest)
         val expected = PersonalDetailsTableRowModel(
           "national_insurance",
@@ -263,7 +257,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           formattedNino(testNino),
           "label.view_national_insurance_letter",
           "",
-          Some(controllers.routes.NiLetterController.printNationalInsuranceNumber.url)
+          Some(configDecorator.ptaNinoSaveUrl)
         )
         actual.futureValue mustBe List(expected)
       }

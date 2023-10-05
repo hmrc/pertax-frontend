@@ -22,7 +22,7 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
-import models.admin.{AddressChangeAllowedToggle, AppleSaveAndViewNIToggle}
+import models.admin.AddressChangeAllowedToggle
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -213,31 +213,18 @@ class PersonalDetailsViewModel @Inject() (
         )
       )
 
-    val ninoRow: Future[Option[PersonalDetailsTableRowModel]] = {
-      for {
-        appleSaveAndViewNIToggle <- featureFlagService.get(AppleSaveAndViewNIToggle)
-      } yield {
-        val urlToReturn = if (appleSaveAndViewNIToggle.isEnabled) {
-          configDecorator.ptaNinoSaveUrl
-        } else {
-          controllers.routes.NiLetterController.printNationalInsuranceNumber.url
-        }
-        ninoToDisplay.map(n =>
-          PersonalDetailsTableRowModel(
-            "national_insurance",
-            "label.national_insurance",
-            formattedNino(n),
-            "label.view_national_insurance_letter",
-            "",
-            Some(urlToReturn)
-          )
+    val ninoRow: Option[PersonalDetailsTableRowModel] =
+      ninoToDisplay.map(n =>
+        PersonalDetailsTableRowModel(
+          "national_insurance",
+          "label.national_insurance",
+          formattedNino(n),
+          "label.view_national_insurance_letter",
+          "",
+          Some(configDecorator.ptaNinoSaveUrl)
         )
-      }
-    }
-
-    for {
-      ninoRowValue <- ninoRow
-    } yield Seq(nameRow, ninoRowValue).flatten[PersonalDetailsTableRowModel]
+      )
+    Future.successful(Seq(nameRow, ninoRow).flatten[PersonalDetailsTableRowModel])
   }
 
   def getTrustedHelpersRow(implicit

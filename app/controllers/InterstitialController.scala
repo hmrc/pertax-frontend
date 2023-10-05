@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{AppleSaveAndViewNIToggle, BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, ShowOutageBannerToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, ShowOutageBannerToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -76,7 +76,6 @@ class InterstitialController @Inject() (
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
     for {
       nationalInsurancePartial <- formPartialService.getNationalInsurancePartial
-      appleSaveAndViewNIToggle <- featureFlagService.get(AppleSaveAndViewNIToggle)
     } yield Ok(
       viewNationalInsuranceInterstitialHomeView(
         formPartial = if (configDecorator.partialUpgradeEnabled) {
@@ -86,8 +85,7 @@ class InterstitialController @Inject() (
           nationalInsurancePartial successfulContentOrEmpty
         },
         redirectUrl = currentUrl,
-        request.nino,
-        appleSaveAndViewNIToggle.isEnabled
+        request.nino
       )
     )
   }
@@ -116,14 +114,14 @@ class InterstitialController @Inject() (
     ) {
       for {
         hasSeissClaims    <- seissService.hasClaims(saUserType)
-        istaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
+        itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
           redirectUrl = currentUrl(request),
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           request.isSa,
-          istaMessageToggle.isEnabled,
+          itsaMessageToggle.isEnabled,
           hasSeissClaims,
           taxYear = previousAndCurrentTaxYear,
           saUserType
