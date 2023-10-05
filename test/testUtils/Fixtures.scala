@@ -390,9 +390,6 @@ trait BaseSpec
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
       .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressJourneyEnforcerToggle)))
-      .thenReturn(Future.successful(FeatureFlag(AddressJourneyEnforcerToggle, isEnabled = true)))
-
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 

@@ -3,7 +3,7 @@ package testUtils
 import akka.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.admin.{AddressChangeAllowedToggle, AddressJourneyEnforcerToggle, AllFeatureFlags, DfsDigitalFormFrontendAvailableToggle, GetPersonFromCitizenDetailsToggle, SCAWrapperToggle}
+import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.mockito.MockitoSugar.mock
@@ -21,8 +21,8 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import java.time.LocalDateTime
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 trait IntegrationSpec
@@ -134,9 +134,6 @@ trait IntegrationSpec
     }
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
       .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
-
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressJourneyEnforcerToggle)))
-      .thenReturn(Future.successful(FeatureFlag(AddressJourneyEnforcerToggle, isEnabled = true)))
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))

@@ -2,7 +2,7 @@ package views
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{AddressJourneyEnforcerToggle, BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle, SCAWrapperToggle}
+import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle, SCAWrapperToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -300,8 +300,8 @@ class testSpec extends IntegrationSpec {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
             FeatureFlag(SCAWrapperToggle, isEnabled = true)
           )
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressJourneyEnforcerToggle)))
-            .thenReturn(Future.successful(FeatureFlag(AddressJourneyEnforcerToggle, isEnabled = true)))
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
+            .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
 
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
             .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
@@ -323,8 +323,8 @@ class testSpec extends IntegrationSpec {
             FeatureFlag(SCAWrapperToggle, isEnabled = false)
           )
 
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressJourneyEnforcerToggle)))
-            .thenReturn(Future.successful(FeatureFlag(AddressJourneyEnforcerToggle, isEnabled = true)))
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
+            .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
 
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
             .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))

@@ -36,7 +36,6 @@ object AllFeatureFlags {
     AgentClientAuthorisationToggle,
     PertaxBackendToggle,
     BreathingSpaceIndicatorToggle,
-    AddressJourneyEnforcerToggle,
     GetPersonFromCitizenDetailsToggle,
     DfsDigitalFormFrontendAvailableToggle,
     AddressChangeAllowedToggle
@@ -132,13 +131,6 @@ case object BreathingSpaceIndicatorToggle extends FeatureFlagName {
   override val name: String                = "breathing-space-indicator-toggle"
   override val description: Option[String] = Some(
     "Enable/disable calls to Breathing space"
-  )
-}
-
-case object AddressJourneyEnforcerToggle extends FeatureFlagName {
-  override val name: String                = "address-journey-enforcer-toggle"
-  override val description: Option[String] = Some(
-    "Enable/disable call to for address journey"
   )
 }
 

@@ -51,7 +51,6 @@ class FeatureFlagsController @Inject() (
           BreathingSpaceIndicatorToggle         -> true,
           TaxcalcMakePaymentLinkToggle          -> true,
           ShowOutageBannerToggle                -> false,
-          AddressJourneyEnforcerToggle          -> true,
           GetPersonFromCitizenDetailsToggle     -> true,
           DfsDigitalFormFrontendAvailableToggle -> true,
           AddressChangeAllowedToggle            -> true
