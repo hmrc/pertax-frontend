@@ -46,14 +46,15 @@ import scala.concurrent.Future
 
 class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
-  val mockAuditConnector                      = mock[AuditConnector]
-  val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
-  val mockAuthAction                          = mock[AuthAction]
-  val mockSelfAssessmentStatusAction          = mock[SelfAssessmentStatusAction]
-  val mockAuthJourney                         = mock[AuthJourney]
-  val mockInterstitialController              = mock[InterstitialController]
-  val mockHomeController                      = mock[HomeController]
-  val mockRlsConfirmAddressController         = mock[RlsController]
+  val mockAuditConnector: AuditConnector                                           = mock[AuditConnector]
+  val mockIdentityVerificationFrontendService: IdentityVerificationFrontendService =
+    mock[IdentityVerificationFrontendService]
+  val mockAuthAction: AuthAction                                                   = mock[AuthAction]
+  val mockSelfAssessmentStatusAction: SelfAssessmentStatusAction                   = mock[SelfAssessmentStatusAction]
+  val mockAuthJourney: AuthJourney                                                 = mock[AuthJourney]
+  val mockInterstitialController: InterstitialController                           = mock[InterstitialController]
+  val mockHomeController: HomeController                                           = mock[HomeController]
+  val mockRlsConfirmAddressController: RlsController                               = mock[RlsController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -82,7 +83,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val nino: Nino                                                                                       = Fixtures.fakeNino
     lazy val personDetailsResponse: PersonDetails                                                             = Fixtures.buildPersonDetails
     lazy val withPaye: Boolean                                                                                = true
-    lazy val year                                                                                             = current.currentYear
+    lazy val year: Int                                                                                        = current.currentYear
     lazy val getIVJourneyStatusResponse: EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
       EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(Success)))
     lazy val getCitizenDetailsResponse                                                                        = true
@@ -126,7 +127,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result =
+      val result: Future[Result] =
         routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/do-uplift?redirectUrl=")).get
 
       status(result) mustBe BAD_REQUEST
@@ -146,13 +147,32 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result =
+      val result: Future[Result] =
         routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/do-uplift?redirectUrl=http://example.com")).get
 
       status(result) mustBe BAD_REQUEST
       redirectLocation(result) mustBe None
 
     }
+
+    "return a redirect response with the provided URL if redirectUrl is defined" in new LocalSetup {
+      val redirectUrl = Some(RedirectUrl("https://example.com"))
+
+      val result: Future[Result] = controller.uplift(redirectUrl)(FakeRequest())
+
+      status(result)           must equal(SEE_OTHER)
+      redirectLocation(result) must equal(Some("https://example.com"))
+    }
+
+    "return a redirect response to HomeController index if redirectUrl is not defined" in new LocalSetup {
+      val redirectUrl = None
+
+      val result: Future[Result] = controller.uplift(redirectUrl)(FakeRequest())
+
+      status(result)           must equal(SEE_OTHER)
+      redirectLocation(result) must equal(Some(routes.HomeController.index.url))
+    }
+
   }
 
   "Calling ApplicationController.showUpliftJourneyOutcome" must {
@@ -166,11 +186,28 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result = controller.showUpliftJourneyOutcome(Some(RedirectUrl("/relative/url")))(
+      val result: Future[Result] = controller.showUpliftJourneyOutcome(Some(RedirectUrl("/relative/url")))(
         buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
       )
-      status(result) mustBe OK
 
+      status(result) mustBe OK
+    }
+
+    "return 200 when IV journey outcome was Success without continueUrl " in new LocalSetup {
+      val redirect = routes.HomeController.index.url
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      val result: Future[Result] = controller.showUpliftJourneyOutcome(Some(RedirectUrl(redirect)))(
+        buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
+      )
+
+      status(result) mustBe OK
     }
 
     "return 401 when IV journey outcome was LockedOut" in new LocalSetup {
@@ -186,7 +223,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
         EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(LockedOut)))
 
-      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val result: Future[Result] =
+        controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(result) mustBe UNAUTHORIZED
 
     }
@@ -206,7 +244,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           Future.successful(Right(InsufficientEvidence))
         )
 
-      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val result: Future[Result] =
+        controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/sa-continue")
     }
@@ -224,7 +263,65 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
         EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(UserAborted)))
 
-      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val result: Future[Result] =
+        controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(result) mustBe UNAUTHORIZED
+
+    }
+
+    "return 401 when IV journey outcome was FailedMatching" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(FailedMatching)))
+
+      val result: Future[Result] =
+        controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(result) mustBe UNAUTHORIZED
+
+    }
+
+    "return 401 when IV journey outcome was Incomplete" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(Incomplete)))
+
+      val result: Future[Result] =
+        controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(result) mustBe UNAUTHORIZED
+
+    }
+
+    "return 401 when IV journey outcome was PrecondFailed" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(PrecondFailed)))
+
+      val result: Future[Result] =
+        controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(result) mustBe UNAUTHORIZED
 
     }
@@ -242,7 +339,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
         EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(TechnicalIssue)))
 
-      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val result: Future[Result] =
+        controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(result) mustBe INTERNAL_SERVER_ERROR
 
     }
@@ -260,8 +358,49 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
         EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(Timeout)))
 
-      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val result: Future[Result] =
+        controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(result) mustBe UNAUTHORIZED
+
+    }
+
+    "return 500 when IV journey outcome was not recognised" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](Future.successful(Right(InvalidResponse)))
+
+      val result: Future[Result] =
+        controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(result) mustBe INTERNAL_SERVER_ERROR
+
+    }
+
+    "return 400 to the IvTechnicalIssuesView if unable to get IV journey status" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      override lazy val getIVJourneyStatusResponse
+        : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
+        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](
+          Future.successful(Left(UpstreamErrorResponse.apply("Bad request", 400)))
+        )
+
+      val result: Future[Result] =
+        controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(result) mustBe BAD_REQUEST
 
     }
 
@@ -274,7 +413,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result = routeWrapper(
+      val result: Future[Result] = routeWrapper(
         buildFakeRequestWithAuth(
           "GET",
           "/personal-account/identity-check-complete?continueUrl=http://example.com&journeyId=XXXXX"
@@ -298,7 +437,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result = controller.signout(Some(RedirectUrl("/personal-account")), None)(FakeRequest())
+      val result: Future[Result] = controller.signout(Some(RedirectUrl("/personal-account")), None)(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(
         "http://localhost:9553/bas-gateway/sign-out-without-state?continue=/personal-account"
@@ -314,7 +453,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result = controller.signout(None, Some(Origin("TESTORIGIN")))(FakeRequest())
+      val result: Future[Result] = controller.signout(None, Some(Origin("TESTORIGIN")))(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(
         "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/TESTORIGIN"
@@ -332,7 +471,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
       override lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
 
-      val result = controller.signout(None, None)(FakeRequest())
+      val result: Future[Result] = controller.signout(None, None)(FakeRequest())
       status(result) mustBe BAD_REQUEST
 
     }
@@ -368,8 +507,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val sentLocation = "http://example.com&origin=PERTAX"
-      val result       = controller.signout(Some(RedirectUrl(sentLocation)), None)(FakeRequest())
+      val sentLocation           = "http://example.com&origin=PERTAX"
+      val result: Future[Result] = controller.signout(Some(RedirectUrl(sentLocation)), None)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(

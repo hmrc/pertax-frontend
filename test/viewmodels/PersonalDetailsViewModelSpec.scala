@@ -22,8 +22,6 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
-import models.admin.{AppleSaveAndViewNIToggle, FeatureFlag}
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
@@ -62,6 +60,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
   val userRequest: UserRequest[AnyContentAsEmpty.type] = UserRequest(
+    testNino,
     None,
     None,
     ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -111,12 +110,6 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   def editedAddress(): EditResidentialAddress = EditResidentialAddress(Instant.now())
 
   def editedOtherAddress(): EditCorrespondenceAddress = EditCorrespondenceAddress(Instant.now())
-
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
-      .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = false)))
-  }
 
   "getSignInDetailsRow" must {
     "return None" when {
@@ -206,10 +199,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
   "getPersonDetailsTable" must {
     "contain the ninoSaveUrl" when {
-      "toggle is enabled" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AppleSaveAndViewNIToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AppleSaveAndViewNIToggle, isEnabled = true)))
-
+      "nino is defined in model" in {
         val actual   = personalDetailsViewModel.getPersonDetailsTable(Some(testNino))(userRequest)
         val expected = PersonalDetailsTableRowModel(
           "national_insurance",
@@ -267,7 +257,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           formattedNino(testNino),
           "label.view_national_insurance_letter",
           "",
-          Some(controllers.routes.NiLetterController.printNationalInsuranceNumber.url)
+          Some(configDecorator.ptaNinoSaveUrl)
         )
         actual.futureValue mustBe List(expected)
       }

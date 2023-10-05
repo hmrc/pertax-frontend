@@ -2,8 +2,7 @@ package testUtils
 
 import akka.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.FeatureFlag
-import models.admin.FeatureFlagName.allFeatureFlags
+import models.admin.AllFeatureFlags
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.mockito.MockitoSugar.mock
@@ -15,8 +14,9 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api
 import play.api.cache.AsyncCacheApi
 import play.api.inject.guice.GuiceApplicationBuilder
-import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.scalatestaccessibilitylinter.AccessibilityMatchers
 
 import scala.concurrent.Future
@@ -144,7 +144,7 @@ trait IntegrationSpec extends AnyWordSpec
   override def beforeEach(): Unit = {
     super.beforeEach()
     org.mockito.MockitoSugar.reset(mockFeatureFlagService)
-    allFeatureFlags.foreach { flag =>
+    AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, false)))
     }

@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,23 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
-@()(implicit messages: play.api.i18n.Messages)
+package config
 
-<!doctype html>
-<html>
-    <head>
-        <title>
-            @messages("label.your_national_insurance_letter")
-        </title>
-        <style>
-          html{background: #FFF !important;} * {font-family: Arial !important;}
-          <!-- minifiedCssPlaceholder -->
-        </style>
-    </head>
-    <body>
-            <!-- niLetterPlaceHolder -->
-    </body>
-</html>
+import models.admin._
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagNamesLibrary
+
+class ApplicationStartUp {
+  FeatureFlagNamesLibrary.addFlags(AllFeatureFlags.list)
+}

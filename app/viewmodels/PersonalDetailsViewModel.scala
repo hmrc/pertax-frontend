@@ -22,10 +22,9 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
-import models.admin.AppleSaveAndViewNIToggle
 import play.twirl.api.HtmlFormat
-import services.admin.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
@@ -40,7 +39,7 @@ class PersonalDetailsViewModel @Inject() (
   correspondenceAddressView: CorrespondenceAddressView,
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService
-)(implicit ec: ExecutionContext) {
+) {
 
   private def getMainAddress(personDetails: PersonDetails, optionalEditAddress: List[EditedAddress]) = {
     val isMainAddressChangeLocked = optionalEditAddress.exists(
@@ -152,31 +151,18 @@ class PersonalDetailsViewModel @Inject() (
         )
       )
 
-    val ninoRow: Future[Option[PersonalDetailsTableRowModel]] = {
-      for {
-        appleSaveAndViewNIToggle <- featureFlagService.get(AppleSaveAndViewNIToggle)
-      } yield {
-        val urlToReturn = if (appleSaveAndViewNIToggle.isEnabled) {
-          configDecorator.ptaNinoSaveUrl
-        } else {
-          controllers.routes.NiLetterController.printNationalInsuranceNumber.url
-        }
-        ninoToDisplay.map(n =>
-          PersonalDetailsTableRowModel(
-            "national_insurance",
-            "label.national_insurance",
-            formattedNino(n),
-            "label.view_national_insurance_letter",
-            "",
-            Some(urlToReturn)
-          )
+    val ninoRow: Option[PersonalDetailsTableRowModel] =
+      ninoToDisplay.map(n =>
+        PersonalDetailsTableRowModel(
+          "national_insurance",
+          "label.national_insurance",
+          formattedNino(n),
+          "label.view_national_insurance_letter",
+          "",
+          Some(configDecorator.ptaNinoSaveUrl)
         )
-      }
-    }
-
-    for {
-      ninoRowValue <- ninoRow
-    } yield Seq(nameRow, ninoRowValue).flatten[PersonalDetailsTableRowModel]
+      )
+    Future.successful(Seq(nameRow, ninoRow).flatten[PersonalDetailsTableRowModel])
   }
 
   def getTrustedHelpersRow(implicit

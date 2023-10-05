@@ -41,6 +41,7 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.time.CurrentTaxYear
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -80,14 +81,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   trait LocalSetup {
 
-    lazy val authProviderType: String                      = UserDetails.GovernmentGatewayAuthProvider
-    lazy val nino: Nino                                    = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetails          = Fixtures.buildPersonDetails
-    lazy val confidenceLevel: ConfidenceLevel              = ConfidenceLevel.L200
-    lazy val withPaye: Boolean                             = true
-    lazy val year                                          = 2017
-    lazy val trustedHelper: Option[TrustedHelper]          = None
-    lazy val truestedHelperResponse: Option[TrustedHelper] = Fixtures.buildTrustedHelper
+    lazy val authProviderType: String                     = UserDetails.GovernmentGatewayAuthProvider
+    lazy val nino: Nino                                   = Fixtures.fakeNino
+    lazy val personDetailsResponse: PersonDetails         = Fixtures.buildPersonDetails
+    lazy val confidenceLevel: ConfidenceLevel             = ConfidenceLevel.L200
+    lazy val withPaye: Boolean                            = true
+    lazy val year                                         = 2017
+    lazy val trustedHelper: Option[TrustedHelper]         = None
+    lazy val trustedHelperResponse: Option[TrustedHelper] = Fixtures.buildTrustedHelper
 
     lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse]             =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
@@ -176,19 +177,19 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     )
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
-      FeatureFlag(TaxComponentsToggle, true)
+      FeatureFlag(TaxComponentsToggle, isEnabled = true)
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle))) thenReturn Future.successful(
-      FeatureFlag(RlsInterruptToggle, true)
+      FeatureFlag(RlsInterruptToggle, isEnabled = true)
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle))) thenReturn Future.successful(
-      FeatureFlag(PaperlessInterruptToggle, true)
+      FeatureFlag(PaperlessInterruptToggle, isEnabled = true)
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle))) thenReturn Future.successful(
-      FeatureFlag(TaxSummariesTileToggle, false)
+      FeatureFlag(TaxSummariesTileToggle, isEnabled = false)
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsShutteringToggle))) thenReturn Future.successful(
-      FeatureFlag(NpsShutteringToggle, true)
+      FeatureFlag(NpsShutteringToggle, isEnabled = true)
     )
   }
 
@@ -210,10 +211,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .overrides(
           bind[TaiConnector].toInstance(mockTaiService),
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
-        )
-        .configure(
-          "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled"        -> true
         )
         .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
@@ -240,10 +237,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaiConnector].toInstance(mockTaiService),
           bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
         )
-        .configure(
-          "feature.tax-components.enabled" -> true,
-          "feature.taxcalc.enabled"        -> true
-        )
         .overrides(
           bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
         )
@@ -266,7 +259,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         FeatureFlag(TaxcalcToggle, isEnabled = false)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, false)
+        FeatureFlag(TaxcalcToggle, isEnabled = false)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
@@ -394,10 +387,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, true)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, true)
+        FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(
@@ -452,10 +445,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, true)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, true)
+        FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(
@@ -510,10 +503,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, true)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, true)
+        FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(
@@ -568,10 +561,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, true)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, true)
+        FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(
@@ -596,10 +589,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, true)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, true)
+        FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(
@@ -753,7 +746,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, false)
+        FeatureFlag(NationalInsuranceTileToggle, isEnabled = false)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder()
@@ -894,14 +887,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year, truestedHelperResponse))
+      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year, trustedHelperResponse))
 
       resultCYm1 mustBe None
       resultCYm2 mustBe None
       verify(mockTaxCalculationService, times(0)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
-    "return only  CY-1 None and CY-2 None when get TaxYearReconcillation returns Nil" in new LocalSetup {
+    "return only  CY-1 None and CY-2 None when get TaxYearReconciliation returns Nil" in new LocalSetup {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
         FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )

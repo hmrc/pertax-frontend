@@ -22,19 +22,19 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{AppleSaveAndViewNIToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
 import services.SeissService
-import services.admin.FeatureFlagService
 import services.partials.{FormPartialService, SaPartialService}
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
-import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
+import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -76,7 +76,6 @@ class InterstitialController @Inject() (
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
     for {
       nationalInsurancePartial <- formPartialService.getNationalInsurancePartial
-      appleSaveAndViewNIToggle <- featureFlagService.get(AppleSaveAndViewNIToggle)
     } yield Ok(
       viewNationalInsuranceInterstitialHomeView(
         formPartial = if (configDecorator.partialUpgradeEnabled) {
@@ -86,8 +85,7 @@ class InterstitialController @Inject() (
           nationalInsurancePartial successfulContentOrEmpty
         },
         redirectUrl = currentUrl,
-        request.nino,
-        appleSaveAndViewNIToggle.isEnabled
+        request.nino
       )
     )
   }
@@ -116,14 +114,14 @@ class InterstitialController @Inject() (
     ) {
       for {
         hasSeissClaims    <- seissService.hasClaims(saUserType)
-        istaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
+        itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
           redirectUrl = currentUrl(request),
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           request.isSa,
-          istaMessageToggle.isEnabled,
+          itsaMessageToggle.isEnabled,
           hasSeissClaims,
           taxYear = previousAndCurrentTaxYear,
           saUserType
@@ -187,11 +185,13 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displayBreathingSpaceDetails: Action[AnyContent] = authenticate { implicit request =>
-    if (configDecorator.isBreathingSpaceIndicatorEnabled) {
-      Ok(viewBreathingSpaceView(redirectUrl = currentUrl))
-    } else {
-      errorRenderer.error(UNAUTHORIZED)
+  def displayBreathingSpaceDetails: Action[AnyContent] = authenticate.async { implicit request =>
+    featureFlagService.get(BreathingSpaceIndicatorToggle).flatMap { featureFlag =>
+      if (featureFlag.isEnabled) {
+        Future.successful(Ok(viewBreathingSpaceView(redirectUrl = currentUrl)))
+      } else {
+        Future.successful(errorRenderer.error(UNAUTHORIZED))
+      }
     }
   }
 

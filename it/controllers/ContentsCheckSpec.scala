@@ -2,7 +2,7 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, put, urlEqualTo, urlMatching, urlPathMatching}
-import models.admin.{FeatureFlag, SCAWrapperToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, SCAWrapperToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -15,6 +15,7 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
 import java.util.UUID
@@ -87,10 +88,10 @@ class ContentsCheckSpec extends IntegrationSpec {
           "Account home - Personal tax account - GOV.UK"
         )
 
-      case key => throw new RuntimeException(s"Expected data are missin for `$key`")
+      case key => throw new RuntimeException(s"Expected data are missing for `$key`")
     }
 
-  val urls = Map(
+  val urls: Map[String, ExpectedData] = Map(
     "/personal-account"                                                      -> getExpectedData("/"),
     "/personal-account/profile-and-settings"                                 -> getExpectedData("profile-and-settings"),
     "/personal-account/your-address/residential/do-you-live-in-the-uk"       -> getExpectedData("live-in-uk"),
@@ -98,7 +99,6 @@ class ContentsCheckSpec extends IntegrationSpec {
     "/personal-account/your-address/postal/is-your-postal-address-in-the-uk" -> getExpectedData("postal-address-uk"),
     "/personal-account/national-insurance-summary"                           -> getExpectedData("national-insurance-summary"),
     "/personal-account/self-assessment-summary"                              -> getExpectedData("self-assessment-summary"),
-    "/personal-account/national-insurance-summary/print-letter"              -> getExpectedData("print-letter"),
     "/personal-account/child-benefit/home"                                   -> getExpectedData("child-benefit-home"),
     "/personal-account/breathing-space"                                      -> getExpectedData("breathing-space"),
     "/personal-account/self-assessment/signed-in-wrong-account"              -> getExpectedData("sa-wrong-account"),
@@ -110,13 +110,13 @@ class ContentsCheckSpec extends IntegrationSpec {
     "/personal-account/self-assessment-home"                                 -> getExpectedData("sa-home")
   )
 
-  val unauthUrls = Map(
+  val unauthUrls: Map[String, ExpectedData] = Map(
     "/personal-account/signin"                  -> getExpectedData("sign-in"),
     "/personal-account/identity-check-complete" -> getExpectedData("id-check-complete")
   )
 
-  val messageCount        = Random.between(1, 100)
-  val menuWrapperData     = Seq(
+  val messageCount: Int                    = Random.between(1, 100)
+  val menuWrapperData: Seq[MenuItemConfig] = Seq(
     MenuItemConfig(
       "home",
       "Account Home",
@@ -163,7 +163,7 @@ class ContentsCheckSpec extends IntegrationSpec {
       None
     )
   )
-  val wrapperDataResponse = Json
+  val wrapperDataResponse: String          = Json
     .toJson(
       WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"))
     )
@@ -172,10 +172,13 @@ class ContentsCheckSpec extends IntegrationSpec {
   val personDetailsUrl: String = s"/citizen-details/$generatedNino/designatory-details"
   val tcsBrokerUrl             = s"/tcs/$generatedNino/dashboard-data"
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-      FeatureFlag(SCAWrapperToggle, true)
+      FeatureFlag(SCAWrapperToggle, isEnabled = true)
+    )
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle))) thenReturn Future.successful(
+      FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)
     )
 
     server.stubFor(
@@ -229,7 +232,6 @@ class ContentsCheckSpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled"                     -> true,
       "feature.breathing-space-indicator.timeoutInSec"                -> 4,
       "microservice.services.taxcalc.port"                            -> server.port(),
       "microservice.services.tai.port"                                -> server.port(),
@@ -239,11 +241,11 @@ class ContentsCheckSpec extends IntegrationSpec {
     )
     .build()
 
-  val uuid = UUID.randomUUID().toString
+  val uuid: String = UUID.randomUUID().toString
 
   val cacheMap = s"/keystore/pertax-frontend"
 
-  val authResponseAttorney =
+  val authResponseAttorney: String =
     s"""
        |{
        |    "confidenceLevel": 200,
@@ -286,7 +288,7 @@ class ContentsCheckSpec extends IntegrationSpec {
        |}
        |""".stripMargin
 
-  val authResponseSA =
+  val authResponseSA: String =
     s"""
        |{
        |    "confidenceLevel": 200,
@@ -439,10 +441,11 @@ class ContentsCheckSpec extends IntegrationSpec {
             .getElementsByClass("hmrc-user-research-banner__link")
             .get(0)
             .attr("href")
-          if (url.equals("/personal-account/child-benefit/home"))
+          if (url.equals("/personal-account/child-benefit/home")) {
             urBannerLink mustBe "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"
-          else
+          } else {
             urBannerLink mustBe "https://signup.take-part-in-research.service.gov.uk/home?utm_campaign=PTAhomepage&utm_source=Other&utm_medium=other&t=HMRC&id=209"
+          }
 
           val menuItems = content
             .getElementsByClass("hmrc-account-menu__link")

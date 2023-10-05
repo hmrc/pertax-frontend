@@ -19,7 +19,7 @@ package controllers.testOnly
 import controllers.PertaxBaseController
 import models.admin._
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
@@ -31,14 +31,7 @@ class FeatureFlagsController @Inject() (
 )(implicit ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
-  def setFlag(featureFlagName: FeatureFlagName, isEnabled: Boolean): Action[AnyContent] = Action.async {
-    featureFlagService.set(featureFlagName, isEnabled).map {
-      case true  => Ok(s"Flag $featureFlagName set to $isEnabled")
-      case false => InternalServerError(s"Error while setting flag $featureFlagName to $isEnabled")
-    }
-  }
-
-  def setDefaults: Action[AnyContent] = Action.async {
+  def setDefaults(): Action[AnyContent] = Action.async {
     featureFlagService
       .setAll(
         Map(
@@ -51,10 +44,14 @@ class FeatureFlagsController @Inject() (
           PaperlessInterruptToggle          -> false,
           TaxSummariesTileToggle            -> true,
           SingleAccountCheckToggle          -> false,
-          AppleSaveAndViewNIToggle          -> false,
           PertaxBackendToggle               -> true,
           SCAWrapperToggle                  -> true,
-          HmrcAccountToggle                 -> false
+          HmrcAccountToggle                 -> false,
+          AgentClientAuthorisationToggle    -> true,
+          BreathingSpaceIndicatorToggle     -> true,
+          TaxcalcMakePaymentLinkToggle      -> true,
+          NpsShutteringToggle               -> false,
+          NpsOutageToggle                   -> false
         )
       )
       .map(_ => Ok("Default flags set"))

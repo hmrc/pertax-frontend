@@ -24,9 +24,10 @@ import io.lemonlabs.uri.Url
 import models.UserName
 import models.admin.SingleAccountCheckToggle
 import play.api.mvc._
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
@@ -127,6 +128,7 @@ class AuthActionImpl @Inject() (
             .asInstanceOf[Request[A]]
 
           val authenticatedRequest = AuthenticatedRequest[A](
+            Nino(nino),
             Some(trustedHelper.fold(domain.Nino(nino))(helper => domain.Nino(helper.principalNino))),
             credentials,
             confidenceLevel,

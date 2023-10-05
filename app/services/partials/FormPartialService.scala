@@ -21,7 +21,7 @@ import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
 import models.admin.NpsOutageToggle
 import play.api.mvc.RequestHeader
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 
 import scala.concurrent.{ExecutionContext, Future}

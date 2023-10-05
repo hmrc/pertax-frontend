@@ -5,22 +5,20 @@ import sbt._
 object AppDependencies {
 
   private val playVersion = "play-28"
-  private val hmrcMongoVersion = "1.2.0"
+  private val hmrcMongoVersion = "1.3.0"
   private val bootstrapVersion = "7.22.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc"       %% s"bootstrap-frontend-$playVersion" % bootstrapVersion,
     "uk.gov.hmrc"       %% "http-caching-client"              % s"10.0.0-$playVersion",
     "uk.gov.hmrc"       %% "tax-year"                         % "3.2.0",
     "uk.gov.hmrc"       %% "domain"                           % s"8.3.0-$playVersion",
-    "uk.gov.hmrc.mongo" %% s"hmrc-mongo-$playVersion"         % hmrcMongoVersion,
     "io.lemonlabs"      %% "scala-uri"                        % "4.0.3",
     "org.jsoup"          % "jsoup"                            % "1.15.4",
     "org.typelevel"     %% "cats-core"                        % "2.9.0",
-    "uk.gov.hmrc"       %% s"internal-auth-client-$playVersion" % "1.4.0",
-    "org.apache.commons" % "commons-text"               % "1.10.0",
+    "org.apache.commons" % "commons-text"                     % "1.10.0",
     "uk.gov.hmrc"       %% "sca-wrapper"                      % "1.0.41",
+    "uk.gov.hmrc"       %% "mongo-feature-toggles-client"     % "0.2.0",
     ehcache
   )
 
