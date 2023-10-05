@@ -49,7 +49,7 @@ class FormPartialServiceSpec extends BaseSpec {
   "Calling FormPartialServiceSpec" must {
 
     "form list for National insurance return empty" when {
-      "DfsDigitalFormFrontendShuttered is enabled" in new LocalSetup {
+      "DfsDigitalFormFrontendShuttered is disabled" in new LocalSetup {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
           .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = false)))
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
@@ -63,7 +63,7 @@ class FormPartialServiceSpec extends BaseSpec {
     }
 
     "form list for Self-assessment return empty" when {
-      "DfsDigitalFormFrontendShuttered is enabled" in new LocalSetup {
+      "DfsDigitalFormFrontendShuttered is disabled" in new LocalSetup {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
           .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = false)))
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
