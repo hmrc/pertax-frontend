@@ -42,7 +42,5 @@ class TaxCreditsConnector @Inject() (
       .read(
         http.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taxCreditsUrl/tcs/$nino/exclusion")
       )
-      .map { result =>
-        (result.json \ "excluded").as[Boolean]
-      }
+      .map(result => (result.json \ "excluded").as[Boolean])
 }
