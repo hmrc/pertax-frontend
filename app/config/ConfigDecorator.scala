@@ -110,14 +110,12 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
   lazy val isBreathingSpaceIndicatorEnabled: Boolean                          =
     servicesConfig.getBoolean("feature.breathing-space-indicator.enabled")
-  lazy val annualTaxSaSummariesTileLink                                       = s"$annualTaxSummariesUrl/annual-tax-summary"
-  lazy val annualTaxPayeSummariesTileLink                                     = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
   def preferencedBouncedEmailLink(returnUrl: String, returnLinkText: String)  =
     s"$preferencesFrontendService/paperless/email-bounce?returnUrl=$returnUrl&returnLinkText=$returnLinkText"
   def preferencedReVerifyEmailLink(returnUrl: String, returnLinkText: String) =
     s"$preferencesFrontendService/paperless/email-re-verify?returnUrl=$returnUrl&returnLinkText=$returnLinkText"
-  lazy val annualTaxSaSummariesTileLink                    = s"$annualTaxSummariesUrl/annual-tax-summary"
-  lazy val annualTaxPayeSummariesTileLink                  = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
+  lazy val annualTaxSaSummariesTileLink                                       = s"$annualTaxSummariesUrl/annual-tax-summary"
+  lazy val annualTaxPayeSummariesTileLink                                     = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
   lazy val childBenefitLinkUrl: Option[String] = Some(
     "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"

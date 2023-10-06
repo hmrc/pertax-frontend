@@ -26,8 +26,9 @@ import models.admin.AlertBannerPaperlessStatusToggle
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.Html
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, unverifiedEmail}
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class AlertBannerHelper @Inject() (

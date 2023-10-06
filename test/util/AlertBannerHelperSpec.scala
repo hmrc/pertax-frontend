@@ -20,7 +20,7 @@ import cats.data.EitherT
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models.{PaperlessMessagesStatus, PaperlessStatusBounced, PaperlessStatusNewCustomer, PaperlessStatusNoEmail, PaperlessStatusOptIn, PaperlessStatusOptOut, PaperlessStatusReopt, PaperlessStatusReoptModified, PaperlessStatusUnverified}
-import models.admin.{AlertBannerPaperlessStatusToggle, FeatureFlag}
+import models.admin.{AlertBannerPaperlessStatusToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.concurrent.IntegrationPatience
@@ -31,6 +31,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.{BaseSpec, UserRequestFixture}
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.components.alertBanner.paperlessStatus._
 
 import scala.concurrent.Future

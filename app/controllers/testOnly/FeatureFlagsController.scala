@@ -46,12 +46,12 @@ class FeatureFlagsController @Inject() (
           SingleAccountCheckToggle          -> false,
           PertaxBackendToggle               -> true,
           SCAWrapperToggle                  -> true,
+          HmrcAccountToggle                 -> false,
           AgentClientAuthorisationToggle    -> true,
           BreathingSpaceIndicatorToggle     -> true,
           TaxcalcMakePaymentLinkToggle      -> true,
           NpsShutteringToggle               -> false,
-          NpsOutageToggle                   -> false
-          HmrcAccountToggle                 -> false,
+          NpsOutageToggle                   -> false,
           AlertBannerPaperlessStatusToggle  -> true
         )
       )
