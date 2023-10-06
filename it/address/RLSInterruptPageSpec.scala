@@ -9,6 +9,7 @@ import play.api.test.Helpers.{GET, route, status => getStatus, _}
 import play.api.Application
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
 

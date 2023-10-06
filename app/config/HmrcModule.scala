@@ -24,21 +24,24 @@ import uk.gov.hmrc.http.cache.client.SessionCache
 
 class HmrcModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
-    val cacheBinding                     = bind[SessionCache].to[LocalSessionCache]
+    val defaultBindings: Seq[Binding[_]] = Seq(
+      bind[SessionCache].to[LocalSessionCache],
+      bind[ApplicationStartUp].toSelf.eagerly()
+    )
+
     val useAgentClientAuthorisationCache = configuration
       .getOptional[Boolean]("feature.agent-client-authorisation.cached")
       .getOrElse(true)
+
     if (useAgentClientAuthorisationCache) {
       Seq(
         bind[AgentClientAuthorisationConnector].to[CachingAgentClientAuthorisationConnector],
-        bind[AgentClientAuthorisationConnector].qualifiedWith("default").to[DefaultAgentClientAuthorisationConnector],
-        cacheBinding
-      )
+        bind[AgentClientAuthorisationConnector].qualifiedWith("default").to[DefaultAgentClientAuthorisationConnector]
+      ) ++ defaultBindings
     } else {
       Seq(
-        bind[AgentClientAuthorisationConnector].to[DefaultAgentClientAuthorisationConnector],
-        cacheBinding
-      )
+        bind[AgentClientAuthorisationConnector].to[DefaultAgentClientAuthorisationConnector]
+      ) ++ defaultBindings
     }
   }
 }

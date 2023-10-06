@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.BusinessHoursConfig
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
-import models.admin.{FeatureFlag, SingleAccountCheckToggle}
+import models.admin.SingleAccountCheckToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
@@ -31,6 +31,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
 import play.api.test.Helpers.{redirectLocation, _}
 import play.api.test.{FakeHeaders, FakeRequest}
+import services.partials.MessageFrontendService
 import testUtils.RetrievalOps._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
@@ -38,6 +39,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.{BusinessHours, EnrolmentsHelper}
 
@@ -56,6 +58,8 @@ class AuthActionSpec extends BaseSpec {
   val enrolmentsHelper: EnrolmentsHelper         = app.injector.instanceOf[EnrolmentsHelper]
   val sessionAuditor                             =
     new SessionAuditorFake(app.injector.instanceOf[AuditConnector], enrolmentsHelper)
+
+  val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
 
   class Harness(authAction: AuthAction) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -123,10 +127,10 @@ class AuthActionSpec extends BaseSpec {
     new Harness(authAction)
   }
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
   }
 
   val ivRedirectUrl =

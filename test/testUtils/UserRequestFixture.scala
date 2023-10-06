@@ -27,6 +27,7 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 object UserRequestFixture {
 
   def buildUserRequest[A](
+    authNino: Nino = Fixtures.fakeNino,
     nino: Option[Nino] = Some(Fixtures.fakeNino),
     userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -42,6 +43,7 @@ object UserRequestFixture {
     request: Request[A]
   ): UserRequest[A] =
     UserRequest(
+      authNino,
       nino,
       userName,
       saUser,

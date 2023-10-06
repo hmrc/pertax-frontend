@@ -72,6 +72,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
     nino: Option[Nino] = Some(Nino("AB123456C"))
   ): AuthenticatedRequest[AnyContent] =
     AuthenticatedRequest(
+      Nino("AB123456D"),
       nino,
       Credentials("", "GovernmentGateway"),
       ConfidenceLevel.L200,

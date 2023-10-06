@@ -19,7 +19,7 @@ package repositories
 import config.ConfigDecorator
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentialAddress}
-import org.scalatest.concurrent.PatienceConfiguration
+import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.mockito.MockitoSugar.mock
@@ -36,7 +36,7 @@ class CachingItSpec
     extends AnyWordSpecLike
     with Matchers
     with DefaultPlayMongoRepositorySupport[AddressJourneyTTLModel]
-    with PatienceConfiguration {
+    with IntegrationPatience {
 
   lazy val config = mock[ConfigDecorator]
 

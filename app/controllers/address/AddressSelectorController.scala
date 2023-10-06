@@ -30,7 +30,7 @@ import models.dto.{AddressDto, AddressSelectorDto, DateDto}
 import models.{SelectedAddressRecordId, SelectedRecordSetId, SubmittedAddressDtoId, SubmittedStartDateId}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.{AddressSelectorService, LocalSessionCache}
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.InternalServerErrorView

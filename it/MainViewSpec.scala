@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlMatching}
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.{FeatureFlag, SCAWrapperToggle}
+import models.admin.SCAWrapperToggle
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
 import org.jsoup.select.NodeFilter
@@ -39,6 +39,7 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.sca.utils.Keys
@@ -133,6 +134,7 @@ class MainViewSpec extends IntegrationSpec {
     )
 
     def buildUserRequest[A](
+      authNino: Nino = testNino,
       nino: Option[Nino] = Some(testNino),
       userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
       saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
@@ -147,6 +149,7 @@ class MainViewSpec extends IntegrationSpec {
       request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
     ): UserRequest[A] =
       UserRequest(
+        authNino,
         nino,
         userName,
         saUser,
@@ -162,6 +165,7 @@ class MainViewSpec extends IntegrationSpec {
       )
 
     def buildUserRequestNoSA[A](
+      authNino: Nino = testNino,
       nino: Option[Nino] = Some(testNino),
       userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
       saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
@@ -174,6 +178,7 @@ class MainViewSpec extends IntegrationSpec {
       request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
     ): UserRequest[A] =
       UserRequest(
+        authNino,
         nino,
         userName,
         saUser,

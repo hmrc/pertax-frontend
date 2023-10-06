@@ -20,7 +20,7 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.PertaxConnector
 import controllers.auth.requests.UserRequest
-import models.admin.{FeatureFlag, PertaxBackendToggle}
+import models.admin.PertaxBackendToggle
 import models.{ErrorView, PertaxResponse, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
@@ -39,6 +39,7 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.partials.HtmlPartial
 import views.html.{InternalServerErrorView, MainView}
 
@@ -48,13 +49,13 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
   override implicit lazy val app: Application = GuiceApplicationBuilder().build()
 
-  private val configDecorator: ConfigDecorator = mock[ConfigDecorator]
-  private val mockPertaxConnector              = mock[PertaxConnector]
-  val internalServerErrorView                  = app.injector.instanceOf[InternalServerErrorView]
-  val mainView                                 = app.injector.instanceOf[MainView]
-  private val cc                               = app.injector.instanceOf[ControllerComponents]
-  val messagesApi                              = inject[MessagesApi]
-  implicit lazy val messages: Messages         = MessagesImpl(Lang("en"), messagesApi).messages
+  private val configDecorator: ConfigDecorator         = mock[ConfigDecorator]
+  private val mockPertaxConnector                      = mock[PertaxConnector]
+  val internalServerErrorView: InternalServerErrorView = app.injector.instanceOf[InternalServerErrorView]
+  val mainView: MainView                               = app.injector.instanceOf[MainView]
+  private val cc                                       = app.injector.instanceOf[ControllerComponents]
+  val messagesApi: MessagesApi                         = inject[MessagesApi]
+  implicit lazy val messages: Messages                 = MessagesImpl(Lang("en"), messagesApi).messages
 
   val pertaxAuthAction =
     new PertaxAuthAction(
@@ -72,6 +73,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
   private val fakeRequest             = FakeRequest("GET", "/personal-account")
   val expectedRequest: UserRequest[_] =
     UserRequest(
+      Fixtures.fakeNino,
       Some(Fixtures.fakeNino),
       None,
       WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -90,7 +92,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
     "the pertax API returns an ACCESS_GRANTED response" must {
       "load the request" in {
         when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-          FeatureFlag(PertaxBackendToggle, true)
+          FeatureFlag(PertaxBackendToggle, isEnabled = true)
         )
         when(mockPertaxConnector.pertaxAuthorise(any())(any()))
           .thenReturn(
@@ -107,7 +109,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
     "the pertax API response returns a NO_HMRC_PT_ENROLMENT response" must {
       "redirect to the returned location" in {
         when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-          FeatureFlag(PertaxBackendToggle, true)
+          FeatureFlag(PertaxBackendToggle, isEnabled = true)
         )
         when(mockPertaxConnector.pertaxAuthorise(any())(any()))
           .thenReturn(
@@ -149,7 +151,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
           .thenReturn(Future.successful(HtmlPartial.Success(None, Html("Should be in the resulting view"))))
 
         when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-          FeatureFlag(PertaxBackendToggle, true)
+          FeatureFlag(PertaxBackendToggle, isEnabled = true)
         )
 
         val result = pertaxAuthAction.refine(expectedRequest).futureValue
@@ -161,27 +163,19 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
       }
     }
 
-//    "the pertax API response returns an unexpected response" must {
-//      "throw an internal server error" in {
-//        when(mockPertaxConnector.pertaxAuthorise(any())(any()))
-//          .thenReturn(
-//            EitherT[Future, UpstreamErrorResponse, PertaxResponse](
-//              Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
-//            )
-//          )
-//        when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-//          FeatureFlag(PertaxBackendToggle, true)
-//        )
-//
-//        val result = pertaxAuthAction.refine(expectedRequest).futureValue
-//
-//        result mustBe a[Right[_, _]]
-//        val resultValue = result.swap.getOrElse(Result(ResponseHeader(IM_A_TEAPOT, Map("" -> "")), HttpEntity.NoEntity))
-//        resultValue.header.status mustBe INTERNAL_SERVER_ERROR
-//        contentAsString(Future.successful(resultValue)) must include(
-//          messages("global.error.InternalServerError500.pta.title")
-//        )
-//      }
-//    }
+    "the toggle not enabled" must {
+      "return success and the expected request" in {
+
+        when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
+          FeatureFlag(PertaxBackendToggle, isEnabled = false)
+        )
+
+        val result = pertaxAuthAction.refine(expectedRequest).futureValue
+
+        result mustBe a[Right[_, _]]
+        result must be(Right(expectedRequest))
+      }
+    }
+
   }
 }

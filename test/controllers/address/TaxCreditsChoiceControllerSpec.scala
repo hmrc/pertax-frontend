@@ -17,7 +17,7 @@
 package controllers.address
 import cats.data.EitherT
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.admin.{AddressTaxCreditsBrokerCallToggle, FeatureFlag, NpsOutageToggle}
+import models.admin.{AddressTaxCreditsBrokerCallToggle, NpsOutageToggle}
 import models.dto.AddressPageVisitedDto
 import models.{NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
 import org.mockito.ArgumentMatchers.any
@@ -35,14 +35,15 @@ import testUtils.BaseSpec
 import testUtils.Fixtures.buildPersonDetailsCorrespondenceAddress
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
 
 class TaxCreditsChoiceControllerSpec extends BaseSpec {
 
-  val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAddressJourneyCachingHelper          = mock[AddressJourneyCachingHelper]
+  private val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
+  private val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
+  private val mockAddressJourneyCachingHelper          = mock[AddressJourneyCachingHelper]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder(saUserType, personDetailsForRequest)
     .overrides(
@@ -57,13 +58,13 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
     reset(mockLocalSessionCache, mockTaxCreditsService, mockAddressJourneyCachingHelper)
   }
 
-  def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+  private def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
-  def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
+  private def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
 
-  def saUserType: SelfAssessmentUserType = NonFilerSelfAssessmentUser
+  private def saUserType: SelfAssessmentUserType = NonFilerSelfAssessmentUser
 
-  val sessionCacheResponse: Option[CacheMap] =
+  private val sessionCacheResponse: Option[CacheMap] =
     Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
   when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
@@ -73,7 +74,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
     Future.successful(mock[HttpResponse])
   }
 
-  val controller = injected[TaxCreditsChoiceController]
+  private val controller = injected[TaxCreditsChoiceController]
 
   "onPageLoad" when {
     "Tax-credit-broker call is used" must {
@@ -82,7 +83,8 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
-        when(mockFeatureFlagService.get(NpsOutageToggle))
+
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
           .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
 
         when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))

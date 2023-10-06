@@ -1,7 +1,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{FeatureFlag, SingleAccountCheckToggle}
+import models.admin.SingleAccountCheckToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -13,6 +13,7 @@ import play.api.test.Helpers.{GET, defaultAwaitTimeout, redirectLocation, route,
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -39,7 +40,7 @@ class HomeControllerErrorISpec extends IntegrationSpec {
       "feature.business-hours.Saturday.start-time"     -> "0:00",
       "feature.business-hours.Saturday.end-time"       -> "23:59",
       "feature.business-hours.Sunday.start-time"       -> "0:00",
-      "feature.business-hours.sunday.end-time"         -> "23:59"
+      "feature.business-hours.Sunday.end-time"         -> "23:59"
     )
     .build()
 
@@ -55,7 +56,7 @@ class HomeControllerErrorISpec extends IntegrationSpec {
     beforeEachHomeController(auth = false, memorandum = false)
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
   }
 
   "personal-account" must {

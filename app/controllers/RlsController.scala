@@ -26,7 +26,7 @@ import models.dto.AddressPageVisitedDto
 import models.{Address, AddressPageVisitedDtoId, AddressesLock}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
-import services.admin.FeatureFlagService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
