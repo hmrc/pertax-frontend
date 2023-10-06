@@ -67,9 +67,9 @@ class TaxCreditsChoiceController @Inject() (
               .fold(
                 _ => Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl)),
                 maybeChangeInPTA =>
-                  maybeChangeInPTA.fold(
+                  maybeChangeInPTA.fold {
                     Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
-                  ) { isAddressChangeInPTA =>
+                  } { isAddressChangeInPTA =>
                     if (isAddressChangeInPTA) {
                       cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
                       Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
