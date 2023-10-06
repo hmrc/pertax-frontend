@@ -98,7 +98,6 @@ class testSpec extends A11ySpec {
     "/personal-account/your-address/postal/is-your-postal-address-in-the-uk" -> getExpectedData("postal-address-uk"),
     "/personal-account/national-insurance-summary"                           -> getExpectedData("national-insurance-summary"),
     "/personal-account/self-assessment-summary"                              -> getExpectedData("self-assessment-summary"),
-    "/personal-account/national-insurance-summary/print-letter"              -> getExpectedData("print-letter"),
     "/personal-account/child-benefit/home"                                   -> getExpectedData("child-benefit-home"),
     "/personal-account/breathing-space"                                      -> getExpectedData("breathing-space"),
     "/personal-account/self-assessment/signed-in-wrong-account"              -> getExpectedData("sa-wrong-account"),

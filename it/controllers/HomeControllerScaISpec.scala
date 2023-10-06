@@ -135,6 +135,7 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
   )
 
   def buildUserRequest[A](
+    authNino: Nino = testNino,
     nino: Option[Nino] = Some(testNino),
     userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
@@ -149,6 +150,7 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   ): UserRequest[A] =
     UserRequest(
+      authNino,
       nino,
       userName,
       saUser,

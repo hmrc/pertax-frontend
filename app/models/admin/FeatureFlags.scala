@@ -19,7 +19,7 @@ package models.admin
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagName
 
 object AllFeatureFlags {
-  val list = List(
+  val list: List[FeatureFlagName] = List(
     AddressTaxCreditsBrokerCallToggle,
     TaxcalcToggle,
     NationalInsuranceTileToggle,
@@ -32,7 +32,6 @@ object AllFeatureFlags {
     TaxcalcMakePaymentLinkToggle,
     NpsShutteringToggle,
     NpsOutageToggle,
-    AppleSaveAndViewNIToggle,
     SCAWrapperToggle,
     HmrcAccountToggle,
     AgentClientAuthorisationToggle,
@@ -96,11 +95,6 @@ case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
 case object NpsShutteringToggle extends FeatureFlagName {
   override val name: String                = "nps-shuttering-toggle"
   override val description: Option[String] = Some("Enable/disable the nps shuttering banner and subpage")
-}
-
-case object AppleSaveAndViewNIToggle extends FeatureFlagName {
-  override val name: String                = "apple-save-view-ni-toggle"
-  override val description: Option[String] = Some("Enable/disable the new content for the Apple Save and View NI")
 }
 
 case object NpsOutageToggle extends FeatureFlagName {

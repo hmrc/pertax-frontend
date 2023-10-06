@@ -52,6 +52,7 @@ class GetPersonDetailsAction @Inject() (
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
       getPersonDetails()(request).map { personalDetails =>
         UserRequest(
+          request.authNino,
           request.nino,
           request.retrievedName,
           request.saUserType,

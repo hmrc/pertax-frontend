@@ -34,7 +34,7 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
   "Rendering ViewNationalInsuranceInterstitialHomeView.scala.html" must {
 
     "show NINO section when a nino is present" in {
-      val document = asDocument(view(Html(""), "asfa", userRequest.nino, appleSaveAndViewNIToggle = false).toString)
+      val document = asDocument(view(Html(""), "asfa", userRequest.nino).toString)
       Option(document.select(".nino").first).isDefined mustBe true
       document.body().toString must include(messages("label.check_your_national_insurance_contributions"))
       document.body().toString must include(
@@ -43,20 +43,13 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
     }
 
     "show incomplete when there is no NINO" in {
-      val document = asDocument(view(Html(""), "https://google.com", None, appleSaveAndViewNIToggle = false).toString)
+      val document = asDocument(view(Html(""), "https://google.com", None).toString)
       Option(document.select(".nino").first).isDefined mustBe false
       document.body().toString must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
     }
 
-    "show without apple view and save nino when the toggle is false" in {
-      val document = asDocument(view(Html(""), "asfa", userRequest.nino, appleSaveAndViewNIToggle = false).toString)
-      document.body().toString must include(
-        messages("label.so_that_you_have_your_number_when_you_need_it_")
-      )
-    }
-
-    "show with apple view and save nino when the toggle is true" in {
-      val document = asDocument(view(Html(""), "asfa", userRequest.nino, appleSaveAndViewNIToggle = true).toString)
+    "show with apple view and save nino" in {
+      val document = asDocument(view(Html(""), "asfa", userRequest.nino).toString)
       document.body().toString must include(
         messages("label.save_your_number_to_the_wallet_app_on_your_apple_phone")
       )
@@ -64,6 +57,5 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
         messages("label.view_and_get_a_copy_for_your_national_insurance_number_confirmation_letter")
       )
     }
-
   }
 }

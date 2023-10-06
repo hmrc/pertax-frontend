@@ -40,7 +40,7 @@ class HomeControllerErrorISpec extends IntegrationSpec {
       "feature.business-hours.Saturday.start-time"     -> "0:00",
       "feature.business-hours.Saturday.end-time"       -> "23:59",
       "feature.business-hours.Sunday.start-time"       -> "0:00",
-      "feature.business-hours.sunday.end-time"         -> "23:59"
+      "feature.business-hours.Sunday.end-time"         -> "23:59"
     )
     .build()
 

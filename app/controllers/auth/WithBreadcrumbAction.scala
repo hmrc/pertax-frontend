@@ -31,6 +31,7 @@ class WithBreadcrumbAction @Inject() (implicit ec: ExecutionContext) {
         Future.successful(
           Right(
             UserRequest(
+              request.authNino,
               request.nino,
               request.retrievedName,
               request.saUserType,

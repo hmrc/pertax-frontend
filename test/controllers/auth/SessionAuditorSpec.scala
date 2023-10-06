@@ -53,6 +53,7 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
     when(auditConnector.sendExtendedEvent(any())(any(), any())).thenReturn(result)
 
   def authenticatedRequest[A](request: Request[A]): AuthenticatedRequest[A] = AuthenticatedRequest[A](
+    Fixtures.fakeNino,
     Some(Fixtures.fakeNino),
     Credentials("foo", "bar"),
     ConfidenceLevel.L200,

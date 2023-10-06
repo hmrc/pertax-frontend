@@ -52,7 +52,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 trait PafFixtures {
-  val exampleCountryUK: Country = Country("UK", "United Kingdom")
+
+  val exampleCountryUK: Country    = Country("UK", "United Kingdom")
   val subDivision: Option[Country] = Some(Country("GB-ENG", "England"))
 
   val fakeStreetPafAddressRecord: AddressRecord = AddressRecord(
@@ -77,6 +78,7 @@ trait PafFixtures {
       subDivision,
       exampleCountryUK
     )
+
   val twoOtherPlacePafAddress: PafAddress =
     PafAddress(
       List("3 Other Place", "Some District"),
@@ -86,6 +88,7 @@ trait PafFixtures {
       Some(Country("GB-SCT", "Scotland")),
       exampleCountryUK
     )
+
   val otherPlacePafDifferentPostcodeAddress: PafAddress =
     PafAddress(
       List("3 Other Place", "Some District"),
@@ -96,8 +99,8 @@ trait PafFixtures {
       exampleCountryUK
     )
 
-  val oneOtherPlacePafAddressRecord: AddressRecord = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
-  val twoOtherPlacePafAddressRecord: AddressRecord = AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
+  val oneOtherPlacePafAddressRecord: AddressRecord               = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
+  val twoOtherPlacePafAddressRecord: AddressRecord               = AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
   val otherPlacePafDifferentPostcodeAddressRecord: AddressRecord =
     AddressRecord("GB990091234516", otherPlacePafDifferentPostcodeAddress, "en")
 
@@ -125,7 +128,8 @@ trait TaiFixtures {
 }
 
 trait TaxCalculationFixtures {
-  def buildTaxCalculation: TaxCalculation = TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
+  def buildTaxCalculation: TaxCalculation =
+    TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
 
   def buildTaxYearReconciliations: List[TaxYearReconciliation] =
     List(TaxYearReconciliation(2015, Balanced), TaxYearReconciliation(2016, Balanced))
@@ -291,9 +295,9 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
     FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
 
   def buildFakeRequestWithAuth(
-                                method: String,
-                                uri: String = "/personal-account"
-                              ): FakeRequest[AnyContentAsEmpty.type] = {
+    method: String,
+    uri: String = "/personal-account"
+  ): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> Instant.now().get(ChronoField.MILLI_OF_SECOND).toString
@@ -322,7 +326,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 }
 
 trait BaseSpec
-  extends AnyWordSpec
+    extends AnyWordSpec
     with GuiceOneAppPerSuite
     with Matchers
     with BeforeAndAfterEach
@@ -353,9 +357,9 @@ trait BaseSpec
   val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   protected def localGuiceApplicationBuilder(
-                                              saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
-                                              personDetails: Option[PersonDetails] = None
-                                            ): GuiceApplicationBuilder =
+    saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
+    personDetails: Option[PersonDetails] = None
+  ): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),

@@ -24,6 +24,7 @@ import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.domain.Nino
 
 final case class UserRequest[+A](
+  authNino: Nino,
   nino: Option[Nino],
   retrievedName: Option[UserName],
   saUserType: SelfAssessmentUserType,
@@ -64,6 +65,7 @@ object UserRequest {
     breadcrumb: Option[Breadcrumb]
   ): UserRequest[A] =
     UserRequest(
+      authenticatedRequest.authNino,
       authenticatedRequest.nino,
       retrievedName,
       saUserType,

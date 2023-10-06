@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{AppleSaveAndViewNIToggle, BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -40,27 +40,27 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
 class InterstitialController @Inject() (
-                                         val formPartialService: FormPartialService,
-                                         val saPartialService: SaPartialService,
-                                         authJourney: AuthJourney,
-                                         withBreadcrumbAction: WithBreadcrumbAction,
-                                         cc: MessagesControllerComponents,
-                                         errorRenderer: ErrorRenderer,
-                                         viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
-                                         viewChildBenefitsSummarySingleAccountInterstitialView: ViewChildBenefitsSummarySingleAccountInterstitialView,
-                                         selfAssessmentSummaryView: SelfAssessmentSummaryView,
-                                         sa302InterruptView: Sa302InterruptView,
-                                         viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
-                                         viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
-                                         viewBreathingSpaceView: ViewBreathingSpaceView,
-                                         npsShutteringView: NpsShutteringView,
-                                         taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
-                                         enrolmentsHelper: EnrolmentsHelper,
-                                         seissService: SeissService,
-                                         newsAndTilesConfig: NewsAndTilesConfig,
-                                         featureFlagService: FeatureFlagService
-                                       )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-  extends PertaxBaseController(cc)
+  val formPartialService: FormPartialService,
+  val saPartialService: SaPartialService,
+  authJourney: AuthJourney,
+  withBreadcrumbAction: WithBreadcrumbAction,
+  cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
+  viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
+  viewChildBenefitsSummarySingleAccountInterstitialView: ViewChildBenefitsSummarySingleAccountInterstitialView,
+  selfAssessmentSummaryView: SelfAssessmentSummaryView,
+  sa302InterruptView: Sa302InterruptView,
+  viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
+  viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
+  viewBreathingSpaceView: ViewBreathingSpaceView,
+  npsShutteringView: NpsShutteringView,
+  taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
+  enrolmentsHelper: EnrolmentsHelper,
+  seissService: SeissService,
+  newsAndTilesConfig: NewsAndTilesConfig,
+  featureFlagService: FeatureFlagService
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+    extends PertaxBaseController(cc)
     with Logging {
 
   val saBreadcrumb: Breadcrumb =
@@ -76,7 +76,6 @@ class InterstitialController @Inject() (
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
     for {
       nationalInsurancePartial <- formPartialService.getNationalInsurancePartial
-      appleSaveAndViewNIToggle <- featureFlagService.get(AppleSaveAndViewNIToggle)
     } yield Ok(
       viewNationalInsuranceInterstitialHomeView(
         formPartial = if (configDecorator.partialUpgradeEnabled) {
@@ -86,8 +85,7 @@ class InterstitialController @Inject() (
           nationalInsurancePartial successfulContentOrEmpty
         },
         redirectUrl = currentUrl,
-        request.nino,
-        appleSaveAndViewNIToggle.isEnabled
+        request.nino
       )
     )
   }
@@ -112,17 +110,17 @@ class InterstitialController @Inject() (
 
     if (
       request.trustedHelper.isEmpty &&
-        (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
+      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       for {
         hasSeissClaims    <- seissService.hasClaims(saUserType)
-        istaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
+        itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           request.isSa,
-          istaMessageToggle.isEnabled,
+          itsaMessageToggle.isEnabled,
           hasSeissClaims,
           taxYear = previousAndCurrentTaxYear,
           saUserType

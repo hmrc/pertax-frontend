@@ -18,8 +18,6 @@ package models
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-
-import java.time.LocalDate
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
@@ -27,12 +25,20 @@ import play.api.test.FakeRequest
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
+
+import java.time.LocalDate
+import scala.util.Random
 
 class TaxCalculationStateSpec extends BaseSpec {
 
   lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
-  lazy val userRequest: UserRequest[AnyContentAsEmpty.type] = UserRequest(
+
+  private val generator = new Generator(new Random())
+
+  private val testNino: Nino = generator.nextNino
+  lazy val userRequest: Any  = UserRequest(
+    testNino,
     None,
     None,
     ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),

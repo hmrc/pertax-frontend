@@ -42,8 +42,8 @@ import scala.concurrent.Future
 class GetPersonDetailsActionSpec extends BaseSpec {
 
   val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
-  val configDecorator: ConfigDecorator = mock[ConfigDecorator]
+  val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
+  val configDecorator: ConfigDecorator                   = mock[ConfigDecorator]
 
   override lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
@@ -54,6 +54,7 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
   val refinedRequest: UserRequest[AnyContentAsEmpty.type] =
     UserRequest(
+      Fixtures.fakeNino,
       Some(Fixtures.fakeNino),
       None,
       WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),

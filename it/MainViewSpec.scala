@@ -129,6 +129,7 @@ class MainViewSpec extends IntegrationSpec {
     )
 
     def buildUserRequest[A](
+      authNino: Nino = testNino,
       nino: Option[Nino] = Some(testNino),
       userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
       saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
@@ -143,6 +144,7 @@ class MainViewSpec extends IntegrationSpec {
       request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
     ): UserRequest[A] =
       UserRequest(
+        authNino,
         nino,
         userName,
         saUser,
@@ -158,6 +160,7 @@ class MainViewSpec extends IntegrationSpec {
       )
 
     def buildUserRequestNoSA[A](
+      authNino: Nino = testNino,
       nino: Option[Nino] = Some(testNino),
       userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
       saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
@@ -170,6 +173,7 @@ class MainViewSpec extends IntegrationSpec {
       request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
     ): UserRequest[A] =
       UserRequest(
+        authNino,
         nino,
         userName,
         saUser,

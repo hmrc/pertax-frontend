@@ -53,6 +53,7 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
   val okBlock: Result = Ok("Block")
 
   implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+    Fixtures.fakeNino,
     Some(Fixtures.fakeNino),
     Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     NonFilerSelfAssessmentUser,

@@ -73,6 +73,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
   private val fakeRequest             = FakeRequest("GET", "/personal-account")
   val expectedRequest: UserRequest[_] =
     UserRequest(
+      Fixtures.fakeNino,
       Some(Fixtures.fakeNino),
       None,
       WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -162,27 +163,19 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
       }
     }
 
-//    "the pertax API response returns an unexpected response" must {
-//      "throw an internal server error" in {
-//        when(mockPertaxConnector.pertaxAuthorise(any())(any()))
-//          .thenReturn(
-//            EitherT[Future, UpstreamErrorResponse, PertaxResponse](
-//              Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
-//            )
-//          )
-//        when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
-//          FeatureFlag(PertaxBackendToggle, true)
-//        )
-//
-//        val result = pertaxAuthAction.refine(expectedRequest).futureValue
-//
-//        result mustBe a[Right[_, _]]
-//        val resultValue = result.swap.getOrElse(Result(ResponseHeader(IM_A_TEAPOT, Map("" -> "")), HttpEntity.NoEntity))
-//        resultValue.header.status mustBe INTERNAL_SERVER_ERROR
-//        contentAsString(Future.successful(resultValue)) must include(
-//          messages("global.error.InternalServerError500.pta.title")
-//        )
-//      }
-//    }
+    "the toggle not enabled" must {
+      "return success and the expected request" in {
+
+        when(mockFeatureFlagService.get(eqTo(PertaxBackendToggle))) thenReturn Future.successful(
+          FeatureFlag(PertaxBackendToggle, isEnabled = false)
+        )
+
+        val result = pertaxAuthAction.refine(expectedRequest).futureValue
+
+        result mustBe a[Right[_, _]]
+        result must be(Right(expectedRequest))
+      }
+    }
+
   }
 }

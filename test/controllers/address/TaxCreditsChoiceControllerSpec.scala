@@ -42,8 +42,8 @@ import scala.concurrent.Future
 
 class TaxCreditsChoiceControllerSpec extends BaseSpec {
 
-  val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
+  val mockTaxCreditsService: TaxCreditsService                     = mock[TaxCreditsService]
+  val mockLocalSessionCache: LocalSessionCache                     = mock[LocalSessionCache]
   val mockAddressJourneyCachingHelper: AddressJourneyCachingHelper = mock[AddressJourneyCachingHelper]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder(saUserType, personDetailsForRequest)
@@ -175,7 +175,6 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
 
   "onSubmit" must {
     "redirect to expected tax credits page when supplied with value = Yes (true)" in {
-
       val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))

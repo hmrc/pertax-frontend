@@ -74,6 +74,7 @@ class NewsAndTilesConfigSpec extends BaseSpec {
         )
       )
     }
+
     "read configuration and create a list without expired entries" in {
       val app = localGuiceApplicationBuilder()
         .configure(
@@ -102,6 +103,7 @@ class NewsAndTilesConfigSpec extends BaseSpec {
         )
       )
     }
+
     "read configuration and create an empty list if all entries have expired" in {
       val app = localGuiceApplicationBuilder()
         .configure(

@@ -32,11 +32,11 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
   lazy val viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView = inject[ViewSaAndItsaMergePageView]
 
-  lazy implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
+  lazy implicit val configDecorator: ConfigDecorator            = inject[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
   val nextDeadlineTaxYear: String = (current.currentYear + 1).toString
-  val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  val saUtr: SaUtr                = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   trait SelfAssessmentLocalSetup {
 
