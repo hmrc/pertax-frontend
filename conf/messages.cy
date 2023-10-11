@@ -678,6 +678,10 @@ npsshuttering.repayments = Ad-daliadau
 npsshuttering.taxcalc = Cyfrifiad Treth
 npsshuttering.fandf = Cynorthwywyr Dibynadwy
 npsshuttering.chb = Budd-dal Plant
+npsshuttering.tc = Credydau Treth
+npsshuttering.payeIncomeTaxHistory = Hanes Treth Incwm TWE
+npsshuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau?r Cyflogai, gan gynnwys gweithio gartref, gwisg, dillad gwaith, offer a thanysgrifiadau proffesiynol
+
 
 #*************************************************************
 # Tax Credits CoA Interstitial Page

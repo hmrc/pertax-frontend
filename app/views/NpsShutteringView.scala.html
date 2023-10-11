@@ -14,10 +14,9 @@
  * limitations under the License.
  *@
 
-@import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link}
+@import components.{H1, P}
 @import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 
 @this(
     main: MainView,
@@ -38,19 +37,10 @@ showBackLink = true
     @h1("npsshuttering.title", classes = Some("govuk-heading-xl"))
     @p(Text(paragraphText))
     <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("npsshuttering.cysp")</li>
-        <li>@messages("npsshuttering.chb")</li>
-        <li>@messages("npsshuttering.taxRefund")</li>
-        <li>@messages("npsshuttering.c2ni")</li>
-        <li>@messages("npsshuttering.cocar")</li>
-        <li>@messages("npsshuttering.ee")</li>
+        <li>@messages("npsshuttering.eeIncWfhUnfWorkClothesToolsProSubsc")</li>
         <li>@messages("npsshuttering.hts")</li>
         <li>@messages("npsshuttering.tamc")</li>
-        <li>@messages("npsshuttering.medben")</li>
-        <li>@messages("npsshuttering.paye")</li>
-        <li>@messages("npsshuttering.pla")</li>
-        <li>@messages("npsshuttering.repayments")</li>
-        <li>@messages("npsshuttering.taxcalc")</li>
-        <li>@messages("npsshuttering.fandf")</li>
+        <li>@messages("npsshuttering.payeIncomeTaxHistory")</li>
+        <li>@messages("npsshuttering.tc")</li>
     </ul>
 }

@@ -672,6 +672,9 @@ npsshuttering.repayments = Repayments
 npsshuttering.taxcalc = Tax Calculation
 npsshuttering.fandf = Trusted Helpers
 npsshuttering.chb = Child Benefit
+npsshuttering.tc = Tax Credits
+npsshuttering.payeIncomeTaxHistory = PAYE Income Tax History
+npsshuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Employee Expenses, including working from home, uniform, work clothes, tools and professional subscriptions
 
 #*************************************************************
 # Tax Credits CoA Interstitial Page
