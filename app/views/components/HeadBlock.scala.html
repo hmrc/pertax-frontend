@@ -14,10 +14,12 @@
  * limitations under the License.
  *@
 
+@import views.html.helper.CSPNonce
+
 @this()
-@(stylesheets: Option[Html])
+@(stylesheets: Option[Html])(implicit request: Request[_])
 
     <meta name="format-detection" content="telephone=no" />
-    <link rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
+    <link @CSPNonce.attr rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
 
     @stylesheets
