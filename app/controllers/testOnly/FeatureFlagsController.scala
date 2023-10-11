@@ -51,8 +51,7 @@ class FeatureFlagsController @Inject() (
           BreathingSpaceIndicatorToggle     -> true,
           TaxcalcMakePaymentLinkToggle      -> true,
           NpsShutteringToggle               -> false,
-          NpsOutageToggle                   -> false,
-          AlertBannerPaperlessStatusToggle  -> true
+          NpsOutageToggle                   -> false
         )
       )
       .map(_ => Ok("Default flags set"))

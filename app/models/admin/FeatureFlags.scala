@@ -36,8 +36,7 @@ object AllFeatureFlags {
     HmrcAccountToggle,
     AgentClientAuthorisationToggle,
     PertaxBackendToggle,
-    BreathingSpaceIndicatorToggle,
-    AlertBannerPaperlessStatusToggle
+    BreathingSpaceIndicatorToggle
   )
 }
 
@@ -137,12 +136,5 @@ case object BreathingSpaceIndicatorToggle extends FeatureFlagName {
   override val name: String                = "breathing-space-indicator-toggle"
   override val description: Option[String] = Some(
     "Enable/disable calls to Breathing space"
-  )
-}
-
-case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
-  override val name: String                = "alert-banner-paperless-status-toggle"
-  override val description: Option[String] = Some(
-    "Enable/disable paperless alerts in alert banner on the home page"
   )
 }

@@ -25,8 +25,7 @@ final case class HomeViewModel(
   pensionCards: Seq[Html],
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
-  breathingSpaceIndicator: Boolean,
-  alertBannerContent: List[Html]
+  breathingSpaceIndicator: Boolean
 )
 
 object HomeViewModel {
@@ -36,8 +35,7 @@ object HomeViewModel {
     pensionCards: Seq[Html],
     showUserResearchBanner: Boolean,
     selfAssessmentUserType: SelfAssessmentUserType,
-    breathingSpaceIndicator: Boolean,
-    alertBannerContent: List[Html]
+    breathingSpaceIndicator: Boolean
   ): HomeViewModel = {
 
     val utr: Option[String] = selfAssessmentUserType match {
@@ -45,14 +43,6 @@ object HomeViewModel {
       case _                          => None
     }
 
-    HomeViewModel(
-      incomeCards,
-      benefitCards,
-      pensionCards,
-      showUserResearchBanner,
-      utr,
-      breathingSpaceIndicator,
-      alertBannerContent
-    )
+    HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, utr, breathingSpaceIndicator)
   }
 }
