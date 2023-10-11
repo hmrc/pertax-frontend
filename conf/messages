@@ -680,3 +680,15 @@ tax_credits.interstitial.title = Change of address
 tax_credits.interstitial.p1 = Because you receive tax credits, you will need to change your claim in the Tax Credits Service.
 tax_credits.interstitial.p2 = It usually takes up to 48 hours for your change of address to be updated in your personal tax account. There are times when it may take up to 2 weeks.
 tax_credits.interstitial.link_text = Continue to the Tax Credits Service
+
+#*************************************************************
+# Alert Banner
+#*************************************************************
+alert_banner.paperlessStatus.unverified_email.p1 = You need to
+alert_banner.paperlessStatus.unverified_email.link = verify your email address
+alert_banner.paperlessStatus.bounced_email.p1 = We are having trouble sending you emails.
+alert_banner.paperlessStatus.bounced_email.p2.start = Please
+alert_banner.paperlessStatus.bounced_email.link = check your email address
+alert_banner.paperlessStatus.bounced_email.p2.end = now.
+
+
