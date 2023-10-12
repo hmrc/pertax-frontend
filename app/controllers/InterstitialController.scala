@@ -34,7 +34,7 @@ import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
-import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
+import views.html.{SelfAssessmentSummaryView, ShutteringView}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -53,7 +53,7 @@ class InterstitialController @Inject() (
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
-  npsShutteringView: NpsShutteringView,
+  shutteringView: ShutteringView,
   taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
@@ -199,10 +199,10 @@ class InterstitialController @Inject() (
     Ok(taxCreditsAddressInterstitialView())
   }
 
-  def displayNpsShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>
+  def displayShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(NpsShutteringToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {
-        Future.successful(Ok(npsShutteringView()))
+        Future.successful(Ok(shutteringView()))
       } else {
         Future.successful(Redirect(routes.HomeController.index))
       }

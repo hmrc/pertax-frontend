@@ -52,7 +52,6 @@ class ConfigDecorator @Inject() (
   def seissUrl: String = servicesConfig.baseUrl("self-employed-income-support")
 
   private lazy val formFrontendService       = servicesConfig.baseUrl("dfs-digital-forms-frontend")
-  lazy val pertaxFrontendService: String     = servicesConfig.baseUrl("pertax-frontend")
   lazy val businessTaxAccountService: String = servicesConfig.baseUrl("business-tax-account")
   lazy val tcsBrokerHost: String             = servicesConfig.baseUrl("tcs-broker")
 
@@ -111,10 +110,7 @@ class ConfigDecorator @Inject() (
   lazy val annualTaxSaSummariesTileLink                    = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink                  = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
-  lazy val childBenefitLinkUrl: Option[String] = Some(
-    "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"
-  )
-  lazy val isSeissTileEnabled: Boolean         =
+  lazy val isSeissTileEnabled: Boolean =
     runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean
 
   lazy val portalBaseUrl: String     = runModeConfiguration.get[String]("external-url.sso-portal.host")
@@ -299,18 +295,18 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.getOptional[String]("feature.banner.home.link.url").getOrElse("")
 
   lazy val shutterBannerParagraphEn: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.paragraph.en").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.paragraph.en").getOrElse("")
   lazy val shutterBannerParagraphCy: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.paragraph.cy").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.paragraph.cy").getOrElse("")
   lazy val shutterBannerLinkTextEn: String  =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.linkText.en").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.linkText.en").getOrElse("")
   lazy val shutterBannerLinkTextCy: String  =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.linkText.cy").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.linkText.cy").getOrElse("")
 
   lazy val shutterPageParagraphEn: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.page.paragraph.en").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.en").getOrElse("")
   lazy val shutterPageParagraphCy: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.page.paragraph.cy").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.cy").getOrElse("")
 
   lazy val breathingSpaceBaseUrl: String        = servicesConfig.baseUrl("breathing-space-if-proxy")
   lazy val breathingSpaceTimeoutInSec: Int      =

@@ -655,26 +655,26 @@ profile.message.postalAddressRls = You need to update your postal address to rec
 label.return_to_your_profile_page=Return to your profile
 
 #*************************************************************
-# Nps Shuttering Page
+# Shuttering Page
 #*************************************************************
-npsshuttering.title = Services unavailable
-npsshuttering.cysp = Check your State Pension
-npsshuttering.taxRefund = Claim a Tax Refund
-npsshuttering.c2ni = Class 2 National Insurance
-npsshuttering.cocar = Company Car
-npsshuttering.ee = Employee Expenses
-npsshuttering.hts = Help to Save
-npsshuttering.tamc = Marriage Allowance
-npsshuttering.medben = Medical Benefits
-npsshuttering.paye = PAYE Check Your Income Tax Service
-npsshuttering.pla = Pensions Lifetime Allowance
-npsshuttering.repayments = Repayments
-npsshuttering.taxcalc = Tax Calculation
-npsshuttering.fandf = Trusted Helpers
-npsshuttering.chb = Child Benefit
-npsshuttering.tc = Tax Credits
-npsshuttering.payeIncomeTaxHistory = PAYE Income Tax History
-npsshuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Employee Expenses, including working from home, uniform, work clothes, tools and professional subscriptions
+alertBannerShuttering.title = Services unavailable
+alertBannerShuttering.cysp = Check your State Pension
+alertBannerShuttering.taxRefund = Claim a Tax Refund
+alertBannerShuttering.c2ni = Class 2 National Insurance
+alertBannerShuttering.cocar = Company Car
+alertBannerShuttering.ee = Employee Expenses
+alertBannerShuttering.helpToSave = Help to Save
+alertBannerShuttering.tamc = Marriage Allowance
+alertBannerShuttering.medben = Medical Benefits
+alertBannerShuttering.paye = PAYE Check Your Income Tax Service
+alertBannerShuttering.pensionLifetimeAllowance = Pensions Lifetime Allowance
+alertBannerShuttering.repayments = Repayments
+alertBannerShuttering.taxcalc = Tax Calculation
+alertBannerShuttering.fandf = Trusted Helpers
+alertBannerShuttering.childBenefit = Child Benefit
+alertBannerShuttering.taxCredits = Tax Credits
+alertBannerShuttering.payeIncomeTaxHistory = PAYE Income Tax History
+alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Employee Expenses, including working from home, uniform, work clothes, tools and professional subscriptions
 
 #*************************************************************
 # Tax Credits CoA Interstitial Page

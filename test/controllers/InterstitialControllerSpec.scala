@@ -22,8 +22,8 @@ import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
 import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
-import org.mockito.ArgumentMatchers
 import org.jsoup.Jsoup
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
@@ -45,7 +45,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util._
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
-import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
+import views.html.{SelfAssessmentSummaryView, ShutteringView}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -80,7 +80,7 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewNewsAndUpdatesView],
         injected[ViewSaAndItsaMergePageView],
         injected[ViewBreathingSpaceView],
-        injected[NpsShutteringView],
+        injected[ShutteringView],
         injected[TaxCreditsAddressInterstitialView],
         injected[EnrolmentsHelper],
         injected[SeissService],
@@ -166,7 +166,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
-          injected[NpsShutteringView],
+          injected[ShutteringView],
           injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
@@ -220,7 +220,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
-          injected[NpsShutteringView],
+          injected[ShutteringView],
           injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
@@ -446,7 +446,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
-          injected[NpsShutteringView],
+          injected[ShutteringView],
           injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
@@ -521,7 +521,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
-          injected[NpsShutteringView],
+          injected[ShutteringView],
           injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
@@ -564,7 +564,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
-          injected[NpsShutteringView],
+          injected[ShutteringView],
           injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
@@ -632,7 +632,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
-          injected[NpsShutteringView],
+          injected[ShutteringView],
           injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
@@ -660,7 +660,7 @@ class InterstitialControllerSpec extends BaseSpec {
     }
   }
 
-  "Calling displayNpsShutteringPage" must {
+  "Calling displayShutteringPage" must {
 
     "return OK when NpsShutteringToggle is true" in {
       lazy val fakeRequest = FakeRequest("", "")
@@ -689,7 +689,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
-          injected[NpsShutteringView],
+          injected[ShutteringView],
           injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
@@ -710,7 +710,7 @@ class InterstitialControllerSpec extends BaseSpec {
       when(mockFeatureFlagService.get(NpsShutteringToggle))
         .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = true)))
 
-      val result = controller.displayNpsShutteringPage()(fakeRequest)
+      val result = controller.displayShutteringPage()(fakeRequest)
 
       status(result) mustBe OK
       contentAsString(result) must include(
@@ -745,7 +745,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
-          injected[NpsShutteringView],
+          injected[ShutteringView],
           injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],
@@ -766,7 +766,7 @@ class InterstitialControllerSpec extends BaseSpec {
       when(mockFeatureFlagService.get(NpsShutteringToggle))
         .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = false)))
 
-      val result = controller.displayNpsShutteringPage()(fakeRequest)
+      val result = controller.displayShutteringPage()(fakeRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.HomeController.index.url)
@@ -801,7 +801,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[ViewBreathingSpaceView],
-          injected[NpsShutteringView],
+          injected[ShutteringView],
           injected[TaxCreditsAddressInterstitialView],
           injected[EnrolmentsHelper],
           injected[SeissService],

@@ -14,11 +14,10 @@
  * limitations under the License.
  *@
 
-@import controllers.auth.requests.UserRequest
-@import viewmodels.HomeViewModel
-@import scala.concurrent.ExecutionContext
 @import components.H2
 @import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import viewmodels.HomeViewModel
 
 @this(
     main: MainView,
@@ -34,7 +33,7 @@
 @bannerHtml = {
     <p class="govuk-notification-banner__heading">
         @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerParagraphCy }else {@configDecorator.shutterBannerParagraphEn}<br/>
-        <a class="govuk-notification-banner__link" href="@controllers.routes.InterstitialController.displayNpsShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
+        <a class="govuk-notification-banner__link" href="@controllers.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
     </p>
 }
 
