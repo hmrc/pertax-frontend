@@ -18,9 +18,11 @@ package views.html
 
 import config.ConfigDecorator
 import models._
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import play.api.test.FakeRequest
+import play.twirl.api.Html
 import testUtils.Fixtures
 import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.SaUtrGenerator
@@ -35,7 +37,8 @@ class HomeViewSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, None, true)
+  val homeViewModel =
+    HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty)
 
   "Rendering HomeView.scala.html" must {
 
@@ -103,6 +106,26 @@ class HomeViewSpec extends ViewSpec {
       view mustNot include(
         "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
       )
+    }
+
+    "show the alert banner if there is some alert content" in {
+      implicit val userRequest = buildUserRequest(request = FakeRequest())
+      val view                 = Jsoup.parse(
+        home(
+          homeViewModel.copy(alertBannerContent = List(Html("something to alert"))),
+          true
+        ).toString
+      )
+
+      view.getElementById("alert-banner") must not be null
+      view.toString                       must include("something to alert")
+    }
+
+    "not show the alert banner if no alert content" in {
+      implicit val userRequest = buildUserRequest(request = FakeRequest())
+      val view                 = Jsoup.parse(home(homeViewModel, true).toString)
+
+      view.getElementById("alert-banner") mustBe null
     }
   }
 }
