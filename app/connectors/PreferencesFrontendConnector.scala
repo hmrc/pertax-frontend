@@ -87,12 +87,12 @@ class PreferencesFrontendConnector @Inject() (
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + url
     val fullUrl     =
-      s"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
-        .encryptAndEncode(returnMessage)}"
+      url"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptOnly(absoluteUrl)}&returnLinkText=${tools
+        .encryptOnly(returnMessage)}"
     httpClientResponse
       .read(
         httpClientV2
-          .get(url"$fullUrl")
+          .get(fullUrl)
           .transform(_.withRequestTimeout(configDecorator.preferenceFrontendTimeoutInSec.seconds))
           .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
