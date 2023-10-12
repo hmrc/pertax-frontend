@@ -33,6 +33,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.AlertBannerHelper
 import viewmodels.HomeViewModel
 import views.html.HomeView
 
@@ -51,7 +52,8 @@ class HomeController @Inject() (
   cc: MessagesControllerComponents,
   homeView: HomeView,
   seissService: SeissService,
-  rlsInterruptHelper: RlsInterruptHelper
+  rlsInterruptHelper: RlsInterruptHelper,
+  alertBannerHelper: AlertBannerHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
@@ -71,8 +73,7 @@ class HomeController @Inject() (
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear, request.trustedHelper)
-
-    val saUserType = request.saUserType
+    val saUserType                                                                                            = request.saUserType
 
     rlsInterruptHelper.enforceByRlsStatus(
       showUserResearchBanner flatMap { showUserResearchBanner =>
@@ -90,9 +91,8 @@ class HomeController @Inject() (
                                                                                                  taxCalculationStateCyMinusTwo
                                                                                                )
             shutteringMessaging                                                             <- featureFlagService.get(NpsShutteringToggle)
-
+            alertBannerContent                                                              <- alertBannerHelper.getContent
           } yield {
-
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
             val benefitCards: Seq[Html] =
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
@@ -105,7 +105,8 @@ class HomeController @Inject() (
                   pensionCards,
                   showUserResearchBanner,
                   saUserType,
-                  breathingSpaceIndicator
+                  breathingSpaceIndicator,
+                  alertBannerContent
                 ),
                 shutteringMessaging.isEnabled
               )

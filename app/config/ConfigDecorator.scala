@@ -101,14 +101,20 @@ class ConfigDecorator @Inject() (
   private lazy val governmentGatewayLostCredentialsFrontendHost =
     getExternalUrl(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
 
-  private lazy val enrolmentManagementFrontendHost: String =
+  private lazy val enrolmentManagementFrontendHost: String                    =
     getExternalUrl(s"enrolment-management-frontend.host").getOrElse("")
-  lazy val ssoUrl: Option[String]                          = getExternalUrl("sso-portal.host")
-  private lazy val annualTaxSummariesUrl: String           = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
-  lazy val isNewsAndUpdatesTileEnabled: Boolean            =
+  lazy val ssoUrl: Option[String]                                             = getExternalUrl("sso-portal.host")
+  private lazy val annualTaxSummariesUrl: String                              = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
+  lazy val isNewsAndUpdatesTileEnabled: Boolean                               =
     runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
-  lazy val annualTaxSaSummariesTileLink                    = s"$annualTaxSummariesUrl/annual-tax-summary"
-  lazy val annualTaxPayeSummariesTileLink                  = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
+  lazy val isBreathingSpaceIndicatorEnabled: Boolean                          =
+    servicesConfig.getBoolean("feature.breathing-space-indicator.enabled")
+  def preferencedBouncedEmailLink(returnUrl: String, returnLinkText: String)  =
+    s"$preferencesFrontendService/paperless/email-bounce?returnUrl=$returnUrl&returnLinkText=$returnLinkText"
+  def preferencedReVerifyEmailLink(returnUrl: String, returnLinkText: String) =
+    s"$preferencesFrontendService/paperless/email-re-verify?returnUrl=$returnUrl&returnLinkText=$returnLinkText"
+  lazy val annualTaxSaSummariesTileLink                                       = s"$annualTaxSummariesUrl/annual-tax-summary"
+  lazy val annualTaxPayeSummariesTileLink                                     = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
   lazy val isSeissTileEnabled: Boolean =
     runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean

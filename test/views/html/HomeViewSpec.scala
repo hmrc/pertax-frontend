@@ -19,9 +19,11 @@ package views.html
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import play.twirl.api.Html
 import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Name
@@ -37,7 +39,7 @@ class HomeViewSpec extends ViewSpec {
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   val homeViewModel: HomeViewModel =
-    HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true)
+    HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty)
 
   "Rendering HomeView.scala.html" must {
 
@@ -65,8 +67,7 @@ class HomeViewSpec extends ViewSpec {
     }
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
 
       lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
 
@@ -83,29 +84,49 @@ class HomeViewSpec extends ViewSpec {
 
     "must show the UTR if the user is a self assessment user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val utr                                                       = new SaUtrGenerator().nextSaUtr.utr
-      val view                                                      = home(homeViewModel.copy(saUtr = Some(utr)), shutteringMessaging = false).toString
+      val utr                  = new SaUtrGenerator().nextSaUtr.utr
+      val view                 = home(homeViewModel.copy(saUtr = Some(utr)), shutteringMessaging = false).toString
 
       view must include(messages("label.home_page.utr"))
       view must include(utr)
     }
 
-    "show the Alert Shutter Banner when boolean is set to true" in {
+    "show the Shutter Banner when boolean is set to true" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = home(homeViewModel, shutteringMessaging = true).toString
+      val view                 = home(homeViewModel, shutteringMessaging = true).toString
 
       view must include(
         "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
       )
     }
 
-    "not how the Alert Shutter Banner when boolean is set to false" in {
+    "not how the Shutter Banner when boolean is set to false" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = home(homeViewModel, shutteringMessaging = false).toString
+      val view                 = home(homeViewModel, shutteringMessaging = false).toString
 
       view mustNot include(
         "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
       )
+    }
+
+    "show the alert banner if there is some alert content" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val view                 = Jsoup.parse(
+        home(
+          homeViewModel.copy(alertBannerContent = List(Html("something to alert"))),
+          shutteringMessaging = true
+        ).toString
+      )
+
+      view.getElementById("alert-banner") must not be null
+      view.toString                       must include("something to alert")
+    }
+
+    "not show the alert banner if no alert content" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val view                 = Jsoup.parse(home(homeViewModel, shutteringMessaging = true).toString)
+
+      view.getElementById("alert-banner") mustBe null
     }
   }
 }

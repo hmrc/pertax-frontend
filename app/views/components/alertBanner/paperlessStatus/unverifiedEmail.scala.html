@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package util
+@this()
+@(verifyLink: String)(implicit messages: Messages)
 
-import com.google.inject.Inject
-import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
-
-import java.net.{URI, URLEncoder}
-
-class Tools @Inject() (val applicationCrypto: ApplicationCrypto) {
-  def urlEncode(u: String): String        = URLEncoder.encode(u, "UTF-8")
-  def encryptOnly(s: String): String      =
-    applicationCrypto.QueryParameterCrypto.encrypt(PlainText(s)).value
-  def encryptAndEncode(s: String): String =
-    urlEncode(encryptOnly(s))
-  def isRelative(url: String): Boolean    = !new URI(url).isAbsolute && url.take(2) != "//"
-}
+<p class="govuk-notification-banner__heading">
+ @messages("alert_banner.paperlessStatus.unverified_email.p1")
+ <a href="@verifyLink" class="govuk-notification-banner__link">@messages("alert_banner.paperlessStatus.unverified_email.link")</a>
+</p>
