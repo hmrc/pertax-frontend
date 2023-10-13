@@ -686,3 +686,13 @@ tax_credits.interstitial.title = Newid cyfeiriad
 tax_credits.interstitial.p1 = Gan eich bod yn cael credydau treth, bydd angen i chi newid eich hawliad yn y Gwasanaeth Credydau Treth
 tax_credits.interstitial.p2 = Fel arfer, mae’n cymryd hyd at 48 awr i’ch cyfeiriad gael ei ddiweddaru ar eich Cyfrif Treth Personol. Gall gymryd hyd at bythefnos ar rai adegau.
 tax_credits.interstitial.link_text = Yn eich blaen i’r Gwasanaeth Credydau Treth
+
+#*************************************************************
+# Alert Banner
+#*************************************************************
+alert_banner.paperlessStatus.bounced_email.link = eich cyfeiriad e-bost
+alert_banner.paperlessStatus.bounced_email.p1 = Rydym yn cael trafferth anfon e-byst atoch.
+alert_banner.paperlessStatus.bounced_email.p2.start = Gwiriwch
+alert_banner.paperlessStatus.bounced_email.p2.end = nawr.
+alert_banner.paperlessStatus.unverified_email.link = ddilysu’ch cyfeiriad e-bost
+alert_banner.paperlessStatus.unverified_email.p1 = Mae angen i chi

@@ -16,15 +16,16 @@
 
 @import controllers.auth.requests.UserRequest
 @import viewmodels.HomeViewModel
-@import scala.concurrent.ExecutionContext
 @import components.H2
 @import config.ConfigDecorator
+@import views.html.components.alertBanner.AlertBanner
 
 @this(
     main: MainView,
     govukInsetText: GovukInsetText,
     h2: H2,
     govukNotificationBanner : GovukNotificationBanner,
+        alertBanner: AlertBanner,
     configDecorator: ConfigDecorator
 )
 
@@ -43,13 +44,13 @@
     showUserResearchBanner = viewModel.showUserResearchBanner,
     accountHome = true
 ) {
-
-
     @if(shutteringMessaging) {
         @govukNotificationBanner(NotificationBanner(
             content = HtmlContent(bannerHtml)
         ))
     }
+
+    @alertBanner(viewModel.alertBannerContent)
 
     <header class="hmrc-page-heading">
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>

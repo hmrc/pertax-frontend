@@ -1,10 +1,11 @@
 package controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.{badRequest, get, getRequestedFor, ok, put, serverError, urlEqualTo, urlMatching}
 import play.api.Application
+import play.api.http.Status.OK
 import play.api.i18n._
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 
@@ -117,13 +118,17 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
     ).foreach { case (key, texts) =>
       s"show $key status for Contact preferences" in {
         server.stubFor(
-          get(urlMatching("/paperless/status.*"))
+          get(
+            urlEqualTo(
+              "/paperless/status?returnUrl=DO8MisXKpizAWqbqizwb/NmVXB7xoygTAvj2HM8Iu90TdGXVcrxI848U4tDa5gI%2BPdRU4lmXYlaEQe/%2Bt1KoUg%3D%3D&returnLinkText=HWSAralA6odRpvfKtB4jCw%3D%3D"
+            )
+          )
             .willReturn(ok(paperlessStatusMessage(key)))
         )
 
         val request         = FakeRequest(GET, url)
           .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
-        val result          = route(app, request)
+        val result          = route(app, request).get
         val includeExpected = texts.foldLeft(include(paperlessStatusTargetUrl)) { (accumulator, currentValue) =>
           currentValue match {
             case None        => accumulator
@@ -131,7 +136,43 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
           }
         }
 
-        contentAsString(result.get) must includeExpected
+        status(result) mustBe OK
+        contentAsString(result) must includeExpected
+        server.verify(
+          getRequestedFor(
+            urlEqualTo(
+              "/paperless/status?returnUrl=DO8MisXKpizAWqbqizwb/NmVXB7xoygTAvj2HM8Iu90TdGXVcrxI848U4tDa5gI%2BPdRU4lmXYlaEQe/%2Bt1KoUg%3D%3D&returnLinkText=HWSAralA6odRpvfKtB4jCw%3D%3D"
+            )
+          )
+        )
+      }
+    }
+
+    s"not show Contact preferences" when {
+      "There is a client error" in {
+        server.stubFor(
+          get(urlMatching("/paperless/status.*"))
+            .willReturn(badRequest())
+        )
+
+        val request = FakeRequest(GET, url)
+          .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
+        val result  = route(app, request)
+
+        contentAsString(result.get) must not include "Contact preferences"
+      }
+
+      "There is a server error" in {
+        server.stubFor(
+          get(urlMatching("/paperless/status.*"))
+            .willReturn(serverError())
+        )
+
+        val request = FakeRequest(GET, url)
+          .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
+        val result  = route(app, request)
+
+        contentAsString(result.get) must not include "Contact preferences"
       }
     }
   }

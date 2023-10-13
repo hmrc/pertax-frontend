@@ -14,12 +14,10 @@
  * limitations under the License.
  *@
 
-@import views.html.helper.CSPNonce
-
 @this()
-@(stylesheets: Option[Html])(implicit request: Request[_])
+@(verifyLink: String)(implicit messages: Messages)
 
-    <meta name="format-detection" content="telephone=no" />
-    <link @CSPNonce.attr rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
-
-    @stylesheets
+<p class="govuk-notification-banner__heading">
+ @messages("alert_banner.paperlessStatus.unverified_email.p1")
+ <a href="@verifyLink" class="govuk-notification-banner__link">@messages("alert_banner.paperlessStatus.unverified_email.link")</a>
+</p>

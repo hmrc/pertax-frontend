@@ -70,7 +70,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       mockTaiService,
       mockMessageFrontendService,
       mockHomePageCachingHelper,
-      mockHomeCardGenerator
+      mockHomeCardGenerator,
+      mockPreferencesFrontendConnector
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle))) thenReturn Future.successful(
       FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)
@@ -944,6 +945,62 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       resultCYM1 mustBe Some(TaxYearReconciliation(2016, Balanced))
       resultCYM2 mustBe Some(TaxYearReconciliation(2015, Balanced))
+    }
+
+    "return a 200 status and no calls to PreferencesFrontendConnector if AlertFlagToggle is disabled" in new LocalSetup {
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle))) thenReturn Future
+        .successful(
+          FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = false)
+        )
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, PaperlessMessagesStatus](
+            Future.successful(Right(PaperlessStatusBounced()))
+          )
+        )
+
+      lazy val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector),
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+        )
+        .build()
+
+      val controller: HomeController = app.injector.instanceOf[HomeController]
+      val r: Future[Result]          = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      status(r) mustBe OK
+      verify(mockPreferencesFrontendConnector, never).getPaperlessStatus(any(), any())(any())
+    }
+
+    "return a 200 status and one call to PreferencesFrontendConnector if AlertFlagToggle is enabled" in new LocalSetup {
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle))) thenReturn Future
+        .successful(
+          FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = true)
+        )
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, PaperlessMessagesStatus](
+            Future.successful(Right(PaperlessStatusBounced()))
+          )
+        )
+
+      lazy val app: Application = localGuiceApplicationBuilder()
+        .overrides(
+          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector),
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+        )
+        .build()
+
+      val controller: HomeController = app.injector.instanceOf[HomeController]
+      val r: Future[Result]          = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      status(r) mustBe OK
+      verify(mockPreferencesFrontendConnector, times(1)).getPaperlessStatus(any(), any())(any())
     }
   }
 }

@@ -14,12 +14,21 @@
  * limitations under the License.
  *@
 
-@import views.html.helper.CSPNonce
+@import viewmodels.HomeViewModel
 
-@this()
-@(stylesheets: Option[Html])(implicit request: Request[_])
+@this(govukNotificationBanner : GovukNotificationBanner)
 
-    <meta name="format-detection" content="telephone=no" />
-    <link @CSPNonce.attr rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
+@(contents: List[Html])
 
-    @stylesheets
+@alertBannerHtml = {
+    @contents.map { content =>
+        <div>@content</div>
+    }
+}
+
+@if(contents.nonEmpty) {
+    @govukNotificationBanner(NotificationBanner(
+        content = HtmlContent(alertBannerHtml),
+        attributes = Map("id" -> "alert-banner")
+    ))
+}
