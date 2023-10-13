@@ -40,7 +40,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     )
     .build()
 
-  val sut: EnhancedPartialRetriever = injected[EnhancedPartialRetriever]
+  val sut: EnhancedPartialRetriever = inject[EnhancedPartialRetriever]
 
   "Calling EnhancedPartialRetriever.loadPartial" must {
 

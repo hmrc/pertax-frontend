@@ -27,7 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.time.CurrentTaxYear
 
 import java.time.LocalDate
-import scala.concurrent.{ExecutionContext}
+import scala.concurrent.ExecutionContext
 
 class PaymentsController @Inject() (
   val payApiConnector: PayApiConnector,

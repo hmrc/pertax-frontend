@@ -24,11 +24,10 @@
     mainView: MainView,
     h1: H1,
     h2: H2,
-    p: P,
-    link: Link
+    p: P
 )
 
-@(redirectUrl: String, newsAndContentModelList: List[NewsAndContentModel], selectedNewsSectionId: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(newsAndContentModelList: List[NewsAndContentModel], selectedNewsSectionId: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @mainView(
     pageTitle = messages("label.news_and_updates"),

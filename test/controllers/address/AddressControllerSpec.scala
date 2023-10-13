@@ -32,7 +32,7 @@ class AddressControllerSpec extends AddressBaseSpec {
 
   object SUT
       extends AddressController(
-        injected[AuthJourney],
+        inject[AuthJourney],
         cc,
         displayAddressInterstitialView,
         mockFeatureFlagService,
@@ -46,7 +46,7 @@ class AddressControllerSpec extends AddressBaseSpec {
       "a nino and person details are present in the request" in {
 
         when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
 
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
@@ -67,7 +67,7 @@ class AddressControllerSpec extends AddressBaseSpec {
       "a nino cannot be found in the request" in {
 
         when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
 
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
@@ -83,7 +83,7 @@ class AddressControllerSpec extends AddressBaseSpec {
       "person details cannot be found in the request" in {
 
         when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
 
         implicit def userRequest[A]: UserRequest[A] =
           buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
@@ -103,7 +103,7 @@ class AddressControllerSpec extends AddressBaseSpec {
       "the NpsOutageToggle is set to true" in {
 
         when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = true)))
 
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])

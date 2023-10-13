@@ -19,10 +19,11 @@ package controllers.address
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto.{AddressPageVisitedDto, DateDto, Dto}
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.Request
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.Fixtures
@@ -31,6 +32,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.personaldetails.UpdateAddressView
 
 import java.time.LocalDate
+import scala.concurrent.Future
 
 class UpdateAddressControllerSpec extends AddressBaseSpec {
 
@@ -41,7 +43,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         mockAuthJourney,
         cc,
-        injected[UpdateAddressView],
+        inject[UpdateAddressView],
         displayAddressInterstitialView,
         mockFeatureFlagService,
         internalServerErrorView
@@ -57,7 +59,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
 
     "find only the selected address from the session cache and no residency choice and return 303" in new LocalSetup {
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
@@ -78,7 +80,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
@@ -91,7 +93,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result                                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result]                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
@@ -102,7 +104,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
 
       override def sessionCacheResponse: Option[CacheMap] = Some(CacheMap("id", Map.empty))
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -113,7 +115,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
 
       override def sessionCacheResponse: Option[CacheMap] = None
 
-      val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
@@ -134,7 +136,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
@@ -147,7 +149,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result                                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result: Future[Result]                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
@@ -158,7 +160,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
 
       override def sessionCacheResponse: Option[CacheMap] = Some(CacheMap("id", Map.empty))
 
-      val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
@@ -180,7 +182,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
@@ -201,7 +203,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
@@ -214,13 +216,13 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result                                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result: Future[Result]                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("govuk-fieldset__heading").toString().contains("Your postal address") mustBe true
+      val doc: Document = Jsoup.parse(contentAsString(result))
+      doc.getElementsByClass("govuk-fieldset__heading").toString.contains("Your postal address") mustBe true
     }
 
     "show 'Enter your address' when user amends residential address manually and address has not been selected" in new LocalSetup {
@@ -229,13 +231,13 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result                                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result]                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("govuk-fieldset__heading").toString().contains("Your address") mustBe true
+      val doc: Document = Jsoup.parse(contentAsString(result))
+      doc.getElementsByClass("govuk-fieldset__heading").toString.contains("Your address") mustBe true
     }
 
     "show 'Edit the address (optional)' when user amends correspondence address manually and address has been selected" in new LocalSetup {
@@ -252,13 +254,13 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("govuk-fieldset__heading").toString().contains("Edit the address (optional)") mustBe true
+      val doc: Document = Jsoup.parse(contentAsString(result))
+      doc.getElementsByClass("govuk-fieldset__heading").toString.contains("Edit the address (optional)") mustBe true
     }
 
     "show 'Edit your address (optional)' when user amends residential address manually and address has been selected" in new LocalSetup {
@@ -275,13 +277,13 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("govuk-fieldset__heading").toString().contains("Edit your address (optional)") mustBe true
+      val doc: Document = Jsoup.parse(contentAsString(result))
+      doc.getElementsByClass("govuk-fieldset__heading").toString.contains("Edit your address (optional)") mustBe true
     }
   }
 
@@ -292,7 +294,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("selectedAddressRecord" -> Json.toJson(""))))
 
-      val result                                          = controller.onSubmit(PostalAddrType)(FakeRequest("POST", ""))
+      val result: Future[Result]                          = controller.onSubmit(PostalAddrType)(FakeRequest("POST", ""))
 
       status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -308,7 +310,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified: _*)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(PostalAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(PostalAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/changes")
@@ -329,7 +331,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified: _*)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
