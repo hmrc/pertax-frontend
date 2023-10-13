@@ -51,14 +51,15 @@ class HomeControllerAlertBannerISpec extends IntegrationSpec {
   "personal-account" must {
     "show alert banner" when {
       "paperless status is BOUNCED_EMAIL" in {
-        server.stubFor(get(urlMatching("/paperless/status.*")).willReturn(ok("""{
+        val link = "http://some/link"
+        server.stubFor(get(urlMatching("/paperless/status.*")).willReturn(ok(s"""{
              |  "status": {
              |    "name": "BOUNCED_EMAIL",
              |    "category": "INFO",
              |    "text": "Unused"
              |  },
              |  "url": {
-             |    "link": "http://some/unused/link",
+             |    "link": "$link",
              |    "text": "Unused"
              |  }
              |}""".stripMargin)))
@@ -69,18 +70,19 @@ class HomeControllerAlertBannerISpec extends IntegrationSpec {
         val banner                 = html.getElementById("alert-banner")
         banner.toString must include("We are having trouble sending you emails")
         banner.toString must include("check your email address")
-        banner.toString must include("/paperless/email-bounce?")
+        banner.toString must include(link)
       }
 
       "paperless status is EMAIL_NOT_VERIFIED" in {
-        server.stubFor(get(urlMatching("/paperless/status.*")).willReturn(ok("""{
+        val link = "http://some/link"
+        server.stubFor(get(urlMatching("/paperless/status.*")).willReturn(ok(s"""{
                                                                                |  "status": {
                                                                                |    "name": "EMAIL_NOT_VERIFIED",
                                                                                |    "category": "INFO",
                                                                                |    "text": "Unused"
                                                                                |  },
                                                                                |  "url": {
-                                                                               |    "link": "http://some/unused/link",
+                                                                               |    "link": "$link",
                                                                                |    "text": "Unused"
                                                                                |  }
                                                                                |}""".stripMargin)))
@@ -90,7 +92,7 @@ class HomeControllerAlertBannerISpec extends IntegrationSpec {
         httpStatus(result) mustBe OK
         val banner                 = html.getElementById("alert-banner")
         banner.toString must include("verify your email address")
-        banner.toString must include("/paperless/email-re-verify?")
+        banner.toString must include(link)
       }
     }
     "not show alert banner" when {

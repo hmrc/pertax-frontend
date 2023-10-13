@@ -18,7 +18,6 @@ package util
 
 import cats.implicits.catsStdInstancesForFuture
 import com.google.inject.Inject
-import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models._
@@ -34,8 +33,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class AlertBannerHelper @Inject() (
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService,
-  configDecorator: ConfigDecorator,
-  tools: Tools,
   bouncedEmailView: bouncedEmail,
   unverifiedEmailView: unverifiedEmail
 ) {
@@ -58,25 +55,16 @@ class AlertBannerHelper @Inject() (
   ): Future[Option[Html]] =
     featureFlagService.get(AlertBannerPaperlessStatusToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        val absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
         preferencesFrontendConnector
           .getPaperlessStatus(request.uri, "")
           .fold(
             _ => None,
             {
               case paperlessStatus: PaperlessStatusBounced =>
-                val bounceLink = configDecorator.preferencedBouncedEmailLink(
-                  tools.encryptAndEncode(absoluteUrl),
-                  tools.encryptAndEncode(paperlessStatus.link)
-                )
-                Some(bouncedEmailView(bounceLink))
+                Some(bouncedEmailView(paperlessStatus.link))
 
               case paperlessStatus: PaperlessStatusUnverified =>
-                val unverifiedLink = configDecorator.preferencedReVerifyEmailLink(
-                  tools.encryptAndEncode(absoluteUrl),
-                  tools.encryptAndEncode(paperlessStatus.link)
-                )
-                Some(unverifiedEmailView(unverifiedLink))
+                Some(unverifiedEmailView(paperlessStatus.link))
               case _                                          =>
                 None
             }
