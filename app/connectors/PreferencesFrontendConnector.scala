@@ -49,8 +49,8 @@ class PreferencesFrontendConnector @Inject() (
     with I18nSupport
     with Logging {
 
-  val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
-  val url                    = preferencesFrontendUrl
+  val preferencesFrontendUrl: String = servicesConfig.baseUrl("preferences-frontend")
+  val url: String                    = preferencesFrontendUrl
 
   def getPaperlessPreference()(implicit
     request: UserRequest[_]
@@ -87,8 +87,8 @@ class PreferencesFrontendConnector @Inject() (
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + url
     val fullUrl     =
-      url"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
-        .encryptAndEncode(returnMessage)}"
+      url"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptOnly(absoluteUrl)}&returnLinkText=${tools
+        .encryptOnly(returnMessage)}"
     httpClientResponse
       .read(
         httpClientV2

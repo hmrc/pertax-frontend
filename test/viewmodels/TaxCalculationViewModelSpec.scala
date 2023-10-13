@@ -33,13 +33,13 @@ class TaxCalculationViewModelSpec extends ViewSpec {
 
   import BetterOptionValues._
 
-  val taxCalculation = injected[TaxCalculationView]
+  val taxCalculation: TaxCalculationView = inject[TaxCalculationView]
 
   def viewWithMakePaymentLink(reconciliation: Reconciliation): Option[Document] =
     TaxCalculationViewModel
       .fromTaxYearReconciliation(
         TaxYearReconciliation(2017, reconciliation),
-        FeatureFlag(TaxcalcMakePaymentLinkToggle, true)
+        FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)
       )(config)
       .map { taxRec =>
         asDocument(taxCalculation(taxRec)(messages, config).toString)
@@ -49,14 +49,14 @@ class TaxCalculationViewModelSpec extends ViewSpec {
     TaxCalculationViewModel
       .fromTaxYearReconciliation(
         TaxYearReconciliation(2017, reconciliation),
-        FeatureFlag(TaxcalcMakePaymentLinkToggle, false)
+        FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = false)
       )(config)
       .map { taxRec =>
         asDocument(taxCalculation(taxRec)(messages, config).toString)
       }
 
-  def formatDate(date: LocalDate) =
-    injected[LanguageUtils].Dates.formatDate(Some(date), "dd MMMM yyyy")(messages)
+  def formatDate(date: LocalDate): String =
+    inject[LanguageUtils].Dates.formatDate(Some(date), "dd MMMM yyyy")(messages)
 
   "taxCalculation with payment link toggle" should {
 

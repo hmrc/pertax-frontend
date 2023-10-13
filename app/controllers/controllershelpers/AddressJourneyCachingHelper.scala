@@ -18,7 +18,7 @@ package controllers.controllershelpers
 
 import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
-import controllers.bindable.{AddrType}
+import controllers.bindable.AddrType
 import models._
 import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
@@ -37,7 +37,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
     extends Results
     with Logging {
 
-  val addressLookupServiceDownKey = "addressLookupServiceDown"
+  private val addressLookupServiceDownKey = "addressLookupServiceDown"
 
   def addToCache[A: Writes](id: CacheIdentifier[A], record: A)(implicit hc: HeaderCarrier): Future[CacheMap] =
     sessionCache.cache(id.id, record)
@@ -48,39 +48,12 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
   def clearCache()(implicit hc: HeaderCarrier): Future[HttpResponse] =
     sessionCache.remove()
 
-  def gettingCachedAddressPageVisitedDto[T](
-    block: Option[AddressPageVisitedDto] => Future[T]
-  )(implicit hc: HeaderCarrier): Future[T] =
-    sessionCache.fetch() flatMap {
-      case Some(cacheMap) =>
-        block(cacheMap.getEntry[AddressPageVisitedDto](AddressPageVisitedDtoId.id))
-      case None           =>
-        block(None)
-    } recoverWith {
-      case e: KeyStoreEntryValidationException =>
-        logger.error(s"Failed to read cached address page visited")
-        block(None)
-      case NonFatal(e)                         => throw e
-    }
-
   def gettingCachedAddressLookupServiceDown[T](block: Option[Boolean] => T)(implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() map { cacheMap =>
       block(cacheMap.flatMap(_.getEntry[Boolean](addressLookupServiceDownKey)))
     } recover {
-      case e: KeyStoreEntryValidationException =>
+      case _: KeyStoreEntryValidationException =>
         logger.error(s"Failed to read cached address lookup service down")
-        block(None)
-      case NonFatal(e)                         => throw e
-    }
-
-  def gettingCachedTaxCreditsChoiceDto[T](
-    block: Option[TaxCreditsChoiceDto] => T
-  )(implicit hc: HeaderCarrier): Future[T] =
-    sessionCache.fetch() map { cacheMap =>
-      block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto](TaxCreditsChoiceId.id)))
-    } recover {
-      case e: KeyStoreEntryValidationException =>
-        logger.error(s"Failed to read cached tax credits choice")
         block(None)
       case NonFatal(e)                         => throw e
     }
@@ -109,7 +82,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
           AddressJourneyData(None, None, None, None, None, None, None, None, None, addressLookupServiceDown = false)
         )
     } recoverWith {
-      case e: KeyStoreEntryValidationException =>
+      case _: KeyStoreEntryValidationException =>
         logger.error(s"Failed to read cached address")
         block(
           AddressJourneyData(None, None, None, None, None, None, None, None, None, addressLookupServiceDown = false)

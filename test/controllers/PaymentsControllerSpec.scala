@@ -21,13 +21,13 @@ import connectors._
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
-import models.CreatePayment
+import models.PayApiModels
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{redirectLocation, _}
+import play.api.test.Helpers._
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.http.UpstreamErrorResponse
@@ -40,10 +40,10 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
 
-  lazy val fakeRequest = FakeRequest("", "")
+  lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
 
-  val mockPayConnector = mock[PayApiConnector]
-  val mockAuthJourney  = mock[AuthJourney]
+  val mockPayConnector: PayApiConnector = mock[PayApiConnector]
+  val mockAuthJourney: AuthJourney      = mock[AuthJourney]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -51,13 +51,13 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
     )
     .build()
 
-  def controller =
+  def controller: PaymentsController =
     new PaymentsController(
       mockPayConnector,
       mockAuthJourney,
-      injected[WithBreadcrumbAction],
-      injected[MessagesControllerComponents],
-      injected[ErrorRenderer]
+      inject[WithBreadcrumbAction],
+      inject[MessagesControllerComponents],
+      inject[ErrorRenderer]
     )(config, ec)
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -71,13 +71,12 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
   "makePayment" must {
     "redirect to the response's nextUrl" in {
-
       val expectedNextUrl       = "someNextUrl"
-      val createPaymentResponse = CreatePayment("someJourneyId", expectedNextUrl)
+      val createPaymentResponse = PayApiModels("someJourneyId", expectedNextUrl)
 
       when(mockPayConnector.createPayment(any())(any(), any()))
         .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, Option[CreatePayment]](
+          EitherT[Future, UpstreamErrorResponse, Option[PayApiModels]](
             Future.successful(Right(Some(createPaymentResponse)))
           )
         )
@@ -100,7 +99,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
         when(mockPayConnector.createPayment(any())(any(), any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, Option[CreatePayment]](
+            EitherT[Future, UpstreamErrorResponse, Option[PayApiModels]](
               Future.successful(Left(UpstreamErrorResponse("", error)))
             )
           )

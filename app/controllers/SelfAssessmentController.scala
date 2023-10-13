@@ -60,7 +60,7 @@ class SelfAssessmentController @Inject() (
           case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
             Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
           case WrongCredentialsSelfAssessmentUser(_)           =>
-            Redirect(routes.SaWrongCredentialsController.landingPage)
+            Redirect(routes.SaWrongCredentialsController.landingPage())
           case NotEnrolledSelfAssessmentUser(_)                =>
             Redirect(routes.SelfAssessmentController.requestAccess)
           case _                                               => Redirect(routes.HomeController.index)

@@ -22,7 +22,7 @@ import play.api.data.Forms._
 case class AddressSelectorDto(addressId: Option[String]) extends Dto
 
 object AddressSelectorDto {
-  val form = Form(
+  val form: Form[AddressSelectorDto] = Form(
     mapping(
       "addressId" -> optional(text)
         .verifying("error.address_select", _.isDefined)

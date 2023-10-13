@@ -21,7 +21,7 @@ import uk.gov.hmrc.crypto.ApplicationCrypto
 
 class ToolsSpec extends BaseSpec {
 
-  val tools = new Tools(injected[ApplicationCrypto])
+  val tools = new Tools(inject[ApplicationCrypto])
 
   "Calling urlEncode" must {
 

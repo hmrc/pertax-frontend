@@ -34,6 +34,6 @@
 
     @p(Text(messages("label.signed_in_wrong_account")))
 
-    @button("global.label.continue_button", href=Some(routes.SaWrongCredentialsController.doYouKnowOtherCredentials.url), id="continue")
+    @button("global.label.continue_button", href=Some(routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url), id="continue")
 
 }

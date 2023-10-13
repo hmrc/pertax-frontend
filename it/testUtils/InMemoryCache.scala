@@ -5,13 +5,14 @@ import com.google.inject.Inject
 import net.sf.ehcache.Element
 import play.api.cache.AsyncCacheApi
 
+import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 class InMemoryCache @Inject() ()(implicit ec: ExecutionContext) extends AsyncCacheApi {
 
-  val cache = scala.collection.mutable.Map[String, Element]()
+  val cache: mutable.Map[String, Element] = scala.collection.mutable.Map[String, Element]()
 
   def remove(key: String): Future[Done] = Future {
     cache -= key
