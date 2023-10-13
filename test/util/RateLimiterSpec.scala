@@ -25,8 +25,8 @@ import scala.concurrent.Future
 class RateLimiterSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   object TestLimiters {
-    val limiter1 = RateLimiter.create(1)
-    val limiter4 = RateLimiter.create(4)
+    val limiter1: RateLimiter = RateLimiter.create(1)
+    val limiter4: RateLimiter = RateLimiter.create(4)
   }
 
   def workFuture: Future[Boolean] = Future.successful(true)
@@ -36,10 +36,11 @@ class RateLimiterSpec extends BaseSpec with WireMockHelper with IntegrationPatie
   def gatherFutures(listFutures: List[Future[Boolean]]): Future[FuturesResults] =
     listFutures.foldLeft(Future.successful(FuturesResults(0, 0, 0))) { case (accumulator, currentValue) =>
       currentValue.flatMap { result =>
-        if (result)
+        if (result) {
           accumulator.map(results => results.copy(ok = results.ok + 1))
-        else
+        } else {
           accumulator.map(results => results.copy(bad = results.bad + 1))
+        }
       } recoverWith {
         case RateLimitedException => accumulator.map(results => results.copy(bad = results.bad + 1))
         case _                    => accumulator.map(results => results.copy(unknwon = results.unknwon + 1))
@@ -48,13 +49,13 @@ class RateLimiterSpec extends BaseSpec with WireMockHelper with IntegrationPatie
 
   "withThrottle" must {
     "execute a single future successfully" in new Throttle {
-      val rateLimiter = RateLimiter.create(1)
+      val rateLimiter: RateLimiter = RateLimiter.create(1)
 
       def workFuture: Future[Boolean] = Future.successful {
         true
       }
 
-      val result = withThrottle {
+      val result: Future[Boolean] = withThrottle {
         workFuture
       }
 
@@ -62,45 +63,45 @@ class RateLimiterSpec extends BaseSpec with WireMockHelper with IntegrationPatie
     }
 
     "Execute a future successfully and fails one" in new Throttle {
-      val rateLimiter = RateLimiter.create(1)
+      val rateLimiter: RateLimiter = RateLimiter.create(1)
 
-      val resultA = withThrottle {
+      val resultA: Future[Boolean] = withThrottle {
         workFuture
       }
-      val resultB = withThrottle {
+      val resultB: Future[Boolean] = withThrottle {
         workFuture
       }
 
-      val counts = gatherFutures(List(resultA, resultB))
+      val counts: Future[FuturesResults] = gatherFutures(List(resultA, resultB))
 
       counts.futureValue mustBe FuturesResults(1, 1, 0)
     }
 
     "2 futures 1.2 seconds executed successfully at 1 tps" in new Throttle {
-      val rateLimiter = RateLimiter.create(1)
+      val rateLimiter: RateLimiter = RateLimiter.create(1)
 
-      val resultA = withThrottle {
+      val resultA: Future[Boolean] = withThrottle {
         workFuture
       }
       Thread.sleep(1200)
-      val resultB = withThrottle {
+      val resultB: Future[Boolean] = withThrottle {
         workFuture
       }
 
-      val counts = gatherFutures(List(resultA, resultB))
+      val counts: Future[FuturesResults] = gatherFutures(List(resultA, resultB))
 
       counts.futureValue mustBe FuturesResults(2, 0, 0)
     }
 
     "long futures does not block following bucket" in new Throttle {
-      val rateLimiter = RateLimiter.create(1)
+      val rateLimiter: RateLimiter = RateLimiter.create(1)
 
       def workFuture: Future[Boolean] = Future.successful {
         Thread.sleep(1500)
         true
       }
 
-      val result = for {
+      val result: Future[(Boolean, Boolean)] = for {
         resultA <-
           withThrottle {
             workFuture

@@ -32,7 +32,7 @@ class AddressFinderDtoSpec extends BaseSpec {
       AddressFinderDto.form
         .bind(formData)
         .fold(
-          formWithErrors => {},
+          _ => {},
           success => success mustBe AddressFinderDto("AA1 1AA", Some("6"))
         )
     }
@@ -51,7 +51,7 @@ class AddressFinderDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.enter_a_valid_uk_postcode"
           },
-          success => fail("Form should give an error")
+          _ => fail("Form should give an error")
         )
     }
 
@@ -69,7 +69,7 @@ class AddressFinderDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.enter_valid_characters"
           },
-          success => fail("Form should give an error")
+          _ => fail("Form should give an error")
         )
     }
 
@@ -85,10 +85,10 @@ class AddressFinderDtoSpec extends BaseSpec {
         .fold(
           formWithErrors => {
             formWithErrors.errors.length mustBe 2
-            formWithErrors.errors(0).message mustBe "error.enter_a_valid_uk_postcode"
+            formWithErrors.errors.head.message mustBe "error.enter_a_valid_uk_postcode"
             formWithErrors.errors(1).message mustBe "error.enter_valid_characters"
           },
-          success => fail("Form should give an error")
+          _ => fail("Form should give an error")
         )
     }
 
@@ -119,7 +119,7 @@ class AddressFinderDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.enter_a_valid_uk_postcode"
           },
-          success => fail("Form should give an error")
+          _ => fail("Form should give an error")
         )
     }
   }

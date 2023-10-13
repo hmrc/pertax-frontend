@@ -38,7 +38,7 @@ class CachingItSpec
     with DefaultPlayMongoRepositorySupport[AddressJourneyTTLModel]
     with IntegrationPatience {
 
-  lazy val config = mock[ConfigDecorator]
+  lazy val config: ConfigDecorator = mock[ConfigDecorator]
 
   override lazy val repository = new EditAddressLockRepository(
     config,

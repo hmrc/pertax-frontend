@@ -21,7 +21,7 @@ import views.html.ViewSpec
 
 class AddressRowModelSpec extends ViewSpec {
 
-  val address = PersonalDetailsTableRowModel(
+  val address: PersonalDetailsTableRowModel = PersonalDetailsTableRowModel(
     "postal_address",
     "label.postal_address",
     HtmlFormat.empty,

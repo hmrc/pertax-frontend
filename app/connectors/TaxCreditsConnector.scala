@@ -33,7 +33,7 @@ class TaxCreditsConnector @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  lazy val taxCreditsUrl: String = configDecorator.tcsBrokerHost
+  private lazy val taxCreditsUrl: String = configDecorator.tcsBrokerHost
 
   def checkForTaxCredits(
     nino: Nino

@@ -55,9 +55,9 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
     beforeEachHomeController(memorandum = false)
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
-      .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
   }
 
   "personal-account" must {

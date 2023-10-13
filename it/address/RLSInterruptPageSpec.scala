@@ -26,7 +26,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
   }
 
   "personal-account" must {

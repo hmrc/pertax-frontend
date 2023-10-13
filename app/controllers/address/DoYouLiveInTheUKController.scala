@@ -52,7 +52,7 @@ class DoYouLiveInTheUKController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         cachingHelper.enforceDisplayAddressPageVisited(
-          Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form(), ResidentialAddrType))
+          Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form()))
         )
       }
     }
@@ -64,8 +64,7 @@ class DoYouLiveInTheUKController @Inject() (
           .form()
           .bindFromRequest()
           .fold(
-            formWithErrors =>
-              Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors, ResidentialAddrType))),
+            formWithErrors => Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors))),
             internationalAddressChoiceDto =>
               cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
                 if (internationalAddressChoiceDto.value) {

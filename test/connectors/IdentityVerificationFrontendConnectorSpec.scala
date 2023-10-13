@@ -40,7 +40,7 @@ class IdentityVerificationFrontendConnectorSpec
   trait SpecSetup {
     val metricId = "get-iv-journey-status"
 
-    lazy val connector = {
+    lazy val connector: IdentityVerificationFrontendConnector = {
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
       new IdentityVerificationFrontendConnector(
         inject[HttpClient],
@@ -75,7 +75,7 @@ class IdentityVerificationFrontendConnectorSpec
       s"return Left when a $statusCode is retreived" in new SpecSetup {
         stubGet("/mdtp/journey/journeyId/1234", statusCode, None)
 
-        val result =
+        val result: UpstreamErrorResponse =
           connector.getIVJourneyStatus("1234").value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
 
         result.statusCode mustBe statusCode

@@ -34,7 +34,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(injected[LocalSessionCache])
+    reset(inject[LocalSessionCache])
   }
 
   "Calling HomePageCachingHelper.hasUserDismissedUrInvitation" must {
@@ -44,9 +44,9 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
       lazy val cachingHelper: HomePageCachingHelper = {
 
-        val c = injected[HomePageCachingHelper]
+        val c = inject[HomePageCachingHelper]
 
-        when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
+        when(inject[LocalSessionCache].fetch()(any(), any())) thenReturn {
 
           Future.successful {
             urBannerDismissedValueInSessionCache.map { myBool =>
@@ -61,7 +61,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
     }
 
     "return true if cached value returns true" in new LocalSetup {
-      lazy val urBannerDismissedValueInSessionCache = Some(true)
+      lazy val urBannerDismissedValueInSessionCache: Option[Boolean] = Some(true)
 
       hasUserDismissedUrInvitationResult mustBe true
 
@@ -69,7 +69,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
     }
 
     "return false if cached value returns false" in new LocalSetup {
-      lazy val urBannerDismissedValueInSessionCache = Some(false)
+      lazy val urBannerDismissedValueInSessionCache: Option[Boolean] = Some(false)
 
       hasUserDismissedUrInvitationResult mustBe false
 
@@ -77,7 +77,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
     }
 
     "return false if cache returns no record" in new LocalSetup {
-      lazy val urBannerDismissedValueInSessionCache = None
+      lazy val urBannerDismissedValueInSessionCache: Option[Nothing] = None
 
       hasUserDismissedUrInvitationResult mustBe false
 
@@ -89,11 +89,11 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
     trait LocalSetup {
 
-      lazy val cachingHelper = {
+      lazy val cachingHelper: HomePageCachingHelper = {
 
-        val c = injected[HomePageCachingHelper]
+        val c = inject[HomePageCachingHelper]
 
-        when(injected[LocalSessionCache].cache(any(), any())(any(), any(), any())) thenReturn {
+        when(inject[LocalSessionCache].cache(any(), any())(any(), any(), any())) thenReturn {
           Future.successful(CacheMap("id", Map.empty))
         }
         c
