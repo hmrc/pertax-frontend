@@ -22,6 +22,7 @@
 
 @this(
     main: MainView,
+    addressView: AddressView,
     h1: H1,
     p: P,
     link: Link,
@@ -79,7 +80,7 @@
                         @link(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url,
                             s"""${messages("rls.update")} <span class="govuk-visually-hidden">${messages("rls.your_postal_address")}</span>"""
                         )
-                        @mainAddressOption.map { _ =>
+                        @mainAddressOption.map { mainAddress =>
                              @link(controllers.address.routes.ClosePostalAddressController.onPageLoad.url,
                                 s"""${messages("rls.remove")} <span class="govuk-visually-hidden">${messages("rls.your_postal_address")}</span>""",
                                 classes=Some("govuk-link yourProfileExtraLink")

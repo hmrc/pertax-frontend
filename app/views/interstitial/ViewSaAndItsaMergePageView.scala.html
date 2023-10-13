@@ -16,6 +16,7 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import scala.concurrent.ExecutionContext
 @import components.{H1, H2, P, Link}
 
 @this(
@@ -26,7 +27,7 @@
     link: Link
 )
 
-@(nextDeadlineTaxYear: String, isItsa: Boolean, isSa: Boolean, itsaToggle: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(redirectUrl: String, nextDeadlineTaxYear: String, isItsa: Boolean, isSa: Boolean, itsaToggle: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @mainView(
     pageTitle = messages("label.your_self_assessment"),
@@ -73,21 +74,21 @@
                     </ul>
                 }
             }
-        case NotYetActivatedOnlineFilerSelfAssessmentUser(_) => {
+        case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
             <ul class="govuk-list">
                 <li>
                     @link(controllers.routes.SelfAssessmentController.handleSelfAssessment.url, "label.activate_your_self_assessment", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Activate your Self Assessment"), inParagraph=true)
                 </li>
             </ul>
         }
-        case WrongCredentialsSelfAssessmentUser(_) => {
+        case WrongCredentialsSelfAssessmentUser(saUtr) => {
             <ul class="govuk-list">
                 <li>
                     @link(controllers.routes.SelfAssessmentController.handleSelfAssessment.url, "label.find_out_how_to_access_self_assessment", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Find out how to access Self Assessment"), inParagraph=true)
                 </li>
             </ul>
         }
-        case NotEnrolledSelfAssessmentUser(_) => {
+        case NotEnrolledSelfAssessmentUser(saUtr) => {
             @p(Text(messages("label.not_enrolled.content")))
             <ul class="govuk-list">
                 <li>

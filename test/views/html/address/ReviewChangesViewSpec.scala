@@ -18,30 +18,24 @@ package views.html.address
 
 import config.ConfigDecorator
 import controllers.address.routes
-import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import models.dto.AddressDto
-import org.jsoup.nodes.Document
-import play.api.Application
-import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.personaldetails.ReviewChangesView
 
 class ReviewChangesViewSpec extends ViewSpec {
-  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
 
-  lazy val view: ReviewChangesView = inject[ReviewChangesView]
+  lazy val view = injected[ReviewChangesView]
 
-  implicit val configDecorator: ConfigDecorator                 = inject[ConfigDecorator]
-  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-  val address: AddressDto                                       =
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  implicit val userRequest                      = buildUserRequest(request = FakeRequest())
+  val address                                   =
     AddressDto("AddressLine1", "AddressLine2", None, None, None, Some("TestPostcode"), None, None)
 
-  def result(addressType: AddrType): Document = asDocument(
-    view(addressType, address, "yes.label", isUkAddress = true, None, displayDateAddressChanged = false).toString
-  )
+  def result(addressType: AddrType) = asDocument(view(addressType, address, "yes.label", true, None, false).toString)
 
   "rendering ReviewChangesView" must {
     "when postal address has been changed display 'is your address in the uk'" in {
@@ -50,7 +44,7 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertNotContainText(result(PostalAddrType), messages("label.is_your_main_address_in_the_uk"))
     }
 
-    "when postal address has been changed display link to PostalInternationalAddressChoiceController" in {
+    "when postal address has been changed display link to PostalDoYouLiveInTheUKController" in {
 
       assertContainsLink(
         result(PostalAddrType),

@@ -17,17 +17,21 @@
 package views.html.cards
 
 import config.ConfigDecorator
+import org.jsoup.nodes.Document
+import org.scalatest.Assertion
 import play.api.i18n.Messages
 import viewmodels.Message.text
 import viewmodels.{Heading, TaxCalculationViewModel, TaxYears, UnderpaidUrl}
 import views.html.ViewSpec
 import views.html.cards.home.TaxCalculationView
 
+import scala.collection.JavaConverters._
+
 class TaxCalculationViewSpec extends ViewSpec {
 
-  val taxCalculation: TaxCalculationView = inject[TaxCalculationView]
+  val taxCalculation = injected[TaxCalculationView]
 
-  implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   "TaxCalculation card" must {
 

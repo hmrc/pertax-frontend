@@ -16,32 +16,29 @@
 
 package controllers
 
-import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.BaseSpec
 
-import scala.concurrent.Future
-
 class LanguageControllerSpec extends BaseSpec {
 
   trait LocalSetup {
-    val controller: LanguageSwitchController = app.injector.instanceOf[LanguageSwitchController]
+    val c = app.injector.instanceOf[LanguageSwitchController]
   }
 
   "Calling LanguageController.enGb" must {
     "change the language to English and return 303" in new LocalSetup {
-      val result: Future[Result] = controller.enGb()(FakeRequest("GET", ""))
-      cookies(result).get("PLAY_LANG").get.value mustBe "en"
-      status(result) mustBe SEE_OTHER
+      val r = c.enGb()(FakeRequest("GET", ""))
+      cookies(r).get("PLAY_LANG").get.value mustBe "en"
+      status(r) mustBe SEE_OTHER
     }
   }
 
   "Calling LanguageController.cyGb" must {
     "change the language to Welsh and return 303" in new LocalSetup {
-      val result: Future[Result] = controller.cyGb()(FakeRequest("GET", ""))
-      cookies(result).get("PLAY_LANG").get.value mustBe "cy"
-      status(result) mustBe SEE_OTHER
+      val r = c.cyGb()(FakeRequest("GET", ""))
+      cookies(r).get("PLAY_LANG").get.value mustBe "cy"
+      status(r) mustBe SEE_OTHER
     }
   }
 }

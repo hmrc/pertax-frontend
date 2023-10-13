@@ -38,7 +38,7 @@ class AddressLookupConnectorSpec extends BaseSpec with WireMockHelper with Integ
     )
     .build()
 
-  def addressLookupConnector: AddressLookupConnector = inject[AddressLookupConnector]
+  def addressLookupConnector: AddressLookupConnector = injected[AddressLookupConnector]
 
   val urlPost = "/lookup"
 

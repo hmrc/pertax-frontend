@@ -18,4 +18,5 @@ package models
 
 trait ItsaEnrolment
 
+case object ItsaEnrolmentNotEnrolled extends ItsaEnrolment
 case class ItsaEnrolmentEnrolled(status: EnrolmentStatus) extends ItsaEnrolment

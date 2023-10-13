@@ -84,7 +84,7 @@ class HomeCardGenerator @Inject() (
       }
     }
 
-  private def getTaxCalculationCard(
+  def getTaxCalculationCard(
     taxYearReconciliations: Option[TaxYearReconciliation]
   )(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
     featureFlagService.get(TaxcalcMakePaymentLinkToggle).map { toggle =>

@@ -33,7 +33,7 @@ class TaxCalculationConnector @Inject() (
   httpClientResponse: HttpClientResponse
 )(implicit ec: ExecutionContext) {
 
-  private lazy val taxCalcUrl = servicesConfig.baseUrl("taxcalc")
+  lazy val taxCalcUrl = servicesConfig.baseUrl("taxcalc")
 
   def getTaxYearReconciliations(
     nino: Nino

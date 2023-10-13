@@ -32,12 +32,12 @@ class TaxCalculationConnectorSpec extends ConnectorSpec with WireMockHelper with
     Map("microservice.services.taxcalc.port" -> server.port())
   )
 
-  lazy val taxCalculationConnector: TaxCalculationConnector = inject[TaxCalculationConnector]
+  lazy val taxCalculationConnector = inject[TaxCalculationConnector]
 
   val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
   val url        = s"/taxcalc/$nino/reconciliations"
 
-  val expectedTaxYearListBalanced: Seq[TaxYearReconciliation] =
+  val expectedTaxYearListBalanced =
     List(TaxYearReconciliation(2022, Balanced))
 
   val expectedTaxYearListBalancedResponse: String =
@@ -52,7 +52,7 @@ class TaxCalculationConnectorSpec extends ConnectorSpec with WireMockHelper with
       )
       .toString
 
-  val expectedTaxYearListOverpaid: Seq[TaxYearReconciliation] =
+  val expectedTaxYearListOverpaid =
     List(TaxYearReconciliation(2022, Reconciliation.overpaid(Some(100), OverpaidStatus.Refund)))
 
   val expectedTaxYearListOverpaidResponse: String =
@@ -69,7 +69,7 @@ class TaxCalculationConnectorSpec extends ConnectorSpec with WireMockHelper with
       )
       .toString
 
-  val expectedTaxYearListUnderpaid: Seq[TaxYearReconciliation] =
+  val expectedTaxYearListUnderpaid =
     List(TaxYearReconciliation(2022, Reconciliation.underpaid(Some(100), None, UnderpaidStatus.PaymentDue)))
 
   val expectedTaxYearListUnderpaidResponse: String =

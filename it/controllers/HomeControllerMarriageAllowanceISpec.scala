@@ -43,9 +43,9 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
     beforeEachHomeController()
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, true)))
   }
 
   "personal-account" must {

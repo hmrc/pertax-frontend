@@ -74,7 +74,7 @@ class TaxCreditsChoiceController @Inject() (
               }
           } else {
             Future.successful(
-              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form))
+              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
             )
           }
         }
@@ -94,7 +94,7 @@ class TaxCreditsChoiceController @Inject() (
               .fold(
                 formWithErrors =>
                   Future
-                    .successful(BadRequest(taxCreditsChoiceView(formWithErrors))),
+                    .successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
                 taxCreditsChoiceDto =>
                   cachingHelper.addToCache(TaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
                     if (taxCreditsChoiceDto.hasTaxCredits) {
