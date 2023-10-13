@@ -32,7 +32,7 @@ class TaiConnector @Inject() (
   httpClientResponse: HttpClientResponse
 ) {
 
-  lazy val taiUrl = servicesConfig.baseUrl("tai")
+  private lazy val taiUrl = servicesConfig.baseUrl("tai")
 
   def taxComponents(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier,

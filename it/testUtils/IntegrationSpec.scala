@@ -26,7 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 trait IntegrationSpec
-    extends AnyWordSpec
+  extends AnyWordSpec
     with GuiceOneAppPerSuite
     with WireMockHelper
     with ScalaFutures
@@ -39,7 +39,7 @@ trait IntegrationSpec
     override def remove(key: String): Future[Done] = Future.successful(Done)
 
     override def getOrElseUpdate[A](key: String, expiration: Duration)(orElse: => Future[A])(implicit
-      evidence$1: ClassTag[A]
+                                                                                             evidence$1: ClassTag[A]
     ): Future[A] = orElse
 
     override def get[T](key: String)(implicit evidence$2: ClassTag[T]): Future[Option[T]] = Future.successful(None)
@@ -96,19 +96,19 @@ trait IntegrationSpec
   val citizenResponse: String =
     s"""|
        |{
-       |  "name": {
-       |    "current": {
-       |      "firstName": "John",
-       |      "lastName": "Smith"
-       |    },
-       |    "previous": []
-       |  },
-       |  "ids": {
-       |    "nino": "$generatedNino"
-       |  },
-       |  "dateOfBirth": "11121971"
-       |}
-       |""".stripMargin
+        |  "name": {
+        |    "current": {
+        |      "firstName": "John",
+        |      "lastName": "Smith"
+        |    },
+        |    "previous": []
+        |  },
+        |  "ids": {
+        |    "nino": "$generatedNino"
+        |  },
+        |  "dateOfBirth": "11121971"
+        |}
+        |""".stripMargin
 
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
@@ -150,10 +150,10 @@ trait IntegrationSpec
   }
 
   def beforeEachHomeController(
-    auth: Boolean = true,
-    memorandum: Boolean = true,
-    matchingDetails: Boolean = true
-  ): StubMapping = {
+                                auth: Boolean = true,
+                                memorandum: Boolean = true,
+                                matchingDetails: Boolean = true
+                              ): StubMapping = {
     if (auth) {
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     }

@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.PaperlessMessages
+import models.PaperlessMessagesStatus
 import play.api.Logging
 import play.api.http.Status.PRECONDITION_FAILED
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -49,8 +49,8 @@ class PreferencesFrontendConnector @Inject() (
     with I18nSupport
     with Logging {
 
-  val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
-  val url                    = preferencesFrontendUrl
+  val preferencesFrontendUrl: String = servicesConfig.baseUrl("preferences-frontend")
+  val url: String                    = preferencesFrontendUrl
 
   def getPaperlessPreference()(implicit
     request: UserRequest[_]
@@ -83,19 +83,19 @@ class PreferencesFrontendConnector @Inject() (
 
   def getPaperlessStatus(url: String, returnMessage: String)(implicit
     request: UserRequest[_]
-  ): EitherT[Future, UpstreamErrorResponse, PaperlessMessages] = {
+  ): EitherT[Future, UpstreamErrorResponse, PaperlessMessagesStatus] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + url
     val fullUrl     =
-      s"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
-        .encryptAndEncode(returnMessage)}"
+      url"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptOnly(absoluteUrl)}&returnLinkText=${tools
+        .encryptOnly(returnMessage)}"
     httpClientResponse
       .read(
         httpClientV2
-          .get(url"$fullUrl")
+          .get(fullUrl)
           .transform(_.withRequestTimeout(configDecorator.preferenceFrontendTimeoutInSec.seconds))
           .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
-      .map(_.json.as[PaperlessMessages])
+      .map(_.json.as[PaperlessMessagesStatus])
   }
 }

@@ -36,6 +36,7 @@ object AllFeatureFlags {
     AgentClientAuthorisationToggle,
     PertaxBackendToggle,
     BreathingSpaceIndicatorToggle,
+    AlertBannerPaperlessStatusToggle,
     GetPersonFromCitizenDetailsToggle,
     DfsDigitalFormFrontendAvailableToggle,
     AddressChangeAllowedToggle
@@ -152,5 +153,12 @@ case object AddressChangeAllowedToggle extends FeatureFlagName {
   override val name: String                = "address-change-allowed-toggle"
   override val description: Option[String] = Some(
     "Enable/disable indicating whether the address change is allowed in profile and settings page"
+  )
+}
+
+case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
+  override val name: String                = "alert-banner-paperless-status-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable paperless alerts in alert banner on the home page"
   )
 }

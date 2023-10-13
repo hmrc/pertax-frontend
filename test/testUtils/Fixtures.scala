@@ -49,7 +49,6 @@ import java.time.temporal.ChronoField
 import java.time.{Instant, LocalDate}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
-import scala.reflect.ClassTag
 import scala.util.Random
 
 trait PafFixtures {
@@ -375,10 +374,6 @@ trait BaseSpec
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   lazy val config: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
-
-  def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
-
-  def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
 
   override def beforeEach(): Unit = {
     super.beforeEach()

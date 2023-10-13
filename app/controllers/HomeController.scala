@@ -28,11 +28,12 @@ import models.admin.{ShowOutageBannerToggle, TaxComponentsToggle, TaxcalcToggle}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.AlertBannerHelper
 import viewmodels.HomeViewModel
 import views.html.HomeView
 
@@ -40,20 +41,21 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
-  paperlessInterruptHelper: PaperlessInterruptHelper,
-  taiConnector: TaiConnector,
-  taxCalculationConnector: TaxCalculationConnector,
-  breathingSpaceService: BreathingSpaceService,
-  featureFlagService: FeatureFlagService,
-  homeCardGenerator: HomeCardGenerator,
-  homePageCachingHelper: HomePageCachingHelper,
-  authJourney: AuthJourney,
-  cc: MessagesControllerComponents,
-  homeView: HomeView,
-  seissService: SeissService,
-  rlsInterruptHelper: RlsInterruptHelper
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends PertaxBaseController(cc)
+                                 paperlessInterruptHelper: PaperlessInterruptHelper,
+                                 taiConnector: TaiConnector,
+                                 taxCalculationConnector: TaxCalculationConnector,
+                                 breathingSpaceService: BreathingSpaceService,
+                                 featureFlagService: FeatureFlagService,
+                                 homeCardGenerator: HomeCardGenerator,
+                                 homePageCachingHelper: HomePageCachingHelper,
+                                 authJourney: AuthJourney,
+                                 cc: MessagesControllerComponents,
+                                 homeView: HomeView,
+                                 seissService: SeissService,
+                                 rlsInterruptHelper: RlsInterruptHelper,
+                                 alertBannerHelper: AlertBannerHelper
+                               )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+  extends PertaxBaseController(cc)
     with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
@@ -81,16 +83,16 @@ class HomeController @Inject() (
             (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
             _                                                                               <- seissService.hasClaims(saUserType)
             breathingSpaceIndicator                                                         <- breathingSpaceService.getBreathingSpaceIndicator(request.nino).map {
-                                                                                                 case WithinPeriod => true
-                                                                                                 case _            => false
-                                                                                               }
+              case WithinPeriod => true
+              case _            => false
+            }
             incomeCards                                                                     <- homeCardGenerator.getIncomeCards(
-                                                                                                 taxSummaryState,
-                                                                                                 taxCalculationStateCyMinusOne,
-                                                                                                 taxCalculationStateCyMinusTwo
-                                                                                               )
+              taxSummaryState,
+              taxCalculationStateCyMinusOne,
+              taxCalculationStateCyMinusTwo
+            )
             shutteringMessaging                                                             <- featureFlagService.get(ShowOutageBannerToggle)
-
+            alertBannerContent                                                              <- alertBannerHelper.getContent
           } yield {
 
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
@@ -105,7 +107,8 @@ class HomeController @Inject() (
                   pensionCards,
                   showUserResearchBanner,
                   saUserType,
-                  breathingSpaceIndicator
+                  breathingSpaceIndicator,
+                  alertBannerContent
                 ),
                 shutteringMessaging.isEnabled
               )

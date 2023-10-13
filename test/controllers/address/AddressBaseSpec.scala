@@ -47,27 +47,27 @@ import scala.concurrent.Future
 
 trait AddressBaseSpec extends BaseSpec {
 
-  val mockAuthJourney: AuthJourney                       = mock[AuthJourney]
-  val mockLocalSessionCache: LocalSessionCache           = mock[LocalSessionCache]
-  val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
-  val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
-  val mockAddressMovedService: AddressMovedService       = mock[AddressMovedService]
-  val mockAuditConnector: AuditConnector                 = mock[AuditConnector]
-  val mockAgentClientAuthorisationService                = mock[AgentClientAuthorisationService]
+  val mockAuthJourney: AuthJourney                                         = mock[AuthJourney]
+  val mockLocalSessionCache: LocalSessionCache                             = mock[LocalSessionCache]
+  val mockAddressLookupConnector: AddressLookupConnector                   = mock[AddressLookupConnector]
+  val mockCitizenDetailsService: CitizenDetailsService                     = mock[CitizenDetailsService]
+  val mockAddressMovedService: AddressMovedService                         = mock[AddressMovedService]
+  val mockAuditConnector: AuditConnector                                   = mock[AuditConnector]
+  val mockAgentClientAuthorisationService: AgentClientAuthorisationService = mock[AgentClientAuthorisationService]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
 
-  lazy val messagesApi: MessagesApi = injected[MessagesApi]
+  lazy val messagesApi: MessagesApi = inject[MessagesApi]
 
-  lazy val cc: MessagesControllerComponents                               = injected[MessagesControllerComponents]
-  lazy val errorRenderer: ErrorRenderer                                   = injected[ErrorRenderer]
-  lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = injected[DisplayAddressInterstitialView]
-  lazy val updateAddressConfirmationView: UpdateAddressConfirmationView   = injected[UpdateAddressConfirmationView]
-  lazy val internalServerErrorView: InternalServerErrorView               = injected[InternalServerErrorView]
+  lazy val cc: MessagesControllerComponents                               = inject[MessagesControllerComponents]
+  lazy val errorRenderer: ErrorRenderer                                   = inject[ErrorRenderer]
+  lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = inject[DisplayAddressInterstitialView]
+  lazy val updateAddressConfirmationView: UpdateAddressConfirmationView   = inject[UpdateAddressConfirmationView]
+  lazy val internalServerErrorView: InternalServerErrorView               = inject[InternalServerErrorView]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  implicit lazy val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  implicit lazy val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -113,10 +113,10 @@ trait AddressBaseSpec extends BaseSpec {
 
     def eTagResponse: Option[ETag] = Some(ETag("115"))
 
-    def updateAddressResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(NO_CONTENT, ""))))
 
-    def getAddressesLockResponse: AddressesLock = AddressesLock(false, false)
+    def getAddressesLockResponse: AddressesLock = AddressesLock(main = false, postal = false)
 
     def addressLookupResponse: RecordSet = oneAndTwoOtherPlacePafRecordSet
 
@@ -155,7 +155,7 @@ trait AddressBaseSpec extends BaseSpec {
       )
     )
     when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(
-      updateAddressResponse
+      updateAddressResponse()
     )
     when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
       Future.successful(isInsertCorrespondenceAddressLockSuccessful)
@@ -180,8 +180,9 @@ trait AddressBaseSpec extends BaseSpec {
             request = currentRequest[A],
             personDetails = personDetailsForRequest,
             saUser = saUserType
-          ).asInstanceOf[UserRequest[A]]
+          )
         )
     })
+
   }
 }

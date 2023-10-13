@@ -16,10 +16,10 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
-final case class CreatePayment(journeyId: String, nextUrl: String)
+final case class PayApiModels(journeyId: String, nextUrl: String)
 
-object CreatePayment {
-  implicit val format = Json.format[CreatePayment]
+object PayApiModels {
+  implicit val format: OFormat[PayApiModels] = Json.format[PayApiModels]
 }

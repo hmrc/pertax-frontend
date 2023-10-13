@@ -18,15 +18,15 @@ package models.dto
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class TaxCreditsChoiceDto(hasTaxCredits: Boolean) extends Dto
 
 object TaxCreditsChoiceDto {
 
-  implicit val formats = Json.format[TaxCreditsChoiceDto]
+  implicit val formats: OFormat[TaxCreditsChoiceDto] = Json.format[TaxCreditsChoiceDto]
 
-  val form = Form(
+  val form: Form[TaxCreditsChoiceDto] = Form(
     mapping(
       "taxCreditsChoice" -> optional(boolean)
         .verifying("error.tax_credits_select", _.isDefined)

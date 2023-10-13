@@ -37,14 +37,14 @@ import views.html.ManualCorrespondenceView
 import scala.concurrent.{ExecutionContext, Future}
 
 class GetPersonDetailsAction @Inject() (
-  citizenDetailsService: CitizenDetailsService,
-  messageFrontendService: MessageFrontendService,
-  cc: ControllerComponents,
-  val messagesApi: MessagesApi,
-  manualCorrespondenceView: ManualCorrespondenceView,
-  featureFlagService: FeatureFlagService
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends ActionRefiner[UserRequest, UserRequest]
+                                         citizenDetailsService: CitizenDetailsService,
+                                         messageFrontendService: MessageFrontendService,
+                                         cc: ControllerComponents,
+                                         val messagesApi: MessagesApi,
+                                         manualCorrespondenceView: ManualCorrespondenceView,
+                                         featureFlagService: FeatureFlagService
+                                       )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+  extends ActionRefiner[UserRequest, UserRequest]
     with ActionFunction[UserRequest, UserRequest]
     with I18nSupport {
 
@@ -69,7 +69,7 @@ class GetPersonDetailsAction @Inject() (
       }.value
     }
 
-  def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
+  private def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
     featureFlagService.get(SCAWrapperToggle).flatMap { toggle =>
       if (configDecorator.personDetailsMessageCountEnabled && !toggle.isEnabled) {
         messageFrontendService.getUnreadMessageCount

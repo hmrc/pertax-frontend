@@ -26,10 +26,10 @@ import scala.concurrent.ExecutionContext
 
 @Singleton()
 class FeatureFlagsController @Inject() (
-  cc: MessagesControllerComponents,
-  featureFlagService: FeatureFlagService
-)(implicit ec: ExecutionContext)
-    extends PertaxBaseController(cc) {
+                                         cc: MessagesControllerComponents,
+                                         featureFlagService: FeatureFlagService
+                                       )(implicit ec: ExecutionContext)
+  extends PertaxBaseController(cc) {
 
   def setDefaults(): Action[AnyContent] = Action.async {
     featureFlagService
@@ -51,6 +51,7 @@ class FeatureFlagsController @Inject() (
           BreathingSpaceIndicatorToggle         -> true,
           TaxcalcMakePaymentLinkToggle          -> true,
           ShowOutageBannerToggle                -> false,
+          AlertBannerPaperlessStatusToggle      -> true,
           GetPersonFromCitizenDetailsToggle     -> true,
           DfsDigitalFormFrontendAvailableToggle -> true,
           AddressChangeAllowedToggle            -> true

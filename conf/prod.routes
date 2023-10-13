@@ -7,7 +7,6 @@ GET         /personal-account/your-address                                      
 GET         /personal-account/do-uplift                                                controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
 GET         /personal-account                                                          controllers.HomeController.index
 
-
 GET         /personal-account/full                                                     controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
 GET         /personal-account/identity-check-complete                                  controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
 GET         /personal-account/identity-check-failed                                    controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
@@ -21,14 +20,14 @@ GET         /personal-account/self-assessment/request-access                    
 GET         /personal-account/sa-continue                                              controllers.SelfAssessmentController.ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl])
 GET         /personal-account/self-assessment/make-payment                             controllers.PaymentsController.makePayment
 
-GET         /personal-account/self-assessment/signed-in-wrong-account                  controllers.SaWrongCredentialsController.landingPage
-GET         /personal-account/self-assessment/do-you-know-other-credentials            controllers.SaWrongCredentialsController.doYouKnowOtherCredentials
-POST        /personal-account/self-assessment/do-you-know-other-credentials            controllers.SaWrongCredentialsController.processDoYouKnowOtherCredentials
-GET         /personal-account/self-assessment/do-you-know-user-id                      controllers.SaWrongCredentialsController.doYouKnowUserId
-POST        /personal-account/self-assessment/do-you-know-user-id                      controllers.SaWrongCredentialsController.processDoYouKnowUserId
-GET         /personal-account/self-assessment/sign-in-again                            controllers.SaWrongCredentialsController.signInAgain
-GET         /personal-account/self-assessment/need-to-reset-password                   controllers.SaWrongCredentialsController.needToResetPassword
-GET         /personal-account/self-assessment/find-your-user-id                        controllers.SaWrongCredentialsController.findYourUserId
+GET         /personal-account/self-assessment/signed-in-wrong-account                  controllers.SaWrongCredentialsController.landingPage()
+GET         /personal-account/self-assessment/do-you-know-other-credentials            controllers.SaWrongCredentialsController.doYouKnowOtherCredentials()
+POST        /personal-account/self-assessment/do-you-know-other-credentials            controllers.SaWrongCredentialsController.processDoYouKnowOtherCredentials()
+GET         /personal-account/self-assessment/do-you-know-user-id                      controllers.SaWrongCredentialsController.doYouKnowUserId()
+POST        /personal-account/self-assessment/do-you-know-user-id                      controllers.SaWrongCredentialsController.processDoYouKnowUserId()
+GET         /personal-account/self-assessment/sign-in-again                            controllers.SaWrongCredentialsController.signInAgain()
+GET         /personal-account/self-assessment/need-to-reset-password                   controllers.SaWrongCredentialsController.needToResetPassword()
+GET         /personal-account/self-assessment/find-your-user-id                        controllers.SaWrongCredentialsController.findYourUserId()
 
 GET         /personal-account/lang/enGb                                                controllers.LanguageSwitchController.enGb()
 GET         /personal-account/lang/cyGb                                                controllers.LanguageSwitchController.cyGb()
@@ -60,7 +59,7 @@ GET         /personal-account/your-address/:typ/enter-start-date                
 POST        /personal-account/your-address/:typ/enter-start-date                       controllers.address.StartDateController.onSubmit(typ: AddrType)
 GET         /personal-account/your-address/:typ/changes                                controllers.address.AddressSubmissionController.onPageLoad(typ: AddrType)
 POST        /personal-account/your-address/:typ/address-changed                        controllers.address.AddressSubmissionController.onSubmit(typ: AddrType)
-GET         /personal-account/your-address/:typ/address-changed                        controllers.address.AddressErrorController.showAddressAlreadyUpdated(typ: AddrType)
+GET         /personal-account/your-address/address-changed                             controllers.address.AddressErrorController.showAddressAlreadyUpdated
 GET         /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onPageLoad
 POST        /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onSubmit
 GET         /personal-account/your-address/close-correspondence-address-confirm        controllers.address.ClosePostalAddressController.confirmPageLoad

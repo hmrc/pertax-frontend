@@ -40,8 +40,8 @@ import scala.concurrent.Future
 
 class RlsControllerSpec extends BaseSpec {
 
-  val mockAuthJourney    = mock[AuthJourney]
-  val mockAuditConnector = mock[AuditConnector]
+  val mockAuthJourney: AuthJourney       = mock[AuthJourney]
+  val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
   when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
 
@@ -49,25 +49,25 @@ class RlsControllerSpec extends BaseSpec {
     new RlsController(
       mockAuthJourney,
       mockAuditConnector,
-      injected[AddressJourneyCachingHelper],
+      inject[AddressJourneyCachingHelper],
       mockEditAddressLockRepository,
       mockFeatureFlagService,
-      injected[MessagesControllerComponents],
-      injected[CheckYourAddressInterruptView],
-      injected[InternalServerErrorView]
-    )(injected[ConfigDecorator], ec)
+      inject[MessagesControllerComponents],
+      inject[CheckYourAddressInterruptView],
+      inject[InternalServerErrorView]
+    )(inject[ConfigDecorator], ec)
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
   }
 
   "rlsInterruptOnPageLoad" must {
     "return internal server error" when {
       "There is no personal details" in {
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -87,7 +87,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, None, None)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -107,7 +107,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, address, None)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(true, false)))
+          .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -127,7 +127,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, None, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(true, true)))
+          .thenReturn(Future.successful(AddressesLock(main = true, postal = true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -148,7 +148,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, mainAddress, postalAddress)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(true, true)))
+          .thenReturn(Future.successful(AddressesLock(main = true, postal = true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -170,7 +170,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, address, None)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -192,7 +192,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, None, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -214,7 +214,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, address, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -236,7 +236,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, address, None)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, true)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -258,7 +258,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, address, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(true, false)))
+          .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -280,7 +280,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, address, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, true)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -302,7 +302,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, None, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(true, false)))
+          .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -324,7 +324,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, address, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -348,7 +348,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, Fixtures.buildPersonDetailsCorrespondenceAddress.address, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -373,7 +373,7 @@ class RlsControllerSpec extends BaseSpec {
         val personDetails = PersonDetails(person, None, address)
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-          .thenReturn(Future.successful(AddressesLock(false, false)))
+          .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(

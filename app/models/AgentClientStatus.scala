@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class AgentClientStatus(
   hasPendingInvitations: Boolean,
@@ -25,5 +25,5 @@ case class AgentClientStatus(
 )
 
 object AgentClientStatus {
-  implicit val formats = Json.format[AgentClientStatus]
+  implicit val formats: OFormat[AgentClientStatus] = Json.format[AgentClientStatus]
 }
