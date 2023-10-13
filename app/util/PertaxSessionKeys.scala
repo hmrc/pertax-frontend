@@ -17,6 +17,8 @@
 package util
 
 object PertaxSessionKeys {
+  val dontUplift = "dontUplift"
+
   val postcode = "postcode"
   val filter   = "filter"
 }

@@ -15,10 +15,10 @@
  */
 
 package models.dto
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 
 case class AddressPageVisitedDto(hasVisitedPage: Boolean) extends Dto
 
 object AddressPageVisitedDto {
-  implicit val formats: OFormat[AddressPageVisitedDto] = Json.format[AddressPageVisitedDto]
+  implicit val formats = Json.format[AddressPageVisitedDto]
 }

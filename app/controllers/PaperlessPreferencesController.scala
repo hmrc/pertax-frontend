@@ -20,16 +20,20 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
 import controllers.auth.requests.UserRequest
+import error.ErrorRenderer
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.partials.PreferencesFrontendPartialService
 import util.Tools
 
-import scala.concurrent.Future
+import scala.concurrent.{Future}
 
 class PaperlessPreferencesController @Inject() (
+  val preferencesFrontendPartialService: PreferencesFrontendPartialService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   tools: Tools
 )(implicit configDecorator: ConfigDecorator)
     extends PertaxBaseController(cc) {

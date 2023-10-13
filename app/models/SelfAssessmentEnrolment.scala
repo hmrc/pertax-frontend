@@ -19,3 +19,5 @@ package models
 import uk.gov.hmrc.domain.SaUtr
 
 case class SelfAssessmentEnrolment(saUtr: SaUtr, status: EnrolmentStatus)
+
+object SelfAssessmentStatus

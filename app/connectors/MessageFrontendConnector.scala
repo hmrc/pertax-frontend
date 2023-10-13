@@ -21,7 +21,7 @@ import com.google.inject.Inject
 import play.api.Logging
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 
@@ -42,7 +42,7 @@ class MessageFrontendConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val url = messageFrontendUrl + "/messages/count?read=No"
 
-    implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+    implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
 
     httpClientResponse
       .read(httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](url))

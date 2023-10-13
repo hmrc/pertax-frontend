@@ -16,10 +16,10 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 
 case class ErrorView(url: String, statusCode: Int)
 
 object ErrorView {
-  implicit val format: OFormat[ErrorView] = Json.format[ErrorView]
+  implicit val format = Json.format[ErrorView]
 }

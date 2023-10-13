@@ -165,24 +165,24 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       request
     )
 
-  override def beforeEach(): Unit = {
+  override def beforeEach() = {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, true)))
   }
 
   "personal-account" when {

@@ -45,6 +45,6 @@ object AddressRowModel {
   def changeMainAddressUrl: String =
     controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url
 
-  val closePostalAddressUrl: String  = controllers.address.routes.ClosePostalAddressController.onPageLoad.url
-  val changePostalAddressUrl: String = controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url
+  val closePostalAddressUrl  = controllers.address.routes.ClosePostalAddressController.onPageLoad.url
+  val changePostalAddressUrl = controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url
 }

@@ -16,10 +16,10 @@
 
 package models
 
-import play.api.libs.json.{Json, Reads}
+import play.api.libs.json.Json
 
 case class ETag(etag: String)
 
 object ETag {
-  implicit lazy val reads: Reads[ETag] = Json.reads[ETag]
+  implicit lazy val reads = Json.reads[ETag]
 }

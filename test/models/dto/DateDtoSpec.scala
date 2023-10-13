@@ -58,7 +58,7 @@ class DateDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.date_in_future"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -78,7 +78,7 @@ class DateDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.enter_valid_date"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
   }
