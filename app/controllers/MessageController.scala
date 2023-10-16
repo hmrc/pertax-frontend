@@ -39,7 +39,7 @@ class MessageController @Inject() (
 )(implicit val configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
-  def messageBreadcrumb: Breadcrumb =
+  private def messageBreadcrumb: Breadcrumb =
     "label.all_messages" -> routes.MessageController.messageList.url ::
       baseBreadcrumb
 

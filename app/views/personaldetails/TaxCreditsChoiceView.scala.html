@@ -27,7 +27,7 @@
     button: Button
 )
 
-@(taxCreditsChoiceForm: Form[dto.TaxCreditsChoiceDto], tcsChangeAddressUrl: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(taxCreditsChoiceForm: Form[dto.TaxCreditsChoiceDto])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @title = {
     @if(taxCreditsChoiceForm.hasErrors){@messages("error.message.error")  }@messages("label.do_you_get_tax_credits")

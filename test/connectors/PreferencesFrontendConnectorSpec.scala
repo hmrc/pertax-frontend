@@ -42,11 +42,11 @@ import uk.gov.hmrc.http.{HttpResponse, SessionKeys, UpstreamErrorResponse}
 
 class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
-  val mockMetrics        = mock[Metrics]
-  val mockMetricRegistry = mock[MetricRegistry]
-  val mockTimer          = mock[Timer]
-  val mockContext        = mock[Context]
-  val mockCounter        = mock[Counter]
+  val mockMetrics: Metrics               = mock[Metrics]
+  val mockMetricRegistry: MetricRegistry = mock[MetricRegistry]
+  val mockTimer: Timer                   = mock[Timer]
+  val mockContext: Context               = mock[Context]
+  val mockCounter: Counter               = mock[Counter]
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[Metrics].toInstance(mockMetrics))
@@ -73,7 +73,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           request = FakeRequest()
         )
 
-      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+      implicit val connector: PreferencesFrontendConnector = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/activate"
 
@@ -105,7 +105,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           request = FakeRequest().withSession(SessionKeys.authToken -> "Bearer 1")
         )
 
-      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+      implicit val connector: PreferencesFrontendConnector = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/activate"
 
@@ -150,7 +150,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
             request = FakeRequest()
           )
 
-        implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+        implicit val connector: PreferencesFrontendConnector = app.injector.instanceOf[PreferencesFrontendConnector]
 
         val url = "/paperless/activate"
 
@@ -180,7 +180,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           request = FakeRequest()
         )
 
-      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+      implicit val connector: PreferencesFrontendConnector = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/status"
 
@@ -208,7 +208,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           request = FakeRequest()
         )
 
-      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+      implicit val connector: PreferencesFrontendConnector = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/status"
 
@@ -241,7 +241,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
             request = FakeRequest()
           )
 
-        implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+        implicit val connector: PreferencesFrontendConnector = app.injector.instanceOf[PreferencesFrontendConnector]
 
         val url = "/paperless/status"
 
@@ -274,7 +274,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
             request = FakeRequest()
           )
 
-        implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+        implicit val connector: PreferencesFrontendConnector = app.injector.instanceOf[PreferencesFrontendConnector]
 
         val url = "/paperless/status"
 
@@ -303,7 +303,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           request = FakeRequest()
         )
 
-      implicit val connector = app.injector.instanceOf[PreferencesFrontendConnector]
+      implicit val connector: PreferencesFrontendConnector = app.injector.instanceOf[PreferencesFrontendConnector]
 
       val url = "/paperless/status"
 

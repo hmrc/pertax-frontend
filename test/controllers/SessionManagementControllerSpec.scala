@@ -16,46 +16,43 @@
 
 package controllers
 
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.BaseSpec
 
+import scala.concurrent.Future
+
 class SessionManagementControllerSpec extends BaseSpec {
 
   trait LocalSetup {
-    val controller = app.injector.instanceOf[SessionManagementController]
+    val controller: SessionManagementController = app.injector.instanceOf[SessionManagementController]
   }
 
   "SessionManagementController.keepAlive" should {
-
     "return 200" in new LocalSetup {
-
-      val result = controller.keepAlive(FakeRequest("GET", ""))
+      val result: Future[Result] = controller.keepAlive(FakeRequest("GET", ""))
 
       status(result) mustBe OK
     }
   }
 
   "SessionManagementController.timeOut" should {
-
     "return 303" in new LocalSetup {
-
-      val result = controller.timeOut()(FakeRequest("GET", ""))
+      val result: Future[Result] = controller.timeOut()(FakeRequest("GET", ""))
 
       status(result) mustBe SEE_OTHER
 
     }
 
     "redirect to the session timeout page" in new LocalSetup {
-
-      val result = controller.timeOut()(FakeRequest("GET", ""))
+      val result: Future[Result] = controller.timeOut()(FakeRequest("GET", ""))
 
       redirectLocation(result).getOrElse("Unable to complete") mustBe routes.PublicController.sessionTimeout.url
     }
 
     "clear the session upon redirect" in new LocalSetup {
-
-      val result = controller.timeOut()(FakeRequest("GET", "").withSession("test" -> "session"))
+      val result: Future[Result] = controller.timeOut()(FakeRequest("GET", "").withSession("test" -> "session"))
 
       session(result) mustBe empty
     }

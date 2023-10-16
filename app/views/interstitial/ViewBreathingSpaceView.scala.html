@@ -15,19 +15,15 @@
  *@
 
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
-@import scala.concurrent.ExecutionContext
 @import views.html.components.{H1, Link, P, H2}
 
 @this(
     mainView: MainView,
     h1: H1,
-    h2: H2,
-    p: P,
-    link: Link
+    p: P
 )
 
-@(redirectUrl: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 @mainView(
     pageTitle = messages("label.breathing_space"),
     showBackLink = true

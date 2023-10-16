@@ -38,7 +38,7 @@ class HomeControllerChildBenefitsISpec extends IntegrationSpec {
     beforeEachHomeController()
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
   }
 
   "personal-account" must {
