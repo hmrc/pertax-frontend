@@ -42,7 +42,6 @@ object PaperlessMessagesStatus {
     override def reads(json: JsValue): JsResult[PaperlessMessagesStatus] =
       getPaperlessMessage((json \ "status" \ "name").as[String], (json \ "url" \ "link").as[String])
   }
-
 }
 
 case class PaperlessStatusNewCustomer(link: String = "") extends PaperlessMessagesStatus {

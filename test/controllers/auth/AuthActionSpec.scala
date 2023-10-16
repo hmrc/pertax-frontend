@@ -53,7 +53,7 @@ class AuthActionSpec extends BaseSpec {
     .configure(Map("metrics.enabled" -> false))
     .build()
 
-  val mockAuthConnector: AuthConnector           = mock[AuthConnector]
+  val mockAuthConnector                          = mock[AuthConnector]
   def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
   val enrolmentsHelper: EnrolmentsHelper         = app.injector.instanceOf[EnrolmentsHelper]
   val sessionAuditor                             =
@@ -76,24 +76,24 @@ class AuthActionSpec extends BaseSpec {
   }
 
   type AuthRetrievals =
-    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
-      Option[String] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~
-      Option[String]
+    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
+      String
+    ] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~ Option[String]
 
-  val nino: String                                               = Fixtures.fakeNino.nino
-  val fakeCredentials: Credentials                               = Credentials("foo", "bar")
-  val fakeCredentialStrength: String                             = CredentialStrength.strong
-  val fakeConfidenceLevel: ConfidenceLevel                       = ConfidenceLevel.L200
-  val enrolmentHelper: EnrolmentsHelper                          = inject[EnrolmentsHelper]
-  val fakeBusinessHours                                          = new FakeBusinessHours(inject[BusinessHoursConfig])
+  val nino                                                       = Fixtures.fakeNino.nino
+  val fakeCredentials                                            = Credentials("foo", "bar")
+  val fakeCredentialStrength                                     = CredentialStrength.strong
+  val fakeConfidenceLevel                                        = ConfidenceLevel.L200
+  val enrolmentHelper                                            = injected[EnrolmentsHelper]
+  val fakeBusinessHours                                          = new FakeBusinessHours(injected[BusinessHoursConfig])
   def messagesControllerComponents: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-    .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
+    .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
 
-  def fakeEnrolments(utr: String): Set[Enrolment] = Set(
+  def fakeEnrolments(utr: String) = Set(
     Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
-    Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino)), "None", None)
+    Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.toString)), "None", None)
   )
 
   def retrievals(

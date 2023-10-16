@@ -14,7 +14,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api
 import play.api.cache.AsyncCacheApi
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.domain.Generator
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.scalatestaccessibilitylinter.AccessibilityMatchers
@@ -23,7 +23,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
 
-trait A11ySpec extends AnyWordSpec
+trait IntegrationSpec extends AnyWordSpec
   with GuiceOneAppPerSuite
   with WireMockHelper
   with ScalaFutures
@@ -44,16 +44,16 @@ trait A11ySpec extends AnyWordSpec
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
 
-  lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+  val mockFeatureFlagService = mock[FeatureFlagService]
 
-  implicit override val patienceConfig: PatienceConfig = PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
+  implicit override val patienceConfig = PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
 
   val configTaxYear = 2021
-  val testTaxYear: Int = configTaxYear - 1
-  val generatedNino: Nino = new Generator().nextNino
+  val testTaxYear = configTaxYear - 1
+  val generatedNino = new Generator().nextNino
   val generatedUtr: String = new Generator().nextAtedUtr.utr
 
-  val authResponse: String =
+  val authResponse =
     s"""
        |{
        |    "confidenceLevel": 200,
@@ -90,7 +90,7 @@ trait A11ySpec extends AnyWordSpec
        |}
        |""".stripMargin
 
-  val citizenResponse: String =
+  val citizenResponse =
     s"""|
        |{
         |  "name": {
@@ -107,7 +107,7 @@ trait A11ySpec extends AnyWordSpec
         |}
         |""".stripMargin
 
-  val designatoryDetailsResponse: String =
+  val designatoryDetailsResponse =
     s"""{
        |"person":{
        |  "firstName":"John",
@@ -146,7 +146,7 @@ trait A11ySpec extends AnyWordSpec
     org.mockito.MockitoSugar.reset(mockFeatureFlagService)
     AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
-        .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
+        .thenReturn(Future.successful(FeatureFlag(flag, false)))
     }
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))

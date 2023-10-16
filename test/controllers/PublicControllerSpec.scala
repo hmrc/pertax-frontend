@@ -26,19 +26,23 @@ import views.html.public.SessionTimeoutView
 
 class PublicControllerSpec extends BaseSpec {
 
-  private def controller = new PublicController(inject[MessagesControllerComponents], inject[SessionTimeoutView])(
+  private def controller = new PublicController(injected[MessagesControllerComponents], injected[SessionTimeoutView])(
     config
   )
 
   "Calling PublicController.sessionTimeout" must {
+
     "return 200" in {
+
       val r = controller.sessionTimeout(buildFakeRequestWithAuth("GET"))
       status(r) mustBe OK
     }
   }
 
   "Calling PublicController.redirectToExitSurvey" must {
+
     "return 303" in {
+
       val r = controller.redirectToExitSurvey(Origin("PERTAX"))(buildFakeRequestWithAuth("GET"))
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("http://localhost:9514/feedback/PERTAX")
@@ -46,7 +50,9 @@ class PublicControllerSpec extends BaseSpec {
   }
 
   "Calling PublicController.redirectToTaxCreditsService" must {
+
     "redirect to tax-credits-service/renewals/service-router" in {
+
       val r = controller.redirectToTaxCreditsService()(buildFakeRequestWithAuth("GET"))
       status(r) mustBe MOVED_PERMANENTLY
       redirectLocation(r) mustBe Some("http://localhost:9362/tax-credits-service/renewals/service-router")
@@ -54,6 +60,7 @@ class PublicControllerSpec extends BaseSpec {
   }
 
   "Calling PublicController.redirectToPersonalDetails" must {
+
     "redirect to /profile-and-settings page" in {
       val r = controller.redirectToYourProfile()(buildFakeRequestWithAuth("GET"))
 
@@ -63,6 +70,7 @@ class PublicControllerSpec extends BaseSpec {
   }
 
   "Calling PublicController.governmentGatewayEntryPoint" must {
+
     "redirect to /personal-account page with GG auth provider" in {
       val r = controller.governmentGatewayEntryPoint()(FakeRequest("GET", "/personal-account/start-government-gateway"))
 

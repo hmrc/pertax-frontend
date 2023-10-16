@@ -23,30 +23,10 @@ import scala.util.matching.Regex
 
 class MessagesSpec extends BaseSpec {
 
-  lazy val messagesAPI: MessagesApi = app.injector.instanceOf[MessagesApi]
+  lazy val messagesAPI = app.injector.instanceOf[MessagesApi]
 
   val matchSingleQuoteOnly: Regex   = """\w+'{1}\w+""".r
   val matchBacktickQuoteOnly: Regex = """`+""".r
-
-  private val scaKeys = Set(
-    "sca-wrapper.banner.label.no_thanks",
-    "sca-wrapper.child.benefit.banner.heading",
-    "sca-wrapper.child.benefit.banner.link.text",
-    "sca-wrapper.fallback.menu.back",
-    "sca-wrapper.fallback.menu.bta",
-    "sca-wrapper.fallback.menu.home",
-    "sca-wrapper.fallback.menu.messages",
-    "sca-wrapper.fallback.menu.name",
-    "sca-wrapper.fallback.menu.profile",
-    "sca-wrapper.fallback.menu.progress",
-    "sca-wrapper.fallback.menu.signout",
-    "sca-wrapper.help.improve.banner.heading",
-    "sca-wrapper.help.improve.banner.link.text",
-    "sca-wrapper.timeout.keepAlive",
-    "sca-wrapper.timeout.message",
-    "sca-wrapper.timeout.signOut",
-    "sca-wrapper.timeout.title"
-  )
 
   "Application" must {
     "have the correct message configs" in {
@@ -133,14 +113,14 @@ class MessagesSpec extends BaseSpec {
 
   private def listArgs(msg: String) = toArgArray(msg).mkString
 
-  private def assertNonEmptyNonTemporaryValues(label: String, messages: Map[String, String]): Unit = messages.foreach {
+  private def assertNonEmptyNonTemporaryValues(label: String, messages: Map[String, String]) = messages.foreach {
     case (key: String, value: String) =>
       withClue(s"In $label, there is an empty value for the key:[$key][$value]") {
         value.trim.isEmpty mustBe false
       }
   }
 
-  private def assertCorrectUseOfQuotes(label: String, messages: Map[String, String]): Unit = messages.foreach {
+  private def assertCorrectUseOfQuotes(label: String, messages: Map[String, String]) = messages.foreach {
     case (key: String, value: String) =>
       withClue(s"In $label, there is an unescaped or invalid quote:[$key][$value]") {
         matchSingleQuoteOnly.findFirstIn(value).isDefined mustBe false
@@ -174,4 +154,25 @@ class MessagesSpec extends BaseSpec {
   private val commonProvidedKeys = Set(
     "error.address.invalid.character"
   )
+
+  private val scaKeys = Set(
+    "sca-wrapper.banner.label.no_thanks",
+    "sca-wrapper.child.benefit.banner.heading",
+    "sca-wrapper.child.benefit.banner.link.text",
+    "sca-wrapper.fallback.menu.back",
+    "sca-wrapper.fallback.menu.bta",
+    "sca-wrapper.fallback.menu.home",
+    "sca-wrapper.fallback.menu.messages",
+    "sca-wrapper.fallback.menu.name",
+    "sca-wrapper.fallback.menu.profile",
+    "sca-wrapper.fallback.menu.progress",
+    "sca-wrapper.fallback.menu.signout",
+    "sca-wrapper.help.improve.banner.heading",
+    "sca-wrapper.help.improve.banner.link.text",
+    "sca-wrapper.timeout.keepAlive",
+    "sca-wrapper.timeout.message",
+    "sca-wrapper.timeout.signOut",
+    "sca-wrapper.timeout.title"
+  )
+
 }

@@ -24,8 +24,8 @@ import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
-import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.CitizenDetailsService

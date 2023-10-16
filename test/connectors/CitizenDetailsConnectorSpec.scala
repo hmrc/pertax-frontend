@@ -56,7 +56,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
       isRls = false
     )
 
-    lazy val connector: CitizenDetailsConnector = {
+    lazy val connector = {
       val httpClient    = app.injector.instanceOf[HttpClient]
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
       new CitizenDetailsConnector(httpClient, serviceConfig, inject[HttpClientResponse])
@@ -66,13 +66,14 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
   "Calling personDetails" must {
 
     trait LocalSetup extends SpecSetup {
+      val metricId    = "get-person-details"
       def url: String = s"/citizen-details/$nino/designatory-details"
     }
 
     "return OK when called with an existing nino" in new LocalSetup {
       stubGet(url, OK, Some(Json.toJson(personDetails).toString()))
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
+      val result =
         connector.personDetails(nino).value.futureValue
 
       result mustBe a[Right[_, _]]
@@ -82,7 +83,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     "return NOT_FOUND when called with an unknown nino" in new LocalSetup {
       stubGet(url, NOT_FOUND, None)
 
-      val result: Int =
+      val result =
         connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
       result mustBe NOT_FOUND
     }
@@ -90,7 +91,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     "return LOCKED when a locked hidden record (MCI) is asked for" in new LocalSetup {
       stubGet(url, LOCKED, None)
 
-      val result: Int =
+      val result =
         connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
       result mustBe LOCKED
     }
@@ -98,7 +99,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     "return given status code when an unexpected status is returned" in new LocalSetup {
       stubGet(url, IM_A_TEAPOT, None)
 
-      val result: Int =
+      val result =
         connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
       result mustBe IM_A_TEAPOT
     }
@@ -116,6 +117,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
   "calling updateAddress" must {
 
     trait LocalSetup extends SpecSetup {
+      val metricId            = "update-address"
       def url: String         = s"/citizen-details/$nino/designatory-details/address"
       val etag: String        = "115"
       val requestBody: String = Json.obj("etag" -> etag, "address" -> Json.toJson(address)).toString()
@@ -124,7 +126,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     "return CREATED when called with valid Nino and address data" in new LocalSetup {
       stubPost(url, CREATED, Some(requestBody), None)
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
+      val result =
         connector
           .updateAddress(nino, etag, address)
           .value
@@ -157,7 +159,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
 
       stubPost(url, CREATED, Some(requestBody), None)
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
+      val result =
         connector
           .updateAddress(nino, etag, correspondenceAddress)
           .value
@@ -213,14 +215,15 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
   "Calling getMatchingDetails" must {
 
     trait LocalSetup extends SpecSetup {
+      val metricId    = "get-matching-details"
       def url: String = s"/citizen-details/nino/$nino"
     }
 
     "return OK containing an SAUTR when the service returns an SAUTR" in new LocalSetup {
-      val saUtr: String                                       = new SaUtrGenerator().nextSaUtr.utr
+      val saUtr: String = new SaUtrGenerator().nextSaUtr.utr
       stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr)).toString()))
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
+      val result        =
         connector.getMatchingDetails(nino).value.futureValue
 
       result mustBe a[Right[_, _]]
@@ -230,7 +233,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     "return OK containing no SAUTR when the service does not return an SAUTR" in new LocalSetup {
       stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> JsNull)).toString()))
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
+      val result =
         connector.getMatchingDetails(nino).value.futureValue
 
       result mustBe a[Right[_, _]]
@@ -266,13 +269,14 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
   "Calling getEtag" must {
 
     trait LocalSetup extends SpecSetup {
+      val metricId    = "get-etag"
       def url: String = s"/citizen-details/$nino/etag"
     }
 
     "return an etag when citizen-details returns 200" in new LocalSetup {
       stubGet(url, OK, Some(JsObject(Seq(("etag", JsString("115")))).toString()))
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
+      val result =
         connector.getEtag(nino.nino).value.futureValue
 
       result mustBe a[Right[_, _]]

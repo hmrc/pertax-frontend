@@ -23,30 +23,30 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
   val designatoryDetails: String =
     s"""|
        |{
-        |  "etag" : "115",
-        |  "person" : {
-        |    "firstName" : "HIPPY",
-        |    "middleName" : "T",
-        |    "lastName" : "NEWYEAR",
-        |    "title" : "Mr",
-        |    "honours": "BSC",
-        |    "sex" : "M",
-        |    "dateOfBirth" : "1952-04-01",
-        |    "nino" : "$generatedNino",
-        |    "deceased" : false
-        |  },
-        |  "address" : {
-        |    "line1" : "26 FARADAY DRIVE",
-        |    "line2" : "PO BOX 45",
-        |    "line3" : "LONDON",
-        |    "postcode" : "CT1 1RQ",
-        |    "startDate": "2009-08-29",
-        |    "country" : "GREAT BRITAIN",
-        |    "type" : "Residential",
-        |    "status": 0
-        |  }
-        |}
-        |""".stripMargin
+       |  "etag" : "115",
+       |  "person" : {
+       |    "firstName" : "HIPPY",
+       |    "middleName" : "T",
+       |    "lastName" : "NEWYEAR",
+       |    "title" : "Mr",
+       |    "honours": "BSC",
+       |    "sex" : "M",
+       |    "dateOfBirth" : "1952-04-01",
+       |    "nino" : "$generatedNino",
+       |    "deceased" : false
+       |  },
+       |  "address" : {
+       |    "line1" : "26 FARADAY DRIVE",
+       |    "line2" : "PO BOX 45",
+       |    "line3" : "LONDON",
+       |    "postcode" : "CT1 1RQ",
+       |    "startDate": "2009-08-29",
+       |    "country" : "GREAT BRITAIN",
+       |    "type" : "Residential",
+       |    "status": 0
+       |  }
+       |}
+       |""".stripMargin
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
@@ -65,9 +65,9 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(HmrcAccountToggle)))
-      .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, isEnabled = false)))
+      .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientAuthorisationToggle)))
-      .thenReturn(Future.successful(FeatureFlag(AgentClientAuthorisationToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(AgentClientAuthorisationToggle, true)))
   }
 
   val url       = s"/personal-account/profile-and-settings"

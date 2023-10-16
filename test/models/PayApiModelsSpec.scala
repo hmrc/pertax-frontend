@@ -21,15 +21,15 @@ import testUtils.BaseSpec
 
 class PayApiModelsSpec extends BaseSpec {
 
-  "PayApiModels" must {
+  "CreatePayment" must {
 
     "serialise and de-serialise json" in {
 
-      val obj = PayApiModels("123", "/fake-url/suffix")
+      val obj = CreatePayment("123", "/fake-url/suffix")
 
       val json = Json.toJson(obj)
 
-      json.as[PayApiModels] mustBe obj
+      json.as[CreatePayment] mustBe obj
     }
   }
 }

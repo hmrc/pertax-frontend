@@ -51,7 +51,7 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
                                          |   "links" : [ ]
                                          |}""".stripMargin)
 
-    lazy val connector: TaiConnector = {
+    lazy val connector = {
 
       val serviceConfig = inject[ServicesConfig]
       val httpClient    = inject[HttpClient]
@@ -61,7 +61,9 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
   }
 
   "Calling TaiService.taxSummary" must {
-    trait LocalSetup extends SpecSetup
+    trait LocalSetup extends SpecSetup {
+      val metricId = "get-tax-components"
+    }
 
     val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
 

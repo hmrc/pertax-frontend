@@ -148,9 +148,9 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
     )
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = false)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, false)))
   }
 
   "personal-account" must {

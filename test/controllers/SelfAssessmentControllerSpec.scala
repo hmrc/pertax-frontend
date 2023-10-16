@@ -22,7 +22,6 @@ import controllers.auth._
 import error.ErrorRenderer
 import models._
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.exceptions.TestFailedException
 import play.api.Application
@@ -47,13 +46,13 @@ import scala.concurrent.Future
 class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   override def now: () => LocalDate = () => LocalDate.now()
 
-  val mockAuditConnector: AuditConnector                         = mock[AuditConnector]
-  val mockAuthAction: AuthAction                                 = mock[AuthAction]
-  val mockSelfAssessmentStatusAction: SelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
-  val mockPayApiConnector: PayApiConnector                       = mock[PayApiConnector]
-  val mockSelfAssessmentService: SelfAssessmentService           = mock[SelfAssessmentService]
+  val mockAuditConnector             = mock[AuditConnector]
+  val mockAuthAction                 = mock[AuthAction]
+  val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
+  val mockPayApiConnector            = mock[PayApiConnector]
+  val mockSelfAssessmentService      = mock[SelfAssessmentService]
 
-  val saUtr: SaUtr           = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  val saUtr                  = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
   val defaultFakeAuthJourney = new FakeAuthJourney(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -70,19 +69,19 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
 
   trait LocalSetup {
 
-    def fakeAuthJourney: FakeAuthJourney = defaultFakeAuthJourney
+    def fakeAuthJourney = defaultFakeAuthJourney
 
-    def controller: SelfAssessmentController =
+    def controller =
       new SelfAssessmentController(
         fakeAuthJourney,
-        inject[WithBreadcrumbAction],
+        injected[WithBreadcrumbAction],
         mockAuditConnector,
         mockSelfAssessmentService,
-        inject[MessagesControllerComponents],
-        inject[ErrorRenderer],
-        inject[FailedIvContinueToActivateSaView],
-        inject[CannotConfirmIdentityView],
-        inject[RequestAccessToSelfAssessmentView]
+        injected[MessagesControllerComponents],
+        injected[ErrorRenderer],
+        injected[FailedIvContinueToActivateSaView],
+        injected[CannotConfirmIdentityView],
+        injected[RequestAccessToSelfAssessmentView]
       )(config, ec)
 
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
@@ -98,7 +97,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   "Calling SelfAssessmentController.handleSelfAssessment" must {
 
     "return 303 when called with a GG user that needs to activate their SA enrolment." in new LocalSetup {
-      val result: Future[Result] = controller.handleSelfAssessment()(FakeRequest())
+      val result = controller.handleSelfAssessment()(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(
         "http://localhost:9555/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
@@ -108,14 +107,15 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     "return 303 when called with a GG user that is SA or has an SA enrollment in another account." in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(WrongCredentialsSelfAssessmentUser(saUtr))
 
-      val result: Future[Result] = controller.handleSelfAssessment()(FakeRequest())
+      val result = controller.handleSelfAssessment()(FakeRequest())
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage().url)
+      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage.url)
     }
 
     "return 200 when called with a GG user that is has a UTR but no enrolment" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NotEnrolledSelfAssessmentUser(saUtr))
-      val result: Future[Result]                    = controller.handleSelfAssessment()(FakeRequest())
+
+      val result = controller.handleSelfAssessment()(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.SelfAssessmentController.requestAccess.url)
     }
@@ -125,7 +125,8 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     "return 303 for a user who has logged in with GG linked and has a full SA enrollment" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
-      val result: Future[Result] = controller.ivExemptLandingPage(None)(FakeRequest())
+      val result = controller.ivExemptLandingPage(None)(FakeRequest())
+
       status(result) mustBe SEE_OTHER
     }
 
@@ -133,28 +134,28 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       override def fakeAuthJourney: FakeAuthJourney =
         new FakeAuthJourney(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
-      val result: Future[Result] = controller.ivExemptLandingPage(None)(FakeRequest())
-      val doc: Document          = Jsoup.parse(contentAsString(result))
+      val result = controller.ivExemptLandingPage(None)(FakeRequest())
+      val doc    = Jsoup.parse(contentAsString(result))
       status(result) mustBe OK
 
       doc
         .getElementsByClass("govuk-heading-l")
-        .toString
+        .toString()
         .contains("Activate your Self Assessment registration") mustBe true
     }
 
     "redirect to 'Find out how to access your Self Assessment' page for a user who has a SAUtr but logged into the wrong GG account" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(WrongCredentialsSelfAssessmentUser(saUtr))
 
-      val result: Future[Result] = controller.ivExemptLandingPage(None)(FakeRequest())
+      val result = controller.ivExemptLandingPage(None)(FakeRequest())
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage().url)
+      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage.url)
     }
 
     "render the page for a user who has a SAUtr but has never enrolled" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NotEnrolledSelfAssessmentUser(saUtr))
 
-      val result: Future[Result] = controller.ivExemptLandingPage(None)(FakeRequest())
+      val result = controller.ivExemptLandingPage(None)(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.SelfAssessmentController.requestAccess.url)
     }
@@ -162,7 +163,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     "redirect to 'We cannot confirm your identity' page for a user who has no SAUTR" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NonFilerSelfAssessmentUser)
 
-      val result: Future[Result] = controller.ivExemptLandingPage(None)(FakeRequest())
+      val result = controller.ivExemptLandingPage(None)(FakeRequest())
       status(result) mustBe OK
     }
 

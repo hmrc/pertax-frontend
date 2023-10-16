@@ -49,21 +49,21 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   private val generator = new Generator(new Random())
 
-  private val payAsYouEarn              = inject[PayAsYouEarnView]
-  private val taxCalculation            = inject[TaxCalculationView]
-  private val nationalInsurance         = inject[NationalInsuranceView]
-  private val taxCredits                = inject[TaxCreditsView]
-  private val childBenefitSingleAccount = inject[ChildBenefitSingleAccountView]
-  private val marriageAllowance         = inject[MarriageAllowanceView]
-  private val statePension              = inject[StatePensionView]
-  private val taxSummaries              = inject[TaxSummariesView]
-  private val latestNewsAndUpdatesView  = inject[LatestNewsAndUpdatesView]
-  private val saAndItsaMergeView        = inject[SaAndItsaMergeView]
-  private val enrolmentsHelper          = inject[EnrolmentsHelper]
+  private val payAsYouEarn              = injected[PayAsYouEarnView]
+  private val taxCalculation            = injected[TaxCalculationView]
+  private val nationalInsurance         = injected[NationalInsuranceView]
+  private val taxCredits                = injected[TaxCreditsView]
+  private val childBenefitSingleAccount = injected[ChildBenefitSingleAccountView]
+  private val marriageAllowance         = injected[MarriageAllowanceView]
+  private val statePension              = injected[StatePensionView]
+  private val taxSummaries              = injected[TaxSummariesView]
+  private val latestNewsAndUpdatesView  = injected[LatestNewsAndUpdatesView]
+  private val saAndItsaMergeView        = injected[SaAndItsaMergeView]
+  private val enrolmentsHelper          = injected[EnrolmentsHelper]
   private val newsAndTilesConfig        = mock[NewsAndTilesConfig]
   private val stubConfigDecorator       = new ConfigDecorator(
-    inject[Configuration],
-    inject[ServicesConfig]
+    injected[Configuration],
+    injected[ServicesConfig]
   )
 
   private val homeCardGenerator =
@@ -339,8 +339,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           buildUserRequest(request = FakeRequest())
 
         val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
+          injected[Configuration],
+          injected[ServicesConfig]
         )
 
         def sut: HomeCardGenerator =
@@ -383,8 +383,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           )
 
         val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
+          injected[Configuration],
+          injected[ServicesConfig]
         )
 
         def sut: HomeCardGenerator =
@@ -412,8 +412,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       "return Itsa Card when without Itsa enrolments" in {
 
         val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
+          injected[Configuration],
+          injected[ServicesConfig]
         )
 
         def sut: HomeCardGenerator =
@@ -447,8 +447,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           )
 
         val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
+          injected[Configuration],
+          injected[ServicesConfig]
         )
 
         def sut: HomeCardGenerator =
@@ -482,8 +482,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           )
 
         val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
+          injected[Configuration],
+          injected[ServicesConfig]
         )
 
         def sut: HomeCardGenerator =
@@ -535,8 +535,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return nothing when toggled off" in {
       val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+        injected[Configuration],
+        injected[ServicesConfig]
       ) {
         override lazy val isNewsAndUpdatesTileEnabled: Boolean = false
       }

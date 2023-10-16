@@ -19,7 +19,7 @@ package models.addressLookup
 import models.addresslookup.{Address, Country}
 import testUtils.BaseSpec
 
-class AddressSpec extends BaseSpec {
+class classAddressModelSpec extends BaseSpec {
 
   "calling hasAddressLines" must {
     "return true where the address has at least one line" in {

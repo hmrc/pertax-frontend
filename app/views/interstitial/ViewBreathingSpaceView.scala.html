@@ -23,7 +23,7 @@
     p: P
 )
 
-@()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(redirectUrl: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 @mainView(
     pageTitle = messages("label.breathing_space"),
     showBackLink = true

@@ -24,7 +24,7 @@ import models.dto.{AddressPageVisitedDto, DateDto, Dto}
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.{Request, Result}
+import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.AddressSelectorService
@@ -34,7 +34,6 @@ import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.AddressSelectorView
 
 import java.time.LocalDate
-import scala.concurrent.Future
 
 class AddressSelectorControllerSpec extends AddressBaseSpec {
 
@@ -47,9 +46,9 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         cc,
         errorRenderer,
-        inject[AddressSelectorView],
-        inject[DisplayAddressInterstitialView],
-        inject[AddressSelectorService],
+        injected[AddressSelectorView],
+        injected[DisplayAddressInterstitialView],
+        injected[AddressSelectorService],
         mockFeatureFlagService,
         internalServerErrorView
       )
@@ -79,7 +78,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
           RecordSet(Seq(AddressRecord("id", Address(List("line"), None, None, "AA1 1AA", None, Country.UK), "en")))
         )
 
-        val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+        val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
         status(result) mustBe OK
         verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
@@ -95,7 +94,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
         override def sessionCacheResponse: Some[CacheMap] = Some(CacheMap("id", Map.empty))
 
-        val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+        val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(
@@ -126,7 +125,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
             )
           )
 
-        val result: Future[Result] = controller.onSubmit(PostalAddrType)(FakeRequest())
+        val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
         status(result) mustBe BAD_REQUEST
         verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -150,7 +149,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
             )
           )
 
-        val result: Future[Result] = controller.onSubmit(PostalAddrType)(FakeRequest())
+        val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
         status(result) mustBe BAD_REQUEST
 
@@ -176,7 +175,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
           )
         )
 
-      val result: Future[Result] = controller.onSubmit(PostalAddrType)(FakeRequest())
+      val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/edit-address")
@@ -192,7 +191,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("addressId" -> "GB000000000000", "postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(PostalAddrType)(FakeRequest())
+      val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
@@ -200,7 +199,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
     }
 
     "redirect to enter start date page if postcode is different to currently held postcode" in new LocalSetup {
-      override def sessionCacheResponse: Option[CacheMap] =
+      override def sessionCacheResponse =
         Some(
           CacheMap(
             "id",
@@ -216,7 +215,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 2AA")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/enter-start-date")
@@ -240,7 +239,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
