@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter
 
 class NewsAndTilesConfigSpec extends BaseSpec {
 
-  lazy val messagesApi: MessagesApi = inject[MessagesApi]
+  lazy val messagesApi: MessagesApi = injected[MessagesApi]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 

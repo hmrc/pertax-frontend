@@ -16,7 +16,7 @@
 
 package controllers.address
 
-import controllers.bindable.ResidentialAddrType
+import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto._
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -26,8 +26,6 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.InternalServerErrorView
 import views.html.personaldetails._
-
-import scala.concurrent.Future
 
 class AddressErrorControllerSpec extends AddressBaseSpec {
 
@@ -41,19 +39,20 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
     def controller: AddressErrorController =
       new AddressErrorController(
         mockAuthJourney,
+        addressJourneyCachingHelper,
         cc,
         displayAddressInterstitialView,
-        inject[CannotUseServiceView],
-        inject[AddressAlreadyUpdatedView],
-        inject[FeatureFlagService],
-        inject[InternalServerErrorView]
+        injected[CannotUseServiceView],
+        injected[AddressAlreadyUpdatedView],
+        injected[FeatureFlagService],
+        injected[InternalServerErrorView]
       )
   }
 
   "cannotUseThisService" must {
 
     "display the cannot use this service page" in new LocalSetup {
-      val result: Future[Result] = controller.cannotUseThisService(ResidentialAddrType)(currentRequest)
+      val result = controller.cannotUseThisService(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsString(result) must include("You cannot use this service to update your address")
@@ -64,7 +63,7 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
 
     "display the showAddressAlreadyUpdated page" in new LocalSetup {
 
-      val result: Future[Result] = controller.showAddressAlreadyUpdated(currentRequest)
+      val result = controller.showAddressAlreadyUpdated(PostalAddrType)(currentRequest)
 
       status(result) mustBe OK
       contentAsString(result) must include("Your address has already been updated")

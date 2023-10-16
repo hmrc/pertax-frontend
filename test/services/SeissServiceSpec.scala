@@ -30,7 +30,7 @@ import scala.concurrent.Future
 
 class SeissServiceSpec extends BaseSpec {
 
-  val mockConfig: ConfigDecorator = mock[ConfigDecorator]
+  val mockConfig = mock[ConfigDecorator]
 
   val mockSeissConnector: SeissConnector = mock[SeissConnector]
   val sut                                = new SeissService(mockSeissConnector, mockConfig)

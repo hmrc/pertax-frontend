@@ -21,7 +21,7 @@ import models.Country
 
 class CountryHelper @Inject() () {
 
-  val countries: List[Country] = List(
+  val countries = List(
     Country("Gibraltar"),
     Country("Guernsey"),
     Country("Jersey"),
@@ -286,7 +286,7 @@ class CountryHelper @Inject() () {
     Country("Republic Of Kosovo")
   )
 
-  val excludedCountries: List[Country] = List(
+  val excludedCountries = List(
     Country("GREAT BRITAIN"),
     Country("SCOTLAND"),
     Country("ENGLAND"),

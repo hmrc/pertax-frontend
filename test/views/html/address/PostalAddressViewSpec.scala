@@ -18,11 +18,7 @@ package views.html.address
 
 import config.ConfigDecorator
 import controllers.address.routes
-import controllers.auth.requests.UserRequest
 import models.Country
-import org.jsoup.nodes.Document
-import play.api.Application
-import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
@@ -30,15 +26,13 @@ import views.html.ViewSpec
 import views.html.cards.personaldetails.PostalAddressView
 
 class PostalAddressViewSpec extends ViewSpec {
-  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
 
-  lazy val view: PostalAddressView = inject[PostalAddressView]
+  lazy val view = injected[PostalAddressView]
 
-  implicit val configDecorator: ConfigDecorator                 = inject[ConfigDecorator]
-  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-  val result: Document                                          = asDocument(
-    view(Fixtures.buildFakePersonDetails, isLocked = false, List[Country](), closePostalAddressEnabled = true).toString
-  )
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  implicit val userRequest                      = buildUserRequest(request = FakeRequest())
+  val result                                    = asDocument(view(Fixtures.buildFakePersonDetails, false, List[Country](), true).toString)
 
   "when on Postal address change PostalAddress points to InternationalPostalAddressChoiceController" in {
 

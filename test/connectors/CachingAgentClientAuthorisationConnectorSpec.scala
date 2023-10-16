@@ -52,7 +52,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
     reset(mockAgentClientAuthorisationConnector, mockSessionCacheRepository)
   }
 
-  def connector: CachingAgentClientAuthorisationConnector = inject[CachingAgentClientAuthorisationConnector]
+  def connector: CachingAgentClientAuthorisationConnector = injected[CachingAgentClientAuthorisationConnector]
   val url                                                 = "/agent-client-authorisation/status"
 
   implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()

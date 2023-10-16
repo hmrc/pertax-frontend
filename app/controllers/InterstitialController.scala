@@ -117,6 +117,7 @@ class InterstitialController @Inject() (
         itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
+          redirectUrl = currentUrl(request),
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           request.isSa,
@@ -175,7 +176,7 @@ class InterstitialController @Inject() (
       val models = newsAndTilesConfig.getNewsAndContentModelList()
       if (models.nonEmpty) {
         //service to get the dynamic content send the models and get the details from the dynamic list
-        Ok(viewNewsAndUpdatesView(models, newsSectionId))
+        Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, models, newsSectionId))
       } else {
         Redirect(routes.HomeController.index)
       }
@@ -187,7 +188,7 @@ class InterstitialController @Inject() (
   def displayBreathingSpaceDetails: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(BreathingSpaceIndicatorToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {
-        Future.successful(Ok(viewBreathingSpaceView()))
+        Future.successful(Ok(viewBreathingSpaceView(redirectUrl = currentUrl)))
       } else {
         Future.successful(errorRenderer.error(UNAUTHORIZED))
       }

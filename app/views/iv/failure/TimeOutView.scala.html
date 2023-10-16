@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import scala.concurrent.ExecutionContext
 @import components.{H1, P, Button}
 
 @this(
@@ -23,7 +24,7 @@
     button: Button
 )
 
-@()(implicit request: Request[_], messages: play.api.i18n.Messages)
+@(retryUrl: String)(implicit request: Request[_], messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.you_have_been_signed_out"),

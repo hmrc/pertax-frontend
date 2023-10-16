@@ -16,10 +16,10 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 
 case class BreathingSpaceIndicator(breathingSpaceIndicator: Boolean)
 
 object BreathingSpaceIndicator {
-  implicit val formats: OFormat[BreathingSpaceIndicator] = Json.format[BreathingSpaceIndicator]
+  implicit val formats = Json.format[BreathingSpaceIndicator]
 }

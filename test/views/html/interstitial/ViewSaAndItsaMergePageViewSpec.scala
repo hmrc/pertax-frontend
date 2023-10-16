@@ -19,24 +19,32 @@ package views.html.interstitial
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
+import models.admin.{ItsAdvertisementMessageToggle, NationalInsuranceTileToggle}
 import org.jsoup.nodes.Document
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
+import org.scalatest.Assertion
 import play.api.i18n.Messages
-import play.api.mvc.{AnyContent, AnyContentAsEmpty}
+import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
-import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.DateTimeTools.{current, previousAndCurrentTaxYear}
+import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.time.TaxYear
 import views.html.ViewSpec
+
+import scala.concurrent.Future
 
 class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
-  lazy val viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView = inject[ViewSaAndItsaMergePageView]
+  lazy val viewSaAndItsaMergePageView = injected[ViewSaAndItsaMergePageView]
 
-  lazy implicit val configDecorator: ConfigDecorator            = inject[ConfigDecorator]
-  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+  lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  implicit val userRequest                           = buildUserRequest(request = FakeRequest())
 
-  val nextDeadlineTaxYear: String = (current.currentYear + 1).toString
-  val saUtr: SaUtr                = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  val nextDeadlineTaxYear = (current.currentYear + 1).toString
+  val saUtr               = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   trait SelfAssessmentLocalSetup {
 
@@ -49,11 +57,12 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
     def selfAssessmentDoc: Document = asDocument(
       viewSaAndItsaMergePageView(
+        s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
         nextDeadlineTaxYear,
-        isItsa = false,
-        isSa = true,
-        itsaToggle = true,
-        isSeiss = false,
+        false,
+        true,
+        true,
+        false,
         previousAndCurrentTaxYear,
         user
       ).toString
@@ -67,11 +76,12 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewSaAndItsaMergePageView(
+            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
-            isItsa = true,
-            isSa = false,
-            itsaToggle = true,
-            isSeiss = false,
+            true,
+            false,
+            true,
+            false,
             previousAndCurrentTaxYear,
             userRequest.saUserType
           ).toString
@@ -80,7 +90,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       doc.text() must include(Messages("label.itsa_header"))
       doc.text() must include(Messages("label.mtd_for_sa"))
       doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
-      doc.text() must not include Messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return")
+      doc.text() must not include (Messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return"))
 
       hasLink(
         doc,
@@ -95,11 +105,12 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
         val doc =
           asDocument(
             viewSaAndItsaMergePageView(
+              s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
               nextDeadlineTaxYear,
-              isItsa = false,
-              isSa = true,
-              itsaToggle = true,
-              isSeiss = false,
+              false,
+              true,
+              true,
+              false,
               previousAndCurrentTaxYear,
               userRequest.saUserType
             ).toString
@@ -200,11 +211,12 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewSaAndItsaMergePageView(
+            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
-            isItsa = false,
-            isSa = false,
-            itsaToggle = true,
-            isSeiss = true,
+            false,
+            false,
+            true,
+            true,
             previousAndCurrentTaxYear,
             userRequest.saUserType
           ).toString
@@ -224,11 +236,12 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewSaAndItsaMergePageView(
+            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
-            isItsa = true,
-            isSa = true,
-            itsaToggle = true,
-            isSeiss = true,
+            true,
+            true,
+            true,
+            true,
             previousAndCurrentTaxYear,
             ActivatedOnlineFilerSelfAssessmentUser(saUtr)
           ).toString
@@ -263,6 +276,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewSaAndItsaMergePageView(
+            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
             isItsa = false,
             isSa = true,
@@ -274,7 +288,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
         )
 
       doc.text() must include(Messages("label.your_self_assessment"))
-      doc.text() must not include Messages("label.making_tax_digital")
+      doc.text() must not include (Messages("label.making_tax_digital"))
 
       hasLink(
         doc,
@@ -292,11 +306,12 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewSaAndItsaMergePageView(
+            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
-            isItsa = true,
-            isSa = true,
-            itsaToggle = true,
-            isSeiss = true,
+            true,
+            true,
+            true,
+            true,
             previousAndCurrentTaxYear,
             NotEnrolledSelfAssessmentUser(saUtr)
           ).toString

@@ -88,11 +88,11 @@ class ApplicationController @Inject() (
 
               case LockedOut =>
                 logErrorMessage(LockedOut.toString)
-                Unauthorized(lockedOutView())
+                Unauthorized(lockedOutView(allowContinue = false))
 
               case Timeout =>
                 logErrorMessage(Timeout.toString)
-                Unauthorized(timeOutView())
+                Unauthorized(timeOutView(retryUrl))
 
               case TechnicalIssue =>
                 logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")

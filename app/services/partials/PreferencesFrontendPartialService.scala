@@ -14,33 +14,30 @@
  * limitations under the License.
  */
 
-package connectors
+package services.partials
 
-import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import connectors.EnhancedPartialRetriever
+import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.partials.HtmlPartial
+import util.Tools
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TaiConnector @Inject() (
-  val httpClient: HttpClient,
+class PreferencesFrontendPartialService @Inject() (
+  tools: Tools,
   servicesConfig: ServicesConfig,
-  httpClientResponse: HttpClientResponse
-) {
+  enhancedPartialRetriever: EnhancedPartialRetriever
+)(implicit executionContext: ExecutionContext) {
 
-  lazy val taiUrl = servicesConfig.baseUrl("tai")
+  val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
-  def taxComponents(nino: Nino, year: Int)(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse
-      .read(
-        httpClient
-          .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taiUrl/tai/$nino/tax-account/$year/tax-components")
-      )
+  def getManagePreferencesPartial(returnUrl: String, returnLinkText: String)(implicit
+    request: RequestHeader
+  ): Future[HtmlPartial] =
+    enhancedPartialRetriever.loadPartial(s"$preferencesFrontendUrl/paperless/manage?returnUrl=${tools
+      .encryptAndEncode(returnUrl)}&returnLinkText=${tools.encryptAndEncode(returnLinkText)}")
+
 }

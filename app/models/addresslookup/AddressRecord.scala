@@ -17,7 +17,7 @@
 package models.addresslookup
 
 import models.dto.Dto
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 
 /** Represents one address record. Arrays of these are returned from the address-lookup microservice.
   */
@@ -27,5 +27,5 @@ case class AddressRecord(id: String, address: Address, language: String) extends
 }
 
 object AddressRecord {
-  implicit val formats: OFormat[AddressRecord] = Json.format[AddressRecord]
+  implicit val formats = Json.format[AddressRecord]
 }

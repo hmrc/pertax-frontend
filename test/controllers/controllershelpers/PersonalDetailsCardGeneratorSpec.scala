@@ -22,7 +22,6 @@ import models._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.twirl.api.HtmlFormat
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, Fixtures}
 import views.html.cards.personaldetails._
@@ -31,17 +30,17 @@ import java.time.LocalDate
 
 class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
 
-  implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
-  override def messagesApi: MessagesApi             = inject[MessagesApi]
+  implicit val mockConfigDecorator      = mock[ConfigDecorator]
+  override def messagesApi: MessagesApi = injected[MessagesApi]
 
-  val mainAddress       = inject[MainAddressView]
-  val postalAddress     = inject[PostalAddressView]
-  val nationalInsurance = inject[NationalInsuranceView]
-  val changeName        = inject[ChangeNameView]
+  val mainAddress       = injected[MainAddressView]
+  val postalAddress     = injected[PostalAddressView]
+  val nationalInsurance = injected[NationalInsuranceView]
+  val changeName        = injected[ChangeNameView]
 
-  def controller: PersonalDetailsCardGenerator = new PersonalDetailsCardGenerator(
+  def controller = new PersonalDetailsCardGenerator(
     mockConfigDecorator,
-    inject[CountryHelper],
+    injected[CountryHelper],
     mainAddress,
     postalAddress,
     nationalInsurance,
@@ -62,7 +61,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
 
     implicit def userRequest: UserRequest[_]
 
-    def buildPersonDetails: PersonDetails =
+    def buildPersonDetails =
       PersonDetails(
         Person(
           Some("Firstname"),
@@ -86,7 +85,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
 
   }
 
-  lazy val excludedCountries: List[Country] = List(
+  lazy val excludedCountries = List(
     Country("GREAT BRITAIN"),
     Country("SCOTLAND"),
     Country("ENGLAND"),
@@ -97,11 +96,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
   "Calling getMainAddressCard" must {
 
     "return nothing when there are no person details" in new MainAddressSetup {
-      override lazy val taxCreditsEnabled                 = true
-      override lazy val userHasPersonDetails              = false
-      override lazy val userHasCorrespondenceAddress      = false
-      override lazy val mainHomeStartDate: Option[String] = None
-      override lazy val isLocked                          = false
+      override lazy val taxCreditsEnabled            = true
+      override lazy val userHasPersonDetails         = false
+      override lazy val userHasCorrespondenceAddress = false
+      override lazy val mainHomeStartDate            = None
+      override lazy val isLocked                     = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = None, request = FakeRequest())
@@ -111,11 +110,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
     }
 
     "return the correct markup when there are person details and the user has a correspondence address" in new MainAddressSetup {
-      override lazy val taxCreditsEnabled                 = true
-      override lazy val userHasPersonDetails              = true
-      override lazy val userHasCorrespondenceAddress      = true
-      override lazy val mainHomeStartDate: Option[String] = Some("15 March 2015")
-      override lazy val isLocked                          = false
+      override lazy val taxCreditsEnabled            = true
+      override lazy val userHasPersonDetails         = true
+      override lazy val userHasCorrespondenceAddress = true
+      override lazy val mainHomeStartDate            = Some("15 March 2015")
+      override lazy val isLocked                     = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
@@ -128,11 +127,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
     }
 
     "return the correct markup when there are person details and the user does not have a correspondence address" in new MainAddressSetup {
-      override lazy val taxCreditsEnabled                 = true
-      override lazy val userHasPersonDetails              = true
-      override lazy val userHasCorrespondenceAddress      = false
-      override lazy val mainHomeStartDate: Option[String] = Some("15 March 2015")
-      override lazy val isLocked                          = false
+      override lazy val taxCreditsEnabled            = true
+      override lazy val userHasPersonDetails         = true
+      override lazy val userHasCorrespondenceAddress = false
+      override lazy val mainHomeStartDate            = Some("15 March 2015")
+      override lazy val isLocked                     = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
@@ -145,11 +144,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
     }
 
     "return the correct markup when there are person details and the user does not have a correspondence address and there is a correspondence address lock" in new MainAddressSetup {
-      override lazy val taxCreditsEnabled                 = true
-      override lazy val userHasPersonDetails              = true
-      override lazy val userHasCorrespondenceAddress      = false
-      override lazy val mainHomeStartDate: Option[String] = Some("15 March 2015")
-      override lazy val isLocked                          = true
+      override lazy val taxCreditsEnabled            = true
+      override lazy val userHasPersonDetails         = true
+      override lazy val userHasCorrespondenceAddress = false
+      override lazy val mainHomeStartDate            = Some("15 March 2015")
+      override lazy val isLocked                     = true
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
@@ -162,11 +161,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
     }
 
     "return the correct markup when there are person details and the user has edited their view address" in new MainAddressSetup {
-      override lazy val taxCreditsEnabled                 = true
-      override lazy val userHasPersonDetails              = true
-      override lazy val userHasCorrespondenceAddress      = true
-      override lazy val mainHomeStartDate: Option[String] = Some("15 March 2015")
-      override lazy val isLocked                          = true
+      override lazy val taxCreditsEnabled            = true
+      override lazy val userHasPersonDetails         = true
+      override lazy val userHasCorrespondenceAddress = true
+      override lazy val mainHomeStartDate            = Some("15 March 2015")
+      override lazy val isLocked                     = true
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
@@ -179,11 +178,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
     }
 
     "return the correct markup when tax credits is enabled" in new MainAddressSetup {
-      override lazy val taxCreditsEnabled                 = true
-      override lazy val userHasPersonDetails              = true
-      override lazy val userHasCorrespondenceAddress      = true
-      override lazy val mainHomeStartDate: Option[String] = Some("15 March 2015")
-      override lazy val isLocked                          = false
+      override lazy val taxCreditsEnabled            = true
+      override lazy val userHasPersonDetails         = true
+      override lazy val userHasCorrespondenceAddress = true
+      override lazy val mainHomeStartDate            = Some("15 March 2015")
+      override lazy val isLocked                     = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
@@ -196,11 +195,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
     }
 
     "return the correct markup when tax credits is disabled" in new MainAddressSetup {
-      override lazy val taxCreditsEnabled                 = false
-      override lazy val userHasPersonDetails              = true
-      override lazy val userHasCorrespondenceAddress      = true
-      override lazy val mainHomeStartDate: Option[String] = Some("15 March 2015")
-      override lazy val isLocked                          = false
+      override lazy val taxCreditsEnabled            = false
+      override lazy val userHasPersonDetails         = true
+      override lazy val userHasCorrespondenceAddress = true
+      override lazy val mainHomeStartDate            = Some("15 March 2015")
+      override lazy val isLocked                     = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
@@ -227,7 +226,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
 
     def closePostalAddressEnabled: Boolean
 
-    def buildPersonDetails: PersonDetails =
+    def buildPersonDetails =
       PersonDetails(
         Person(
           Some("Firstname"),
@@ -241,16 +240,12 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
           Some(Fixtures.fakeNino)
         ),
         Some(buildFakeAddress),
-        if (userHasCorrespondenceAddress && userHasWelshLanguageUnitAddress) {
-          Some(buildFakeWLUAddress)
-        } else if (userHasCorrespondenceAddress) {
-          Some(buildFakeAddress)
-        } else {
-          None
-        }
+        if (userHasCorrespondenceAddress && userHasWelshLanguageUnitAddress) Some(buildFakeWLUAddress)
+        else if (userHasCorrespondenceAddress) Some(buildFakeAddress)
+        else None
       )
 
-    def buildFakeAddress: Address = Address(
+    def buildFakeAddress = Address(
       Some("1 Fake Street"),
       Some("Fake Town"),
       Some("Fake City"),
@@ -261,10 +256,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       if (isLocked) Some(LocalDate.now()) else Some(LocalDate.now().minusDays(1)),
       None,
       Some("Residential"),
-      isRls = false
+      false
     )
 
-    def buildFakeWLUAddress: Address = Address(
+    def buildFakeWLUAddress = Address(
       Some("1 Fake Street"),
       Some("Fake Town"),
       Some("Fake City"),
@@ -275,14 +270,14 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       if (isLocked) Some(LocalDate.now()) else Some(LocalDate.now().minusDays(1)),
       None,
       Some("Residential"),
-      isRls = false
+      false
     )
 
-    def cardBody: Option[HtmlFormat.Appendable] = controller.getPostalAddressCard(isLocked)
+    def cardBody = controller.getPostalAddressCard(isLocked)
 
     when(controller.configDecorator.closePostalAddressEnabled) thenReturn closePostalAddressEnabled
 
-    lazy val excludedCountries: List[Country] = List(
+    lazy val excludedCountries = List(
       Country("GREAT BRITAIN"),
       Country("SCOTLAND"),
       Country("ENGLAND"),
@@ -357,9 +352,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody mustBe Some(
-        postalAddress(buildPersonDetails, isLocked, excludedCountries, closePostalAddressEnabled = false)
-      )
+      cardBody mustBe Some(postalAddress(buildPersonDetails, isLocked, excludedCountries, false))
 
     }
 
@@ -382,7 +375,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
     trait LocalSetup {
       implicit def userRequest: UserRequest[_]
 
-      lazy val cardBody: Option[HtmlFormat.Appendable] = controller.getNationalInsuranceCard(userRequest.nino)
+      lazy val cardBody = controller.getNationalInsuranceCard(userRequest.nino)
     }
 
     "always return the same markup" in new LocalSetup {
@@ -399,9 +392,9 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
 
       implicit def userRequest: UserRequest[_]
 
-      lazy val cardBody: Option[HtmlFormat.Appendable] = controller.getChangeNameCard()
+      lazy val cardBody = controller.getChangeNameCard()
 
-      def buildPersonDetails: PersonDetails =
+      def buildPersonDetails =
         PersonDetails(
           Person(
             Some("Firstname"),
