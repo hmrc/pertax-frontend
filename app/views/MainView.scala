@@ -18,24 +18,21 @@ package views.html
 
 import com.google.inject.ImplementedBy
 import config.ConfigDecorator
-import controllers.auth.requests.{AuthenticatedRequest, UserRequest}
+import controllers.auth.requests.UserRequest
 import models.admin.SCAWrapperToggle
 import play.api.Logging
 import play.api.i18n.Messages
-import play.api.mvc.Request
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.sca.models.BannerConfig
 import uk.gov.hmrc.sca.services.WrapperService
-import views.html.OldMainView
 import views.html.components.{AdditionalJavascript, HeadBlock}
 
 import javax.inject.Inject
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
-import scala.util.{Failure, Success, Try}
 
 @ImplementedBy(classOf[MainViewImpl])
 trait MainView {
@@ -110,7 +107,11 @@ class MainViewImpl @Inject() (
         //showSignOutInHeader: Boolean = false,
         scripts = Seq(additionalScripts(scripts)(request)),
         styleSheets = Seq(headBlock(stylesheets)(request)),
-        bannerConfig = BannerConfig(false, false, true, showUserResearchBanner),
+        bannerConfig = BannerConfig(
+          showAlphaBanner = false,
+          showBetaBanner = true,
+          showHelpImproveBanner = showUserResearchBanner
+        ),
         optTrustedHelper = request.trustedHelper,
         fullWidth = fullWidth,
         hideMenuBar = hideAccountMenu,
