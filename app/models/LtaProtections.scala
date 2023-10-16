@@ -18,8 +18,7 @@ package models
 
 import play.api.libs.json.Json
 
-case class ErrorView(url: String, statusCode: Int)
-
-object ErrorView {
-  implicit val format = Json.format[ErrorView]
+object LtaProtections {
+  implicit val formats = Json.format[LtaProtections]
 }
+case class LtaProtections(count: Int)

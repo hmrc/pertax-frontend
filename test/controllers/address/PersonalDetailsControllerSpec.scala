@@ -45,12 +45,11 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(HmrcAccountToggle)))
       .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, isEnabled = false)))
 
-    def rlsInterruptHelper: RlsInterruptHelper =
-      new RlsInterruptHelper(cc, inject[EditAddressLockRepository], mockFeatureFlagService)
+    def rlsInterruptHelper = new RlsInterruptHelper(cc, injected[EditAddressLockRepository], mockFeatureFlagService)
 
-    def controller: PersonalDetailsController =
+    def controller =
       new PersonalDetailsController(
-        inject[PersonalDetailsViewModel],
+        injected[PersonalDetailsViewModel],
         mockEditAddressLockRepository,
         mockAuthJourney,
         addressJourneyCachingHelper,
@@ -59,7 +58,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         mockAgentClientAuthorisationService,
         cc,
         displayAddressInterstitialView,
-        inject[PersonalDetailsView],
+        injected[PersonalDetailsView],
         mockFeatureFlagService,
         internalServerErrorView
       )

@@ -18,10 +18,11 @@ package controllers
 
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import play.api.Application
+import error.ErrorRenderer
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.partials.PreferencesFrontendPartialService
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import util._
@@ -31,16 +32,19 @@ import scala.concurrent.Future
 class PaperlessPreferencesControllerSpec extends BaseSpec {
   import testUtils.BetterOptionValues._
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
 
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
+  val mockPreferencesFrontendPartialService = mock[PreferencesFrontendPartialService]
+  val mockAuthJourney                       = mock[AuthJourney]
 
   def controller: PaperlessPreferencesController =
     new PaperlessPreferencesController(
+      mockPreferencesFrontendPartialService,
       mockAuthJourney,
-      inject[WithBreadcrumbAction],
-      inject[MessagesControllerComponents],
-      inject[Tools]
+      injected[WithBreadcrumbAction],
+      injected[MessagesControllerComponents],
+      injected[ErrorRenderer],
+      injected[Tools]
     )(config) {}
 
   "Calling PaperlessPreferencesController.managePreferences" must {

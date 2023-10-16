@@ -28,7 +28,8 @@
     govukFieldset : GovukFieldset
 )
 
-@(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, showEnterAddressHeader: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, addressFinderDto: Option[AddressFinderDto],
+addressLookupServiceDown: Boolean, showEnterAddressHeader: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @getYourAddressLabels = {
   @if(showEnterAddressHeader) {

@@ -18,15 +18,15 @@ package models.dto
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 import util.PertaxValidators._
 case class AddressFinderDto(postcode: String, filter: Option[String]) extends Dto
 
 object AddressFinderDto {
 
-  implicit val formats: OFormat[AddressFinderDto] = Json.format[AddressFinderDto]
+  implicit val formats = Json.format[AddressFinderDto]
 
-  val form: Form[AddressFinderDto] = Form(
+  val form = Form(
     mapping(
       "postcode" -> text
         .verifying(

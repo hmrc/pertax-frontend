@@ -31,7 +31,7 @@ class EnrolmentsConnector @Inject() (
   httpClientResponse: HttpClientResponse
 ) {
 
-  val baseUrl: String = configDecorator.enrolmentStoreProxyUrl
+  val baseUrl = configDecorator.enrolmentStoreProxyUrl
 
   def getUserIdsWithEnrolments(
     saUtr: String

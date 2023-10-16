@@ -18,17 +18,19 @@ package services
 
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
+import play.api.Configuration
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class LocalSessionCache @Inject() (
+  val appNameConfiguration: Configuration,
   override val http: HttpClient,
   servicesConfig: ServicesConfig,
   @Named("appName") appName: String
 ) extends SessionCache {
-  override lazy val defaultSource: String = appName
-  override lazy val baseUri: String       = servicesConfig.baseUrl("cachable.session-cache")
-  override lazy val domain: String        = servicesConfig.getConfString("cachable.session-cache.domain", "keystore")
+  override lazy val defaultSource = appName
+  override lazy val baseUri       = servicesConfig.baseUrl("cachable.session-cache")
+  override lazy val domain        = servicesConfig.getConfString("cachable.session-cache.domain", "keystore")
 }
