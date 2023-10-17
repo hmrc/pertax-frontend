@@ -31,7 +31,7 @@ class FeatureFlagsController @Inject() (
 )(implicit ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
-  def setDefaults: Action[AnyContent] = Action.async {
+  def setDefaults(): Action[AnyContent] = Action.async {
     featureFlagService
       .setAll(
         Map(
@@ -44,7 +44,6 @@ class FeatureFlagsController @Inject() (
           PaperlessInterruptToggle          -> false,
           TaxSummariesTileToggle            -> true,
           SingleAccountCheckToggle          -> false,
-          AppleSaveAndViewNIToggle          -> false,
           PertaxBackendToggle               -> true,
           SCAWrapperToggle                  -> true,
           HmrcAccountToggle                 -> false,
@@ -52,7 +51,8 @@ class FeatureFlagsController @Inject() (
           BreathingSpaceIndicatorToggle     -> true,
           TaxcalcMakePaymentLinkToggle      -> true,
           NpsShutteringToggle               -> false,
-          NpsOutageToggle                   -> false
+          NpsOutageToggle                   -> false,
+          AlertBannerPaperlessStatusToggle  -> true
         )
       )
       .map(_ => Ok("Default flags set"))

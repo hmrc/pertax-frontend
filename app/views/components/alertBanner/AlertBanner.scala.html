@@ -14,21 +14,21 @@
  * limitations under the License.
  *@
 
-@this()
-@()(implicit messages: play.api.i18n.Messages)
+@import viewmodels.HomeViewModel
 
-<!doctype html>
-<html>
-    <head>
-        <title>
-            @messages("label.your_national_insurance_letter")
-        </title>
-        <style>
-          html{background: #FFF !important;} * {font-family: Arial !important;}
-          <!-- minifiedCssPlaceholder -->
-        </style>
-    </head>
-    <body>
-            <!-- niLetterPlaceHolder -->
-    </body>
-</html>
+@this(govukNotificationBanner : GovukNotificationBanner)
+
+@(contents: List[Html])
+
+@alertBannerHtml = {
+    @contents.map { content =>
+        <div>@content</div>
+    }
+}
+
+@if(contents.nonEmpty) {
+    @govukNotificationBanner(NotificationBanner(
+        content = HtmlContent(alertBannerHtml),
+        attributes = Map("id" -> "alert-banner")
+    ))
+}

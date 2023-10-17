@@ -108,6 +108,8 @@ class ConfigDecorator @Inject() (
   private lazy val annualTaxSummariesUrl: String           = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
   lazy val isNewsAndUpdatesTileEnabled: Boolean            =
     runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
+  lazy val isBreathingSpaceIndicatorEnabled: Boolean       =
+    servicesConfig.getBoolean("feature.breathing-space-indicator.enabled")
   lazy val annualTaxSaSummariesTileLink                    = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink                  = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
@@ -178,10 +180,6 @@ class ConfigDecorator @Inject() (
       .orElse(runModeConfiguration.getOptional[String]("appName"))
       .getOrElse("undefined")
 
-  private val defaultEhCacheTtlInSeconds = 600
-  val ehCacheTtlInSeconds: Int           =
-    runModeConfiguration.getOptional[Int]("ehCache.ttlInSeconds").getOrElse(defaultEhCacheTtlInSeconds)
-
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
   lazy val generalQueriesUrl     = "https://www.gov.uk/contact-hmrc"
 
@@ -250,9 +248,6 @@ class ConfigDecorator @Inject() (
   lazy val allowSaPreview: Boolean              =
     runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
 
-  lazy val saveNiLetterAsPdfLinkEnabled: Boolean =
-    runModeConfiguration.getOptional[String]("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
-
   lazy val personDetailsMessageCountEnabled: Boolean =
     runModeConfiguration.getOptional[String]("feature.person-details-message-count.enabled").getOrElse("true").toBoolean
 
@@ -319,7 +314,7 @@ class ConfigDecorator @Inject() (
   lazy val shutterPageParagraphCy: String =
     runModeConfiguration.getOptional[String]("feature.nps-shuttering.page.paragraph.cy").getOrElse("")
 
-  lazy val breathingSpcaeBaseUrl: String        = servicesConfig.baseUrl("breathing-space-if-proxy")
+  lazy val breathingSpaceBaseUrl: String        = servicesConfig.baseUrl("breathing-space-if-proxy")
   lazy val breathingSpaceTimeoutInSec: Int      =
     servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
   lazy val preferenceFrontendTimeoutInSec: Int  =

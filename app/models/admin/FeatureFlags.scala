@@ -19,7 +19,7 @@ package models.admin
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagName
 
 object AllFeatureFlags {
-  val list = List(
+  val list: List[FeatureFlagName] = List(
     AddressTaxCreditsBrokerCallToggle,
     TaxcalcToggle,
     NationalInsuranceTileToggle,
@@ -32,12 +32,12 @@ object AllFeatureFlags {
     TaxcalcMakePaymentLinkToggle,
     NpsShutteringToggle,
     NpsOutageToggle,
-    AppleSaveAndViewNIToggle,
     SCAWrapperToggle,
     HmrcAccountToggle,
     AgentClientAuthorisationToggle,
     PertaxBackendToggle,
-    BreathingSpaceIndicatorToggle
+    BreathingSpaceIndicatorToggle,
+    AlertBannerPaperlessStatusToggle
   )
 }
 
@@ -98,11 +98,6 @@ case object NpsShutteringToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable the nps shuttering banner and subpage")
 }
 
-case object AppleSaveAndViewNIToggle extends FeatureFlagName {
-  override val name: String                = "apple-save-view-ni-toggle"
-  override val description: Option[String] = Some("Enable/disable the new content for the Apple Save and View NI")
-}
-
 case object NpsOutageToggle extends FeatureFlagName {
   override val name: String                = "nps-outage-toggle"
   override val description: Option[String] = Some(
@@ -142,5 +137,12 @@ case object BreathingSpaceIndicatorToggle extends FeatureFlagName {
   override val name: String                = "breathing-space-indicator-toggle"
   override val description: Option[String] = Some(
     "Enable/disable calls to Breathing space"
+  )
+}
+
+case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
+  override val name: String                = "alert-banner-paperless-status-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable paperless alerts in alert banner on the home page"
   )
 }
