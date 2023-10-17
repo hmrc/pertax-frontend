@@ -680,7 +680,7 @@ alertBannerShuttering.fandf = Cynorthwywyr Dibynadwy
 alertBannerShuttering.childBenefit = Budd-dal Plant
 alertBannerShuttering.taxCredits = Credydau Treth
 alertBannerShuttering.payeIncomeTaxHistory = Hanes Treth Incwm TWE
-alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau?r Cyflogai, gan gynnwys gweithio gartref, gwisg, dillad gwaith, offer a thanysgrifiadau proffesiynol
+alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau’r Cyflogai, gan gynnwys gweithio gartref, gwisg, dillad gwaith, offer a thanysgrifiadau proffesiynol
 
 #*************************************************************
 # Tax Credits CoA Interstitial Page
