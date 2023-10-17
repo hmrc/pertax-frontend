@@ -144,7 +144,7 @@ class ClosePostalAddressController @Inject() (
                     } else {
                       errorRenderer.futureError(INTERNAL_SERVER_ERROR)
                     },
-                  response =>
+                  _ =>
                     for {
                       _        <- auditConnector.sendEvent(
                                     buildEvent(

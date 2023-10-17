@@ -49,8 +49,8 @@ class PreferencesFrontendConnector @Inject() (
     with I18nSupport
     with Logging {
 
-  val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
-  val url                    = preferencesFrontendUrl
+  val preferencesFrontendUrl: String = servicesConfig.baseUrl("preferences-frontend")
+  val url: String                    = preferencesFrontendUrl
 
   def getPaperlessPreference()(implicit
     request: UserRequest[_]

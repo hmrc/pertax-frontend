@@ -20,23 +20,23 @@ import config.ConfigDecorator
 import models.{Activated, ItsaEnrolmentEnrolled, NotYetActivated, SelfAssessmentEnrolment}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
-import play.api.mvc.Result
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier}
-import uk.gov.hmrc.domain.{Generator, SaUtr}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtr}
 
 import scala.util.Random
 
 class EnrolmentsHelperSpec extends BaseSpec {
-  val sut                              = injected[EnrolmentsHelper]
-  val nino                             = Fixtures.fakeNino
-  implicit val request                 = FakeRequest()
-  implicit val configDecorator         = app.injector.instanceOf[ConfigDecorator]
-  lazy val messagesApi                 = injected[MessagesApi]
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  val sut: EnrolmentsHelper                                 = inject[EnrolmentsHelper]
+  val nino: Nino                                            = Fixtures.fakeNino
+  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  implicit val configDecorator: ConfigDecorator             = app.injector.instanceOf[ConfigDecorator]
+  lazy val messagesApi: MessagesApi                         = inject[MessagesApi]
+  implicit lazy val messages: Messages                      = MessagesImpl(Lang("en"), messagesApi)
 
   "singleAccountEnrolmentPresent" when {
     "enrolment is present and nino matches" must {

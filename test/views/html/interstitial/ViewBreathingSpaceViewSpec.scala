@@ -17,26 +17,26 @@
 package views.html.interstitial
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import play.api.i18n.Messages
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 
 class ViewBreathingSpaceViewSpec extends ViewSpec {
 
-  lazy val viewBreathingSpaceView: ViewBreathingSpaceView = injected[ViewBreathingSpaceView]
+  lazy val viewBreathingSpaceView: ViewBreathingSpaceView = inject[ViewBreathingSpaceView]
 
-  lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val userRequest                           = buildUserRequest(request = FakeRequest())
+  lazy implicit val configDecorator: ConfigDecorator            = inject[ConfigDecorator]
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
   "Rendering ViewBreathingSpaceView.scala.html" must {
 
     "show content" in {
-      implicit val userRequest = buildUserRequest(request = FakeRequest())
-
       val doc =
         asDocument(
-          viewBreathingSpaceView(s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/breathing-space").toString
+          viewBreathingSpaceView().toString
         )
 
       doc.text() must include(Messages("label.you_are_in_breathing_space"))
@@ -46,6 +46,5 @@ class ViewBreathingSpaceViewSpec extends ViewSpec {
       )
       doc.text() must include(Messages("label.take_enforcement_action_against_you"))
     }
-
   }
 }

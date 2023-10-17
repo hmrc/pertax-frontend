@@ -13,12 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package models
-
-import play.api.libs.json.Json
-
-object LtaProtections {
-  implicit val formats = Json.format[LtaProtections]
-}
-case class LtaProtections(count: Int)
