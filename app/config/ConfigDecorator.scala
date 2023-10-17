@@ -301,18 +301,18 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.getOptional[String]("feature.banner.home.link.url").getOrElse("")
 
   lazy val shutterBannerParagraphEn: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.paragraph.en").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.paragraph.en").getOrElse("")
   lazy val shutterBannerParagraphCy: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.paragraph.cy").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.paragraph.cy").getOrElse("")
   lazy val shutterBannerLinkTextEn: String  =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.linkText.en").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.linkText.en").getOrElse("")
   lazy val shutterBannerLinkTextCy: String  =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.linkText.cy").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.linkText.cy").getOrElse("")
 
   lazy val shutterPageParagraphEn: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.page.paragraph.en").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.en").getOrElse("")
   lazy val shutterPageParagraphCy: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.page.paragraph.cy").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.cy").getOrElse("")
 
   lazy val breathingSpaceBaseUrl: String        = servicesConfig.baseUrl("breathing-space-if-proxy")
   lazy val breathingSpaceTimeoutInSec: Int      =

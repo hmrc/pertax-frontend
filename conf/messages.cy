@@ -661,23 +661,26 @@ profile.message.postalAddressRls = Mae angen i chi ddiweddaru’ch cyfeiriad pos
 label.return_to_your_profile_page = Dychwelyd i’ch proffil
 
 #*************************************************************
-# Nps Shuttering Page
+# Shuttering Page
 #*************************************************************
-npsshuttering.title = Y gwasanaethau na fyddant ar gael
-npsshuttering.cysp = Gwirioʼch Pensiwn y Wladwriaeth
-npsshuttering.taxRefund = Gwneud cais am ad-daliad treth
-npsshuttering.c2ni = Yswiriant Gwladol Dosbarth 2
-npsshuttering.cocar = Car cwmni
-npsshuttering.ee = Treuliau’r Cyflogai
-npsshuttering.hts = Cymorth i Gynilo
-npsshuttering.tamc = Lwfans Priodasol
-npsshuttering.medben = Buddiannau meddygol
-npsshuttering.paye = TWE – Gwasanaeth Gwirio’ch Treth Incwm
-npsshuttering.pla = Lwfans Oes Pensiwn
-npsshuttering.repayments = Ad-daliadau
-npsshuttering.taxcalc = Cyfrifiad Treth
-npsshuttering.fandf = Cynorthwywyr Dibynadwy
-npsshuttering.chb = Budd-dal Plant
+alertBannerShuttering.title = Y gwasanaethau na fyddant ar gael
+alertBannerShuttering.cysp = Gwirioʼch Pensiwn y Wladwriaeth
+alertBannerShuttering.taxRefund = Gwneud cais am ad-daliad treth
+alertBannerShuttering.c2ni = Yswiriant Gwladol Dosbarth 2
+alertBannerShuttering.cocar = Car cwmni
+alertBannerShuttering.ee = Treuliau’r Cyflogai
+alertBannerShuttering.helpToSave = Cymorth i Gynilo
+alertBannerShuttering.tamc = Lwfans Priodasol
+alertBannerShuttering.medben = Buddiannau meddygol
+alertBannerShuttering.paye = TWE – Gwasanaeth Gwirio’ch Treth Incwm
+alertBannerShuttering.pensionLifetimeAllowance = Lwfans Oes Pensiwn
+alertBannerShuttering.repayments = Ad-daliadau
+alertBannerShuttering.taxcalc = Cyfrifiad Treth
+alertBannerShuttering.fandf = Cynorthwywyr Dibynadwy
+alertBannerShuttering.childBenefit = Budd-dal Plant
+alertBannerShuttering.taxCredits = Credydau Treth
+alertBannerShuttering.payeIncomeTaxHistory = Hanes Treth Incwm TWE
+alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau’r Cyflogai, gan gynnwys gweithio gartref, gwisg, dillad gwaith, offer a thanysgrifiadau proffesiynol
 
 #*************************************************************
 # Tax Credits CoA Interstitial Page
