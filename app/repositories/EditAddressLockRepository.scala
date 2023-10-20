@@ -29,6 +29,7 @@ import repositories.EditAddressLockRepository.EXPIRE_AT
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
+import java.time.zone.ZoneRules
 import java.time.{Instant, OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
@@ -106,10 +107,11 @@ class EditAddressLockRepository @Inject() (
 }
 
 object EditAddressLockRepository {
-  val EXPIRE_AT              = "editedAddress.expireAt"
-  val UK_TIME_ZONE: ZoneId   = TimeZone.getTimeZone("Europe/London").toZoneId
-  val GMT_OFFSET: ZoneOffset = ZoneOffset.ofHours(0)
-  val BST_OFFSET: ZoneOffset = ZoneOffset.ofHours(1)
+  val EXPIRE_AT                = "editedAddress.expireAt"
+  val UK_TIME_ZONE: ZoneId     = TimeZone.getTimeZone("Europe/London").toZoneId
+  val UK_ZONE_Rules: ZoneRules = UK_TIME_ZONE.getRules
+  val GMT_OFFSET: ZoneOffset   = ZoneOffset.ofHours(0)
+  val BST_OFFSET: ZoneOffset   = ZoneOffset.ofHours(1)
 
   private def nextUTCMidnightInUKDateTime(offsetDateTime: OffsetDateTime): OffsetDateTime = {
     val utcNextDay = offsetDateTime.withOffsetSameInstant(GMT_OFFSET).plusDays(1)

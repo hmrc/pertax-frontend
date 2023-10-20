@@ -18,11 +18,11 @@
 @import tags._
 @import scala.concurrent.ExecutionContext
 @import components.{ErrorSummary, InputValue, Button}
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteCss
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteJavascript
+
 @import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
+@import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
 
 @this(
     main: MainView,
@@ -31,17 +31,10 @@
     inputValue: InputValue,
     button: Button,
     govukFieldset: GovukFieldset,
-    govukSelect : GovukSelect,
-    autocompleteCss : HmrcAccessibleAutocompleteCss,
-    autocompleteJavascript : HmrcAccessibleAutocompleteJavascript
+    govukSelect : GovukSelect
 )
 
 @(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, countries: List[Country])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
-
-@scriptElems = {
-    @autocompleteJavascript()
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/autocompletePolyfill.js")'></script>
-}
 
 @getYourAddressLabels = {
     @typ.ifIs(
@@ -61,9 +54,7 @@
 @main(
     pageTitle = title.toString,
     showBackLink = true,
-    yourProfileActive = true,
-    stylesheets = Some(autocompleteCss()),
-    scripts = Some(scriptElems)
+    yourProfileActive = true
 ) {
 
 
@@ -139,23 +130,25 @@
     )
 
 
-    @govukSelect(Select(
+    @govukSelect(
+      Select(
         id = "country",
         name = "country",
-        errorMessage = updateAddressForm("country").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
-        items = Seq(SelectItem(text="", attributes=Map("label" -> messages("country.select")))) ++ countries.map{ c =>
-            SelectItem(
-                value = Some(c.countryName),
-                text = c.countryName,
-                selected = false
-            )
+        errorMessage = updateAddressForm("country").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args: _*)))),
+        items = Seq(SelectItem(text = "", attributes = Map("label" -> messages("country.select")))) ++ countries.map { c =>
+          SelectItem(
+            value = Some(c.countryName),
+            text = c.countryName,
+            selected = false
+          )
         },
         label = Label(
-            content = Text(messages("label.country"))
+          content = Text(messages("label.country"))
         )
-    ).asAccessibleAutocomplete(Some(
+      ).asAccessibleAutocomplete(Some(
         AccessibleAutocomplete(
-            showAllValues = false,
-            autoSelect = true)
-    )))
+          showAllValues = false,
+          autoSelect = true)
+      ))
+    )
 }

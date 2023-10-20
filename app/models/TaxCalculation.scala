@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 
 case class TaxCalculation(
   p800_status: String,
@@ -29,5 +29,5 @@ case class TaxCalculation(
 )
 
 object TaxCalculation {
-  implicit val formats: OFormat[TaxCalculation] = Json.format[TaxCalculation]
+  implicit val formats = Json.format[TaxCalculation]
 }

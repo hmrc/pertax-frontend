@@ -18,15 +18,15 @@ package models.dto
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 
 final case class SAWrongCredentialsDto(value: Boolean) extends Dto
 
 object SAWrongCredentialsDto {
 
-  implicit val formats: OFormat[SAWrongCredentialsDto] = Json.format[SAWrongCredentialsDto]
+  implicit val formats = Json.format[SAWrongCredentialsDto]
 
-  val form: Form[SAWrongCredentialsDto] = Form(
+  val form = Form(
     mapping(
       "wrongCredentialsFormChoice" -> optional(boolean)
         .verifying("error.you_must_select_an_answer", _.isDefined)

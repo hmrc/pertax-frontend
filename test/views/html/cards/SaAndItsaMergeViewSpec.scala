@@ -22,8 +22,8 @@ import views.html.cards.home.SaAndItsaMergeView
 
 class SaAndItsaMergeViewSpec extends ViewSpec {
 
-  val saAndItsaMergeView: SaAndItsaMergeView    = inject[SaAndItsaMergeView]
-  implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
+  val saAndItsaMergeView                        = injected[SaAndItsaMergeView]
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   val nextDeadlineTaxYear = "2021"
 
@@ -31,7 +31,7 @@ class SaAndItsaMergeViewSpec extends ViewSpec {
 
     val doc =
       asDocument(
-        saAndItsaMergeView(nextDeadlineTaxYear, isItsa = false).toString
+        saAndItsaMergeView(nextDeadlineTaxYear, false).toString
       )
 
     "render the given heading correctly" in {
@@ -57,7 +57,7 @@ class SaAndItsaMergeViewSpec extends ViewSpec {
 
     val doc =
       asDocument(
-        saAndItsaMergeView(nextDeadlineTaxYear, isItsa = true).toString
+        saAndItsaMergeView(nextDeadlineTaxYear, true).toString
       )
 
     "render the given heading correctly" in {

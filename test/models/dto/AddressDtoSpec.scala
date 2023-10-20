@@ -38,7 +38,7 @@ class AddressDtoSpec extends BaseSpec {
       AddressDto.ukForm
         .bind(formData)
         .fold(
-          _ => {},
+          formWithErrors => {},
           success => success mustBe AddressDto("Line 1", "Line 2", None, None, None, Some("AA1 1AA"), None, None)
         )
     }
@@ -57,7 +57,7 @@ class AddressDtoSpec extends BaseSpec {
       AddressDto.ukForm
         .bind(formData)
         .fold(
-          _ => {},
+          formWithErrors => {},
           success => success mustBe AddressDto("Line 1", "Line 2", None, None, None, Some("AA11AA"), None, None)
         )
     }
@@ -106,7 +106,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line1_required"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -125,7 +125,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line1_contains_more_than_35_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -144,7 +144,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line1_invalid_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -163,7 +163,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line2_required"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -182,7 +182,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line2_contains_more_than_35_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -201,7 +201,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line2_invalid_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -221,7 +221,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line3_contains_more_than_35_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -241,7 +241,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line3_invalid_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -291,7 +291,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line4_contains_more_than_35_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -312,7 +312,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line4_invalid_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -397,7 +397,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line5_contains_more_than_35_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -419,7 +419,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line5_invalid_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -441,7 +441,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line5_invalid_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -459,7 +459,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.enter_a_valid_uk_postcode"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -477,7 +477,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.enter_a_valid_uk_postcode"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
   }
@@ -499,7 +499,7 @@ class AddressDtoSpec extends BaseSpec {
       AddressDto.internationalForm
         .bind(formData)
         .fold(
-          _ => {},
+          formWithErrors => {},
           success => success mustBe AddressDto("Line 1", "Line 2", None, None, None, None, Some("Gibraltar"), None)
         )
     }
@@ -549,7 +549,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line1_required"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -568,7 +568,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line1_contains_more_than_35_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -587,7 +587,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line1_invalid_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -606,7 +606,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line2_required"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -625,7 +625,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line2_contains_more_than_35_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -644,7 +644,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line2_invalid_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -664,7 +664,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line3_contains_more_than_35_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -684,7 +684,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line3_invalid_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -706,7 +706,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line4_contains_more_than_35_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -727,7 +727,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line4_invalid_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -749,7 +749,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line5_contains_more_than_35_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -771,7 +771,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line5_invalid_characters"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -793,7 +793,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.country_required"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
 
@@ -811,7 +811,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.country_required"
           },
-          _ => fail("Form should give an error")
+          success => fail("Form should give an error")
         )
     }
   }
@@ -864,7 +864,7 @@ class AddressDtoSpec extends BaseSpec {
         Some(startDate),
         None,
         Some(addressTye),
-        isRls = false
+        false
       )
     }
 
@@ -884,7 +884,7 @@ class AddressDtoSpec extends BaseSpec {
         Some(startDate),
         None,
         Some(addressTye),
-        isRls = false
+        false
       )
     }
   }
@@ -908,7 +908,7 @@ class AddressDtoSpec extends BaseSpec {
         Some(startDate),
         None,
         Some(addressTye),
-        isRls = false
+        false
       )
     }
 
@@ -929,7 +929,7 @@ class AddressDtoSpec extends BaseSpec {
         Some(startDate),
         None,
         Some(addressTye),
-        isRls = false
+        false
       )
     }
 
@@ -950,7 +950,7 @@ class AddressDtoSpec extends BaseSpec {
         Some(startDate),
         None,
         Some(addressTye),
-        isRls = false
+        false
       )
     }
   }

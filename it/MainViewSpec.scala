@@ -22,12 +22,15 @@ import models._
 import models.admin.SCAWrapperToggle
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
+import org.jsoup.select.NodeFilter
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatest.Assertion
 import play.api.Application
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsEmpty, Request}
+import play.api.libs.typedmap.TypedMap
+import play.api.mvc.request.{Cell, RequestAttrKey}
+import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies, Request}
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import testUtils.IntegrationSpec
@@ -39,12 +42,14 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.utils.Keys
 import views.html.MainView
 
 import java.time.LocalDate
 import java.util.UUID
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
+import scala.jdk.CollectionConverters._
 
 class MainViewSpec extends IntegrationSpec {
 
@@ -91,7 +96,7 @@ class MainViewSpec extends IntegrationSpec {
         Some(LocalDate.of(2015, 3, 15)),
         None,
         Some("Residential"),
-        isRls = false
+        false
       )
     ),
     None
@@ -99,12 +104,12 @@ class MainViewSpec extends IntegrationSpec {
 
   implicit lazy val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  val wrapperDataResponse: String = Json
+  val wrapperDataResponse = Json
     .toJson(
       WrapperDataResponse(
         Seq(
-          MenuItemConfig("id", "NewLayout Item", "link", leftAligned = false, 0, None, None),
-          MenuItemConfig("signout", "Sign out", "link", leftAligned = false, 0, None, None)
+          MenuItemConfig("id", "NewLayout Item", "link", false, 0, None, None),
+          MenuItemConfig("signout", "Sign out", "link", false, 0, None, None)
         ),
         PtaMinMenuConfig("MenuName", "BackName")
       )
@@ -114,7 +119,7 @@ class MainViewSpec extends IntegrationSpec {
   trait LocalSetup {
 
     when(mockFeatureFlagService.get(SCAWrapperToggle))
-      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
 
     server.stubFor(
       WireMock
@@ -249,7 +254,7 @@ class MainViewSpec extends IntegrationSpec {
 
         "the sca-wrapper toggle is disabled" in new LocalSetup {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = false)))
+            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
           val msgCount                                                           = 21
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
@@ -270,7 +275,7 @@ class MainViewSpec extends IntegrationSpec {
       "render the BTA link" when {
         "the user is GG and has SA enrolments" in new LocalSetup {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = false)))
+            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
           assertContainsLink(doc, "Business tax account", "/business-account")
         }
@@ -279,7 +284,7 @@ class MainViewSpec extends IntegrationSpec {
       "do not render the BTA link" when {
         "the user is GG and not an SA user" in new LocalSetup {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = false)))
+            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequestNoSA()
 
@@ -289,9 +294,9 @@ class MainViewSpec extends IntegrationSpec {
 
       "render the sign out link" in new LocalSetup {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-          .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = false)))
+          .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
-        val href: String = controllers.routes.ApplicationController
+        val href = controllers.routes.ApplicationController
           .signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None)
           .url
 
@@ -303,9 +308,9 @@ class MainViewSpec extends IntegrationSpec {
 
       "render the back link" in new LocalSetup {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-          .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = false)))
+          .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, false)))
 
-        val backLink: Element = doc.getElementById("back-link")
+        val backLink = doc.getElementById("back-link")
 
         backLink.attr("href") mustBe backLinkUrl
         backLink.text() mustBe messages("label.back")
@@ -316,7 +321,7 @@ class MainViewSpec extends IntegrationSpec {
         "a trusted helper is set in the request" in new LocalSetup {
           val principalName                                                      = "John Doe"
           val url                                                                = "/return-url"
-          val helper: TrustedHelper                                              = TrustedHelper(
+          val helper                                                             = TrustedHelper(
             principalName,
             "Attorney name",
             url,

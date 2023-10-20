@@ -22,18 +22,10 @@ import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 
 class HomeViewModelSpec extends BaseSpec {
 
-  val utr: String = new SaUtrGenerator().nextSaUtr.utr
+  val utr = new SaUtrGenerator().nextSaUtr.utr
 
   "have no UTR for a non SA user" in {
-    val homeViewModel = HomeViewModel(
-      Nil,
-      Nil,
-      Nil,
-      showUserResearchBanner = true,
-      NonFilerSelfAssessmentUser,
-      breathingSpaceIndicator = false,
-      alertBannerContent = List.empty
-    )
+    val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, NonFilerSelfAssessmentUser, false, List.empty)
     homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, None, false, List.empty)
   }
 
@@ -43,11 +35,6 @@ class HomeViewModelSpec extends BaseSpec {
     WrongCredentialsSelfAssessmentUser(SaUtr(utr)),
     NotEnrolledSelfAssessmentUser(SaUtr(utr))
   ).foreach { saUserType =>
-//    s"have a UTR for a ${saUserType.toString}" in {
-//      val homeViewModel =
-//        HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, saUserType, breathingSpaceIndicator = true)
-//      homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true)
-//    }
     s"have a UTR for a ${saUserType.toString}" in {
       val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, saUserType, true, List.empty)
       homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true, List.empty)

@@ -17,19 +17,17 @@
 package error
 
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import views.html.{InternalServerErrorView, UnauthenticatedErrorView, ViewSpec}
 
 class LocalErrorHandlerSpec extends ViewSpec {
 
-  lazy val internalServerError: InternalServerErrorView = inject[InternalServerErrorView]
-  lazy val standardError: UnauthenticatedErrorView      = inject[UnauthenticatedErrorView]
+  lazy val internalServerError = injected[InternalServerErrorView]
+  lazy val standardError       = injected[UnauthenticatedErrorView]
 
-  implicit val configDecorator: ConfigDecorator                 = inject[ConfigDecorator]
-  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  implicit val userRequest                      = buildUserRequest(request = FakeRequest())
 
   "standardErrorTemplate" in {
     val doc =

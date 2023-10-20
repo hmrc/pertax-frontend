@@ -41,21 +41,21 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
-                                 paperlessInterruptHelper: PaperlessInterruptHelper,
-                                 taiConnector: TaiConnector,
-                                 taxCalculationConnector: TaxCalculationConnector,
-                                 breathingSpaceService: BreathingSpaceService,
-                                 featureFlagService: FeatureFlagService,
-                                 homeCardGenerator: HomeCardGenerator,
-                                 homePageCachingHelper: HomePageCachingHelper,
-                                 authJourney: AuthJourney,
-                                 cc: MessagesControllerComponents,
-                                 homeView: HomeView,
-                                 seissService: SeissService,
-                                 rlsInterruptHelper: RlsInterruptHelper,
-                                 alertBannerHelper: AlertBannerHelper
-                               )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-  extends PertaxBaseController(cc)
+  paperlessInterruptHelper: PaperlessInterruptHelper,
+  taiConnector: TaiConnector,
+  taxCalculationConnector: TaxCalculationConnector,
+  breathingSpaceService: BreathingSpaceService,
+  featureFlagService: FeatureFlagService,
+  homeCardGenerator: HomeCardGenerator,
+  homePageCachingHelper: HomePageCachingHelper,
+  authJourney: AuthJourney,
+  cc: MessagesControllerComponents,
+  homeView: HomeView,
+  seissService: SeissService,
+  rlsInterruptHelper: RlsInterruptHelper,
+  alertBannerHelper: AlertBannerHelper
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+    extends PertaxBaseController(cc)
     with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
@@ -83,14 +83,14 @@ class HomeController @Inject() (
             (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
             _                                                                               <- seissService.hasClaims(saUserType)
             breathingSpaceIndicator                                                         <- breathingSpaceService.getBreathingSpaceIndicator(request.nino).map {
-              case WithinPeriod => true
-              case _            => false
-            }
+                                                                                                 case WithinPeriod => true
+                                                                                                 case _            => false
+                                                                                               }
             incomeCards                                                                     <- homeCardGenerator.getIncomeCards(
-              taxSummaryState,
-              taxCalculationStateCyMinusOne,
-              taxCalculationStateCyMinusTwo
-            )
+                                                                                                 taxSummaryState,
+                                                                                                 taxCalculationStateCyMinusOne,
+                                                                                                 taxCalculationStateCyMinusTwo
+                                                                                               )
             shutteringMessaging                                                             <- featureFlagService.get(ShowOutageBannerToggle)
             alertBannerContent                                                              <- alertBannerHelper.getContent
           } yield {

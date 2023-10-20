@@ -19,7 +19,8 @@ package controllers.controllershelpers
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import play.twirl.api.HtmlFormat
+import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentialAddress}
+import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.domain.Nino
 import views.html.cards.personaldetails._
 
@@ -32,6 +33,25 @@ class PersonalDetailsCardGenerator @Inject() (
   nationalInsurance: NationalInsuranceView,
   changeName: ChangeNameView
 ) {
+
+  def getPersonalDetailsCards(
+    changedAddressIndicator: List[AddressJourneyTTLModel],
+    ninoToDisplay: Option[Nino]
+  )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages): Seq[Html] = {
+
+    val optionalEditAddress = changedAddressIndicator.map(y => y.editedAddress)
+
+    val mainAddressChangeIndicator           = optionalEditAddress.exists(_.isInstanceOf[EditResidentialAddress])
+    val correspondenceAddressChangeIndicator =
+      optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
+
+    List(
+      getChangeNameCard(),
+      getMainAddressCard(mainAddressChangeIndicator),
+      getPostalAddressCard(correspondenceAddressChangeIndicator),
+      getNationalInsuranceCard(ninoToDisplay)
+    ).flatten
+  }
 
   private def getPersonDetails(implicit request: UserRequest[_]) =
     request.personDetails

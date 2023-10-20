@@ -14,11 +14,9 @@
  * limitations under the License.
  *@
 
-@import viewmodels.HomeViewModel
-
 @this(govukNotificationBanner : GovukNotificationBanner)
 
-@(contents: List[Html])
+@(contents: List[Html])(implicit messages: Messages)
 
 @alertBannerHtml = {
     @contents.map { content =>

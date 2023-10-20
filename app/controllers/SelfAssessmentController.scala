@@ -59,7 +59,7 @@ class SelfAssessmentController @Inject() (
           case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
             Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
           case WrongCredentialsSelfAssessmentUser(_)           =>
-            Redirect(routes.SaWrongCredentialsController.landingPage())
+            Redirect(routes.SaWrongCredentialsController.landingPage)
           case NotEnrolledSelfAssessmentUser(_)                =>
             Redirect(routes.SelfAssessmentController.requestAccess)
           case _                                               => Redirect(routes.HomeController.index)
@@ -79,7 +79,7 @@ class SelfAssessmentController @Inject() (
           Ok(failedIvContinueToActivateSaView())
         case WrongCredentialsSelfAssessmentUser(_)           =>
           handleIvExemptAuditing("Wrong credentials SA filer")
-          Redirect(routes.SaWrongCredentialsController.landingPage())
+          Redirect(routes.SaWrongCredentialsController.landingPage)
         case NotEnrolledSelfAssessmentUser(_)                =>
           handleIvExemptAuditing("Never enrolled SA filer")
           Redirect(routes.SelfAssessmentController.requestAccess)

@@ -45,7 +45,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util._
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
-import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
+import views.html.{SelfAssessmentSummaryView, ShutteringView}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -70,20 +70,20 @@ class InterstitialControllerSpec extends BaseSpec {
         mock[FormPartialService],
         mock[SaPartialService],
         mockAuthJourney,
-        inject[WithBreadcrumbAction],
-        inject[MessagesControllerComponents],
-        inject[ErrorRenderer],
-        inject[ViewNationalInsuranceInterstitialHomeView],
-        inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-        inject[SelfAssessmentSummaryView],
-        inject[Sa302InterruptView],
-        inject[ViewNewsAndUpdatesView],
-        inject[ViewSaAndItsaMergePageView],
-        inject[ViewBreathingSpaceView],
-        inject[NpsShutteringView],
-        inject[TaxCreditsAddressInterstitialView],
-        inject[EnrolmentsHelper],
-        inject[SeissService],
+        injected[WithBreadcrumbAction],
+        injected[MessagesControllerComponents],
+        injected[ErrorRenderer],
+        injected[ViewNationalInsuranceInterstitialHomeView],
+        injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+        injected[SelfAssessmentSummaryView],
+        injected[Sa302InterruptView],
+        injected[ViewNewsAndUpdatesView],
+        injected[ViewSaAndItsaMergePageView],
+        injected[ViewBreathingSpaceView],
+        injected[ShutteringView],
+        injected[TaxCreditsAddressInterstitialView],
+        injected[EnrolmentsHelper],
+        injected[SeissService],
         mockNewsAndTileConfig,
         mockFeatureFlagService
       )(config, ec) {
@@ -145,8 +145,8 @@ class InterstitialControllerSpec extends BaseSpec {
       val mockAuthJourney = mock[AuthJourney]
 
       val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+        injected[Configuration],
+        injected[ServicesConfig]
       )
 
       val mockFeatureFlagService = mock[FeatureFlagService]
@@ -156,20 +156,20 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[FormPartialService],
           mock[SaPartialService],
           mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[ShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService
         )(stubConfigDecorator, ec)
@@ -199,8 +199,8 @@ class InterstitialControllerSpec extends BaseSpec {
       val mockAuthJourney = mock[AuthJourney]
 
       val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+        injected[Configuration],
+        injected[ServicesConfig]
       )
 
       val mockFeatureFlagService = mock[FeatureFlagService]
@@ -210,20 +210,20 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[FormPartialService],
           mock[SaPartialService],
           mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[ShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService
         )(stubConfigDecorator, ec)
@@ -421,8 +421,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "return UNAUTHORIZED when toggled off" in {
       val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+        injected[Configuration],
+        injected[ServicesConfig]
       ) {
         override lazy val isNewsAndUpdatesTileEnabled: Boolean = false
       }
@@ -436,20 +436,20 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[FormPartialService],
           mock[SaPartialService],
           mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[ShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
           mock[NewsAndTilesConfig],
           inject[FeatureFlagService]
         )(stubConfigDecorator, ec) {
@@ -488,8 +488,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
       val stubConfigDecorator                        = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+        injected[Configuration],
+        injected[ServicesConfig]
       )
       val mockAuthJourney: AuthJourney               = mock[AuthJourney]
 
@@ -511,20 +511,20 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[FormPartialService],
           mock[SaPartialService],
           mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[ShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService
         )(stubConfigDecorator, ec)
@@ -539,8 +539,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "return UNAUTHORIZED when toggled off" in {
       val stubConfigDecorator: ConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+        injected[Configuration],
+        injected[ServicesConfig]
       )
 
       lazy val fakeRequest = FakeRequest("", "")
@@ -554,20 +554,20 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[FormPartialService],
           mock[SaPartialService],
           mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[ShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
           mockNewsAndTileConfig,
           mockFeatureFlagService
         )(stubConfigDecorator, ec) {
@@ -611,8 +611,8 @@ class InterstitialControllerSpec extends BaseSpec {
       val mockAuthJourney = mock[AuthJourney]
 
       val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+        injected[Configuration],
+        injected[ServicesConfig]
       )
 
       val mockFeatureFlagService = mock[FeatureFlagService]
@@ -622,20 +622,20 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[FormPartialService],
           mock[SaPartialService],
           mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[ShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService
         )(stubConfigDecorator, ec)
@@ -668,8 +668,8 @@ class InterstitialControllerSpec extends BaseSpec {
       val mockAuthJourney = mock[AuthJourney]
 
       val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+        injected[Configuration],
+        injected[ServicesConfig]
       )
 
       val mockFeatureFlagService = mock[FeatureFlagService]
@@ -679,20 +679,20 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[FormPartialService],
           mock[SaPartialService],
           mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[ShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService
         )(stubConfigDecorator, ec)
@@ -710,7 +710,7 @@ class InterstitialControllerSpec extends BaseSpec {
       when(mockFeatureFlagService.get(ShowOutageBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = true)))
 
-      val result = controller.displayNpsShutteringPage()(fakeRequest)
+      val result = controller.displayShutteringPage()(fakeRequest)
 
       status(result) mustBe OK
       contentAsString(result) must include(
@@ -724,8 +724,8 @@ class InterstitialControllerSpec extends BaseSpec {
       val mockAuthJourney = mock[AuthJourney]
 
       val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+        injected[Configuration],
+        injected[ServicesConfig]
       )
 
       val mockFeatureFlagService = mock[FeatureFlagService]
@@ -735,20 +735,20 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[FormPartialService],
           mock[SaPartialService],
           mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[ShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService
         )(stubConfigDecorator, ec)
@@ -766,7 +766,7 @@ class InterstitialControllerSpec extends BaseSpec {
       when(mockFeatureFlagService.get(ShowOutageBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = false)))
 
-      val result = controller.displayNpsShutteringPage()(fakeRequest)
+      val result = controller.displayShutteringPage()(fakeRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.HomeController.index.url)
@@ -780,8 +780,8 @@ class InterstitialControllerSpec extends BaseSpec {
       val mockAuthJourney = mock[AuthJourney]
 
       val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+        injected[Configuration],
+        injected[ServicesConfig]
       )
 
       val mockFeatureFlagService = mock[FeatureFlagService]
@@ -791,20 +791,20 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[FormPartialService],
           mock[SaPartialService],
           mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[ViewBreathingSpaceView],
+          injected[ShutteringView],
+          injected[TaxCreditsAddressInterstitialView],
+          injected[EnrolmentsHelper],
+          injected[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService
         )(stubConfigDecorator, ec)

@@ -38,17 +38,18 @@ import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers, Injecting}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.play.partials.FormPartialRetriever
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import uk.gov.hmrc.play.partials.FormPartialRetriever
 
 import java.time.temporal.ChronoField
 import java.time.{Instant, LocalDate}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.ClassTag
 import scala.util.Random
 
 trait PafFixtures {
@@ -255,7 +256,7 @@ trait CitizenDetailsFixtures {
     ("postcode", "AA11AA")
   )
 
-  def fakeStreetTupleListAddressForManuallyEntered: List[(String, String)] = List(
+  def fakeStreetTupleListAddressForManualyEntered: List[(String, String)] = List(
     ("line1", "1 Fake Street"),
     ("line2", "Fake Town"),
     ("line3", "Fake City"),
@@ -374,6 +375,10 @@ trait BaseSpec
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   lazy val config: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
+
+  def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
+
+  def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
 
   override def beforeEach(): Unit = {
     super.beforeEach()

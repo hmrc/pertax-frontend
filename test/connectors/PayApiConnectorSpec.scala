@@ -17,7 +17,7 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post}
-import models.{PayApiModels, PaymentRequest}
+import models.{CreatePayment, PaymentRequest}
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.DefaultAwaitTimeout
@@ -45,7 +45,7 @@ class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with Default
       stubPost(url, CREATED, Some(Json.toJson(paymentRequest).toString()), Some(json.toString()))
       val result = connector.createPayment(paymentRequest).value.futureValue.getOrElse(None)
 
-      result mustBe Some(PayApiModels("exampleJourneyId", "testNextUrl"))
+      result mustBe Some(CreatePayment("exampleJourneyId", "testNextUrl"))
     }
 
     "returns a None when the status code is not CREATED" in {
@@ -58,7 +58,7 @@ class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with Default
         .createPayment(paymentRequest)
         .value
         .futureValue
-        .getOrElse(Some(PayApiModels("exampleJourneyId", "testNextUrl")))
+        .getOrElse(Some(CreatePayment("exampleJourneyId", "testNextUrl")))
 
       result mustBe None
     }

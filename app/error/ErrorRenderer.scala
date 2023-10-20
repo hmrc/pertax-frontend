@@ -21,12 +21,14 @@ import controllers.auth.requests.UserRequest
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
 import play.api.i18n.Messages
 import play.api.mvc._
-import views.html.ErrorView
+import views.html.{ErrorView, NotFoundView, UnauthenticatedErrorView}
 
 import scala.concurrent.Future
 
 class ErrorRenderer @Inject() (
-  errorView: ErrorView
+  notFoundView: NotFoundView,
+  errorView: ErrorView,
+  unauthenticatedErrorTemplate: UnauthenticatedErrorView
 ) extends Results {
 
   def futureError(statusCode: Int)(implicit request: UserRequest[_], messages: Messages): Future[Result] =
@@ -47,4 +49,29 @@ class ErrorRenderer @Inject() (
       )
     )
   }
+
+  def unauthenticatedFutureError(statusCode: Int)(implicit request: Request[_], messages: Messages): Future[Result] =
+    Future.successful(unauthenticatedError(statusCode))
+
+  def unauthenticatedError(statusCode: Int)(implicit request: Request[_], messages: Messages): Result = {
+
+    val errorKey = statusCode match {
+      case BAD_REQUEST => "badRequest400"
+      case NOT_FOUND   => "pageNotFound404"
+      case _           => "InternalServerError500"
+    }
+
+    Status(statusCode)(
+      unauthenticatedErrorTemplate(
+        s"global.error.$errorKey.title",
+        s"global.error.$errorKey.heading",
+        s"global.error.$errorKey.message"
+      )
+    )
+
+  }
+
+  def notFoundFutureError(implicit request: UserRequest[_], messages: Messages): Future[Result] =
+    Future.successful(NotFound(notFoundView()))
+
 }

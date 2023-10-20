@@ -34,7 +34,7 @@ import util.DateTimeTools._
 import util.{EnrolmentsHelper, FormPartialUpgrade}
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
-import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
+import views.html.{SelfAssessmentSummaryView, ShutteringView}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -53,7 +53,7 @@ class InterstitialController @Inject() (
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
-  npsShutteringView: NpsShutteringView,
+  shutteringView: ShutteringView,
   taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
@@ -117,6 +117,7 @@ class InterstitialController @Inject() (
         itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
+          redirectUrl = currentUrl(request),
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           request.isSa,
@@ -175,7 +176,7 @@ class InterstitialController @Inject() (
       val models = newsAndTilesConfig.getNewsAndContentModelList()
       if (models.nonEmpty) {
         //service to get the dynamic content send the models and get the details from the dynamic list
-        Ok(viewNewsAndUpdatesView(models, newsSectionId))
+        Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, models, newsSectionId))
       } else {
         Redirect(routes.HomeController.index)
       }
@@ -187,7 +188,7 @@ class InterstitialController @Inject() (
   def displayBreathingSpaceDetails: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(BreathingSpaceIndicatorToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {
-        Future.successful(Ok(viewBreathingSpaceView()))
+        Future.successful(Ok(viewBreathingSpaceView(redirectUrl = currentUrl)))
       } else {
         Future.successful(errorRenderer.error(UNAUTHORIZED))
       }
@@ -198,10 +199,10 @@ class InterstitialController @Inject() (
     Ok(taxCreditsAddressInterstitialView())
   }
 
-  def displayNpsShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>
+  def displayShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(ShowOutageBannerToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {
-        Future.successful(Ok(npsShutteringView()))
+        Future.successful(Ok(shutteringView()))
       } else {
         Future.successful(Redirect(routes.HomeController.index))
       }

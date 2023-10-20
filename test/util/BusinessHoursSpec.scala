@@ -46,7 +46,7 @@ class BusinessHoursSpec extends BaseSpec {
           )
       )
 
-  val sut: BusinessHours = inject[BusinessHours]
+  val sut = injected[BusinessHours]
 
   "isTrue" must {
     "return true" when {

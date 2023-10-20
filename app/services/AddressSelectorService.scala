@@ -19,14 +19,12 @@ package services
 import models.addresslookup.{Address, AddressRecord}
 
 import javax.inject.Inject
-import scala.annotation.tailrec
 import scala.util.Try
 
 class AddressSelectorService @Inject() () {
 
   def orderSet(unorderedSeq: Seq[AddressRecord]): Seq[AddressRecord] =
     unorderedSeq.sortWith { (a, b) =>
-      @tailrec
       def sort(zipped: Seq[(Option[Int], Option[Int])]): Boolean = zipped match {
         case (Some(nA), Some(nB)) :: tail =>
           if (nA == nB) sort(tail) else nA < nB

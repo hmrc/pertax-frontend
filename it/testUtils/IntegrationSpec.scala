@@ -26,27 +26,27 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 trait IntegrationSpec
-  extends AnyWordSpec
+    extends AnyWordSpec
     with GuiceOneAppPerSuite
     with WireMockHelper
     with ScalaFutures
     with Matchers
     with IntegrationPatience {
 
-  val mockCacheApi: AsyncCacheApi                = new AsyncCacheApi {
+  val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
     override def set(key: String, value: Any, expiration: Duration): Future[Done] = Future.successful(Done)
 
     override def remove(key: String): Future[Done] = Future.successful(Done)
 
     override def getOrElseUpdate[A](key: String, expiration: Duration)(orElse: => Future[A])(implicit
-                                                                                             evidence$1: ClassTag[A]
+      evidence$1: ClassTag[A]
     ): Future[A] = orElse
 
     override def get[T](key: String)(implicit evidence$2: ClassTag[T]): Future[Option[T]] = Future.successful(None)
 
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
-  val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+  val mockFeatureFlagService      = mock[FeatureFlagService]
 
   lazy val messagesApi: MessagesApi    = app.injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
@@ -130,10 +130,10 @@ trait IntegrationSpec
     org.mockito.MockitoSugar.reset(mockFeatureFlagService)
     AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
-        .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
+        .thenReturn(Future.successful(FeatureFlag(flag, false)))
     }
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
@@ -150,10 +150,10 @@ trait IntegrationSpec
   }
 
   def beforeEachHomeController(
-                                auth: Boolean = true,
-                                memorandum: Boolean = true,
-                                matchingDetails: Boolean = true
-                              ): StubMapping = {
+    auth: Boolean = true,
+    memorandum: Boolean = true,
+    matchingDetails: Boolean = true
+  ): StubMapping = {
     if (auth) {
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     }

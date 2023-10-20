@@ -19,6 +19,7 @@ package views.html
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
+import org.scalatest.compatible.Assertion
 import play.api.i18n._
 import testUtils.BaseSpec
 
@@ -27,9 +28,9 @@ trait ViewSpec extends BaseSpec {
   def hasLink(document: Document, content: String): Assertion =
     document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
-  implicit lazy val messageProvider: MessagesProvider = inject[MessagesProvider]
+  implicit lazy val messageProvider = injected[MessagesProvider]
 
-  lazy val messagesApi: MessagesApi = inject[MessagesApi]
+  lazy val messagesApi = injected[MessagesApi]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 

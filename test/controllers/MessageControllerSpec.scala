@@ -16,13 +16,11 @@
 
 package controllers
 
-import akka.stream.Materializer
 import connectors.CitizenDetailsConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import play.api.Application
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -42,21 +40,21 @@ class MessageControllerSpec extends BaseSpec {
     reset(mockMessageFrontendService, mock[CitizenDetailsConnector])
   }
 
-  val mockAuthJourney: AuthJourney                       = mock[AuthJourney]
-  val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
+  val mockAuthJourney            = mock[AuthJourney]
+  val mockMessageFrontendService = mock[MessageFrontendService]
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
 
-  implicit lazy val mat: Materializer = app.materializer
+  implicit lazy val mat = app.materializer
 
   def controller: MessageController =
     new MessageController(
       mockMessageFrontendService,
       mockAuthJourney,
-      inject[WithBreadcrumbAction],
-      inject[MessagesControllerComponents],
-      inject[MessageInboxView],
-      inject[MessageDetailView]
+      injected[WithBreadcrumbAction],
+      injected[MessagesControllerComponents],
+      injected[MessageInboxView],
+      injected[MessageDetailView]
     )(config, ec) {
       when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
