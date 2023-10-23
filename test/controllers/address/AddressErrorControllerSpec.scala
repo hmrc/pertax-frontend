@@ -44,7 +44,6 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
         cc,
         displayAddressInterstitialView,
         inject[CannotUseServiceView],
-        inject[AddressAlreadyUpdatedView],
         inject[FeatureFlagService],
         inject[InternalServerErrorView]
       )
@@ -57,17 +56,6 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsString(result) must include("You cannot use this service to update your address")
-    }
-  }
-
-  "showAddressAlreadyUpdated" must {
-
-    "display the showAddressAlreadyUpdated page" in new LocalSetup {
-
-      val result: Future[Result] = controller.showAddressAlreadyUpdated(currentRequest)
-
-      status(result) mustBe OK
-      contentAsString(result) must include("Your address has already been updated")
     }
   }
 }
