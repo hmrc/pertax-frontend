@@ -101,20 +101,16 @@ class ConfigDecorator @Inject() (
   private lazy val governmentGatewayLostCredentialsFrontendHost =
     getExternalUrl(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
 
-  private lazy val enrolmentManagementFrontendHost: String                    =
+  private lazy val enrolmentManagementFrontendHost: String =
     getExternalUrl(s"enrolment-management-frontend.host").getOrElse("")
-  lazy val ssoUrl: Option[String]                                             = getExternalUrl("sso-portal.host")
-  private lazy val annualTaxSummariesUrl: String                              = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
-  lazy val isNewsAndUpdatesTileEnabled: Boolean                               =
+  lazy val ssoUrl: Option[String]                          = getExternalUrl("sso-portal.host")
+  private lazy val annualTaxSummariesUrl: String           = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
+  lazy val isNewsAndUpdatesTileEnabled: Boolean            =
     runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
-  lazy val isBreathingSpaceIndicatorEnabled: Boolean                          =
+  lazy val isBreathingSpaceIndicatorEnabled: Boolean       =
     servicesConfig.getBoolean("feature.breathing-space-indicator.enabled")
-  def preferencedBouncedEmailLink(returnUrl: String, returnLinkText: String)  =
-    s"$preferencesFrontendService/paperless/email-bounce?returnUrl=$returnUrl&returnLinkText=$returnLinkText"
-  def preferencedReVerifyEmailLink(returnUrl: String, returnLinkText: String) =
-    s"$preferencesFrontendService/paperless/email-re-verify?returnUrl=$returnUrl&returnLinkText=$returnLinkText"
-  lazy val annualTaxSaSummariesTileLink                                       = s"$annualTaxSummariesUrl/annual-tax-summary"
-  lazy val annualTaxPayeSummariesTileLink                                     = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
+  lazy val annualTaxSaSummariesTileLink                    = s"$annualTaxSummariesUrl/annual-tax-summary"
+  lazy val annualTaxPayeSummariesTileLink                  = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
   lazy val isSeissTileEnabled: Boolean =
     runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean
@@ -301,18 +297,18 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.getOptional[String]("feature.banner.home.link.url").getOrElse("")
 
   lazy val shutterBannerParagraphEn: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.paragraph.en").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.paragraph.en").getOrElse("")
   lazy val shutterBannerParagraphCy: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.paragraph.cy").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.paragraph.cy").getOrElse("")
   lazy val shutterBannerLinkTextEn: String  =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.linkText.en").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.linkText.en").getOrElse("")
   lazy val shutterBannerLinkTextCy: String  =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.banner.linkText.cy").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.linkText.cy").getOrElse("")
 
   lazy val shutterPageParagraphEn: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.page.paragraph.en").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.en").getOrElse("")
   lazy val shutterPageParagraphCy: String =
-    runModeConfiguration.getOptional[String]("feature.nps-shuttering.page.paragraph.cy").getOrElse("")
+    runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.cy").getOrElse("")
 
   lazy val breathingSpaceBaseUrl: String        = servicesConfig.baseUrl("breathing-space-if-proxy")
   lazy val breathingSpaceTimeoutInSec: Int      =

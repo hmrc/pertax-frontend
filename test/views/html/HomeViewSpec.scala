@@ -111,11 +111,11 @@ class HomeViewSpec extends ViewSpec {
     }
 
     "show the alert banner if there is some alert content" in {
-      implicit val userRequest = buildUserRequest(request = FakeRequest())
-      val view                 = Jsoup.parse(
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val view                                                      = Jsoup.parse(
         home(
           homeViewModel.copy(alertBannerContent = List(Html("something to alert"))),
-          true
+          shutteringMessaging = true
         ).toString
       )
 
@@ -124,8 +124,8 @@ class HomeViewSpec extends ViewSpec {
     }
 
     "not show the alert banner if no alert content" in {
-      implicit val userRequest = buildUserRequest(request = FakeRequest())
-      val view                 = Jsoup.parse(home(homeViewModel, true).toString)
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val view                                                      = Jsoup.parse(home(homeViewModel, shutteringMessaging = true).toString)
 
       view.getElementById("alert-banner") mustBe null
     }

@@ -63,31 +63,25 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
 
   "AlertBannerHelper.getContent" must {
     "return bounce email content " in {
+      val link = "/link"
       when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
-        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusBounced("link"): PaperlessMessagesStatus)
+        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusBounced(link): PaperlessMessagesStatus)
       )
 
       val result = alertBannerHelper.getContent.futureValue
 
-      result mustBe List(
-        bouncedEmailView(
-          "/paperless/email-bounce?returnUrl=DO8MisXKpizAWqbqizwb%2FOxapwMiW7mJGoFY8qiWZds%3D&returnLinkText=zKpFA1uvHpCodfZLTilQ%2Bg%3D%3D"
-        )
-      )
+      result mustBe List(bouncedEmailView(link))
     }
 
     "return verify email content " in {
+      val link = "/link"
       when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
-        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusUnverified("link"): PaperlessMessagesStatus)
+        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusUnverified(link): PaperlessMessagesStatus)
       )
 
       val result = alertBannerHelper.getContent.futureValue
 
-      result mustBe List(
-        unverifiedEmailView(
-          "/paperless/email-re-verify?returnUrl=DO8MisXKpizAWqbqizwb%2FOxapwMiW7mJGoFY8qiWZds%3D&returnLinkText=zKpFA1uvHpCodfZLTilQ%2Bg%3D%3D"
-        )
-      )
+      result mustBe List(unverifiedEmailView(link))
     }
   }
 

@@ -45,7 +45,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util._
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
-import views.html.{NpsShutteringView, SelfAssessmentSummaryView}
+import views.html.{SelfAssessmentSummaryView, ShutteringView}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -80,7 +80,7 @@ class InterstitialControllerSpec extends BaseSpec {
         inject[ViewNewsAndUpdatesView],
         inject[ViewSaAndItsaMergePageView],
         inject[ViewBreathingSpaceView],
-        inject[NpsShutteringView],
+        inject[ShutteringView],
         inject[TaxCreditsAddressInterstitialView],
         inject[EnrolmentsHelper],
         inject[SeissService],
@@ -166,7 +166,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewNewsAndUpdatesView],
           inject[ViewSaAndItsaMergePageView],
           inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
+          inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
@@ -220,7 +220,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewNewsAndUpdatesView],
           inject[ViewSaAndItsaMergePageView],
           inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
+          inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
@@ -446,7 +446,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewNewsAndUpdatesView],
           inject[ViewSaAndItsaMergePageView],
           inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
+          inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
@@ -521,7 +521,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewNewsAndUpdatesView],
           inject[ViewSaAndItsaMergePageView],
           inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
+          inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
@@ -564,7 +564,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewNewsAndUpdatesView],
           inject[ViewSaAndItsaMergePageView],
           inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
+          inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
@@ -632,7 +632,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewNewsAndUpdatesView],
           inject[ViewSaAndItsaMergePageView],
           inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
+          inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
@@ -689,7 +689,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewNewsAndUpdatesView],
           inject[ViewSaAndItsaMergePageView],
           inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
+          inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
@@ -710,7 +710,7 @@ class InterstitialControllerSpec extends BaseSpec {
       when(mockFeatureFlagService.get(NpsShutteringToggle))
         .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = true)))
 
-      val result = controller.displayNpsShutteringPage()(fakeRequest)
+      val result = controller.displayShutteringPage()(fakeRequest)
 
       status(result) mustBe OK
       contentAsString(result) must include(
@@ -745,7 +745,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewNewsAndUpdatesView],
           inject[ViewSaAndItsaMergePageView],
           inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
+          inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
@@ -766,7 +766,7 @@ class InterstitialControllerSpec extends BaseSpec {
       when(mockFeatureFlagService.get(NpsShutteringToggle))
         .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = false)))
 
-      val result = controller.displayNpsShutteringPage()(fakeRequest)
+      val result = controller.displayShutteringPage()(fakeRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.HomeController.index.url)
@@ -801,7 +801,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewNewsAndUpdatesView],
           inject[ViewSaAndItsaMergePageView],
           inject[ViewBreathingSpaceView],
-          inject[NpsShutteringView],
+          inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
