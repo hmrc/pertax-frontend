@@ -18,8 +18,8 @@ package connectors
 
 import play.api.Application
 import testUtils.Fixtures.fakeNino
-import testUtils.{FileHelper, WireMockHelper}
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import testUtils.WireMockHelper
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
 
@@ -29,25 +29,35 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
 
   def connector: TaxCreditsConnector = app.injector.instanceOf[TaxCreditsConnector]
 
-  lazy val url: String = s"/tcs/$fakeNino/dashboard-data"
+  lazy val url: String = s"/tcs/$fakeNino/exclusion"
 
   "TaxCreditsConnector" when {
     "checkForTaxCredits is called" must {
-      "return a HttpResponse containing OK if tcs data for the given NINO is found" in {
-        val data     = FileHelper.loadFile("./test/resources/tcs/dashboard-data.json")
+      "return a boolean true value when excluded node in json response is true" in {
+        val data     = """{"excluded": true}"""
         stubGet(url, OK, Some(data))
-        val response = connector.checkForTaxCredits(fakeNino).value.futureValue
+        val response = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
 
         response mustBe a[Right[_, _]]
 
-        val result = response.getOrElse(HttpResponse(IM_A_TEAPOT, "Invalid Response"))
-        result.status mustBe OK
-        result.body mustBe data
+        val result = response.getOrElse(false)
+        result mustBe true
+      }
+
+      "return a boolean false value when excluded node in json response is false" in {
+        val data     = """{"excluded": false}"""
+        stubGet(url, OK, Some(data))
+        val response = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
+
+        response mustBe a[Right[_, _]]
+
+        val result = response.getOrElse(false)
+        result mustBe false
       }
 
       "return a UpstreamErrorException containing NOT_FOUND if tcs data for the given isn't found" in {
         stubGet(url, NOT_FOUND, None)
-        val result = connector.checkForTaxCredits(fakeNino).value.futureValue
+        val result = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
 
         result mustBe a[Left[_, _]]
         result.left mustBe UpstreamErrorResponse(_: String, NOT_FOUND)
@@ -61,7 +71,7 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
       ).foreach { status =>
         s"return an UpstreamErrorException containing INTERNAL_SERVER_ERROR when $status is returned from TCS Broker" in {
           stubGet(url, status, None)
-          val result = connector.checkForTaxCredits(fakeNino).value.futureValue
+          val result = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
 
           result mustBe a[Left[_, _]]
           result.left mustBe UpstreamErrorResponse(_: String, status)
