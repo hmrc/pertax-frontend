@@ -7,7 +7,6 @@ GET         /personal-account/your-address                                      
 GET         /personal-account/do-uplift                                                controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
 GET         /personal-account                                                          controllers.HomeController.index
 
-
 GET         /personal-account/full                                                     controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
 GET         /personal-account/identity-check-complete                                  controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
 GET         /personal-account/identity-check-failed                                    controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
@@ -89,7 +88,7 @@ GET         /personal-account/timeout                                           
 
 GET         /personal-account/preferences                                              controllers.PaperlessPreferencesController.managePreferences
 
-GET         /personal-account/services-unavailable                                     controllers.InterstitialController.displayNpsShutteringPage
+GET         /personal-account/services-unavailable                                     controllers.InterstitialController.displayShutteringPage
 
 GET         /personal-account/assets/*file                                             controllers.AssetsController.versioned(path="/public", file: Asset)
 

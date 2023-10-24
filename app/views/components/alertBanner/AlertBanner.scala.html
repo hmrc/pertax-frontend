@@ -14,14 +14,19 @@
  * limitations under the License.
  *@
 
-@import views.html.helper.CSPNonce
+@this(govukNotificationBanner : GovukNotificationBanner)
 
-@this(autocompleteJavascript: HmrcAccessibleAutocompleteJavascript)
-@(scripts: Option[Html])(implicit request: Request[_])
+@(contents: List[Html])(implicit messages: Messages)
 
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
-    @autocompleteJavascript()
-    @scripts
+@alertBannerHtml = {
+    @contents.map { content =>
+        <div>@content</div>
+    }
+}
 
+@if(contents.nonEmpty) {
+    @govukNotificationBanner(NotificationBanner(
+        content = HtmlContent(alertBannerHtml),
+        attributes = Map("id" -> "alert-banner")
+    ))
+}

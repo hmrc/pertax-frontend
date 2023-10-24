@@ -14,14 +14,10 @@
  * limitations under the License.
  *@
 
-@import views.html.helper.CSPNonce
+@this()
+@(verifyLink: String)(implicit messages: Messages)
 
-@this(autocompleteJavascript: HmrcAccessibleAutocompleteJavascript)
-@(scripts: Option[Html])(implicit request: Request[_])
-
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
-    @autocompleteJavascript()
-    @scripts
-
+<p class="govuk-notification-banner__heading">
+ @messages("alert_banner.paperlessStatus.unverified_email.p1")
+ <a href="@verifyLink" class="govuk-notification-banner__link">@messages("alert_banner.paperlessStatus.unverified_email.link")</a>
+</p>

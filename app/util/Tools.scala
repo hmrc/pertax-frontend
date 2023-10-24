@@ -23,7 +23,9 @@ import java.net.{URI, URLEncoder}
 
 class Tools @Inject() (val applicationCrypto: ApplicationCrypto) {
   def urlEncode(u: String): String        = URLEncoder.encode(u, "UTF-8")
+  def encryptOnly(s: String): String      =
+    applicationCrypto.QueryParameterCrypto.encrypt(PlainText(s)).value
   def encryptAndEncode(s: String): String =
-    urlEncode(applicationCrypto.QueryParameterCrypto.encrypt(PlainText(s)).value)
+    urlEncode(encryptOnly(s))
   def isRelative(url: String): Boolean    = !new URI(url).isAbsolute && url.take(2) != "//"
 }
