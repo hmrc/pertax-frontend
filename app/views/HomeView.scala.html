@@ -1,33 +1,33 @@
 @*
- * Copyright 2023 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *@
+* Copyright 2023 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
 
-@import controllers.auth.requests.UserRequest
-@import viewmodels.HomeViewModel
 @import components.H2
 @import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import viewmodels.HomeViewModel
 @import views.html.components.alertBanner.AlertBanner
 
 @this(
-    main: MainView,
-    hmrcPageHeading: HmrcPageHeading,
-    govukInsetText: GovukInsetText,
-    h2: H2,
-    govukNotificationBanner : GovukNotificationBanner,
+        main: MainView,
+        hmrcPageHeading: HmrcPageHeading,
+        govukInsetText: GovukInsetText,
+        h2: H2,
+        govukNotificationBanner : GovukNotificationBanner,
         alertBanner: AlertBanner,
-    configDecorator: ConfigDecorator
+        configDecorator: ConfigDecorator
 )
 
 @(viewModel: HomeViewModel, shutteringMessaging: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
@@ -35,7 +35,7 @@
 @bannerHtml = {
     <p class="govuk-notification-banner__heading">
         @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerParagraphCy }else {@configDecorator.shutterBannerParagraphEn}<br/>
-        <a class="govuk-notification-banner__link" href="@controllers.routes.InterstitialController.displayNpsShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
+        <a class="govuk-notification-banner__link" href="@controllers.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
     </p>
 }
 
@@ -58,47 +58,47 @@
         <p class="hmrc-caption govuk-caption-xl"><span class="govuk-visually-hidden">@messages("label.this.section.is") </span>@messages("label.account_home")</p>
     </header>
 
-            @if(viewModel.breathingSpaceIndicator) {
-            <div class="govuk-!-padding-bottom-6 govuk-!-padding-top-2">
-                <p class="govuk-phase-banner__content">
-                    <strong class="govuk-tag govuk-phase-banner__content__tag">
-                        @messages("label.breathing_space")
-                    </strong>
-                    <span class="govuk-phase-banner__text">
-                  <a class="govuk-link govuk-link--no-visited-state" href="@controllers.routes.InterstitialController.displayBreathingSpaceDetails">@messages("label.find_out_what_it_means_to_be_in_breathing_space")</a>
+    @if(viewModel.breathingSpaceIndicator) {
+        <div class="govuk-!-padding-bottom-6 govuk-!-padding-top-2">
+            <p class="govuk-phase-banner__content">
+                <strong class="govuk-tag govuk-phase-banner__content__tag">
+                @messages("label.breathing_space")
+                </strong>
+                <span class="govuk-phase-banner__text">
+                    <a class="govuk-link govuk-link--no-visited-state" href="@controllers.routes.InterstitialController.displayBreathingSpaceDetails">@messages("label.find_out_what_it_means_to_be_in_breathing_space")</a>
                 </span>
-                </p>
-            </div>
-            }
-
-        @viewModel.saUtr.map { utr =>
-            @govukInsetText(InsetText(
-                id = Some("utrNo"),
-                content = HtmlContent(messages("label.home_page.utr") + s" <span>$utr</span>"),
-                classes = "govuk-!-margin-top-0"
-            ))
-        }
-
-
-
-        <div class="pertax-home">
-
-            <h2 class="govuk-visually-hidden" id="yourAccountHeading">@messages("label.your_account")</h2>
-            <div class="flex-container grid-row">
-            @viewModel.incomeCards
-            </div>
-            @if(viewModel.benefitCards.nonEmpty) {
-                @h2("title.benefits", classes = Some("govuk-heading-m section-header"))
-            }
-            <div class="flex-container grid-row" id="benefitsTiles">
-            @viewModel.benefitCards
-            </div>
-
-            @h2("title.pensions", classes = Some("govuk-heading-m section-header"))
-
-            <div class="flex-container grid-row" id="pensionsTiles">
-            @viewModel.pensionCards
-            </div>
-
+            </p>
         </div>
     }
+
+    @viewModel.saUtr.map { utr =>
+        @govukInsetText(InsetText(
+            id = Some("utrNo"),
+            content = HtmlContent(messages("label.home_page.utr") + s" <span>$utr</span>"),
+            classes = "govuk-!-margin-top-0"
+        ))
+    }
+
+
+
+    <div class="pertax-home">
+
+        <h2 class="govuk-visually-hidden" id="yourAccountHeading">@messages("label.your_account")</h2>
+        <div class="flex-container grid-row">
+        @viewModel.incomeCards
+        </div>
+        @if(viewModel.benefitCards.nonEmpty) {
+            @h2("title.benefits", classes = Some("govuk-heading-m section-header"))
+        }
+        <div class="flex-container grid-row" id="benefitsTiles">
+        @viewModel.benefitCards
+        </div>
+
+        @h2("title.pensions", classes = Some("govuk-heading-m section-header"))
+
+        <div class="flex-container grid-row" id="pensionsTiles">
+        @viewModel.pensionCards
+        </div>
+
+    </div>
+}

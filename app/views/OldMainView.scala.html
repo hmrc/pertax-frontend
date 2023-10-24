@@ -39,7 +39,9 @@
         hmrcAccountMenu: HmrcAccountMenu,
         banner: attorneyBanner,
         ptaHead: PtaHead,
-        ptaScripts: PtaScripts
+        ptaScripts: PtaScripts,
+        autocompleteCss: HmrcAccessibleAutocompleteCss,
+        autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
 )(implicit accountMenuConfig: AccountMenuConfig)
 
 @(
@@ -63,6 +65,8 @@
 @headBlock = {
     <meta name="format-detection" content="telephone=no" />
     <link @CSPNonce.attr rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
+
+@autocompleteCss()
 
 @stylesheets
 
@@ -123,6 +127,7 @@
     <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
     <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
 @ptaScripts()
+@autocompleteJavascript()
 @scripts
 }
 
