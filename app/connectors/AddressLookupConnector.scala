@@ -29,14 +29,6 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
-sealed trait AddressLookupResponse
-
-final case class AddressLookupSuccessResponse(addressList: RecordSet) extends AddressLookupResponse
-
-final case class AddressLookupUnexpectedResponse(r: HttpResponse) extends AddressLookupResponse
-
-final case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
-
 @Singleton
 class AddressLookupConnector @Inject() (
   configDecorator: ConfigDecorator,
@@ -45,7 +37,7 @@ class AddressLookupConnector @Inject() (
   httpClientResponse: HttpClientResponse
 ) extends Logging {
 
-  lazy val addressLookupUrl: String = servicesConfig.baseUrl("address-lookup")
+  private lazy val addressLookupUrl: String = servicesConfig.baseUrl("address-lookup")
 
   def lookup(postcode: String, filter: Option[String] = None)(implicit
     hc: HeaderCarrier,

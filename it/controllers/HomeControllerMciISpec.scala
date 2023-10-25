@@ -47,7 +47,7 @@ class HomeControllerMciISpec extends IntegrationSpec {
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
   }
 
   "personal-account" must {

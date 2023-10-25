@@ -18,8 +18,6 @@ package models
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-
-import java.time.LocalDate
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
@@ -29,6 +27,7 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 
+import java.time.LocalDate
 import scala.util.Random
 
 class TaxCalculationStateSpec extends BaseSpec {
@@ -61,7 +60,7 @@ class TaxCalculationStateSpec extends BaseSpec {
   "Calling buildFromTaxCalcSummary without a P302 business reason" must {
 
     trait TaxCalculationStateSimpleSpecSetup {
-      lazy val factory: TaxCalculationStateFactory = injected[TaxCalculationStateFactory]
+      lazy val factory: TaxCalculationStateFactory = inject[TaxCalculationStateFactory]
     }
 
     "return a TaxCalcRefundState when called with a TaxCalculation with a P800 status of Overpaid and paymentStatus of REFUND" in new TaxCalculationStateSimpleSpecSetup {
@@ -132,8 +131,8 @@ class TaxCalculationStateSpec extends BaseSpec {
       def dueDate: String
 
       lazy val factory: TaxCalculationStateFactory = {
-        when(injected[ConfigDecorator].currentLocalDate) thenReturn LocalDate.parse(currentDate)
-        injected[TaxCalculationStateFactory]
+        when(inject[ConfigDecorator].currentLocalDate) thenReturn LocalDate.parse(currentDate)
+        inject[TaxCalculationStateFactory]
       }
 
       lazy val taxCalculation: TaxCalculation =

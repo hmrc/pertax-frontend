@@ -65,10 +65,10 @@ class TaxCreditsChoiceController @Inject() (
             taxCreditsService
               .isAddressChangeInPTA(nino)
               .fold(
-                _ => Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl)),
+                _ => Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form)),
                 maybeChangeInPTA =>
                   maybeChangeInPTA.fold {
-                    Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+                    Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form))
                   } { isAddressChangeInPTA =>
                     if (isAddressChangeInPTA) {
                       cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
@@ -81,7 +81,7 @@ class TaxCreditsChoiceController @Inject() (
               )
           } else {
             Future.successful(
-              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form))
             )
           }
         }
@@ -97,7 +97,7 @@ class TaxCreditsChoiceController @Inject() (
           .fold(
             formWithErrors =>
               Future
-                .successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
+                .successful(BadRequest(taxCreditsChoiceView(formWithErrors))),
             taxCreditsChoiceDto =>
               cachingHelper.addToCache(TaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
                 if (taxCreditsChoiceDto.hasTaxCredits) {

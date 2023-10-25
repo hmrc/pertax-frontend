@@ -33,7 +33,7 @@ trait IntegrationSpec
     with Matchers
     with IntegrationPatience {
 
-  val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
+  val mockCacheApi: AsyncCacheApi                = new AsyncCacheApi {
     override def set(key: String, value: Any, expiration: Duration): Future[Done] = Future.successful(Done)
 
     override def remove(key: String): Future[Done] = Future.successful(Done)
@@ -46,7 +46,7 @@ trait IntegrationSpec
 
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
-  val mockFeatureFlagService      = mock[FeatureFlagService]
+  val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   lazy val messagesApi: MessagesApi    = app.injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
@@ -130,10 +130,10 @@ trait IntegrationSpec
     org.mockito.MockitoSugar.reset(mockFeatureFlagService)
     AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
-        .thenReturn(Future.successful(FeatureFlag(flag, false)))
+        .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
     }
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))

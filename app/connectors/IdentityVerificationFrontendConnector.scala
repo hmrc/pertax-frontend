@@ -32,7 +32,7 @@ class IdentityVerificationFrontendConnector @Inject() (
   httpClientResponse: HttpClientResponse
 ) extends Logging {
 
-  lazy val identityVerificationFrontendUrl: String = servicesConfig.baseUrl("identity-verification-frontend")
+  private lazy val identityVerificationFrontendUrl: String = servicesConfig.baseUrl("identity-verification-frontend")
 
   def getIVJourneyStatus(
     journeyId: String

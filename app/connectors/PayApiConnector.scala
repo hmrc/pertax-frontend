@@ -19,7 +19,7 @@ package connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import config.ConfigDecorator
-import models.{CreatePayment, PaymentRequest}
+import models.{PayApiModels, PaymentRequest}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 
@@ -33,12 +33,12 @@ class PayApiConnector @Inject() (
 
   def createPayment(
     request: PaymentRequest
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Option[CreatePayment]] = {
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Option[PayApiModels]] = {
     val postUrl = configDecorator.makeAPaymentUrl
     httpClientResponse
       .read(
         http.POST[PaymentRequest, Either[UpstreamErrorResponse, HttpResponse]](postUrl, request)
       )
-      .map(_.json.asOpt[CreatePayment])
+      .map(_.json.asOpt[PayApiModels])
   }
 }

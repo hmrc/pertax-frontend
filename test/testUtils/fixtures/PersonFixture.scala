@@ -20,6 +20,6 @@ import models.Person
 
 object PersonFixture {
 
-  def emptyPerson = Person(None, None, None, None, None, None, None, None, None)
+  def emptyPerson: Person = Person(None, None, None, None, None, None, None, None, None)
 
 }

@@ -28,9 +28,9 @@ import scala.concurrent.Future
 
 class TaxCreditsServiceSpec extends BaseSpec {
 
-  lazy val connector = mock[TaxCreditsConnector]
+  lazy val connector: TaxCreditsConnector = mock[TaxCreditsConnector]
 
-  def sut = new TaxCreditsService(connector)
+  def sut: TaxCreditsService = new TaxCreditsService(connector)
 
   "TaxCreditsService" when {
     "I call isAddressChangeInPTA" must {

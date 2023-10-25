@@ -62,23 +62,21 @@ case class Address(
 
 object Address extends Logging {
 
-  implicit val writes: Writes[Address] = new Writes[Address] {
-    override def writes(o: Address): JsValue =
-      removeNulls(
-        Json.obj(
-          "line1"     -> o.line1,
-          "line2"     -> o.line2,
-          "line3"     -> o.line3,
-          "line4"     -> o.line4,
-          "line5"     -> o.line5,
-          "postcode"  -> o.postcode,
-          "country"   -> o.country,
-          "startDate" -> o.startDate,
-          "endDate"   -> o.endDate,
-          "type"      -> o.`type`
-        )
+  implicit val writes: Writes[Address] = (o: Address) =>
+    removeNulls(
+      Json.obj(
+        "line1"     -> o.line1,
+        "line2"     -> o.line2,
+        "line3"     -> o.line3,
+        "line4"     -> o.line4,
+        "line5"     -> o.line5,
+        "postcode"  -> o.postcode,
+        "country"   -> o.country,
+        "startDate" -> o.startDate,
+        "endDate"   -> o.endDate,
+        "type"      -> o.`type`
       )
-  }
+    )
 
   implicit val reads: Reads[Address] = (
     (JsPath \ "line1").readNullable[String] and
