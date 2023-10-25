@@ -640,7 +640,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         "feature.banner.home.enabled" -> true
       ).build()
 
-      val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+      val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
       val r: Future[Result] =
         app.injector
@@ -679,7 +679,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         "feature.banner.home.enabled" -> false
       ).build()
 
-      val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+      val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
       val r: Future[Result] =
         app.injector
@@ -716,7 +716,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         "feature.banner.home.enabled" -> true
       ).build()
 
-      val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+      val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
       val r: Future[Result] =
         app.injector

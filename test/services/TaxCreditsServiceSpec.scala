@@ -22,49 +22,49 @@ import org.mockito.ArgumentMatchers.any
 import play.api.http.Status._
 import testUtils.BaseSpec
 import testUtils.Fixtures.fakeNino
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
 
 class TaxCreditsServiceSpec extends BaseSpec {
 
-  lazy val connector = mock[TaxCreditsConnector]
+  lazy val connector: TaxCreditsConnector = mock[TaxCreditsConnector]
 
-  def sut = new TaxCreditsService(connector)
+  def sut: TaxCreditsService = new TaxCreditsService(connector)
 
   "TaxCreditsService" when {
-    "I call checkForTaxCredits" must {
-      "return Some(true) if TCS data is available for a given NINO" in {
-        when(connector.checkForTaxCredits(any())(any()))
+    "I call isAddressChangeInPTA" must {
+      "return None if exclusion is true" in {
+        when(connector.getTaxCreditsExclusionStatus(any())(any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Right(HttpResponse(OK, ""))))
+            EitherT[Future, UpstreamErrorResponse, Boolean](Future(Right(true)))
           )
 
-        val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
+        val result = sut.isAddressChangeInPTA(fakeNino).value.futureValue
 
-        result mustBe Some(true)
+        result mustBe Right(None)
       }
 
-      "return Some(false) if no NINO is provided" in {
-        when(connector.checkForTaxCredits(any())(any()))
+      "return Some(true) if not found in TCS" in {
+        when(connector.getTaxCreditsExclusionStatus(any())(any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Right(HttpResponse(OK, ""))))
+            EitherT[Future, UpstreamErrorResponse, Boolean](Future(Left(UpstreamErrorResponse("", NOT_FOUND))))
           )
 
-        val result = sut.checkForTaxCredits(None).value.futureValue
+        val result = sut.isAddressChangeInPTA(fakeNino).value.futureValue
 
-        result mustBe Some(false)
+        result mustBe Right(Some(true))
       }
 
-      "return Some(false) if TCS data is NOT_FOUND for a given NINO" in {
-        when(connector.checkForTaxCredits(any())(any()))
+      "return Some(false) if found in TCS + not exclusion" in {
+        when(connector.getTaxCreditsExclusionStatus(any())(any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Left(UpstreamErrorResponse("", NOT_FOUND))))
+            EitherT[Future, UpstreamErrorResponse, Boolean](Future(Right(false)))
           )
 
-        val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
+        val result = sut.isAddressChangeInPTA(fakeNino).value.futureValue
 
-        result mustBe Some(false)
+        result mustBe Right(Some(false))
       }
 
       List(
@@ -73,15 +73,14 @@ class TaxCreditsServiceSpec extends BaseSpec {
         INTERNAL_SERVER_ERROR,
         SERVICE_UNAVAILABLE
       ).foreach { status =>
-        s"return None if TCS data is $status for a given NINO" in {
-          when(connector.checkForTaxCredits(any())(any()))
+        s"return left upstream error response if TCS data is $status for a given NINO" in {
+          when(connector.getTaxCreditsExclusionStatus(any())(any()))
             .thenReturn(
-              EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Left(UpstreamErrorResponse("", status))))
+              EitherT[Future, UpstreamErrorResponse, Boolean](Future(Left(UpstreamErrorResponse("", status))))
             )
 
-          val result = sut.checkForTaxCredits(Some(fakeNino)).value.futureValue
-
-          result mustBe None
+          val result = sut.isAddressChangeInPTA(fakeNino).value.futureValue
+          result mustBe Left(UpstreamErrorResponse("", status))
         }
       }
     }

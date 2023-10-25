@@ -31,13 +31,13 @@ import scala.concurrent.Future
 class AddressControllerSpec extends AddressBaseSpec {
 
   object SUT
-      extends AddressController(
-        inject[AuthJourney],
-        cc,
-        displayAddressInterstitialView,
-        mockFeatureFlagService,
-        internalServerErrorView
-      )
+    extends AddressController(
+      inject[AuthJourney],
+      cc,
+      displayAddressInterstitialView,
+      mockFeatureFlagService,
+      internalServerErrorView
+    )
 
   "addressJourneyEnforcer" must {
 

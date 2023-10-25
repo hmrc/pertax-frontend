@@ -18,15 +18,15 @@ package models.dto
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class ClosePostalAddressChoiceDto(value: Boolean) extends Dto
 
 object ClosePostalAddressChoiceDto {
 
-  implicit val formats = Json.format[ClosePostalAddressChoiceDto]
+  implicit val formats: OFormat[ClosePostalAddressChoiceDto] = Json.format[ClosePostalAddressChoiceDto]
 
-  val form = Form(
+  val form: Form[ClosePostalAddressChoiceDto] = Form(
     mapping(
       "onPageLoad" -> optional(boolean)
         .verifying("error.you_must_select_an_answer", _.isDefined)

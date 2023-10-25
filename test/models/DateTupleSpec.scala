@@ -31,61 +31,61 @@ class DateTupleSpec extends BaseSpec {
 
       def input: Map[String, String]
 
-      lazy val result = dateTuple.bind(input)
+      lazy val result: Either[Seq[FormError], Option[LocalDate]] = dateTuple.bind(input)
     }
 
     "return error.date.required.day when day field is missing" in new Setup {
 
-      lazy val input = Map(month -> "2", year -> "2015")
+      lazy val input: Map[String, String] = Map(month -> "2", year -> "2015")
       result mustBe a[Left[_, _]]
       result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.date.required.day"))
     }
 
     "return error.date.required.month when month field is missing" in new Setup {
 
-      lazy val input = Map(day -> "1", year -> "2015")
+      lazy val input: Map[String, String] = Map(day -> "1", year -> "2015")
       result mustBe a[Left[_, _]]
       result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.date.required.month"))
     }
 
     "return error.date.required.year when year field is missing" in new Setup {
 
-      lazy val input = Map(day -> "1", month -> "2")
+      lazy val input: Map[String, String] = Map(day -> "1", month -> "2")
       result mustBe a[Left[_, _]]
       result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.date.required.year"))
     }
 
     "return error.invalid.date.format when day field is non-digit" in new Setup {
 
-      lazy val input = Map(day -> "@", month -> "2", year -> "2015")
+      lazy val input: Map[String, String] = Map(day -> "@", month -> "2", year -> "2015")
       result mustBe a[Left[_, _]]
       result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.invalid.date.format"))
     }
 
     "return error.invalid.date.format when month field is non-digit" in new Setup {
 
-      lazy val input = Map(day -> "1", month -> "j", year -> "2015")
+      lazy val input: Map[String, String] = Map(day -> "1", month -> "j", year -> "2015")
       result mustBe a[Left[_, _]]
       result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.invalid.date.format"))
     }
 
     "return error.invalid.date.format when year field is non-digit" in new Setup {
 
-      lazy val input = Map(day -> "1", month -> "2", year -> "%")
+      lazy val input: Map[String, String] = Map(day -> "1", month -> "2", year -> "%")
       result mustBe a[Left[_, _]]
       result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.invalid.date.format"))
     }
 
     "return error.invalid.date.format when date is not real" in new Setup {
 
-      lazy val input = Map(day -> "30", month -> "2", year -> "2015")
+      lazy val input: Map[String, String] = Map(day -> "30", month -> "2", year -> "2015")
       result mustBe a[Left[_, _]]
       result.swap.getOrElse(Seq(FormError("Invalid", "invalid"))) mustBe Seq(FormError("", "error.invalid.date.format"))
     }
 
     "return a date on valid input" in new Setup {
 
-      lazy val input = Map(day -> "28", month -> "2", year -> "2015")
+      lazy val input: Map[String, String] = Map(day -> "28", month -> "2", year -> "2015")
       result mustBe a[Right[_, _]]
       result.getOrElse(LocalDate.of(1, 1, 1)) mustBe Some(LocalDate.parse("2015-02-28"))
     }
@@ -110,7 +110,7 @@ class DateTupleSpec extends BaseSpec {
       val result     = mandatoryDateTuple(errorKey).bind(dateFields)
 
       result mustBe a[Right[_, _]]
-      result.getOrElse(LocalDate.of(1, 1, 1)) mustBe (LocalDate.of(2014, 2, 1))
+      result.getOrElse(LocalDate.of(1, 1, 1)) mustBe LocalDate.of(2014, 2, 1)
     }
 
     "create a mapping for an invalid date (with space after month, day and year)" in {
@@ -118,7 +118,7 @@ class DateTupleSpec extends BaseSpec {
       val result     = mandatoryDateTuple(errorKey).bind(dateFields)
 
       result mustBe a[Right[_, _]]
-      result.getOrElse(LocalDate.of(1, 1, 1)) mustBe (LocalDate.of(2014, 2, 1))
+      result.getOrElse(LocalDate.of(1, 1, 1)) mustBe LocalDate.of(2014, 2, 1)
     }
 
     "return error when all the fields are empty" in {

@@ -16,34 +16,28 @@
 
 package services
 
-import cats.data.OptionT
+import cats.data.EitherT
 import cats.implicits.catsStdInstancesForFuture
 import com.google.inject.Inject
 import connectors.TaxCreditsConnector
-import play.api.http.Status.{NOT_FOUND, OK}
+import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class TaxCreditsService @Inject() (taxCreditsConnector: TaxCreditsConnector)(implicit ec: ExecutionContext) {
 
-  def checkForTaxCredits(nino: Option[Nino])(implicit headerCarrier: HeaderCarrier): OptionT[Future, Boolean] =
-    if (nino.isEmpty) {
-      OptionT.some(false)
-    } else {
-      OptionT(
-        taxCreditsConnector
-          .checkForTaxCredits(nino.get)
-          .fold(
-            error => if (error.statusCode == NOT_FOUND) Some(false) else None,
-            result =>
-              if (result.status == OK) {
-                Some(true)
-              } else {
-                Some(false)
-              }
-          )
-      )
-    }
+  def isAddressChangeInPTA(
+    nino: Nino
+  )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, Option[Boolean]] =
+    taxCreditsConnector
+      .getTaxCreditsExclusionStatus(nino)
+      .transform {
+        case Right(true)                                  =>
+          Right(None) // We cannot know if the user needs to change its address on PTA or tax credits
+        case Right(false)                                 => Right(Some(false))
+        case Left(error) if error.statusCode == NOT_FOUND => Right(Some(true))
+        case Left(error)                                  => Left(error)
+      }
 }

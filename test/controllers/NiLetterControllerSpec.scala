@@ -51,10 +51,10 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
   def controller: NiLetterController =
     new NiLetterController(
       mockAuthJourney,
-      injected[WithBreadcrumbAction],
+      inject[WithBreadcrumbAction],
       mockFeatureFlagService,
-      injected[MessagesControllerComponents],
-      injected[ErrorRenderer]
+      inject[MessagesControllerComponents],
+      inject[ErrorRenderer]
     )(
       config,
       ec

@@ -37,14 +37,14 @@ import views.html.ManualCorrespondenceView
 import scala.concurrent.{ExecutionContext, Future}
 
 class GetPersonDetailsAction @Inject() (
-  citizenDetailsService: CitizenDetailsService,
-  messageFrontendService: MessageFrontendService,
-  cc: ControllerComponents,
-  val messagesApi: MessagesApi,
-  manualCorrespondenceView: ManualCorrespondenceView,
-  featureFlagService: FeatureFlagService
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends ActionRefiner[UserRequest, UserRequest]
+                                         citizenDetailsService: CitizenDetailsService,
+                                         messageFrontendService: MessageFrontendService,
+                                         cc: ControllerComponents,
+                                         val messagesApi: MessagesApi,
+                                         manualCorrespondenceView: ManualCorrespondenceView,
+                                         featureFlagService: FeatureFlagService
+                                       )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+  extends ActionRefiner[UserRequest, UserRequest]
     with ActionFunction[UserRequest, UserRequest]
     with I18nSupport {
 
@@ -88,14 +88,14 @@ class GetPersonDetailsAction @Inject() (
           case Some(nino) =>
             if (toggle.isEnabled) {
               citizenDetailsService.personDetails(nino)(hc, ec).transform {
-                case Right(response)                           => Right(Some(response))
+                case Right(response) => Right(Some(response))
                 case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
-                case _                                         => Right(None)
+                case _ => Right(None)
               }
             } else {
               EitherT.rightT[Future, Result](None)
             }
-          case _          => throw new RuntimeException("There is some problem with NINO. It is either missing or incorrect")
+          case _ => throw new RuntimeException("There is some problem with NINO. It is either missing or incorrect")
         }
       }
   }

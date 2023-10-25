@@ -69,7 +69,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
     }
   }
 
-  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   "EnrolmentStoreCachingService" when {
 

@@ -34,9 +34,9 @@ import scala.jdk.CollectionConverters._
 
 class HomeViewSpec extends ViewSpec {
 
-  lazy val home: HomeView = injected[HomeView]
+  lazy val home: HomeView = inject[HomeView]
 
-  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
   val homeViewModel: HomeViewModel =
     HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty)
@@ -92,7 +92,7 @@ class HomeViewSpec extends ViewSpec {
       view must include(utr)
     }
 
-    "show the Shutter Banner when boolean is set to true" in {
+    "show the Nps Shutter Banner when boolean is set to true" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val view                                                      = home(homeViewModel, shutteringMessaging = true).toString
 
@@ -101,7 +101,7 @@ class HomeViewSpec extends ViewSpec {
       )
     }
 
-    "not how the Shutter Banner when boolean is set to false" in {
+    "not how the Nps Shutter Banner when boolean is set to false" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val view                                                      = home(homeViewModel, shutteringMessaging = false).toString
 
