@@ -21,7 +21,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
-import models.admin.{NpsOutageToggle, SCAWrapperToggle}
+import models.admin.{GetPersonFromCitizenDetailsToggle, SCAWrapperToggle}
 import play.api.http.Status.LOCKED
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
@@ -37,14 +37,14 @@ import views.html.ManualCorrespondenceView
 import scala.concurrent.{ExecutionContext, Future}
 
 class GetPersonDetailsAction @Inject() (
-  citizenDetailsService: CitizenDetailsService,
-  messageFrontendService: MessageFrontendService,
-  cc: ControllerComponents,
-  val messagesApi: MessagesApi,
-  manualCorrespondenceView: ManualCorrespondenceView,
-  featureFlagService: FeatureFlagService
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends ActionRefiner[UserRequest, UserRequest]
+                                         citizenDetailsService: CitizenDetailsService,
+                                         messageFrontendService: MessageFrontendService,
+                                         cc: ControllerComponents,
+                                         val messagesApi: MessagesApi,
+                                         manualCorrespondenceView: ManualCorrespondenceView,
+                                         featureFlagService: FeatureFlagService
+                                       )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+  extends ActionRefiner[UserRequest, UserRequest]
     with ActionFunction[UserRequest, UserRequest]
     with I18nSupport {
 
@@ -82,21 +82,22 @@ class GetPersonDetailsAction @Inject() (
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    EitherT[Future, Result, FeatureFlag](featureFlagService.get(NpsOutageToggle).map(Right(_))).flatMap { toggle =>
-      request.nino match {
-        case Some(nino) =>
-          if (!toggle.isEnabled) {
-            citizenDetailsService.personDetails(nino)(hc, ec).transform {
-              case Right(response)                           => Right(Some(response))
-              case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
-              case _                                         => Right(None)
+    EitherT[Future, Result, FeatureFlag](featureFlagService.get(GetPersonFromCitizenDetailsToggle).map(Right(_)))
+      .flatMap { toggle =>
+        request.nino match {
+          case Some(nino) =>
+            if (toggle.isEnabled) {
+              citizenDetailsService.personDetails(nino)(hc, ec).transform {
+                case Right(response) => Right(Some(response))
+                case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
+                case _ => Right(None)
+              }
+            } else {
+              EitherT.rightT[Future, Result](None)
             }
-          } else {
-            EitherT.rightT[Future, Result](None)
-          }
-        case _          => throw new RuntimeException("There is some problem with NINO. It is either missing or incorrect")
+          case _ => throw new RuntimeException("There is some problem with NINO. It is either missing or incorrect")
+        }
       }
-    }
   }
 
   override protected def executionContext: ExecutionContext = cc.executionContext

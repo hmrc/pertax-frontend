@@ -17,7 +17,7 @@
 package controllers.address
 import cats.data.EitherT
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.admin.{AddressTaxCreditsBrokerCallToggle, NpsOutageToggle}
+import models.admin.{AddressChangeAllowedToggle, AddressTaxCreditsBrokerCallToggle}
 import models.dto.AddressPageVisitedDto
 import models.{NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
 import org.mockito.ArgumentMatchers.any
@@ -82,10 +82,10 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         val arg = ArgumentCaptor.forClass(classOf[Result])
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
+          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
 
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
+          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
 
         when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
           .thenReturn(
@@ -112,9 +112,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
           val arg = ArgumentCaptor.forClass(classOf[Result])
 
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-            .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
-          when(mockFeatureFlagService.get(NpsOutageToggle))
-            .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+            .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
+          when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+            .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
           when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
             .thenReturn(
               EitherT[Future, UpstreamErrorResponse, Option[Boolean]](Future.successful(Right(None)))
@@ -142,9 +142,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         val arg = ArgumentCaptor.forClass(classOf[Result])
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
-        when(mockFeatureFlagService.get(NpsOutageToggle))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
+        when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
 
         when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
           .thenReturn(
@@ -175,9 +175,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
       val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
-      when(mockFeatureFlagService.get(NpsOutageToggle))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
+      when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+        .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
       when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
         Future.successful(sessionCacheResponse)
       }
@@ -204,9 +204,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
       val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
-      when(mockFeatureFlagService.get(NpsOutageToggle))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
+      when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+        .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
       when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
         Future.successful(sessionCacheResponse)
       }
@@ -233,9 +233,9 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         Future.successful(sessionCacheResponse)
       }
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, false)))
-      when(mockFeatureFlagService.get(NpsOutageToggle))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
+      when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+        .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
 
       val result = controller.onSubmit(FakeRequest())
 

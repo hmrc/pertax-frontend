@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, ShowOutageBannerToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -707,8 +707,8 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockFeatureFlagService.get(NpsShutteringToggle))
-        .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ShowOutageBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = true)))
 
       val result = controller.displayShutteringPage()(fakeRequest)
 
@@ -763,8 +763,8 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockFeatureFlagService.get(NpsShutteringToggle))
-        .thenReturn(Future.successful(FeatureFlag(NpsShutteringToggle, isEnabled = false)))
+      when(mockFeatureFlagService.get(ShowOutageBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = false)))
 
       val result = controller.displayShutteringPage()(fakeRequest)
 

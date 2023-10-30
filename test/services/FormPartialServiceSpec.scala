@@ -18,7 +18,7 @@ package services
 
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
-import models.admin.NpsOutageToggle
+import models.admin.DfsDigitalFormFrontendAvailableToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.twirl.api.Html
@@ -49,9 +49,9 @@ class FormPartialServiceSpec extends BaseSpec {
   "Calling FormPartialServiceSpec" must {
 
     "form list for National insurance return empty" when {
-      "NpsOutgaeToggle is enabled" in new LocalSetup {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = true)))
+      "DfsDigitalFormFrontendShuttered is disabled" in new LocalSetup {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+          .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = false)))
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
@@ -63,9 +63,9 @@ class FormPartialServiceSpec extends BaseSpec {
     }
 
     "form list for Self-assessment return empty" when {
-      "NpsOutgaeToggle is enabled" in new LocalSetup {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = true)))
+      "DfsDigitalFormFrontendShuttered is disabled" in new LocalSetup {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+          .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = false)))
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
@@ -77,8 +77,8 @@ class FormPartialServiceSpec extends BaseSpec {
     }
 
     "return form list for National insurance" in new LocalSetup {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
       when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
@@ -89,8 +89,8 @@ class FormPartialServiceSpec extends BaseSpec {
     }
 
     "return form list for Self-assessment" in new LocalSetup {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, isEnabled = false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
       when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 

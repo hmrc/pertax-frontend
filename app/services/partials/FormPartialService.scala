@@ -19,7 +19,7 @@ package services.partials
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
-import models.admin.NpsOutageToggle
+import models.admin.DfsDigitalFormFrontendAvailableToggle
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -34,8 +34,8 @@ class FormPartialService @Inject() (
 )(implicit executionContext: ExecutionContext) {
 
   def getNationalInsurancePartial(implicit request: RequestHeader): Future[HtmlPartial] =
-    featureFlagService.get(NpsOutageToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
+    featureFlagService.get(DfsDigitalFormFrontendAvailableToggle).flatMap { toggle =>
+      if (!toggle.isEnabled) {
         Future.successful(HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered"))
       } else {
         enhancedPartialRetriever.loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
@@ -43,8 +43,8 @@ class FormPartialService @Inject() (
     }
 
   def getSelfAssessmentPartial(implicit request: RequestHeader): Future[HtmlPartial] =
-    featureFlagService.get(NpsOutageToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
+    featureFlagService.get(DfsDigitalFormFrontendAvailableToggle).flatMap { toggle =>
+      if (!toggle.isEnabled) {
         Future.successful(HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered"))
       } else {
         enhancedPartialRetriever.loadPartial(configDecorator.selfAssessmentFormPartialLinkUrl)
