@@ -35,24 +35,26 @@ class FeatureFlagsController @Inject() (
     featureFlagService
       .setAll(
         Map(
-          AddressTaxCreditsBrokerCallToggle -> false,
-          TaxcalcToggle                     -> true,
-          NationalInsuranceTileToggle       -> true,
-          ItsAdvertisementMessageToggle     -> true,
-          TaxComponentsToggle               -> true,
-          RlsInterruptToggle                -> true,
-          PaperlessInterruptToggle          -> false,
-          TaxSummariesTileToggle            -> true,
-          SingleAccountCheckToggle          -> false,
-          PertaxBackendToggle               -> true,
-          SCAWrapperToggle                  -> true,
-          HmrcAccountToggle                 -> false,
-          AgentClientAuthorisationToggle    -> true,
-          BreathingSpaceIndicatorToggle     -> true,
-          TaxcalcMakePaymentLinkToggle      -> true,
-          NpsShutteringToggle               -> false,
-          NpsOutageToggle                   -> false,
-          AlertBannerPaperlessStatusToggle  -> true
+          AddressTaxCreditsBrokerCallToggle     -> false,
+          TaxcalcToggle                         -> true,
+          NationalInsuranceTileToggle           -> true,
+          ItsAdvertisementMessageToggle         -> true,
+          TaxComponentsToggle                   -> true,
+          RlsInterruptToggle                    -> true,
+          PaperlessInterruptToggle              -> false,
+          TaxSummariesTileToggle                -> true,
+          SingleAccountCheckToggle              -> false,
+          PertaxBackendToggle                   -> true,
+          SCAWrapperToggle                      -> true,
+          HmrcAccountToggle                     -> false,
+          AgentClientAuthorisationToggle        -> true,
+          BreathingSpaceIndicatorToggle         -> true,
+          TaxcalcMakePaymentLinkToggle          -> true,
+          ShowOutageBannerToggle                -> false,
+          AlertBannerPaperlessStatusToggle      -> true,
+          GetPersonFromCitizenDetailsToggle     -> true,
+          DfsDigitalFormFrontendAvailableToggle -> true,
+          AddressChangeAllowedToggle            -> true
         )
       )
       .map(_ => Ok("Default flags set"))

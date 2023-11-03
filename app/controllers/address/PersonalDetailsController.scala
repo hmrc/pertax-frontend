@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.{AddressJourneyCachingHelper, RlsInterruptHelper}
-import models.admin.HmrcAccountToggle
+import models.admin.{AddressChangeAllowedToggle, HmrcAccountToggle}
 import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
@@ -100,11 +100,12 @@ class PersonalDetailsController @Inject() (
             _ <- cachingHelper
                    .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
-            paperLessPreference <- personalDetailsViewModel.getPaperlessSettingsRow
-            personalDetails     <- personalDetailsViewModel.getPersonDetailsTable(request.nino)
+            addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
+            addressDetails             <- personalDetailsViewModel.getAddressRow(addressModel)
+            paperLessPreference        <- personalDetailsViewModel.getPaperlessSettingsRow
+            personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(request.nino)
 
           } yield {
-            val addressDetails       = personalDetailsViewModel.getAddressRow(addressModel)
             val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow
             val paperlessHelpers     = paperLessPreference
             val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
@@ -117,7 +118,8 @@ class PersonalDetailsController @Inject() (
                 trustedHelpers,
                 paperlessHelpers,
                 signinDetailsHelpers,
-                manageTaxAgent
+                manageTaxAgent,
+                addressChangeAllowedToggle.isEnabled
               )
             )
           })

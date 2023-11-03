@@ -18,7 +18,7 @@ package services
 
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
-import models.admin.NpsOutageToggle
+import models.admin.DfsDigitalFormFrontendAvailableToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.twirl.api.Html
@@ -49,49 +49,52 @@ class FormPartialServiceSpec extends BaseSpec {
   "Calling FormPartialServiceSpec" must {
 
     "form list for National insurance return empty" when {
-      "NpsOutgaeToggle is enabled" in new LocalSetup {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, true)))
+      "DfsDigitalFormFrontendShuttered is disabled" in new LocalSetup {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+          .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = false)))
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-        val result = formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
+        val result: HtmlPartial =
+          formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
         result mustBe HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered")
         verify(mockEnhancedPartialRetriever, times(0)).loadPartial(any())(any(), any())
       }
     }
 
     "form list for Self-assessment return empty" when {
-      "NpsOutgaeToggle is enabled" in new LocalSetup {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-          .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, true)))
+      "DfsDigitalFormFrontendShuttered is disabled" in new LocalSetup {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+          .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = false)))
         when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-        val result = formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
+        val result: HtmlPartial =
+          formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
         result mustBe HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered")
         verify(mockEnhancedPartialRetriever, times(0)).loadPartial(any())(any(), any())
       }
     }
 
     "return form list for National insurance" in new LocalSetup {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
       when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      val result = formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
+      val result: HtmlPartial =
+        formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
       result mustBe HtmlPartial.Success(Some("Title"), Html("<title/>"))
       verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any())(any(), any())
     }
 
     "return form list for Self-assessment" in new LocalSetup {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NpsOutageToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NpsOutageToggle, false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
       when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      val result = formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
+      val result: HtmlPartial = formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
       result mustBe HtmlPartial.Success(Some("Title"), Html("<title/>"))
       verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any())(any(), any())
     }

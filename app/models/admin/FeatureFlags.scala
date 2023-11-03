@@ -30,14 +30,16 @@ object AllFeatureFlags {
     TaxSummariesTileToggle,
     SingleAccountCheckToggle,
     TaxcalcMakePaymentLinkToggle,
-    NpsShutteringToggle,
-    NpsOutageToggle,
+    ShowOutageBannerToggle,
     SCAWrapperToggle,
     HmrcAccountToggle,
     AgentClientAuthorisationToggle,
     PertaxBackendToggle,
     BreathingSpaceIndicatorToggle,
-    AlertBannerPaperlessStatusToggle
+    AlertBannerPaperlessStatusToggle,
+    GetPersonFromCitizenDetailsToggle,
+    DfsDigitalFormFrontendAvailableToggle,
+    AddressChangeAllowedToggle
   )
 }
 
@@ -93,16 +95,9 @@ case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable direct link to make a payment on taxcalc tile")
 }
 
-case object NpsShutteringToggle extends FeatureFlagName {
-  override val name: String                = "nps-shuttering-toggle"
-  override val description: Option[String] = Some("Enable/disable the nps shuttering banner and subpage")
-}
-
-case object NpsOutageToggle extends FeatureFlagName {
-  override val name: String                = "nps-outage-toggle"
-  override val description: Option[String] = Some(
-    "Enable/disable calls to NPS so as not to cause errors during an NPS outage"
-  )
+case object ShowOutageBannerToggle extends FeatureFlagName {
+  override val name: String                = "show-outage-banner-toggle"
+  override val description: Option[String] = Some("Enable/disable the show outage banner")
 }
 
 case object SCAWrapperToggle extends FeatureFlagName {
@@ -137,6 +132,27 @@ case object BreathingSpaceIndicatorToggle extends FeatureFlagName {
   override val name: String                = "breathing-space-indicator-toggle"
   override val description: Option[String] = Some(
     "Enable/disable calls to Breathing space"
+  )
+}
+
+case object GetPersonFromCitizenDetailsToggle extends FeatureFlagName {
+  override val name: String                = "get-person-from-citizen-details-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable call to designatory-details"
+  )
+}
+
+case object DfsDigitalFormFrontendAvailableToggle extends FeatureFlagName {
+  override val name: String                = "dfs-digital-forms-frontend-available-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable indicating whether the dfs digital forms frontend is available or shuttered"
+  )
+}
+
+case object AddressChangeAllowedToggle extends FeatureFlagName {
+  override val name: String                = "address-change-allowed-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable indicating whether the address change is allowed in profile and settings page"
   )
 }
 

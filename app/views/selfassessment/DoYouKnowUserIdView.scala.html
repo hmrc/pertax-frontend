@@ -29,9 +29,9 @@
     pageTitle = title.toString,
     showBackLink = true,
     backLinkID = false,
-    backLinkUrl = routes.SaWrongCredentialsController.doYouKnowOtherCredentials.url
+    backLinkUrl = routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url
 ) {
 
-    @saForm(routes.SaWrongCredentialsController.processDoYouKnowUserId, messages("title.do_you_know_user_id.h1"), wrongCredentialsUserForm)
+    @saForm(routes.SaWrongCredentialsController.processDoYouKnowUserId(), messages("title.do_you_know_user_id.h1"), wrongCredentialsUserForm)
 
 }

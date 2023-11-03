@@ -22,6 +22,7 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
+import models.admin.AddressChangeAllowedToggle
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -39,66 +40,125 @@ class PersonalDetailsViewModel @Inject() (
   correspondenceAddressView: CorrespondenceAddressView,
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService
-) {
+)(implicit ec: ExecutionContext) {
 
-  private def getMainAddress(personDetails: PersonDetails, optionalEditAddress: List[EditedAddress]) = {
+  private def getMainAddress(
+    personDetails: Option[PersonDetails],
+    optionalEditAddress: List[EditedAddress]
+  ): Future[Option[PersonalDetailsTableRowModel]] = {
     val isMainAddressChangeLocked = optionalEditAddress.exists(
       _.isInstanceOf[EditResidentialAddress]
     )
-    personDetails.address.map { address =>
-      def createAddressRow(linkTextMessage: String, linkUrl: Option[String]) =
-        PersonalDetailsTableRowModel(
-          "main_address",
-          "label.main_address",
-          addressView(address, countryHelper.excludedCountries),
-          linkTextMessage,
-          "label.your_main_home",
-          linkUrl
-        )
 
-      if (isMainAddressChangeLocked) {
-        createAddressRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
+    val mainAddress = for {
+      addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
+    } yield
+      if (addressChangeAllowedToggle.isEnabled) {
+        if (isMainAddressChangeLocked) {
+          personDetails.map(_.address.map { address =>
+            PersonalDetailsTableRowModel(
+              "main_address",
+              "label.main_address",
+              addressView(address, countryHelper.excludedCountries),
+              "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
+              "label.your_main_home",
+              None
+            )
+          })
+        } else {
+          personDetails.map(_.address.map { address =>
+            PersonalDetailsTableRowModel(
+              "main_address",
+              "label.main_address",
+              addressView(address, countryHelper.excludedCountries),
+              "label.change",
+              "label.your_main_home",
+              Some(AddressRowModel.changeMainAddressUrl)
+            )
+          })
+        }
       } else {
-        createAddressRow("label.change", Some(AddressRowModel.changeMainAddressUrl))
+        personDetails.map(_.address.map { address =>
+          PersonalDetailsTableRowModel(
+            "main_address",
+            "label.main_address",
+            addressView(address, countryHelper.excludedCountries),
+            "",
+            "label.your_main_home",
+            linkUrl = None
+          )
+        })
       }
-    }
+    mainAddress.map(_.flatten)
   }
 
   private def getPostalAddress(
-    personDetails: PersonDetails,
+    personDetails: Option[PersonDetails],
     optionalEditAddress: List[EditedAddress]
   )(implicit
     messages: play.api.i18n.Messages
-  ) = {
+  ): Future[Option[PersonalDetailsTableRowModel]] = {
     val isCorrespondenceChangeLocked =
       optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
     val postalAddress                =
       getPostalAddressIfExists(personDetails, isCorrespondenceChangeLocked)
 
-    postalAddress match {
-      case Some(address) => Some(address)
-      case _             =>
-        personDetails.address.map { address =>
-          PersonalDetailsTableRowModel(
-            "postal_address",
-            "label.postal_address",
-            correspondenceAddressView(Some(address), countryHelper.excludedCountries),
-            "label.change",
-            "label.your.postal_address",
-            Some(AddressRowModel.changePostalAddressUrl),
-            isPostalAddressSame = true
-          )
+    for {
+      addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
+    } yield
+      if (addressChangeAllowedToggle.isEnabled) {
+        postalAddress match {
+          case Some(address) => Some(address)
+          case _             =>
+            personDetails.flatMap(_.address.map { address =>
+              PersonalDetailsTableRowModel(
+                "postal_address",
+                "label.postal_address",
+                correspondenceAddressView(Some(address), countryHelper.excludedCountries),
+                "label.change",
+                "label.your.postal_address",
+                Some(AddressRowModel.changePostalAddressUrl),
+                isPostalAddressSame = true
+              )
+            })
         }
-    }
+      } else {
+        postalAddress match {
+          case Some(address) =>
+            Some(
+              PersonalDetailsTableRowModel(
+                address.id,
+                address.titleMessage,
+                address.content,
+                "",
+                address.visuallyhiddenText,
+                None,
+                address.isPostalAddressSame
+              )
+            )
+          case _             =>
+            personDetails.flatMap(_.address.map { address =>
+              PersonalDetailsTableRowModel(
+                "postal_address",
+                "label.postal_address",
+                correspondenceAddressView(Some(address), countryHelper.excludedCountries),
+                "",
+                "label.your.postal_address",
+                None,
+                isPostalAddressSame = true
+              )
+            })
+        }
+      }
   }
 
   private def getPostalAddressIfExists(
-    personDetails: PersonDetails,
+    personDetails: Option[PersonDetails],
     isCorrespondenceChangeLocked: Boolean
   )(implicit
     messages: play.api.i18n.Messages
   ) =
-    personDetails.correspondenceAddress.find(!_.isWelshLanguageUnit).map { correspondenceAddress =>
+    personDetails.flatMap(_.correspondenceAddress.find(!_.isWelshLanguageUnit).map { correspondenceAddress =>
       def createRow(linkTextMessage: String, linkUrl: Option[String]) =
         PersonalDetailsTableRowModel(
           "postal_address",
@@ -117,21 +177,23 @@ class PersonalDetailsViewModel @Inject() (
       } else {
         createRow("label.change", Some(AddressRowModel.changePostalAddressUrl))
       }
-    }
+    })
 
   def getAddressRow(addressModel: List[AddressJourneyTTLModel])(implicit
     request: UserRequest[_],
     messages: play.api.i18n.Messages
-  ): AddressRowModel = {
-    val optionalEditAddress                                    = addressModel.map(y => y.editedAddress)
-    val mainAddressRow: Option[PersonalDetailsTableRowModel]   = request.personDetails
-      .flatMap(getMainAddress(_, optionalEditAddress))
-    val postalAddressRow: Option[PersonalDetailsTableRowModel] = request.personDetails
-      .flatMap(getPostalAddress(_, optionalEditAddress))
-
-    AddressRowModel(
-      mainAddressRow,
-      postalAddressRow
+  ): Future[AddressRowModel] = {
+    val optionalEditAddress                                            = addressModel.map(y => y.editedAddress)
+    val mainAddressRow: Future[Option[PersonalDetailsTableRowModel]]   =
+      getMainAddress(request.personDetails, optionalEditAddress)
+    val postalAddressRow: Future[Option[PersonalDetailsTableRowModel]] =
+      getPostalAddress(request.personDetails, optionalEditAddress)
+    for {
+      mainAddressVal   <- mainAddressRow
+      postalAddressVal <- postalAddressRow
+    } yield AddressRowModel(
+      mainAddressVal,
+      postalAddressVal
     )
   }
 

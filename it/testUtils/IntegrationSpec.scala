@@ -3,7 +3,7 @@ package testUtils
 import akka.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.admin.{AllFeatureFlags, SCAWrapperToggle}
+import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.mockito.MockitoSugar.mock
@@ -21,8 +21,8 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import java.time.LocalDateTime
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 trait IntegrationSpec
@@ -33,7 +33,7 @@ trait IntegrationSpec
     with Matchers
     with IntegrationPatience {
 
-  val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
+  val mockCacheApi: AsyncCacheApi                = new AsyncCacheApi {
     override def set(key: String, value: Any, expiration: Duration): Future[Done] = Future.successful(Done)
 
     override def remove(key: String): Future[Done] = Future.successful(Done)
@@ -46,7 +46,7 @@ trait IntegrationSpec
 
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
-  val mockFeatureFlagService      = mock[FeatureFlagService]
+  val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   lazy val messagesApi: MessagesApi    = app.injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
@@ -96,19 +96,19 @@ trait IntegrationSpec
   val citizenResponse: String =
     s"""|
        |{
-       |  "name": {
-       |    "current": {
-       |      "firstName": "John",
-       |      "lastName": "Smith"
-       |    },
-       |    "previous": []
-       |  },
-       |  "ids": {
-       |    "nino": "$generatedNino"
-       |  },
-       |  "dateOfBirth": "11121971"
-       |}
-       |""".stripMargin
+        |  "name": {
+        |    "current": {
+        |      "firstName": "John",
+        |      "lastName": "Smith"
+        |    },
+        |    "previous": []
+        |  },
+        |  "ids": {
+        |    "nino": "$generatedNino"
+        |  },
+        |  "dateOfBirth": "11121971"
+        |}
+        |""".stripMargin
 
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
@@ -130,10 +130,19 @@ trait IntegrationSpec
     org.mockito.MockitoSugar.reset(mockFeatureFlagService)
     AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
-        .thenReturn(Future.successful(FeatureFlag(flag, false)))
+        .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
     }
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
+      .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+      .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))

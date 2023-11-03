@@ -6,7 +6,7 @@ import models.admin.AddressTaxCreditsBrokerCallToggle
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import org.scalatest.Assertion
+import org.scalatest.{Assertion, BeforeAndAfterEach}
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -18,7 +18,7 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
 
-class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
+class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAfterEach {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
@@ -45,60 +45,65 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       s"\n\nLink $href was not rendered on the page\n"
     )
 
+  def taxCreditsBrokerResponse(excluded: Boolean) = s"""{"excluded": $excluded}"""
+
+  val cacheMap = s"/keystore/pertax-frontend"
+
+  val citizenDetailsUrl = s"/citizen-details/nino/$generatedNino"
+
+  val personDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
+
+  private def beforeEachAddressTaxCreditsBrokerCallToggleOn(): Unit = {
+    server.stubFor(
+      get(urlPathMatching(s"$cacheMap/.*"))
+        .willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withBody("""
+                |{
+                |	"id": "session-id",
+                |	"data": {
+                |   "addressPageVisitedDto": {
+                |     "hasVisitedPage": true
+                |   }
+                |	},
+                |	"modifiedDetails": {
+                |		"createdAt": {
+                |			"$date": 1400258561678
+                |		},
+                |		"lastUpdated": {
+                |			"$date": 1400258561675
+                |		}
+                |	}
+                |}
+                |""".stripMargin)
+        )
+    )
+
+    server.stubFor(
+      get(urlEqualTo(citizenDetailsUrl))
+        .willReturn(ok(FileHelper.loadFile("./it/resources/citizen-details.json")))
+    )
+
+    server.stubFor(
+      get(urlEqualTo(personDetailsUrl))
+        .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
+    )
+  }
+
   "/personal-account/your-address/tax-credits-choice" must {
     val url = "/personal-account/your-address/tax-credits-choice"
 
-    val tcsBrokerUrl = s"/tcs/$generatedNino/dashboard-data"
+    val tcsBrokerUrl = s"/tcs/$generatedNino/exclusion"
 
-    val citizenDetailsUrl = s"/citizen-details/nino/$generatedNino"
-
-    val personDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
-
-    val cacheMap = s"/keystore/pertax-frontend"
-
-    "return a SEE_OTHER and redirect to the TCS Address change interstitial page if the user is a TCS user" in {
+    "redirect to the tax credits interstitial page if tax credits broker returns excluded flag as false" in {
+      beforeEachAddressTaxCreditsBrokerCallToggleOn()
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
-
-      server.stubFor(
-        get(urlEqualTo(citizenDetailsUrl))
-          .willReturn(ok(FileHelper.loadFile("./it/resources/citizen-details.json")))
-      )
-
-      server.stubFor(
-        get(urlEqualTo(personDetailsUrl))
-          .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
-      )
-
-      server.stubFor(
-        get(urlPathMatching(s"$cacheMap/.*"))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody("""
-                                                            |{
-                                                            |	"id": "session-id",
-                                                            |	"data": {
-                                                            |   "addressPageVisitedDto": {
-                                                            |     "hasVisitedPage": true
-                                                            |   }
-                                                            |	},
-                                                            |	"modifiedDetails": {
-                                                            |		"createdAt": {
-                                                            |			"$date": 1400258561678
-                                                            |		},
-                                                            |		"lastUpdated": {
-                                                            |			"$date": 1400258561675
-                                                            |		}
-                                                            |	}
-                                                            |}
-                                                          |""".stripMargin)
-          )
-      )
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
 
       server.stubFor(
         get(urlEqualTo(tcsBrokerUrl))
-          .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
+          .willReturn(ok(taxCreditsBrokerResponse(excluded = false)))
       )
 
       val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
@@ -108,6 +113,59 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       result.get.futureValue.header.headers.get("Location") mustBe Some(
         "/personal-account/your-address/change-address-tax-credits"
       )
+    }
+
+    "render the do you get tax credits page if tax credits broker returns excluded flag as true" in {
+      beforeEachAddressTaxCreditsBrokerCallToggleOn()
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
+
+      server.stubFor(
+        get(urlEqualTo(tcsBrokerUrl))
+          .willReturn(ok(taxCreditsBrokerResponse(excluded = true)))
+      )
+
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result  = route(app, request)
+
+      result.get.futureValue.header.status mustBe OK
+      contentAsString(result.get).contains("Do you get tax credits?") mustBe true
+    }
+
+    "redirect to the do you live in the uk page if tax credits broker returns not found response" in {
+      beforeEachAddressTaxCreditsBrokerCallToggleOn()
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
+
+      server.stubFor(
+        get(urlEqualTo(tcsBrokerUrl))
+          .willReturn(notFound)
+      )
+
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result  = route(app, request)
+
+      result.get.futureValue.header.status mustBe SEE_OTHER
+      result.get.futureValue.header.headers.get("Location") mustBe Some(
+        "/personal-account/your-address/residential/do-you-live-in-the-uk"
+      )
+    }
+
+    "render the do you get tax credits page if tax credits broker returns error response other than not found" in {
+      beforeEachAddressTaxCreditsBrokerCallToggleOn()
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
+
+      server.stubFor(
+        get(urlEqualTo(tcsBrokerUrl))
+          .willReturn(serverError)
+      )
+
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result  = route(app, request)
+
+      result.get.futureValue.header.status mustBe OK
+      contentAsString(result.get).contains("Do you get tax credits?") mustBe true
     }
 
     "Show the tax credits question when the AddressTaxCreditsBrokerCallToggle is false" in {
@@ -163,174 +221,6 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       contentAsString(result.get) must include(messages("label.do_you_get_tax_credits"))
     }
 
-    "return a SEE_OTHER and redirect to PTA Address Change if the user is a non-TCS user" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
-
-      server.stubFor(
-        get(urlEqualTo(citizenDetailsUrl))
-          .willReturn(ok(FileHelper.loadFile("./it/resources/citizen-details.json")))
-      )
-
-      server.stubFor(
-        get(urlEqualTo(personDetailsUrl))
-          .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
-      )
-
-      server.stubFor(
-        get(urlPathMatching(s"$cacheMap/.*"))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody("""
-                                                            |{
-                                                            |	"id": "session-id",
-                                                            |	"data": {
-                                                            |   "addressPageVisitedDto": {
-                                                            |     "hasVisitedPage": true
-                                                            |   }
-                                                            |	},
-                                                            |	"modifiedDetails": {
-                                                            |		"createdAt": {
-                                                            |			"$date": 1400258561678
-                                                            |		},
-                                                            |		"lastUpdated": {
-                                                            |			"$date": 1400258561675
-                                                            |		}
-                                                            |	}
-                                                            |}
-                                                            |""".stripMargin)
-          )
-      )
-
-      server.stubFor(
-        get(urlEqualTo(tcsBrokerUrl))
-          .willReturn(aResponse().withStatus(NOT_FOUND))
-      )
-
-      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-      val result  = route(app, request)
-
-      result.get.futureValue.header.status mustBe SEE_OTHER
-
-      result.get.futureValue.header.headers.get("Location") mustBe Some(
-        "/personal-account/your-address/residential/do-you-live-in-the-uk"
-      )
-    }
-
-    "return a SEE_OTHER and redirect to the beginning of the PTA address change journey if the user skipped to tax credits url" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
-
-      server.stubFor(
-        get(urlEqualTo(citizenDetailsUrl))
-          .willReturn(ok(FileHelper.loadFile("./it/resources/citizen-details.json")))
-      )
-
-      server.stubFor(
-        get(urlEqualTo(personDetailsUrl))
-          .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
-      )
-
-      server.stubFor(
-        get(urlPathMatching(s"$cacheMap/.*"))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody("""
-                                                            |{
-                                                            |	"id": "session-id",
-                                                            |	"data": {
-                                                            |   "addressPageVisitedDto": {
-                                                            |     "hasVisitedPage": true
-                                                            |   }
-                                                            |	},
-                                                            |	"modifiedDetails": {
-                                                            |		"createdAt": {
-                                                            |			"$date": 1400258561678
-                                                            |		},
-                                                            |		"lastUpdated": {
-                                                            |			"$date": 1400258561675
-                                                            |		}
-                                                            |	}
-                                                            |}
-                                                            |""".stripMargin)
-          )
-      )
-
-      server.stubFor(
-        get(urlEqualTo(tcsBrokerUrl))
-          .willReturn(aResponse().withStatus(NOT_FOUND))
-      )
-
-      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-      val result  = route(app, request)
-
-      result.get.futureValue.header.status mustBe SEE_OTHER
-
-      result.get.futureValue.header.headers.get("Location") mustBe Some(
-        "/personal-account/your-address/residential/do-you-live-in-the-uk"
-      )
-    }
-
-    List(
-      BAD_REQUEST,
-      IM_A_TEAPOT,
-      INTERNAL_SERVER_ERROR,
-      SERVICE_UNAVAILABLE
-    ).foreach { response =>
-      s"return an INTERNAL_SERVER_ERROR and redirect to PTA Address Change if the call to TCS fails with a $response" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, true)))
-
-        server.stubFor(
-          get(urlEqualTo(citizenDetailsUrl))
-            .willReturn(ok(FileHelper.loadFile("./it/resources/citizen-details.json")))
-        )
-
-        server.stubFor(
-          get(urlEqualTo(personDetailsUrl))
-            .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
-        )
-
-        server.stubFor(
-          get(urlPathMatching(s"$cacheMap/.*"))
-            .willReturn(
-              aResponse()
-                .withStatus(OK)
-                .withBody("""
-                                                              |{
-                                                              |	"id": "session-id",
-                                                              |	"data": {
-                                                              |   "addressPageVisitedDto": {
-                                                              |     "hasVisitedPage": true
-                                                              |   }
-                                                              |	},
-                                                              |	"modifiedDetails": {
-                                                              |		"createdAt": {
-                                                              |			"$date": 1400258561678
-                                                              |		},
-                                                              |		"lastUpdated": {
-                                                              |			"$date": 1400258561675
-                                                              |		}
-                                                              |	}
-                                                              |}
-                                                              |""".stripMargin)
-            )
-        )
-
-        server.stubFor(
-          get(urlEqualTo(tcsBrokerUrl))
-            .willReturn(aResponse().withStatus(response))
-        )
-
-        val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-        val result  = route(app, request)
-
-        result.get.futureValue.header.status mustBe INTERNAL_SERVER_ERROR
-
-        result.get.futureValue.header.headers.get("Location") mustBe None
-      }
-    }
   }
+
 }

@@ -17,13 +17,11 @@
 package views.html.cards
 
 import config.ConfigDecorator
-import org.jsoup.nodes.Document
-import org.scalatest.Assertion
+import play.api.Application
 import play.api.i18n.Messages
+import play.api.inject.guice.GuiceApplicationBuilder
 import views.html.ViewSpec
 import views.html.cards.home.LatestNewsAndUpdatesView
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
 
 class LatestNewsAndUpdatesViewSpec extends ViewSpec {
   val latestNewsAndUpdatesView: LatestNewsAndUpdatesView = app.injector.instanceOf[LatestNewsAndUpdatesView]

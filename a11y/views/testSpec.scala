@@ -2,7 +2,7 @@ package views
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{BreathingSpaceIndicatorToggle, SCAWrapperToggle}
+import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle, SCAWrapperToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -12,7 +12,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
-import testUtils.{FileHelper, IntegrationSpec}
+import testUtils.{A11ySpec, FileHelper}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -23,7 +23,7 @@ import java.util.UUID
 import scala.concurrent.Future
 import scala.util.Random
 
-class testSpec extends IntegrationSpec {
+class testSpec extends A11ySpec {
 
   case class ExpectedData(title: String)
   def getExpectedData(key: String): ExpectedData =
@@ -229,6 +229,7 @@ class testSpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
+      "microservice.services.auth.port"                       -> server.port(),
       "feature.breathing-space-indicator.enabled"                     -> true,
       "feature.breathing-space-indicator.timeoutInSec"                -> 4,
       "microservice.services.taxcalc.port"                            -> server.port(),
@@ -300,6 +301,13 @@ class testSpec extends IntegrationSpec {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
             FeatureFlag(SCAWrapperToggle, isEnabled = true)
           )
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
+            .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+            .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
+
           server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
           val result: Future[Result] = route(app, request(url)).get
           val content                = Jsoup.parse(contentAsString(result))
@@ -315,6 +323,13 @@ class testSpec extends IntegrationSpec {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
             FeatureFlag(SCAWrapperToggle, isEnabled = false)
           )
+
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
+            .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+            .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
           server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
           val result: Future[Result] = route(app, request(url)).get
           val content                = Jsoup.parse(contentAsString(result))

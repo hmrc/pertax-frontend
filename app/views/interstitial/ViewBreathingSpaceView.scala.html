@@ -15,7 +15,7 @@
  *@
 
 @import controllers.auth.requests.UserRequest
-@import views.html.components.{H1, P}
+@import views.html.components.{H1, Link, P, H2}
 
 @this(
     mainView: MainView,
@@ -23,7 +23,7 @@
     p: P
 )
 
-@(redirectUrl: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 @mainView(
     pageTitle = messages("label.breathing_space"),
     showBackLink = true

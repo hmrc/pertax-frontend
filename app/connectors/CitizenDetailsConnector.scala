@@ -35,7 +35,7 @@ class CitizenDetailsConnector @Inject() (
   httpClientResponse: HttpClientResponse
 ) extends Logging {
 
-  lazy val citizenDetailsUrl = servicesConfig.baseUrl("citizen-details")
+  lazy val citizenDetailsUrl: String = servicesConfig.baseUrl("citizen-details")
 
   def personDetails(
     nino: Nino

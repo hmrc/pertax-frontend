@@ -18,11 +18,11 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import controllers.bindable.Origin
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.public.SessionTimeoutView
 
-import scala.concurrent.{Future}
+import scala.concurrent.Future
 
 class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeoutView: SessionTimeoutView)(implicit
   configDecorator: ConfigDecorator

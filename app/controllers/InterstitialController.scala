@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NpsShutteringToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, ShowOutageBannerToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -117,7 +117,6 @@ class InterstitialController @Inject() (
         itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
       } yield Ok(
         viewSaAndItsaMergePageView(
-          redirectUrl = currentUrl(request),
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           request.isSa,
@@ -176,7 +175,7 @@ class InterstitialController @Inject() (
       val models = newsAndTilesConfig.getNewsAndContentModelList()
       if (models.nonEmpty) {
         //service to get the dynamic content send the models and get the details from the dynamic list
-        Ok(viewNewsAndUpdatesView(redirectUrl = currentUrl, models, newsSectionId))
+        Ok(viewNewsAndUpdatesView(models, newsSectionId))
       } else {
         Redirect(routes.HomeController.index)
       }
@@ -188,7 +187,7 @@ class InterstitialController @Inject() (
   def displayBreathingSpaceDetails: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(BreathingSpaceIndicatorToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {
-        Future.successful(Ok(viewBreathingSpaceView(redirectUrl = currentUrl)))
+        Future.successful(Ok(viewBreathingSpaceView()))
       } else {
         Future.successful(errorRenderer.error(UNAUTHORIZED))
       }
@@ -200,7 +199,7 @@ class InterstitialController @Inject() (
   }
 
   def displayShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>
-    featureFlagService.get(NpsShutteringToggle).flatMap { featureFlag =>
+    featureFlagService.get(ShowOutageBannerToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {
         Future.successful(Ok(shutteringView()))
       } else {

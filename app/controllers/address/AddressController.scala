@@ -22,10 +22,10 @@ import controllers.PertaxBaseController
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
-import models.admin.NpsOutageToggle
+import models.admin.AddressChangeAllowedToggle
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 
@@ -46,8 +46,8 @@ abstract class AddressController @Inject() (
   def addressJourneyEnforcer(
     block: Nino => PersonDetails => Future[Result]
   )(implicit request: UserRequest[_]): Future[Result] =
-    featureFlagService.get(NpsOutageToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
+    featureFlagService.get(AddressChangeAllowedToggle).flatMap { toggle =>
+      if (!toggle.isEnabled) {
         Future.successful(InternalServerError(internalServerErrorView()))
       } else {
         (for {

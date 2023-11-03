@@ -33,12 +33,14 @@ class TaxCreditsConnector @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  lazy val taxCreditsUrl: String = configDecorator.tcsBrokerHost
+  private lazy val taxCreditsUrl: String = configDecorator.tcsBrokerHost
 
-  def checkForTaxCredits(
+  def getTaxCreditsExclusionStatus(
     nino: Nino
-  )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse.read(
-      http.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taxCreditsUrl/tcs/$nino/dashboard-data")
-    )
+  )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, Boolean] =
+    httpClientResponse
+      .read(
+        http.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taxCreditsUrl/tcs/$nino/exclusion")
+      )
+      .map(result => (result.json \ "excluded").as[Boolean])
 }

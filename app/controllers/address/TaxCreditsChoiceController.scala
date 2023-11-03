@@ -63,18 +63,25 @@ class TaxCreditsChoiceController @Inject() (
         .flatMap { toggle =>
           if (toggle.isEnabled) {
             taxCreditsService
-              .checkForTaxCredits(Some(nino))
-              .fold(InternalServerError(internalServerErrorView())) {
-                case true  =>
-                  cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
-                  Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
-                case false =>
-                  cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
-                  Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
-              }
+              .isAddressChangeInPTA(nino)
+              .fold(
+                _ => Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form)),
+                maybeChangeInPTA =>
+                  maybeChangeInPTA.fold {
+                    Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form))
+                  } { isAddressChangeInPTA =>
+                    if (isAddressChangeInPTA) {
+                      cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
+                      Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                    } else {
+                      cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
+                      Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
+                    }
+                  }
+              )
           } else {
             Future.successful(
-              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form))
             )
           }
         }
@@ -84,38 +91,32 @@ class TaxCreditsChoiceController @Inject() (
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      featureFlagService.get(AddressTaxCreditsBrokerCallToggle).flatMap { featureFlag =>
-        if (featureFlag.isEnabled) {
-          Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
-        } else {
-          addressJourneyEnforcer { _ => _ =>
-            TaxCreditsChoiceDto.form
-              .bindFromRequest()
-              .fold(
-                formWithErrors =>
-                  Future
-                    .successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
-                taxCreditsChoiceDto =>
-                  cachingHelper.addToCache(TaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
-                    if (taxCreditsChoiceDto.hasTaxCredits) {
-                      editAddressLockRepository
-                        .insert(
-                          request.nino.get.withoutSuffix,
-                          AddrType.apply("residential").get
-                        )
-                        .map {
-                          case true => logger.warn("Address locked for tcs users")
-                          case _    =>
-                            logger.error(s"Could not insert address lock for user $request.nino.get.withoutSuffix")
-                        }
-                      Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
-                    } else {
-                      Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+      addressJourneyEnforcer { _ => _ =>
+        TaxCreditsChoiceDto.form
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              Future
+                .successful(BadRequest(taxCreditsChoiceView(formWithErrors))),
+            taxCreditsChoiceDto =>
+              cachingHelper.addToCache(TaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
+                if (taxCreditsChoiceDto.hasTaxCredits) {
+                  editAddressLockRepository
+                    .insert(
+                      request.nino.get.withoutSuffix,
+                      AddrType.apply("residential").get
+                    )
+                    .map {
+                      case true => logger.warn("Address locked for tcs users")
+                      case _    =>
+                        logger.error(s"Could not insert address lock for user $request.nino.get.withoutSuffix")
                     }
-                  }
-              )
-          }
-        }
+                  Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
+                } else {
+                  Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                }
+              }
+          )
       }
     }
 }

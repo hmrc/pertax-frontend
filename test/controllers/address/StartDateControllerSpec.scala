@@ -46,9 +46,9 @@ class StartDateControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         cc,
         addressJourneyCachingHelper,
-        injected[LanguageUtils],
-        injected[EnterStartDateView],
-        injected[CannotUpdateAddressView],
+        inject[LanguageUtils],
+        inject[EnterStartDateView],
+        inject[CannotUpdateAddressView],
         displayAddressInterstitialView,
         mockFeatureFlagService,
         internalServerErrorView
@@ -61,7 +61,6 @@ class StartDateControllerSpec extends AddressBaseSpec {
   }
 
   "onPageLoad" must {
-
     "return 200 when passed ResidentialAddrType and submittedAddressDto is in keystore" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] = Some(
         CacheMap(
@@ -70,7 +69,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
         )
       )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -80,7 +79,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result                                          = controller.onPageLoad(PostalAddrType)(currentRequest)
+      val result: Future[Result]                          = controller.onPageLoad(PostalAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/edit-address")
@@ -100,7 +99,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "1", "startDate.year" -> "2016")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
@@ -118,7 +117,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "2", "startDate.month" -> "2", "startDate.year" -> "2016")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
@@ -136,7 +135,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "12", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
@@ -152,7 +151,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def currentRequest[A]: Request[A]          =
         FakeRequest("POST", "").withFormUrlEncodedBody().asInstanceOf[Request[A]]
 
-      val result =
+      val result: Future[Result] =
         controller.onSubmit(ResidentialAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
@@ -256,7 +255,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
     }
@@ -271,7 +270,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
     }
@@ -286,7 +285,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
     }
@@ -301,7 +300,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
     }
@@ -316,7 +315,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "16", "startDate.month" -> "03", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
@@ -332,7 +331,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
@@ -348,7 +347,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
@@ -364,7 +363,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")

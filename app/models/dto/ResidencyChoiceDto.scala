@@ -25,20 +25,16 @@ case class ResidencyChoiceDto(residencyChoice: AddrType) extends Dto
 
 object ResidencyChoiceDto {
 
-  implicit val formats = {
-    implicit val addrTypeReads: Reads[AddrType] = new Reads[AddrType] {
-      override def reads(json: JsValue): JsResult[AddrType] = json match {
-        case JsString("residential") => JsSuccess(ResidentialAddrType)
-        case JsString("postal")      => JsSuccess(PostalAddrType)
-        case _                       => JsError(Seq(JsPath() -> Seq(JsonValidationError("error.expected.jsString(addrType)"))))
-      }
+  implicit val formats: OFormat[ResidencyChoiceDto] = {
+    implicit val addrTypeReads: Reads[AddrType] = {
+      case JsString("residential") => JsSuccess(ResidentialAddrType)
+      case JsString("postal")      => JsSuccess(PostalAddrType)
+      case _                       => JsError(Seq(JsPath() -> Seq(JsonValidationError("error.expected.jsString(addrType)"))))
     }
 
-    implicit val addrTypeWrites: Writes[AddrType] = new Writes[AddrType] {
-      override def writes(o: AddrType): JsValue = o match {
-        case ResidentialAddrType => JsString("residential")
-        case PostalAddrType      => JsString("postal")
-      }
+    implicit val addrTypeWrites: Writes[AddrType] = {
+      case ResidentialAddrType => JsString("residential")
+      case PostalAddrType      => JsString("postal")
     }
     Json.format[ResidencyChoiceDto]
   }
