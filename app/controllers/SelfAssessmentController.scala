@@ -69,10 +69,9 @@ class SelfAssessmentController @Inject() (
 
   def ivExemptLandingPage(continueUrl: Option[RedirectUrl]): Action[AnyContent] =
     authJourney.authWithPersonalDetails { implicit request =>
-      val safeUrl: Either[String, Option[SafeRedirectUrl]] = continueUrl match {
-        case None    => Right(None)
-        case Some(x) => x.getEither(OnlyRelative).map(Some.apply)
-      }
+      val safeUrl: Either[String, Option[SafeRedirectUrl]] =
+        continueUrl.map(_.getEither(OnlyRelative).map(Some.apply)).getOrElse(Right(None))
+
       safeUrl match {
         case Left(error) => BadRequest(error)
         case Right(_)    =>

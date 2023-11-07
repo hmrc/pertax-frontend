@@ -60,67 +60,77 @@ class ApplicationController @Inject() (
 
   def showUpliftJourneyOutcome(continueUrl: Option[RedirectUrl]): Action[AnyContent] =
     Action.async { implicit request =>
-      val safeUrl: Either[String, Option[SafeRedirectUrl]] = continueUrl match {
-        case None    => Right(None)
-        case Some(x) => x.getEither(OnlyRelative).map(Some.apply)
-      }
+      val safeUrl: Either[String, Option[SafeRedirectUrl]] =
+        continueUrl.map(_.getEither(OnlyRelative).map(Some.apply)).getOrElse(Right(None))
 
-      safeUrl match {
-        case Left(error)    => Future.successful(BadRequest(error))
-        case Right(safeUrl) =>
-          val retryUrl = routes.ApplicationController.uplift(continueUrl).url
+      processSafeUrl(safeUrl, continueUrl)
+    }
 
-          val journeyId =
-            List(request.getQueryString("token"), request.getQueryString("journeyId")).flatten.headOption
+  private def processSafeUrl(safeUrl: Either[String, Option[SafeRedirectUrl]], continueUrl: Option[RedirectUrl])(
+    implicit request: Request[AnyContent]
+  ): Future[Result]                                        =
+    safeUrl match {
+      case Left(error)    => Future.successful(BadRequest(error))
+      case Right(safeUrl) =>
+        val retryUrl  = routes.ApplicationController.uplift(continueUrl).url
+        val journeyId = List(request.getQueryString("token"), request.getQueryString("journeyId")).flatten.headOption
 
-          journeyId match {
-            case Some(jid) =>
-              identityVerificationFrontendService
-                .getIVJourneyStatus(jid)
-                .map {
-                  case Success =>
-                    Ok(successView(safeUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
+        processJourneyId(
+          journeyId,
+          retryUrl,
+          continueUrl,
+          safeUrl.map(_.url).getOrElse(routes.HomeController.index.url)
+        )
+    }
+  private def processJourneyId(
+    journeyId: Option[String],
+    retryUrl: String,
+    continueUrl: Option[RedirectUrl],
+    safeUrl: String
+  )(implicit request: Request[AnyContent]): Future[Result] =
+    journeyId match {
+      case Some(jid) =>
+        identityVerificationFrontendService
+          .getIVJourneyStatus(jid)
+          .map {
+            case Success => Ok(successView(safeUrl))
 
-                  case InsufficientEvidence =>
-                    Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
+            case InsufficientEvidence => Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
 
-                  case UserAborted =>
-                    logErrorMessage(UserAborted.toString)
-                    Unauthorized(cannotConfirmIdentityView(retryUrl))
+            case UserAborted =>
+              logErrorMessage(UserAborted.toString)
+              Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-                  case FailedMatching =>
-                    logErrorMessage(FailedMatching.toString)
-                    Unauthorized(cannotConfirmIdentityView(retryUrl))
+            case FailedMatching =>
+              logErrorMessage(FailedMatching.toString)
+              Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-                  case Incomplete =>
-                    logErrorMessage(Incomplete.toString)
-                    Unauthorized(failedIvIncompleteView(retryUrl))
+            case Incomplete =>
+              logErrorMessage(Incomplete.toString)
+              Unauthorized(failedIvIncompleteView(retryUrl))
 
-                  case PrecondFailed =>
-                    logErrorMessage(PrecondFailed.toString)
-                    Unauthorized(cannotConfirmIdentityView(retryUrl))
+            case PrecondFailed =>
+              logErrorMessage(PrecondFailed.toString)
+              Unauthorized(cannotConfirmIdentityView(retryUrl))
 
-                  case LockedOut =>
-                    logErrorMessage(LockedOut.toString)
-                    Unauthorized(lockedOutView())
+            case LockedOut =>
+              logErrorMessage(LockedOut.toString)
+              Unauthorized(lockedOutView())
 
-                  case Timeout =>
-                    logErrorMessage(Timeout.toString)
-                    Unauthorized(timeOutView())
+            case Timeout =>
+              logErrorMessage(Timeout.toString)
+              Unauthorized(timeOutView())
 
-                  case TechnicalIssue =>
-                    logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
-                    InternalServerError(technicalIssuesView(retryUrl))
+            case TechnicalIssue =>
+              logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
+              InternalServerError(technicalIssuesView(retryUrl))
 
-                  case _ =>
-                    InternalServerError(technicalIssuesView(retryUrl))
-                }
-                .getOrElse(BadRequest(technicalIssuesView(retryUrl)))
-            case _         =>
-              logger.error("journeyId missing or incorect")
-              Future.successful(InternalServerError(technicalIssuesView(retryUrl)))
+            case _ => InternalServerError(technicalIssuesView(retryUrl))
           }
-      }
+          .getOrElse(BadRequest(technicalIssuesView(retryUrl)))
+      case _         =>
+        logger.error("journeyId missing or incorrect")
+        Future.successful(InternalServerError(technicalIssuesView(retryUrl)))
     }
 
   private def logErrorMessage(reason: String): Unit =
