@@ -114,7 +114,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
         when(mockPertaxConnector.pertaxAuthorise(any())(any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PertaxResponse](
-              Future.successful(Right(PertaxResponse("NO_HMRC_PT_ENROLMENT", "", None, Some("redirectLocation"))))
+              Future.successful(Right(PertaxResponse("NO_HMRC_PT_ENROLMENT", "", None, Some("/redirectLocation"))))
             )
           )
 
@@ -124,7 +124,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
         val resultValue = result.swap.getOrElse(Result(ResponseHeader(IM_A_TEAPOT, Map("" -> "")), HttpEntity.NoEntity))
         resultValue.header.status mustBe SEE_OTHER
         resultValue.header.headers mustBe Map(
-          "Location" -> "redirectLocation/?redirectUrl=%2Fpersonal-account"
+          "Location" -> "/redirectLocation/?redirectUrl=%2Fpersonal-account"
         )
       }
     }

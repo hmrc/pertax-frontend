@@ -17,7 +17,7 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import tags._
-@import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+@import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 @import views.html.components.{Button, H1, H2, Link, P}
 
 @this(
@@ -67,6 +67,6 @@
         </div>
     } else {
         @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")))
-        @button(href = Some(routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl))).url), id="continue", msg = "global.label.continue_button")
+        @button(href = Some(routes.ApplicationController.uplift(Some(RedirectUrl(redirectUrl))).url), id="continue", msg = "global.label.continue_button")
     }
 }

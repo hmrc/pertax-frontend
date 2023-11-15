@@ -16,7 +16,7 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+@import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 @import views.html.components.{Button, H1, H2, H3, Link, P}
 
 @this(
@@ -90,6 +90,6 @@
             </ul>
         } else {
             @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")), classes = Some("govuk-body-l"))
-            @button("global.label.continue_button", href = Some(routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl))).url), id = "continue")
+            @button("global.label.continue_button", href = Some(routes.ApplicationController.uplift(Some(RedirectUrl(redirectUrl))).url), id = "continue")
         }
     }

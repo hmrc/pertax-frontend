@@ -36,7 +36,7 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.binders.{RedirectUrl, SafeRedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.time.CurrentTaxYear
 import views.html.iv.failure._
 import views.html.iv.success.SuccessView
@@ -156,12 +156,12 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a redirect response with the provided URL if redirectUrl is defined" in new LocalSetup {
-      val redirectUrl: Option[SafeRedirectUrl] = Some(SafeRedirectUrl("https://example.com"))
+      val redirectUrl: Option[RedirectUrl] = Some(RedirectUrl("/redirect_url"))
 
       val result: Future[Result] = controller.uplift(redirectUrl)(FakeRequest())
 
       status(result)           must equal(SEE_OTHER)
-      redirectLocation(result) must equal(Some("https://example.com"))
+      redirectLocation(result) must equal(Some("/redirect_url"))
     }
 
     "return a redirect response to HomeController index if redirectUrl is not defined" in new LocalSetup {
@@ -186,12 +186,11 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result: Future[Result] = controller.showUpliftJourneyOutcome(Some(SafeRedirectUrl("/relative/url")))(
+      val result: Future[Result] = controller.showUpliftJourneyOutcome(Some(RedirectUrl("/relative/url")))(
         buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
       )
 
       status(result) mustBe OK
-
     }
 
     "return 200 when IV journey outcome was Success without continueUrl " in new LocalSetup {
@@ -204,7 +203,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result: Future[Result] = controller.showUpliftJourneyOutcome(Some(SafeRedirectUrl(redirect)))(
+      val result: Future[Result] = controller.showUpliftJourneyOutcome(Some(RedirectUrl(redirect)))(
         buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
       )
 

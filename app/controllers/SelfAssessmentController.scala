@@ -26,7 +26,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SelfAssessmentService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
+import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl, SafeRedirectUrl}
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
 import util.DateTimeTools
@@ -66,25 +67,32 @@ class SelfAssessmentController @Inject() (
         }
     }
 
-  def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
+  def ivExemptLandingPage(continueUrl: Option[RedirectUrl]): Action[AnyContent] =
     authJourney.authWithPersonalDetails { implicit request =>
-      val retryUrl = routes.ApplicationController.uplift(continueUrl).url
+      val safeUrl: Either[String, Option[SafeRedirectUrl]] =
+        continueUrl.map(_.getEither(OnlyRelative).map(Some.apply)).getOrElse(Right(None))
 
-      request.saUserType match {
-        case ActivatedOnlineFilerSelfAssessmentUser(x)       =>
-          handleIvExemptAuditing("Activated online SA filer")
-          Redirect(configDecorator.ssoToSaAccountSummaryUrl(x.toString, DateTimeTools.previousAndCurrentTaxYear))
-        case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-          handleIvExemptAuditing("Not yet activated SA filer")
-          Ok(failedIvContinueToActivateSaView())
-        case WrongCredentialsSelfAssessmentUser(_)           =>
-          handleIvExemptAuditing("Wrong credentials SA filer")
-          Redirect(routes.SaWrongCredentialsController.landingPage())
-        case NotEnrolledSelfAssessmentUser(_)                =>
-          handleIvExemptAuditing("Never enrolled SA filer")
-          Redirect(routes.SelfAssessmentController.requestAccess)
-        case NonFilerSelfAssessmentUser                      =>
-          Ok(cannotConfirmIdentityView(retryUrl))
+      safeUrl match {
+        case Left(error) => BadRequest(error)
+        case Right(_)    =>
+          val retryUrl = routes.ApplicationController.uplift(continueUrl).url
+
+          request.saUserType match {
+            case ActivatedOnlineFilerSelfAssessmentUser(x)       =>
+              handleIvExemptAuditing("Activated online SA filer")
+              Redirect(configDecorator.ssoToSaAccountSummaryUrl(x.toString, DateTimeTools.previousAndCurrentTaxYear))
+            case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
+              handleIvExemptAuditing("Not yet activated SA filer")
+              Ok(failedIvContinueToActivateSaView())
+            case WrongCredentialsSelfAssessmentUser(_)           =>
+              handleIvExemptAuditing("Wrong credentials SA filer")
+              Redirect(routes.SaWrongCredentialsController.landingPage())
+            case NotEnrolledSelfAssessmentUser(_)                =>
+              handleIvExemptAuditing("Never enrolled SA filer")
+              Redirect(routes.SelfAssessmentController.requestAccess)
+            case NonFilerSelfAssessmentUser                      =>
+              Ok(cannotConfirmIdentityView(retryUrl))
+          }
       }
     }
 

@@ -32,7 +32,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import util.{BusinessHours, EnrolmentsHelper}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -174,7 +174,7 @@ class AuthActionImpl @Inject() (
     case _: NoActiveSession =>
       def postSignInRedirectUrl(implicit request: Request[_]) =
         configDecorator.pertaxFrontendForAuthHost + controllers.routes.ApplicationController
-          .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendForAuthHost + request.path)))
+          .uplift(Some(RedirectUrl(configDecorator.pertaxFrontendForAuthHost + request.path)))
           .url
 
       request.session.get(configDecorator.authProviderKey) match {
@@ -216,11 +216,11 @@ class AuthActionImpl @Inject() (
           "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
           "completionURL"   -> Seq(
             configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
-              .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri)))
+              .showUpliftJourneyOutcome(Some(RedirectUrl(request.uri)))
           ),
           "failureURL"      -> Seq(
             configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
-              .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri)))
+              .showUpliftJourneyOutcome(Some(RedirectUrl(request.uri)))
           )
         )
       )

@@ -21,7 +21,6 @@ import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
 import play.api.i18n.Lang
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.{URL, URLEncoder}
@@ -156,8 +155,9 @@ class ConfigDecorator @Inject() (
   lazy private val accessibilityRedirectUrl     =
     servicesConfig.getString("accessibility-statement.redirectUrl")
 
+  private val enc: String => String                       = URLEncoder.encode(_: String, "UTF-8")
   def accessibilityStatementUrl(referrer: String): String =
-    s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${SafeRedirectUrl(accessibilityBaseUrl + referrer).encodedUrl}"
+    s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${enc(accessibilityBaseUrl + referrer)}"
 
   lazy val notShownSaRecoverYourUserId =
     s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account-access?origin=${enc(defaultOrigin.toString)}"
@@ -184,7 +184,7 @@ class ConfigDecorator @Inject() (
     else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
   def taxEnrolmentDeniedRedirect(url: String): String =
-    s"$taxEnrolmentAssignmentFrontendHost/protect-tax-info?redirectUrl=${SafeRedirectUrl(url).encodedUrl}"
+    s"$taxEnrolmentAssignmentFrontendHost/protect-tax-info?redirectUrl=${enc(url)}"
 
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
@@ -257,8 +257,6 @@ class ConfigDecorator @Inject() (
 
   lazy val partialUpgradeEnabled: Boolean =
     runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)
-
-  private val enc: String => String = URLEncoder.encode(_: String, "UTF-8")
 
   private val defaultSessionTimeoutInSeconds   = 900
   lazy val sessionTimeoutInSeconds: Int        =
