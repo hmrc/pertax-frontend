@@ -36,7 +36,7 @@ class BreathingSpaceConnector @Inject() (
   configDecorator: ConfigDecorator
 ) extends Logging {
 
-  private lazy val baseUrl: String   = configDecorator.breathingSpaceBaseUrl
+  private lazy val baseUrl: String            = configDecorator.breathingSpaceBaseUrl
   private lazy val timeoutInMilliseconds: Int =
     configDecorator.breathingSpaceTimeoutInMilliseconds
 

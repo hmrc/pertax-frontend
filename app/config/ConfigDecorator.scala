@@ -308,13 +308,13 @@ class ConfigDecorator @Inject() (
   lazy val shutterPageParagraphCy: String =
     runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.cy").getOrElse("")
 
-  lazy val breathingSpaceBaseUrl: String        = servicesConfig.baseUrl("breathing-space-if-proxy")
-  lazy val breathingSpaceTimeoutInMilliseconds: Int      =
+  lazy val breathingSpaceBaseUrl: String            = servicesConfig.baseUrl("breathing-space-if-proxy")
+  lazy val breathingSpaceTimeoutInMilliseconds: Int =
     servicesConfig.getInt("microservice.services.breathing-space-if-proxy.timeoutInMilliseconds")
-  lazy val preferenceFrontendTimeoutInSec: Int  =
+  lazy val preferenceFrontendTimeoutInSec: Int      =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
-  lazy val ptaNinoSaveUrl: String               = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
-  lazy val guidanceForWhenYourChildTurnsSixteen = "https://www.gov.uk/child-benefit-16-19"
+  lazy val ptaNinoSaveUrl: String                   = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
+  lazy val guidanceForWhenYourChildTurnsSixteen     = "https://www.gov.uk/child-benefit-16-19"
 
   lazy val guidanceForWhenYourChildTurnsSixteenWelsh = "https://www.gov.uk/budd-dal-plant-16-19"
 

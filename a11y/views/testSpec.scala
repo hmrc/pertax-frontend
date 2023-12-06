@@ -26,63 +26,64 @@ import scala.util.Random
 class testSpec extends A11ySpec {
 
   case class ExpectedData(title: String)
+
   def getExpectedData(key: String): ExpectedData =
     key match {
-      case "id-check-complete"          =>
+      case "id-check-complete" =>
         ExpectedData("Service unavailable - Personal tax account - GOV.UK")
-      case "sign-in"                    =>
+      case "sign-in" =>
         ExpectedData("Sign in - Personal tax account - GOV.UK")
-      case "sa-home"                    =>
+      case "sa-home" =>
         ExpectedData("Your Self Assessment - Personal tax account - GOV.UK")
-      case "sa-reset-password"          =>
+      case "sa-reset-password" =>
         ExpectedData("You need to reset your password - Personal tax account - GOV.UK")
-      case "sa-sign-in-again"           =>
+      case "sa-sign-in-again" =>
         ExpectedData(
           "You need to sign back in to Government Gateway using different details - Personal tax account - GOV.UK"
         )
-      case "sa-find-user-id"            =>
+      case "sa-find-user-id" =>
         ExpectedData("Get help finding your user ID - Personal tax account - GOV.UK")
-      case "sa-know-user-id"            =>
+      case "sa-know-user-id" =>
         ExpectedData("Do you know the user ID? - Personal tax account - GOV.UK")
-      case "sa-other-credentials"       =>
+      case "sa-other-credentials" =>
         ExpectedData(
           "Do you know the user ID and password for the account you use for Self Assessment? - Personal tax account - GOV.UK"
         )
-      case "sa-wrong-account"           =>
+      case "sa-wrong-account" =>
         ExpectedData("You are not signed in to the right account - Personal tax account - GOV.UK")
-      case "breathing-space"            =>
+      case "breathing-space" =>
         ExpectedData("BREATHING SPACE - Personal tax account - GOV.UK")
-      case "child-benefit-home"         =>
+      case "child-benefit-home" =>
         ExpectedData(
           "Child Benefit - Personal tax account - GOV.UK"
         )
-      case "print-letter"               =>
+      case "print-letter" =>
         ExpectedData(
           "Print your National Insurance summary - Personal tax account - GOV.UK"
         )
-      case "self-assessment-summary"    =>
+      case "self-assessment-summary" =>
         ExpectedData(
           "Self Assessment summary - Personal tax account - GOV.UK"
         )
       case "national-insurance-summary" =>
         ExpectedData("National Insurance summary - Personal tax account - GOV.UK")
-      case "postal-address-uk"          =>
+      case "postal-address-uk" =>
         ExpectedData(
           "Is your postal address in the UK? - Personal tax account - GOV.UK"
         )
-      case "change-address-tcs"         =>
+      case "change-address-tcs" =>
         ExpectedData(
           "Change of address - Personal tax account - GOV.UK"
         )
-      case "live-in-uk"                 =>
+      case "live-in-uk" =>
         ExpectedData(
           "Is your main address in the UK? - Personal tax account - GOV.UK"
         )
-      case "profile-and-settings"       =>
+      case "profile-and-settings" =>
         ExpectedData(
           "Profile and settings - Personal tax account - GOV.UK"
         )
-      case "/"                          =>
+      case "/" =>
         ExpectedData(
           "Account home - Personal tax account - GOV.UK"
         )
@@ -91,26 +92,26 @@ class testSpec extends A11ySpec {
     }
 
   val urls: Map[String, ExpectedData] = Map(
-    "/personal-account"                                                      -> getExpectedData("/"),
-    "/personal-account/profile-and-settings"                                 -> getExpectedData("profile-and-settings"),
-    "/personal-account/your-address/residential/do-you-live-in-the-uk"       -> getExpectedData("live-in-uk"),
-    "/personal-account/your-address/change-address-tax-credits"              -> getExpectedData("change-address-tcs"),
+    "/personal-account" -> getExpectedData("/"),
+    "/personal-account/profile-and-settings" -> getExpectedData("profile-and-settings"),
+    "/personal-account/your-address/residential/do-you-live-in-the-uk" -> getExpectedData("live-in-uk"),
+    "/personal-account/your-address/change-address-tax-credits" -> getExpectedData("change-address-tcs"),
     "/personal-account/your-address/postal/is-your-postal-address-in-the-uk" -> getExpectedData("postal-address-uk"),
-    "/personal-account/national-insurance-summary"                           -> getExpectedData("national-insurance-summary"),
-    "/personal-account/self-assessment-summary"                              -> getExpectedData("self-assessment-summary"),
-    "/personal-account/child-benefit/home"                                   -> getExpectedData("child-benefit-home"),
-    "/personal-account/breathing-space"                                      -> getExpectedData("breathing-space"),
-    "/personal-account/self-assessment/signed-in-wrong-account"              -> getExpectedData("sa-wrong-account"),
-    "/personal-account/self-assessment/do-you-know-other-credentials"        -> getExpectedData("sa-other-credentials"),
-    "/personal-account/self-assessment/do-you-know-user-id"                  -> getExpectedData("sa-know-user-id"),
-    "/personal-account/self-assessment/find-your-user-id"                    -> getExpectedData("sa-find-user-id"),
-    "/personal-account/self-assessment/sign-in-again"                        -> getExpectedData("sa-sign-in-again"),
-    "/personal-account/self-assessment/need-to-reset-password"               -> getExpectedData("sa-reset-password"),
-    "/personal-account/self-assessment-home"                                 -> getExpectedData("sa-home")
+    "/personal-account/national-insurance-summary" -> getExpectedData("national-insurance-summary"),
+    "/personal-account/self-assessment-summary" -> getExpectedData("self-assessment-summary"),
+    "/personal-account/child-benefit/home" -> getExpectedData("child-benefit-home"),
+    "/personal-account/breathing-space" -> getExpectedData("breathing-space"),
+    "/personal-account/self-assessment/signed-in-wrong-account" -> getExpectedData("sa-wrong-account"),
+    "/personal-account/self-assessment/do-you-know-other-credentials" -> getExpectedData("sa-other-credentials"),
+    "/personal-account/self-assessment/do-you-know-user-id" -> getExpectedData("sa-know-user-id"),
+    "/personal-account/self-assessment/find-your-user-id" -> getExpectedData("sa-find-user-id"),
+    "/personal-account/self-assessment/sign-in-again" -> getExpectedData("sa-sign-in-again"),
+    "/personal-account/self-assessment/need-to-reset-password" -> getExpectedData("sa-reset-password"),
+    "/personal-account/self-assessment-home" -> getExpectedData("sa-home")
   )
 
   val unauthUrls: Map[String, ExpectedData] = Map(
-    "/personal-account/signin"                  -> getExpectedData("sign-in"),
+    "/personal-account/signin" -> getExpectedData("sign-in"),
     "/personal-account/identity-check-complete" -> getExpectedData("id-check-complete")
   )
 
@@ -169,7 +170,7 @@ class testSpec extends A11ySpec {
     .toString
 
   val personDetailsUrl: String = s"/citizen-details/$generatedNino/designatory-details"
-  val tcsBrokerUrl             = s"/tcs/$generatedNino/dashboard-data"
+  val tcsBrokerUrl = s"/tcs/$generatedNino/dashboard-data"
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -193,24 +194,25 @@ class testSpec extends A11ySpec {
         .willReturn(
           aResponse()
             .withStatus(OK)
-            .withBody("""
-                        |{
-                        |	"id": "session-id",
-                        |	"data": {
-                        |   "addressPageVisitedDto": {
-                        |     "hasVisitedPage": true
-                        |   }
-                        |	},
-                        |	"modifiedDetails": {
-                        |		"createdAt": {
-                        |			"$date": 1400258561678
-                        |		},
-                        |		"lastUpdated": {
-                        |			"$date": 1400258561675
-                        |		}
-                        |	}
-                        |}
-                        |""".stripMargin)
+            .withBody(
+              """
+                |{
+                |	"id": "session-id",
+                |	"data": {
+                |   "addressPageVisitedDto": {
+                |     "hasVisitedPage": true
+                |   }
+                |	},
+                |	"modifiedDetails": {
+                |		"createdAt": {
+                |			"$date": 1400258561678
+                |		},
+                |		"lastUpdated": {
+                |			"$date": 1400258561675
+                |		}
+                |	}
+                |}
+                |""".stripMargin)
         )
     )
 
@@ -229,14 +231,14 @@ class testSpec extends A11ySpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "microservice.services.auth.port"                       -> server.port(),
-      "feature.breathing-space-indicator.enabled"                     -> true,
-      "feature.breathing-space-indicator.timeoutInSec"                -> 4,
-      "microservice.services.taxcalc.port"                            -> server.port(),
-      "microservice.services.tai.port"                                -> server.port(),
+      "microservice.services.auth.port" -> server.port(),
+      "feature.breathing-space-indicator.enabled" -> true,
+      "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 4,
+      "microservice.services.taxcalc.port" -> server.port(),
+      "microservice.services.tai.port" -> server.port(),
       "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port()}",
-      "microservice.services.cachable.session-cache.port"             -> server.port(),
-      "microservice.services.cachable.session-cache.host"             -> "127.0.0.1"
+      "microservice.services.cachable.session-cache.port" -> server.port(),
+      "microservice.services.cachable.session-cache.host" -> "127.0.0.1"
     )
     .build()
 
@@ -295,7 +297,7 @@ class testSpec extends A11ySpec {
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "Bearer 1")
 
   "/personal-account/" when {
-    "calling authenticated pages"   must {
+    "calling authenticated pages" must {
       urls.foreach { case (url, expectedData: ExpectedData) =>
         s"pass content checks at url $url with SCA wrapper toggle set to true" in {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
@@ -310,7 +312,7 @@ class testSpec extends A11ySpec {
 
           server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
           val result: Future[Result] = route(app, request(url)).get
-          val content                = Jsoup.parse(contentAsString(result))
+          val content = Jsoup.parse(contentAsString(result))
 
           content.title() mustBe expectedData.title
 
@@ -332,7 +334,7 @@ class testSpec extends A11ySpec {
 
           server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
           val result: Future[Result] = route(app, request(url)).get
-          val content                = Jsoup.parse(contentAsString(result))
+          val content = Jsoup.parse(contentAsString(result))
 
           content.title() mustBe expectedData.title
 
@@ -358,7 +360,7 @@ class testSpec extends A11ySpec {
 
           val result: Future[Result] = route(app, FakeRequest(GET, url)).get
 
-          val content                = Jsoup.parse(contentAsString(result))
+          val content = Jsoup.parse(contentAsString(result))
           content.title() mustBe expectedData.title
 
           contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)
@@ -376,7 +378,7 @@ class testSpec extends A11ySpec {
 
           val result: Future[Result] = route(app, FakeRequest(GET, url)).get
 
-          val content                = Jsoup.parse(contentAsString(result))
+          val content = Jsoup.parse(contentAsString(result))
           content.title() mustBe expectedData.title
 
           contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)
