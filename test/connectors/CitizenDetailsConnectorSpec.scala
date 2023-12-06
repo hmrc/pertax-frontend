@@ -16,13 +16,15 @@
 
 package connectors
 
+import config.ConfigDecorator
 import models._
 import play.api.Application
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.{Fixtures, WireMockHelper}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.time.LocalDate
@@ -57,9 +59,9 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     )
 
     lazy val connector: CitizenDetailsConnector = {
-      val httpClient    = app.injector.instanceOf[HttpClient]
+      val httpClient    = app.injector.instanceOf[HttpClientV2]
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
-      new CitizenDetailsConnector(httpClient, serviceConfig, inject[HttpClientResponse])
+      new CitizenDetailsConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
     }
   }
 
@@ -104,7 +106,8 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
 
     "return BAD_GATEWAY when the call to retrieve person details results in an exception" in new LocalSetup {
-      val delay: Int = 5000
+      // TODO: 8107 - could we not mock this rather than waiting for 5 seconds???
+      val delay: Int = 5001
       stubWithDelay(url, OK, None, None, delay)
 
       val result: Int =
