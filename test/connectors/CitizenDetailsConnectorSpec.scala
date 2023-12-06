@@ -107,7 +107,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
 
     "return BAD_GATEWAY when the call to retrieve person details results in an exception" in new LocalSetup {
       // TODO: 8107 - could we not mock this rather than waiting for 5 seconds???
-      val delay: Int = 5001
+      val delay: Int = 5500
       stubWithDelay(url, OK, None, None, delay)
 
       val result: Int =

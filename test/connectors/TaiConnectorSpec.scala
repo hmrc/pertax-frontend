@@ -21,7 +21,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.time.TaxYear
 
@@ -35,26 +36,26 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
 
   trait SpecSetup {
     val taxComponentsJson: JsValue = Json.parse("""{
-                                         |   "data" : [ {
-                                         |      "componentType" : "EmployerProvidedServices",
-                                         |      "employmentId" : 12,
-                                         |      "amount" : 12321,
-                                         |      "description" : "Some Description",
-                                         |      "iabdCategory" : "Benefit"
-                                         |   }, {
-                                         |      "componentType" : "PersonalPensionPayments",
-                                         |      "employmentId" : 31,
-                                         |      "amount" : 12345,
-                                         |      "description" : "Some Description Some",
-                                         |      "iabdCategory" : "Allowance"
-                                         |   } ],
-                                         |   "links" : [ ]
-                                         |}""".stripMargin)
+        |   "data" : [ {
+        |      "componentType" : "EmployerProvidedServices",
+        |      "employmentId" : 12,
+        |      "amount" : 12321,
+        |      "description" : "Some Description",
+        |      "iabdCategory" : "Benefit"
+        |   }, {
+        |      "componentType" : "PersonalPensionPayments",
+        |      "employmentId" : 31,
+        |      "amount" : 12345,
+        |      "description" : "Some Description Some",
+        |      "iabdCategory" : "Allowance"
+        |   } ],
+        |   "links" : [ ]
+        |}""".stripMargin)
 
     lazy val connector: TaiConnector = {
 
       val serviceConfig = inject[ServicesConfig]
-      val httpClient    = inject[HttpClient]
+      val httpClient    = inject[HttpClientV2]
 
       new TaiConnector(httpClient, serviceConfig, inject[HttpClientResponse])
     }
