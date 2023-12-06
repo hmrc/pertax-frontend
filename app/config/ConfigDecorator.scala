@@ -309,8 +309,8 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.cy").getOrElse("")
 
   lazy val breathingSpaceBaseUrl: String        = servicesConfig.baseUrl("breathing-space-if-proxy")
-  lazy val breathingSpaceTimeoutInSec: Int      =
-    servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
+  lazy val breathingSpaceTimeoutInMilliseconds: Int      =
+    servicesConfig.getInt("microservice.services.breathing-space-if-proxy.timeoutInMilliseconds")
   lazy val preferenceFrontendTimeoutInSec: Int  =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
   lazy val ptaNinoSaveUrl: String               = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
