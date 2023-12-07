@@ -124,13 +124,12 @@ class CitizenDetailsConnectorSpec
       result mustBe IM_A_TEAPOT
     }
 
-    "return future failed & gateway timeout exception when the call to retrieve person details results in a timeout" in new LocalSetup {
+    "return bad gateway when the call to retrieve person details results in a timeout" in new LocalSetup {
       when(mockConfigDecorator.citizenDetailsTimeoutInMilliseconds).thenReturn(1)
       stubWithDelay(url, OK, None, None, 500)
-
-      recoverToSucceededIf[GatewayTimeoutException] {
-        connector.personDetails(nino).value
-      }
+      val result: Int =
+        connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
+      result mustBe BAD_GATEWAY
     }
   }
 
