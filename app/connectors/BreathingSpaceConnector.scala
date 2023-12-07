@@ -23,12 +23,12 @@ import models.BreathingSpaceIndicator
 import play.api.Logging
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits.{readEitherOf, readRaw}
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{GatewayTimeoutException, _}
 
 import java.util.UUID.randomUUID
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class BreathingSpaceConnector @Inject() (
   val httpClientV2: HttpClientV2,
@@ -43,22 +43,18 @@ class BreathingSpaceConnector @Inject() (
   def getBreathingSpaceIndicator(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Boolean] = {
-    val url                                     = s"$baseUrl/$nino/memorandum"
-    implicit val bsHeaderCarrier: HeaderCarrier = hc
+    val url                                                              = s"$baseUrl/$nino/memorandum"
+    implicit val bsHeaderCarrier: HeaderCarrier                          = hc
       .withExtraHeaders(
         "Correlation-Id" -> randomUUID.toString
       )
-    val result                                  =
-      httpClientV2
-        .get(url"$url")(bsHeaderCarrier)
-        .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-        .recoverWith { case exception: GatewayTimeoutException =>
-          logger.error(exception.message)
-          Future.failed(exception)
-        }
+    val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
+      .get(url"$url")(bsHeaderCarrier)
+      .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
+      .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+
     httpClientResponse
-      .read(result)
+      .read(apiResponse andThen httpClientResponse.logGatewayTimeout)
       .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
 

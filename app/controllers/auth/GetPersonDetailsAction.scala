@@ -97,9 +97,7 @@ class GetPersonDetailsAction @Inject() (
                     case _                                         => Right(None)
                   }
                   .value
-                  .recoverWith { case _: GatewayTimeoutException =>
-                    Future.successful(Right(None))
-                  }
+                  .recoverWith { case _: GatewayTimeoutException => Future.successful(Right(None)) }
               )
             } else {
               EitherT.rightT[Future, Result](None)

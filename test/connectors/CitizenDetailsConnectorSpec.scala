@@ -18,25 +18,35 @@ package connectors
 
 import config.ConfigDecorator
 import models._
+import org.mockito.Mockito.{reset, when}
+import org.mockito.MockitoSugar.mock
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.RecoverMethods.recoverToSucceededIf
 import play.api.Application
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.{Fixtures, WireMockHelper}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{GatewayTimeoutException, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.time.LocalDate
 import scala.util.Random
 
-class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
+class CitizenDetailsConnectorSpec
+    extends ConnectorSpec
+    with WireMockHelper
+    with DefaultAwaitTimeout
+    with Injecting
+    with BeforeAndAfterEach {
 
   override implicit lazy val app: Application = app(
     Map("microservice.services.citizen-details.port" -> server.port())
   )
 
-  val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
+  val nino: Nino                                   = Nino(new Generator(new Random()).nextNino.nino)
+  private val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   trait SpecSetup {
 
@@ -61,8 +71,13 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     lazy val connector: CitizenDetailsConnector = {
       val httpClient    = app.injector.instanceOf[HttpClientV2]
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
-      new CitizenDetailsConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
+      new CitizenDetailsConnector(httpClient, serviceConfig, inject[HttpClientResponse], mockConfigDecorator)
     }
+  }
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockConfigDecorator)
   }
 
   "Calling personDetails" must {
@@ -72,6 +87,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
 
     "return OK when called with an existing nino" in new LocalSetup {
+      when(mockConfigDecorator.citizenDetailsTimeoutInMilliseconds).thenReturn(5000)
       stubGet(url, OK, Some(Json.toJson(personDetails).toString()))
 
       val result: Either[UpstreamErrorResponse, HttpResponse] =
@@ -82,6 +98,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
 
     "return NOT_FOUND when called with an unknown nino" in new LocalSetup {
+      when(mockConfigDecorator.citizenDetailsTimeoutInMilliseconds).thenReturn(5000)
       stubGet(url, NOT_FOUND, None)
 
       val result: Int =
@@ -90,6 +107,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
 
     "return LOCKED when a locked hidden record (MCI) is asked for" in new LocalSetup {
+      when(mockConfigDecorator.citizenDetailsTimeoutInMilliseconds).thenReturn(5000)
       stubGet(url, LOCKED, None)
 
       val result: Int =
@@ -98,6 +116,7 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
 
     "return given status code when an unexpected status is returned" in new LocalSetup {
+      when(mockConfigDecorator.citizenDetailsTimeoutInMilliseconds).thenReturn(5000)
       stubGet(url, IM_A_TEAPOT, None)
 
       val result: Int =
@@ -105,21 +124,21 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
       result mustBe IM_A_TEAPOT
     }
 
-    "return BAD_GATEWAY when the call to retrieve person details results in an exception" in new LocalSetup {
-      // TODO: 8107 - could we not mock this rather than waiting for 5 seconds???
-      val delay: Int = 5500
-      stubWithDelay(url, OK, None, None, delay)
+    "return future failed & gateway timeout exception when the call to retrieve person details results in a timeout" in new LocalSetup {
+      when(mockConfigDecorator.citizenDetailsTimeoutInMilliseconds).thenReturn(1)
+      stubWithDelay(url, OK, None, None, 500)
 
-      val result: Int =
-        connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
-      result mustBe BAD_GATEWAY
+      recoverToSucceededIf[GatewayTimeoutException] {
+        connector.personDetails(nino).value
+      }
     }
   }
 
   "calling updateAddress" must {
 
     trait LocalSetup extends SpecSetup {
-      def url: String         = s"/citizen-details/$nino/designatory-details/address"
+      def url: String = s"/citizen-details/$nino/designatory-details/address"
+
       val etag: String        = "115"
       val requestBody: String = Json.obj("etag" -> etag, "address" -> Json.toJson(address)).toString()
     }

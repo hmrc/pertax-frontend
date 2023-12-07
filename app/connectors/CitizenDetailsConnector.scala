@@ -25,7 +25,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.duration.DurationInt
@@ -46,17 +46,12 @@ class CitizenDetailsConnector @Inject() (
   def personDetails(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
-    val url = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
-    httpClientResponse.read(
-      httpClientV2
-        .get(url"$url")
-        .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-        .recoverWith { case exception: GatewayTimeoutException =>
-          logger.error(exception.message)
-          Future.failed(exception)
-        }
-    )
+    val url                                                              = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
+    val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
+      .get(url"$url")
+      .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
+      .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+    httpClientResponse.read(apiResponse andThen httpClientResponse.logGatewayTimeout)
   }
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit

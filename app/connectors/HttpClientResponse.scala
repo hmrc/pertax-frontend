@@ -20,11 +20,16 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
 import play.api.http.Status.{BAD_GATEWAY, LOCKED, NOT_FOUND, TOO_MANY_REQUESTS}
-import uk.gov.hmrc.http.{HttpException, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{GatewayTimeoutException, HttpException, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Try}
 
 class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Logging {
+
+  val logGatewayTimeout: PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = {
+    case Failure(exception: GatewayTimeoutException) => logger.error(exception.message)
+  }
 
   def read(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]]
