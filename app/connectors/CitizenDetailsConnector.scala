@@ -51,7 +51,7 @@ class CitizenDetailsConnector @Inject() (
       .get(url"$url")
       .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-    httpClientResponse.read(apiResponse andThen httpClientResponse.logGatewayTimeout)
+    httpClientResponse.read(apiResponse)
   }
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit

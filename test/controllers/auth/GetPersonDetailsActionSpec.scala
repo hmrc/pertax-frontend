@@ -34,7 +34,7 @@ import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.{GatewayTimeoutException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
@@ -132,14 +132,14 @@ class GetPersonDetailsActionSpec extends BaseSpec {
         verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
       }
 
-      "return no person details when CitizenDetails times out " in {
+      "return no person details when CitizenDetails returns bad gateway" in {
         when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
           .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
         when(mockCitizenDetailsService.personDetails(any())(any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PersonDetails](
-              Future.failed(new GatewayTimeoutException("Timed out"))
+              Future.successful(Left(UpstreamErrorResponse("", BAD_GATEWAY)))
             )
           )
 

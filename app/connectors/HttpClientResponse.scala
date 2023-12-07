@@ -27,10 +27,6 @@ import scala.util.{Failure, Try}
 
 class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Logging {
 
-  val logGatewayTimeout: PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = {
-    case Failure(exception: GatewayTimeoutException) => logger.error(exception.message)
-  }
-
   def read(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =

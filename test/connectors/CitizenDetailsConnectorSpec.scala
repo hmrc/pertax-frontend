@@ -21,14 +21,13 @@ import models._
 import org.mockito.Mockito.{reset, when}
 import org.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.RecoverMethods.recoverToSucceededIf
 import play.api.Application
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.{Fixtures, WireMockHelper}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{GatewayTimeoutException, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.time.LocalDate

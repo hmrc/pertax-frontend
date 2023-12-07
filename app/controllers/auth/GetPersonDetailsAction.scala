@@ -29,7 +29,7 @@ import play.api.mvc.Results.Locked
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.CitizenDetailsService
 import services.partials.MessageFrontendService
-import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -97,7 +97,6 @@ class GetPersonDetailsAction @Inject() (
                     case _                                         => Right(None)
                   }
                   .value
-                  .recoverWith { case _: GatewayTimeoutException => Future.successful(Right(None)) }
               )
             } else {
               EitherT.rightT[Future, Result](None)

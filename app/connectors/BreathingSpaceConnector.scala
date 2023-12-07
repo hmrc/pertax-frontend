@@ -54,7 +54,7 @@ class BreathingSpaceConnector @Inject() (
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
 
     httpClientResponse
-      .read(apiResponse andThen httpClientResponse.logGatewayTimeout)
+      .read(apiResponse)
       .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
 
