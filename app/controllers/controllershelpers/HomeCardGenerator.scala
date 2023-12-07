@@ -47,6 +47,7 @@ class HomeCardGenerator @Inject() (
   taxSummariesView: TaxSummariesView,
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
   saAndItsaMergeView: SaAndItsaMergeView,
+  nispView: NISPView,
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
@@ -145,6 +146,15 @@ class HomeCardGenerator @Inject() (
       }
     }
 
+  def getNationalInsuranceAndStatePensionCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
+    featureFlagService.get(NiAndSpToggle).map { toggle =>
+      if (toggle.isEnabled) {
+        Some(nispView())
+      } else {
+        None
+      }
+    }
+
   def getBenefitCards(
     taxComponents: Option[TaxComponents],
     trustedHelper: Option[TrustedHelper]
@@ -170,12 +180,17 @@ class HomeCardGenerator @Inject() (
   ): Some[HtmlFormat.Appendable] =
     Some(marriageAllowanceView(taxComponents))
 
-  def getPensionCards()(implicit messages: Messages): Seq[Html] =
-    List(
-      getStatePensionCard()
-    ).flatten
+  def getPensionCards()(implicit messages: Messages): Future[List[HtmlFormat.Appendable]] =
+    Future
+      .sequence(
+        List(
+          getStatePensionCard(),
+          getNationalInsuranceAndStatePensionCard()
+        )
+      )
+      .map(_.flatten)
 
-  def getStatePensionCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(statePensionView())
+  def getStatePensionCard()(implicit messages: Messages): Future[Some[HtmlFormat.Appendable]] =
+    Future.successful(Some(statePensionView()))
 
 }

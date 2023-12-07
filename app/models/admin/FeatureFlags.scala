@@ -162,3 +162,10 @@ case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
     "Enable/disable paperless alerts in alert banner on the home page"
   )
 }
+
+case object NiAndSpToggle extends FeatureFlagName {
+  override val name: String                = "ni-and-sp-tile-merge"
+  override val description: Option[String] = Some(
+    "NI and SP tile merge"
+  )
+}

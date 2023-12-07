@@ -436,6 +436,10 @@ label.view_national_insurance_letter=Bwrw golwg dros y llythyr Yswiriant Gwladol
 label.view_gaps_in_your_record=Bwrw golwg ar fylchau yn eich cofnodion
 label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 
+label.national_insurance_and_state_pension=Eich Yswiriant Gwladol a’ch Pensiwn y Wladwriaeth
+label.view_national_insurance=Bwrw golwg dros eich cofnod Yswiriant Gwladol, a bwrw golwg dros eich rhif Yswiriant Gwladol a’i gadw.
+label.view_state_pension=Bwrw golwg dros Grynodeb o’ch Pensiwn y Wladwriaeth, a thalu am y bylchau yn eich cofnod Yswiriant Gwladol.
+
 label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth ar gyfer blwyddyn dreth {0} i {1}
 
 title.seiss=Cynllun Cymhorthdal Incwm Hunangyflogaeth (SEISS)
