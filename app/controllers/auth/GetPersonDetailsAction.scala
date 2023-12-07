@@ -22,13 +22,14 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
 import models.admin.{GetPersonFromCitizenDetailsToggle, SCAWrapperToggle}
+import play.api.Logging
 import play.api.http.Status.LOCKED
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.CitizenDetailsService
 import services.partials.MessageFrontendService
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -46,7 +47,8 @@ class GetPersonDetailsAction @Inject() (
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends ActionRefiner[UserRequest, UserRequest]
     with ActionFunction[UserRequest, UserRequest]
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
@@ -79,7 +81,6 @@ class GetPersonDetailsAction @Inject() (
     }
 
   private def getPersonDetails()(implicit request: UserRequest[_]): EitherT[Future, Result, Option[PersonDetails]] = {
-
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     EitherT[Future, Result, FeatureFlag](featureFlagService.get(GetPersonFromCitizenDetailsToggle).map(Right(_)))
@@ -87,11 +88,19 @@ class GetPersonDetailsAction @Inject() (
         request.nino match {
           case Some(nino) =>
             if (toggle.isEnabled) {
-              citizenDetailsService.personDetails(nino)(hc, ec).transform {
-                case Right(response)                           => Right(Some(response))
-                case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
-                case _                                         => Right(None)
-              }
+              EitherT(
+                citizenDetailsService
+                  .personDetails(nino)(hc, ec)
+                  .transform {
+                    case Right(response)                           => Right(Some(response))
+                    case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
+                    case _                                         => Right(None)
+                  }
+                  .value
+                  .recoverWith { case _: GatewayTimeoutException =>
+                    Future.successful(Right(None))
+                  }
+              )
             } else {
               EitherT.rightT[Future, Result](None)
             }
