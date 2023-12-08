@@ -20,10 +20,9 @@ class HomeControllerPayeISpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled"                            -> true,
-      "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 4,
-      "microservice.services.taxcalc.port"                                   -> server.port(),
-      "microservice.services.tai.port"                                       -> server.port()
+      "feature.breathing-space-indicator.enabled" -> true,
+      "microservice.services.taxcalc.port"        -> server.port(),
+      "microservice.services.tai.port"            -> server.port()
     )
     .build()
 

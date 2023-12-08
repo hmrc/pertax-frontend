@@ -23,24 +23,23 @@ class HomeControllerErrorISpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled"                            -> true,
-      "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 4,
-      "microservice.services.taxcalc.port"                                   -> server.port(),
-      "microservice.services.tai.port"                                       -> server.port(),
-      "feature.business-hours.Monday.start-time"                             -> "0:00",
-      "feature.business-hours.Monday.end-time"                               -> "23:59",
-      "feature.business-hours.Tuesday.start-time"                            -> "0:00",
-      "feature.business-hours.Tuesday.end-time"                              -> "23:59",
-      "feature.business-hours.Wednesday.start-time"                          -> "0:00",
-      "feature.business-hours.Wednesday.end-time"                            -> "23:59",
-      "feature.business-hours.Thursday.start-time"                           -> "0:00",
-      "feature.business-hours.Thursday.end-time"                             -> "23:59",
-      "feature.business-hours.Friday.start-time"                             -> "0:00",
-      "feature.business-hours.Friday.end-time"                               -> "23:59",
-      "feature.business-hours.Saturday.start-time"                           -> "0:00",
-      "feature.business-hours.Saturday.end-time"                             -> "23:59",
-      "feature.business-hours.Sunday.start-time"                             -> "0:00",
-      "feature.business-hours.Sunday.end-time"                               -> "23:59"
+      "feature.breathing-space-indicator.enabled"   -> true,
+      "microservice.services.taxcalc.port"          -> server.port(),
+      "microservice.services.tai.port"              -> server.port(),
+      "feature.business-hours.Monday.start-time"    -> "0:00",
+      "feature.business-hours.Monday.end-time"      -> "23:59",
+      "feature.business-hours.Tuesday.start-time"   -> "0:00",
+      "feature.business-hours.Tuesday.end-time"     -> "23:59",
+      "feature.business-hours.Wednesday.start-time" -> "0:00",
+      "feature.business-hours.Wednesday.end-time"   -> "23:59",
+      "feature.business-hours.Thursday.start-time"  -> "0:00",
+      "feature.business-hours.Thursday.end-time"    -> "23:59",
+      "feature.business-hours.Friday.start-time"    -> "0:00",
+      "feature.business-hours.Friday.end-time"      -> "23:59",
+      "feature.business-hours.Saturday.start-time"  -> "0:00",
+      "feature.business-hours.Saturday.end-time"    -> "23:59",
+      "feature.business-hours.Sunday.start-time"    -> "0:00",
+      "feature.business-hours.Sunday.end-time"      -> "23:59"
     )
     .build()
 
