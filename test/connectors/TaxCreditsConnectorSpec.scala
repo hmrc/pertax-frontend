@@ -34,7 +34,7 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
   "TaxCreditsConnector" when {
     "checkForTaxCredits is called" must {
       "return a boolean true value when excluded node in json response is true" in {
-        val data = """{"excluded": true}"""
+        val data     = """{"excluded": true}"""
         stubGet(url, OK, Some(data))
         val response = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
 
@@ -45,7 +45,7 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
       }
 
       "return a boolean false value when excluded node in json response is false" in {
-        val data = """{"excluded": false}"""
+        val data     = """{"excluded": false}"""
         stubGet(url, OK, Some(data))
         val response = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
 
@@ -85,7 +85,7 @@ class TaxCreditsConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper {
 
   override lazy val app: Application = app(
     Map(
-      "microservice.services.tcs-broker.port" -> server.port(),
+      "microservice.services.tcs-broker.port"                  -> server.port(),
       "microservice.services.tcs-broker.timeoutInMilliseconds" -> 1
     )
   )
