@@ -138,22 +138,16 @@ class HomeCardGenerator @Inject() (
     }
 
   def getNationalInsuranceCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
-    featureFlagService.get(NationalInsuranceTileToggle).map { toggle =>
-      if (toggle.isEnabled) {
-        Some(nationalInsuranceView())
-      } else {
-        None
-      }
+    for {
+      nispToggle              <- featureFlagService.get(NiAndSpMergeTileToggle)
+      nationalInsuranceToggle <- featureFlagService.get(NationalInsuranceTileToggle)
+    } yield (nispToggle.isEnabled, nationalInsuranceToggle.isEnabled) match {
+      case (false, true) => Some(nationalInsuranceView())
+      case _             => None
     }
 
-  def getNationalInsuranceAndStatePensionCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
-    featureFlagService.get(NiAndSpToggle).map { toggle =>
-      if (toggle.isEnabled) {
-        Some(nispView())
-      } else {
-        None
-      }
-    }
+  def getNationalInsuranceAndStatePensionCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    Some(nispView())
 
   def getBenefitCards(
     taxComponents: Option[TaxComponents],
@@ -181,16 +175,15 @@ class HomeCardGenerator @Inject() (
     Some(marriageAllowanceView(taxComponents))
 
   def getPensionCards()(implicit messages: Messages): Future[List[HtmlFormat.Appendable]] =
-    Future
-      .sequence(
-        List(
-          getStatePensionCard(),
-          getNationalInsuranceAndStatePensionCard()
-        )
-      )
-      .map(_.flatten)
+    featureFlagService.get(NiAndSpMergeTileToggle).map { toggle =>
+      if (toggle.isEnabled) {
+        List(getNationalInsuranceAndStatePensionCard()).flatten
+      } else {
+        List(getStatePensionCard()).flatten
+      }
+    }
 
-  def getStatePensionCard()(implicit messages: Messages): Future[Some[HtmlFormat.Appendable]] =
-    Future.successful(Some(statePensionView()))
+  def getStatePensionCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    Some(statePensionView())
 
 }
