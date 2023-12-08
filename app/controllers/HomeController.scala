@@ -94,7 +94,6 @@ class HomeController @Inject() (
             shutteringMessaging                                                             <- featureFlagService.get(ShowOutageBannerToggle)
             alertBannerContent                                                              <- alertBannerHelper.getContent
           } yield {
-
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards()
             val benefitCards: Seq[Html] =
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
