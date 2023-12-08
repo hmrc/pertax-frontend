@@ -143,7 +143,6 @@ class TaiConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper with Def
       val result: UpstreamErrorResponse =
         connector.taxComponents(nino, taxYear).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
       result.statusCode mustBe BAD_GATEWAY
-
     }
   }
 }
