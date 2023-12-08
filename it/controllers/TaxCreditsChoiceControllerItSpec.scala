@@ -189,23 +189,23 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
             aResponse()
               .withStatus(OK)
               .withBody("""
-                                                            |{
-                                                            |	"id": "session-id",
-                                                            |	"data": {
-                                                            |   "addressPageVisitedDto": {
-                                                            |     "hasVisitedPage": true
-                                                            |   }
-                                                            |	},
-                                                            |	"modifiedDetails": {
-                                                            |		"createdAt": {
-                                                            |			"$date": 1400258561678
-                                                            |		},
-                                                            |		"lastUpdated": {
-                                                            |			"$date": 1400258561675
-                                                            |		}
-                                                            |	}
-                                                            |}
-                                                            |""".stripMargin)
+                  |{
+                  |	"id": "session-id",
+                  |	"data": {
+                  |   "addressPageVisitedDto": {
+                  |     "hasVisitedPage": true
+                  |   }
+                  |	},
+                  |	"modifiedDetails": {
+                  |		"createdAt": {
+                  |			"$date": 1400258561678
+                  |		},
+                  |		"lastUpdated": {
+                  |			"$date": 1400258561675
+                  |		}
+                  |	}
+                  |}
+                  |""".stripMargin)
           )
       )
 
@@ -219,6 +219,22 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
 
       result.get.futureValue.header.status mustBe OK
       contentAsString(result.get) must include(messages("label.do_you_get_tax_credits"))
+    }
+
+    "render the do you get tax credits page when BAD_GATEWAY received from connector" in {
+      beforeEachAddressTaxCreditsBrokerCallToggleOn()
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
+      server.stubFor(
+        get(urlPathEqualTo(tcsBrokerUrl))
+          .willReturn(aResponse.withStatus(502))
+      )
+
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result  = route(app, request)
+
+      result.get.futureValue.header.status mustBe OK
+      contentAsString(result.get).contains("Do you get tax credits?") mustBe true
     }
 
   }
