@@ -99,7 +99,7 @@ class TaxCreditsConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper {
       "return bad gateway when the call results in a timeout" in {
         def connector: TaxCreditsConnector = app.injector.instanceOf[TaxCreditsConnector]
 
-        stubWithDelay(url, OK, None, None, 500)
+        stubWithDelay(url, OK, None, None, 100)
         val result = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
 
         result mustBe a[Left[_, _]]

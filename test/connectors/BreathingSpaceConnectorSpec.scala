@@ -113,7 +113,7 @@ class BreathingSpaceConnectorTimeoutSpec extends ConnectorSpec with WireMockHelp
 
   "getBreathingSpaceIndicator is called" must {
     "return a bad gateway response when connection times out" in {
-      stubWithDelay(url, OK, None, None, 500)
+      stubWithDelay(url, OK, None, None, 100)
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
       result mustBe a[Left[UpstreamErrorResponse, _]]

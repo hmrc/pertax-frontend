@@ -138,7 +138,7 @@ class TaiConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper with Def
     val url = s"/tai/$nino/tax-account/$taxYear/tax-components"
 
     "return bad gateway when the call results in a timeout" in new LocalSetup {
-      stubWithDelay(url, OK, None, None, 500)
+      stubWithDelay(url, OK, None, None, 100)
 
       val result: UpstreamErrorResponse =
         connector.taxComponents(nino, taxYear).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
