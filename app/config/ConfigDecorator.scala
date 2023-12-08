@@ -311,6 +311,8 @@ class ConfigDecorator @Inject() (
   lazy val breathingSpaceBaseUrl: String            = servicesConfig.baseUrl("breathing-space-if-proxy")
   lazy val breathingSpaceTimeoutInMilliseconds: Int =
     servicesConfig.getInt("microservice.services.breathing-space-if-proxy.timeoutInMilliseconds")
+  lazy val taxCalcTimeoutInMilliseconds: Int        =
+    servicesConfig.getInt("microservice.services.taxcalc.timeoutInMilliseconds")
   lazy val citizenDetailsTimeoutInMilliseconds: Int =
     servicesConfig.getInt("microservice.services.citizen-details.timeoutInMilliseconds")
   lazy val tcsBrokerTimeoutInMilliseconds: Int      =

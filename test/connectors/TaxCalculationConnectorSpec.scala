@@ -133,3 +133,33 @@ class TaxCalculationConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
   }
 }
+
+class TaxCalculationConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper with Injecting {
+
+  override implicit lazy val app: Application = app(
+    Map(
+      "microservice.services.taxcalc.port"                  -> server.port(),
+      "microservice.services.taxcalc.timeoutInMilliseconds" -> 1
+    )
+  )
+
+  lazy val taxCalculationConnector: TaxCalculationConnector = inject[TaxCalculationConnector]
+
+  val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
+  val url        = s"/taxcalc/$nino/reconciliations"
+
+  "getTaxYearReconciliations" must {
+    "return a bad gateway response when connection times out" in {
+      stubWithDelay(url, OK, None, None, 100)
+
+      val result =
+        taxCalculationConnector
+          .getTaxYearReconciliations(nino)
+          .value
+          .futureValue
+
+      result mustBe a[Left[UpstreamErrorResponse, _]]
+      result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_GATEWAY
+    }
+  }
+}
