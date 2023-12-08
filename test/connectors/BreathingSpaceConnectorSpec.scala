@@ -76,11 +76,12 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
-    "return an UpstreamErrorResponse for timeout response" in {
+    "return a bad gateway response when connection times out" in {
       stubWithDelay(url, OK, None, Some(breathingSpaceTrueResponse), 6000)
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
       result mustBe a[Left[UpstreamErrorResponse, _]]
+      result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_GATEWAY
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
