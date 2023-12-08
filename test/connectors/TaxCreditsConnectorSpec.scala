@@ -34,7 +34,7 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
   "TaxCreditsConnector" when {
     "checkForTaxCredits is called" must {
       "return a boolean true value when excluded node in json response is true" in {
-        val data     = """{"excluded": true}"""
+        val data = """{"excluded": true}"""
         stubGet(url, OK, Some(data))
         val response = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
 
@@ -45,7 +45,7 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
       }
 
       "return a boolean false value when excluded node in json response is false" in {
-        val data     = """{"excluded": false}"""
+        val data = """{"excluded": false}"""
         stubGet(url, OK, Some(data))
         val response = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
 
@@ -76,6 +76,34 @@ class TaxCreditsConnectorSpec extends ConnectorSpec with WireMockHelper {
           result mustBe a[Left[_, _]]
           result.left mustBe UpstreamErrorResponse(_: String, status)
         }
+      }
+    }
+  }
+}
+
+class TaxCreditsConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper {
+
+  override lazy val app: Application = app(
+    Map(
+      "microservice.services.tcs-broker.port" -> server.port(),
+      "microservice.services.tcs-broker.timeoutInMilliseconds" -> 1
+    )
+  )
+
+  def connector: TaxCreditsConnector = app.injector.instanceOf[TaxCreditsConnector]
+
+  lazy val url: String = s"/tcs/$fakeNino/exclusion"
+
+  "TaxCreditsConnector" when {
+    "checkForTaxCredits is called" must {
+      "return bad gateway when the call results in a timeout" in {
+        def connector: TaxCreditsConnector = app.injector.instanceOf[TaxCreditsConnector]
+
+        stubWithDelay(url, OK, None, None, 500)
+        val result = connector.getTaxCreditsExclusionStatus(fakeNino).value.futureValue
+
+        result mustBe a[Left[_, _]]
+        result.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_GATEWAY
       }
     }
   }

@@ -313,6 +313,8 @@ class ConfigDecorator @Inject() (
     servicesConfig.getInt("microservice.services.breathing-space-if-proxy.timeoutInMilliseconds")
   lazy val citizenDetailsTimeoutInMilliseconds: Int =
     servicesConfig.getInt("microservice.services.citizen-details.timeoutInMilliseconds")
+  lazy val tcsBrokerTimeoutInMilliseconds: Int      =
+    servicesConfig.getInt("microservice.services.tcs-broker.timeoutInMilliseconds")
   lazy val preferenceFrontendTimeoutInSec: Int      =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
   lazy val ptaNinoSaveUrl: String                   = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"

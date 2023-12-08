@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 class TaxCreditsConnector @Inject() (
@@ -34,8 +35,8 @@ class TaxCreditsConnector @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  private lazy val taxCreditsUrl: String = configDecorator.tcsBrokerHost
-
+  private lazy val taxCreditsUrl: String      = configDecorator.tcsBrokerHost
+  private lazy val timeoutInMilliseconds: Int = configDecorator.tcsBrokerTimeoutInMilliseconds
   def getTaxCreditsExclusionStatus(
     nino: Nino
   )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, Boolean] = {
@@ -44,6 +45,7 @@ class TaxCreditsConnector @Inject() (
       .read(
         httpClientV2
           .get(url"$url")
+          .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
           .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
       )
       .map(result => (result.json \ "excluded").as[Boolean])
