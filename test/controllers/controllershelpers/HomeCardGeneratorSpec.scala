@@ -85,6 +85,24 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       nispView
     )(stubConfigDecorator, ec)
 
+  def sut: HomeCardGenerator =
+    new HomeCardGenerator(
+      mockFeatureFlagService,
+      payAsYouEarn,
+      taxCalculation,
+      nationalInsurance,
+      taxCredits,
+      childBenefitSingleAccount,
+      marriageAllowance,
+      statePension,
+      taxSummaries,
+      latestNewsAndUpdatesView,
+      saAndItsaMergeView,
+      enrolmentsHelper,
+      newsAndTilesConfig,
+      nispView
+    )(stubConfigDecorator, ec)
+
   "Calling getPayAsYouEarnCard" must {
     "return nothing when called with no Pertax user" in {
 
@@ -378,29 +396,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(request = FakeRequest())
 
-        val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
-        )
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            nationalInsurance,
-            taxCredits,
-            childBenefitSingleAccount,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig,
-            nispView
-          )(stubConfigDecorator, ec)
-
         lazy val cardBody = sut.getAnnualTaxSummaryCard.value.futureValue
 
         cardBody mustBe None
@@ -423,58 +418,12 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             request = FakeRequest()
           )
 
-        val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
-        )
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            nationalInsurance,
-            taxCredits,
-            childBenefitSingleAccount,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig,
-            nispView
-          )(stubConfigDecorator, ec)
-
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
         cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = true))
       }
 
       "return Itsa Card when without Itsa enrolments" in {
-
-        val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
-        )
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            nationalInsurance,
-            taxCredits,
-            childBenefitSingleAccount,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig,
-            nispView
-          )(stubConfigDecorator, ec)
 
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
@@ -489,29 +438,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             request = FakeRequest()
           )
 
-        val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
-        )
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            nationalInsurance,
-            taxCredits,
-            childBenefitSingleAccount,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig,
-            nispView
-          )(stubConfigDecorator, ec)
-
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
         cardBody mustBe None
@@ -524,29 +450,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             saUser = WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
             request = FakeRequest()
           )
-
-        val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
-        )
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            nationalInsurance,
-            taxCredits,
-            childBenefitSingleAccount,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig,
-            nispView
-          )(stubConfigDecorator, ec)
 
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
@@ -579,30 +482,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "return nothing when toggled off" in {
-      val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
-      ) {
-        override lazy val isNewsAndUpdatesTileEnabled: Boolean = false
-      }
-
-      def sut: HomeCardGenerator =
-        new HomeCardGenerator(
-          mockFeatureFlagService,
-          payAsYouEarn,
-          taxCalculation,
-          nationalInsurance,
-          taxCredits,
-          childBenefitSingleAccount,
-          marriageAllowance,
-          statePension,
-          taxSummaries,
-          latestNewsAndUpdatesView,
-          saAndItsaMergeView,
-          enrolmentsHelper,
-          newsAndTilesConfig,
-          nispView
-        )(stubConfigDecorator, ec)
 
       sut.getLatestNewsAndUpdatesCard() mustBe None
     }
