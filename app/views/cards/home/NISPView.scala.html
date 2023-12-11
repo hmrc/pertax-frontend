@@ -15,8 +15,15 @@
  *@
 
 @import tags._
-@this()
+@import components.P
+
+@this(p: P)
 @()(implicit messages: play.api.i18n.Messages)
+
+@cardContent = {
+    @p(Text(messages("label.view_national_insurance")))
+    @p(Text(messages("label.view_state_pension")))
+}
 
 @card(
     id = Some("ni-and-sp-card"),
@@ -25,6 +32,6 @@
     gaLabel = Some("National Insurance"),
     heading = messages("label.national_insurance_and_state_pension"),
     headingTag = "h3",
-    bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.view_national_insurance")))
+    bodyContent = Some(cardContent)
 ) {
 }
