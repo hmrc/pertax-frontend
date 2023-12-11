@@ -135,7 +135,7 @@ class HomeController @Inject() (
       val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
       val taxCalculationStateCyMinusTwo = taxYr.map(_.find(_.taxYear == year - 2))
 
-      val taxSummaryState = featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
+      val taxSummaryState: Future[TaxComponentsState] = featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
         if (toggle.isEnabled) {
           taiConnector
             .taxComponents(nino, year)

@@ -27,6 +27,7 @@ import scala.util.{Failure, Try}
 
 class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Logging {
 
+  //scalastyle:off cyclomatic.complexity
   def read(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =

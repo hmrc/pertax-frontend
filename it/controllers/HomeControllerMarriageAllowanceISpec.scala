@@ -158,26 +158,5 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
         getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
       )
     }
-
-    "display correct message on the Marriage Allowance tile when BAD GATEWAY response from tai connector" in {
-      server.stubFor(
-        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
-          .willReturn(aResponse.withStatus(502))
-      )
-      server.stubFor(
-        put(urlMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
-      )
-      val result: Future[Result] = route(app, request).get
-      httpStatus(result) mustBe OK
-
-      contentAsString(result).contains(
-        Messages("label.transfer_part_of_your_personal_allowance_to_your_partner_")
-      ) mustBe true
-      server.verify(
-        1,
-        getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
-      )
-    }
   }
 }

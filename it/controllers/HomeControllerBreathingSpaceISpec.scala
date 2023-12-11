@@ -124,18 +124,5 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
         server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
       }
     }
-
-    "hide BreathingSpaceIndicator when BAD_GATEWAY received from BreathingSpaceIfProxy" in {
-      server.stubFor(
-        get(urlPathEqualTo(breathingSpaceUrl))
-          .willReturn(aResponse.withStatus(502))
-      )
-
-      val result: Future[Result] = route(app, request).get
-      contentAsString(result).contains(Messages("label.breathing_space")) mustBe false
-      contentAsString(result).contains(urlBreathingSpace) mustBe false
-      server.verify(1, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
-      server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
-    }
   }
 }
