@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 
 import java.util.UUID.randomUUID
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 class BreathingSpaceConnector @Inject() (
   val httpClientV2: HttpClientV2,
@@ -51,7 +51,10 @@ class BreathingSpaceConnector @Inject() (
       .get(url"$url")(bsHeaderCarrier)
       .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-
+      .recoverWith { case exception: GatewayTimeoutException =>
+        logger.error(exception.message)
+        Future.failed(exception)
+      }
     httpClientResponse
       .read(apiResponse)
       .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
