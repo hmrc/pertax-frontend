@@ -47,9 +47,9 @@ class HomeCardGenerator @Inject() (
   taxSummariesView: TaxSummariesView,
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
   saAndItsaMergeView: SaAndItsaMergeView,
-  nispView: NISPView,
   enrolmentsHelper: EnrolmentsHelper,
-  newsAndTilesConfig: NewsAndTilesConfig
+  newsAndTilesConfig: NewsAndTilesConfig,
+  nispView: NISPView
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
 
   def getIncomeCards(
