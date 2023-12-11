@@ -51,10 +51,6 @@ class BreathingSpaceConnector @Inject() (
       .get(url"$url")(bsHeaderCarrier)
       .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-      .recoverWith { case exception: GatewayTimeoutException =>
-        logger.error(exception.message)
-        Future.failed(exception)
-      }
     httpClientResponse
       .read(apiResponse)
       .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
