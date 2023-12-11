@@ -1,7 +1,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{BreathingSpaceIndicatorToggle, SingleAccountCheckToggle, TaxComponentsToggle, TaxcalcToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, TaxComponentsToggle, TaxcalcToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -18,54 +18,34 @@ import java.util.UUID
 import scala.concurrent.Future
 
 class HomeControllerTimeoutsISpec extends IntegrationSpec {
-
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled" -> true,
+      "feature.breathing-space-indicator.enabled"                            -> true,
+      "microservice.services.breathing-space-if-proxy.port"                  -> server.port(),
       "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 1,
-      "microservice.services.taxcalc.timeoutInMilliseconds" -> 1,
-      "microservice.services.tai.timeoutInMilliseconds" -> 1,
-      "microservice.services.breathing-space-if-proxy.port" -> server.port(),
-      "microservice.services.taxcalc.port" -> server.port(),
-      "microservice.services.tai.port" -> server.port()
+      "microservice.services.tai.port"                                       -> server.port(),
+      "microservice.services.tai.timeoutInMilliseconds"                      -> 1,
+      "microservice.services.taxcalc.port"                                   -> server.port(),
+      "microservice.services.taxcalc.timeoutInMilliseconds"                  -> 1
     )
     .build()
 
-  private val url = s"/personal-account"
-  private val uuid: String = UUID.randomUUID().toString
-
   private def request: FakeRequest[AnyContentAsEmpty.type] =
-    FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
+    FakeRequest(GET, "/personal-account")
+      .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
 
-  private val breathingSpaceUrl = s"/$generatedNino/memorandum"
-  private val taxComponentsUrl = s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"
-  private val taxCalcUrl = s"/taxcalc/$generatedNino/reconciliations"
-
-  private val breathingSpaceTrueResponse: String =
-    s"""
-       |{
-       |    "breathingSpaceIndicator": true
-       |}
-       |""".stripMargin
-
-  private val breathingSpaceFalseResponse: String =
-    s"""
-       |{
-       |    "breathingSpaceIndicator": false
-       |}
-       |""".stripMargin
+  private val breathingSpaceUrl                            = s"/$generatedNino/memorandum"
+  private val taxComponentsUrl                             = s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"
+  private val taxCalcUrl                                   = s"/taxcalc/$generatedNino/reconciliations"
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     beforeEachHomeController(memorandum = false)
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
       .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
-
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
   }
@@ -85,7 +65,9 @@ class HomeControllerTimeoutsISpec extends IntegrationSpec {
       server.verify(1, getRequestedFor(urlEqualTo(breathingSpaceUrl)))
 
       // Tax components (marriage allowance):-
-      contentAsString(result).contains(Messages("label.transfer_part_of_your_personal_allowance_to_your_partner_")) mustBe true
+      contentAsString(result).contains(
+        Messages("label.transfer_part_of_your_personal_allowance_to_your_partner_")
+      ) mustBe true
       server.verify(1, getRequestedFor(urlEqualTo(taxComponentsUrl)))
 
       contentAsString(result).contains(Messages("label.you_paid_the_right_amount_of_tax")) mustBe false
