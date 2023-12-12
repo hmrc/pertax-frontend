@@ -245,7 +245,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "calling getPensionCards" must {
-    "return NI card when NiAndSpMergeTileToggle is enabled" in {
+    "return NI and SP card when NiAndSpMergeTileToggle is enabled" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
 
