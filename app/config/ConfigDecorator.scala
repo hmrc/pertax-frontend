@@ -228,6 +228,8 @@ class ConfigDecorator @Inject() (
 
   lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord/pta"
 
+  lazy val statePensionSummary = s"$nispFrontendHost/check-your-state-pension/account"
+
   lazy val enrolmentStoreProxyUrl = s"$enrolmentStoreProxyService/enrolment-store-proxy"
 
   // Links back to pertax

@@ -58,7 +58,8 @@ class InterstitialController @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
-  featureFlagService: FeatureFlagService
+  featureFlagService: FeatureFlagService,
+  viewNISPView: ViewNISPView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with Logging {
@@ -77,7 +78,7 @@ class InterstitialController @Inject() (
     for {
       nationalInsurancePartial <- formPartialService.getNationalInsurancePartial
     } yield Ok(
-      viewNationalInsuranceInterstitialHomeView(
+      viewNISPView(
         formPartial = if (configDecorator.partialUpgradeEnabled) {
           //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
           FormPartialUpgrade.upgrade(nationalInsurancePartial successfulContentOrEmpty)

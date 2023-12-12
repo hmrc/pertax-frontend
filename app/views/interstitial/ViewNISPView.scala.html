@@ -1,0 +1,91 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import tags._
+@import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+@import views.html.components.{Button, H1, H2, Link, P}
+
+@this(
+    main: MainView,
+    h1: H1,
+    h2: H2,
+    p: P,
+    link: Link,
+    button: Button,
+    govukInsetText: GovukInsetText
+)
+
+@(formPartial: Html, redirectUrl: String, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@main(
+    pageTitle = messages("label.national_insurance_summary")
+) {
+
+@h1("label.your_national_insurance_and_state_pension")
+
+@p(Text(messages("label.you_pay_national_insurance_contributions")))
+
+@h2("label.your_state_pension_and_national_insurance_record")
+
+@p(Text(messages("label.view_your_state_pension_summary_to_find_out")))
+<ul class="govuk-list govuk-list--bullet">
+    <li>@messages("label.when_you_get_your_state_pension")</li>
+    <li>@messages("label.how_much_you_can_get")</li>
+    <li>@messages("label.if_you_can_increase_it")</li>
+</ul>
+@p(Text(messages("label.view_your_national_insurance_record_to_find_out")))
+<ul class="govuk-list govuk-list--bullet">
+    <li>@messages("label.what_youve_paid_up_to_current_tax_year")</li>
+    <li>@messages("label.if_youve_received_any_national_insurance_credits")</li>
+</ul>
+@p(Text(messages("label.you_can_access_your_ni_record_from_sp_summary")))
+@link(configDecorator.statePensionSummary, messageKey = "label.view_your_state_pension_summary")
+
+
+@if(nino.isDefined) {
+
+    @nino.map { nino =>
+        @govukInsetText(InsetText(
+            content = HtmlContent(messages("label.your_national_insurance_number_is") + " " +s"<strong>${formattedNino(nino)}</strong>")))
+    }
+
+    @p(Text(messages("label.your_national_insurance_number_ensures_your_national_insurance_contributions_")))
+    @link(link = messages("label.www_gov_uk_national_insurance_link"), messageKey = "label.find_out_more_about_national_insurance_", attrTarget = true)
+    @h2("label.check_your_national_insurance_contributions")
+    @p(Text(messages("label.every_year_you_pay_national_insurance_contributions_to_qualify_")))
+    @p(Text(messages("label.you_can_see_a_record_of_your_annual_contributions_")))
+    @link(configDecorator.nationalInsuranceRecordUrl, messageKey = "label.check_your_national_insurance_contributions")
+    @h2("label.view_and_save_your_national_insurance_number")
+    @p(Text(messages("label.you_will_need_your_ni_number_for_employment_applying_for_student_loan_and_claim_benefits")))
+    @p(Text(messages("label.so_that_you_have_your_number_when_you_need_it_you_can")))
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("label.view_and_get_a_copy_for_your_national_insurance_number_confirmation_letter")</li>
+        <li>@messages("label.save_your_number_to_the_wallet_app_on_your_apple_phone")</li>
+    </ul>
+    @link(configDecorator.ptaNinoSaveUrl, messageKey = "label.view_and_save_your_national_insurance_number")
+
+    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
+
+    <div class="forms-group pertax-panel" id="national_insurance">
+        @formPartial
+    </div>
+    } else {
+        @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")))
+        @button(href = Some(routes.ApplicationController.uplift(Some(RedirectUrl(redirectUrl))).url), id="continue", msg = "global.label.continue_button")
+    }
+}
