@@ -1,15 +1,16 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{BreathingSpaceIndicatorToggle, TaxComponentsToggle, TaxcalcToggle}
+import models.admin.{AddressTaxCreditsBrokerCallToggle, BreathingSpaceIndicatorToggle, TaxComponentsToggle, TaxcalcToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
+import play.api.http.Status.OK
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
-import testUtils.IntegrationSpec
+import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
@@ -53,9 +54,9 @@ class HomeControllerTimeoutsISpec extends IntegrationSpec {
   "personal-account" must {
     val urlBreathingSpace = controllers.routes.InterstitialController.displayBreathingSpaceDetails.url
     "hide relevant component(s) when HOD calls time out (breathing space, tax components, tax calc" in {
-      server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(500)))
-      server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(500)))
-      server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(500)))
+      server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(100)))
+      server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(100)))
+      server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(100)))
 
       val result: Future[Result] = route(app, request).get
 
@@ -75,6 +76,38 @@ class HomeControllerTimeoutsISpec extends IntegrationSpec {
       contentAsString(result).contains(Messages("label.find_out_why_you_paid_too_much")) mustBe false
       contentAsString(result).contains(Messages("label.make_a_payment")) mustBe false
       server.verify(1, getRequestedFor(urlEqualTo(taxCalcUrl)))
+    }
+  }
+
+  "/personal-account/your-address/tax-credits-choice" must {
+    "render the do you get tax credits page when HOD calls time out" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
+        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
+      server.stubFor(
+        get(urlPathMatching("/keystore/pertax-frontend/.*"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(
+                """{"id": "session-id","data": {"addressPageVisitedDto": {"hasVisitedPage": true}}}""".stripMargin
+              )
+          )
+      )
+      server.stubFor(
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+          .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
+      )
+      server.stubFor(
+        get(urlPathEqualTo(s"/tcs/$generatedNino/exclusion"))
+          .willReturn(aResponse.withFixedDelay(100))
+      )
+
+      val request = FakeRequest(GET, "/personal-account/your-address/tax-credits-choice")
+        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result  = route(app, request)
+
+      result.get.futureValue.header.status mustBe OK
+      contentAsString(result.get).contains("Do you get tax credits?") mustBe true
     }
   }
 }

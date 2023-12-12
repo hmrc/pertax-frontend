@@ -55,5 +55,4 @@ class BreathingSpaceConnector @Inject() (
       .read(apiResponse)
       .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
-
 }
