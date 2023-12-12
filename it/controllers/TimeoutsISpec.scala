@@ -68,17 +68,19 @@ class TimeoutsISpec extends IntegrationSpec {
       None
     )
 
-  private def getHomePage: Future[Result] = {
+  private def homePageGET: Future[Result] = route(
+    app,
+    FakeRequest(GET, "/personal-account")
+      .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
+  ).get
+
+  private def getHomePageWithAllTimeouts: Future[Result] = {
     beforeEachHomeController(memorandum = false, matchingDetails = false)
     server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
-    route(
-      app,
-      FakeRequest(GET, "/personal-account")
-        .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
-    ).get
+    homePageGET
   }
 
   override def beforeEach(): Unit = {
@@ -93,7 +95,7 @@ class TimeoutsISpec extends IntegrationSpec {
 
   "/personal-account" must {
     "hide breathing space components when HODs time out" in {
-      val result            = getHomePage
+      val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
         Messages("label.this.section.is") + " " + Messages("label.account_home")
@@ -106,7 +108,7 @@ class TimeoutsISpec extends IntegrationSpec {
     }
 
     "hide tax components when HODs time out" in {
-      val result            = getHomePage
+      val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
         Messages("label.this.section.is") + " " + Messages("label.account_home")
@@ -118,7 +120,7 @@ class TimeoutsISpec extends IntegrationSpec {
     }
 
     "hide tax calc components when HODs time out" in {
-      val result            = getHomePage
+      val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
         Messages("label.this.section.is") + " " + Messages("label.account_home")
@@ -131,7 +133,7 @@ class TimeoutsISpec extends IntegrationSpec {
     }
 
     "show no person name for citizen details when HODs time out" in {
-      val result            = getHomePage
+      val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
         Messages("label.this.section.is") + " " + Messages("label.account_home")
@@ -147,11 +149,7 @@ class TimeoutsISpec extends IntegrationSpec {
       server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
       server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(ok(Json.toJson(personDetails).toString())))
 
-      val result: Future[Result] = route(
-        app,
-        FakeRequest(GET, "/personal-account")
-          .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
-      ).get
+      val result: Future[Result] = homePageGET
       val content                = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("govuk-heading-xl").get(0).text() mustBe "Firstname Lastname"
       server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
