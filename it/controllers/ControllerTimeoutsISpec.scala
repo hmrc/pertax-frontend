@@ -1,7 +1,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{AddressTaxCreditsBrokerCallToggle, BreathingSpaceIndicatorToggle, TaxComponentsToggle, TaxcalcToggle}
+import models.admin._
 import models.{Person, PersonDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -21,18 +21,20 @@ import java.time.LocalDateTime
 import java.util.UUID
 import scala.concurrent.Future
 
-class HomeControllerTimeoutsISpec extends IntegrationSpec {
+class ControllerTimeoutsISpec extends IntegrationSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled"                            -> true,
-      "microservice.services.breathing-space-if-proxy.port"                  -> server.port(),
-      "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 1,
-      "microservice.services.tai.port"                                       -> server.port(),
-      "microservice.services.tai.timeoutInMilliseconds"                      -> 1,
-      "microservice.services.taxcalc.port"                                   -> server.port(),
-      "microservice.services.taxcalc.timeoutInMilliseconds"                  -> 1,
-      "microservice.services.citizen-details.port"                           -> server.port(),
-      "microservice.services.citizen-details.timeoutInMilliseconds"          -> 1
+      "feature.breathing-space-indicator.enabled"                              -> true,
+      "microservice.services.breathing-space-if-proxy.port"                    -> server.port(),
+      "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds"   -> 1,
+      "microservice.services.tai.port"                                         -> server.port(),
+      "microservice.services.tai.timeoutInMilliseconds"                        -> 1,
+      "microservice.services.taxcalc.port"                                     -> server.port(),
+      "microservice.services.taxcalc.timeoutInMilliseconds"                    -> 1,
+      "microservice.services.citizen-details.port"                             -> server.port(),
+      "microservice.services.citizen-details.timeoutInMilliseconds"            -> 1,
+      "microservice.services.dfs-digital-forms-frontend.port"                  -> server.port(),
+      "microservice.services.dfs-digital-forms-frontend.timeoutInMilliseconds" -> 1
     )
     .build()
 
@@ -40,10 +42,13 @@ class HomeControllerTimeoutsISpec extends IntegrationSpec {
     FakeRequest(GET, "/personal-account")
       .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
 
+  private val dummyContent                                 = "my body content"
   private val breathingSpaceUrl                            = s"/$generatedNino/memorandum"
   private val taxComponentsUrl                             = s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"
   private val taxCalcUrl                                   = s"/taxcalc/$generatedNino/reconciliations"
   private val citizenDetailsUrl                            = s"/citizen-details/$generatedNino/designatory-details"
+  private val dfsPartialNinoUrl                            = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
+  private val dfsPartialSAUrl                              = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -150,4 +155,78 @@ class HomeControllerTimeoutsISpec extends IntegrationSpec {
       contentAsString(result.get).contains("Do you get tax credits?") mustBe true
     }
   }
+
+  "/personal-account/national-insurance-summary" must {
+    "display no NI content when partial times out" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+
+      server.stubFor(
+        get(urlEqualTo(dfsPartialNinoUrl))
+          .willReturn(aResponse.withFixedDelay(100))
+      )
+
+      val request   = FakeRequest(GET, "/personal-account/national-insurance-summary")
+        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result    = route(app, request).get
+      val content   = Jsoup.parse(contentAsString(result))
+      val niContent = content.getElementById("national_insurance").text()
+      niContent.isEmpty mustBe true
+    }
+
+    "display NI content when partial does not time out" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+
+      server.stubFor(
+        get(urlEqualTo(dfsPartialNinoUrl))
+          .willReturn(ok(dummyContent))
+      )
+
+      val request   = FakeRequest(GET, "/personal-account/national-insurance-summary")
+        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result    = route(app, request).get
+      val content   = Jsoup.parse(contentAsString(result))
+      val niContent = content.getElementById("national_insurance").text()
+      niContent mustBe dummyContent
+    }
+  }
+
+  // TODO: 8107: The below more complex because checks are done on auth related stuff in controller
+  //  "/personal-account/self-assessment-summary" must {
+  //    "display no SA content when partial times out" in {
+  //      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+  //      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+  //        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+  //
+  //      server.stubFor(
+  //        get(urlEqualTo(dfsPartialSAUrl))
+  //          .willReturn(aResponse.withFixedDelay(100))
+  //      )
+  //
+  //      val request   = FakeRequest(GET, "/personal-account/self-assessment-summary")
+  //        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+  //      val result    = route(app, request).get
+  //      val content   = Jsoup.parse(contentAsString(result))
+  //      val niContent = content.getElementById("self-assessment-forms").text()
+  //      niContent.isEmpty mustBe true
+  //    }
+  //
+  //    "display SA content when partial does not time out" in {
+  //      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+  //        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+  //
+  //      server.stubFor(
+  //        get(urlEqualTo(dfsPartialSAUrl))
+  //          .willReturn(ok(dummyContent))
+  //      )
+  //
+  //      val request   = FakeRequest(GET, "/personal-account/self-assessment-summary")
+  //        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+  //      val result    = route(app, request).get
+  //      val content   = Jsoup.parse(contentAsString(result))
+  //      val niContent = content.getElementById("self-assessment-forms").text()
+  //      niContent mustBe dummyContent
+  //    }
+  //  }
 }
