@@ -2,11 +2,14 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.{AddressTaxCreditsBrokerCallToggle, BreathingSpaceIndicatorToggle, TaxComponentsToggle, TaxcalcToggle}
+import models.{Person, PersonDetails}
+import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.i18n.Messages
+import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
@@ -108,6 +111,69 @@ class HomeControllerTimeoutsISpec extends IntegrationSpec {
 
       result.get.futureValue.header.status mustBe OK
       contentAsString(result.get).contains("Do you get tax credits?") mustBe true
+    }
+  }
+}
+
+class HomeControllerTimeoutsCitizenDetailsISpec extends IntegrationSpec {
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .configure(
+      "feature.breathing-space-indicator.enabled"                   -> true,
+      "microservice.services.citizen-details.port"                  -> server.port(),
+      "microservice.services.citizen-details.timeoutInMilliseconds" -> 0
+    )
+    .build()
+
+  private def request: FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest(GET, "/personal-account")
+      .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
+
+  private val citizenDetailsUrl                            = s"/citizen-details/$generatedNino/designatory-details"
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    beforeEachHomeController(memorandum = false)
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+      .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+  }
+
+  "personal-account" must {
+    "show person name when citizen details does NOT time out" in {
+      val personDetails: PersonDetails =
+        PersonDetails(
+          Person(
+            Some("Firstname"),
+            Some("Middlename"),
+            Some("Lastname"),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None
+          ),
+          None,
+          None
+        )
+      server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(ok(Json.toJson(personDetails).toString())))
+
+      val result: Future[Result] = route(app, request).get
+      val content                = Jsoup.parse(contentAsString(result))
+      content.getElementsByClass("govuk-heading-xl").get(0).text() mustBe "Firstname Lastname"
+      server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
+    }
+
+    "show no person name when citizen details times out" in {
+      server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(100)))
+      val result: Future[Result] = route(app, request).get
+      val content                = Jsoup.parse(contentAsString(result))
+      content.getElementsByClass("govuk-heading-xl").get(0).text() mustBe ""
+      server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
     }
   }
 }

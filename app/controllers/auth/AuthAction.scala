@@ -117,6 +117,8 @@ class AuthActionImpl @Inject() (
             name ~
             trustedHelper ~
             profile =>
+          println("\n\nUUUUUUUUUU" + name + "LLLL")
+
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>
@@ -128,20 +130,20 @@ class AuthActionImpl @Inject() (
             .asInstanceOf[Request[A]]
 
           val authenticatedRequest = AuthenticatedRequest[A](
-            Nino(nino),
-            Some(trustedHelper.fold(domain.Nino(nino))(helper => domain.Nino(helper.principalNino))),
-            credentials,
-            confidenceLevel,
-            Some(
+            authNino = Nino(nino),
+            nino = Some(trustedHelper.fold(domain.Nino(nino))(helper => domain.Nino(helper.principalNino))),
+            credentials = credentials,
+            confidenceLevel = confidenceLevel,
+            name = Some(
               UserName(
                 trustedHelper.fold(name.getOrElse(Name(None, None)))(helper => Name(Some(helper.principalName), None))
               )
             ),
-            trustedHelper,
-            addRedirect(profile),
-            enrolments,
-            trimmedRequest,
-            affinityGroup
+            trustedHelper = trustedHelper,
+            profile = addRedirect(profile),
+            enrolments = enrolments,
+            request = trimmedRequest,
+            affinityGroup = affinityGroup
           )
 
           lazy val updatedResult = for {
