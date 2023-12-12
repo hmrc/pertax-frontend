@@ -73,5 +73,14 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       )
       sut.loadPartial(url).futureValue mustBe returnPartial
     }
+
+    "when the call to the service times out return failed Html partial" in {
+      val returnPartial: HtmlPartial = HtmlPartial.Failure(Some(504), "")
+      val url                        = s"http://localhost:${server.port()}/"
+      server.stubFor(
+        get(urlEqualTo("/")).willReturn(aResponse().withFixedDelay(100))
+      )
+      sut.loadPartial(url, 1).futureValue mustBe returnPartial
+    }
   }
 }
