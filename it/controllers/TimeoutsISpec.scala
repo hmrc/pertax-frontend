@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import scala.concurrent.Future
 
-class ControllerTimeoutsISpec extends IntegrationSpec {
+class TimeoutsISpec extends IntegrationSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
       "feature.breathing-space-indicator.enabled"                              -> true,
