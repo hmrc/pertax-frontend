@@ -38,7 +38,10 @@ class FormPartialService @Inject() (
       if (!toggle.isEnabled) {
         Future.successful(HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered"))
       } else {
-        enhancedPartialRetriever.loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
+        enhancedPartialRetriever.loadPartial(
+          url = configDecorator.nationalInsuranceFormPartialLinkUrl,
+          timeout = configDecorator.dfsPartialTimeoutInMilliseconds
+        )
       }
     }
 
@@ -47,7 +50,10 @@ class FormPartialService @Inject() (
       if (!toggle.isEnabled) {
         Future.successful(HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered"))
       } else {
-        enhancedPartialRetriever.loadPartial(configDecorator.selfAssessmentFormPartialLinkUrl)
+        enhancedPartialRetriever.loadPartial(
+          url = configDecorator.selfAssessmentFormPartialLinkUrl,
+          timeout = configDecorator.dfsPartialTimeoutInMilliseconds
+        )
       }
     }
 }

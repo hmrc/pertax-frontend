@@ -319,6 +319,8 @@ class ConfigDecorator @Inject() (
     servicesConfig.getInt("microservice.services.tcs-broker.timeoutInMilliseconds")
   lazy val taiTimeoutInMilliseconds: Int            =
     servicesConfig.getInt("microservice.services.tai.timeoutInMilliseconds")
+  lazy val dfsPartialTimeoutInMilliseconds: Int     =
+    servicesConfig.getInt("microservice.services.dfs-digital-forms-frontend.timeoutInMilliseconds")
   lazy val preferenceFrontendTimeoutInSec: Int      =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
   lazy val ptaNinoSaveUrl: String                   = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
