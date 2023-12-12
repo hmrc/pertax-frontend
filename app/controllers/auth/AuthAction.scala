@@ -117,8 +117,6 @@ class AuthActionImpl @Inject() (
             name ~
             trustedHelper ~
             profile =>
-          println("\n\nUUUUUUUUUU" + name + "LLLL")
-
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>

@@ -30,7 +30,9 @@ class HomeControllerTimeoutsISpec extends IntegrationSpec {
       "microservice.services.tai.port"                                       -> server.port(),
       "microservice.services.tai.timeoutInMilliseconds"                      -> 1,
       "microservice.services.taxcalc.port"                                   -> server.port(),
-      "microservice.services.taxcalc.timeoutInMilliseconds"                  -> 1
+      "microservice.services.taxcalc.timeoutInMilliseconds"                  -> 1,
+      "microservice.services.citizen-details.port"                           -> server.port(),
+      "microservice.services.citizen-details.timeoutInMilliseconds"          -> 1
     )
     .build()
 
@@ -41,6 +43,7 @@ class HomeControllerTimeoutsISpec extends IntegrationSpec {
   private val breathingSpaceUrl                            = s"/$generatedNino/memorandum"
   private val taxComponentsUrl                             = s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"
   private val taxCalcUrl                                   = s"/taxcalc/$generatedNino/reconciliations"
+  private val citizenDetailsUrl                            = s"/citizen-details/$generatedNino/designatory-details"
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -56,10 +59,11 @@ class HomeControllerTimeoutsISpec extends IntegrationSpec {
 
   "personal-account" must {
     val urlBreathingSpace = controllers.routes.InterstitialController.displayBreathingSpaceDetails.url
-    "hide relevant component(s) when HOD calls time out (breathing space, tax components, tax calc" in {
+    "hide components when HODs time out (breathing space, tax components, tax calc) & show no person name for citizen details" in {
       server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(100)))
       server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(100)))
       server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(100)))
+      server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(100)))
 
       val result: Future[Result] = route(app, request).get
 
@@ -79,6 +83,39 @@ class HomeControllerTimeoutsISpec extends IntegrationSpec {
       contentAsString(result).contains(Messages("label.find_out_why_you_paid_too_much")) mustBe false
       contentAsString(result).contains(Messages("label.make_a_payment")) mustBe false
       server.verify(1, getRequestedFor(urlEqualTo(taxCalcUrl)))
+
+      // Citizen details:-
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementsByClass("govuk-heading-xl").get(0).text() mustBe ""
+      server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
+    }
+
+    "show person name when citizen details does NOT time out" in {
+      server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(100)))
+      server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(100)))
+      server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(100)))
+      val personDetails: PersonDetails =
+        PersonDetails(
+          Person(
+            Some("Firstname"),
+            Some("Middlename"),
+            Some("Lastname"),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None
+          ),
+          None,
+          None
+        )
+      server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(ok(Json.toJson(personDetails).toString())))
+
+      val result: Future[Result] = route(app, request).get
+      val content                = Jsoup.parse(contentAsString(result))
+      content.getElementsByClass("govuk-heading-xl").get(0).text() mustBe "Firstname Lastname"
+      server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
     }
   }
 
@@ -111,69 +148,6 @@ class HomeControllerTimeoutsISpec extends IntegrationSpec {
 
       result.get.futureValue.header.status mustBe OK
       contentAsString(result.get).contains("Do you get tax credits?") mustBe true
-    }
-  }
-}
-
-class HomeControllerTimeoutsCitizenDetailsISpec extends IntegrationSpec {
-  override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .configure(
-      "feature.breathing-space-indicator.enabled"                   -> true,
-      "microservice.services.citizen-details.port"                  -> server.port(),
-      "microservice.services.citizen-details.timeoutInMilliseconds" -> 0
-    )
-    .build()
-
-  private def request: FakeRequest[AnyContentAsEmpty.type] =
-    FakeRequest(GET, "/personal-account")
-      .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
-
-  private val citizenDetailsUrl                            = s"/citizen-details/$generatedNino/designatory-details"
-
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    beforeEachHomeController(memorandum = false)
-
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
-      .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
-  }
-
-  "personal-account" must {
-    "show person name when citizen details does NOT time out" in {
-      val personDetails: PersonDetails =
-        PersonDetails(
-          Person(
-            Some("Firstname"),
-            Some("Middlename"),
-            Some("Lastname"),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None
-          ),
-          None,
-          None
-        )
-      server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(ok(Json.toJson(personDetails).toString())))
-
-      val result: Future[Result] = route(app, request).get
-      val content                = Jsoup.parse(contentAsString(result))
-      content.getElementsByClass("govuk-heading-xl").get(0).text() mustBe "Firstname Lastname"
-      server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
-    }
-
-    "show no person name when citizen details times out" in {
-      server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(100)))
-      val result: Future[Result] = route(app, request).get
-      val content                = Jsoup.parse(contentAsString(result))
-      content.getElementsByClass("govuk-heading-xl").get(0).text() mustBe ""
-      server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
     }
   }
 }
