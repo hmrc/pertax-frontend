@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin._
 import models.{Person, PersonDetails}
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -38,17 +39,30 @@ class TimeoutsISpec extends IntegrationSpec {
     )
     .build()
 
-  private def request: FakeRequest[AnyContentAsEmpty.type] =
-    FakeRequest(GET, "/personal-account")
-      .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
+  private val dummyContent      = "my body content"
+  private val breathingSpaceUrl = s"/$generatedNino/memorandum"
+  private val taxComponentsUrl  = s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"
+  private val taxCalcUrl        = s"/taxcalc/$generatedNino/reconciliations"
+  private val citizenDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
+  private val dfsPartialNinoUrl = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
+  private val dfsPartialSAUrl   = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
 
-  private val dummyContent                                 = "my body content"
-  private val breathingSpaceUrl                            = s"/$generatedNino/memorandum"
-  private val taxComponentsUrl                             = s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"
-  private val taxCalcUrl                                   = s"/taxcalc/$generatedNino/reconciliations"
-  private val citizenDetailsUrl                            = s"/citizen-details/$generatedNino/designatory-details"
-  private val dfsPartialNinoUrl                            = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
-  private val dfsPartialSAUrl                              = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
+  private val personDetails: PersonDetails =
+    PersonDetails(
+      Person(
+        Some("Firstname"),
+        Some("Middlename"),
+        Some("Lastname"),
+        None,
+        None,
+        None,
+        None,
+        None,
+        None
+      ),
+      None,
+      None
+    )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -63,18 +77,27 @@ class TimeoutsISpec extends IntegrationSpec {
   }
 
   "personal-account" must {
-    val urlBreathingSpace = controllers.routes.InterstitialController.displayBreathingSpaceDetails.url
     "hide components when HODs time out (breathing space, tax components, tax calc) & show no person name for citizen details" in {
       server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(100)))
       server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(100)))
       server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(100)))
       server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(100)))
 
-      val result: Future[Result] = route(app, request).get
+      val result: Future[Result] = route(
+        app,
+        FakeRequest(GET, "/personal-account")
+          .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
+      ).get
+
+      val content: Document = Jsoup.parse(contentAsString(result))
+      content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
+        Messages("label.this.section.is") + " " + Messages("label.account_home")
 
       // Breathing space:-
       contentAsString(result).contains(Messages("label.breathing_space")) mustBe false
-      contentAsString(result).contains(urlBreathingSpace) mustBe false
+      contentAsString(result).contains(
+        controllers.routes.InterstitialController.displayBreathingSpaceDetails.url
+      ) mustBe false
       server.verify(1, getRequestedFor(urlEqualTo(breathingSpaceUrl)))
 
       // Tax components (marriage allowance):-
@@ -90,7 +113,6 @@ class TimeoutsISpec extends IntegrationSpec {
       server.verify(1, getRequestedFor(urlEqualTo(taxCalcUrl)))
 
       // Citizen details:-
-      val content = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("govuk-heading-xl").get(0).text() mustBe ""
       server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
     }
@@ -99,25 +121,14 @@ class TimeoutsISpec extends IntegrationSpec {
       server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(100)))
       server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(100)))
       server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(100)))
-      val personDetails: PersonDetails =
-        PersonDetails(
-          Person(
-            Some("Firstname"),
-            Some("Middlename"),
-            Some("Lastname"),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None
-          ),
-          None,
-          None
-        )
+
       server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(ok(Json.toJson(personDetails).toString())))
 
-      val result: Future[Result] = route(app, request).get
+      val result: Future[Result] = route(
+        app,
+        FakeRequest(GET, "/personal-account")
+          .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
+      ).get
       val content                = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("govuk-heading-xl").get(0).text() mustBe "Firstname Lastname"
       server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
