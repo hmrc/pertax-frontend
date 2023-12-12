@@ -11,7 +11,7 @@ import play.api.Application
 import play.api.http.Status.OK
 import play.api.i18n.Messages
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import testUtils.{FileHelper, IntegrationSpec}
@@ -23,19 +23,23 @@ import java.util.UUID
 import scala.concurrent.Future
 
 class TimeoutsISpec extends IntegrationSpec {
+  private val timeoutThresholdInMilliseconds  = 50
+  private val delayInMilliseconds             = 200
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
       "feature.breathing-space-indicator.enabled"                              -> true,
       "microservice.services.breathing-space-if-proxy.port"                    -> server.port(),
-      "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds"   -> 1,
+      "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds"   -> timeoutThresholdInMilliseconds,
       "microservice.services.tai.port"                                         -> server.port(),
-      "microservice.services.tai.timeoutInMilliseconds"                        -> 1,
+      "microservice.services.tai.timeoutInMilliseconds"                        -> timeoutThresholdInMilliseconds,
       "microservice.services.taxcalc.port"                                     -> server.port(),
-      "microservice.services.taxcalc.timeoutInMilliseconds"                    -> 1,
+      "microservice.services.taxcalc.timeoutInMilliseconds"                    -> timeoutThresholdInMilliseconds,
       "microservice.services.citizen-details.port"                             -> server.port(),
-      "microservice.services.citizen-details.timeoutInMilliseconds"            -> 1,
+      "microservice.services.citizen-details.timeoutInMilliseconds"            -> timeoutThresholdInMilliseconds,
+      "microservice.services.tcs-broker.port"                                  -> server.port(),
+      "microservice.services.tcs-broker.timeoutInMilliseconds"                 -> timeoutThresholdInMilliseconds,
       "microservice.services.dfs-digital-forms-frontend.port"                  -> server.port(),
-      "microservice.services.dfs-digital-forms-frontend.timeoutInMilliseconds" -> 1
+      "microservice.services.dfs-digital-forms-frontend.timeoutInMilliseconds" -> timeoutThresholdInMilliseconds
     )
     .build()
 
@@ -66,8 +70,6 @@ class TimeoutsISpec extends IntegrationSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    beforeEachHomeController(memorandum = false)
-
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
       .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
@@ -78,10 +80,11 @@ class TimeoutsISpec extends IntegrationSpec {
 
   "personal-account" must {
     "hide components when HODs time out (breathing space, tax components, tax calc) & show no person name for citizen details" in {
-      server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(100)))
-      server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(100)))
-      server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(100)))
-      server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(100)))
+      beforeEachHomeController(memorandum = false, matchingDetails = false)
+      server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+      server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+      server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+      server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
 
       val result: Future[Result] = route(
         app,
@@ -118,10 +121,10 @@ class TimeoutsISpec extends IntegrationSpec {
     }
 
     "show person name when citizen details does NOT time out" in {
-      server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(100)))
-      server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(100)))
-      server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(100)))
-
+      beforeEachHomeController(memorandum = false, matchingDetails = false)
+      server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+      server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+      server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
       server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(ok(Json.toJson(personDetails).toString())))
 
       val result: Future[Result] = route(
@@ -155,7 +158,7 @@ class TimeoutsISpec extends IntegrationSpec {
       )
       server.stubFor(
         get(urlPathEqualTo(s"/tcs/$generatedNino/exclusion"))
-          .willReturn(aResponse.withFixedDelay(100))
+          .willReturn(aResponse.withFixedDelay(delayInMilliseconds))
       )
 
       val request = FakeRequest(GET, "/personal-account/your-address/tax-credits-choice")
@@ -173,8 +176,12 @@ class TimeoutsISpec extends IntegrationSpec {
         .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
 
       server.stubFor(
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+          .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
+      )
+      server.stubFor(
         get(urlEqualTo(dfsPartialNinoUrl))
-          .willReturn(aResponse.withFixedDelay(100))
+          .willReturn(aResponse.withFixedDelay(delayInMilliseconds))
       )
 
       val request   = FakeRequest(GET, "/personal-account/national-insurance-summary")
@@ -188,7 +195,10 @@ class TimeoutsISpec extends IntegrationSpec {
     "display NI content when partial does not time out" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
         .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
-
+      server.stubFor(
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+          .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
+      )
       server.stubFor(
         get(urlEqualTo(dfsPartialNinoUrl))
           .willReturn(ok(dummyContent))
