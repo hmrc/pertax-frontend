@@ -74,8 +74,6 @@ class TimeoutsISpec extends IntegrationSpec {
   ).get
 
   private def getHomePageWithAllTimeouts: Future[Result] = {
-    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
-    server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
     server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
