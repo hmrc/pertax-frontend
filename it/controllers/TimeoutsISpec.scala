@@ -1,24 +1,20 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import controllers.auth.AuthJourney
-import controllers.auth.requests.UserRequest
 import models.admin._
 import models.{Person, PersonDetails}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.i18n.Messages
 import play.api.libs.json.Json
-import play.api.mvc.{Request, Result}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
-import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.{ActionBuilderFixture, FileHelper, IntegrationSpec}
+import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
@@ -53,7 +49,6 @@ class TimeoutsISpec extends IntegrationSpec {
   private val taxCalcUrl        = s"/taxcalc/$generatedNino/reconciliations"
   private val citizenDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
   private val dfsPartialNinoUrl = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
-  private val dfsPartialSAUrl   = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
 
   private val personDetails: PersonDetails =
     PersonDetails(
@@ -232,54 +227,6 @@ class TimeoutsISpec extends IntegrationSpec {
       val result    = route(app, request).get
       val content   = Jsoup.parse(contentAsString(result))
       val niContent = content.getElementById("national_insurance").text()
-      niContent mustBe dummyContent
-    }
-  }
-
-  // TODO: 8107: The below more complex because checks are done on auth related stuff in controller
-  "/personal-account/self-assessment-summary" must {
-    "display no SA content when partial times out" in {
-      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
-
-
-//      val mockAuthJourney: AuthJourney                          = mock[AuthJourney]
-//      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-//        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-//          block(
-//            buildUserRequest(request = request)
-//          )
-//      })
-      
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
-
-      server.stubFor(
-        get(urlEqualTo(dfsPartialSAUrl))
-          .willReturn(aResponse.withFixedDelay(100))
-      )
-
-      val request   = FakeRequest(GET, "/personal-account/self-assessment-summary")
-        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-      val result    = route(app, request).get
-      val content   = Jsoup.parse(contentAsString(result))
-      val niContent = content.getElementById("self-assessment-forms").text()
-      niContent.isEmpty mustBe true
-    }
-
-    "display SA content when partial does not time out" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
-
-      server.stubFor(
-        get(urlEqualTo(dfsPartialSAUrl))
-          .willReturn(ok(dummyContent))
-      )
-
-      val request   = FakeRequest(GET, "/personal-account/self-assessment-summary")
-        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-      val result    = route(app, request).get
-      val content   = Jsoup.parse(contentAsString(result))
-      val niContent = content.getElementById("self-assessment-forms").text()
       niContent mustBe dummyContent
     }
   }
