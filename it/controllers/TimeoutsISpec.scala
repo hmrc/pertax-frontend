@@ -1,20 +1,24 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import models.admin._
 import models.{Person, PersonDetails}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.i18n.Messages
 import play.api.libs.json.Json
-import play.api.mvc.Result
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
-import testUtils.{FileHelper, IntegrationSpec}
+import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{ActionBuilderFixture, FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
@@ -49,7 +53,7 @@ class TimeoutsISpec extends IntegrationSpec {
   private val taxCalcUrl        = s"/taxcalc/$generatedNino/reconciliations"
   private val citizenDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
   private val dfsPartialNinoUrl = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
-  // private val dfsPartialSAUrl   = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
+  private val dfsPartialSAUrl   = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
 
   private val personDetails: PersonDetails =
     PersonDetails(
@@ -75,7 +79,8 @@ class TimeoutsISpec extends IntegrationSpec {
   ).get
 
   private def getHomePageWithAllTimeouts: Future[Result] = {
-    beforeEachHomeController(memorandum = false, matchingDetails = false)
+    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+    server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
     server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
@@ -94,7 +99,7 @@ class TimeoutsISpec extends IntegrationSpec {
   }
 
   "/personal-account" must {
-    "hide breathing space components when HODs time out" in {
+    "hide breathing space related components when breathing space connector times out" in {
       val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
@@ -107,7 +112,7 @@ class TimeoutsISpec extends IntegrationSpec {
       server.verify(1, getRequestedFor(urlEqualTo(breathingSpaceUrl)))
     }
 
-    "hide tax components when HODs time out" in {
+    "show generic marriage allowance content when tax components connector times out" in {
       val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
@@ -119,7 +124,7 @@ class TimeoutsISpec extends IntegrationSpec {
       server.verify(1, getRequestedFor(urlEqualTo(taxComponentsUrl)))
     }
 
-    "hide tax calc components when HODs time out" in {
+    "hide tax calc elements on page when tax calc connector times out" in {
       val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
@@ -132,17 +137,17 @@ class TimeoutsISpec extends IntegrationSpec {
       server.verify(1, getRequestedFor(urlEqualTo(taxCalcUrl)))
     }
 
-    "show no person name for citizen details when HODs time out" in {
+    "show no person name for citizen details when citizen details connector times out" in {
       val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
         Messages("label.this.section.is") + " " + Messages("label.account_home")
 
-      content.getElementsByClass("govuk-heading-xl").get(0).text() mustBe ""
+      content.getElementsByClass("govuk-heading-xl").get(0).text().isEmpty mustBe true
       server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
     }
 
-    "show person name when citizen details does NOT time out" in {
+    "show correct person name when citizen details connector does NOT time out" in {
       beforeEachHomeController(memorandum = false, matchingDetails = false)
       server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
       server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
@@ -157,7 +162,7 @@ class TimeoutsISpec extends IntegrationSpec {
   }
 
   "/personal-account/your-address/tax-credits-choice" must {
-    "render the do you get tax credits page when HOD calls time out" in {
+    "render the do you get tax credits page when tax credits broker connector times out" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
       server.stubFor(
@@ -189,7 +194,7 @@ class TimeoutsISpec extends IntegrationSpec {
   }
 
   "/personal-account/national-insurance-summary" must {
-    "display no NI content when partial times out" in {
+    "display no NI content when partial connector times out" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
         .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
 
@@ -232,40 +237,50 @@ class TimeoutsISpec extends IntegrationSpec {
   }
 
   // TODO: 8107: The below more complex because checks are done on auth related stuff in controller
-  //  "/personal-account/self-assessment-summary" must {
-  //    "display no SA content when partial times out" in {
-  //      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
-  //      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-  //        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
-  //
-  //      server.stubFor(
-  //        get(urlEqualTo(dfsPartialSAUrl))
-  //          .willReturn(aResponse.withFixedDelay(100))
-  //      )
-  //
-  //      val request   = FakeRequest(GET, "/personal-account/self-assessment-summary")
-  //        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-  //      val result    = route(app, request).get
-  //      val content   = Jsoup.parse(contentAsString(result))
-  //      val niContent = content.getElementById("self-assessment-forms").text()
-  //      niContent.isEmpty mustBe true
-  //    }
-  //
-  //    "display SA content when partial does not time out" in {
-  //      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-  //        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
-  //
-  //      server.stubFor(
-  //        get(urlEqualTo(dfsPartialSAUrl))
-  //          .willReturn(ok(dummyContent))
-  //      )
-  //
-  //      val request   = FakeRequest(GET, "/personal-account/self-assessment-summary")
-  //        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-  //      val result    = route(app, request).get
-  //      val content   = Jsoup.parse(contentAsString(result))
-  //      val niContent = content.getElementById("self-assessment-forms").text()
-  //      niContent mustBe dummyContent
-  //    }
-  //  }
+  "/personal-account/self-assessment-summary" must {
+    "display no SA content when partial times out" in {
+      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+
+
+//      val mockAuthJourney: AuthJourney                          = mock[AuthJourney]
+//      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+//        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+//          block(
+//            buildUserRequest(request = request)
+//          )
+//      })
+      
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+
+      server.stubFor(
+        get(urlEqualTo(dfsPartialSAUrl))
+          .willReturn(aResponse.withFixedDelay(100))
+      )
+
+      val request   = FakeRequest(GET, "/personal-account/self-assessment-summary")
+        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result    = route(app, request).get
+      val content   = Jsoup.parse(contentAsString(result))
+      val niContent = content.getElementById("self-assessment-forms").text()
+      niContent.isEmpty mustBe true
+    }
+
+    "display SA content when partial does not time out" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+
+      server.stubFor(
+        get(urlEqualTo(dfsPartialSAUrl))
+          .willReturn(ok(dummyContent))
+      )
+
+      val request   = FakeRequest(GET, "/personal-account/self-assessment-summary")
+        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result    = route(app, request).get
+      val content   = Jsoup.parse(contentAsString(result))
+      val niContent = content.getElementById("self-assessment-forms").text()
+      niContent mustBe dummyContent
+    }
+  }
 }
