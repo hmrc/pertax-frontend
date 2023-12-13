@@ -5,7 +5,7 @@ import models.admin._
 import models.{Person, PersonDetails}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.mockito.ArgumentMatchers
+import org.mockito.{ArgumentMatchers, Mockito}
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status.OK
@@ -84,6 +84,7 @@ class TimeoutsISpec extends IntegrationSpec {
   }
 
   override def beforeEach(): Unit = {
+    Mockito.reset(mockFeatureFlagService)
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
       .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
