@@ -36,8 +36,7 @@ class TaiConnector @Inject() (
   configDecorator: ConfigDecorator
 ) {
 
-  private lazy val taiUrl                     = servicesConfig.baseUrl("tai")
-  private lazy val timeoutInMilliseconds: Int = configDecorator.taiTimeoutInMilliseconds
+  private lazy val taiUrl = servicesConfig.baseUrl("tai")
   def taxComponents(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
@@ -46,7 +45,7 @@ class TaiConnector @Inject() (
     httpClientResponse.read(
       httpClientV2
         .get(url"$url")
-        .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
+        .transform(_.withRequestTimeout(configDecorator.taiTimeoutInMilliseconds.milliseconds))
         .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
     )
   }

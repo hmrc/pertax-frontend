@@ -37,8 +37,7 @@ class TaxCalculationConnector @Inject() (
   httpClientResponse: HttpClientResponse
 )(implicit ec: ExecutionContext) {
 
-  private lazy val timeoutInMilliseconds: Int = configDecorator.taxCalcTimeoutInMilliseconds
-  private lazy val taxCalcUrl                 = servicesConfig.baseUrl("taxcalc")
+  private lazy val taxCalcUrl = servicesConfig.baseUrl("taxcalc")
 
   def getTaxYearReconciliations(
     nino: Nino
@@ -46,7 +45,7 @@ class TaxCalculationConnector @Inject() (
     val url         = s"$taxCalcUrl/taxcalc/$nino/reconciliations"
     val apiResponse = httpClientV2
       .get(url"$url")
-      .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
+      .transform(_.withRequestTimeout(configDecorator.taxCalcTimeoutInMilliseconds.milliseconds))
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
     httpClientResponse.read(apiResponse).map(_.json.as[List[TaxYearReconciliation]])
   }

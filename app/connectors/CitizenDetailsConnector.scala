@@ -41,15 +41,13 @@ class CitizenDetailsConnector @Inject() (
 
   private lazy val citizenDetailsUrl: String = servicesConfig.baseUrl("citizen-details")
 
-  private lazy val timeoutInMilliseconds: Int = configDecorator.citizenDetailsTimeoutInMilliseconds
-
   def personDetails(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val url                                                              = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
     val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
       .get(url"$url")
-      .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
+      .transform(_.withRequestTimeout(configDecorator.citizenDetailsTimeoutInMilliseconds.milliseconds))
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
     httpClientResponse.read(apiResponse)
   }

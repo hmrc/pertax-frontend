@@ -35,8 +35,7 @@ class TaxCreditsConnector @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  private lazy val taxCreditsUrl: String      = configDecorator.tcsBrokerHost
-  private lazy val timeoutInMilliseconds: Int = configDecorator.tcsBrokerTimeoutInMilliseconds
+  private lazy val taxCreditsUrl: String = configDecorator.tcsBrokerHost
   def getTaxCreditsExclusionStatus(
     nino: Nino
   )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, Boolean] = {
@@ -45,7 +44,7 @@ class TaxCreditsConnector @Inject() (
       .read(
         httpClientV2
           .get(url"$url")
-          .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
+          .transform(_.withRequestTimeout(configDecorator.tcsBrokerTimeoutInMilliseconds.milliseconds))
           .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
       )
       .map(result => (result.json \ "excluded").as[Boolean])

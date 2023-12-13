@@ -36,8 +36,7 @@ class BreathingSpaceConnector @Inject() (
   configDecorator: ConfigDecorator
 ) extends Logging {
 
-  private lazy val baseUrl: String            = configDecorator.breathingSpaceBaseUrl
-  private lazy val timeoutInMilliseconds: Int = configDecorator.breathingSpaceTimeoutInMilliseconds
+  private lazy val baseUrl: String = configDecorator.breathingSpaceBaseUrl
 
   def getBreathingSpaceIndicator(
     nino: Nino
@@ -49,7 +48,7 @@ class BreathingSpaceConnector @Inject() (
       )
     val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
       .get(url"$url")(bsHeaderCarrier)
-      .transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
+      .transform(_.withRequestTimeout(configDecorator.breathingSpaceTimeoutInMilliseconds.milliseconds))
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
     httpClientResponse
       .read(apiResponse)
