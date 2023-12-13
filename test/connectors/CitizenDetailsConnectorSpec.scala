@@ -18,8 +18,6 @@ package connectors
 
 import config.ConfigDecorator
 import models._
-import org.mockito.Mockito.{reset, when}
-import org.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import play.api.Application
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}

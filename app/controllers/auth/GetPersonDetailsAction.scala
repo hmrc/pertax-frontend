@@ -88,16 +88,13 @@ class GetPersonDetailsAction @Inject() (
         request.nino match {
           case Some(nino) =>
             if (toggle.isEnabled) {
-              EitherT(
-                citizenDetailsService
-                  .personDetails(nino)(hc, ec)
-                  .transform {
-                    case Right(response)                           => Right(Some(response))
-                    case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
-                    case _                                         => Right(None)
-                  }
-                  .value
-              )
+              citizenDetailsService
+                .personDetails(nino)(hc, ec)
+                .transform {
+                  case Right(response)                           => Right(Some(response))
+                  case Left(error) if error.statusCode == LOCKED => Left(Locked(manualCorrespondenceView()))
+                  case _                                         => Right(None)
+                }
             } else {
               EitherT.rightT[Future, Result](None)
             }

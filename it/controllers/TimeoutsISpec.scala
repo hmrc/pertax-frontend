@@ -49,7 +49,7 @@ class TimeoutsISpec extends IntegrationSpec {
   private val taxCalcUrl        = s"/taxcalc/$generatedNino/reconciliations"
   private val citizenDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
   private val dfsPartialNinoUrl = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
-  private val dfsPartialSAUrl   = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
+  // private val dfsPartialSAUrl   = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
 
   private val personDetails: PersonDetails =
     PersonDetails(
