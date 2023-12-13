@@ -40,7 +40,7 @@ class FormPartialService @Inject() (
       } else {
         enhancedPartialRetriever.loadPartial(
           url = configDecorator.nationalInsuranceFormPartialLinkUrl,
-          timeout = configDecorator.dfsPartialTimeoutInMilliseconds
+          timeoutInMilliseconds = configDecorator.dfsPartialTimeoutInMilliseconds
         )
       }
     }
@@ -52,7 +52,7 @@ class FormPartialService @Inject() (
       } else {
         enhancedPartialRetriever.loadPartial(
           url = configDecorator.selfAssessmentFormPartialLinkUrl,
-          timeout = configDecorator.dfsPartialTimeoutInMilliseconds
+          timeoutInMilliseconds = configDecorator.dfsPartialTimeoutInMilliseconds
         )
       }
     }
