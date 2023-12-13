@@ -191,6 +191,30 @@ class ConfigDecorator @Inject() (
   lazy val selfAssessmentFormPartialLinkUrl    =
     s"$formFrontendService/digital-forms/forms/personal-tax/self-assessment/catalogue"
 
+  lazy val nationalInsuranceHomeResponsibilitiesProtection =
+    s"$dfsFrontendHost/digital-forms/form/application-for-home-responsibilities-protection/draft/guide"
+
+  lazy val nationalInsuranceClassThreeCredits =
+    s"$dfsFrontendHost/digital-forms/form/application-for-national-insurance-class-3-credits/draft/guide"
+
+  lazy val creditsForParentsAndCarers =
+    s"$dfsFrontendHost/digital-forms/form/application-for-credits-for-parents-and-carers/draft/guide"
+
+  lazy val nationalInsuranceClassTwoContributions =
+    s"$dfsFrontendHost/digital-forms/form/Refund-of-Class-2-NICs-Application/draft/guide"
+
+  lazy val nationalInsuranceClassFourContributions =
+    s"$dfsFrontendHost/digital-forms/form/refund-of-class-4-nics-application/draft/guide"
+
+  lazy val nationalInsuranceClassOneContributions =
+    s"$dfsFrontendHost/digital-forms/form/apply-for-deferment-of-payment-of-class-1-national-insurance-contributions/draft/guide"
+
+  lazy val applyForEuropeanHealthcareCertificate =
+    s"$dfsFrontendHost/digital-forms/form/EEA-Healthcare-Application/draft/guide"
+
+  lazy val selfEmploymentAndTemporaryWorkInAbroad =
+    s"$dfsFrontendHost/digital-forms/form/Sending-employees-to-work-abroad/insufficient-enrolments"
+
   lazy val identityVerificationUpliftUrl      = s"$identityVerificationHost/$identityVerificationPrefix/uplift"
   lazy val multiFactorAuthenticationUpliftUrl = s"$basGatewayFrontendHost/bas-gateway/uplift-mfa"
   lazy val tcsChangeAddressUrl                = s"$tcsFrontendHost/tax-credits-service/personal/change-address"
