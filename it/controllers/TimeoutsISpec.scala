@@ -107,6 +107,7 @@ class TimeoutsISpec extends IntegrationSpec {
     }
 
     "show generic marriage allowance content when tax components connector times out" in {
+      note("(child benefits & tax credits tiles are always displayed whereas marriage allowance tile differs when times out)")
       val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
