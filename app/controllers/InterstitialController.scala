@@ -58,13 +58,12 @@ class InterstitialController @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
-  featureFlagService: FeatureFlagService,
-  viewNISPView: ViewNISPView
+  featureFlagService: FeatureFlagService
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with Logging {
 
-  val saBreadcrumb: Breadcrumb =
+  private val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
   private val authenticate: ActionBuilder[UserRequest, AnyContent]   =
@@ -78,7 +77,7 @@ class InterstitialController @Inject() (
     for {
       nationalInsurancePartial <- formPartialService.getNationalInsurancePartial
     } yield Ok(
-      viewNISPView(
+      viewNationalInsuranceInterstitialHomeView(
         formPartial = if (configDecorator.partialUpgradeEnabled) {
           //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
           FormPartialUpgrade.upgrade(nationalInsurancePartial successfulContentOrEmpty)
