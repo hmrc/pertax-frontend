@@ -59,6 +59,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val taxSummaries              = inject[TaxSummariesView]
   private val latestNewsAndUpdatesView  = inject[LatestNewsAndUpdatesView]
   private val saAndItsaMergeView        = inject[SaAndItsaMergeView]
+  private val nispView                  = inject[NISPView]
   private val enrolmentsHelper          = inject[EnrolmentsHelper]
   private val newsAndTilesConfig        = mock[NewsAndTilesConfig]
   private val stubConfigDecorator       = new ConfigDecorator(
@@ -80,7 +81,26 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       latestNewsAndUpdatesView,
       saAndItsaMergeView,
       enrolmentsHelper,
-      newsAndTilesConfig
+      newsAndTilesConfig,
+      nispView
+    )(stubConfigDecorator, ec)
+
+  def sut: HomeCardGenerator =
+    new HomeCardGenerator(
+      mockFeatureFlagService,
+      payAsYouEarn,
+      taxCalculation,
+      nationalInsurance,
+      taxCredits,
+      childBenefitSingleAccount,
+      marriageAllowance,
+      statePension,
+      taxSummaries,
+      latestNewsAndUpdatesView,
+      saAndItsaMergeView,
+      enrolmentsHelper,
+      newsAndTilesConfig,
+      nispView
     )(stubConfigDecorator, ec)
 
   "Calling getPayAsYouEarnCard" must {
@@ -187,22 +207,60 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "Calling getNationalInsuranceCard" must {
-    "return NI Card when toggled on" in {
+    "return NI Card when toggled on and NISP toggle is disabled" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = false)))
 
       lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
       cardBody mustBe Some(nationalInsurance())
     }
 
-    "return None when toggled off" in {
+    "return None when NationalInsuranceTileToggle is disabled and NiAndSpMergeTileToggle is disabled" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = false)))
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = false)))
 
       lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
       cardBody mustBe None
+    }
+
+    "return None when NationalInsuranceTileToggle is disabled and NiAndSpMergeTileToggle is enabled" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = false)))
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
+
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
+
+      cardBody mustBe None
+    }
+  }
+
+  "calling getPensionCards" must {
+    "return NI and SP card when NiAndSpMergeTileToggle is enabled" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
+
+      lazy val cardBody = homeCardGenerator.getPensionCards().futureValue
+
+      cardBody mustBe List(nispView())
+    }
+
+    "return SP card when NiAndSpMergeTileToggle is disabled" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = false)))
+
+      lazy val cardBody = homeCardGenerator.getPensionCards().futureValue
+
+      cardBody mustBe List(statePension())
     }
   }
 
@@ -338,28 +396,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(request = FakeRequest())
 
-        val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
-        )
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            nationalInsurance,
-            taxCredits,
-            childBenefitSingleAccount,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig
-          )(stubConfigDecorator, ec)
-
         lazy val cardBody = sut.getAnnualTaxSummaryCard.value.futureValue
 
         cardBody mustBe None
@@ -382,56 +418,12 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             request = FakeRequest()
           )
 
-        val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
-        )
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            nationalInsurance,
-            taxCredits,
-            childBenefitSingleAccount,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig
-          )(stubConfigDecorator, ec)
-
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
         cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = true))
       }
 
       "return Itsa Card when without Itsa enrolments" in {
-
-        val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
-        )
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            nationalInsurance,
-            taxCredits,
-            childBenefitSingleAccount,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig
-          )(stubConfigDecorator, ec)
 
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
@@ -446,28 +438,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             request = FakeRequest()
           )
 
-        val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
-        )
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            nationalInsurance,
-            taxCredits,
-            childBenefitSingleAccount,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig
-          )(stubConfigDecorator, ec)
-
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
         cardBody mustBe None
@@ -480,28 +450,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             saUser = WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
             request = FakeRequest()
           )
-
-        val stubConfigDecorator = new ConfigDecorator(
-          inject[Configuration],
-          inject[ServicesConfig]
-        )
-
-        def sut: HomeCardGenerator =
-          new HomeCardGenerator(
-            mockFeatureFlagService,
-            payAsYouEarn,
-            taxCalculation,
-            nationalInsurance,
-            taxCredits,
-            childBenefitSingleAccount,
-            marriageAllowance,
-            statePension,
-            taxSummaries,
-            latestNewsAndUpdatesView,
-            saAndItsaMergeView,
-            enrolmentsHelper,
-            newsAndTilesConfig
-          )(stubConfigDecorator, ec)
 
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
@@ -534,29 +482,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "return nothing when toggled off" in {
-      val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
-      ) {
-        override lazy val isNewsAndUpdatesTileEnabled: Boolean = false
-      }
-
-      def sut: HomeCardGenerator =
-        new HomeCardGenerator(
-          mockFeatureFlagService,
-          payAsYouEarn,
-          taxCalculation,
-          nationalInsurance,
-          taxCredits,
-          childBenefitSingleAccount,
-          marriageAllowance,
-          statePension,
-          taxSummaries,
-          latestNewsAndUpdatesView,
-          saAndItsaMergeView,
-          enrolmentsHelper,
-          newsAndTilesConfig
-        )(stubConfigDecorator, ec)
 
       sut.getLatestNewsAndUpdatesCard() mustBe None
     }
