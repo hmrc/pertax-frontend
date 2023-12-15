@@ -112,7 +112,7 @@ class TimeoutsISpec extends IntegrationSpec {
        |    "affinityGroup": "Individual",
        |    "credentialStrength": "strong"
        |}
-       |""".stripMargin  
+       |""".stripMargin
 
   private def homePageGET: Future[Result] = route(
     app,
@@ -138,7 +138,7 @@ class TimeoutsISpec extends IntegrationSpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
   }
-  
+
   "/personal-account" must {
     "hide breathing space related components when breathing space connector times out" in {
       val result            = getHomePageWithAllTimeouts
