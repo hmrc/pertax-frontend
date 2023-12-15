@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, ShowOutageBannerToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NiAndSpMergeTileToggle, ShowOutageBannerToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -38,7 +38,7 @@ import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.mongoFeatureToggles.model.{FeatureFlag, FeatureFlagName}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -85,7 +85,8 @@ class InterstitialControllerSpec extends BaseSpec {
         inject[EnrolmentsHelper],
         inject[SeissService],
         mockNewsAndTileConfig,
-        mockFeatureFlagService
+        mockFeatureFlagService,
+        inject[ViewNISPView]
       )(config, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) {
@@ -125,6 +126,9 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
+      when(mockFeatureFlagService.get(NiAndSpMergeTileToggle))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = false, None)))
+
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure   = false
 
@@ -135,6 +139,31 @@ class InterstitialControllerSpec extends BaseSpec {
       status(result) mustBe OK
 
       verify(testController.formPartialService, times(1)).getNationalInsurancePartial(any())
+    }
+
+    "redirect to /your-national-insurance-state-pension when NI/SP merge tile toggle is enabled" in new LocalSetup {
+      override def simulateFormPartialServiceFailure: Boolean = false
+      override def simulateSaPartialServiceFailure: Boolean   = false
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              credentials = Credentials("", "GovernmentGateway"),
+              request = request
+            )
+          )
+      })
+
+      when(mockFeatureFlagService.get(NiAndSpMergeTileToggle))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true, None)))
+
+      val result = controller.displayNationalInsurance(fakeRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/your-national-insurance-state-pension")
+
     }
   }
 
@@ -171,7 +200,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
-          mockFeatureFlagService
+          mockFeatureFlagService,
+          inject[ViewNISPView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -225,7 +255,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
-          mockFeatureFlagService
+          mockFeatureFlagService,
+          inject[ViewNISPView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -451,7 +482,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
-          inject[FeatureFlagService]
+          inject[FeatureFlagService],
+          inject[ViewNISPView]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -526,7 +558,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
-          mockFeatureFlagService
+          mockFeatureFlagService,
+          inject[ViewNISPView]
         )(stubConfigDecorator, ec)
 
       lazy val fakeRequest       = FakeRequest("", "")
@@ -569,7 +602,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[EnrolmentsHelper],
           inject[SeissService],
           mockNewsAndTileConfig,
-          mockFeatureFlagService
+          mockFeatureFlagService,
+          inject[ViewNISPView]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -637,7 +671,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
-          mockFeatureFlagService
+          mockFeatureFlagService,
+          inject[ViewNISPView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -694,7 +729,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
-          mockFeatureFlagService
+          mockFeatureFlagService,
+          inject[ViewNISPView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -750,7 +786,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
-          mockFeatureFlagService
+          mockFeatureFlagService,
+          inject[ViewNISPView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -806,7 +843,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
-          mockFeatureFlagService
+          mockFeatureFlagService,
+          inject[ViewNISPView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
