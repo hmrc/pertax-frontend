@@ -68,31 +68,6 @@ class TimeoutsISpec extends IntegrationSpec {
       None
     )
 
-  private def homePageGET: Future[Result] = route(
-    app,
-    FakeRequest(GET, "/personal-account")
-      .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
-  ).get
-
-  private def getHomePageWithAllTimeouts: Future[Result] = {
-    server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
-    server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
-    server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
-    server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
-    homePageGET
-  }
-
-  override def beforeEach(): Unit = {
-    Mockito.reset(mockFeatureFlagService)
-    super.beforeEach()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
-      .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
-  }
-
   private val authResponseSA: String =
     s"""
        |{
@@ -137,8 +112,33 @@ class TimeoutsISpec extends IntegrationSpec {
        |    "affinityGroup": "Individual",
        |    "credentialStrength": "strong"
        |}
-       |""".stripMargin
+       |""".stripMargin  
 
+  private def homePageGET: Future[Result] = route(
+    app,
+    FakeRequest(GET, "/personal-account")
+      .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
+  ).get
+
+  private def getHomePageWithAllTimeouts: Future[Result] = {
+    server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+    server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+    server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+    server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+    homePageGET
+  }
+
+  override def beforeEach(): Unit = {
+    Mockito.reset(mockFeatureFlagService)
+    super.beforeEach()
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+      .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+  }
+  
   "/personal-account" must {
     "hide breathing space related components when breathing space connector times out" in {
       val result            = getHomePageWithAllTimeouts
