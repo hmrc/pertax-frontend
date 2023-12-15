@@ -5,8 +5,8 @@ import models.admin._
 import models.{Person, PersonDetails}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.mockito.{ArgumentMatchers, Mockito}
 import org.mockito.Mockito.when
+import org.mockito.{ArgumentMatchers, Mockito}
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.i18n.Messages
@@ -49,6 +49,7 @@ class TimeoutsISpec extends IntegrationSpec {
   private val taxCalcUrl        = s"/taxcalc/$generatedNino/reconciliations"
   private val citizenDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
   private val dfsPartialNinoUrl = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
+  private val dfsPartialSAUrl   = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
 
   private val personDetails: PersonDetails =
     PersonDetails(
@@ -92,6 +93,52 @@ class TimeoutsISpec extends IntegrationSpec {
       .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
   }
 
+  override val authResponse: String =
+    s"""
+       |{
+       |    "confidenceLevel": 200,
+       |    "nino": "$generatedNino",
+       |    "name": {
+       |        "name": "John",
+       |        "lastName": "Smith"
+       |    },
+       |    "loginTimes": {
+       |        "currentLogin": "2021-06-07T10:52:02.594Z",
+       |        "previousLogin": null
+       |    },
+       |    "optionalCredentials": {
+       |        "providerId": "4911434741952698",
+       |        "providerType": "GovernmentGateway"
+       |    },
+       |    "authProviderId": {
+       |        "ggCredId": "xyz"
+       |    },
+       |    "externalId": "testExternalId",
+       |    "allEnrolments": [
+       |       {
+       |          "key":"HMRC-PT",
+       |          "identifiers": [
+       |             {
+       |                "key":"NINO",
+       |                "value": "$generatedNino"
+       |             }
+       |          ]
+       |       },
+       |       {
+       |          "key":"IR-SA",
+       |          "identifiers": [
+       |             {
+       |                "key":"UTR",
+       |                "value": "$generatedNino"
+       |             }
+       |          ]
+       |       }
+       |    ],
+       |    "affinityGroup": "Individual",
+       |    "credentialStrength": "strong"
+       |}
+       |""".stripMargin
+
   "/personal-account" must {
     "hide breathing space related components when breathing space connector times out" in {
       val result            = getHomePageWithAllTimeouts
@@ -107,7 +154,9 @@ class TimeoutsISpec extends IntegrationSpec {
     }
 
     "show generic marriage allowance content when tax components connector times out" in {
-      note("(child benefits & tax credits tiles are always displayed whereas marriage allowance tile differs when times out)")
+      note(
+        "(child benefits & tax credits tiles are always displayed whereas marriage allowance tile differs when times out)"
+      )
       val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
@@ -230,4 +279,41 @@ class TimeoutsISpec extends IntegrationSpec {
       niContent mustBe dummyContent
     }
   }
+
+  "/personal-account/self-assessment-summary" must {
+    "display no SA content when partial times out" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+
+      server.stubFor(
+        get(urlEqualTo(dfsPartialSAUrl))
+          .willReturn(aResponse.withFixedDelay(100))
+      )
+
+      val request   = FakeRequest(GET, "/personal-account/self-assessment-summary")
+        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result    = route(app, request).get
+      val content   = Jsoup.parse(contentAsString(result))
+      val niContent = content.getElementById("self-assessment-forms").text()
+      niContent.isEmpty mustBe true
+    }
+
+    "display SA content when partial does not time out" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+
+      server.stubFor(
+        get(urlEqualTo(dfsPartialSAUrl))
+          .willReturn(ok(dummyContent))
+      )
+
+      val request   = FakeRequest(GET, "/personal-account/self-assessment-summary")
+        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      val result    = route(app, request).get
+      val content   = Jsoup.parse(contentAsString(result))
+      val niContent = content.getElementById("self-assessment-forms").text()
+      niContent mustBe dummyContent
+    }
+  }
+
 }
