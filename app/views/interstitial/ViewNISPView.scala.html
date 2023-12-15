@@ -33,62 +33,49 @@
     govukInsetText: GovukInsetText
 )
 
-@(formPartial: Html, redirectUrl: String, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(formPartial: Html, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.national_insurance_summary")
 ) {
 
-@h1("label.your_national_insurance_and_state_pension")
+    @h1("label.your_national_insurance_and_state_pension")
 
-@p(Text(messages("label.you_pay_national_insurance_contributions")))
+    @p(Text(messages("label.you_pay_national_insurance_contributions")))
 
-@h2("label.your_state_pension_and_national_insurance_record")
+    @h2("label.your_state_pension_and_national_insurance_record")
 
-@p(Text(messages("label.view_your_state_pension_summary_to_find_out")))
-<ul class="govuk-list govuk-list--bullet">
-    <li>@messages("label.when_you_get_your_state_pension")</li>
-    <li>@messages("label.how_much_you_can_get")</li>
-    <li>@messages("label.if_you_can_increase_it")</li>
-</ul>
-@p(Text(messages("label.view_your_national_insurance_record_to_find_out")))
-<ul class="govuk-list govuk-list--bullet">
-    <li>@messages("label.what_youve_paid_up_to_current_tax_year")</li>
-    <li>@messages("label.if_youve_received_any_national_insurance_credits")</li>
-</ul>
-@p(Text(messages("label.you_can_access_your_ni_record_from_sp_summary")))
-@link(configDecorator.statePensionSummary, messageKey = "label.view_your_state_pension_summary", id = Some("viewStatePensionSummary"))
+    @p(Text(messages("label.view_your_state_pension_summary_to_find_out")))
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("label.when_you_get_your_state_pension")</li>
+        <li>@messages("label.how_much_you_can_get")</li>
+        <li>@messages("label.if_you_can_increase_it")</li>
+    </ul>
+    @p(Text(messages("label.view_your_national_insurance_record_to_find_out")))
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("label.what_youve_paid_up_to_current_tax_year")</li>
+        <li>@messages("label.if_youve_received_any_national_insurance_credits")</li>
+    </ul>
+    @p(Text(messages("label.you_can_access_your_ni_record_from_sp_summary")))
+    @link(configDecorator.statePensionSummary, messageKey = "label.view_your_state_pension_summary", id = Some("viewStatePensionSummary"))
 
-@h2("label.view_and_save_your_national_insurance_number")
-@if(nino.isDefined) {
-    @nino.map { nino =>
-        @govukInsetText(InsetText(
-        content = HtmlContent(messages("label.your_national_insurance_number_is") + " " +s"<strong>${formattedNino(nino)}</strong>")))
+    @h2("label.view_and_save_your_national_insurance_number")
+    @if(nino.isDefined) {
+        @nino.map { nino =>
+            @govukInsetText(InsetText(
+            content = HtmlContent(messages("label.your_national_insurance_number_is") + " " +s"<strong>${formattedNino(nino)}</strong>")))
+        }
     }
-}
 
-
-@p(Text(messages("label.you_will_need_your_ni_number_for_employment_applying_for_student_loan_and_claim_benefits")))
-
-@p(Text(messages("label.so_that_you_have_your_number_when_you_need_it_you_can")))
-<ul class="govuk-list govuk-list--bullet">
-    <li>@messages("label.view_and_get_a_copy_for_your_national_insurance_number_confirmation_letter")</li>
-    <li>@messages("label.save_your_number_to_the_wallet_app_on_your_apple_phone")</li>
-</ul>
-@link(configDecorator.ptaNinoSaveUrl, messageKey = "label.view_and_save_your_national_insurance_number", id = Some("viewNationalInsuranceNumber"))
+    @p(Text(messages("label.you_will_need_your_ni_number_for_employment_applying_for_student_loan_and_claim_benefits")))
+    @p(Text(messages("label.so_that_you_have_your_number_when_you_need_it_you_can")))
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("label.view_and_get_a_copy_for_your_national_insurance_number_confirmation_letter")</li>
+        <li>@messages("label.save_your_number_to_the_wallet_app_on_your_apple_phone")</li>
+    </ul>
+    @link(configDecorator.ptaNinoSaveUrl, messageKey = "label.view_and_save_your_national_insurance_number", id = Some("viewNationalInsuranceNumber"))
 
     @link(link = messages("label.www_gov_uk_national_insurance_link"), messageKey = "label.find_out_more_about_national_insurance_", attrTarget = true, id = Some("findOutAboutNationalInsuranceNumber"))
-    @h2("label.national_insurance_forms")
-    <ul class="govuk-list govuk-list--bullet">
-        <li>@link(configDecorator.nationalInsuranceHomeResponsibilitiesProtection, messageKey = "label.apply_for_home_responsibilities_protection", id = Some("homeResponsibilitiesProtection"))</li>
-        <li>@link(configDecorator.nationalInsuranceClassThreeCredits, messageKey = "label.apply_for_national_insurance_class_three_credits", id = Some("nationalInsuranceClass3Credits"))</li>
-        <li>@link(configDecorator.creditsForParentsAndCarers, messageKey = "label.apply_for_credits_for_parents_and_carers", id = Some("parentsCarersCredits"))</li>
-        <li>@link(configDecorator.nationalInsuranceClassTwoContributions, messageKey = "label.apply_for_refund_of_class_two_ni_contributions", id = Some("class2NationalInsuranceContributions"))</li>
-        <li>@link(configDecorator.nationalInsuranceClassFourContributions, messageKey = "label.apply_for_refund_of_class_four_ni_contributions", id = Some("class4NationalInsuranceContributions"))</li>
-        <li>@link(configDecorator.nationalInsuranceClassOneContributions, messageKey = "label.apply_for_deferment_of_payment_class_one_ni_contributions", id = Some("class1NationalInsuranceContributions"))</li>
-        <li>@link(configDecorator.applyForEuropeanHealthcareCertificate, messageKey = "label.apply_for_european_healthcare_certificate", id = Some("europeanHealthCareCertificate"))</li>
-        <li>@link(configDecorator.selfEmploymentAndTemporaryWorkInAbroad, messageKey = "label.find_out_about_self_employment_and_temporary_work_in_another_country", id = Some("workInAnotherEEUCountry"))</li>
-    </ul>
 
     <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
 

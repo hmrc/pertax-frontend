@@ -58,7 +58,8 @@ class InterstitialController @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
-  featureFlagService: FeatureFlagService
+  featureFlagService: FeatureFlagService,
+  viewNISPView: ViewNISPView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with Logging {
@@ -85,6 +86,21 @@ class InterstitialController @Inject() (
           nationalInsurancePartial successfulContentOrEmpty
         },
         redirectUrl = currentUrl,
+        request.nino
+      )
+    )
+  }
+
+  def displayNISP: Action[AnyContent] = authenticate.async { implicit request =>
+    for {
+      nispPartial <- formPartialService.getNISPPartial
+    } yield Ok(
+      viewNISPView(
+        formPartial = if (configDecorator.partialUpgradeEnabled) {
+          FormPartialUpgrade.upgrade(nispPartial successfulContentOrEmpty)
+        } else {
+          nispPartial successfulContentOrEmpty
+        },
         request.nino
       )
     )

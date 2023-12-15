@@ -50,4 +50,13 @@ class FormPartialService @Inject() (
         enhancedPartialRetriever.loadPartial(configDecorator.selfAssessmentFormPartialLinkUrl)
       }
     }
+
+  def getNISPPartial(implicit request: RequestHeader): Future[HtmlPartial] =
+    featureFlagService.get(DfsDigitalFormFrontendAvailableToggle).flatMap { toggle =>
+      if (!toggle.isEnabled) {
+        Future.successful(HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered"))
+      } else {
+        enhancedPartialRetriever.loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
+      }
+    }
 }
