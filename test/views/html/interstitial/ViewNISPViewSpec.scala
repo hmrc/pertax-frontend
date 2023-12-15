@@ -25,7 +25,6 @@ import play.twirl.api.Html
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.Nino
 import views.html.ViewSpec
-import views.html.tags.formattedNino
 
 class ViewNISPViewSpec extends ViewSpec {
 
@@ -89,7 +88,7 @@ class ViewNISPViewSpec extends ViewSpec {
       val nino        = new Nino("CS700100A")
       val document    = asDocument(view(Html(""), "", Some(nino)).toString)
       val ninoElement = document.select(".nino")
-      ninoElement.text().trim shouldBe formattedNino(nino).toString()
+      ninoElement.text().trim shouldBe nino.value
     }
 
     "display the expected National Insurance Number use cases" in {
@@ -120,8 +119,8 @@ class ViewNISPViewSpec extends ViewSpec {
       viewNinoHyperLinkElement.attr("href") shouldBe configDecorator.ptaNinoSaveUrl
 
       val findOutAboutNinoHyperLinkElement = document.select("#findOutAboutNationalInsuranceNumber")
-      findOutAboutNinoHyperLinkElement.text() shouldBe "Find out more about National Insurance"
-      findOutAboutNinoHyperLinkElement.attr("href") shouldBe "https://www.gov.uk/national-insurance" //TODO: Should we keep this hard-coded ?
+      findOutAboutNinoHyperLinkElement.text() shouldBe "Find out more about National Insurance (opens in a new tab)" //TODO: The (opens in new tab) bit does not match the prototype. We need to check with Asier.
+      findOutAboutNinoHyperLinkElement.attr("href") shouldBe "https://www.gov.uk/national-insurance" //TODO: Should we keep this hard-coded ? It's an external link so maybe.
     }
 
     "display the expected National Insurance forms header" in {
