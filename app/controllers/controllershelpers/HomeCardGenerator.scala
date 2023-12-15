@@ -48,7 +48,8 @@ class HomeCardGenerator @Inject() (
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
   saAndItsaMergeView: SaAndItsaMergeView,
   enrolmentsHelper: EnrolmentsHelper,
-  newsAndTilesConfig: NewsAndTilesConfig
+  newsAndTilesConfig: NewsAndTilesConfig,
+  nispView: NISPView
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
 
   def getIncomeCards(
@@ -137,13 +138,16 @@ class HomeCardGenerator @Inject() (
     }
 
   def getNationalInsuranceCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
-    featureFlagService.get(NationalInsuranceTileToggle).map { toggle =>
-      if (toggle.isEnabled) {
-        Some(nationalInsuranceView())
-      } else {
-        None
-      }
+    for {
+      nispToggle              <- featureFlagService.get(NiAndSpMergeTileToggle)
+      nationalInsuranceToggle <- featureFlagService.get(NationalInsuranceTileToggle)
+    } yield (nispToggle.isEnabled, nationalInsuranceToggle.isEnabled) match {
+      case (false, true) => Some(nationalInsuranceView())
+      case _             => None
     }
+
+  def getNationalInsuranceAndStatePensionCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    Some(nispView())
 
   def getBenefitCards(
     taxComponents: Option[TaxComponents],
@@ -170,12 +174,16 @@ class HomeCardGenerator @Inject() (
   ): Some[HtmlFormat.Appendable] =
     Some(marriageAllowanceView(taxComponents))
 
-  def getPensionCards()(implicit messages: Messages): Seq[Html] =
-    List(
-      getStatePensionCard()
-    ).flatten
+  def getPensionCards()(implicit messages: Messages): Future[List[HtmlFormat.Appendable]] =
+    featureFlagService.get(NiAndSpMergeTileToggle).map { toggle =>
+      if (toggle.isEnabled) {
+        List(getNationalInsuranceAndStatePensionCard()).flatten
+      } else {
+        List(getStatePensionCard()).flatten
+      }
+    }
 
-  def getStatePensionCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
+  def getStatePensionCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
     Some(statePensionView())
 
 }

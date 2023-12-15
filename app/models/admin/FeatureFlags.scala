@@ -39,7 +39,8 @@ object AllFeatureFlags {
     AlertBannerPaperlessStatusToggle,
     GetPersonFromCitizenDetailsToggle,
     DfsDigitalFormFrontendAvailableToggle,
-    AddressChangeAllowedToggle
+    AddressChangeAllowedToggle,
+    NiAndSpMergeTileToggle
   )
 }
 
@@ -160,5 +161,12 @@ case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
   override val name: String                = "alert-banner-paperless-status-toggle"
   override val description: Option[String] = Some(
     "Enable/disable paperless alerts in alert banner on the home page"
+  )
+}
+
+case object NiAndSpMergeTileToggle extends FeatureFlagName {
+  override val name: String                = "ni-and-sp-tile-merge"
+  override val description: Option[String] = Some(
+    "Enable/disable NI and SP tile merge"
   )
 }
