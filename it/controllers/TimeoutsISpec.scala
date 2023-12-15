@@ -93,7 +93,7 @@ class TimeoutsISpec extends IntegrationSpec {
       .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
   }
 
-  override val authResponse: String =
+  private val authResponseSA: String =
     s"""
        |{
        |    "confidenceLevel": 200,
@@ -282,6 +282,7 @@ class TimeoutsISpec extends IntegrationSpec {
 
   "/personal-account/self-assessment-summary" must {
     "display no SA content when partial times out" in {
+      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
         .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
 
@@ -299,6 +300,7 @@ class TimeoutsISpec extends IntegrationSpec {
     }
 
     "display SA content when partial does not time out" in {
+      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
         .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
 
