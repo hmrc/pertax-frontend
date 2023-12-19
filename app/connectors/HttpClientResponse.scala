@@ -42,11 +42,6 @@ class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Loggi
     logger.error(error.message, error)
   }
 
-  private val logUnauthorisedAsWarning: PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = {
-    case Success(Left(error)) if error.statusCode == UNAUTHORIZED =>
-      logger.warn(error.message)
-  }
-
   private val recoverHttpException: PartialFunction[Throwable, Either[UpstreamErrorResponse, HttpResponse]] = {
     case exception: HttpException =>
       Left(UpstreamErrorResponse(exception.message, BAD_GATEWAY, BAD_GATEWAY))
@@ -62,13 +57,19 @@ class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Loggi
         recover recoverHttpException
     )
 
-  def readIgnoreUnauthorised(
+  def readLogUnauthorisedAsWarning(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    val logUnauthorisedAsWarning: PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = {
+      case Success(Left(error)) if error.statusCode == UNAUTHORIZED =>
+        println("\nWARNING:" + error.message)
+        logger.warn(error.message)
+    }
     EitherT(
       response
         andThen logErrorResponsesMain
         andThen (logUnauthorisedAsWarning orElse logUpstreamErrorResponseAsError)
         recover recoverHttpException
     )
+  }
 }
