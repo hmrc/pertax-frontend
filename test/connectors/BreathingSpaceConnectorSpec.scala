@@ -19,7 +19,7 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import config.ConfigDecorator
-import org.mockito.{ArgumentMatchers, Mockito, MockitoSugar}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito, MockitoSugar}
 import play.api.{Application, Logger}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
@@ -64,6 +64,8 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
   private def configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
   private val mockLogger: Logger = mock[Logger]
+
+  private val dummyContent = "dummy error response"
 
   def httpClientResponseUsingMockLogger: HttpClientResponse = new HttpClientResponse {
     override protected val logger: Logger = mockLogger
@@ -112,17 +114,19 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
         val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
         doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
         doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-        stubGet(url, httpResponse, None)
+        stubGet(url, httpResponse, Some(dummyContent))
 
-        val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
+        val result                              = connector.getBreathingSpaceIndicator(nino).value.futureValue
         result mustBe a[Left[UpstreamErrorResponse, _]]
         verifyHeader(getRequestedFor(urlEqualTo(url)))
         Mockito
           .verify(mockLogger, times(0))
           .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
+        val eventCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
         Mockito
           .verify(mockLogger, times(1))
-          .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+          .error(eventCaptor.capture(), ArgumentMatchers.any())(ArgumentMatchers.any())
+        eventCaptor.getValue.contains(dummyContent) mustBe true
       }
     }
 
@@ -136,18 +140,18 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       stubGet(
         url,
         UNAUTHORIZED,
-        Some("""{"errors":[{"code":"BREATHING_SPACE_EXPIRED","message":
-            |"Breathing Space has expired for the given Nino"}]}""".stripMargin)
+        Some(dummyContent)
       )
 
-      val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
+      val result                              = connector.getBreathingSpaceIndicator(nino).value.futureValue
       result mustBe a[Left[UpstreamErrorResponse, _]]
       result.swap.exists(_.statusCode == UNAUTHORIZED)
       verifyHeader(getRequestedFor(urlEqualTo(url)))
-
+      val eventCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
       Mockito
         .verify(mockLogger, times(1))
-        .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
+        .warn(eventCaptor.capture())(ArgumentMatchers.any())
+      eventCaptor.getValue.contains(dummyContent) mustBe true
       Mockito
         .verify(mockLogger, times(0))
         .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
