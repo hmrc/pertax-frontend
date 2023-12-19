@@ -62,14 +62,12 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
        |}
     """.stripMargin
 
-  private val mockLogger: Logger = mock[Logger]
-
-  private def httpClientResponseUsingMockLogger: HttpClientResponse = new HttpClientResponse {
-    override protected val logger: Logger = mockLogger
-  }
-
   private def httpClientV2: HttpClientV2       = app.injector.instanceOf[HttpClientV2]
   private def configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
+
+  override def beforeEach(): Unit =
+    super.beforeEach()
+  //  Mockito.reset(mockLogger)
 
   "getBreathingSpaceIndicator is called" must {
 //    "return a true right response" in {
@@ -119,9 +117,16 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
 //    }
 
     "return Left but 0 warnings logged & 1 error if receive 400" in {
+
+      val mockLogger: Logger = mock[Logger]
+
+      def httpClientResponseUsingMockLogger: HttpClientResponse = new HttpClientResponse {
+        override protected val logger: Logger = mockLogger
+      }
+
       val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
       doNothing().when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-      doNothing().when(mockLogger).error(ArgumentMatchers.any())(ArgumentMatchers.any())
+      doNothing().when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
 
       stubGet(url, BAD_REQUEST, Some("bad request"))
 
@@ -135,13 +140,18 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
         .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
       Mockito
         .verify(mockLogger, times(1))
-        .error(ArgumentMatchers.any())(ArgumentMatchers.any())
+        .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
     }
 
     "return Left but 1 warning logged & no errors if receive 401 (indicates IF being restarted due to new release)" in {
-      val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
+      val mockLogger: Logger = mock[Logger]
+
+      def httpClientResponseUsingMockLogger: HttpClientResponse = new HttpClientResponse {
+        override protected val logger: Logger = mockLogger
+      }
+      val connector                                             = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
       doNothing().when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-      doNothing().when(mockLogger).error(ArgumentMatchers.any())(ArgumentMatchers.any())
+      doNothing().when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
 
       val responseBody =
         """{"errors":[{"code":"BREATHING_SPACE_EXPIRED","message":"Breathing Space has expired for the given Nino"}]}"""
@@ -157,7 +167,8 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
         .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
       Mockito
         .verify(mockLogger, times(0))
-        .error(ArgumentMatchers.any())(ArgumentMatchers.any())
+        .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
     }
   }
+
 }
