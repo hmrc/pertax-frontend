@@ -19,36 +19,51 @@ package connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.Status.{BAD_GATEWAY, LOCKED, NOT_FOUND, TOO_MANY_REQUESTS}
+import play.api.http.Status.{BAD_GATEWAY, LOCKED, NOT_FOUND, TOO_MANY_REQUESTS, UNAUTHORIZED}
 import uk.gov.hmrc.http.{HttpException, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Logging {
+  private val logErrorResponsesMain: PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = {
+    case Success(Left(error)) if error.statusCode == NOT_FOUND                                    =>
+      logger.info(error.message)
+    case Success(Left(error)) if error.statusCode == LOCKED                                       =>
+      logger.warn(error.message)
+    case Success(Left(error)) if error.statusCode >= 499 || error.statusCode == TOO_MANY_REQUESTS =>
+      logger.error(error.message)
+    case Failure(exception: HttpException)                                                        =>
+      logger.error(exception.message)
+  }
+
+  private val logUpstreamErrorResponseAsError
+    : PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = { case Success(Left(error)) =>
+    logger.error(error.message, error)
+  }
+
+  private val logUnauthorisedAsWarning: PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = {
+    case Success(Left(error)) if error.statusCode == UNAUTHORIZED =>
+      logger.warn(error.message)
+  }
 
   def read(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    EitherT(response.map {
-      case Right(response)                                                                 =>
-        Right(response)
-      case Left(error) if error.statusCode == NOT_FOUND                                    =>
-        logger.info(error.message)
-        Left(error)
-      case Left(error) if error.statusCode == LOCKED                                       =>
-        logger.warn(error.message)
-        Left(error)
-      case Left(error) if error.statusCode >= 499 || error.statusCode == TOO_MANY_REQUESTS =>
-        logger.error(error.message)
-        Left(error)
-      case Left(error)                                                                     =>
-        logger.error(error.message, error)
-        Left(error)
-    } recover {
-      case exception: HttpException =>
-        logger.error(exception.message)
-        Left(UpstreamErrorResponse(exception.message, BAD_GATEWAY, BAD_GATEWAY))
-      case exception: Exception     =>
-        throw exception
-    })
+    EitherT(
+      response andThen logErrorResponsesMain andThen logUpstreamErrorResponseAsError recover {
+        case exception: HttpException =>
+          Left(UpstreamErrorResponse(exception.message, BAD_GATEWAY, BAD_GATEWAY))
+      }
+    )
+
+  def readIgnoreUnauthorised(
+    response: Future[Either[UpstreamErrorResponse, HttpResponse]]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    EitherT(
+      response andThen logErrorResponsesMain andThen (logUnauthorisedAsWarning orElse logUpstreamErrorResponseAsError)
+        recover { case exception: HttpException =>
+          Left(UpstreamErrorResponse(exception.message, BAD_GATEWAY, BAD_GATEWAY))
+        }
+    )
 }

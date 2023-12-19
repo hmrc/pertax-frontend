@@ -58,8 +58,7 @@ class BreathingSpaceConnector @Inject() (
           Future.failed(exception)
         }
     httpClientResponse
-      .read(result)
+      .readIgnoreUnauthorised(result)
       .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
-
 }

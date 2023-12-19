@@ -103,5 +103,17 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
         verifyHeader(getRequestedFor(urlEqualTo(url)))
       }
     }
+
+    "return Left but no error logged if receive 401 (indicates IF being restarted due to new release)" in {
+      val responseBody =
+        """{"errors":[{"code":"BREATHING_SPACE_EXPIRED","message":"Breathing Space has expired for the given Nino"}]}"""
+      stubGet(url, UNAUTHORIZED, Some(responseBody))
+
+      val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
+      result mustBe a[Left[UpstreamErrorResponse, _]]
+      result.swap.exists(_.statusCode == UNAUTHORIZED)
+      verifyHeader(getRequestedFor(urlEqualTo(url)))
+    }
+
   }
 }
