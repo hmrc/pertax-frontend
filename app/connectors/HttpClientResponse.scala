@@ -57,11 +57,11 @@ class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Loggi
         recover recoverHttpException
     )
 
-  def readLogUnauthorisedAsWarning(
+  def readLogForbiddenAsWarning(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val logUnauthorisedAsWarning: PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = {
-      case Success(Left(error)) if error.statusCode == UNAUTHORIZED => logger.warn(error.message)
+      case Success(Left(error)) if error.statusCode == FORBIDDEN => logger.warn(error.message)
     }
     EitherT(
       response

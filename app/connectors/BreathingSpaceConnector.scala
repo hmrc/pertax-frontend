@@ -58,7 +58,7 @@ class BreathingSpaceConnector @Inject() (
           Future.failed(exception)
         }
     httpClientResponse
-      .readLogUnauthorisedAsWarning(result)
+      .readLogForbiddenAsWarning(result)
       .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
 }

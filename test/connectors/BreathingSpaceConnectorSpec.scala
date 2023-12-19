@@ -130,7 +130,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       }
     }
 
-    "return Left but 1 warning logged & no errors if receive 401 (indicates IF being restarted due to new release)" in {
+    "return Left but 1 warning logged & no errors if receive 403 (indicates IF being restarted due to new release)" in {
       reset(mockLogger)
 
       val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
@@ -139,13 +139,13 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
 
       stubGet(
         url,
-        UNAUTHORIZED,
+        FORBIDDEN,
         Some(dummyContent)
       )
 
       val result                              = connector.getBreathingSpaceIndicator(nino).value.futureValue
       result mustBe a[Left[UpstreamErrorResponse, _]]
-      result.swap.exists(_.statusCode == UNAUTHORIZED)
+      result.swap.exists(_.statusCode == FORBIDDEN)
       verifyHeader(getRequestedFor(urlEqualTo(url)))
       val eventCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
       Mockito
