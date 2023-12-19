@@ -67,7 +67,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
 
   private val dummyContent = "dummy error response"
 
-  def httpClientResponseUsingMockLogger: HttpClientResponse = new HttpClientResponse {
+  private def httpClientResponseUsingMockLogger: HttpClientResponse = new HttpClientResponse {
     override protected val logger: Logger = mockLogger
   }
 
