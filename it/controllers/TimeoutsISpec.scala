@@ -171,13 +171,12 @@ class TimeoutsISpec extends IntegrationSpec {
     "hide tax calc elements on page when tax calc connector times out" in {
       val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
-      content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
-        Messages("label.this.section.is") + " " + Messages("label.account_home")
+      content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe "This section is Account home"
 
-      contentAsString(result).contains(Messages("label.you_paid_the_right_amount_of_tax")) mustBe false
-      contentAsString(result).contains(Messages("label.your_tax_has_not_been_calculated")) mustBe false
-      contentAsString(result).contains(Messages("label.find_out_why_you_paid_too_much")) mustBe false
-      contentAsString(result).contains(Messages("label.make_a_payment")) mustBe false
+      contentAsString(result).contains("You paid the right amount of tax") mustBe false
+      contentAsString(result).contains("Your tax has not been calculated yet") mustBe false
+      contentAsString(result).contains("Find out why you paid too much") mustBe false
+      contentAsString(result).contains("Make a payment") mustBe false
       server.verify(1, getRequestedFor(urlEqualTo(taxCalcUrl)))
     }
 
@@ -185,7 +184,7 @@ class TimeoutsISpec extends IntegrationSpec {
       val result            = getHomePageWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
-        Messages("label.this.section.is") + " " + Messages("label.account_home")
+        "This section is Account home"
 
       content.getElementsByClass("govuk-heading-xl").get(0).text().isEmpty mustBe true
       server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
