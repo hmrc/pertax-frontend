@@ -114,6 +114,5 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
       result.swap.exists(_.statusCode == UNAUTHORIZED)
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
-
   }
 }

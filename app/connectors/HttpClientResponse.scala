@@ -19,7 +19,7 @@ package connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.Status.{BAD_GATEWAY, LOCKED, NOT_FOUND, TOO_MANY_REQUESTS, UNAUTHORIZED}
+import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpException, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -47,23 +47,28 @@ class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Loggi
       logger.warn(error.message)
   }
 
+  private val recoverHttpException: PartialFunction[Throwable, Either[UpstreamErrorResponse, HttpResponse]] = {
+    case exception: HttpException =>
+      Left(UpstreamErrorResponse(exception.message, BAD_GATEWAY, BAD_GATEWAY))
+  }
+
   def read(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     EitherT(
-      response andThen logErrorResponsesMain andThen logUpstreamErrorResponseAsError recover {
-        case exception: HttpException =>
-          Left(UpstreamErrorResponse(exception.message, BAD_GATEWAY, BAD_GATEWAY))
-      }
+      response
+        andThen logErrorResponsesMain
+        andThen logUpstreamErrorResponseAsError
+        recover recoverHttpException
     )
 
   def readIgnoreUnauthorised(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     EitherT(
-      response andThen logErrorResponsesMain andThen (logUnauthorisedAsWarning orElse logUpstreamErrorResponseAsError)
-        recover { case exception: HttpException =>
-          Left(UpstreamErrorResponse(exception.message, BAD_GATEWAY, BAD_GATEWAY))
-        }
+      response
+        andThen logErrorResponsesMain
+        andThen (logUnauthorisedAsWarning orElse logUpstreamErrorResponseAsError)
+        recover recoverHttpException
     )
 }
