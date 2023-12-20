@@ -34,9 +34,134 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
 
   private val dummyContent = "error message"
 
+  "read" must {
+    Set(NOT_FOUND).foreach { httpResponseCode =>
+      s"log message: INFO level only when response code is $httpResponseCode" in {
+        reset(mockLogger)
+        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
+        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+
+        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+          Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
+        whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
+          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
+
+          Mockito
+            .verify(mockLogger, times(1))
+            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(0))
+            .warn(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(0))
+            .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+        }
+      }
+    }
+
+    Set(LOCKED).foreach { httpResponseCode =>
+      s"log message: WARNING level only when response is $httpResponseCode" in {
+        reset(mockLogger)
+        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
+        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+
+        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+          Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
+        whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
+          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
+
+          Mockito
+            .verify(mockLogger, times(0))
+            .info(ArgumentMatchers.any())(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(1))
+            .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(0))
+            .error(ArgumentMatchers.eq(dummyContent), ArgumentMatchers.any())(ArgumentMatchers.any())
+
+        }
+      }
+    }
+
+    Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED, FORBIDDEN).foreach { httpResponseCode =>
+      s"log message: ERROR level only WITH throwable when response code is $httpResponseCode" in {
+        reset(mockLogger)
+        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
+        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+
+        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+          Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
+        whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
+          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
+
+          Mockito
+            .verify(mockLogger, times(0))
+            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(0))
+            .warn(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(1))
+            .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+
+        }
+      }
+    }
+
+    Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR).foreach { httpResponseCode =>
+      s"log message: ERROR level only WITHOUT throwable when response code is $httpResponseCode" in {
+        reset(mockLogger)
+        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
+        doNothing.when(mockLogger).error(ArgumentMatchers.any())(ArgumentMatchers.any())
+
+        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+          Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
+        whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
+          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
+
+          Mockito
+            .verify(mockLogger, times(0))
+            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(0))
+            .warn(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(1))
+            .error(ArgumentMatchers.any())(ArgumentMatchers.any())
+
+        }
+      }
+    }
+  }
+
   "readLogForbiddenAsWarning" must {
-    Set(NOT_FOUND, UNPROCESSABLE_ENTITY, UNAUTHORIZED).foreach { httpResponseCode =>
-      s"log message: 0 warning & 1 error level when response code is $httpResponseCode" in {
+    Set(NOT_FOUND).foreach { httpResponseCode =>
+      s"log message: INFO level only when response code is $httpResponseCode" in {
+        reset(mockLogger)
+        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
+        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+
+        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+          Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
+        whenReady(httpClientResponseUsingMockLogger.readLogForbiddenAsWarning(response).value) { actual =>
+          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
+
+          Mockito
+            .verify(mockLogger, times(1))
+            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(0))
+            .warn(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(0))
+            .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+        }
+      }
+    }
+
+    Set(FORBIDDEN, LOCKED).foreach { httpResponseCode =>
+      s"log message: WARNING level only when response is $httpResponseCode" in {
         reset(mockLogger)
         doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
         doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
@@ -48,6 +173,34 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
 
           Mockito
             .verify(mockLogger, times(0))
+            .info(ArgumentMatchers.any())(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(1))
+            .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(0))
+            .error(ArgumentMatchers.eq(dummyContent), ArgumentMatchers.any())(ArgumentMatchers.any())
+
+        }
+      }
+    }
+
+    Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED).foreach { httpResponseCode =>
+      s"log message: ERROR level only WITH throwable when response code is $httpResponseCode" in {
+        reset(mockLogger)
+        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
+        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+
+        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+          Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
+        whenReady(httpClientResponseUsingMockLogger.readLogForbiddenAsWarning(response).value) { actual =>
+          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
+
+          Mockito
+            .verify(mockLogger, times(0))
+            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(0))
             .warn(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
           Mockito
             .verify(mockLogger, times(1))
@@ -56,23 +209,29 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
         }
       }
     }
-    "log message: 1 warning & 0 error level when response is FORBIDDEN" in {
-      reset(mockLogger)
-      doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-      doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
 
-      val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
-        Future(Left(UpstreamErrorResponse(dummyContent, FORBIDDEN)))
-      whenReady(httpClientResponseUsingMockLogger.readLogForbiddenAsWarning(response).value) { actual =>
-        actual mustBe Left(UpstreamErrorResponse(dummyContent, FORBIDDEN))
+    Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR).foreach { httpResponseCode =>
+      s"log message: ERROR level only WITHOUT throwable when response code is $httpResponseCode" in {
+        reset(mockLogger)
+        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
+        doNothing.when(mockLogger).error(ArgumentMatchers.any())(ArgumentMatchers.any())
 
-        Mockito
-          .verify(mockLogger, times(1))
-          .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        Mockito
-          .verify(mockLogger, times(0))
-          .error(ArgumentMatchers.eq(dummyContent), ArgumentMatchers.any())(ArgumentMatchers.any())
+        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+          Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
+        whenReady(httpClientResponseUsingMockLogger.readLogForbiddenAsWarning(response).value) { actual =>
+          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
 
+          Mockito
+            .verify(mockLogger, times(0))
+            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(0))
+            .warn(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
+          Mockito
+            .verify(mockLogger, times(1))
+            .error(ArgumentMatchers.any())(ArgumentMatchers.any())
+
+        }
       }
     }
   }

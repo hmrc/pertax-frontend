@@ -52,9 +52,9 @@ class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Loggi
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     EitherT(
       response
-        andThen logErrorResponsesMain
-        andThen logUpstreamErrorResponseAsError
-        recover recoverHttpException
+        andThen
+          (logErrorResponsesMain orElse logUpstreamErrorResponseAsError)
+          recover recoverHttpException
     )
 
   def readLogForbiddenAsWarning(
@@ -65,9 +65,9 @@ class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Loggi
     }
     EitherT(
       response
-        andThen logErrorResponsesMain
-        andThen (logForbiddenAsWarning orElse logUpstreamErrorResponseAsError)
-        recover recoverHttpException
+        andThen
+          (logErrorResponsesMain orElse logForbiddenAsWarning orElse logUpstreamErrorResponseAsError)
+          recover recoverHttpException
     )
   }
 }
