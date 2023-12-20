@@ -51,13 +51,14 @@
         <li>@messages("label.how_much_you_can_get")</li>
         <li>@messages("label.if_you_can_increase_it")</li>
     </ul>
+    @link(configDecorator.statePensionSummary, messageKey = "label.view_your_state_pension_summary", id = Some("viewStatePensionSummary"))
+
     @p(Text(messages("label.view_your_national_insurance_record_to_find_out")))
     <ul class="govuk-list govuk-list--bullet">
         <li>@messages("label.what_youve_paid_up_to_current_tax_year")</li>
         <li>@messages("label.if_youve_received_any_national_insurance_credits")</li>
     </ul>
-    @p(Text(messages("label.you_can_access_your_ni_record_from_sp_summary")))
-    @link(configDecorator.statePensionSummary, messageKey = "label.view_your_state_pension_summary", id = Some("viewStatePensionSummary"))
+    @link(configDecorator.nationalInsuranceRecordUrl, messageKey = "label.view_your_national_insurance_summary", id = Some("viewNationalInsuranceSummary"))
 
     @h2("label.view_and_save_your_national_insurance_number")
     @if(nino.isDefined) {

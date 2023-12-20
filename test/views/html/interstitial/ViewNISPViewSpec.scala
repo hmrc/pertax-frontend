@@ -68,15 +68,20 @@ class ViewNISPViewSpec extends ViewSpec {
       document.body().toString must include("if you can increase it")
     }
 
-    "display the expected way of accessing the National Insurance Record" in {
+    "display the expected way of accessing the State pension summary" in {
       val document = asDocument(view(Html(""), None).toString)
-      document.body().toString must include(
-        "You can access your National Insurance record from your State Pension summary."
-      )
 
       val hyperLinkElement = document.select("#viewStatePensionSummary")
       hyperLinkElement.text()       shouldBe "View your State Pension summary"
       hyperLinkElement.attr("href") shouldBe configDecorator.statePensionSummary
+    }
+
+    "display the expected way of accessing the National Insurance Record" in {
+      val document = asDocument(view(Html(""), None).toString)
+
+      val hyperLinkElement = document.select("#viewNationalInsuranceSummary")
+      hyperLinkElement.text()       shouldBe "View your National Insurance record"
+      hyperLinkElement.attr("href") shouldBe configDecorator.nationalInsuranceRecordUrl
     }
 
     "display the expected National Insurance Number header" in {
