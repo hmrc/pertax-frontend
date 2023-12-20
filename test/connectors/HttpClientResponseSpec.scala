@@ -65,9 +65,6 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
     infoLevel.foreach { httpResponseCode =>
       s"log message: INFO level only when response code is $httpResponseCode" in {
         reset(mockLogger)
-        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
         whenReady(block(response).value) { actual =>
@@ -80,9 +77,6 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
     warnLevel.foreach { httpResponseCode =>
       s"log message: WARNING level only when response is $httpResponseCode" in {
         reset(mockLogger)
-        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
         whenReady(block(response).value) { actual =>
@@ -95,9 +89,6 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
     errorLevelWithThrowable.foreach { httpResponseCode =>
       s"log message: ERROR level only WITH throwable when response code is $httpResponseCode" in {
         reset(mockLogger)
-        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
         whenReady(block(response).value) { actual =>
@@ -110,9 +101,6 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
     errorLevelWithoutThrowable.foreach { httpResponseCode =>
       s"log message: ERROR level only WITHOUT throwable when response code is $httpResponseCode" in {
         reset(mockLogger)
-        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        doNothing.when(mockLogger).error(ArgumentMatchers.any())(ArgumentMatchers.any())
-
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
         whenReady(block(response).value) { actual =>
