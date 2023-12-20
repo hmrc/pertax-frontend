@@ -102,7 +102,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
     List(
       NOT_FOUND
     ).foreach { httpResponse =>
-      s"return an UpstreamErrorResponse when $httpResponse status is received and log 0 warnings & 1 info" in {
+      s"return an UpstreamErrorResponse when $httpResponse status is received and log 1 INFO level message" in {
         reset(mockLogger)
         val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
         doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
@@ -129,7 +129,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       BAD_GATEWAY,
       SERVICE_UNAVAILABLE
     ).foreach { httpResponse =>
-      s"return an UpstreamErrorResponse when $httpResponse status is received and log 0 warnings & 1 error without throwable" in {
+      s"return an UpstreamErrorResponse when $httpResponse status is received and log 1 ERROR level message without throwable" in {
         reset(mockLogger)
         val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
         doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
@@ -155,7 +155,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       BAD_REQUEST,
       UNPROCESSABLE_ENTITY
     ).foreach { httpResponse =>
-      s"return an UpstreamErrorResponse when $httpResponse status is received and log 0 warnings & 1 error with throwable" in {
+      s"return an UpstreamErrorResponse when $httpResponse status is received and log 1 ERROR level message with throwable" in {
         reset(mockLogger)
         val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
         doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
@@ -176,7 +176,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       }
     }
 
-    "return Left but 1 warning logged & no errors if receive 403 (indicates IF being restarted due to new release)" in {
+    "return Left but 1 WARN level message logged if receive 403 (indicates IF being restarted due to new release)" in {
       reset(mockLogger)
 
       val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
