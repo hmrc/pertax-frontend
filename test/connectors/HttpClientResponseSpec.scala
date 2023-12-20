@@ -127,7 +127,7 @@ class HttpClientResponseSpec
         }
       }
 
-    "log message: ERROR level only WITHOUT throwable when future failed with non-HTTPException" in {
+    "log nothing at all when future failed with non-HTTPException" in {
       reset(mockLogger)
       val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
         Future.failed(new RuntimeException(dummyContent))
@@ -136,7 +136,7 @@ class HttpClientResponseSpec
         block(response).value
       }
 
-      //verifyCalls(errorWithThrowable = Some(dummyContent))
+      verifyCalls()
     }
 
   }
