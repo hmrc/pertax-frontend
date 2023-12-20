@@ -143,6 +143,7 @@ class HomeCardGenerator @Inject() (
       nationalInsuranceToggle <- featureFlagService.get(NationalInsuranceTileToggle)
     } yield (nispToggle.isEnabled, nationalInsuranceToggle.isEnabled) match {
       case (false, true) => Some(nationalInsuranceView())
+      case (true, _)     => Some(nispView())
       case _             => None
     }
 
@@ -177,7 +178,7 @@ class HomeCardGenerator @Inject() (
   def getPensionCards()(implicit messages: Messages): Future[List[HtmlFormat.Appendable]] =
     featureFlagService.get(NiAndSpMergeTileToggle).map { toggle =>
       if (toggle.isEnabled) {
-        List(getNationalInsuranceAndStatePensionCard()).flatten
+        List()
       } else {
         List(getStatePensionCard()).flatten
       }

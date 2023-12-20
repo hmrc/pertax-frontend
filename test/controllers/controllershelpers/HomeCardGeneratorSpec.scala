@@ -240,7 +240,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
 
-      cardBody mustBe None
+      cardBody mustBe Some(nispView())
     }
   }
 
@@ -251,7 +251,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getPensionCards().futureValue
 
-      cardBody mustBe List(nispView())
+      cardBody mustBe List()
     }
 
     "return SP card when NiAndSpMergeTileToggle is disabled" in {
