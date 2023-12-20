@@ -35,6 +35,37 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
 
   private val dummyContent = "error message"
 
+  private def verifyCalls(
+    info: Option[String] = None,
+    warn: Option[String] = None,
+    errorWithThrowable: Option[String] = None,
+    errorWithoutThrowable: Option[String] = None
+  ): Unit = {
+
+    val infoTimes                  = info.map(_ => 1).getOrElse(0)
+    val warnTimes                  = warn.map(_ => 1).getOrElse(0)
+    val errorWithThrowableTimes    = errorWithThrowable.map(_ => 1).getOrElse(0)
+    val errorWithoutThrowableTimes = errorWithoutThrowable.map(_ => 1).getOrElse(0)
+
+    def argumentMatcher(content: Option[String]) = content match {
+      case None    => ArgumentMatchers.any()
+      case Some(v) => ArgumentMatchers.eq(v)
+    }
+
+    Mockito
+      .verify(mockLogger, times(infoTimes))
+      .info(argumentMatcher(info))(ArgumentMatchers.any())
+    Mockito
+      .verify(mockLogger, times(warnTimes))
+      .warn(argumentMatcher(warn))(ArgumentMatchers.any())
+    Mockito
+      .verify(mockLogger, times(errorWithThrowableTimes))
+      .error(argumentMatcher(errorWithThrowable), ArgumentMatchers.any())(ArgumentMatchers.any())
+    Mockito
+      .verify(mockLogger, times(errorWithoutThrowableTimes))
+      .error(argumentMatcher(errorWithoutThrowable))(ArgumentMatchers.any())
+  }
+
   private def clientResponseLogger(
     block: Future[Either[UpstreamErrorResponse, HttpResponse]] => EitherT[Future, UpstreamErrorResponse, HttpResponse],
     infoLevel: Set[Int],
@@ -52,16 +83,7 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
         whenReady(block(response).value) { actual =>
           actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-
-          Mockito
-            .verify(mockLogger, times(1))
-            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(0))
-            .warn(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(0))
-            .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+          verifyCalls(info = Some(dummyContent))
         }
       }
     }
@@ -76,17 +98,7 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
         whenReady(block(response).value) { actual =>
           actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-
-          Mockito
-            .verify(mockLogger, times(0))
-            .info(ArgumentMatchers.any())(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(1))
-            .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(0))
-            .error(ArgumentMatchers.eq(dummyContent), ArgumentMatchers.any())(ArgumentMatchers.any())
-
+          verifyCalls(warn = Some(dummyContent))
         }
       }
     }
@@ -101,17 +113,7 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
         whenReady(block(response).value) { actual =>
           actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-
-          Mockito
-            .verify(mockLogger, times(0))
-            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(0))
-            .warn(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(1))
-            .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-
+          verifyCalls(errorWithThrowable = Some(dummyContent))
         }
       }
     }
@@ -126,17 +128,7 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
         whenReady(block(response).value) { actual =>
           actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-
-          Mockito
-            .verify(mockLogger, times(0))
-            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(0))
-            .warn(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(1))
-            .error(ArgumentMatchers.any())(ArgumentMatchers.any())
-
+          verifyCalls(errorWithoutThrowable = Some(dummyContent))
         }
       }
     }
