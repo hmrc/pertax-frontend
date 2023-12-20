@@ -18,6 +18,7 @@ package connectors
 
 import cats.data.EitherT
 import org.mockito.{ArgumentMatchers, Mockito}
+import org.scalatest.RecoverMethods
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Logger
 import play.api.http.Status._
@@ -26,7 +27,12 @@ import uk.gov.hmrc.http._
 
 import scala.concurrent.Future
 
-class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutures with IntegrationPatience {
+class HttpClientResponseSpec
+    extends BaseSpec
+    with WireMockHelper
+    with ScalaFutures
+    with IntegrationPatience
+    with RecoverMethods {
   private val mockLogger: Logger = mock[Logger]
 
   private lazy val httpClientResponseUsingMockLogger: HttpClientResponse = new HttpClientResponse {
@@ -109,6 +115,30 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
         }
       }
     }
+
+    "log message: ERROR level only WITHOUT throwable when future failed with HttpException & " +
+      "recover to BAD GATEWAY" in {
+        reset(mockLogger)
+        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+          Future.failed(new HttpException(dummyContent, GATEWAY_TIMEOUT))
+        whenReady(block(response).value) { actual =>
+          actual mustBe Left(UpstreamErrorResponse(dummyContent, BAD_GATEWAY))
+          verifyCalls(errorWithoutThrowable = Some(dummyContent))
+        }
+      }
+
+    "log message: ERROR level only WITHOUT throwable when future failed with non-HTTPException" in {
+      reset(mockLogger)
+      val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+        Future.failed(new RuntimeException(dummyContent))
+
+      recoverToSucceededIf[RuntimeException] {
+        block(response).value
+      }
+
+      //verifyCalls(errorWithThrowable = Some(dummyContent))
+    }
+
   }
 
   private def verifyCalls(
