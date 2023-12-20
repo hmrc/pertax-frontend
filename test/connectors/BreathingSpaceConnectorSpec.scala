@@ -112,8 +112,6 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       s"return an UpstreamErrorResponse when $httpResponse status is received" in {
         reset(mockLogger)
         val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
-        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
         stubGet(url, httpResponse, Some(dummyContent))
 
         val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
@@ -126,8 +124,6 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       reset(mockLogger)
 
       val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
-      doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-      doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
 
       stubGet(
         url,
