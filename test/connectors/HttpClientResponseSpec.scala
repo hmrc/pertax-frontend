@@ -16,6 +16,7 @@
 
 package connectors
 
+import cats.data.EitherT
 import org.mockito.{ArgumentMatchers, Mockito}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Logger
@@ -34,8 +35,14 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
 
   private val dummyContent = "error message"
 
-  "read" must {
-    Set(NOT_FOUND).foreach { httpResponseCode =>
+  private def clientResponseLogger(
+    block: Future[Either[UpstreamErrorResponse, HttpResponse]] => EitherT[Future, UpstreamErrorResponse, HttpResponse],
+    infoLevel: Set[Int],
+    warnLevel: Set[Int],
+    errorLevelWithThrowable: Set[Int],
+    errorLevelWithoutThrowable: Set[Int]
+  ): Unit = {
+    infoLevel.foreach { httpResponseCode =>
       s"log message: INFO level only when response code is $httpResponseCode" in {
         reset(mockLogger)
         doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
@@ -43,7 +50,7 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
 
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
+        whenReady(block(response).value) { actual =>
           actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
 
           Mockito
@@ -59,7 +66,7 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
       }
     }
 
-    Set(LOCKED).foreach { httpResponseCode =>
+    warnLevel.foreach { httpResponseCode =>
       s"log message: WARNING level only when response is $httpResponseCode" in {
         reset(mockLogger)
         doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
@@ -67,7 +74,7 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
 
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
+        whenReady(block(response).value) { actual =>
           actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
 
           Mockito
@@ -84,7 +91,7 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
       }
     }
 
-    Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED, FORBIDDEN).foreach { httpResponseCode =>
+    errorLevelWithThrowable.foreach { httpResponseCode =>
       s"log message: ERROR level only WITH throwable when response code is $httpResponseCode" in {
         reset(mockLogger)
         doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
@@ -92,7 +99,7 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
 
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
+        whenReady(block(response).value) { actual =>
           actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
 
           Mockito
@@ -109,7 +116,7 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
       }
     }
 
-    Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR).foreach { httpResponseCode =>
+    errorLevelWithoutThrowable.foreach { httpResponseCode =>
       s"log message: ERROR level only WITHOUT throwable when response code is $httpResponseCode" in {
         reset(mockLogger)
         doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
@@ -117,7 +124,7 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
 
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
+        whenReady(block(response).value) { actual =>
           actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
 
           Mockito
@@ -135,104 +142,23 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
     }
   }
 
+  "read" must {
+    behave like clientResponseLogger(
+      httpClientResponseUsingMockLogger.read,
+      infoLevel = Set(NOT_FOUND),
+      warnLevel = Set(LOCKED),
+      errorLevelWithThrowable = Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED, FORBIDDEN),
+      errorLevelWithoutThrowable = Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR)
+    )
+  }
+
   "readLogForbiddenAsWarning" must {
-    Set(NOT_FOUND).foreach { httpResponseCode =>
-      s"log message: INFO level only when response code is $httpResponseCode" in {
-        reset(mockLogger)
-        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-
-        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
-          Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(httpClientResponseUsingMockLogger.readLogForbiddenAsWarning(response).value) { actual =>
-          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-
-          Mockito
-            .verify(mockLogger, times(1))
-            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(0))
-            .warn(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(0))
-            .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-        }
-      }
-    }
-
-    Set(FORBIDDEN, LOCKED).foreach { httpResponseCode =>
-      s"log message: WARNING level only when response is $httpResponseCode" in {
-        reset(mockLogger)
-        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-
-        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
-          Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(httpClientResponseUsingMockLogger.readLogForbiddenAsWarning(response).value) { actual =>
-          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-
-          Mockito
-            .verify(mockLogger, times(0))
-            .info(ArgumentMatchers.any())(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(1))
-            .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(0))
-            .error(ArgumentMatchers.eq(dummyContent), ArgumentMatchers.any())(ArgumentMatchers.any())
-
-        }
-      }
-    }
-
-    Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED).foreach { httpResponseCode =>
-      s"log message: ERROR level only WITH throwable when response code is $httpResponseCode" in {
-        reset(mockLogger)
-        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-
-        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
-          Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(httpClientResponseUsingMockLogger.readLogForbiddenAsWarning(response).value) { actual =>
-          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-
-          Mockito
-            .verify(mockLogger, times(0))
-            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(0))
-            .warn(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(1))
-            .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-
-        }
-      }
-    }
-
-    Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR).foreach { httpResponseCode =>
-      s"log message: ERROR level only WITHOUT throwable when response code is $httpResponseCode" in {
-        reset(mockLogger)
-        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        doNothing.when(mockLogger).error(ArgumentMatchers.any())(ArgumentMatchers.any())
-
-        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
-          Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(httpClientResponseUsingMockLogger.readLogForbiddenAsWarning(response).value) { actual =>
-          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-
-          Mockito
-            .verify(mockLogger, times(0))
-            .info(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(0))
-            .warn(ArgumentMatchers.eq(dummyContent))(ArgumentMatchers.any())
-          Mockito
-            .verify(mockLogger, times(1))
-            .error(ArgumentMatchers.any())(ArgumentMatchers.any())
-
-        }
-      }
-    }
+    behave like clientResponseLogger(
+      httpClientResponseUsingMockLogger.readLogForbiddenAsWarning,
+      infoLevel = Set(NOT_FOUND),
+      warnLevel = Set(FORBIDDEN, LOCKED),
+      errorLevelWithThrowable = Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED),
+      errorLevelWithoutThrowable = Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR)
+    )
   }
 }
