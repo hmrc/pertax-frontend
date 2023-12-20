@@ -79,7 +79,6 @@ class HttpClientResponseSpec
         }
       }
     }
-
     warnLevel.foreach { httpResponseCode =>
       s"log message: WARNING level only when response is $httpResponseCode" in {
         reset(mockLogger)
@@ -91,7 +90,6 @@ class HttpClientResponseSpec
         }
       }
     }
-
     errorLevelWithThrowable.foreach { httpResponseCode =>
       s"log message: ERROR level only WITH throwable when response code is $httpResponseCode" in {
         reset(mockLogger)
@@ -103,7 +101,6 @@ class HttpClientResponseSpec
         }
       }
     }
-
     errorLevelWithoutThrowable.foreach { httpResponseCode =>
       s"log message: ERROR level only WITHOUT throwable when response code is $httpResponseCode" in {
         reset(mockLogger)
@@ -115,7 +112,6 @@ class HttpClientResponseSpec
         }
       }
     }
-
     "log message: ERROR level only WITHOUT throwable when future failed with HttpException & " +
       "recover to BAD GATEWAY" in {
         reset(mockLogger)
@@ -126,7 +122,6 @@ class HttpClientResponseSpec
           verifyCalls(errorWithoutThrowable = Some(dummyContent))
         }
       }
-
     "log nothing at all when future failed with non-HTTPException" in {
       reset(mockLogger)
       val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
@@ -135,10 +130,8 @@ class HttpClientResponseSpec
       recoverToSucceededIf[RuntimeException] {
         block(response).value
       }
-
       verifyCalls()
     }
-
   }
 
   private def verifyCalls(
