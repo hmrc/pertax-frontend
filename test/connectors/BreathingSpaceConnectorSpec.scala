@@ -100,79 +100,25 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
 
     List(
-      NOT_FOUND
-    ).foreach { httpResponse =>
-      s"return an UpstreamErrorResponse when $httpResponse status is received and log 1 INFO level message" in {
-        reset(mockLogger)
-        val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
-        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-        stubGet(url, httpResponse, Some(dummyContent))
-
-        val result                              = connector.getBreathingSpaceIndicator(nino).value.futureValue
-        result mustBe a[Left[UpstreamErrorResponse, _]]
-        verifyHeader(getRequestedFor(urlEqualTo(url)))
-        Mockito
-          .verify(mockLogger, times(0))
-          .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        val eventCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-        Mockito
-          .verify(mockLogger, times(1))
-          .info(eventCaptor.capture())(ArgumentMatchers.any())
-        eventCaptor.getValue.contains(dummyContent) mustBe true
-      }
-    }
-
-    List(
       TOO_MANY_REQUESTS,
       INTERNAL_SERVER_ERROR,
       BAD_GATEWAY,
-      SERVICE_UNAVAILABLE
-    ).foreach { httpResponse =>
-      s"return an UpstreamErrorResponse when $httpResponse status is received and log 1 ERROR level message without throwable" in {
-        reset(mockLogger)
-        val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
-        doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-        stubGet(url, httpResponse, Some(dummyContent))
-
-        val result                              = connector.getBreathingSpaceIndicator(nino).value.futureValue
-        result mustBe a[Left[UpstreamErrorResponse, _]]
-        verifyHeader(getRequestedFor(urlEqualTo(url)))
-        Mockito
-          .verify(mockLogger, times(0))
-          .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        val eventCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-        Mockito
-          .verify(mockLogger, times(1))
-          .error(eventCaptor.capture())(ArgumentMatchers.any())
-        eventCaptor.getValue.contains(dummyContent) mustBe true
-      }
-    }
-
-    List(
+      SERVICE_UNAVAILABLE,
+      NOT_FOUND,
       IM_A_TEAPOT,
       BAD_REQUEST,
       UNPROCESSABLE_ENTITY
     ).foreach { httpResponse =>
-      s"return an UpstreamErrorResponse when $httpResponse status is received and log 1 ERROR level message with throwable" in {
+      s"return an UpstreamErrorResponse when $httpResponse status is received" in {
         reset(mockLogger)
         val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
         doNothing.when(mockLogger).warn(ArgumentMatchers.any())(ArgumentMatchers.any())
         doNothing.when(mockLogger).error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
         stubGet(url, httpResponse, Some(dummyContent))
 
-        val result                              = connector.getBreathingSpaceIndicator(nino).value.futureValue
+        val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
         result mustBe a[Left[UpstreamErrorResponse, _]]
         verifyHeader(getRequestedFor(urlEqualTo(url)))
-        Mockito
-          .verify(mockLogger, times(0))
-          .warn(ArgumentMatchers.any())(ArgumentMatchers.any())
-        val eventCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-        Mockito
-          .verify(mockLogger, times(1))
-          .error(eventCaptor.capture(), ArgumentMatchers.any())(ArgumentMatchers.any())
-        eventCaptor.getValue.contains(dummyContent) mustBe true
       }
     }
 
