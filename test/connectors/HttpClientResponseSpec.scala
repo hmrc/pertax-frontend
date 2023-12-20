@@ -35,35 +35,24 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
 
   private val dummyContent = "error message"
 
-  private def verifyCalls(
-    info: Option[String] = None,
-    warn: Option[String] = None,
-    errorWithThrowable: Option[String] = None,
-    errorWithoutThrowable: Option[String] = None
-  ): Unit = {
+  "read" must {
+    behave like clientResponseLogger(
+      httpClientResponseUsingMockLogger.read,
+      infoLevel = Set(NOT_FOUND),
+      warnLevel = Set(LOCKED),
+      errorLevelWithThrowable = Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED, FORBIDDEN),
+      errorLevelWithoutThrowable = Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR)
+    )
+  }
 
-    val infoTimes                  = info.map(_ => 1).getOrElse(0)
-    val warnTimes                  = warn.map(_ => 1).getOrElse(0)
-    val errorWithThrowableTimes    = errorWithThrowable.map(_ => 1).getOrElse(0)
-    val errorWithoutThrowableTimes = errorWithoutThrowable.map(_ => 1).getOrElse(0)
-
-    def argumentMatcher(content: Option[String]) = content match {
-      case None    => ArgumentMatchers.any()
-      case Some(v) => ArgumentMatchers.eq(v)
-    }
-
-    Mockito
-      .verify(mockLogger, times(infoTimes))
-      .info(argumentMatcher(info))(ArgumentMatchers.any())
-    Mockito
-      .verify(mockLogger, times(warnTimes))
-      .warn(argumentMatcher(warn))(ArgumentMatchers.any())
-    Mockito
-      .verify(mockLogger, times(errorWithThrowableTimes))
-      .error(argumentMatcher(errorWithThrowable), ArgumentMatchers.any())(ArgumentMatchers.any())
-    Mockito
-      .verify(mockLogger, times(errorWithoutThrowableTimes))
-      .error(argumentMatcher(errorWithoutThrowable))(ArgumentMatchers.any())
+  "readLogForbiddenAsWarning" must {
+    behave like clientResponseLogger(
+      httpClientResponseUsingMockLogger.readLogForbiddenAsWarning,
+      infoLevel = Set(NOT_FOUND),
+      warnLevel = Set(FORBIDDEN, LOCKED),
+      errorLevelWithThrowable = Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED),
+      errorLevelWithoutThrowable = Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR)
+    )
   }
 
   private def clientResponseLogger(
@@ -134,23 +123,35 @@ class HttpClientResponseSpec extends BaseSpec with WireMockHelper with ScalaFutu
     }
   }
 
-  "read" must {
-    behave like clientResponseLogger(
-      httpClientResponseUsingMockLogger.read,
-      infoLevel = Set(NOT_FOUND),
-      warnLevel = Set(LOCKED),
-      errorLevelWithThrowable = Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED, FORBIDDEN),
-      errorLevelWithoutThrowable = Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR)
-    )
+  private def verifyCalls(
+    info: Option[String] = None,
+    warn: Option[String] = None,
+    errorWithThrowable: Option[String] = None,
+    errorWithoutThrowable: Option[String] = None
+  ): Unit = {
+
+    val infoTimes                  = info.map(_ => 1).getOrElse(0)
+    val warnTimes                  = warn.map(_ => 1).getOrElse(0)
+    val errorWithThrowableTimes    = errorWithThrowable.map(_ => 1).getOrElse(0)
+    val errorWithoutThrowableTimes = errorWithoutThrowable.map(_ => 1).getOrElse(0)
+
+    def argumentMatcher(content: Option[String]): String = content match {
+      case None    => ArgumentMatchers.any()
+      case Some(c) => ArgumentMatchers.eq(c)
+    }
+
+    Mockito
+      .verify(mockLogger, times(infoTimes))
+      .info(argumentMatcher(info))(ArgumentMatchers.any())
+    Mockito
+      .verify(mockLogger, times(warnTimes))
+      .warn(argumentMatcher(warn))(ArgumentMatchers.any())
+    Mockito
+      .verify(mockLogger, times(errorWithThrowableTimes))
+      .error(argumentMatcher(errorWithThrowable), ArgumentMatchers.any())(ArgumentMatchers.any())
+    Mockito
+      .verify(mockLogger, times(errorWithoutThrowableTimes))
+      .error(argumentMatcher(errorWithoutThrowable))(ArgumentMatchers.any())
   }
 
-  "readLogForbiddenAsWarning" must {
-    behave like clientResponseLogger(
-      httpClientResponseUsingMockLogger.readLogForbiddenAsWarning,
-      infoLevel = Set(NOT_FOUND),
-      warnLevel = Set(FORBIDDEN, LOCKED),
-      errorLevelWithThrowable = Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED),
-      errorLevelWithoutThrowable = Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR)
-    )
-  }
 }
