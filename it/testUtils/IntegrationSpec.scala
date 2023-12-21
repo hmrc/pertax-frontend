@@ -54,6 +54,7 @@ trait IntegrationSpec
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   val generatedNino: Nino  = new Generator().nextNino
+  val utr: String          = "utr"
   val generatedUtr: String = new Generator().nextAtedUtr.utr
 
   val authResponse: String =

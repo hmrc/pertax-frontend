@@ -24,7 +24,6 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
       "feature.breathing-space-indicator.enabled"        -> true,
-      "feature.breathing-space-indicator.timeoutInSec"   -> 4,
       "microservice.services.taxcalc.port"               -> server.port(),
       "microservice.services.tai.port"                   -> server.port(),
       "microservice.services.enrolment-store-proxy.port" -> server.port()

@@ -26,6 +26,8 @@ import scala.util.Random
 class testSpec extends A11ySpec {
 
   case class ExpectedData(title: String)
+
+  //scalastyle:off cyclomatic.complexity
   def getExpectedData(key: String): ExpectedData =
     key match {
       case "id-check-complete"          =>
@@ -114,7 +116,7 @@ class testSpec extends A11ySpec {
     "/personal-account/identity-check-complete" -> getExpectedData("id-check-complete")
   )
 
-  val messageCount: Int = Random.between(1, 100)
+  val messageCount: Int                    = Random.between(1, 100)
   val menuWrapperData: Seq[MenuItemConfig] = Seq(
     MenuItemConfig(
       "home",
@@ -162,7 +164,7 @@ class testSpec extends A11ySpec {
       None
     )
   )
-  val wrapperDataResponse: String = Json
+  val wrapperDataResponse: String          = Json
     .toJson(
       WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"))
     )
@@ -194,23 +196,23 @@ class testSpec extends A11ySpec {
           aResponse()
             .withStatus(OK)
             .withBody("""
-                        |{
-                        |	"id": "session-id",
-                        |	"data": {
-                        |   "addressPageVisitedDto": {
-                        |     "hasVisitedPage": true
-                        |   }
-                        |	},
-                        |	"modifiedDetails": {
-                        |		"createdAt": {
-                        |			"$date": 1400258561678
-                        |		},
-                        |		"lastUpdated": {
-                        |			"$date": 1400258561675
-                        |		}
-                        |	}
-                        |}
-                        |""".stripMargin)
+                |{
+                |	"id": "session-id",
+                |	"data": {
+                |   "addressPageVisitedDto": {
+                |     "hasVisitedPage": true
+                |   }
+                |	},
+                |	"modifiedDetails": {
+                |		"createdAt": {
+                |			"$date": 1400258561678
+                |		},
+                |		"lastUpdated": {
+                |			"$date": 1400258561675
+                |		}
+                |	}
+                |}
+                |""".stripMargin)
         )
     )
 
@@ -229,14 +231,14 @@ class testSpec extends A11ySpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "microservice.services.auth.port"                       -> server.port(),
-      "feature.breathing-space-indicator.enabled"                     -> true,
-      "feature.breathing-space-indicator.timeoutInSec"                -> 4,
-      "microservice.services.taxcalc.port"                            -> server.port(),
-      "microservice.services.tai.port"                                -> server.port(),
-      "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port()}",
-      "microservice.services.cachable.session-cache.port"             -> server.port(),
-      "microservice.services.cachable.session-cache.host"             -> "127.0.0.1"
+      "microservice.services.auth.port"                                      -> server.port(),
+      "feature.breathing-space-indicator.enabled"                            -> true,
+      "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 4000,
+      "microservice.services.taxcalc.port"                                   -> server.port(),
+      "microservice.services.tai.port"                                       -> server.port(),
+      "sca-wrapper.services.single-customer-account-wrapper-data.url"        -> s"http://localhost:${server.port()}",
+      "microservice.services.cachable.session-cache.port"                    -> server.port(),
+      "microservice.services.cachable.session-cache.host"                    -> "127.0.0.1"
     )
     .build()
 
@@ -307,7 +309,6 @@ class testSpec extends A11ySpec {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
             .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
-
           server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
           val result: Future[Result] = route(app, request(url)).get
           val content                = Jsoup.parse(contentAsString(result))
@@ -358,7 +359,7 @@ class testSpec extends A11ySpec {
 
           val result: Future[Result] = route(app, FakeRequest(GET, url)).get
 
-          val content                = Jsoup.parse(contentAsString(result))
+          val content = Jsoup.parse(contentAsString(result))
           content.title() mustBe expectedData.title
 
           contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)
@@ -376,7 +377,7 @@ class testSpec extends A11ySpec {
 
           val result: Future[Result] = route(app, FakeRequest(GET, url)).get
 
-          val content                = Jsoup.parse(contentAsString(result))
+          val content = Jsoup.parse(contentAsString(result))
           content.title() mustBe expectedData.title
 
           contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)

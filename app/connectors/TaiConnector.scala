@@ -18,29 +18,35 @@ package connectors
 
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
+import config.ConfigDecorator
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class TaiConnector @Inject() (
-  val httpClient: HttpClient,
+  val httpClientV2: HttpClientV2,
   servicesConfig: ServicesConfig,
-  httpClientResponse: HttpClientResponse
+  httpClientResponse: HttpClientResponse,
+  configDecorator: ConfigDecorator
 ) {
 
   private lazy val taiUrl = servicesConfig.baseUrl("tai")
-
   def taxComponents(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse
-      .read(
-        httpClient
-          .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taiUrl/tai/$nino/tax-account/$year/tax-components")
-      )
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    val url = s"$taiUrl/tai/$nino/tax-account/$year/tax-components"
+    httpClientResponse.read(
+      httpClientV2
+        .get(url"$url")
+        .transform(_.withRequestTimeout(configDecorator.taiTimeoutInMilliseconds.milliseconds))
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+    )
+  }
 }

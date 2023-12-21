@@ -16,19 +16,27 @@
 
 package connectors
 
+import config.ConfigDecorator
 import models._
+import org.scalatest.BeforeAndAfterEach
 import play.api.Application
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.{Fixtures, WireMockHelper}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.time.LocalDate
 import scala.util.Random
 
-class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
+class CitizenDetailsConnectorSpec
+    extends ConnectorSpec
+    with WireMockHelper
+    with DefaultAwaitTimeout
+    with Injecting
+    with BeforeAndAfterEach {
 
   override implicit lazy val app: Application = app(
     Map("microservice.services.citizen-details.port" -> server.port())
@@ -57,9 +65,9 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
     )
 
     lazy val connector: CitizenDetailsConnector = {
-      val httpClient    = app.injector.instanceOf[HttpClient]
+      val httpClient    = app.injector.instanceOf[HttpClientV2]
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
-      new CitizenDetailsConnector(httpClient, serviceConfig, inject[HttpClientResponse])
+      new CitizenDetailsConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
     }
   }
 
@@ -102,21 +110,13 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
         connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
       result mustBe IM_A_TEAPOT
     }
-
-    "return BAD_GATEWAY when the call to retrieve person details results in an exception" in new LocalSetup {
-      val delay: Int = 5000
-      stubWithDelay(url, OK, None, None, delay)
-
-      val result: Int =
-        connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
-      result mustBe BAD_GATEWAY
-    }
   }
 
   "calling updateAddress" must {
 
     trait LocalSetup extends SpecSetup {
-      def url: String         = s"/citizen-details/$nino/designatory-details/address"
+      def url: String = s"/citizen-details/$nino/designatory-details/address"
+
       val etag: String        = "115"
       val requestBody: String = Json.obj("etag" -> etag, "address" -> Json.toJson(address)).toString()
     }
@@ -309,15 +309,56 @@ class CitizenDetailsConnectorSpec extends ConnectorSpec with WireMockHelper with
           .statusCode
         result mustBe INTERNAL_SERVER_ERROR
       }
+    }
 
-      "return BAD_GATEWAY when the call to citizen-details throws an exception" in new LocalSetup {
-        val delay: Int = 5000
-        stubWithDelay(url, OK, None, None, delay)
+    "return BAD_GATEWAY when the call to citizen-details throws an exception" in new LocalSetup {
+      val delay: Int = 5000
+      stubWithDelay(url, OK, None, None, delay)
 
-        val result: Int =
-          connector.getEtag(nino.nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
-        result mustBe BAD_GATEWAY
-      }
+      val result: Int =
+        connector.getEtag(nino.nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
+      result mustBe BAD_GATEWAY
+    }
+  }
+}
+
+class CitizenDetailsConnectorTimeoutSpec
+    extends ConnectorSpec
+    with WireMockHelper
+    with DefaultAwaitTimeout
+    with Injecting
+    with BeforeAndAfterEach {
+
+  override implicit lazy val app: Application = app(
+    Map(
+      "microservice.services.citizen-details.port"                  -> server.port(),
+      "microservice.services.citizen-details.timeoutInMilliseconds" -> 1
+    )
+  )
+
+  val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
+
+  trait SpecSetup {
+
+    def url: String
+
+    lazy val connector: CitizenDetailsConnector = {
+      val httpClient    = app.injector.instanceOf[HttpClientV2]
+      val serviceConfig = app.injector.instanceOf[ServicesConfig]
+      new CitizenDetailsConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
+    }
+  }
+
+  "Calling personDetails" must {
+    trait LocalSetup extends SpecSetup {
+      def url: String = s"/citizen-details/$nino/designatory-details"
+    }
+
+    "return bad gateway when the call to retrieve person details results in a timeout" in new LocalSetup {
+      stubWithDelay(url, OK, None, None, 100)
+      val result: Int =
+        connector.personDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
+      result mustBe BAD_GATEWAY
     }
   }
 }

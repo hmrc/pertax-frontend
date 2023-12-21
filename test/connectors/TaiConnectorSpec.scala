@@ -16,12 +16,14 @@
 
 package connectors
 
+import config.ConfigDecorator
 import play.api.Application
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.time.TaxYear
 
@@ -35,28 +37,28 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
 
   trait SpecSetup {
     val taxComponentsJson: JsValue = Json.parse("""{
-                                         |   "data" : [ {
-                                         |      "componentType" : "EmployerProvidedServices",
-                                         |      "employmentId" : 12,
-                                         |      "amount" : 12321,
-                                         |      "description" : "Some Description",
-                                         |      "iabdCategory" : "Benefit"
-                                         |   }, {
-                                         |      "componentType" : "PersonalPensionPayments",
-                                         |      "employmentId" : 31,
-                                         |      "amount" : 12345,
-                                         |      "description" : "Some Description Some",
-                                         |      "iabdCategory" : "Allowance"
-                                         |   } ],
-                                         |   "links" : [ ]
-                                         |}""".stripMargin)
+        |   "data" : [ {
+        |      "componentType" : "EmployerProvidedServices",
+        |      "employmentId" : 12,
+        |      "amount" : 12321,
+        |      "description" : "Some Description",
+        |      "iabdCategory" : "Benefit"
+        |   }, {
+        |      "componentType" : "PersonalPensionPayments",
+        |      "employmentId" : 31,
+        |      "amount" : 12345,
+        |      "description" : "Some Description Some",
+        |      "iabdCategory" : "Allowance"
+        |   } ],
+        |   "links" : [ ]
+        |}""".stripMargin)
 
     lazy val connector: TaiConnector = {
 
       val serviceConfig = inject[ServicesConfig]
-      val httpClient    = inject[HttpClient]
+      val httpClient    = inject[HttpClientV2]
 
-      new TaiConnector(httpClient, serviceConfig, inject[HttpClientResponse])
+      new TaiConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
     }
   }
 
@@ -104,6 +106,43 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
           connector.taxComponents(nino, taxYear).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
         result.statusCode mustBe statusCode
       }
+    }
+  }
+}
+
+class TaiConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
+
+  override implicit lazy val app: Application = app(
+    Map(
+      "microservice.services.tai.port"                  -> server.port(),
+      "microservice.services.tai.timeoutInMilliseconds" -> 1
+    )
+  )
+
+  trait SpecSetup {
+    lazy val connector: TaiConnector = {
+      val serviceConfig = inject[ServicesConfig]
+      val httpClient    = inject[HttpClientV2]
+
+      new TaiConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
+    }
+  }
+
+  "Calling TaiService.taxSummary" must {
+    trait LocalSetup extends SpecSetup
+
+    val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
+
+    val taxYear = TaxYear.now().getYear
+
+    val url = s"/tai/$nino/tax-account/$taxYear/tax-components"
+
+    "return bad gateway when the call results in a timeout" in new LocalSetup {
+      stubWithDelay(url, OK, None, None, 100)
+
+      val result: UpstreamErrorResponse =
+        connector.taxComponents(nino, taxYear).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
+      result.statusCode mustBe BAD_GATEWAY
     }
   }
 }

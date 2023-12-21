@@ -18,18 +18,22 @@ package connectors
 
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
+import config.ConfigDecorator
 import models.TaxYearReconciliation
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class TaxCalculationConnector @Inject() (
-  val http: HttpClient,
+  val httpClientV2: HttpClientV2,
   servicesConfig: ServicesConfig,
+  configDecorator: ConfigDecorator,
   httpClientResponse: HttpClientResponse
 )(implicit ec: ExecutionContext) {
 
@@ -37,10 +41,12 @@ class TaxCalculationConnector @Inject() (
 
   def getTaxYearReconciliations(
     nino: Nino
-  )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, List[TaxYearReconciliation]] =
-    httpClientResponse
-      .read(
-        http.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taxCalcUrl/taxcalc/$nino/reconciliations")
-      )
-      .map(_.json.as[List[TaxYearReconciliation]])
+  )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, List[TaxYearReconciliation]] = {
+    val url         = s"$taxCalcUrl/taxcalc/$nino/reconciliations"
+    val apiResponse = httpClientV2
+      .get(url"$url")
+      .transform(_.withRequestTimeout(configDecorator.taxCalcTimeoutInMilliseconds.milliseconds))
+      .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+    httpClientResponse.read(apiResponse).map(_.json.as[List[TaxYearReconciliation]])
+  }
 }

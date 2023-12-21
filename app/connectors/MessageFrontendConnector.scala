@@ -21,14 +21,15 @@ import com.google.inject.Inject
 import play.api.Logging
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class MessageFrontendConnector @Inject() (
-  val httpClient: HttpClient,
+  val httpClientV2: HttpClientV2,
   servicesConfig: ServicesConfig,
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
   httpClientResponse: HttpClientResponse
@@ -40,12 +41,13 @@ class MessageFrontendConnector @Inject() (
     request: RequestHeader,
     ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
-    val url = messageFrontendUrl + "/messages/count?read=No"
-
+    val url                        = messageFrontendUrl + "/messages/count?read=No"
     implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
-
     httpClientResponse
-      .read(httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](url))
+      .read(
+        httpClientV2
+          .get(url"$url")
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+      )
   }
-
 }

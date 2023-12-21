@@ -113,8 +113,8 @@ class GetPersonDetailsActionSpec extends BaseSpec {
       }
     }
 
-    "when a user has no PersonDetails in CitizenDetails" must {
-      "return the request it was passed" in {
+    "GetPersonFromCitizenDetailsToggle is true" must {
+      "return the request it was passed when a user has no PersonDetails in CitizenDetails " in {
         when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
           .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
@@ -122,6 +122,24 @@ class GetPersonDetailsActionSpec extends BaseSpec {
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PersonDetails](
               Future.successful(Left(UpstreamErrorResponse("", NOT_FOUND)))
+            )
+          )
+
+        val result = harness(personDetailsBlock)(refinedRequest)
+        status(result) mustBe OK
+        contentAsString(result) mustBe "Person Details: No Person Details Defined"
+
+        verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
+      }
+
+      "return no person details when CitizenDetails returns bad gateway" in {
+        when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
+        when(mockCitizenDetailsService.personDetails(any())(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, PersonDetails](
+              Future.successful(Left(UpstreamErrorResponse("", BAD_GATEWAY)))
             )
           )
 

@@ -310,13 +310,23 @@ class ConfigDecorator @Inject() (
   lazy val shutterPageParagraphCy: String =
     runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.cy").getOrElse("")
 
-  lazy val breathingSpaceBaseUrl: String        = servicesConfig.baseUrl("breathing-space-if-proxy")
-  lazy val breathingSpaceTimeoutInSec: Int      =
-    servicesConfig.getInt("feature.breathing-space-indicator.timeoutInSec")
-  lazy val preferenceFrontendTimeoutInSec: Int  =
+  lazy val breathingSpaceBaseUrl: String            = servicesConfig.baseUrl("breathing-space-if-proxy")
+  lazy val breathingSpaceTimeoutInMilliseconds: Int =
+    servicesConfig.getInt("microservice.services.breathing-space-if-proxy.timeoutInMilliseconds")
+  lazy val taxCalcTimeoutInMilliseconds: Int        =
+    servicesConfig.getInt("microservice.services.taxcalc.timeoutInMilliseconds")
+  lazy val citizenDetailsTimeoutInMilliseconds: Int =
+    servicesConfig.getInt("microservice.services.citizen-details.timeoutInMilliseconds")
+  lazy val tcsBrokerTimeoutInMilliseconds: Int      =
+    servicesConfig.getInt("microservice.services.tcs-broker.timeoutInMilliseconds")
+  lazy val taiTimeoutInMilliseconds: Int            =
+    servicesConfig.getInt("microservice.services.tai.timeoutInMilliseconds")
+  lazy val dfsPartialTimeoutInMilliseconds: Int     =
+    servicesConfig.getInt("microservice.services.dfs-digital-forms-frontend.timeoutInMilliseconds")
+  lazy val preferenceFrontendTimeoutInSec: Int      =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
-  lazy val ptaNinoSaveUrl: String               = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
-  lazy val guidanceForWhenYourChildTurnsSixteen = "https://www.gov.uk/child-benefit-16-19"
+  lazy val ptaNinoSaveUrl: String                   = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
+  lazy val guidanceForWhenYourChildTurnsSixteen     = "https://www.gov.uk/child-benefit-16-19"
 
   lazy val guidanceForWhenYourChildTurnsSixteenWelsh = "https://www.gov.uk/budd-dal-plant-16-19"
 
