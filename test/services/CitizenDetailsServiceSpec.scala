@@ -39,6 +39,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
 
   "CitizenDetailsService" when {
     "personDetails is called" must {
+
       "return person details when connector returns and OK status with body" in {
         when(mockConnector.personDetails(any())(any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, HttpResponse](

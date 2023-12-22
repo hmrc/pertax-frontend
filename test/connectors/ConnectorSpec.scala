@@ -70,7 +70,6 @@ trait ConnectorSpec
   def stubGet(url: String, responseStatus: Int, responseBody: Option[String]): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
     val response     = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
-
     get(url).willReturn(response)
   }
 

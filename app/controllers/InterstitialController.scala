@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, ShowOutageBannerToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NiAndSpMergeTileToggle, ShowOutageBannerToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -58,12 +58,13 @@ class InterstitialController @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
-  featureFlagService: FeatureFlagService
+  featureFlagService: FeatureFlagService,
+  viewNISPView: ViewNISPView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with Logging {
 
-  val saBreadcrumb: Breadcrumb =
+  private val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
   private val authenticate: ActionBuilder[UserRequest, AnyContent]   =
@@ -74,17 +75,38 @@ class InterstitialController @Inject() (
       .addBreadcrumb(saBreadcrumb)
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
+    featureFlagService.get(NiAndSpMergeTileToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        Future.successful(Redirect(controllers.routes.InterstitialController.displayNISP.url))
+      } else {
+        for {
+          nationalInsurancePartial <- formPartialService.getNationalInsurancePartial
+        } yield Ok(
+          viewNationalInsuranceInterstitialHomeView(
+            formPartial = if (configDecorator.partialUpgradeEnabled) {
+              //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
+              FormPartialUpgrade.upgrade(nationalInsurancePartial successfulContentOrEmpty)
+            } else {
+              nationalInsurancePartial successfulContentOrEmpty
+            },
+            redirectUrl = currentUrl,
+            request.nino
+          )
+        )
+      }
+    }
+  }
+
+  def displayNISP: Action[AnyContent] = authenticate.async { implicit request =>
     for {
-      nationalInsurancePartial <- formPartialService.getNationalInsurancePartial
+      nispPartial <- formPartialService.getNISPPartial
     } yield Ok(
-      viewNationalInsuranceInterstitialHomeView(
+      viewNISPView(
         formPartial = if (configDecorator.partialUpgradeEnabled) {
-          //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
-          FormPartialUpgrade.upgrade(nationalInsurancePartial successfulContentOrEmpty)
+          FormPartialUpgrade.upgrade(nispPartial successfulContentOrEmpty)
         } else {
-          nationalInsurancePartial successfulContentOrEmpty
+          nispPartial successfulContentOrEmpty
         },
-        redirectUrl = currentUrl,
         request.nino
       )
     )

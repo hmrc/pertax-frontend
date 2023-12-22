@@ -22,16 +22,17 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "microservice.services.auth.port"                   -> server.port(),
-      "microservice.services.citizen-details.port"        -> server.port(),
-      "microservice.services.tcs-broker.port"             -> server.port(),
-      "microservice.services.cachable.session-cache.port" -> server.port(),
-      "microservice.services.cachable.session-cache.host" -> "127.0.0.1",
-      "cookie.encryption.key"                             -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "sso.encryption.key"                                -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "queryParameter.encryption.key"                     -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "json.encryption.key"                               -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "metrics.enabled"                                   -> false
+      "microservice.services.auth.port"                        -> server.port(),
+      "microservice.services.citizen-details.port"             -> server.port(),
+      "microservice.services.tcs-broker.port"                  -> server.port(),
+      "microservice.services.tcs-broker.timeoutInMilliseconds" -> 1,
+      "microservice.services.cachable.session-cache.port"      -> server.port(),
+      "microservice.services.cachable.session-cache.host"      -> "127.0.0.1",
+      "cookie.encryption.key"                                  -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "sso.encryption.key"                                     -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "queryParameter.encryption.key"                          -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "json.encryption.key"                                    -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "metrics.enabled"                                        -> false
     )
     .build()
 
@@ -189,23 +190,23 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
             aResponse()
               .withStatus(OK)
               .withBody("""
-                                                            |{
-                                                            |	"id": "session-id",
-                                                            |	"data": {
-                                                            |   "addressPageVisitedDto": {
-                                                            |     "hasVisitedPage": true
-                                                            |   }
-                                                            |	},
-                                                            |	"modifiedDetails": {
-                                                            |		"createdAt": {
-                                                            |			"$date": 1400258561678
-                                                            |		},
-                                                            |		"lastUpdated": {
-                                                            |			"$date": 1400258561675
-                                                            |		}
-                                                            |	}
-                                                            |}
-                                                            |""".stripMargin)
+                  |{
+                  |	"id": "session-id",
+                  |	"data": {
+                  |   "addressPageVisitedDto": {
+                  |     "hasVisitedPage": true
+                  |   }
+                  |	},
+                  |	"modifiedDetails": {
+                  |		"createdAt": {
+                  |			"$date": 1400258561678
+                  |		},
+                  |		"lastUpdated": {
+                  |			"$date": 1400258561675
+                  |		}
+                  |	}
+                  |}
+                  |""".stripMargin)
           )
       )
 
@@ -220,7 +221,5 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
       result.get.futureValue.header.status mustBe OK
       contentAsString(result.get) must include(messages("label.do_you_get_tax_credits"))
     }
-
   }
-
 }

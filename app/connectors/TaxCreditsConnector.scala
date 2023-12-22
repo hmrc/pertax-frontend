@@ -22,25 +22,31 @@ import config.ConfigDecorator
 import play.api.Logging
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 class TaxCreditsConnector @Inject() (
-  val http: HttpClient,
+  val httpClientV2: HttpClientV2,
   configDecorator: ConfigDecorator,
   httpClientResponse: HttpClientResponse
 )(implicit ec: ExecutionContext)
     extends Logging {
 
   private lazy val taxCreditsUrl: String = configDecorator.tcsBrokerHost
-
   def getTaxCreditsExclusionStatus(
     nino: Nino
-  )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, Boolean] =
+  )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, Boolean] = {
+    val url = s"$taxCreditsUrl/tcs/$nino/exclusion"
     httpClientResponse
       .read(
-        http.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taxCreditsUrl/tcs/$nino/exclusion")
+        httpClientV2
+          .get(url"$url")
+          .transform(_.withRequestTimeout(configDecorator.tcsBrokerTimeoutInMilliseconds.milliseconds))
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
       )
       .map(result => (result.json \ "excluded").as[Boolean])
+  }
 }

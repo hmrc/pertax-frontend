@@ -129,5 +129,34 @@ class HomeViewSpec extends ViewSpec {
 
       view.getElementById("alert-banner") mustBe null
     }
+
+    "show pensions title when state pension content is present" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val view                                                      = Jsoup.parse(
+        home(
+          homeViewModel.copy(pensionCards = Seq(Html("""<p id="pensionsText">pensions</p>"""))),
+          shutteringMessaging = false
+        ).toString
+      )
+
+      view.toString must include(
+        "Pensions"
+      )
+
+      view.getElementById("pensionsText").text mustBe "pensions"
+    }
+
+    "not show pensions title when state pension cards is empty" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val view                                                      = Jsoup.parse(
+        home(
+          homeViewModel.copy(pensionCards = Nil),
+          shutteringMessaging = false
+        ).toString
+      )
+
+      view.toString must not include "Pensions"
+
+    }
   }
 }

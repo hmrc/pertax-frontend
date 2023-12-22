@@ -90,15 +90,6 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
-    "return an UpstreamErrorResponse for timeout response" in {
-      val delay: Int = 6000
-      stubWithDelay(url, OK, None, Some(breathingSpaceTrueResponse), delay)
-
-      val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-      result mustBe a[Left[UpstreamErrorResponse, _]]
-      verifyHeader(getRequestedFor(urlEqualTo(url)))
-    }
-
     List(
       TOO_MANY_REQUESTS,
       INTERNAL_SERVER_ERROR,
@@ -146,4 +137,29 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
   }
 
+}
+
+class BreathingSpaceConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper {
+
+  override implicit lazy val app: Application = app(
+    Map(
+      "microservice.services.breathing-space-if-proxy.port"                  -> server.port(),
+      "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 1
+    )
+  )
+
+  private val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
+  private val url        = s"/$nino/memorandum"
+
+  def connector: BreathingSpaceConnector = app.injector.instanceOf[BreathingSpaceConnector]
+
+  "getBreathingSpaceIndicator is called" must {
+    "return a bad gateway response when connection times out" in {
+      stubWithDelay(url, OK, None, None, 100)
+
+      val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
+      result mustBe a[Left[UpstreamErrorResponse, _]]
+      result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_GATEWAY
+    }
+  }
 }

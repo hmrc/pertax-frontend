@@ -64,7 +64,7 @@ class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with Integ
   "Calling getMessageListPartial" must {
     "return message partial for list of messages" in {
       val expected = HtmlPartial.Success.apply(None, Html("body"))
-      when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())).thenReturn(
+      when(mockEnhancedPartialRetriever.loadPartial(any(), any())(any(), any())).thenReturn(
         Future.successful(expected)
       )
 
@@ -77,7 +77,7 @@ class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with Integ
   "Calling getMessageDetailPartial" must {
     "return message partial for message details" in {
       val expected = HtmlPartial.Success.apply(None, Html("body"))
-      when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())).thenReturn(
+      when(mockEnhancedPartialRetriever.loadPartial(any(), any())(any(), any())).thenReturn(
         Future.successful(expected)
       )
 
@@ -91,7 +91,7 @@ class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with Integ
   "Calling getMessageInboxLinkPartial" must {
     "return message inbox link partial" in {
       val expected = HtmlPartial.Success.apply(None, Html("body"))
-      when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())).thenReturn(
+      when(mockEnhancedPartialRetriever.loadPartial(any(), any())(any(), any())).thenReturn(
         Future.successful(expected)
       )
 

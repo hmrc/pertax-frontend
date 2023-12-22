@@ -23,8 +23,8 @@ import models.BreathingSpaceIndicator
 import play.api.Logging
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits.{readEitherOf, readRaw}
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{GatewayTimeoutException, _}
 
 import java.util.UUID.randomUUID
 import scala.concurrent.duration._
@@ -36,29 +36,22 @@ class BreathingSpaceConnector @Inject() (
   configDecorator: ConfigDecorator
 ) extends Logging {
 
-  lazy val baseUrl: String   = configDecorator.breathingSpaceBaseUrl
-  lazy val timeoutInSec: Int =
-    configDecorator.breathingSpaceTimeoutInSec
+  private lazy val baseUrl: String = configDecorator.breathingSpaceBaseUrl
 
   def getBreathingSpaceIndicator(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Boolean] = {
-    val url                                     = s"$baseUrl/$nino/memorandum"
-    implicit val bsHeaderCarrier: HeaderCarrier = hc
+    val url                                                              = s"$baseUrl/$nino/memorandum"
+    implicit val bsHeaderCarrier: HeaderCarrier                          = hc
       .withExtraHeaders(
         "Correlation-Id" -> randomUUID.toString
       )
-    val result                                  =
-      httpClientV2
-        .get(url"$url")(bsHeaderCarrier)
-        .transform(_.withRequestTimeout(timeoutInSec.seconds))
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-        .recoverWith { case exception: GatewayTimeoutException =>
-          logger.error(exception.message)
-          Future.failed(exception)
-        }
+    val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
+      .get(url"$url")(bsHeaderCarrier)
+      .transform(_.withRequestTimeout(configDecorator.breathingSpaceTimeoutInMilliseconds.milliseconds))
+      .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
     httpClientResponse
-      .readLogForbiddenAsWarning(result)
+      .readLogForbiddenAsWarning(apiResponse)
       .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
 }

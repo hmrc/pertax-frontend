@@ -18,63 +18,74 @@ package connectors
 
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
+import config.ConfigDecorator
 import models._
 import play.api.Logging
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CitizenDetailsConnector @Inject() (
-  val httpClient: HttpClient,
+  val httpClientV2: HttpClientV2,
   servicesConfig: ServicesConfig,
-  httpClientResponse: HttpClientResponse
+  httpClientResponse: HttpClientResponse,
+  configDecorator: ConfigDecorator
 ) extends Logging {
 
-  lazy val citizenDetailsUrl: String = servicesConfig.baseUrl("citizen-details")
+  private lazy val citizenDetailsUrl: String = servicesConfig.baseUrl("citizen-details")
 
   def personDetails(
     nino: Nino
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse
-      .read(
-        httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
-          s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
-        )
-      )
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    val url                                                              = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
+    val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
+      .get(url"$url")
+      .transform(_.withRequestTimeout(configDecorator.citizenDetailsTimeoutInMilliseconds.milliseconds))
+      .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+    httpClientResponse.read(apiResponse)
+  }
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
     ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
-    httpClientResponse
-      .read(
-        httpClient.POST[JsObject, Either[UpstreamErrorResponse, HttpResponse]](
-          s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address",
-          body
-        )
-      )
+    val url  = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address"
+    httpClientResponse.read(
+      httpClientV2
+        .post(url"$url")
+        .withBody(body)
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+    )
   }
 
   def getMatchingDetails(
     nino: Nino
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse
-      .read(
-        httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$citizenDetailsUrl/citizen-details/nino/$nino")
-      )
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    val url = s"$citizenDetailsUrl/citizen-details/nino/$nino"
+    httpClientResponse.read(
+      httpClientV2
+        .get(url"$url")
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+    )
+  }
 
   def getEtag(
     nino: String
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse
-      .read(
-        httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](s"$citizenDetailsUrl/citizen-details/$nino/etag")
-      )
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
 
+    val url = s"$citizenDetailsUrl/citizen-details/$nino/etag"
+    httpClientResponse.read(
+      httpClientV2
+        .get(url"$url")
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+    )
+  }
 }
