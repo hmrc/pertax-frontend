@@ -93,7 +93,15 @@ class PreferencesFrontendConnector @Inject() (
       .read(
         httpClientV2
           .get(fullUrl)
-          .transform(_.withRequestTimeout(configDecorator.preferenceFrontendTimeoutInSec.seconds))
+          .transform { request =>
+            val invalidChars = Seq(" ", "£")
+            val filteredHeaders: Map[String, Seq[String]] = request.headers.filter(header => header._1.contains(invalidChars) || header._2.exists(_.contains(invalidChars)))
+            if (filteredHeaders.nonEmpty) {
+              val ex = new RuntimeException("Invalid characters in header \n" + filteredHeaders)
+              logger.error(ex.getMessage, ex)
+            }
+            request.withRequestTimeout(configDecorator.preferenceFrontendTimeoutInSec.seconds)
+          }
           .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
       .map(_.json.as[PaperlessMessagesStatus])
