@@ -15,8 +15,8 @@ import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.time.TaxYear
 
-import java.time.LocalDateTime
 import java.util.UUID
 import scala.concurrent.Future
 
@@ -30,7 +30,8 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
     )
     .build()
 
-  val url = s"/personal-account"
+  val url                       = s"/personal-account"
+  private val startTaxYear: Int = TaxYear.current.startYear
 
   def request: FakeRequest[AnyContentAsEmpty.type] = {
     val uuid = UUID.randomUUID().toString
@@ -65,7 +66,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
         .toString
 
       server.stubFor(
-        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+        get(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))
           .willReturn(ok(taxComponentsJson))
       )
       val result: Future[Result] = route(app, request).get
@@ -73,7 +74,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
 
       server.verify(
         1,
-        getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+        getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))
       )
 
       contentAsString(result).contains(
@@ -81,7 +82,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       ) mustBe true
       server.verify(
         1,
-        getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+        getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))
       )
     }
 
@@ -102,7 +103,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
         .toString
 
       server.stubFor(
-        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+        get(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))
           .willReturn(ok(taxComponentsJson))
       )
       server.stubFor(
@@ -118,7 +119,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       ) mustBe true
       server.verify(
         1,
-        getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+        getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))
       )
     }
 
@@ -139,7 +140,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
         .toString
 
       server.stubFor(
-        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+        get(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))
           .willReturn(ok(taxComponentsJson))
       )
       server.stubFor(
@@ -155,7 +156,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       ) mustBe true
       server.verify(
         1,
-        getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+        getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))
       )
     }
   }
