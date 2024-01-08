@@ -18,44 +18,58 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
-import play.api.Application
+import config.ConfigDecorator
+import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito, MockitoSugar}
+import play.api.{Application, Logger}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.util.Random
 
-class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
+class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with MockitoSugar {
 
   override implicit lazy val app: Application = app(
     Map("microservice.services.breathing-space-if-proxy.port" -> server.port())
   )
 
-  val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
-  val url        = s"/$nino/memorandum"
+  private val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
+  private val url        = s"/$nino/memorandum"
 
-  def connector: BreathingSpaceConnector = app.injector.instanceOf[BreathingSpaceConnector]
+  private def connector: BreathingSpaceConnector = app.injector.instanceOf[BreathingSpaceConnector]
 
-  def verifyHeader(requestPattern: RequestPatternBuilder): Unit = server.verify(
+  private def verifyHeader(requestPattern: RequestPatternBuilder): Unit = server.verify(
     requestPattern.withHeader(
       "Correlation-Id",
       matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
     )
   )
 
-  val breathingSpaceTrueResponse: String =
+  private val breathingSpaceTrueResponse: String =
     s"""
        |{
        |    "breathingSpaceIndicator": true
        |}
     """.stripMargin
 
-  val breathingSpaceFalseResponse: String =
+  private val breathingSpaceFalseResponse: String =
     s"""
        |{
        |    "breathingSpaceIndicator": false
        |}
     """.stripMargin
+
+  private def httpClientV2: HttpClientV2       = app.injector.instanceOf[HttpClientV2]
+  private def configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
+
+  private val mockLogger: Logger = mock[Logger]
+
+  private val dummyContent = "dummy error response"
+
+  private def httpClientResponseUsingMockLogger: HttpClientResponse = new HttpClientResponse {
+    override protected val logger: Logger = mockLogger
+  }
 
   "getBreathingSpaceIndicator is called" must {
     "return a true right response" in {
@@ -81,20 +95,48 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper {
       INTERNAL_SERVER_ERROR,
       BAD_GATEWAY,
       SERVICE_UNAVAILABLE,
-      IM_A_TEAPOT,
       NOT_FOUND,
+      IM_A_TEAPOT,
       BAD_REQUEST,
       UNPROCESSABLE_ENTITY
     ).foreach { httpResponse =>
       s"return an UpstreamErrorResponse when $httpResponse status is received" in {
-        stubGet(url, httpResponse, None)
+        reset(mockLogger)
+        val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
+        stubGet(url, httpResponse, Some(dummyContent))
 
         val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
         result mustBe a[Left[UpstreamErrorResponse, _]]
         verifyHeader(getRequestedFor(urlEqualTo(url)))
       }
     }
+
+    "return Left but 1 WARN level message logged if receive 403 (indicates IF being restarted due to new release)" in {
+      reset(mockLogger)
+
+      val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
+
+      stubGet(
+        url,
+        FORBIDDEN,
+        Some(dummyContent)
+      )
+
+      val result                              = connector.getBreathingSpaceIndicator(nino).value.futureValue
+      result mustBe a[Left[UpstreamErrorResponse, _]]
+      result.swap.exists(_.statusCode == FORBIDDEN)
+      verifyHeader(getRequestedFor(urlEqualTo(url)))
+      val eventCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
+      Mockito
+        .verify(mockLogger, times(1))
+        .warn(eventCaptor.capture())(ArgumentMatchers.any())
+      eventCaptor.getValue.contains(dummyContent) mustBe true
+      Mockito
+        .verify(mockLogger, times(0))
+        .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+    }
   }
+
 }
 
 class BreathingSpaceConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper {
