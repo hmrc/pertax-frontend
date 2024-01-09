@@ -25,7 +25,8 @@ import play.api.Logging
 import play.api.http.Status.PRECONDITION_FAILED
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import play.api.libs.ws.WSRequest
+import uk.gov.hmrc.http.{HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
@@ -37,7 +38,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PreferencesFrontendConnector @Inject() (
-  httpClient: HttpClient,
   httpClientV2: HttpClientV2,
   val messagesApi: MessagesApi,
   val configDecorator: ConfigDecorator,
@@ -49,8 +49,8 @@ class PreferencesFrontendConnector @Inject() (
     with I18nSupport
     with Logging {
 
-  val preferencesFrontendUrl: String = servicesConfig.baseUrl("preferences-frontend")
-  val url: String                    = preferencesFrontendUrl
+  private val preferencesFrontendUrl: String = servicesConfig.baseUrl("preferences-frontend")
+  val url: String                            = preferencesFrontendUrl
 
   def getPaperlessPreference()(implicit
     request: UserRequest[_]
@@ -70,14 +70,16 @@ class PreferencesFrontendConnector @Inject() (
       s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
         .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
 
+    val body: JsObject = Json.obj("active" -> true)
     httpClientResponse
       .read(
-        httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))(
-          wts = implicitly,
-          rds = newReadEitherOf,
-          ec = implicitly,
-          hc = implicitly
-        )
+        httpClientV2
+          .put(url"$url")
+          .withBody(body)
+          .transform { request =>
+            filterInvalidHeaders(request)
+          }
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](newReadEitherOf(readRaw), ec)
       )
   }
 
@@ -94,16 +96,21 @@ class PreferencesFrontendConnector @Inject() (
         httpClientV2
           .get(fullUrl)
           .transform { request =>
-            val invalidChars = Seq(" ", "£")
-            val filteredHeaders: Map[String, Seq[String]] = request.headers.filter(header => header._1.contains(invalidChars) || header._2.exists(_.contains(invalidChars)))
-            if (filteredHeaders.nonEmpty) {
-              val ex = new RuntimeException("Invalid characters in header \n" + filteredHeaders)
-              logger.error(ex.getMessage, ex)
-            }
-            request.withRequestTimeout(configDecorator.preferenceFrontendTimeoutInSec.seconds)
+            filterInvalidHeaders(request).withRequestTimeout(configDecorator.preferenceFrontendTimeoutInSec.seconds)
           }
           .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
       .map(_.json.as[PaperlessMessagesStatus])
+  }
+
+  private def filterInvalidHeaders(request: WSRequest): WSRequest = {
+    val invalidChars                              = Seq(" ", "£")
+    val filteredHeaders: Map[String, Seq[String]] =
+      request.headers.filter(header => header._1.contains(invalidChars) || header._2.exists(_.contains(invalidChars)))
+    if (filteredHeaders.nonEmpty) {
+      val ex = new RuntimeException("Invalid characters in header \n" + filteredHeaders)
+      logger.error(ex.getMessage, ex)
+    }
+    request
   }
 }
