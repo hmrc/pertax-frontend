@@ -17,8 +17,8 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.time.TaxYear
 
-import java.time.LocalDateTime
 import java.util.UUID
 import scala.concurrent.Future
 
@@ -43,9 +43,10 @@ class TimeoutsISpec extends IntegrationSpec {
     )
     .build()
 
+  private val startTaxYear: Int = TaxYear.current.startYear
   private val dummyContent      = "my body content"
   private val breathingSpaceUrl = s"/$generatedNino/memorandum"
-  private val taxComponentsUrl  = s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"
+  private val taxComponentsUrl  = s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"
   private val taxCalcUrl        = s"/taxcalc/$generatedNino/reconciliations"
   private val citizenDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
   private val dfsPartialNinoUrl = "/digital-forms/forms/personal-tax/national-insurance/catalogue"

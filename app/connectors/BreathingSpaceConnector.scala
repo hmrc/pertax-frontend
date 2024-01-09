@@ -51,7 +51,7 @@ class BreathingSpaceConnector @Inject() (
       .transform(_.withRequestTimeout(configDecorator.breathingSpaceTimeoutInMilliseconds.milliseconds))
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
     httpClientResponse
-      .read(apiResponse)
+      .readLogForbiddenAsWarning(apiResponse)
       .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)
   }
 }
