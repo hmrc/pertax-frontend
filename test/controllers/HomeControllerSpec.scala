@@ -759,7 +759,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
+      val (result, _, _) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
 
       result mustBe TaxComponentsDisabledState
       verify(mockTaiService, times(0)).taxComponents(any(), any())(any(), any())
@@ -782,7 +782,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
+      val (result, _, _) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
       result mustBe TaxComponentsAvailableState(
         TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
       )
@@ -813,7 +813,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
+      val (result, _, _) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
 
       result mustBe TaxComponentsNotAvailableState
       verify(mockTaiService, times(1)).taxComponents(any(), any())(any(), any())
@@ -843,7 +843,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      val (result, _, _) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
+      val (result, _, _) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
 
       result mustBe TaxComponentsUnreachableState
     }
@@ -865,7 +865,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
+      val (_, resultCYm1, resultCYm2) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
 
       resultCYm1 mustBe None
       resultCYm2 mustBe None
@@ -888,7 +888,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year, trustedHelperResponse))
+      val (_, resultCYm1, resultCYm2) =
+        await(controller.retrieveTaxComponentsState(userNino, year, trustedHelperResponse))
 
       resultCYm1 mustBe None
       resultCYm2 mustBe None
@@ -918,7 +919,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       )
 
-      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
+      val (_, resultCYM1, resultCYM2) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
 
       resultCYM1 mustBe None
       resultCYM2 mustBe None
@@ -941,7 +942,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year, trustedHelper))
+      val (_, resultCYM1, resultCYM2) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
 
       resultCYM1 mustBe Some(TaxYearReconciliation(2016, Balanced))
       resultCYM2 mustBe Some(TaxYearReconciliation(2015, Balanced))

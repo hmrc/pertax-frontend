@@ -18,17 +18,16 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.{TaiConnector, TaxCalculationConnector}
+import connectors.TaiConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
-import models.admin.{ShowOutageBannerToggle, TaxComponentsToggle, TaxcalcToggle}
+import models.admin.{ShowOutageBannerToggle, TaxComponentsToggle}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -43,7 +42,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
   taiConnector: TaiConnector,
-  taxCalculationConnector: TaxCalculationConnector,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   homeCardGenerator: HomeCardGenerator,
@@ -71,29 +69,22 @@ class HomeController @Inject() (
         Future.successful(false)
       }
 
-    val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
-      serviceCallResponses(request.nino, current.currentYear, request.trustedHelper)
-
     val saUserType = request.saUserType
 
     rlsInterruptHelper.enforceByRlsStatus(
       showUserResearchBanner flatMap { showUserResearchBanner =>
         paperlessInterruptHelper.enforcePaperlessPreference {
           for {
-            (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
-            _                                                                               <- seissService.hasClaims(saUserType)
-            breathingSpaceIndicator                                                         <- breathingSpaceService.getBreathingSpaceIndicator(request.nino).map {
-                                                                                                 case WithinPeriod => true
-                                                                                                 case _            => false
-                                                                                               }
-            incomeCards                                                                     <- homeCardGenerator.getIncomeCards(
-                                                                                                 taxSummaryState,
-                                                                                                 taxCalculationStateCyMinusOne,
-                                                                                                 taxCalculationStateCyMinusTwo
-                                                                                               )
-            shutteringMessaging                                                             <- featureFlagService.get(ShowOutageBannerToggle)
-            alertBannerContent                                                              <- alertBannerHelper.getContent
-            pensionCards                                                                    <- homeCardGenerator.getPensionCards()
+            taxSummaryState         <- retrieveTaxComponentsState(request.nino, current.currentYear)
+            _                       <- seissService.hasClaims(saUserType)
+            breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.nino).map {
+                                         case WithinPeriod => true
+                                         case _            => false
+                                       }
+            incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
+            shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
+            alertBannerContent      <- alertBannerHelper.getContent
+            pensionCards            <- homeCardGenerator.getPensionCards()
           } yield {
 
             val benefitCards: Seq[Html] =
@@ -119,24 +110,13 @@ class HomeController @Inject() (
     )
   }
 
-  private[controllers] def serviceCallResponses(ninoOpt: Option[Nino], year: Int, trustedHelper: Option[TrustedHelper])(
-    implicit hc: HeaderCarrier
-  ): Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
-    ninoOpt.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
-      Future.successful((TaxComponentsDisabledState, None, None))
+  private[controllers] def retrieveTaxComponentsState(ninoOpt: Option[Nino], year: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[TaxComponentsState] =
+    ninoOpt.fold[Future[TaxComponentsState]](
+      Future.successful(TaxComponentsDisabledState)
     ) { nino =>
-      val taxYr = featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
-        if (toggle.isEnabled && trustedHelper.isEmpty) {
-          taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxYearReconciliation]).merge
-        } else {
-          Future.successful(List.empty[TaxYearReconciliation])
-        }
-      }
-
-      val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
-      val taxCalculationStateCyMinusTwo = taxYr.map(_.find(_.taxYear == year - 2))
-
-      val taxSummaryState: Future[TaxComponentsState] = featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
+      featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
         if (toggle.isEnabled) {
           taiConnector
             .taxComponents(nino, year)
@@ -153,11 +133,5 @@ class HomeController @Inject() (
           Future.successful(TaxComponentsDisabledState)
         }
       }
-
-      for {
-        taxCalculationStateCyMinusOne <- taxCalculationStateCyMinusOne
-        taxCalculationStateCyMinusTwo <- taxCalculationStateCyMinusTwo
-        taxSummaryState               <- taxSummaryState
-      } yield (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
     }
 }

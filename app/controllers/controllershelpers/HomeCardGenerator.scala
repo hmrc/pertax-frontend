@@ -25,11 +25,10 @@ import models.admin._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
-import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,7 +37,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class HomeCardGenerator @Inject() (
   featureFlagService: FeatureFlagService,
   payAsYouEarnView: PayAsYouEarnView,
-  taxCalculationView: TaxCalculationView,
   nationalInsuranceView: NationalInsuranceView,
   taxCreditsView: TaxCreditsView,
   childBenefitSingleAccountView: ChildBenefitSingleAccountView,
@@ -53,17 +51,16 @@ class HomeCardGenerator @Inject() (
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
 
   def getIncomeCards(
-    taxComponentsState: TaxComponentsState,
-    taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
-    taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation]
+    taxComponentsState: TaxComponentsState
   )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] =
     Future
       .sequence(
         List(
           Future.successful(getLatestNewsAndUpdatesCard()),
           Future.successful(getPayAsYouEarnCard(taxComponentsState)),
-          getTaxCalculationCard(taxCalculationStateCyMinusOne),
-          getTaxCalculationCard(taxCalculationStateCyMinusTwo),
+// 7975
+//          getTaxCalculationCard(taxCalculationStateCyMinusOne),
+//          getTaxCalculationCard(taxCalculationStateCyMinusTwo),
           Future.successful(getSaAndItsaMergeCard()),
           getNationalInsuranceCard(),
           if (request.trustedHelper.isEmpty) {
@@ -83,15 +80,6 @@ class HomeCardGenerator @Inject() (
         case TaxComponentsNotAvailableState => None
         case _                              => Some(payAsYouEarnView(configDecorator))
       }
-    }
-
-  private def getTaxCalculationCard(
-    taxYearReconciliations: Option[TaxYearReconciliation]
-  )(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
-    featureFlagService.get(TaxcalcMakePaymentLinkToggle).map { toggle =>
-      taxYearReconciliations
-        .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation(_, toggle))
-        .map(taxCalculationView(_))
     }
 
   def getSaAndItsaMergeCard()(implicit
