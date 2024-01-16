@@ -18,7 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import config.ConfigDecorator
-import connectors.{PreferencesFrontendConnector, TaiConnector, TaxCalculationConnector}
+import connectors.{PreferencesFrontendConnector, TaiConnector}
 import controllers.auth.AuthJourney
 import controllers.bindable.Origin
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
@@ -37,11 +37,11 @@ import services.partials.MessageFrontendService
 import testUtils.Fixtures._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, UpstreamErrorResponse}
-import uk.gov.hmrc.time.CurrentTaxYear
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.time.CurrentTaxYear
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -49,7 +49,6 @@ import scala.concurrent.Future
 class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   val mockConfigDecorator: ConfigDecorator                                         = mock[ConfigDecorator]
-  val mockTaxCalculationService: TaxCalculationConnector                           = mock[TaxCalculationConnector]
   val mockTaiService: TaiConnector                                                 = mock[TaiConnector]
   val mockSeissService: SeissService                                               = mock[SeissService]
   val mockMessageFrontendService: MessageFrontendService                           = mock[MessageFrontendService]
@@ -66,7 +65,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     super.beforeEach()
     reset(
       mockConfigDecorator,
-      mockTaxCalculationService,
       mockTaiService,
       mockMessageFrontendService,
       mockHomePageCachingHelper,
@@ -137,12 +135,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockSeissService.hasClaims(NotEnrolledSelfAssessmentUser(any()))(any())) thenReturn Future.successful(true)
     when(mockSeissService.hasClaims(NonFilerSelfAssessmentUser)) thenReturn Future.successful(false)
 
-    when(mockTaxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])).thenReturn(
-      EitherT[Future, UpstreamErrorResponse, List[TaxYearReconciliation]](
-        Future.successful(Right(buildTaxYearReconciliations))
-      )
-    )
-
     when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn {
       getPaperlessPreferenceResponse
     }
@@ -210,8 +202,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaiConnector].toInstance(mockTaiService),
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
+          bind[TaiConnector].toInstance(mockTaiService)
         )
         .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
@@ -222,7 +213,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       status(r) mustBe OK
 
       verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any(), any())
-      verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return a 200 status when accessing index page with good nino and a non sa User" in new LocalSetup {
@@ -235,8 +225,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
         .overrides(
-          bind[TaiConnector].toInstance(mockTaiService),
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
+          bind[TaiConnector].toInstance(mockTaiService)
         )
         .overrides(
           bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
@@ -249,7 +238,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       status(r) mustBe OK
 
       verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any(), any())
-      verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return a 200 status when accessing index page with good nino and a non sa User and tai/taxcalc are disabled" in new LocalSetup {
@@ -265,8 +253,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
         .overrides(
-          bind[TaiConnector].toInstance(mockTaiService),
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
+          bind[TaiConnector].toInstance(mockTaiService)
         )
         .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
@@ -277,7 +264,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       status(r) mustBe OK
 
       verify(mockTaiService, times(0)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any(), any())
-      verify(mockTaxCalculationService, times(0)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
@@ -347,9 +333,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService)
-        )
-        .overrides(
           bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
         )
         .build()
@@ -359,7 +342,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
       status(r) mustBe OK
 
-      verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
@@ -752,14 +734,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiConnector].toInstance(mockTaiService)
         )
         .build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (result, _, _) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
+      val result = await(controller.retrieveTaxComponentsState(userNino, year))
 
       result mustBe TaxComponentsDisabledState
       verify(mockTaiService, times(0)).taxComponents(any(), any())(any(), any())
@@ -775,14 +756,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiConnector].toInstance(mockTaiService)
         )
         .build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val (result, _, _) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
+      val result = await(controller.retrieveTaxComponentsState(userNino, year))
       result mustBe TaxComponentsAvailableState(
         TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
       )
@@ -800,7 +780,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiConnector].toInstance(mockTaiService)
         )
         .build()
@@ -813,11 +792,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      val (result, _, _) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
+      val result = await(controller.retrieveTaxComponentsState(userNino, year))
 
       result mustBe TaxComponentsNotAvailableState
       verify(mockTaiService, times(1)).taxComponents(any(), any())(any(), any())
-      verify(mockTaxCalculationService, times(1)).getTaxYearReconciliations(any())(any())
     }
 
     "return TaxComponentsUnreachableState status when there is TaxComponents returns an unexpected response" in new LocalSetup {
@@ -830,7 +808,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
           bind[TaiConnector].toInstance(mockTaiService)
         )
         .build()
@@ -843,110 +820,109 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      val (result, _, _) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
+      val result = await(controller.retrieveTaxComponentsState(userNino, year))
 
       result mustBe TaxComponentsUnreachableState
     }
 
-    "return None where TaxCalculation service is not enabled" in new LocalSetup {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, isEnabled = false)
-      )
+//    "return None where TaxCalculation service is not enabled" in new LocalSetup {
+//      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
+//        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
+//      )
+//      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
+//        FeatureFlag(TaxcalcToggle, isEnabled = false)
+//      )
+//
+//      lazy val app: Application = localGuiceApplicationBuilder()
+//        .overrides(
+//          bind[TaiConnector].toInstance(mockTaiService)
+//        )
+//        .build()
+//
+//      val controller: HomeController = app.injector.instanceOf[HomeController]
+//
+//      val (_, resultCYm1, resultCYm2) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
+//
+//      resultCYm1 mustBe None
+//      resultCYm2 mustBe None
+//    }
 
-      lazy val app: Application = localGuiceApplicationBuilder()
-        .overrides(
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[TaiConnector].toInstance(mockTaiService)
-        )
-        .build()
+//    "return None where there is a trusted helper in use" in new LocalSetup {
+//      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
+//        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
+//      )
+//      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
+//        FeatureFlag(TaxcalcToggle, isEnabled = true)
+//      )
+//
+//      lazy val app: Application = localGuiceApplicationBuilder()
+//        .overrides(
+//          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
+//          bind[TaiConnector].toInstance(mockTaiService)
+//        )
+//        .build()
+//
+//      val controller: HomeController = app.injector.instanceOf[HomeController]
+//
+//      val (_, resultCYm1, resultCYm2) =
+//        await(controller.retrieveTaxComponentsState(userNino, year, trustedHelperResponse))
+//
+//      resultCYm1 mustBe None
+//      resultCYm2 mustBe None
+//      verify(mockTaxCalculationService, times(0)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
+//    }
 
-      val controller: HomeController = app.injector.instanceOf[HomeController]
-
-      val (_, resultCYm1, resultCYm2) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
-
-      resultCYm1 mustBe None
-      resultCYm2 mustBe None
-    }
-
-    "return None where there is a trusted helper in use" in new LocalSetup {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, isEnabled = true)
-      )
-
-      lazy val app: Application = localGuiceApplicationBuilder()
-        .overrides(
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[TaiConnector].toInstance(mockTaiService)
-        )
-        .build()
-
-      val controller: HomeController = app.injector.instanceOf[HomeController]
-
-      val (_, resultCYm1, resultCYm2) =
-        await(controller.retrieveTaxComponentsState(userNino, year, trustedHelperResponse))
-
-      resultCYm1 mustBe None
-      resultCYm2 mustBe None
-      verify(mockTaxCalculationService, times(0)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
-    }
-
-    "return only  CY-1 None and CY-2 None when get TaxYearReconciliation returns Nil" in new LocalSetup {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, isEnabled = true)
-      )
-
-      lazy val app: Application = localGuiceApplicationBuilder()
-        .overrides(
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[TaiConnector].toInstance(mockTaiService)
-        )
-        .build()
-
-      val controller: HomeController = app.injector.instanceOf[HomeController]
-
-      when(mockTaxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, List[TaxYearReconciliation]](
-          Future.successful(Left(UpstreamErrorResponse("", NOT_FOUND)))
-        )
-      )
-
-      val (_, resultCYM1, resultCYM2) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
-
-      resultCYM1 mustBe None
-      resultCYM2 mustBe None
-    }
-
-    "return taxCalculation for CY1 and CY2 status from list returned from TaxCalculation Service." in new LocalSetup {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
-      )
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-        FeatureFlag(TaxcalcToggle, isEnabled = true)
-      )
-
-      lazy val app: Application = localGuiceApplicationBuilder()
-        .overrides(
-          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-          bind[TaiConnector].toInstance(mockTaiService)
-        )
-        .build()
-
-      val controller: HomeController = app.injector.instanceOf[HomeController]
-
-      val (_, resultCYM1, resultCYM2) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
-
-      resultCYM1 mustBe Some(TaxYearReconciliation(2016, Balanced))
-      resultCYM2 mustBe Some(TaxYearReconciliation(2015, Balanced))
-    }
+//    "return only  CY-1 None and CY-2 None when get TaxYearReconciliation returns Nil" in new LocalSetup {
+//      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
+//        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
+//      )
+//      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
+//        FeatureFlag(TaxcalcToggle, isEnabled = true)
+//      )
+//
+//      lazy val app: Application = localGuiceApplicationBuilder()
+//        .overrides(
+//          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
+//          bind[TaiConnector].toInstance(mockTaiService)
+//        )
+//        .build()
+//
+//      val controller: HomeController = app.injector.instanceOf[HomeController]
+//
+//      when(mockTaxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])).thenReturn(
+//        EitherT[Future, UpstreamErrorResponse, List[TaxYearReconciliation]](
+//          Future.successful(Left(UpstreamErrorResponse("", NOT_FOUND)))
+//        )
+//      )
+//
+//      val (_, resultCYM1, resultCYM2) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
+//
+//      resultCYM1 mustBe None
+//      resultCYM2 mustBe None
+//    }
+//
+//    "return taxCalculation for CY1 and CY2 status from list returned from TaxCalculation Service." in new LocalSetup {
+//      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
+//        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
+//      )
+//      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
+//        FeatureFlag(TaxcalcToggle, isEnabled = true)
+//      )
+//
+//      lazy val app: Application = localGuiceApplicationBuilder()
+//        .overrides(
+//          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
+//          bind[TaiConnector].toInstance(mockTaiService)
+//        )
+//        .build()
+//
+//      val controller: HomeController = app.injector.instanceOf[HomeController]
+//
+//      val (_, resultCYM1, resultCYM2) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
+//
+//      resultCYM1 mustBe Some(TaxYearReconciliation(2016, Balanced))
+//      resultCYM2 mustBe Some(TaxYearReconciliation(2015, Balanced))
+//    }
 
     "return a 200 status and no calls to PreferencesFrontendConnector if AlertFlagToggle is disabled" in new LocalSetup {
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))

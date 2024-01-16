@@ -51,6 +51,7 @@ class ConfigDecorator @Inject() (
   def seissUrl: String = servicesConfig.baseUrl("self-employed-income-support")
 
   private lazy val formFrontendService       = servicesConfig.baseUrl("dfs-digital-forms-frontend")
+  private lazy val taxCalcFrontendService    = servicesConfig.baseUrl("taxcalc-frontend")
   lazy val businessTaxAccountService: String = servicesConfig.baseUrl("business-tax-account")
   lazy val tcsBrokerHost: String             = servicesConfig.baseUrl("tcs-broker")
 
@@ -190,6 +191,8 @@ class ConfigDecorator @Inject() (
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
   lazy val selfAssessmentFormPartialLinkUrl    =
     s"$formFrontendService/digital-forms/forms/personal-tax/self-assessment/catalogue"
+  lazy val taxCalcFormPartialLinkUrl           =
+    s"$taxCalcFrontendService/tax-you-paid/summary-card-partials"
 
   lazy val identityVerificationUpliftUrl      = s"$identityVerificationHost/$identityVerificationPrefix/uplift"
   lazy val multiFactorAuthenticationUpliftUrl = s"$basGatewayFrontendHost/bas-gateway/uplift-mfa"
@@ -323,6 +326,8 @@ class ConfigDecorator @Inject() (
     servicesConfig.getInt("microservice.services.tai.timeoutInMilliseconds")
   lazy val dfsPartialTimeoutInMilliseconds: Int     =
     servicesConfig.getInt("microservice.services.dfs-digital-forms-frontend.timeoutInMilliseconds")
+  lazy val taxCalcPartialTimeoutInMilliseconds: Int =
+    servicesConfig.getInt("microservice.services.taxcalc-frontend.timeoutInMilliseconds")
   lazy val preferenceFrontendTimeoutInSec: Int      =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
   lazy val ptaNinoSaveUrl: String                   = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"

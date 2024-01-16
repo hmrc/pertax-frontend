@@ -20,12 +20,12 @@ import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import models._
 import models.admin._
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchers, MockitoSugar}
 import play.api.Configuration
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import services.partials.TaxCalcPartialService
 import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -50,7 +50,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val generator = new Generator(new Random())
 
   private val payAsYouEarn              = inject[PayAsYouEarnView]
-  private val taxCalculation            = inject[TaxCalculationView]
   private val nationalInsurance         = inject[NationalInsuranceView]
   private val taxCredits                = inject[TaxCreditsView]
   private val childBenefitSingleAccount = inject[ChildBenefitSingleAccountView]
@@ -67,11 +66,12 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     inject[ServicesConfig]
   )
 
+  private val mockTaxCalcPartialService = mock[TaxCalcPartialService]
+
   private val homeCardGenerator =
     new HomeCardGenerator(
       mockFeatureFlagService,
       payAsYouEarn,
-      taxCalculation,
       nationalInsurance,
       taxCredits,
       childBenefitSingleAccount,
@@ -82,14 +82,14 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       saAndItsaMergeView,
       enrolmentsHelper,
       newsAndTilesConfig,
-      nispView
+      nispView,
+      mockTaxCalcPartialService
     )(stubConfigDecorator, ec)
 
   def sut: HomeCardGenerator =
     new HomeCardGenerator(
       mockFeatureFlagService,
       payAsYouEarn,
-      taxCalculation,
       nationalInsurance,
       taxCredits,
       childBenefitSingleAccount,
@@ -100,7 +100,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       saAndItsaMergeView,
       enrolmentsHelper,
       newsAndTilesConfig,
-      nispView
+      nispView,
+      mockTaxCalcPartialService
     )(stubConfigDecorator, ec)
 
   "Calling getPayAsYouEarnCard" must {

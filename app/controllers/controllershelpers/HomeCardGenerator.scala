@@ -25,6 +25,7 @@ import models.admin._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
+import services.partials.TaxCalcPartialService
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.DateTimeTools.current
@@ -47,9 +48,11 @@ class HomeCardGenerator @Inject() (
   saAndItsaMergeView: SaAndItsaMergeView,
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig,
-  nispView: NISPView
+  nispView: NISPView,
+  taxCalcPartialService: TaxCalcPartialService
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
 
+  // 7975 Add call to new partial here??? taxCalcPartialService
   def getIncomeCards(
     taxComponentsState: TaxComponentsState
   )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] =
@@ -58,6 +61,7 @@ class HomeCardGenerator @Inject() (
         List(
           Future.successful(getLatestNewsAndUpdatesCard()),
           Future.successful(getPayAsYouEarnCard(taxComponentsState)),
+//          taxCalcPartialService.getTaxCalcPartial.map(partial => Option(partial.successfulContentOrEmpty)),
 // 7975
 //          getTaxCalculationCard(taxCalculationStateCyMinusOne),
 //          getTaxCalculationCard(taxCalculationStateCyMinusTwo),

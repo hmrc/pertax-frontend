@@ -83,4 +83,20 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       sut.loadPartial(url, 1).futureValue mustBe returnPartial
     }
   }
+
+  "Calling EnhancedPartialRetriever.loadPartialList" must {
+    "return a list of successful partials" in {
+      val response                        =
+        """[{"partialName": "card1", "partialContent": "content1"}, {"partialName": "card2", "partialContent": "content2"}]"""
+      val returnPartial: Seq[HtmlPartial] = Seq(
+        HtmlPartial.Success.apply(None, Html("content1")),
+        HtmlPartial.Success.apply(None, Html("content2"))
+      )
+      val url                             = s"http://localhost:${server.port()}/"
+      server.stubFor(
+        get(urlEqualTo("/")).willReturn(ok(response))
+      )
+      sut.loadPartialSeq(url).futureValue mustBe returnPartial
+    }
+  }
 }
