@@ -32,6 +32,7 @@ import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import views.html.cards.home._
 
+import scala.annotation.unused
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -55,26 +56,39 @@ class HomeCardGenerator @Inject() (
   // 7975 Add call to new partial here??? taxCalcPartialService
   def getIncomeCards(
     taxComponentsState: TaxComponentsState
-  )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] =
-    Future
-      .sequence(
-        List(
-          Future.successful(getLatestNewsAndUpdatesCard()),
-          Future.successful(getPayAsYouEarnCard(taxComponentsState)),
-//          taxCalcPartialService.getTaxCalcPartial.map(partial => Option(partial.successfulContentOrEmpty)),
+  )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
+
+    val l1: Seq[Future[Seq[HtmlFormat.Appendable]]] =
+      List(
+        Future.successful(getLatestNewsAndUpdatesCard().toSeq),
+        Future.successful(getPayAsYouEarnCard(taxComponentsState).toSeq)
+      )
+
+    val l2: Seq[Future[Seq[HtmlFormat.Appendable]]] = Seq(
+      taxCalcPartialService.getTaxCalcPartial
+        .map(_.map(_.partialContent))
+    )
+
+    val l3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
+      Future.successful(getSaAndItsaMergeCard().toSeq),
+      getNationalInsuranceCard().map(_.toSeq),
+      if (request.trustedHelper.isEmpty) {
+        getAnnualTaxSummaryCard.value.map(_.toSeq)
+      } else {
+        Future.successful(Nil)
+      }
+    )
+
+    val t = Future.sequence(
+      l1 ++ l2 ++ l3
+    ).map(_.flatten)
+    t
+
 // 7975
 //          getTaxCalculationCard(taxCalculationStateCyMinusOne),
 //          getTaxCalculationCard(taxCalculationStateCyMinusTwo),
-          Future.successful(getSaAndItsaMergeCard()),
-          getNationalInsuranceCard(),
-          if (request.trustedHelper.isEmpty) {
-            getAnnualTaxSummaryCard.value
-          } else {
-            Future.successful(None)
-          }
-        )
-      )
-      .map(_.flatten)
+
+  }
 
   def getPayAsYouEarnCard(
     taxComponentsState: TaxComponentsState

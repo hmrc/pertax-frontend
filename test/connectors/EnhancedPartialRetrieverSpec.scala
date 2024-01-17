@@ -17,6 +17,7 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import models.SummaryCardPartial
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -86,13 +87,13 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
 
   "Calling EnhancedPartialRetriever.loadPartialList" must {
     "return a list of successful partials" in {
-      val response                        =
+      val response                               =
         """[{"partialName": "card1", "partialContent": "content1"}, {"partialName": "card2", "partialContent": "content2"}]"""
-      val returnPartial: Seq[HtmlPartial] = Seq(
-        HtmlPartial.Success.apply(None, Html("content1")),
-        HtmlPartial.Success.apply(None, Html("content2"))
+      val returnPartial: Seq[SummaryCardPartial] = Seq(
+        SummaryCardPartial("card1", Html("content1")),
+        SummaryCardPartial("card2", Html("content2"))
       )
-      val url                             = s"http://localhost:${server.port()}/"
+      val url                                    = s"http://localhost:${server.port()}/"
       server.stubFor(
         get(urlEqualTo("/")).willReturn(ok(response))
       )

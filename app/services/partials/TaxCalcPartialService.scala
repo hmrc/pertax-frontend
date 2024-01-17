@@ -19,10 +19,10 @@ package services.partials
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
+import models.SummaryCardPartial
 import models.admin.TaxcalcMakePaymentLinkToggle
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import uk.gov.hmrc.play.partials.HtmlPartial
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,10 +32,10 @@ class TaxCalcPartialService @Inject() (
   enhancedPartialRetriever: EnhancedPartialRetriever,
   featureFlagService: FeatureFlagService
 )(implicit executionContext: ExecutionContext) {
-  def getTaxCalcPartial(implicit request: RequestHeader): Future[Seq[HtmlPartial]] =
+  def getTaxCalcPartial(implicit request: RequestHeader): Future[Seq[SummaryCardPartial]] =
     featureFlagService.get(TaxcalcMakePaymentLinkToggle).flatMap { toggle =>
       if (!toggle.isEnabled) {
-        Future.successful(Seq(HtmlPartial.Failure(None, "tax calc is shuttered")))
+        Future.successful(Nil)
       } else {
         enhancedPartialRetriever.loadPartialSeq(
           url = configDecorator.taxCalcFormPartialLinkUrl,

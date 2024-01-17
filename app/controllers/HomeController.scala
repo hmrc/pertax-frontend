@@ -82,7 +82,6 @@ class HomeController @Inject() (
                                          case _            => false
                                        }
             incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
-            // 7975 Add call to new partial here??? FormPartialService
             shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
             alertBannerContent      <- alertBannerHelper.getContent
             pensionCards            <- homeCardGenerator.getPensionCards()
