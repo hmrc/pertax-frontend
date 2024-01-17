@@ -22,15 +22,8 @@ import play.twirl.api.HtmlFormat
 case class SummaryCardPartial(partialName: String, partialContent: HtmlFormat.Appendable)
 
 object SummaryCardPartial {
-  /*
-    implicit val htmlWrites: Writes[HtmlFormat.Appendable] = (html: HtmlFormat.Appendable) => {
-    JsString(HtmlFormat.raw(html.toString()).toString())
-  }
-
-  implicit val writes: Writes[SummaryCardPartial] = Json.writes[SummaryCardPartial]
-   */
   implicit val htmlReads: Reads[HtmlFormat.Appendable] = jsValue => {
-    JsSuccess(HtmlFormat.escape(jsValue.as[JsString].value))
+    JsSuccess(HtmlFormat.raw(jsValue.as[JsString].value))
   }
 
   implicit val reads: Reads[SummaryCardPartial] = Json.reads[SummaryCardPartial]

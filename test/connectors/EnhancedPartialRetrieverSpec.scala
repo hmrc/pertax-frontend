@@ -97,7 +97,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       server.stubFor(
         get(urlEqualTo("/")).willReturn(ok(response))
       )
-      sut.loadPartialSeq(url).futureValue mustBe returnPartial
+      sut.loadPartialSeqSummaryCard(url).futureValue mustBe returnPartial
     }
   }
 }

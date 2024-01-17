@@ -61,7 +61,7 @@ class EnhancedPartialRetriever @Inject() (
     }
   }
 
-  def loadPartialSeq(url: String, timeoutInMilliseconds: Int = 0)(implicit
+  def loadPartialSeqSummaryCard(url: String, timeoutInMilliseconds: Int = 0)(implicit
     request: RequestHeader,
     ec: ExecutionContext
   ): Future[Seq[SummaryCardPartial]] = {
@@ -75,12 +75,8 @@ class EnhancedPartialRetriever @Inject() (
       }
     }
 
-    requestBuilder.execute[HtmlPartial].map { e =>
-      val j: collection.IndexedSeq[SummaryCardPartial] =
-        Json.parse(e.successfulContentOrEmpty.toString).as[JsArray].value.map { tt =>
-          tt.as[SummaryCardPartial]
-        }
-      j.toSeq
+    requestBuilder.execute[HtmlPartial].map { htmlPartial =>
+      Json.parse(htmlPartial.successfulContentOrEmpty.toString).as[JsArray].value.map(_.as[SummaryCardPartial]).toSeq
     }
   }
 }

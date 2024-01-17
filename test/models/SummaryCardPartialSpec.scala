@@ -23,8 +23,8 @@ class SummaryCardPartialSpec extends BaseSpec {
 
   "Reads" must {
     "read valid json correctly" in {
-      val json = Json.obj(
-        "partialName" -> "card1",
+      val json   = Json.obj(
+        "partialName"    -> "card1",
         "partialContent" -> """\n  <div onclick=\"location.href='/tax-you-paid/2022-2023/paid-too-much';\" class=\"card active\"  data-journey-click=\"button - click:summary card - 2022 :overpaid\">\n    <h2 class=\"govuk-heading-s card-heading\">\n      \n\n\n\n    <a href=\"/tax-you-paid/2022-2023/paid-too-much\" class=\"govuk-link\"   >6 April 2022 to 5 April 2023</a>\n\n\n\n    </h2>\n\n    \n        \n<p  class=\"card-body owe_message\">HMRC owe you £84.23 .</p>\n\n        \n<p  class=\"card-body\">Get your refund paid online.</p>\n\n      \n  </div>"}"""
       )
       val actual = json.as[SummaryCardPartial]

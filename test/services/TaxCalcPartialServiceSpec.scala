@@ -57,14 +57,14 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
         when(mockConfigDecorator.taxCalcFormPartialLinkUrl).thenReturn("test-url")
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = false)))
-        when(mockEnhancedPartialRetriever.loadPartialSeq(any(), any())(any(), any())) thenReturn
+        when(mockEnhancedPartialRetriever.loadPartialSeqSummaryCard(any(), any())(any(), any())) thenReturn
           Future.successful[Seq[HtmlPartial]](Seq(HtmlPartial.Success(Some("Title"), Html("<title/>"))))
 
         val result: Seq[HtmlPartial] =
           taxCalcPartialService.getTaxCalcPartial(buildFakeRequestWithAuth("GET")).futureValue
         result mustBe Seq(HtmlPartial.Failure(None, "tax calc is shuttered"))
         verify(mockEnhancedPartialRetriever, times(0))
-          .loadPartialSeq(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
+          .loadPartialSeqSummaryCard(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
       }
     }
 
@@ -73,14 +73,14 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
         .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)))
       when(
-        mockEnhancedPartialRetriever.loadPartialSeq(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
+        mockEnhancedPartialRetriever.loadPartialSeqSummaryCard(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
       ) thenReturn
         Future.successful[Seq[HtmlPartial]](Seq(HtmlPartial.Success(Some("Title"), Html("<title/>"))))
 
       val result: Seq[HtmlPartial] =
         taxCalcPartialService.getTaxCalcPartial(buildFakeRequestWithAuth("GET")).futureValue
       result mustBe Seq(HtmlPartial.Success(Some("Title"), Html("<title/>")))
-      verify(mockEnhancedPartialRetriever, times(1)).loadPartialSeq(any(), any())(any(), any())
+      verify(mockEnhancedPartialRetriever, times(1)).loadPartialSeqSummaryCard(any(), any())(any(), any())
     }
   }
 

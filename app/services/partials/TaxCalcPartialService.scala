@@ -37,7 +37,7 @@ class TaxCalcPartialService @Inject() (
       if (!toggle.isEnabled) {
         Future.successful(Nil)
       } else {
-        enhancedPartialRetriever.loadPartialSeq(
+        enhancedPartialRetriever.loadPartialSeqSummaryCard(
           url = configDecorator.taxCalcFormPartialLinkUrl,
           timeoutInMilliseconds = configDecorator.taxCalcPartialTimeoutInMilliseconds
         )

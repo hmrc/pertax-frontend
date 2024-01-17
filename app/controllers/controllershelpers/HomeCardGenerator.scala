@@ -32,7 +32,6 @@ import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import views.html.cards.home._
 
-import scala.annotation.unused
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -53,11 +52,9 @@ class HomeCardGenerator @Inject() (
   taxCalcPartialService: TaxCalcPartialService
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
 
-  // 7975 Add call to new partial here??? taxCalcPartialService
   def getIncomeCards(
     taxComponentsState: TaxComponentsState
   )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
-
     val l1: Seq[Future[Seq[HtmlFormat.Appendable]]] =
       List(
         Future.successful(getLatestNewsAndUpdatesCard().toSeq),
@@ -79,12 +76,9 @@ class HomeCardGenerator @Inject() (
       }
     )
 
-    val t = Future.sequence(
-      l1 ++ l2 ++ l3
-    ).map(_.flatten)
-    t
-
-// 7975
+    Future
+      .sequence(l1 ++ l2 ++ l3)
+      .map(_.flatten)
 //          getTaxCalculationCard(taxCalculationStateCyMinusOne),
 //          getTaxCalculationCard(taxCalculationStateCyMinusTwo),
 
