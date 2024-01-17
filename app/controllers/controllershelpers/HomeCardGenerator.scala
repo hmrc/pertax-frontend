@@ -49,24 +49,27 @@ class HomeCardGenerator @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig,
   nispView: NISPView,
-  taxCalcPartialService: TaxCalcPartialService
+  taxCalcPartialService: TaxCalcPartialService,
+  taxCalcView: TaxCalcView
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
 
   def getIncomeCards(
     taxComponentsState: TaxComponentsState
   )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
-    val l1: Seq[Future[Seq[HtmlFormat.Appendable]]] =
+    val cards1: Seq[Future[Seq[HtmlFormat.Appendable]]] =
       List(
         Future.successful(getLatestNewsAndUpdatesCard().toSeq),
         Future.successful(getPayAsYouEarnCard(taxComponentsState).toSeq)
       )
 
-    val l2: Seq[Future[Seq[HtmlFormat.Appendable]]] = Seq(
+    val cards2: Seq[Future[Seq[HtmlFormat.Appendable]]] = Seq(
       taxCalcPartialService.getTaxCalcPartial
-        .map(_.map(_.partialContent))
+        .map(_.map { summaryCardPartial =>
+          taxCalcView(summaryCardPartial.partialContent)
+        })
     )
 
-    val l3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
+    val cards3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
       Future.successful(getSaAndItsaMergeCard().toSeq),
       getNationalInsuranceCard().map(_.toSeq),
       if (request.trustedHelper.isEmpty) {
@@ -77,7 +80,7 @@ class HomeCardGenerator @Inject() (
     )
 
     Future
-      .sequence(l1 ++ l2 ++ l3)
+      .sequence(cards1 ++ cards2 ++ cards3)
       .map(_.flatten)
 //          getTaxCalculationCard(taxCalculationStateCyMinusOne),
 //          getTaxCalculationCard(taxCalculationStateCyMinusTwo),

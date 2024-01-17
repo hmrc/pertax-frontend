@@ -59,6 +59,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val latestNewsAndUpdatesView  = inject[LatestNewsAndUpdatesView]
   private val saAndItsaMergeView        = inject[SaAndItsaMergeView]
   private val nispView                  = inject[NISPView]
+  private val taxCalcView               = inject[TaxCalcView]
   private val enrolmentsHelper          = inject[EnrolmentsHelper]
   private val newsAndTilesConfig        = mock[NewsAndTilesConfig]
   private val stubConfigDecorator       = new ConfigDecorator(
@@ -83,7 +84,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
-      mockTaxCalcPartialService
+      mockTaxCalcPartialService,
+      taxCalcView
     )(stubConfigDecorator, ec)
 
   def sut: HomeCardGenerator =
@@ -101,7 +103,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
-      mockTaxCalcPartialService
+      mockTaxCalcPartialService,
+      taxCalcView
     )(stubConfigDecorator, ec)
 
   "Calling getPayAsYouEarnCard" must {

@@ -76,7 +76,12 @@ class EnhancedPartialRetriever @Inject() (
     }
 
     requestBuilder.execute[HtmlPartial].map { htmlPartial =>
-      Json.parse(htmlPartial.successfulContentOrEmpty.toString).as[JsArray].value.map(_.as[SummaryCardPartial]).toSeq
+      val response = htmlPartial.successfulContentOrEmpty.toString
+      if (response.nonEmpty) {
+        Json.parse(response).as[JsArray].value.map(_.as[SummaryCardPartial]).toSeq
+      } else {
+        Nil
+      }
     }
   }
 }

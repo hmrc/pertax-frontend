@@ -99,5 +99,25 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       )
       sut.loadPartialSeqSummaryCard(url).futureValue mustBe returnPartial
     }
+
+    "return an empty list when empty list returned" in {
+      val response =
+        """[]"""
+      val url      = s"http://localhost:${server.port()}/"
+      server.stubFor(
+        get(urlEqualTo("/")).willReturn(ok(response))
+      )
+      sut.loadPartialSeqSummaryCard(url).futureValue mustBe Nil
+    }
+
+    "return an empty list when nothing returned" in {
+      val response =
+        """"""
+      val url      = s"http://localhost:${server.port()}/"
+      server.stubFor(
+        get(urlEqualTo("/")).willReturn(ok(response))
+      )
+      sut.loadPartialSeqSummaryCard(url).futureValue mustBe Nil
+    }
   }
 }
