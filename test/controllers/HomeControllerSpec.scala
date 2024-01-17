@@ -32,6 +32,7 @@ import play.api.inject.bind
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.twirl.api.Html
 import services._
 import services.partials.MessageFrontendService
 import testUtils.Fixtures._
@@ -100,6 +101,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val getLtaServiceResponse: Future[Boolean]                                                           = Future.successful(true)
 
     lazy val allowLowConfidenceSA = false
+    lazy val dummyHtml: Html      = Html("""<p>income</p>""")
 
     val taxComponentsJson: String =
       """{
@@ -184,6 +186,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowOutageBannerToggle))) thenReturn Future.successful(
       FeatureFlag(ShowOutageBannerToggle, isEnabled = true)
     )
+    when(mockHomeCardGenerator.getIncomeCards(any())(any(), any()))
+      .thenReturn(Future.successful(Seq(dummyHtml)))
+    when(mockHomeCardGenerator.getPensionCards()(any())).thenReturn(Future.successful(List(dummyHtml)))
+    when(mockHomeCardGenerator.getBenefitCards(any(), any())(any())).thenReturn(List(dummyHtml))
   }
 
   "Calling HomeController.index" must {
@@ -202,14 +208,16 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaiConnector].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
         )
-        .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
         .build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
       val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+
       status(r) mustBe OK
 
       verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any(), any())
@@ -228,7 +236,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[TaiConnector].toInstance(mockTaiService)
         )
         .overrides(
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )
         .build()
 
@@ -255,7 +264,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .overrides(
           bind[TaiConnector].toInstance(mockTaiService)
         )
-        .overrides(bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper))
+        .overrides(
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
+        )
         .build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
@@ -276,7 +288,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )
         .build()
 
@@ -305,7 +318,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
         )
         .overrides(
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )
         .build()
 
@@ -333,7 +347,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )
         .build()
 
@@ -354,7 +369,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )
         .build()
 
@@ -413,7 +429,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
         )
       ).overrides(
-        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+        bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
       ).build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
@@ -471,7 +488,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
         )
       ).overrides(
-        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+        bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
       ).build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
@@ -529,7 +547,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
         )
       ).overrides(
-        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+        bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
       ).build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
@@ -617,7 +636,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
         )
       ).overrides(
-        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+        bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
       ).configure(
         "feature.banner.home.enabled" -> true
       ).build()
@@ -656,7 +676,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
         )
       ).overrides(
-        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+        bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
       ).configure(
         "feature.banner.home.enabled" -> false
       ).build()
@@ -693,7 +714,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
         )
       ).overrides(
-        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+        bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+        bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
       ).configure(
         "feature.banner.home.enabled" -> true
       ).build()
@@ -734,7 +756,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaiConnector].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )
         .build()
 
@@ -756,7 +779,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaiConnector].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )
         .build()
 
@@ -780,7 +804,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaiConnector].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )
         .build()
 
@@ -808,7 +833,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
-          bind[TaiConnector].toInstance(mockTaiService)
+          bind[TaiConnector].toInstance(mockTaiService),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )
         .build()
 
@@ -835,7 +861,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 //
 //      lazy val app: Application = localGuiceApplicationBuilder()
 //        .overrides(
-//          bind[TaiConnector].toInstance(mockTaiService)
+//          bind[TaiConnector].toInstance(mockTaiService),
+//          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
 //        )
 //        .build()
 //
@@ -858,7 +885,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 //      lazy val app: Application = localGuiceApplicationBuilder()
 //        .overrides(
 //          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-//          bind[TaiConnector].toInstance(mockTaiService)
+//          bind[TaiConnector].toInstance(mockTaiService),
+//          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
 //        )
 //        .build()
 //
@@ -883,7 +911,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 //      lazy val app: Application = localGuiceApplicationBuilder()
 //        .overrides(
 //          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-//          bind[TaiConnector].toInstance(mockTaiService)
+//          bind[TaiConnector].toInstance(mockTaiService),
+//          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
 //        )
 //        .build()
 //
@@ -912,7 +941,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 //      lazy val app: Application = localGuiceApplicationBuilder()
 //        .overrides(
 //          bind[TaxCalculationConnector].toInstance(mockTaxCalculationService),
-//          bind[TaiConnector].toInstance(mockTaiService)
+//          bind[TaiConnector].toInstance(mockTaiService),
+//          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
 //        )
 //        .build()
 //
@@ -942,7 +972,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector),
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )
         .build()
 
@@ -970,7 +1001,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector),
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )
         .build()
 

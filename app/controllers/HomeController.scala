@@ -89,7 +89,6 @@ class HomeController @Inject() (
 
             val benefitCards: Seq[Html] =
               homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
-
             Ok(
               homeView(
                 HomeViewModel(

@@ -18,6 +18,7 @@ package services
 
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
+import models.SummaryCardPartial
 import models.admin.TaxcalcMakePaymentLinkToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -26,7 +27,6 @@ import services.partials.TaxCalcPartialService
 import testUtils.BaseSpec
 import testUtils.Fixtures._
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.play.partials.HtmlPartial
 
 import scala.concurrent.Future
 
@@ -58,11 +58,11 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = false)))
         when(mockEnhancedPartialRetriever.loadPartialSeqSummaryCard(any(), any())(any(), any())) thenReturn
-          Future.successful[Seq[HtmlPartial]](Seq(HtmlPartial.Success(Some("Title"), Html("<title/>"))))
+          Future.successful[Seq[SummaryCardPartial]](Seq(SummaryCardPartial("Title", Html("<title/>"))))
 
-        val result: Seq[HtmlPartial] =
+        val result: Seq[SummaryCardPartial] =
           taxCalcPartialService.getTaxCalcPartial(buildFakeRequestWithAuth("GET")).futureValue
-        result mustBe Seq(HtmlPartial.Failure(None, "tax calc is shuttered"))
+        result mustBe Nil
         verify(mockEnhancedPartialRetriever, times(0))
           .loadPartialSeqSummaryCard(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
       }
@@ -75,11 +75,11 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
       when(
         mockEnhancedPartialRetriever.loadPartialSeqSummaryCard(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
       ) thenReturn
-        Future.successful[Seq[HtmlPartial]](Seq(HtmlPartial.Success(Some("Title"), Html("<title/>"))))
+        Future.successful[Seq[SummaryCardPartial]](Seq(SummaryCardPartial("Title", Html("<title/>"))))
 
-      val result: Seq[HtmlPartial] =
+      val result: Seq[SummaryCardPartial] =
         taxCalcPartialService.getTaxCalcPartial(buildFakeRequestWithAuth("GET")).futureValue
-      result mustBe Seq(HtmlPartial.Success(Some("Title"), Html("<title/>")))
+      result mustBe Seq(SummaryCardPartial("Title", Html("<title/>")))
       verify(mockEnhancedPartialRetriever, times(1)).loadPartialSeqSummaryCard(any(), any())(any(), any())
     }
   }
