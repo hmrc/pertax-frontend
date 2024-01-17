@@ -75,13 +75,18 @@ class EnhancedPartialRetriever @Inject() (
       }
     }
 
-    requestBuilder.execute[HtmlPartial].map { htmlPartial =>
-      val response = htmlPartial.successfulContentOrEmpty.toString
-      if (response.nonEmpty) {
-        Json.parse(response).as[JsArray].value.map(_.as[SummaryCardPartial]).toSeq
-      } else {
+    requestBuilder.execute[HtmlPartial].map {
+      case partial: HtmlPartial.Success =>
+        val response = partial.content.toString
+        println("\n\n**** RESPONSE RECEIVED FROM TAX CALC:-" + response)
+        if (response.nonEmpty) {
+          Json.parse(response).as[JsArray].value.map(_.as[SummaryCardPartial]).toSeq
+        } else {
+          Nil
+        }
+      case partial: HtmlPartial.Failure =>
+        logger.error(s"Failed to load partial from $url, partial info: $partial")
         Nil
-      }
     }
   }
 }

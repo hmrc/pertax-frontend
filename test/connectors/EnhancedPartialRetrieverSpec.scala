@@ -85,8 +85,8 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     }
   }
 
-  "Calling EnhancedPartialRetriever.loadPartialList" must {
-    "return a list of successful partials" in {
+  "Calling EnhancedPartialRetriever.loadPartialSeqSummaryCard" must {
+    "return a list of successful partial summary card objects" in {
       val response                               =
         """[{"partialName": "card1", "partialContent": "content1"}, {"partialName": "card2", "partialContent": "content2"}]"""
       val returnPartial: Seq[SummaryCardPartial] = Seq(
@@ -98,6 +98,18 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
         get(urlEqualTo("/")).willReturn(ok(response))
       )
       sut.loadPartialSeqSummaryCard(url).futureValue mustBe returnPartial
+    }
+
+    "return an empty list when 5xx response code returned" in {
+      val returnPartial: Seq[SummaryCardPartial] = Seq(
+        SummaryCardPartial("card1", Html("content1")),
+        SummaryCardPartial("card2", Html("content2"))
+      )
+      val url                                    = s"http://localhost:${server.port()}/"
+      server.stubFor(
+        get(urlEqualTo("/")).willReturn(serverError().withBody("error"))
+      )
+      sut.loadPartialSeqSummaryCard(url).futureValue mustBe Nil
     }
 
     "return an empty list when empty list returned" in {

@@ -32,8 +32,8 @@ class TimeoutsISpec extends IntegrationSpec {
       "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds"   -> timeoutThresholdInMilliseconds,
       "microservice.services.tai.port"                                         -> server.port(),
       "microservice.services.tai.timeoutInMilliseconds"                        -> timeoutThresholdInMilliseconds,
-      "microservice.services.taxcalc.port"                                     -> server.port(),
-      "microservice.services.taxcalc.timeoutInMilliseconds"                    -> timeoutThresholdInMilliseconds,
+      "microservice.services.taxcalc-frontend.port"                            -> server.port(),
+      "microservice.services.taxcalc-frontend.timeoutInMilliseconds"           -> timeoutThresholdInMilliseconds,
       "microservice.services.citizen-details.port"                             -> server.port(),
       "microservice.services.citizen-details.timeoutInMilliseconds"            -> timeoutThresholdInMilliseconds,
       "microservice.services.tcs-broker.port"                                  -> server.port(),
@@ -47,7 +47,7 @@ class TimeoutsISpec extends IntegrationSpec {
   private val dummyContent      = "my body content"
   private val breathingSpaceUrl = s"/$generatedNino/memorandum"
   private val taxComponentsUrl  = s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"
-  private val taxCalcUrl        = s"/taxcalc/$generatedNino/reconciliations"
+  private val taxCalcUrl        = "/taxcalc-frontend/tax-you-paid/summary-card-partials"
   private val citizenDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
   private val dfsPartialNinoUrl = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
   private val dfsPartialSAUrl   = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
@@ -138,6 +138,8 @@ class TimeoutsISpec extends IntegrationSpec {
       .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)))
   }
 
   "/personal-account" must {
