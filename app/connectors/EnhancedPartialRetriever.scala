@@ -87,6 +87,11 @@ class EnhancedPartialRetriever @Inject() (
       case partial: HtmlPartial.Failure =>
         logger.error(s"Failed to load partial from $url, partial info: $partial")
         Nil
+    } recover {
+      case ex: HttpException =>
+        logger.error(s"Failed to load partial from $url, partial info. Exception: $ex")
+        Nil
+      case _                 => Nil
     }
   }
 }

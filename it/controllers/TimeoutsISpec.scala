@@ -47,7 +47,7 @@ class TimeoutsISpec extends IntegrationSpec {
   private val dummyContent      = "my body content"
   private val breathingSpaceUrl = s"/$generatedNino/memorandum"
   private val taxComponentsUrl  = s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"
-  private val taxCalcUrl        = "/taxcalc-frontend/tax-you-paid/summary-card-partials"
+  private val taxCalcUrl        = "/tax-you-paid/summary-card-partials"
   private val citizenDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
   private val dfsPartialNinoUrl = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
   private val dfsPartialSAUrl   = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
