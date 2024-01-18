@@ -81,14 +81,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   trait LocalSetup {
 
-    lazy val authProviderType: String                     = UserDetails.GovernmentGatewayAuthProvider
-    lazy val nino: Nino                                   = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetails         = Fixtures.buildPersonDetails
-    lazy val confidenceLevel: ConfidenceLevel             = ConfidenceLevel.L200
-    lazy val withPaye: Boolean                            = true
-    lazy val year                                         = 2017
-    lazy val trustedHelper: Option[TrustedHelper]         = None
-    lazy val trustedHelperResponse: Option[TrustedHelper] = Fixtures.buildTrustedHelper
+    lazy val authProviderType: String             = UserDetails.GovernmentGatewayAuthProvider
+    lazy val nino: Nino                           = Fixtures.fakeNino
+    lazy val personDetailsResponse: PersonDetails = Fixtures.buildPersonDetails
+    lazy val confidenceLevel: ConfidenceLevel     = ConfidenceLevel.L200
+    lazy val withPaye: Boolean                    = true
+    lazy val year                                 = 2017
+    lazy val trustedHelper: Option[TrustedHelper] = None
 
     lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse]             =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
