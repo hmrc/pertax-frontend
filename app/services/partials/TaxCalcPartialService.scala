@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
 import models.SummaryCardPartial
-import models.admin.TaxcalcMakePaymentLinkToggle
+import models.admin.TaxcalcToggle
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
@@ -33,7 +33,7 @@ class TaxCalcPartialService @Inject() (
   featureFlagService: FeatureFlagService
 )(implicit executionContext: ExecutionContext) {
   def getTaxCalcPartial(implicit request: RequestHeader): Future[Seq[SummaryCardPartial]] =
-    featureFlagService.get(TaxcalcMakePaymentLinkToggle).flatMap { toggle =>
+    featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
       if (!toggle.isEnabled) {
         Future.successful(Nil)
       } else {

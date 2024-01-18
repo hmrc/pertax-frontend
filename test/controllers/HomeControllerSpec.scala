@@ -72,8 +72,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       mockHomeCardGenerator,
       mockPreferencesFrontendConnector
     )
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle))) thenReturn Future.successful(
-      FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
+      FeatureFlag(TaxcalcToggle, isEnabled = true)
     )
   }
 
@@ -256,15 +256,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = false)
       )
+
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle))) thenReturn Future.successful(
         FeatureFlag(TaxcalcToggle, isEnabled = false)
       )
 
       lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser)
         .overrides(
-          bind[TaiConnector].toInstance(mockTaiService)
-        )
-        .overrides(
+          bind[TaiConnector].toInstance(mockTaiService),
           bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
           bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
         )

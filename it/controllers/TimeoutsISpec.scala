@@ -138,8 +138,6 @@ class TimeoutsISpec extends IntegrationSpec {
       .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)))
   }
 
   "/personal-account" must {

@@ -29,7 +29,6 @@ object AllFeatureFlags {
     PaperlessInterruptToggle,
     TaxSummariesTileToggle,
     SingleAccountCheckToggle,
-    TaxcalcMakePaymentLinkToggle,
     ShowOutageBannerToggle,
     SCAWrapperToggle,
     HmrcAccountToggle,
@@ -89,11 +88,6 @@ case object TaxSummariesTileToggle extends FeatureFlagName {
 case object SingleAccountCheckToggle extends FeatureFlagName {
   override val name: String                = "single-account-check"
   override val description: Option[String] = Some("Enable/disable single account check")
-}
-
-case object TaxcalcMakePaymentLinkToggle extends FeatureFlagName {
-  override val name: String                = "taxcalc-make-payment-link-toggle"
-  override val description: Option[String] = Some("Enable/disable direct link to make a payment on taxcalc tile")
 }
 
 case object ShowOutageBannerToggle extends FeatureFlagName {

@@ -19,7 +19,7 @@ package services
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
 import models.SummaryCardPartial
-import models.admin.TaxcalcMakePaymentLinkToggle
+import models.admin.TaxcalcToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.twirl.api.Html
@@ -53,10 +53,10 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
   "Calling getTaxCalcPartial" must {
 
     "return empty list for tax calc" when {
-      "TaxcalcMakePaymentLinkToggle is disabled" in new LocalSetup {
+      "TaxcalcToggle is disabled" in new LocalSetup {
         when(mockConfigDecorator.taxCalcFormPartialLinkUrl).thenReturn("test-url")
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = false)))
         when(mockEnhancedPartialRetriever.loadPartialSeqSummaryCard(any(), any())(any(), any())) thenReturn
           Future.successful[Seq[SummaryCardPartial]](Seq(SummaryCardPartial("Title", Html("<title/>"))))
 
@@ -69,11 +69,11 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
     }
 
     "return non-empty list for tax calc" when {
-      "TaxcalcMakePaymentLinkToggle is enabled" in new LocalSetup {
+      "TaxcalcToggle is enabled" in new LocalSetup {
         private val summaryCardPartialData = Seq(SummaryCardPartial("Title", Html("<title/>")))
         when(mockConfigDecorator.taxCalcFormPartialLinkUrl).thenReturn("test-url")
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
         when(
           mockEnhancedPartialRetriever.loadPartialSeqSummaryCard(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
         ) thenReturn
