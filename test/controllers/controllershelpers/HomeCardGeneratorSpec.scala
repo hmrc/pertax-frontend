@@ -493,11 +493,14 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "Calling getIncomeCards" must {
-    "return tax calc cards plus surrounding cards, all in correct position" in {
+    "when taxcalc toggle on return tax calc cards plus surrounding cards, all in correct position" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
         .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
@@ -525,11 +528,92 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cards =
         homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
-
+      cards.size mustBe 4
       cards.head.toString().contains("news-card") mustBe true
       cards(1).toString().contains("test1") mustBe true
       cards(2).toString().contains("test2") mustBe true
       cards(3).toString().contains("ni-and-sp-card") mustBe true
+    }
+
+    "when taxcalc toggle off return no tax calc cards" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = false)))
+
+      when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
+        List[NewsAndContentModel](
+          NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false, LocalDate.now)
+        )
+      )
+
+      when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
+        Future.successful(
+          Seq(
+            SummaryCardPartial("name1", Html("<p>test1</p>")),
+            SummaryCardPartial("name2", Html("<p>test2</p>"))
+          )
+        )
+      )
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        nino = None,
+        saUser = NonFilerSelfAssessmentUser,
+        confidenceLevel = ConfidenceLevel.L50,
+        personDetails = None,
+        request = FakeRequest()
+      )
+
+      lazy val cards =
+        homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
+      cards.size mustBe 2
+      cards.head.toString().contains("news-card") mustBe true
+      cards(1).toString().contains("ni-and-sp-card") mustBe true
+    }
+
+    "when taxcalc toggle on but trusted helper present return no tax calc cards" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
+        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
+
+      when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
+        List[NewsAndContentModel](
+          NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false, LocalDate.now)
+        )
+      )
+
+      when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
+        Future.successful(
+          Seq(
+            SummaryCardPartial("name1", Html("<p>test1</p>")),
+            SummaryCardPartial("name2", Html("<p>test2</p>"))
+          )
+        )
+      )
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        nino = None,
+        saUser = NonFilerSelfAssessmentUser,
+        confidenceLevel = ConfidenceLevel.L50,
+        personDetails = None,
+        trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", "fakePrincipalNino")),
+        request = FakeRequest()
+      )
+
+      lazy val cards =
+        homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
+      cards.size mustBe 2
+      cards.head.toString().contains("news-card") mustBe true
+      cards(1).toString().contains("ni-and-sp-card") mustBe true
     }
   }
 }

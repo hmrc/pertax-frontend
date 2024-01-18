@@ -63,11 +63,24 @@ class HomeCardGenerator @Inject() (
       )
 
     val cards2: Seq[Future[Seq[HtmlFormat.Appendable]]] = Seq(
-      taxCalcPartialService.getTaxCalcPartial
-        .map(_.map { summaryCardPartial =>
-          taxCalcView(summaryCardPartial.partialContent)
-        })
+      featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
+        if (!toggle.isEnabled || request.trustedHelper.nonEmpty) {
+          Future.successful(Nil)
+        } else {
+          taxCalcPartialService.getTaxCalcPartial
+            .map(_.map { summaryCardPartial =>
+              taxCalcView(summaryCardPartial.partialContent)
+            })
+        }
+      }
     )
+
+//    val cards2: Seq[Future[Seq[HtmlFormat.Appendable]]] = Seq(
+//      taxCalcPartialService.getTaxCalcPartial
+//        .map(_.map { summaryCardPartial =>
+//          taxCalcView(summaryCardPartial.partialContent)
+//        })
+//    )
 
     val cards3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
       Future.successful(getSaAndItsaMergeCard().toSeq),

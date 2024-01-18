@@ -19,14 +19,12 @@ package services
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
 import models.SummaryCardPartial
-import models.admin.TaxcalcToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.twirl.api.Html
 import services.partials.TaxCalcPartialService
 import testUtils.BaseSpec
 import testUtils.Fixtures._
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
 
@@ -45,45 +43,23 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
   trait LocalSetup {
     val taxCalcPartialService: TaxCalcPartialService = new TaxCalcPartialService(
       mockConfigDecorator,
-      mockEnhancedPartialRetriever,
-      mockFeatureFlagService
+      mockEnhancedPartialRetriever
     )
   }
 
   "Calling getTaxCalcPartial" must {
+    "return non-empty list for tax calc" in new LocalSetup {
+      private val summaryCardPartialData = Seq(SummaryCardPartial("Title", Html("<title/>")))
+      when(mockConfigDecorator.taxCalcFormPartialLinkUrl).thenReturn("test-url")
+      when(
+        mockEnhancedPartialRetriever.loadPartialSeqSummaryCard(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
+      ) thenReturn
+        Future.successful[Seq[SummaryCardPartial]](summaryCardPartialData)
 
-    "return empty list for tax calc" when {
-      "TaxcalcToggle is disabled" in new LocalSetup {
-        when(mockConfigDecorator.taxCalcFormPartialLinkUrl).thenReturn("test-url")
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = false)))
-        when(mockEnhancedPartialRetriever.loadPartialSeqSummaryCard(any(), any())(any(), any())) thenReturn
-          Future.successful[Seq[SummaryCardPartial]](Seq(SummaryCardPartial("Title", Html("<title/>"))))
-
-        val result: Seq[SummaryCardPartial] =
-          taxCalcPartialService.getTaxCalcPartial(buildFakeRequestWithAuth("GET")).futureValue
-        result mustBe Nil
-        verify(mockEnhancedPartialRetriever, times(0))
-          .loadPartialSeqSummaryCard(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
-      }
-    }
-
-    "return non-empty list for tax calc" when {
-      "TaxcalcToggle is enabled" in new LocalSetup {
-        private val summaryCardPartialData = Seq(SummaryCardPartial("Title", Html("<title/>")))
-        when(mockConfigDecorator.taxCalcFormPartialLinkUrl).thenReturn("test-url")
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
-        when(
-          mockEnhancedPartialRetriever.loadPartialSeqSummaryCard(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
-        ) thenReturn
-          Future.successful[Seq[SummaryCardPartial]](summaryCardPartialData)
-
-        val result: Seq[SummaryCardPartial] =
-          taxCalcPartialService.getTaxCalcPartial(buildFakeRequestWithAuth("GET")).futureValue
-        result mustBe summaryCardPartialData
-        verify(mockEnhancedPartialRetriever, times(1)).loadPartialSeqSummaryCard(any(), any())(any(), any())
-      }
+      val result: Seq[SummaryCardPartial] =
+        taxCalcPartialService.getTaxCalcPartial(buildFakeRequestWithAuth("GET")).futureValue
+      result mustBe summaryCardPartialData
+      verify(mockEnhancedPartialRetriever, times(1)).loadPartialSeqSummaryCard(any(), any())(any(), any())
     }
   }
 }

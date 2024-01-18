@@ -20,27 +20,18 @@ import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
 import models.SummaryCardPartial
-import models.admin.TaxcalcToggle
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class TaxCalcPartialService @Inject() (
   configDecorator: ConfigDecorator,
-  enhancedPartialRetriever: EnhancedPartialRetriever,
-  featureFlagService: FeatureFlagService
+  enhancedPartialRetriever: EnhancedPartialRetriever
 )(implicit executionContext: ExecutionContext) {
   def getTaxCalcPartial(implicit request: RequestHeader): Future[Seq[SummaryCardPartial]] =
-    featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
-      if (!toggle.isEnabled) {
-        Future.successful(Nil)
-      } else {
-        enhancedPartialRetriever.loadPartialSeqSummaryCard(
-          url = configDecorator.taxCalcFormPartialLinkUrl,
-          timeoutInMilliseconds = configDecorator.taxCalcPartialTimeoutInMilliseconds
-        )
-      }
-    }
+    enhancedPartialRetriever.loadPartialSeqSummaryCard(
+      url = configDecorator.taxCalcFormPartialLinkUrl,
+      timeoutInMilliseconds = configDecorator.taxCalcPartialTimeoutInMilliseconds
+    )
 }
