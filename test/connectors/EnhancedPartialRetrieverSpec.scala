@@ -18,14 +18,16 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.SummaryCardPartial
+import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito}
 import org.scalatest.concurrent.IntegrationPatience
-import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import play.api.{Application, Logger}
 import play.twirl.api.Html
 import testUtils.{BaseSpec, WireMockHelper}
-import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
 class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
@@ -41,7 +43,19 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     )
     .build()
 
-  val sut: EnhancedPartialRetriever = inject[EnhancedPartialRetriever]
+  //val sut: EnhancedPartialRetriever = inject[EnhancedPartialRetriever]
+  private def httpClientV2: HttpClientV2        = app.injector.instanceOf[HttpClientV2]
+  private def headerCarrierForPartialsConverter = app.injector.instanceOf[HeaderCarrierForPartialsConverter]
+  private val mockLogger: Logger                = mock[Logger]
+  private val sut: EnhancedPartialRetriever     =
+    new EnhancedPartialRetriever(httpClientV2, headerCarrierForPartialsConverter) {
+      override protected val logger: Logger = mockLogger
+    }
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockLogger)
+  }
 
   "Calling EnhancedPartialRetriever.loadPartial" must {
 
@@ -97,15 +111,20 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       server.stubFor(
         get(urlEqualTo("/")).willReturn(ok(response))
       )
-      sut.loadPartialSeqSummaryCard(url).futureValue mustBe returnPartial
+      sut.loadPartialAsSeqSummaryCard(url).futureValue mustBe returnPartial
     }
 
-    "return an empty list when 5xx response code returned" in {
-      val url = s"http://localhost:${server.port()}/"
+    "return an empty list and log the failure when 5xx response code returned" in {
+      val url                            = s"http://localhost:${server.port()}/"
       server.stubFor(
         get(urlEqualTo("/")).willReturn(serverError().withBody("error"))
       )
-      sut.loadPartialSeqSummaryCard(url).futureValue mustBe Nil
+      sut.loadPartialAsSeqSummaryCard(url).futureValue mustBe Nil
+      val captor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
+      Mockito
+        .verify(mockLogger, times(1))
+        .error(captor.capture())(ArgumentMatchers.any())
+      captor.getValue.contains("Failed to load partial")
     }
 
     "return an empty list when empty list returned" in {
@@ -115,7 +134,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       server.stubFor(
         get(urlEqualTo("/")).willReturn(ok(response))
       )
-      sut.loadPartialSeqSummaryCard(url).futureValue mustBe Nil
+      sut.loadPartialAsSeqSummaryCard(url).futureValue mustBe Nil
     }
 
     "return an empty list when nothing returned" in {
@@ -125,7 +144,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       server.stubFor(
         get(urlEqualTo("/")).willReturn(ok(response))
       )
-      sut.loadPartialSeqSummaryCard(url).futureValue mustBe Nil
+      sut.loadPartialAsSeqSummaryCard(url).futureValue mustBe Nil
     }
   }
 }

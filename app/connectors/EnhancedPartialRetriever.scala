@@ -61,7 +61,7 @@ class EnhancedPartialRetriever @Inject() (
     }
   }
 
-  def loadPartialSeqSummaryCard(url: String, timeoutInMilliseconds: Int = 0)(implicit
+  def loadPartialAsSeqSummaryCard(url: String, timeoutInMilliseconds: Int = 0)(implicit
     request: RequestHeader,
     ec: ExecutionContext
   ): Future[Seq[SummaryCardPartial]] = {
@@ -78,7 +78,6 @@ class EnhancedPartialRetriever @Inject() (
     requestBuilder.execute[HtmlPartial].map {
       case partial: HtmlPartial.Success =>
         val response = partial.content.toString
-        println("\n\n**** RESPONSE RECEIVED FROM TAX CALC:-" + response)
         if (response.nonEmpty) {
           Json.parse(response).as[JsArray].value.map(_.as[SummaryCardPartial]).toSeq
         } else {
