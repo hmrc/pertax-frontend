@@ -121,10 +121,17 @@ class TimeoutsISpec extends IntegrationSpec {
       .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
   ).get
 
+  private val taxCalcPartialContent = "paid-too-much"
+  private val taxCalcValidResponse  =
+    s"""[{"partialName":"card1","partialContent":"$taxCalcPartialContent"}]
+                     |""".stripMargin
+
   private def getHomePageWithAllTimeouts: Future[Result] = {
     server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
-    server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+    server.stubFor(
+      get(urlPathEqualTo(taxCalcUrl)).willReturn(ok(taxCalcValidResponse).withFixedDelay(delayInMilliseconds))
+    )
     server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     homePageGET
   }
@@ -174,10 +181,7 @@ class TimeoutsISpec extends IntegrationSpec {
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe "This section is Account home"
 
-      contentAsString(result).contains("You paid the right amount of tax") mustBe false
-      contentAsString(result).contains("Your tax has not been calculated yet") mustBe false
-      contentAsString(result).contains("Find out why you paid too much") mustBe false
-      contentAsString(result).contains("Make a payment") mustBe false
+      contentAsString(result).contains(taxCalcPartialContent) mustBe false
       server.verify(1, getRequestedFor(urlEqualTo(taxCalcUrl)))
     }
 
