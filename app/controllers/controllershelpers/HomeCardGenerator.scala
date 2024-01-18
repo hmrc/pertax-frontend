@@ -75,13 +75,6 @@ class HomeCardGenerator @Inject() (
       }
     )
 
-//    val cards2: Seq[Future[Seq[HtmlFormat.Appendable]]] = Seq(
-//      taxCalcPartialService.getTaxCalcPartial
-//        .map(_.map { summaryCardPartial =>
-//          taxCalcView(summaryCardPartial.partialContent)
-//        })
-//    )
-
     val cards3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
       Future.successful(getSaAndItsaMergeCard().toSeq),
       getNationalInsuranceCard().map(_.toSeq),
@@ -95,9 +88,6 @@ class HomeCardGenerator @Inject() (
     Future
       .sequence(cards1 ++ cards2 ++ cards3)
       .map(_.flatten)
-//          getTaxCalculationCard(taxCalculationStateCyMinusOne),
-//          getTaxCalculationCard(taxCalculationStateCyMinusTwo),
-
   }
 
   def getPayAsYouEarnCard(
