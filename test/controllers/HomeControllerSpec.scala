@@ -736,7 +736,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
   }
 
-  "Calling serviceCallResponses" must {
+  "Calling retrieveTaxComponentsState" must {
 
     val userNino = Some(fakeNino)
 
@@ -767,7 +767,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       verify(mockTaiService, times(0)).taxComponents(any(), any())(any(), any())
     }
 
-    "return TaxCalculationAvailable status when data returned from TaxCalculation" in new LocalSetup {
+    "return TaxCalculationAvailable status when there are tax components" in new LocalSetup {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
         FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
@@ -782,14 +782,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
         .build()
 
-      val controller: HomeController = app.injector.instanceOf[HomeController]
+      private val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val result = await(controller.retrieveTaxComponentsState(userNino, year))
+      private val result = await(controller.retrieveTaxComponentsState(userNino, year))
       result mustBe TaxComponentsAvailableState(
         TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
       )
       verify(mockTaiService, times(1)).taxComponents(any(), any())(any(), any())
-
     }
 
     "return TaxComponentsNotAvailableState status when TaxComponentsUnavailableResponse from TaxComponents" in new LocalSetup {
@@ -807,7 +806,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
         .build()
 
-      val controller: HomeController = app.injector.instanceOf[HomeController]
+      private val controller: HomeController = app.injector.instanceOf[HomeController]
 
       when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier], any())) thenReturn {
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
@@ -815,13 +814,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      val result = await(controller.retrieveTaxComponentsState(userNino, year))
+      private val result = await(controller.retrieveTaxComponentsState(userNino, year))
 
       result mustBe TaxComponentsNotAvailableState
       verify(mockTaiService, times(1)).taxComponents(any(), any())(any(), any())
     }
 
-    "return TaxComponentsUnreachableState status when there is TaxComponents returns an unexpected response" in new LocalSetup {
+    "return TaxComponentsUnreachableState status when there are TaxComponents returns an unexpected response" in new LocalSetup {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
         FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
@@ -836,7 +835,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
         .build()
 
-      val controller: HomeController = app.injector.instanceOf[HomeController]
+      private val controller: HomeController = app.injector.instanceOf[HomeController]
 
       when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier], any())) thenReturn {
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
@@ -844,33 +843,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      val result = await(controller.retrieveTaxComponentsState(userNino, year))
+      private val result = await(controller.retrieveTaxComponentsState(userNino, year))
 
       result mustBe TaxComponentsUnreachableState
     }
-
-//    "return None where TaxCalculation service is not enabled" in new LocalSetup {
-//      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
-//        FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
-//      )
-//      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
-//        FeatureFlag(TaxcalcToggle, isEnabled = false)
-//      )
-//
-//      lazy val app: Application = localGuiceApplicationBuilder()
-//        .overrides(
-//          bind[TaiConnector].toInstance(mockTaiService),
-//          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
-//        )
-//        .build()
-//
-//      val controller: HomeController = app.injector.instanceOf[HomeController]
-//
-//      val (_, resultCYm1, resultCYm2) = await(controller.retrieveTaxComponentsState(userNino, year, trustedHelper))
-//
-//      resultCYm1 mustBe None
-//      resultCYm2 mustBe None
-//    }
 
 //    "return None where there is a trusted helper in use" in new LocalSetup {
 //      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
