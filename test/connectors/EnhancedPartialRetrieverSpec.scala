@@ -101,11 +101,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     }
 
     "return an empty list when 5xx response code returned" in {
-      val returnPartial: Seq[SummaryCardPartial] = Seq(
-        SummaryCardPartial("card1", Html("content1")),
-        SummaryCardPartial("card2", Html("content2"))
-      )
-      val url                                    = s"http://localhost:${server.port()}/"
+      val url = s"http://localhost:${server.port()}/"
       server.stubFor(
         get(urlEqualTo("/")).willReturn(serverError().withBody("error"))
       )

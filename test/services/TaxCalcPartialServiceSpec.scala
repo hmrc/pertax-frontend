@@ -50,7 +50,7 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
   "Calling getTaxCalcPartial" must {
     "return non-empty list for tax calc" in new LocalSetup {
       private val summaryCardPartialData = Seq(SummaryCardPartial("Title", Html("<title/>")))
-      when(mockConfigDecorator.taxCalcFormPartialLinkUrl).thenReturn("test-url")
+      when(mockConfigDecorator.taxCalcPartialLinkUrl).thenReturn("test-url")
       when(
         mockEnhancedPartialRetriever.loadPartialSeqSummaryCard(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
       ) thenReturn
