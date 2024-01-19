@@ -389,15 +389,6 @@ label.account_home=Account home
 title.income=Income
 label.pay_as_you_earn_paye=Pay As You Earn (PAYE)
 label.your_income_from_employers_and_private_pensions_=Check or update the employment, pension or other income information used to work out your PAYE Income Tax and tax codes.
-label.claim_your_tax_refund=Claim your tax refund
-label.find_out_why_you_paid_too_much=Find out why you paid too much
-label.find_out_why_you_paid_too_little=Find out why you paid too little
-
-label.tax_year_heading=6 April {0} to 5 April {1}
-label.you_paid_too_much_tax=You paid too much tax in the {0} to {1} tax year
-label.you_paid_too_little_tax=You paid too little tax in the {0} to {1} tax year
-label.you_missed_the_deadline_to_pay_your_tax=You missed the deadline to pay your tax in the {0} to {1} tax year
-label.you_do_not_owe_any_more_tax=You do not owe any more tax in the {0} to {1} tax year
 
 label.self_assessment=Self Assessment
 label.complete_your_tax_return=Complete your tax return

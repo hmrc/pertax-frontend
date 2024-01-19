@@ -406,29 +406,12 @@ label.account_home=Hafan y cyfrif
 title.income=Incwm
 label.pay_as_you_earn_paye=Talu Wrth Ennill (TWE)
 label.your_income_from_employers_and_private_pensions_=Gwirio neu ddiweddaru’r wybodaeth am gyflogaeth, pensiwn neu incwm arall a ddefnyddir i gyfrifo’ch Treth Incwm a’ch codau treth TWE.
-label.claim_your_tax_refund=Gwneud cais am eich ad-daliad treth
-label.find_out_why_you_paid_too_much=Cael gwybod pam yr ydych wedi talu gormod
-label.find_out_why_you_paid_too_little=Cael gwybod pam nad ydych wedi talu digon
-label.you_paid_too_much_tax=Gwnaethoch dalu gormod o dreth y llynedd ar gyfer blwyddyn dreth {0} i {1}
-label.you_paid_too_little_tax=Ni wnaethoch dalu digon o dreth ar gyfer blwyddyn dreth {0} i {1}
-label.you_missed_the_deadline_to_pay_your_tax=Gwnaethoch fethu’r dyddiad cau i dalu’ch treth ar gyfer blwyddyn dreth {0} i {1}
-label.hmrc_owes_you_a_refund=Mae ar CThEM ad-daliad o £{0} i chi.
-label.hmrc_is_processing_your_refund=Mae CThEM wrthi’n prosesu’ch ad-daliad o £{0}.
-label.hmrc_has_paid_your_refund=Mae CThEM wedi talu’ch ad-daliad o £{0}.
-label.hmrc_sent_you_a_cheque_for=Mae CThEM wedi anfon siec o £{0} atoch chi.
-label.you_owe_hmrc=Mae arnoch £{0} i CThEM.
-label.you_owe_hmrc_you_should_have_paid_=Mae arnoch £{0} i CThEM. Dylech fod wedi talu erbyn {1} ond mae’n dal i fod yn bosibl i chi wneud taliad nawr.
-label.you_still_owe_hmrc_you_should_have_paid_=Mae’n dal i fod arnoch £{0} i CThEM. Dylech fod wedi talu erbyn {1} ond mae’n dal i fod yn bosibl i chi wneud taliad nawr.
-label.you_still_owe_hmrc_you_must_pay_by_=Mae’n dal i fod arnoch £{0} i CThEM. Rhaid i chi dalu erbyn {1}.
-label.you_owe_hmrc_you_must_pay_by_=Mae arnoch £{0} i CThEM. Rhaid i chi dalu erbyn {1}.
-label.you_have_no_payments_to_make_to_hmrc=Nid oes gennych daliadau i’w gwneud i CThEM.
+
 label.you_paid_the_right_amount_of_tax=Gwnaethoch dalu’r swm cywir o dreth
 label.nothing_more_to_pay=Does dim byd mwy i’w dalu am y flwyddyn hon.
 label.no_record_of_employment=Nid oes gan CThEM gofnod eich bod yn gyflogedig yn ystod y flwyddyn dreth hon felly nid oes unrhyw beth mwy i’w dalu.
 label.your_tax_has_not_been_calculated=Nid yw’ch treth wedi’i chyfrifo eto
 label.no_need_to_contact_hmrc=Does dim angen i chi gysylltu â CThEM ynglŷn â hyn. Cewch lythyr os ydych wedi talu gormod o dreth neu heb dalu digon.
-label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
-
 
 label.self_assessment=Hunanasesiad
 label.complete_your_tax_return=Llenwi’ch Ffurflen Dreth
@@ -451,8 +434,6 @@ label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 label.national_insurance_and_state_pension=Eich Yswiriant Gwladol a’ch Pensiwn y Wladwriaeth
 label.view_national_insurance=Bwrw golwg dros eich cofnod Yswiriant Gwladol, a bwrw golwg dros eich rhif Yswiriant Gwladol a’i gadw.
 label.view_state_pension=Bwrw golwg dros Grynodeb o’ch Pensiwn y Wladwriaeth, a thalu am y bylchau yn eich cofnod Yswiriant Gwladol.
-
-label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth ar gyfer blwyddyn dreth {0} i {1}
 
 title.seiss=Cynllun Cymhorthdal Incwm Hunangyflogaeth (SEISS)
 body.seiss=Bwrw golwg dros eich grantiau SEISS
