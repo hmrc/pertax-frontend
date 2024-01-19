@@ -43,7 +43,6 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     )
     .build()
 
-  //val sut: EnhancedPartialRetriever = inject[EnhancedPartialRetriever]
   private def httpClientV2: HttpClientV2        = app.injector.instanceOf[HttpClientV2]
   private def headerCarrierForPartialsConverter = app.injector.instanceOf[HeaderCarrierForPartialsConverter]
   private val mockLogger: Logger                = mock[Logger]
