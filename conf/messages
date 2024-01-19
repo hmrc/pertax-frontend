@@ -399,17 +399,6 @@ label.you_paid_too_little_tax=You paid too little tax in the {0} to {1} tax year
 label.you_missed_the_deadline_to_pay_your_tax=You missed the deadline to pay your tax in the {0} to {1} tax year
 label.you_do_not_owe_any_more_tax=You do not owe any more tax in the {0} to {1} tax year
 
-label.hmrc_owes_you_a_refund=HMRC owes you a £{0} refund.
-label.hmrc_is_processing_your_refund=HMRC is processing your £{0} refund.
-label.hmrc_has_paid_your_refund=HMRC has paid your £{0} refund.
-label.hmrc_sent_you_a_cheque_for=HMRC sent you a cheque for £{0}.
-label.you_owe_hmrc=You owe HMRC £{0}.
-label.you_owe_hmrc_you_should_have_paid_=You owe HMRC £{0}. You should have paid by {1} but you can still make a payment now.
-label.you_still_owe_hmrc_you_should_have_paid_=You still owe HMRC £{0}. You should have paid by {1} but you can still make a payment now.
-label.you_still_owe_hmrc_you_must_pay_by_=You still owe HMRC £{0}. You must pay by {1}.
-label.you_owe_hmrc_you_must_pay_by_=You owe HMRC £{0}. You must pay by {1}.
-label.you_have_no_payments_to_make_to_hmrc=You have no payments to make to HMRC.
-
 label.self_assessment=Self Assessment
 label.complete_your_tax_return=Complete your tax return
 label.make_a_payment=Make a payment
@@ -708,5 +697,3 @@ alert_banner.paperlessStatus.bounced_email.p1 = We are having trouble sending yo
 alert_banner.paperlessStatus.bounced_email.p2.start = Please
 alert_banner.paperlessStatus.bounced_email.link = check your email address
 alert_banner.paperlessStatus.bounced_email.p2.end = now.
-
-
