@@ -137,8 +137,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     }
 
     "return an empty list when nothing returned" in {
-      val response =
-        """"""
+      val response = ""
       val url      = s"http://localhost:${server.port()}/"
       server.stubFor(
         get(urlEqualTo("/")).willReturn(ok(response))
