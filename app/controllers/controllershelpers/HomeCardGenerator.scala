@@ -49,8 +49,7 @@ class HomeCardGenerator @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig,
   nispView: NISPView,
-  taxCalcPartialService: TaxCalcPartialService,
-  taxCalcView: TaxCalcView
+  taxCalcPartialService: TaxCalcPartialService
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
 
   def getIncomeCards(
@@ -68,9 +67,7 @@ class HomeCardGenerator @Inject() (
           Future.successful(Nil)
         } else {
           taxCalcPartialService.getTaxCalcPartial
-            .map(_.map { summaryCardPartial =>
-              taxCalcView(summaryCardPartial.partialContent)
-            })
+            .map(_.map(_.partialContent))
         }
       }
     )
