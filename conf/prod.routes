@@ -95,4 +95,4 @@ GET         /personal-account/assets/*file                                      
 ->         /admin                                                                      admin.Routes
 ->          /                                                                          health.Routes
 ->          /personal-account/hmrc-frontend                                            hmrcfrontend.Routes
-->          /personal-account/pta-frontend                                             ptafrontend.Routes
+->          /personal-account/sca-wrapper                                              sca.Routes
