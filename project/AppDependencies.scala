@@ -11,7 +11,6 @@ object AppDependencies {
     ws,
     "uk.gov.hmrc"       %% s"http-caching-client-$playVersion"          % s"11.0.0",
     "uk.gov.hmrc"       %% "tax-year"                     % "4.0.0",
-    "uk.gov.hmrc"       %% "domain"                       % s"8.3.0-$playVersion",
     "io.lemonlabs"      %% "scala-uri"                    % "4.0.3",
     "org.jsoup"          % "jsoup"                        % "1.16.1",
     "org.typelevel"     %% "cats-core"                    % "2.10.0",
