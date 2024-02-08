@@ -45,7 +45,9 @@ class MessagesSpec extends BaseSpec {
     "sca-wrapper.timeout.keepAlive",
     "sca-wrapper.timeout.message",
     "sca-wrapper.timeout.signOut",
-    "sca-wrapper.timeout.title"
+    "sca-wrapper.timeout.title",
+    "attorney.banner.link",
+    "attorney.banner.using.service.for"
   )
 
   "Application" must {
