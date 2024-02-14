@@ -9,14 +9,14 @@ object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc"       %% s"http-caching-client-$playVersion"          % s"11.0.0",
-    "uk.gov.hmrc"       %% "tax-year"                     % "4.0.0",
-    "io.lemonlabs"      %% "scala-uri"                    % "4.0.3",
-    "org.jsoup"          % "jsoup"                        % "1.16.1",
-    "org.typelevel"     %% "cats-core"                    % "2.10.0",
-    "org.apache.commons" % "commons-text"                 % "1.10.0",
-    "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"    % "1.1.0",
-    "uk.gov.hmrc"       %% "mongo-feature-toggles-client" % "0.3.0",
+    "uk.gov.hmrc"       %% s"http-caching-client-$playVersion"  % s"11.0.0",
+    "uk.gov.hmrc"       %% "tax-year"                           % "4.0.0",
+    "io.lemonlabs"      %% "scala-uri"                          % "4.0.3",
+    "org.jsoup"          % "jsoup"                              % "1.16.1",
+    "org.typelevel"     %% "cats-core"                          % "2.10.0",
+    "org.apache.commons" % "commons-text"                       % "1.10.0",
+    "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"          % "1.3.0",
+    "uk.gov.hmrc"       %% "mongo-feature-toggles-client"       % "0.3.0",
     ehcache
   )
 
