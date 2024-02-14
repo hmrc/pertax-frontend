@@ -19,11 +19,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlMatching}
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.SCAWrapperToggle
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
 import org.scalatest.Assertion
 import play.api.Application
 import play.api.libs.json.Json
@@ -112,9 +109,6 @@ class MainViewSpec extends IntegrationSpec {
     .toString
 
   trait LocalSetup {
-
-    when(mockFeatureFlagService.get(SCAWrapperToggle))
-      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
 
     server.stubFor(
       WireMock
@@ -245,20 +239,6 @@ class MainViewSpec extends IntegrationSpec {
         assertContainsLink(doc, "Messages", "/personal-account/messages")
       }
 
-      "show the number of unread messages in the Messages link" when {
-
-        "the sca-wrapper toggle is disabled" in new LocalSetup {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = false)))
-
-          val msgCount                                                           = 21
-          override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-            buildUserRequest(request = FakeRequest(), messageCount = Some(msgCount))
-
-          doc.getElementsByClass("hmrc-notification-badge").first().text() must include(msgCount.toString)
-        }
-      }
-
       "render the Check progress link" in new LocalSetup {
         assertContainsLink(doc, "Check progress", "/track")
       }
@@ -267,49 +247,9 @@ class MainViewSpec extends IntegrationSpec {
         assertContainsLink(doc, "Profile and settings", "/personal-account/profile-and-settings")
       }
 
-      "render the BTA link" when {
-        "the user is GG and has SA enrolments" in new LocalSetup {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = false)))
-
-          assertContainsLink(doc, "Business tax account", "/business-account")
-        }
-      }
-
-      "do not render the BTA link" when {
-        "the user is GG and not an SA user" in new LocalSetup {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = false)))
-
-          override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequestNoSA()
-
-          assert(doc.getElementsContainingText("Business tax account").isEmpty)
-        }
-      }
-
-      "render the sign out link" in new LocalSetup {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-          .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = false)))
-
-        val href: String = controllers.routes.ApplicationController
-          .signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None)
-          .url
-
-        assertContainsLink(doc, messages("global.label.sign_out"), href)
-      }
     }
 
     "displaying the page body" must {
-
-      "render the back link" in new LocalSetup {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-          .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = false)))
-
-        val backLink: Element = doc.getElementById("back-link")
-
-        backLink.attr("href") mustBe backLinkUrl
-        backLink.text() mustBe messages("label.back")
-      }
 
       "render the trusted helpers banner" when {
 

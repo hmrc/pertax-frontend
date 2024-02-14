@@ -127,7 +127,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
           val result = controller.onPageLoad(currentRequest)
 
           status(result) mustBe OK
-          verify(mockFeatureFlagService, times(3)).get(any())
+          verify(mockFeatureFlagService, times(2)).get(any())
           verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
           verify(mockTaxCreditsService, times(1)).isAddressChangeInPTA(any())(any())
           val argCaptorValue: Result = arg.getValue
@@ -159,7 +159,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
         val result = controller.onPageLoad(currentRequest)
 
         status(result) mustBe OK
-        verify(mockFeatureFlagService, times(3)).get(any())
+        verify(mockFeatureFlagService, times(2)).get(any())
         verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
         verify(mockTaxCreditsService, times(0)).isAddressChangeInPTA(any())(any())
         val argCaptorValue: Result = arg.getValue
