@@ -33,21 +33,23 @@ class EnhancedPartialRetriever @Inject() (
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
 ) extends Logging {
 
+  private def requestBuilder(url: String, timeoutInMilliseconds: Int)(implicit
+    request: RequestHeader
+  ): RequestBuilder = {
+    implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+    val get                        = httpClientV2.get(url"$url")
+    if (timeoutInMilliseconds == 0) {
+      get
+    } else {
+      get.transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
+    }
+  }
+
   def loadPartial(url: String, timeoutInMilliseconds: Int = 0)(implicit
     request: RequestHeader,
     ec: ExecutionContext
-  ): Future[HtmlPartial] = {
-    def requestBuilder: RequestBuilder = {
-      implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
-      val get                        = httpClientV2.get(url"$url")
-      if (timeoutInMilliseconds == 0) {
-        get
-      } else {
-        get.transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
-      }
-    }
-
-    requestBuilder.execute[HtmlPartial].map {
+  ): Future[HtmlPartial] =
+    requestBuilder(url, timeoutInMilliseconds).execute[HtmlPartial].map {
       case partial: HtmlPartial.Success => partial
       case partial: HtmlPartial.Failure =>
         logger.error(s"Failed to load partial from $url, partial info: $partial")
@@ -59,23 +61,12 @@ class EnhancedPartialRetriever @Inject() (
       case _                 =>
         HtmlPartial.Failure(None)
     }
-  }
 
   def loadPartialAsSeqSummaryCard(url: String, timeoutInMilliseconds: Int = 0)(implicit
     request: RequestHeader,
     ec: ExecutionContext
-  ): Future[Seq[SummaryCardPartial]] = {
-    def requestBuilder: RequestBuilder = {
-      implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
-      val get                        = httpClientV2.get(url"$url")
-      if (timeoutInMilliseconds == 0) {
-        get
-      } else {
-        get.transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
-      }
-    }
-
-    requestBuilder.execute[HtmlPartial].map {
+  ): Future[Seq[SummaryCardPartial]] =
+    requestBuilder(url, timeoutInMilliseconds).execute[HtmlPartial].map {
       case partial: HtmlPartial.Success =>
         val response = partial.content.toString
         if (response.nonEmpty) {
@@ -92,5 +83,4 @@ class EnhancedPartialRetriever @Inject() (
         Nil
       case _                 => Nil
     }
-  }
 }
