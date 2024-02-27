@@ -71,6 +71,11 @@ class PersonalDetailsController @Inject() (
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
+      val personNino = request.personDetails match {
+        case Some(details) => details.person.nino
+        case None          => request.nino
+      }
+
       featureFlagService.get(HmrcAccountToggle).flatMap { toggle =>
         if (toggle.isEnabled) {
           Future.successful(Redirect(configDecorator.hmrcAccountUrl, MOVED_PERMANENTLY))
@@ -103,7 +108,7 @@ class PersonalDetailsController @Inject() (
             addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
             addressDetails             <- personalDetailsViewModel.getAddressRow(addressModel)
             paperLessPreference        <- personalDetailsViewModel.getPaperlessSettingsRow
-            personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(request.nino)
+            personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(personNino)
 
           } yield {
             val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow
