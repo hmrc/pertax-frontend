@@ -31,7 +31,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
 import play.api.test.Helpers.{redirectLocation, _}
 import play.api.test.{FakeHeaders, FakeRequest}
-import services.partials.MessageFrontendService
 import testUtils.RetrievalOps._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}

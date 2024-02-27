@@ -22,7 +22,6 @@ import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import error.LocalErrorHandler
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.partials.MessageFrontendService
 
 class UserResearchDismissalController @Inject() (
   val citizenDetailsConnector: CitizenDetailsConnector,

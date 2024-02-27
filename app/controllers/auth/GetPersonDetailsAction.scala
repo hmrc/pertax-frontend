@@ -21,14 +21,13 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
-import models.admin.{GetPersonFromCitizenDetailsToggle, SCAWrapperToggle}
+import models.admin.GetPersonFromCitizenDetailsToggle
 import play.api.Logging
 import play.api.http.Status.LOCKED
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.CitizenDetailsService
-import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -39,7 +38,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class GetPersonDetailsAction @Inject() (
   citizenDetailsService: CitizenDetailsService,
-  messageFrontendService: MessageFrontendService,
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
   manualCorrespondenceView: ManualCorrespondenceView,
@@ -50,8 +48,7 @@ class GetPersonDetailsAction @Inject() (
     with I18nSupport
     with Logging {
 
-  override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
-    populatingUnreadMessageCount()(request).flatMap { messageCount =>
+  override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] = {
       getPersonDetails()(request).map { personalDetails =>
         UserRequest(
           request.authNino,
@@ -64,20 +61,10 @@ class GetPersonDetailsAction @Inject() (
           request.trustedHelper,
           request.enrolments,
           request.profile,
-          messageCount,
           request.breadcrumb,
           request.request
         )
       }.value
-    }
-
-  private def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
-    featureFlagService.get(SCAWrapperToggle).flatMap { toggle =>
-      if (configDecorator.personDetailsMessageCountEnabled && !toggle.isEnabled) {
-        messageFrontendService.getUnreadMessageCount
-      } else {
-        Future.successful(None)
-      }
     }
 
   private def getPersonDetails()(implicit request: UserRequest[_]): EitherT[Future, Result, Option[PersonDetails]] = {

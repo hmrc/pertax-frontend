@@ -23,14 +23,12 @@ import models.Breadcrumb
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
-import services.partials.MessageFrontendService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import views.html.message.{MessageDetailView, MessageInboxView}
 
 import scala.concurrent.ExecutionContext
 
 class MessageController @Inject() (
-  val messageFrontendService: MessageFrontendService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
@@ -46,21 +44,20 @@ class MessageController @Inject() (
   def messageList: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
-      messageFrontendService.getMessageListPartial map { p =>
-        Ok(
-          messageInboxView(
-            messageListPartial = p successfulContentOrElse Html(
-              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")
-            )
+      Ok(
+        messageInboxView(
+          messageListPartial = Html(
+            Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")
           )
         )
-      }
+      )
     }
 
-  def messageDetail(messageToken: String): Action[AnyContent] =
+
+
+  def messageDetail: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction
-      .addBreadcrumb(messageBreadcrumb)).async { implicit request =>
-      messageFrontendService.getMessageDetailPartial(messageToken).map {
+      .addBreadcrumb(messageBreadcrumb)).async { implicit request => {
         case HtmlPartial.Success(Some(title), content) =>
           Ok(messageDetailView(message = content, title = title))
         case HtmlPartial.Success(None, content)        =>
