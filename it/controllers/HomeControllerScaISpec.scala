@@ -159,7 +159,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       trustedHelper,
       Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
       profile,
-      messageCount,
       None,
       request
     )

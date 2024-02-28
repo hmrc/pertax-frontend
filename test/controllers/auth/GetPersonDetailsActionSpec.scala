@@ -86,8 +86,10 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     actionProvider.invokeBlock(request, block)
   }
 
-  override def beforeEach(): Unit =
+  override def beforeEach(): Unit = {
     super.beforeEach()
+    reset(mockCitizenDetailsService)
+  }
 
   "GetPersonDetailsAction" when {
 
