@@ -53,7 +53,6 @@ object UserRequestFixture {
       trustedHelper,
       enrolments,
       profile,
-      messageCount,
       None,
       request
     )

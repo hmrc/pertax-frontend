@@ -33,6 +33,7 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
+import services.partials.MessageFrontendService
 import testUtils.Fixtures._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -150,10 +151,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(false))
-
-    when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
-      Future.successful(None)
-    }
 
     when(mockConfigDecorator.allowSaPreview) thenReturn true
     when(mockConfigDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA

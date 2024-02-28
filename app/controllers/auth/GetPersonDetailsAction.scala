@@ -28,6 +28,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.CitizenDetailsService
+import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -38,6 +39,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class GetPersonDetailsAction @Inject() (
   citizenDetailsService: CitizenDetailsService,
+  messageFrontendService: MessageFrontendService,
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
   manualCorrespondenceView: ManualCorrespondenceView,
@@ -48,24 +50,23 @@ class GetPersonDetailsAction @Inject() (
     with I18nSupport
     with Logging {
 
-  override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] = {
-      getPersonDetails()(request).map { personalDetails =>
-        UserRequest(
-          request.authNino,
-          request.nino,
-          request.retrievedName,
-          request.saUserType,
-          request.credentials,
-          request.confidenceLevel,
-          personalDetails,
-          request.trustedHelper,
-          request.enrolments,
-          request.profile,
-          request.breadcrumb,
-          request.request
-        )
-      }.value
-    }
+  override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
+    getPersonDetails()(request).map { personalDetails =>
+      UserRequest(
+        request.authNino,
+        request.nino,
+        request.retrievedName,
+        request.saUserType,
+        request.credentials,
+        request.confidenceLevel,
+        personalDetails,
+        request.trustedHelper,
+        request.enrolments,
+        request.profile,
+        request.breadcrumb,
+        request.request
+      )
+    }.value
 
   private def getPersonDetails()(implicit request: UserRequest[_]): EitherT[Future, Result, Option[PersonDetails]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)

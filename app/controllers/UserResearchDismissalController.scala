@@ -17,16 +17,11 @@
 package controllers
 
 import com.google.inject.Inject
-import connectors.CitizenDetailsConnector
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
-import error.LocalErrorHandler
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
 class UserResearchDismissalController @Inject() (
-  val citizenDetailsConnector: CitizenDetailsConnector,
-  val messageFrontendService: MessageFrontendService,
-  val localErrorHandler: LocalErrorHandler,
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents

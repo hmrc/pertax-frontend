@@ -58,8 +58,6 @@ class AuthActionSpec extends BaseSpec {
   val sessionAuditor                             =
     new SessionAuditorFake(app.injector.instanceOf[AuditConnector], enrolmentsHelper)
 
-  val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
-
   class Harness(authAction: AuthAction) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
