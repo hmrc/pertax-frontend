@@ -428,7 +428,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   "Calling ApplicationController.signout" must {
 
-    "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with a continue URL and no origin" in new LocalSetup {
+    "redirect to sign-out link with correct continue url when signed in with with a continue URL and no origin" in new LocalSetup {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -444,7 +444,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       )
     }
 
-    "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with no continue URL but an origin" in new LocalSetup {
+    "redirect to sign-out link with correct continue url when signed in with no continue URL but an origin" in new LocalSetup {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -460,7 +460,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       )
     }
 
-    "return BAD_REQUEST when signed in with government gateway with no continue URL and no origin" in new LocalSetup {
+    "return BAD_REQUEST when signed in with no continue URL and no origin" in new LocalSetup {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
