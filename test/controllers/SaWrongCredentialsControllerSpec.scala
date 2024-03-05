@@ -44,7 +44,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
     )(config)
 
   "processDoYouKnowOtherCredentials" must {
-    "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
+    "redirect to 'Sign in' page when supplied with value Yes" in {
       val result = controller.processDoYouKnowOtherCredentials()(
         FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
       )
@@ -67,7 +67,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
   }
 
   "processDoYouKnowUserId" must {
-    "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
+    "redirect to 'Sign in' page when supplied with value Yes" in {
       val result = controller.processDoYouKnowUserId()(
         FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
       )

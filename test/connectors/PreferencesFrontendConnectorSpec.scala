@@ -65,7 +65,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
 
   "PreferencesFrontend" must {
 
-    "return None if an OK status is retrieved, and user is Government GateWay" in {
+    "return None if an OK status is retrieved" in {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
