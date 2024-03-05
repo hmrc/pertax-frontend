@@ -24,7 +24,7 @@ class HomeControllerErrorISpec extends IntegrationSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
       "feature.breathing-space-indicator.enabled"   -> true,
-      "microservice.services.taxcalc.port"          -> server.port(),
+      "microservice.services.taxcalc-frontend.port" -> server.port(),
       "microservice.services.tai.port"              -> server.port(),
       "feature.business-hours.Monday.start-time"    -> "0:00",
       "feature.business-hours.Monday.end-time"      -> "23:59",
@@ -101,7 +101,7 @@ class HomeControllerErrorISpec extends IntegrationSpec {
       httpStatus(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=%2Fpersonal-account")
       server.verify(0, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
-      server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
+      server.verify(0, getRequestedFor(urlEqualTo("/tax-you-paid/summary-card-partials")))
     }
   }
 }
