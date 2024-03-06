@@ -17,9 +17,7 @@
 package connectors
 
 import com.google.inject.Inject
-import models.SummaryCardPartial
 import play.api.Logging
-import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpException, StringContextOps}
@@ -33,23 +31,21 @@ class EnhancedPartialRetriever @Inject() (
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
 ) extends Logging {
 
-  private def requestBuilder(url: String, timeoutInMilliseconds: Int)(implicit
-    request: RequestHeader
-  ): RequestBuilder = {
-    implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
-    val get                        = httpClientV2.get(url"$url")
-    if (timeoutInMilliseconds == 0) {
-      get
-    } else {
-      get.transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
-    }
-  }
-
   def loadPartial(url: String, timeoutInMilliseconds: Int = 0)(implicit
     request: RequestHeader,
     ec: ExecutionContext
-  ): Future[HtmlPartial] =
-    requestBuilder(url, timeoutInMilliseconds).execute[HtmlPartial].map {
+  ): Future[HtmlPartial] = {
+    def requestBuilder: RequestBuilder = {
+      implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+      val get                        = httpClientV2.get(url"$url")
+      if (timeoutInMilliseconds == 0) {
+        get
+      } else {
+        get.transform(_.withRequestTimeout(timeoutInMilliseconds.milliseconds))
+      }
+    }
+
+    requestBuilder.execute[HtmlPartial].map {
       case partial: HtmlPartial.Success => partial
       case partial: HtmlPartial.Failure =>
         logger.error(s"Failed to load partial from $url, partial info: $partial")
@@ -61,26 +57,5 @@ class EnhancedPartialRetriever @Inject() (
       case _                 =>
         HtmlPartial.Failure(None)
     }
-
-  def loadPartialAsSeqSummaryCard(url: String, timeoutInMilliseconds: Int = 0)(implicit
-    request: RequestHeader,
-    ec: ExecutionContext
-  ): Future[Seq[SummaryCardPartial]] =
-    requestBuilder(url, timeoutInMilliseconds).execute[HtmlPartial].map {
-      case partial: HtmlPartial.Success =>
-        val response = partial.content.toString
-        if (response.nonEmpty) {
-          Json.parse(response).as[JsArray].value.map(_.as[SummaryCardPartial]).toSeq
-        } else {
-          Nil
-        }
-      case partial: HtmlPartial.Failure =>
-        logger.error(s"Failed to load partial from $url, partial info: $partial")
-        Nil
-    } recover {
-      case ex: HttpException =>
-        logger.error(s"Failed to load partial from $url, partial info. Exception: $ex")
-        Nil
-      case _                 => Nil
-    }
+  }
 }

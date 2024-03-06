@@ -38,6 +38,7 @@ import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers, Injecting}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -124,6 +125,15 @@ trait PafFixtures {
 trait TaiFixtures {
 
   def buildTaxComponents: TaxComponents = TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
+}
+
+trait TaxCalculationFixtures {
+  def buildTaxCalculation: TaxCalculation =
+    TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
+
+  def buildTaxYearReconciliations: List[TaxYearReconciliation] =
+    List(TaxYearReconciliation(2015, Balanced), TaxYearReconciliation(2016, Balanced))
+  def buildTrustedHelper: Option[TrustedHelper]                = Some(TrustedHelper("John", "Smith", "Some Url", "AH498813B"))
 }
 
 trait CitizenDetailsFixtures {
@@ -273,7 +283,7 @@ trait CitizenDetailsFixtures {
   )
 }
 
-object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures {
+object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures with TaxCalculationFixtures {
 
   val fakeNino: Nino = Nino(new Generator(new Random()).nextNino.nino)
 
