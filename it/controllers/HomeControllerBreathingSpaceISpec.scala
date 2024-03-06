@@ -21,9 +21,9 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled"   -> true,
-      "microservice.services.taxcalc-frontend.port" -> server.port(),
-      "microservice.services.tai.port"              -> server.port()
+      "feature.breathing-space-indicator.enabled" -> true,
+      "microservice.services.taxcalc.port"        -> server.port(),
+      "microservice.services.tai.port"            -> server.port()
     )
     .build()
 
@@ -73,7 +73,7 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
       contentAsString(result).contains(Messages("label.breathing_space")) mustBe true
       contentAsString(result).contains(urlBreathingSpace) mustBe true
       server.verify(1, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
-      server.verify(0, getRequestedFor(urlEqualTo("/tax-you-paid/summary-card-partials")))
+      server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
 
       val requestBreathingSpace = FakeRequest(GET, urlBreathingSpace)
         .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
@@ -98,7 +98,7 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
       contentAsString(result).contains(Messages("label.breathing_space")) mustBe false
       contentAsString(result).contains(urlBreathingSpace) mustBe false
       server.verify(1, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
-      server.verify(0, getRequestedFor(urlEqualTo("/tax-you-paid/summary-card-partials")))
+      server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
     }
 
     List(
@@ -121,7 +121,7 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
         contentAsString(result).contains(Messages("label.breathing_space")) mustBe false
         contentAsString(result).contains(urlBreathingSpace) mustBe false
         server.verify(1, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
-        server.verify(0, getRequestedFor(urlEqualTo("/tax-you-paid/summary-card-partials")))
+        server.verify(0, getRequestedFor(urlEqualTo(s"/taxcalc/$generatedNino/reconciliations")))
       }
     }
   }
