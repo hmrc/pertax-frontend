@@ -19,7 +19,17 @@ package models
 import play.api.libs.json.{JsString, JsSuccess, Json, Reads}
 import play.twirl.api.HtmlFormat
 
-case class SummaryCardPartial(partialName: String, partialContent: HtmlFormat.Appendable)
+case class ReconciliationStatus(code: Int, name: String)
+
+object ReconciliationStatus {
+  implicit val reads: Reads[ReconciliationStatus] = Json.reads[ReconciliationStatus]
+}
+
+case class SummaryCardPartial(
+  partialName: String,
+  partialContent: HtmlFormat.Appendable,
+  partialReconciliationStatus: ReconciliationStatus
+)
 
 object SummaryCardPartial {
   implicit val htmlReads: Reads[HtmlFormat.Appendable] = jsValue => {

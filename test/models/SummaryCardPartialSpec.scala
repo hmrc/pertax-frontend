@@ -24,8 +24,12 @@ class SummaryCardPartialSpec extends BaseSpec {
   "Reads" must {
     "read valid json correctly" in {
       val json   = Json.obj(
-        "partialName"    -> "card1",
-        "partialContent" -> "<h2>test-html</h2>"
+        "partialName"                 -> "card1",
+        "partialContent"              -> "<h2>test-html</h2>",
+        "partialReconciliationStatus" -> Json.obj(
+          "code" -> 5,
+          "name" -> "Underpaid"
+        )
       )
       val actual = json.as[SummaryCardPartial]
       actual.partialName mustBe "card1"

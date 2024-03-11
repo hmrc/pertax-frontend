@@ -18,7 +18,7 @@ package services
 
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
-import models.SummaryCardPartial
+import models.{ReconciliationStatus, SummaryCardPartial}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.twirl.api.Html
@@ -49,7 +49,13 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
 
   "Calling getTaxCalcPartial" must {
     "return non-empty list for tax calc" in new LocalSetup {
-      private val summaryCardPartialData = Seq(SummaryCardPartial("Title", Html("<title/>")))
+      private val summaryCardPartialData = Seq(
+        SummaryCardPartial(
+          partialName = "Title",
+          partialContent = Html("<title/>"),
+          partialReconciliationStatus = ReconciliationStatus(4, "Overpaid")
+        )
+      )
       when(mockConfigDecorator.taxCalcPartialLinkUrl).thenReturn("test-url")
       when(
         mockEnhancedPartialRetriever.loadPartialAsSeqSummaryCard[SummaryCardPartial](
