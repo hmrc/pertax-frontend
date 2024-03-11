@@ -30,7 +30,7 @@ class TaxCalcPartialService @Inject() (
   enhancedPartialRetriever: EnhancedPartialRetriever
 )(implicit executionContext: ExecutionContext) {
   def getTaxCalcPartial(implicit request: RequestHeader): Future[Seq[SummaryCardPartial]] =
-    enhancedPartialRetriever.loadPartialAsSeqSummaryCard(
+    enhancedPartialRetriever.loadPartialAsSeqSummaryCard[SummaryCardPartial](
       url = configDecorator.taxCalcPartialLinkUrl,
       timeoutInMilliseconds = configDecorator.taxCalcPartialTimeoutInMilliseconds
     )

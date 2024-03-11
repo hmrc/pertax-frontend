@@ -17,9 +17,8 @@
 package connectors
 
 import com.google.inject.Inject
-import models.SummaryCardPartial
 import play.api.Logging
-import play.api.libs.json.{JsArray, Json}
+import play.api.libs.json.{JsArray, Json, Reads}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpException, StringContextOps}
@@ -62,15 +61,16 @@ class EnhancedPartialRetriever @Inject() (
         HtmlPartial.Failure(None)
     }
 
-  def loadPartialAsSeqSummaryCard(url: String, timeoutInMilliseconds: Int = 0)(implicit
+  def loadPartialAsSeqSummaryCard[A](url: String, timeoutInMilliseconds: Int = 0)(implicit
     request: RequestHeader,
-    ec: ExecutionContext
-  ): Future[Seq[SummaryCardPartial]] =
+    ec: ExecutionContext,
+    reads: Reads[A]
+  ): Future[Seq[A]] =
     requestBuilder(url, timeoutInMilliseconds).execute[HtmlPartial].map {
       case partial: HtmlPartial.Success =>
         val response = partial.content.toString
         if (response.nonEmpty) {
-          Json.parse(response).as[JsArray].value.map(_.as[SummaryCardPartial]).toSeq
+          Json.parse(response).as[JsArray].value.map(_.as[A]).toSeq
         } else {
           Nil
         }

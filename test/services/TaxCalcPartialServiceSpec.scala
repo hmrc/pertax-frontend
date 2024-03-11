@@ -52,14 +52,18 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
       private val summaryCardPartialData = Seq(SummaryCardPartial("Title", Html("<title/>")))
       when(mockConfigDecorator.taxCalcPartialLinkUrl).thenReturn("test-url")
       when(
-        mockEnhancedPartialRetriever.loadPartialAsSeqSummaryCard(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
+        mockEnhancedPartialRetriever.loadPartialAsSeqSummaryCard[SummaryCardPartial](
+          any(),
+          ArgumentMatchers.eq(timeoutValue)
+        )(any(), any(), any())
       ) thenReturn
         Future.successful[Seq[SummaryCardPartial]](summaryCardPartialData)
 
       val result: Seq[SummaryCardPartial] =
         taxCalcPartialService.getTaxCalcPartial(buildFakeRequestWithAuth("GET")).futureValue
       result mustBe summaryCardPartialData
-      verify(mockEnhancedPartialRetriever, times(1)).loadPartialAsSeqSummaryCard(any(), any())(any(), any())
+      verify(mockEnhancedPartialRetriever, times(1))
+        .loadPartialAsSeqSummaryCard[SummaryCardPartial](any(), any())(any(), any(), any())
     }
   }
 }

@@ -110,7 +110,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       server.stubFor(
         get(urlEqualTo("/")).willReturn(ok(response))
       )
-      sut.loadPartialAsSeqSummaryCard(url).futureValue mustBe returnPartial
+      sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url).futureValue mustBe returnPartial
     }
 
     "return an empty list and log the failure when 5xx response code returned" in {
@@ -118,7 +118,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       server.stubFor(
         get(urlEqualTo("/")).willReturn(serverError().withBody("error"))
       )
-      sut.loadPartialAsSeqSummaryCard(url).futureValue mustBe Nil
+      sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url).futureValue mustBe Nil
       val captor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
       Mockito
         .verify(mockLogger, times(1))
@@ -133,7 +133,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       server.stubFor(
         get(urlEqualTo("/")).willReturn(ok(response))
       )
-      sut.loadPartialAsSeqSummaryCard(url).futureValue mustBe Nil
+      sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url).futureValue mustBe Nil
     }
 
     "return an empty list when nothing returned" in {
@@ -142,7 +142,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       server.stubFor(
         get(urlEqualTo("/")).willReturn(ok(response))
       )
-      sut.loadPartialAsSeqSummaryCard(url).futureValue mustBe Nil
+      sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url).futureValue mustBe Nil
     }
   }
 }
