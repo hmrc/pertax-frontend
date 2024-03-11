@@ -509,8 +509,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
         Future.successful(
           Seq(
-            SummaryCardPartial("name1", Html("<p>test1</p>"), ReconciliationStatus(4, "Overpaid")),
-            SummaryCardPartial("name2", Html("<p>test2</p>"), ReconciliationStatus(5, "Underpaid"))
+            SummaryCardPartial("name1", Html("<p>test1</p>"), Overpaid),
+            SummaryCardPartial("name2", Html("<p>test2</p>"), Underpaid)
           )
         )
       )
@@ -551,8 +551,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
         Future.successful(
           Seq(
-            SummaryCardPartial("name1", Html("<p>test1</p>"), ReconciliationStatus(4, "Overpaid")),
-            SummaryCardPartial("name2", Html("<p>test2</p>"), ReconciliationStatus(5, "Underpaid"))
+            SummaryCardPartial("name1", Html("<p>test1</p>"), Overpaid),
+            SummaryCardPartial("name2", Html("<p>test2</p>"), Underpaid)
           )
         )
       )
@@ -591,8 +591,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
         Future.successful(
           Seq(
-            SummaryCardPartial("name1", Html("<p>test1</p>"), ReconciliationStatus(4, "Overpaid")),
-            SummaryCardPartial("name2", Html("<p>test2</p>"), ReconciliationStatus(5, "Underpaid"))
+            SummaryCardPartial("name1", Html("<p>test1</p>"), Overpaid),
+            SummaryCardPartial("name2", Html("<p>test2</p>"), Underpaid)
           )
         )
       )

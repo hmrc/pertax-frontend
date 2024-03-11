@@ -19,7 +19,7 @@ package services.partials
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
-import models.SummaryCardPartial
+import models.{BalancedSA, SummaryCardPartial}
 import play.api.mvc.RequestHeader
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,12 +30,11 @@ class TaxCalcPartialService @Inject() (
   enhancedPartialRetriever: EnhancedPartialRetriever
 )(implicit executionContext: ExecutionContext) {
 
-  private val excludeReconciliationStatus                                                 = Seq(7)
   def getTaxCalcPartial(implicit request: RequestHeader): Future[Seq[SummaryCardPartial]] =
     enhancedPartialRetriever
       .loadPartialAsSeqSummaryCard[SummaryCardPartial](
         url = configDecorator.taxCalcPartialLinkUrl,
         timeoutInMilliseconds = configDecorator.taxCalcPartialTimeoutInMilliseconds
       )
-      .map(_.filter(s => !excludeReconciliationStatus.contains(s.partialReconciliationStatus.code)))
+      .map(_.filter(_.partialReconciliationStatus != BalancedSA))
 }

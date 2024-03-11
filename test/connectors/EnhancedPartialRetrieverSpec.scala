@@ -17,7 +17,7 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.{ReconciliationStatus, SummaryCardPartial}
+import models.{Overpaid, SummaryCardPartial, Underpaid}
 import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -104,8 +104,8 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
         """[{"partialName": "card1", "partialContent": "content1", "partialReconciliationStatus": {"code":4, "name":"Overpaid"}}, 
           |{"partialName": "card2", "partialContent": "content2", "partialReconciliationStatus": {"code":5, "name":"Underpaid"}}]""".stripMargin
       val returnPartial: Seq[SummaryCardPartial] = Seq(
-        SummaryCardPartial("card1", Html("content1"), ReconciliationStatus(4, "Overpaid")),
-        SummaryCardPartial("card2", Html("content2"), ReconciliationStatus(5, "Underpaid"))
+        SummaryCardPartial("card1", Html("content1"), Overpaid),
+        SummaryCardPartial("card2", Html("content2"), Underpaid)
       )
       val url                                    = s"http://localhost:${server.port()}/"
       server.stubFor(

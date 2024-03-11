@@ -18,7 +18,7 @@ package services
 
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
-import models.{ReconciliationStatus, SummaryCardPartial}
+import models.{BalancedSA, Overpaid, SummaryCardPartial}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.twirl.api.Html
@@ -53,12 +53,12 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
         SummaryCardPartial(
           partialName = "Title",
           partialContent = Html("<title/>"),
-          partialReconciliationStatus = ReconciliationStatus(4, "Overpaid")
+          partialReconciliationStatus = Overpaid
         ),
         SummaryCardPartial(
           partialName = "Title",
           partialContent = Html("<title/>"),
-          partialReconciliationStatus = ReconciliationStatus(7, "Balanced SA")
+          partialReconciliationStatus = BalancedSA
         )
       )
       when(mockConfigDecorator.taxCalcPartialLinkUrl).thenReturn("test-url")
