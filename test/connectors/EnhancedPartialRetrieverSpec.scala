@@ -100,7 +100,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     }
   }
 
-  "Calling EnhancedPartialRetriever.loadPartialSeqSummaryCard" must {
+  "Calling EnhancedPartialRetriever.loadPartialSeqSummaryCard using SummaryCardPartial + associated reads" must {
     "return a list of successful partial summary card objects, one to test each reconciliation status" in {
       val response                               =
         """[
