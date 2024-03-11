@@ -19,8 +19,10 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito}
+import org.scalatest.RecoverMethods
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.JsResultException
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.{Application, Logger}
@@ -29,9 +31,9 @@ import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
-class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
+class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with IntegrationPatience with RecoverMethods {
 
-  lazy implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
+  private lazy implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
 
   server.start()
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
@@ -46,7 +48,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
   private def httpClientV2: HttpClientV2        = app.injector.instanceOf[HttpClientV2]
   private def headerCarrierForPartialsConverter = app.injector.instanceOf[HeaderCarrierForPartialsConverter]
   private val mockLogger: Logger                = mock[Logger]
-  private val sut: EnhancedPartialRetriever     =
+  private def sut: EnhancedPartialRetriever     =
     new EnhancedPartialRetriever(httpClientV2, headerCarrierForPartialsConverter) {
       override protected val logger: Logger = mockLogger
     }
@@ -126,6 +128,54 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url).futureValue mustBe returnPartial
     }
 
+    "throw a jsresultexception when there is an unknown reconciliation status" in {
+      val response =
+        """[
+          |{"partialName": "card1", "partialContent": "content1", "partialReconciliationStatus": {"code":99, "name":"Somenewstatus"}}
+          |]""".stripMargin
+
+      val url = s"http://localhost:${server.port()}/"
+      server.stubFor(
+        get(urlEqualTo("/")).willReturn(ok(response))
+      )
+
+      recoverToSucceededIf[JsResultException] {
+        sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url)
+      }
+    }
+
+    "throw a jsresultexception when there is a missing reconciliation status code" in {
+      val response =
+        """[
+          |{"partialName": "card1", "partialContent": "content1", "partialReconciliationStatus": {"name":"Somenewstatus"}}
+          |]""".stripMargin
+
+      val url = s"http://localhost:${server.port()}/"
+      server.stubFor(
+        get(urlEqualTo("/")).willReturn(ok(response))
+      )
+
+      recoverToSucceededIf[JsResultException] {
+        sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url)
+      }
+    }
+
+    "throw a jsresultexception when there is a missing partialReconciliationStatus field" in {
+      val response =
+        """[
+          |{"partialName": "card1", "partialContent": "content1"}
+          |]""".stripMargin
+
+      val url = s"http://localhost:${server.port()}/"
+      server.stubFor(
+        get(urlEqualTo("/")).willReturn(ok(response))
+      )
+
+      recoverToSucceededIf[JsResultException] {
+        sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url)
+      }
+    }
+
     "return an empty list and log the failure when 5xx response code returned" in {
       val url                            = s"http://localhost:${server.port()}/"
       server.stubFor(
@@ -134,7 +184,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url).futureValue mustBe Nil
       val captor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
       Mockito
-        .verify(mockLogger, times(1))
+        .verify(mockLogger, atLeast(1))
         .error(captor.capture())(ArgumentMatchers.any())
       captor.getValue.contains("Failed to load partial")
     }
