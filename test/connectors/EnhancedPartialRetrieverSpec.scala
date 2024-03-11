@@ -17,7 +17,7 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.{Overpaid, SummaryCardPartial, Underpaid}
+import models._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -99,13 +99,25 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
   }
 
   "Calling EnhancedPartialRetriever.loadPartialSeqSummaryCard" must {
-    "return a list of successful partial summary card objects" in {
+    "return a list of successful partial summary card objects, one to test each reconciliation status" in {
       val response                               =
-        """[{"partialName": "card1", "partialContent": "content1", "partialReconciliationStatus": {"code":4, "name":"Overpaid"}}, 
-          |{"partialName": "card2", "partialContent": "content2", "partialReconciliationStatus": {"code":5, "name":"Underpaid"}}]""".stripMargin
+        """[
+          |{"partialName": "card1", "partialContent": "content1", "partialReconciliationStatus": {"code":4, "name":"Overpaid"}}, 
+          |{"partialName": "card2", "partialContent": "content2", "partialReconciliationStatus": {"code":5, "name":"Underpaid"}},
+          |{"partialName": "card3", "partialContent": "content3", "partialReconciliationStatus": {"code":1, "name":"Balanced"}},
+          |{"partialName": "card4", "partialContent": "content4", "partialReconciliationStatus": {"code":2, "name":"OpTolerance"}},
+          |{"partialName": "card5", "partialContent": "content5", "partialReconciliationStatus": {"code":3, "name":"UpTolerance"}},
+          |{"partialName": "card6", "partialContent": "content6", "partialReconciliationStatus": {"code":7, "name":"BalancedSA"}},
+          |{"partialName": "card7", "partialContent": "content7", "partialReconciliationStatus": {"code":8, "name":"BalancedNoEmp"}}
+          |]""".stripMargin
       val returnPartial: Seq[SummaryCardPartial] = Seq(
         SummaryCardPartial("card1", Html("content1"), Overpaid),
-        SummaryCardPartial("card2", Html("content2"), Underpaid)
+        SummaryCardPartial("card2", Html("content2"), Underpaid),
+        SummaryCardPartial("card3", Html("content3"), Balanced),
+        SummaryCardPartial("card4", Html("content4"), OpTolerance),
+        SummaryCardPartial("card5", Html("content5"), UpTolerance),
+        SummaryCardPartial("card6", Html("content6"), BalancedSA),
+        SummaryCardPartial("card7", Html("content7"), BalancedNoEmp)
       )
       val url                                    = s"http://localhost:${server.port()}/"
       server.stubFor(

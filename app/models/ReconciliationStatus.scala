@@ -38,19 +38,19 @@ object ReconciliationStatus {
     7 -> BalancedSA,
     8 -> BalancedNoEmp
   )
-  
+
   implicit def reads: Reads[ReconciliationStatus] =
     Reads {
       case JsObject(values) =>
-      values.get("code").map(_.validate[Int]) match {
-        case Some(JsSuccess(i, p)) =>
-          statusValues.get(i) match {
-            case Some(status) => JsSuccess(status, p)
-            case _        => JsError(p, s"Unknown reconciliation status: $i")
-          }
-        case Some(e @ JsError(_))  => e
-        case _ => JsError(s"Missing code from reconciliation status: $values")
-      }
-      case jsValue => JsError(s"Expected json object: $jsValue")
+        values.get("code").map(_.validate[Int]) match {
+          case Some(JsSuccess(i, p)) =>
+            statusValues.get(i) match {
+              case Some(status) => JsSuccess(status, p)
+              case _            => JsError(p, s"Unknown reconciliation status: $i")
+            }
+          case Some(e @ JsError(_))  => e
+          case _                     => JsError(s"Missing code from reconciliation status: $values")
+        }
+      case jsValue          => JsError(s"Expected json object: $jsValue")
     }
 }
