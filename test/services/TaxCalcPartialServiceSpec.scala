@@ -48,12 +48,17 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
   }
 
   "Calling getTaxCalcPartial" must {
-    "return non-empty list for tax calc" in new LocalSetup {
+    "return non-empty list for tax calc, excluding balanced SA" in new LocalSetup {
       private val summaryCardPartialData = Seq(
         SummaryCardPartial(
           partialName = "Title",
           partialContent = Html("<title/>"),
           partialReconciliationStatus = ReconciliationStatus(4, "Overpaid")
+        ),
+        SummaryCardPartial(
+          partialName = "Title",
+          partialContent = Html("<title/>"),
+          partialReconciliationStatus = ReconciliationStatus(7, "Balanced SA")
         )
       )
       when(mockConfigDecorator.taxCalcPartialLinkUrl).thenReturn("test-url")
@@ -67,7 +72,7 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
 
       val result: Seq[SummaryCardPartial] =
         taxCalcPartialService.getTaxCalcPartial(buildFakeRequestWithAuth("GET")).futureValue
-      result mustBe summaryCardPartialData
+      result mustBe summaryCardPartialData.headOption.toSeq
       verify(mockEnhancedPartialRetriever, times(1))
         .loadPartialAsSeqSummaryCard[SummaryCardPartial](any(), any())(any(), any(), any())
     }

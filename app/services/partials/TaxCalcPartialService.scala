@@ -29,9 +29,13 @@ class TaxCalcPartialService @Inject() (
   configDecorator: ConfigDecorator,
   enhancedPartialRetriever: EnhancedPartialRetriever
 )(implicit executionContext: ExecutionContext) {
+
+  private val excludeReconciliationStatus                                                 = Seq(7)
   def getTaxCalcPartial(implicit request: RequestHeader): Future[Seq[SummaryCardPartial]] =
-    enhancedPartialRetriever.loadPartialAsSeqSummaryCard[SummaryCardPartial](
-      url = configDecorator.taxCalcPartialLinkUrl,
-      timeoutInMilliseconds = configDecorator.taxCalcPartialTimeoutInMilliseconds
-    )
+    enhancedPartialRetriever
+      .loadPartialAsSeqSummaryCard[SummaryCardPartial](
+        url = configDecorator.taxCalcPartialLinkUrl,
+        timeoutInMilliseconds = configDecorator.taxCalcPartialTimeoutInMilliseconds
+      )
+      .map(_.filter(s => !excludeReconciliationStatus.contains(s.partialReconciliationStatus.code)))
 }
