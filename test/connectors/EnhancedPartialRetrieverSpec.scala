@@ -116,10 +116,10 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
         SummaryCardPartial("card1", Html("content1"), Overpaid),
         SummaryCardPartial("card2", Html("content2"), Underpaid),
         SummaryCardPartial("card3", Html("content3"), Balanced),
-        SummaryCardPartial("card4", Html("content4"), OpTolerance),
-        SummaryCardPartial("card5", Html("content5"), UpTolerance),
+        SummaryCardPartial("card4", Html("content4"), OverpaidWithinTolerance),
+        SummaryCardPartial("card5", Html("content5"), UnderpaidWithinTolerance),
         SummaryCardPartial("card6", Html("content6"), BalancedSA),
-        SummaryCardPartial("card7", Html("content7"), BalancedNoEmp)
+        SummaryCardPartial("card7", Html("content7"), BalancedNoEmployment)
       )
       val url                                    = s"http://localhost:${server.port()}/"
       server.stubFor(
