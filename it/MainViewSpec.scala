@@ -33,14 +33,11 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import views.html.MainView
 
 import java.time.LocalDate
 import java.util.UUID
-import scala.concurrent.Future
 import scala.util.Random
 
 class MainViewSpec extends IntegrationSpec {
@@ -134,7 +131,6 @@ class MainViewSpec extends IntegrationSpec {
       personDetails: Option[PersonDetails] = Some(fakePersonDetails),
       trustedHelper: Option[TrustedHelper] = None,
       profile: Option[String] = None,
-      messageCount: Option[Int] = None,
       request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
     ): UserRequest[A] =
       UserRequest(
@@ -148,7 +144,6 @@ class MainViewSpec extends IntegrationSpec {
         trustedHelper,
         Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
         profile,
-        messageCount,
         None,
         request
       )
@@ -163,7 +158,6 @@ class MainViewSpec extends IntegrationSpec {
       personDetails: Option[PersonDetails] = Some(fakePersonDetails),
       trustedHelper: Option[TrustedHelper] = None,
       profile: Option[String] = None,
-      messageCount: Option[Int] = None,
       request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
     ): UserRequest[A] =
       UserRequest(
@@ -177,7 +171,6 @@ class MainViewSpec extends IntegrationSpec {
         trustedHelper,
         Set(),
         profile,
-        messageCount,
         None,
         request
       )

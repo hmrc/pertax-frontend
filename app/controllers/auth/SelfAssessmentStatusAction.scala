@@ -82,7 +82,6 @@ class SelfAssessmentStatusAction @Inject() (
           request.enrolments,
           request.profile,
           None,
-          None,
           request.request
         )
       )

@@ -19,7 +19,7 @@ package controllers.auth
 import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.admin.{GetPersonFromCitizenDetailsToggle, SCAWrapperToggle}
+import models.admin.GetPersonFromCitizenDetailsToggle
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
@@ -65,7 +65,6 @@ class GetPersonDetailsActionSpec extends BaseSpec {
       Set(),
       None,
       None,
-      None,
       FakeRequest("", "")
     )
 
@@ -82,9 +81,6 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     Future.successful(Ok(s"Person Details: $person"))
   }
 
-  val unreadMessageCountBlock: UserRequest[_] => Future[Result] = userRequest =>
-    Future.successful(Ok(s"Person Details: ${userRequest.unreadMessageCount.getOrElse("no message count present")}"))
-
   def harness[A](block: UserRequest[_] => Future[Result])(implicit request: UserRequest[A]): Future[Result] = {
     lazy val actionProvider = app.injector.instanceOf[GetPersonDetailsAction]
     actionProvider.invokeBlock(request, block)
@@ -93,8 +89,6 @@ class GetPersonDetailsActionSpec extends BaseSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockCitizenDetailsService)
-    when(mockMessageFrontendService.getUnreadMessageCount(any()))
-      .thenReturn(Future.successful(Some(1)))
   }
 
   "GetPersonDetailsAction" when {
@@ -162,44 +156,6 @@ class GetPersonDetailsActionSpec extends BaseSpec {
         contentAsString(result) mustBe "Person Details: No Person Details Defined"
 
         verify(mockCitizenDetailsService, times(0)).personDetails(any())(any(), any())
-      }
-    }
-
-    "when the person details message count toggle is set to true" must {
-      "return a request with the unread message count" when {
-        "SCA wrapper toggle is false" in {
-          when(mockFeatureFlagService.get(SCAWrapperToggle))
-            .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = false)))
-
-          when(mockCitizenDetailsService.personDetails(any())(any(), any()))
-            .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
-
-          when(configDecorator.personDetailsMessageCountEnabled).thenReturn(true)
-
-          val result = harness(unreadMessageCountBlock)(refinedRequest)
-          status(result) mustBe OK
-          contentAsString(result) mustBe "Person Details: 1"
-
-          verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
-        }
-      }
-    }
-
-    "when the person details message count toggle is set to true" must {
-      "return a request with the unread message count" in {
-        when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
-          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
-
-        when(mockCitizenDetailsService.personDetails(any())(any(), any()))
-          .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
-
-        when(configDecorator.personDetailsMessageCountEnabled).thenReturn(false)
-
-        val result = harness(unreadMessageCountBlock)(refinedRequest)
-        status(result) mustBe OK
-        contentAsString(result) mustBe "Person Details: no message count present"
-
-        verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
       }
     }
   }

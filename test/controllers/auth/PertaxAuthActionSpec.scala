@@ -84,7 +84,6 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
       Set(),
       None,
       None,
-      None,
       fakeRequest
     )
 

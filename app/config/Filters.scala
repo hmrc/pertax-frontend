@@ -17,7 +17,6 @@
 package config
 
 import akka.stream.Materializer
-import models.admin.SCAWrapperToggle
 import play.api.http.{EnabledFilters, HttpFilters}
 import play.api.mvc.{EssentialFilter, RequestHeader, Result}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -34,13 +33,7 @@ class SCAWrapperDataFilter @Inject() (
     extends WrapperDataFilter(scaWrapperDataConnector)(ec, mat) {
 
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] =
-    featureFlagService.get(SCAWrapperToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
-        super.apply(f)(rh)
-      } else {
-        f(rh)
-      }
-    }
+    super.apply(f)(rh)
 }
 
 @Singleton

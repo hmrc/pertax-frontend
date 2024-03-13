@@ -336,8 +336,6 @@ class ConfigDecorator @Inject() (
   lazy val addressLookupTimeoutInSec: Int =
     servicesConfig.getInt("feature.address-lookup.timeoutInSec")
 
-  val SCAWrapperFutureTimeout: Int = servicesConfig.getInt("sca-wrapper.future-timeout")
-
 }
 
 trait TaxcalcUrls {

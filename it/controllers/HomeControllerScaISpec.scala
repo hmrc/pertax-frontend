@@ -159,15 +159,12 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       trustedHelper,
       Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
       profile,
-      messageCount,
       None,
       request
     )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))

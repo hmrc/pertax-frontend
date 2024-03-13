@@ -34,7 +34,6 @@ final case class UserRequest[+A](
   trustedHelper: Option[TrustedHelper],
   enrolments: Set[Enrolment],
   profile: Option[String],
-  unreadMessageCount: Option[Int] = None,
   breadcrumb: Option[Breadcrumb] = None,
   request: Request[A]
 ) extends WrappedRequest[A](request) {
@@ -61,7 +60,6 @@ object UserRequest {
     retrievedName: Option[UserName],
     saUserType: SelfAssessmentUserType,
     personDetails: Option[PersonDetails],
-    unreadMessageCount: Option[Int],
     breadcrumb: Option[Breadcrumb]
   ): UserRequest[A] =
     UserRequest(
@@ -75,7 +73,6 @@ object UserRequest {
       authenticatedRequest.trustedHelper,
       authenticatedRequest.enrolments,
       authenticatedRequest.profile,
-      unreadMessageCount,
       breadcrumb,
       authenticatedRequest.request
     )

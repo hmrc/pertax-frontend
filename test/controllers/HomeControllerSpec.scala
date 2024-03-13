@@ -152,10 +152,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(false))
 
-    when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
-      Future.successful(None)
-    }
-
     when(mockConfigDecorator.allowSaPreview) thenReturn true
     when(mockConfigDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
     when(mockConfigDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"

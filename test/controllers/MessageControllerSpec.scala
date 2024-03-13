@@ -57,11 +57,7 @@ class MessageControllerSpec extends BaseSpec {
       inject[MessagesControllerComponents],
       inject[MessageInboxView],
       inject[MessageDetailView]
-    )(config, ec) {
-      when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
-        Future.successful(None)
-      }
-    }
+    )(config, ec)
 
   "Calling MessageController.messageList" must {
     "call messages and return 200 when called by a high GG user" in {
