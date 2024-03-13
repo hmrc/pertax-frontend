@@ -20,6 +20,7 @@ import play.api.libs.json._
 
 sealed trait ReconciliationStatus
 
+case object NoReconciliationStatus extends ReconciliationStatus
 case object Balanced extends ReconciliationStatus
 case object OverpaidWithinTolerance extends ReconciliationStatus
 case object UnderpaidWithinTolerance extends ReconciliationStatus
@@ -30,13 +31,14 @@ case object BalancedNoEmployment extends ReconciliationStatus
 
 object ReconciliationStatus {
   private val statusValues: Map[Int, ReconciliationStatus] = Map(
-    1 -> Balanced,
-    2 -> OverpaidWithinTolerance,
-    3 -> UnderpaidWithinTolerance,
-    4 -> Overpaid,
-    5 -> Underpaid,
-    7 -> BalancedSA,
-    8 -> BalancedNoEmployment
+    -1 -> NoReconciliationStatus,
+    1  -> Balanced,
+    2  -> OverpaidWithinTolerance,
+    3  -> UnderpaidWithinTolerance,
+    4  -> Overpaid,
+    5  -> Underpaid,
+    7  -> BalancedSA,
+    8  -> BalancedNoEmployment
   )
 
   implicit def reads: Reads[ReconciliationStatus] = (__ \ "code").read[Int].map(statusValues)

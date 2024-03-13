@@ -110,7 +110,8 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
           |{"partialName": "card4", "partialContent": "content4", "partialReconciliationStatus": {"code":2, "name":"OpTolerance"}},
           |{"partialName": "card5", "partialContent": "content5", "partialReconciliationStatus": {"code":3, "name":"UpTolerance"}},
           |{"partialName": "card6", "partialContent": "content6", "partialReconciliationStatus": {"code":7, "name":"BalancedSA"}},
-          |{"partialName": "card7", "partialContent": "content7", "partialReconciliationStatus": {"code":8, "name":"BalancedNoEmp"}}
+          |{"partialName": "card7", "partialContent": "content7", "partialReconciliationStatus": {"code":8, "name":"BalancedNoEmp"}},
+          |{"partialName": "card8", "partialContent": "content8", "partialReconciliationStatus": {"code":-1, "name":"None"}}
           |]""".stripMargin
       val returnPartial: Seq[SummaryCardPartial] = Seq(
         SummaryCardPartial("card1", Html("content1"), Overpaid),
@@ -119,7 +120,8 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
         SummaryCardPartial("card4", Html("content4"), OverpaidWithinTolerance),
         SummaryCardPartial("card5", Html("content5"), UnderpaidWithinTolerance),
         SummaryCardPartial("card6", Html("content6"), BalancedSA),
-        SummaryCardPartial("card7", Html("content7"), BalancedNoEmployment)
+        SummaryCardPartial("card7", Html("content7"), BalancedNoEmployment),
+        SummaryCardPartial("card8", Html("content8"), NoReconciliationStatus)
       )
       val url                                    = s"http://localhost:${server.port()}/"
       server.stubFor(
