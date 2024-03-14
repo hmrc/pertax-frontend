@@ -42,7 +42,9 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
     super.beforeEach()
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
-        .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
+        .willReturn(
+          ok(FileHelper.loadFile("./it/resources/person-details.json").replaceAll("<NINO>", generatedNino.nino))
+        )
     )
     server.stubFor(
       put(urlEqualTo(cacheMap + "addressPageVisitedDto"))
