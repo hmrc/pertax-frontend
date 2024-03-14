@@ -51,20 +51,16 @@ class GetPersonDetailsAction @Inject() (
     with I18nSupport
     with Logging {
 
-  private def takeNinoFromCitizenDetailsIfPresent(
-    requestNino: Option[Nino],
-    personalDetails: Option[PersonDetails]
-  ): Option[Nino] = {
-    val citizenDetailsNino = personalDetails
-      .flatMap(_.person.nino)
-    citizenDetailsNino.fold(requestNino)(_ => citizenDetailsNino)
-  }
-
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     getPersonDetails()(request).map { personalDetails =>
+      val ninoFromCitizenDetailsIfPresent: Option[Nino] = {
+        val citizenDetailsNino = personalDetails.flatMap(_.person.nino)
+        citizenDetailsNino.fold(request.nino)(_ => citizenDetailsNino)
+      }
+
       UserRequest(
         authNino = request.authNino,
-        nino = takeNinoFromCitizenDetailsIfPresent(request.nino, personalDetails),
+        nino = ninoFromCitizenDetailsIfPresent,
         retrievedName = request.retrievedName,
         saUserType = request.saUserType,
         credentials = request.credentials,
