@@ -224,7 +224,7 @@ class TimeoutsISpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
       )
       server.stubFor(
-        get(urlPathEqualTo(s"/tcs/$generatedNino/exclusion"))
+        get(urlPathEqualTo(s"/tcs/AA055075C/exclusion"))
           .willReturn(aResponse.withFixedDelay(delayInMilliseconds))
       )
 

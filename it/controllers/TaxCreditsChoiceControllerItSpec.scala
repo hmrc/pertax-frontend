@@ -93,9 +93,8 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
   }
 
   "/personal-account/your-address/tax-credits-choice" must {
-    val url = "/personal-account/your-address/tax-credits-choice"
-
-    val tcsBrokerUrl = s"/tcs/$generatedNino/exclusion"
+    val url          = "/personal-account/your-address/tax-credits-choice"
+    val tcsBrokerUrl = s"/tcs/AA055075C/exclusion"
 
     "redirect to the tax credits interstitial page if tax credits broker returns excluded flag as false" in {
       beforeEachAddressTaxCreditsBrokerCallToggleOn()
