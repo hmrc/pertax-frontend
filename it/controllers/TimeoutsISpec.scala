@@ -224,7 +224,7 @@ class TimeoutsISpec extends IntegrationSpec {
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
           .willReturn(
             ok(
-              FileHelper.loadFile("./it/resources/person-details.json").replaceAll("<NINO>", generatedNino.nino)
+              FileHelper.loadFileInterpolatingNino("./it/resources/person-details.json", generatedNino)
             )
           )
       )
@@ -250,7 +250,7 @@ class TimeoutsISpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
           .willReturn(
-            ok(FileHelper.loadFile("./it/resources/person-details.json").replaceAll("<NINO>", generatedNino.nino))
+            ok(FileHelper.loadFileInterpolatingNino("./it/resources/person-details.json", generatedNino))
           )
       )
       server.stubFor(
@@ -272,7 +272,7 @@ class TimeoutsISpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
           .willReturn(
-            ok(FileHelper.loadFile("./it/resources/person-details.json").replaceAll("<NINO>", generatedNino.nino))
+            ok(FileHelper.loadFileInterpolatingNino("./it/resources/person-details.json", generatedNino))
           )
       )
       server.stubFor(

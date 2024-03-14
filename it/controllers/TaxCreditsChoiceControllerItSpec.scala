@@ -84,14 +84,14 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
     server.stubFor(
       get(urlEqualTo(citizenDetailsUrl))
         .willReturn(
-          ok(FileHelper.loadFile("./it/resources/citizen-details.json").replaceAll("<NINO>", generatedNino.nino))
+          ok(FileHelper.loadFileInterpolatingNino("./it/resources/citizen-details.json", generatedNino))
         )
     )
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
         .willReturn(
-          ok(FileHelper.loadFile("./it/resources/person-details.json").replaceAll("<NINO>", generatedNino.nino))
+          ok(FileHelper.loadFileInterpolatingNino("./it/resources/person-details.json", generatedNino))
         )
     )
   }
@@ -185,7 +185,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
       server.stubFor(
         get(urlEqualTo(personDetailsUrl))
           .willReturn(
-            ok(FileHelper.loadFile("./it/resources/person-details.json").replaceAll("<NINO>", generatedNino.nino))
+            ok(FileHelper.loadFileInterpolatingNino("./it/resources/person-details.json", generatedNino))
           )
       )
 

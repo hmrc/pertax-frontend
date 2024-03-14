@@ -1,6 +1,6 @@
 package controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock.{badRequest, get, getRequestedFor, ok, put, serverError, urlEqualTo, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.i18n._
@@ -43,7 +43,7 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
         .willReturn(
-          ok(FileHelper.loadFile("./it/resources/person-details.json").replaceAll("<NINO>", generatedNino.nino))
+          ok(FileHelper.loadFileInterpolatingNino("./it/resources/person-details.json", generatedNino))
         )
     )
     server.stubFor(
