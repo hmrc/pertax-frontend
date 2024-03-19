@@ -15,7 +15,7 @@ object AppDependencies {
     "org.jsoup"          % "jsoup"                              % "1.16.1",
     "org.typelevel"     %% "cats-core"                          % "2.10.0",
     "org.apache.commons" % "commons-text"                       % "1.10.0",
-    "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"          % "1.3.0",
+    "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"          % "1.6.0",
     "uk.gov.hmrc"       %% "mongo-feature-toggles-client"       % "0.3.0",
     ehcache
   )
