@@ -31,7 +31,7 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
       "feature.breathing-space-indicator.enabled"                     -> true,
-      "microservice.services.taxcalc.port"                            -> server.port(),
+      "microservice.services.taxcalc-frontend.port"                   -> server.port(),
       "microservice.services.tai.port"                                -> server.port(),
       "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port()}"
     )
@@ -175,8 +175,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcMakePaymentLinkToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcMakePaymentLinkToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
       .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, isEnabled = true)))
   }

@@ -30,7 +30,7 @@ import java.time.LocalDate
 class ConfigDecorator @Inject() (
   runModeConfiguration: Configuration,
   servicesConfig: ServicesConfig
-) extends TaxcalcUrls {
+) {
 
   lazy val authProviderChoice: String = runModeConfiguration.get[String](s"external-url.auth-provider-choice.host")
 
@@ -51,6 +51,7 @@ class ConfigDecorator @Inject() (
   def seissUrl: String = servicesConfig.baseUrl("self-employed-income-support")
 
   private lazy val formFrontendService       = servicesConfig.baseUrl("dfs-digital-forms-frontend")
+  private lazy val taxCalcFrontendService    = servicesConfig.baseUrl("taxcalc-frontend")
   lazy val businessTaxAccountService: String = servicesConfig.baseUrl("business-tax-account")
   lazy val tcsBrokerHost: String             = servicesConfig.baseUrl("tcs-broker")
 
@@ -89,7 +90,6 @@ class ConfigDecorator @Inject() (
   private lazy val feedbackSurveyFrontendHost: String         = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
   private lazy val tcsFrontendHost: String                    = getExternalUrl(s"tcs-frontend.host").getOrElse("")
   private lazy val nispFrontendHost: String                   = getExternalUrl(s"nisp-frontend.host").getOrElse("")
-  lazy val taxCalcFrontendHost: String                        = getExternalUrl(s"taxcalc-frontend.host").getOrElse("")
   private lazy val dfsFrontendHost: String                    = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
   private lazy val fandfFrontendHost: String                  = getExternalUrl(s"fandf-frontend.host").getOrElse("")
   private lazy val agentClientManagementFrontendHost: String  =
@@ -190,6 +190,7 @@ class ConfigDecorator @Inject() (
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
   lazy val selfAssessmentFormPartialLinkUrl    =
     s"$formFrontendService/digital-forms/forms/personal-tax/self-assessment/catalogue"
+  lazy val taxCalcPartialLinkUrl               = s"$taxCalcFrontendService/tax-you-paid/summary-card-partials"
 
   lazy val identityVerificationUpliftUrl      = s"$identityVerificationHost/$identityVerificationPrefix/uplift"
   lazy val multiFactorAuthenticationUpliftUrl = s"$basGatewayFrontendHost/bas-gateway/uplift-mfa"
@@ -313,8 +314,6 @@ class ConfigDecorator @Inject() (
   lazy val breathingSpaceBaseUrl: String            = servicesConfig.baseUrl("breathing-space-if-proxy")
   lazy val breathingSpaceTimeoutInMilliseconds: Int =
     servicesConfig.getInt("microservice.services.breathing-space-if-proxy.timeoutInMilliseconds")
-  lazy val taxCalcTimeoutInMilliseconds: Int        =
-    servicesConfig.getInt("microservice.services.taxcalc.timeoutInMilliseconds")
   lazy val citizenDetailsTimeoutInMilliseconds: Int =
     servicesConfig.getInt("microservice.services.citizen-details.timeoutInMilliseconds")
   lazy val tcsBrokerTimeoutInMilliseconds: Int      =
@@ -323,6 +322,8 @@ class ConfigDecorator @Inject() (
     servicesConfig.getInt("microservice.services.tai.timeoutInMilliseconds")
   lazy val dfsPartialTimeoutInMilliseconds: Int     =
     servicesConfig.getInt("microservice.services.dfs-digital-forms-frontend.timeoutInMilliseconds")
+  lazy val taxCalcPartialTimeoutInMilliseconds: Int =
+    servicesConfig.getInt("microservice.services.taxcalc-frontend.timeoutInMilliseconds")
   lazy val preferenceFrontendTimeoutInSec: Int      =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
   lazy val ptaNinoSaveUrl: String                   = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
@@ -335,31 +336,5 @@ class ConfigDecorator @Inject() (
 
   lazy val addressLookupTimeoutInSec: Int =
     servicesConfig.getInt("feature.address-lookup.timeoutInSec")
-
-}
-
-trait TaxcalcUrls {
-  self: ConfigDecorator =>
-
-  def underpaidUrlReasons(taxYear: Int): String =
-    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little/reasons"
-  def overpaidUrlReasons(taxYear: Int): String  =
-    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much/reasons"
-
-  def underpaidUrl(taxYear: Int): String =
-    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little"
-  def overpaidUrl(taxYear: Int): String  =
-    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much"
-
-  def rightAmountUrl(taxYear: Int): String   =
-    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/right-amount"
-  def notEmployedUrl(taxYear: Int): String   =
-    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/not-employed"
-  def notCalculatedUrl(taxYear: Int): String =
-    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/not-yet-calculated"
-
-  lazy val taxPaidUrl = s"${self.taxCalcFrontendHost}/tax-you-paid/status"
-
-  val makePaymentUrl = "https://www.gov.uk/simple-assessment"
 
 }

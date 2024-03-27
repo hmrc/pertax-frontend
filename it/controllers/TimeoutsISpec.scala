@@ -32,8 +32,8 @@ class TimeoutsISpec extends IntegrationSpec {
       "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds"   -> timeoutThresholdInMilliseconds,
       "microservice.services.tai.port"                                         -> server.port(),
       "microservice.services.tai.timeoutInMilliseconds"                        -> timeoutThresholdInMilliseconds,
-      "microservice.services.taxcalc.port"                                     -> server.port(),
-      "microservice.services.taxcalc.timeoutInMilliseconds"                    -> timeoutThresholdInMilliseconds,
+      "microservice.services.taxcalc-frontend.port"                            -> server.port(),
+      "microservice.services.taxcalc-frontend.timeoutInMilliseconds"           -> timeoutThresholdInMilliseconds,
       "microservice.services.citizen-details.port"                             -> server.port(),
       "microservice.services.citizen-details.timeoutInMilliseconds"            -> timeoutThresholdInMilliseconds,
       "microservice.services.tcs-broker.port"                                  -> server.port(),
@@ -47,7 +47,7 @@ class TimeoutsISpec extends IntegrationSpec {
   private val dummyContent      = "my body content"
   private val breathingSpaceUrl = s"/$generatedNino/memorandum"
   private val taxComponentsUrl  = s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"
-  private val taxCalcUrl        = s"/taxcalc/$generatedNino/reconciliations"
+  private val taxCalcUrl        = "/tax-you-paid/summary-card-partials"
   private val citizenDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
   private val dfsPartialNinoUrl = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
   private val dfsPartialSAUrl   = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
@@ -121,10 +121,17 @@ class TimeoutsISpec extends IntegrationSpec {
       .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
   ).get
 
+  private val taxCalcPartialContent = "paid-too-much"
+  private val taxCalcValidResponse  =
+    s"""[{"partialName":"card1","partialContent":"$taxCalcPartialContent"}]
+                     |""".stripMargin
+
   private def getHomePageWithAllTimeouts: Future[Result] = {
     server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
-    server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+    server.stubFor(
+      get(urlPathEqualTo(taxCalcUrl)).willReturn(ok(taxCalcValidResponse).withFixedDelay(delayInMilliseconds))
+    )
     server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     homePageGET
   }
@@ -174,10 +181,7 @@ class TimeoutsISpec extends IntegrationSpec {
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe "This section is Account home"
 
-      contentAsString(result).contains("You paid the right amount of tax") mustBe false
-      contentAsString(result).contains("Your tax has not been calculated yet") mustBe false
-      contentAsString(result).contains("Find out why you paid too much") mustBe false
-      contentAsString(result).contains("Make a payment") mustBe false
+      contentAsString(result).contains(taxCalcPartialContent) mustBe false
       server.verify(1, getRequestedFor(urlEqualTo(taxCalcUrl)))
     }
 

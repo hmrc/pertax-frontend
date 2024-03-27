@@ -48,7 +48,6 @@ class FeatureFlagsController @Inject() (
           HmrcAccountToggle                     -> false,
           AgentClientAuthorisationToggle        -> true,
           BreathingSpaceIndicatorToggle         -> true,
-          TaxcalcMakePaymentLinkToggle          -> true,
           ShowOutageBannerToggle                -> false,
           AlertBannerPaperlessStatusToggle      -> true,
           GetPersonFromCitizenDetailsToggle     -> true,
