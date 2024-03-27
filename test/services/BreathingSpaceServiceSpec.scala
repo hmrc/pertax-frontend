@@ -55,7 +55,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
         new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
-        .getBreathingSpaceIndicator(Some(nino))
+        .getBreathingSpaceIndicator(nino)
         .futureValue mustBe BreathingSpaceIndicatorResponse.WithinPeriod
     }
 
@@ -68,16 +68,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
         new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
-        .getBreathingSpaceIndicator(Some(nino))
-        .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
-    }
-
-    "return BreathingSpaceIndicatorResponse.StatusUnknown when Nino is None" in {
-      val sut: BreathingSpaceService =
-        new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
-
-      sut
-        .getBreathingSpaceIndicator(None)
+        .getBreathingSpaceIndicator(nino)
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
@@ -89,7 +80,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
         new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
-        .getBreathingSpaceIndicator(Some(nino))
+        .getBreathingSpaceIndicator(nino)
         .futureValue mustBe BreathingSpaceIndicatorResponse.OutOfPeriod
     }
 
@@ -105,7 +96,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
         new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
-        .getBreathingSpaceIndicator(Some(nino))
+        .getBreathingSpaceIndicator(nino)
         .futureValue mustBe BreathingSpaceIndicatorResponse.NotFound
     }
 
@@ -121,7 +112,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
         new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
-        .getBreathingSpaceIndicator(Some(nino))
+        .getBreathingSpaceIndicator(nino)
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
@@ -137,7 +128,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
         new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
-        .getBreathingSpaceIndicator(Some(nino))
+        .getBreathingSpaceIndicator(nino)
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
@@ -151,7 +142,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
         new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
-        .getBreathingSpaceIndicator(Some(nino))
+        .getBreathingSpaceIndicator(nino)
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
@@ -165,7 +156,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
         new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
-        .getBreathingSpaceIndicator(Some(nino))
+        .getBreathingSpaceIndicator(nino)
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
@@ -179,7 +170,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
         new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
-        .getBreathingSpaceIndicator(Some(nino))
+        .getBreathingSpaceIndicator(nino)
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
 
@@ -193,7 +184,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
         new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
 
       sut
-        .getBreathingSpaceIndicator(Some(nino))
+        .getBreathingSpaceIndicator(nino)
         .futureValue mustBe BreathingSpaceIndicatorResponse.StatusUnknown
     }
   }
