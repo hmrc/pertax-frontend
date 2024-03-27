@@ -17,8 +17,7 @@
 package services.partials
 
 import com.google.inject.{Inject, Singleton}
-import connectors.{EnhancedPartialRetriever, MessageFrontendConnector}
-import models.MessageCount
+import connectors.EnhancedPartialRetriever
 import play.api.Logging
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -29,8 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class MessageFrontendService @Inject() (
   servicesConfig: ServicesConfig,
-  enhancedPartialRetriever: EnhancedPartialRetriever,
-  messageFrontendConnector: MessageFrontendConnector
+  enhancedPartialRetriever: EnhancedPartialRetriever
 )(implicit executionContext: ExecutionContext)
     extends Logging {
 
@@ -47,14 +45,4 @@ class MessageFrontendService @Inject() (
       messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController.messageList
     )
 
-  def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] =
-    messageFrontendConnector
-      .getUnreadMessageCount()
-      .fold(
-        _ => None,
-        response => response.json.asOpt[MessageCount].map(_.count)
-      ) recover { case ex: Exception =>
-      logger.error(ex.getMessage, ex)
-      None
-    }
 }

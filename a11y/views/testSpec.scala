@@ -2,7 +2,7 @@ package views
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle, SCAWrapperToggle}
+import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -175,14 +175,12 @@ class testSpec extends A11ySpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockFeatureFlagService.get(SCAWrapperToggle))
-      .thenReturn(Future.successful(FeatureFlag(SCAWrapperToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(BreathingSpaceIndicatorToggle))
       .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
-        .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
+        .willReturn(ok(FileHelper.loadFileInterpolatingNino("./it/resources/person-details.json", generatedNino)))
     )
 
     server.stubFor(
@@ -299,32 +297,7 @@ class testSpec extends A11ySpec {
   "/personal-account/" when {
     "calling authenticated pages"   must {
       urls.foreach { case (url, expectedData: ExpectedData) =>
-        s"pass content checks at url $url with SCA wrapper toggle set to true" in {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, isEnabled = true)
-          )
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
-            .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
-            .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
-
-          server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
-          val result: Future[Result] = route(app, request(url)).get
-          val content                = Jsoup.parse(contentAsString(result))
-
-          content.title() mustBe expectedData.title
-
-          status(result) mustBe OK
-
-          contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)
-
-        }
-        s"pass content checks at url $url with SCA wrapper toggle set to false" in {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, isEnabled = false)
-          )
-
+        s"pass content checks at url $url" in {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
             .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
 
@@ -345,30 +318,10 @@ class testSpec extends A11ySpec {
 
       }
     }
+
     "calling unauthenticated pages" must {
       unauthUrls.foreach { case (url, expectedData: ExpectedData) =>
-        s"pass content checks at url $url with SCA wrapper toggle set to true" in {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, isEnabled = true)
-          )
-          server.stubFor(
-            WireMock
-              .get(urlMatching("/mdtp/journey/journeyId/1234"))
-              .willReturn(ok(s""""{"journeyResult": "LockedOut"}""".stripMargin))
-          )
-
-          val result: Future[Result] = route(app, FakeRequest(GET, url)).get
-
-          val content = Jsoup.parse(contentAsString(result))
-          content.title() mustBe expectedData.title
-
-          contentAsString(result) must passAccessibilityChecks(OutputFormat.Verbose)
-
-        }
-        s"pass content checks at url $url with SCA wrapper toggle set to false" in {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(SCAWrapperToggle))) thenReturn Future.successful(
-            FeatureFlag(SCAWrapperToggle, isEnabled = false)
-          )
+        s"pass content checks at url $url" in {
           server.stubFor(
             WireMock
               .get(urlMatching("/mdtp/journey/journeyId/1234"))

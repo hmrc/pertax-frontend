@@ -45,7 +45,6 @@ class FeatureFlagsController @Inject() (
           TaxSummariesTileToggle                -> true,
           SingleAccountCheckToggle              -> false,
           PertaxBackendToggle                   -> true,
-          SCAWrapperToggle                      -> true,
           HmrcAccountToggle                     -> false,
           AgentClientAuthorisationToggle        -> true,
           BreathingSpaceIndicatorToggle         -> true,

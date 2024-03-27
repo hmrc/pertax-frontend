@@ -30,7 +30,6 @@ object AllFeatureFlags {
     TaxSummariesTileToggle,
     SingleAccountCheckToggle,
     ShowOutageBannerToggle,
-    SCAWrapperToggle,
     HmrcAccountToggle,
     AgentClientAuthorisationToggle,
     PertaxBackendToggle,
@@ -93,13 +92,6 @@ case object SingleAccountCheckToggle extends FeatureFlagName {
 case object ShowOutageBannerToggle extends FeatureFlagName {
   override val name: String                = "show-outage-banner-toggle"
   override val description: Option[String] = Some("Enable/disable the show outage banner")
-}
-
-case object SCAWrapperToggle extends FeatureFlagName {
-  override val name: String                = "sca-wrapper-toggle"
-  override val description: Option[String] = Some(
-    "Enable/disable the SCA Wrapper layout"
-  )
 }
 
 case object HmrcAccountToggle extends FeatureFlagName {

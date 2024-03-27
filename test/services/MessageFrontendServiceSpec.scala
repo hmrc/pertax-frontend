@@ -16,7 +16,6 @@
 
 package services
 
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, serverError, urlEqualTo}
 import connectors.EnhancedPartialRetriever
 import controllers.auth.requests.UserRequest
 import org.mockito.ArgumentMatchers._
@@ -24,12 +23,10 @@ import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
-import testUtils.Fixtures.buildFakeRequestWithAuth
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
@@ -99,35 +96,6 @@ class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with Integ
 
       partial mustBe expected
 
-    }
-  }
-
-  "Calling getMessageCount" must {
-    def messageCount: Future[Option[Int]] =
-      messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))
-
-    "return None unread messages when http client throws an exception" in {
-      server.stubFor(
-        get(urlEqualTo("/messages/count?read=No")).willReturn(serverError)
-      )
-
-      messageCount.futureValue mustBe None
-    }
-
-    "return None unread messages when http client does not return a usable response" in {
-      server.stubFor(
-        get(urlEqualTo("/messages/count?read=No")).willReturn(ok(Json.obj("testInvalid" -> "testInvalid").toString))
-      )
-
-      messageCount.futureValue mustBe None
-    }
-
-    "return 10 unread messages" in {
-      server.stubFor(
-        get(urlEqualTo("/messages/count?read=No")).willReturn(ok("""{"count": 10}"""))
-      )
-
-      messageCount.futureValue mustBe Some(10)
     }
   }
 }

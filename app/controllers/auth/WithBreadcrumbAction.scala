@@ -41,7 +41,6 @@ class WithBreadcrumbAction @Inject() (implicit ec: ExecutionContext) {
               request.trustedHelper,
               request.enrolments,
               request.profile,
-              request.unreadMessageCount,
               Some(breadcrumb),
               request.request
             )

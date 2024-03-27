@@ -104,7 +104,6 @@ class MainViewImpl @Inject() (
       keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
       showBackLinkJS = showBackLink,
       backLinkUrl = if (!backLinkUrl.equals("#")) Some(backLinkUrl) else None,
-      //showSignOutInHeader: Boolean = false,
       scripts = Seq(additionalScripts(scripts)(request)),
       styleSheets = Seq(headBlock(stylesheets)(request)),
       bannerConfig = BannerConfig(

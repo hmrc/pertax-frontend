@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package testUtils
-
-import uk.gov.hmrc.domain.Nino
-
-import scala.io.Source.fromFile
-
-object FileHelper {
-
-  def loadFile(name: String): String = {
-    val source = fromFile(name)
-    try source.mkString
-    finally source.close()
-  }
-
-  def loadFileInterpolatingNino(name: String, nino: Nino): String =
-    loadFile(name).replaceAll("<NINO>", nino.nino)
-}
