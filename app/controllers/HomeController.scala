@@ -72,7 +72,7 @@ class HomeController @Inject() (
       }
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
-      serviceCallResponses(Some(request.authNino), current.currentYear, request.trustedHelper)
+      serviceCallResponses(request.authNino, current.currentYear, request.trustedHelper)
 
     val saUserType = request.saUserType
 
@@ -119,45 +119,42 @@ class HomeController @Inject() (
     )
   }
 
-  private[controllers] def serviceCallResponses(ninoOpt: Option[Nino], year: Int, trustedHelper: Option[TrustedHelper])(
-    implicit hc: HeaderCarrier
-  ): Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
-    ninoOpt.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
-      Future.successful((TaxComponentsDisabledState, None, None))
-    ) { nino =>
-      val taxYr = featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
-        if (toggle.isEnabled && trustedHelper.isEmpty) {
-          taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxYearReconciliation]).merge
-        } else {
-          Future.successful(List.empty[TaxYearReconciliation])
-        }
+  private[controllers] def serviceCallResponses(nino: Nino, year: Int, trustedHelper: Option[TrustedHelper])(implicit
+    hc: HeaderCarrier
+  ): Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] = {
+    val taxYr = featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
+      if (toggle.isEnabled && trustedHelper.isEmpty) {
+        taxCalculationConnector.getTaxYearReconciliations(nino).leftMap(_ => List.empty[TaxYearReconciliation]).merge
+      } else {
+        Future.successful(List.empty[TaxYearReconciliation])
       }
-
-      val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
-      val taxCalculationStateCyMinusTwo = taxYr.map(_.find(_.taxYear == year - 2))
-
-      val taxSummaryState: Future[TaxComponentsState] = featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
-        if (toggle.isEnabled) {
-          taiConnector
-            .taxComponents(nino, year)
-            .fold(
-              error =>
-                if (error.statusCode == BAD_REQUEST || error.statusCode == NOT_FOUND) {
-                  TaxComponentsNotAvailableState
-                } else {
-                  TaxComponentsUnreachableState
-                },
-              result => TaxComponentsAvailableState(TaxComponents.fromJsonTaxComponents(result.json))
-            )
-        } else {
-          Future.successful(TaxComponentsDisabledState)
-        }
-      }
-
-      for {
-        taxCalculationStateCyMinusOne <- taxCalculationStateCyMinusOne
-        taxCalculationStateCyMinusTwo <- taxCalculationStateCyMinusTwo
-        taxSummaryState               <- taxSummaryState
-      } yield (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
     }
+
+    val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
+    val taxCalculationStateCyMinusTwo = taxYr.map(_.find(_.taxYear == year - 2))
+
+    val taxSummaryState: Future[TaxComponentsState] = featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        taiConnector
+          .taxComponents(nino, year)
+          .fold(
+            error =>
+              if (error.statusCode == BAD_REQUEST || error.statusCode == NOT_FOUND) {
+                TaxComponentsNotAvailableState
+              } else {
+                TaxComponentsUnreachableState
+              },
+            result => TaxComponentsAvailableState(TaxComponents.fromJsonTaxComponents(result.json))
+          )
+      } else {
+        Future.successful(TaxComponentsDisabledState)
+      }
+    }
+
+    for {
+      taxCalculationStateCyMinusOne <- taxCalculationStateCyMinusOne
+      taxCalculationStateCyMinusTwo <- taxCalculationStateCyMinusTwo
+      taxSummaryState               <- taxSummaryState
+    } yield (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
+  }
 }
