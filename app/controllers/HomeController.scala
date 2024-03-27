@@ -72,7 +72,7 @@ class HomeController @Inject() (
       }
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
-      serviceCallResponses(request.nino, current.currentYear, request.trustedHelper)
+      serviceCallResponses(Some(request.authNino), current.currentYear, request.trustedHelper)
 
     val saUserType = request.saUserType
 
@@ -82,7 +82,7 @@ class HomeController @Inject() (
           for {
             (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
             _                                                                               <- seissService.hasClaims(saUserType)
-            breathingSpaceIndicator                                                         <- breathingSpaceService.getBreathingSpaceIndicator(request.nino).map {
+            breathingSpaceIndicator                                                         <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino).map {
                                                                                                  case WithinPeriod => true
                                                                                                  case _            => false
                                                                                                }

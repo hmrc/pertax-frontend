@@ -59,7 +59,7 @@ class GetPersonDetailsAction @Inject() (
       }
 
       UserRequest(
-        authNino = request.authNino,
+        authNino = request.nino.getOrElse(request.authNino),
         nino = ninoFromCitizenDetailsIfPresent,
         retrievedName = request.retrievedName,
         saUserType = request.saUserType,
