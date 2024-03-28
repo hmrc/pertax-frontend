@@ -83,21 +83,18 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
 
     server.stubFor(
       get(urlEqualTo(citizenDetailsUrl))
-        .willReturn(
-          ok(FileHelper.loadFileInterpolatingNino("./it/resources/citizen-details.json", generatedNino))
-        )
+        .willReturn(ok(FileHelper.loadFile("./it/resources/citizen-details.json")))
     )
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
-        .willReturn(
-          ok(FileHelper.loadFileInterpolatingNino("./it/resources/person-details.json", generatedNino))
-        )
+        .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
     )
   }
 
   "/personal-account/your-address/tax-credits-choice" must {
-    val url          = "/personal-account/your-address/tax-credits-choice"
+    val url = "/personal-account/your-address/tax-credits-choice"
+
     val tcsBrokerUrl = s"/tcs/$generatedNino/exclusion"
 
     "redirect to the tax credits interstitial page if tax credits broker returns excluded flag as false" in {
@@ -184,9 +181,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
 
       server.stubFor(
         get(urlEqualTo(personDetailsUrl))
-          .willReturn(
-            ok(FileHelper.loadFileInterpolatingNino("./it/resources/person-details.json", generatedNino))
-          )
+          .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
       )
 
       server.stubFor(
