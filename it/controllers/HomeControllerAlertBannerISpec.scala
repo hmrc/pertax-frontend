@@ -40,7 +40,9 @@ class HomeControllerAlertBannerISpec extends IntegrationSpec {
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(
       get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-        .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
+        .willReturn(
+          ok(FileHelper.loadFileInterpolatingNino("./it/resources/person-details.json", generatedNino))
+        )
     )
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
 

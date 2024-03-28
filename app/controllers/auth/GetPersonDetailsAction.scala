@@ -29,6 +29,7 @@ import play.api.mvc.Results.Locked
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.CitizenDetailsService
 import services.partials.MessageFrontendService
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -52,19 +53,24 @@ class GetPersonDetailsAction @Inject() (
 
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     getPersonDetails()(request).map { personalDetails =>
+      val ninoFromCitizenDetailsIfPresent: Option[Nino] = {
+        val citizenDetailsNino = personalDetails.flatMap(_.person.nino)
+        citizenDetailsNino.fold(request.nino)(_ => citizenDetailsNino)
+      }
+
       UserRequest(
-        request.authNino,
-        request.nino,
-        request.retrievedName,
-        request.saUserType,
-        request.credentials,
-        request.confidenceLevel,
-        personalDetails,
-        request.trustedHelper,
-        request.enrolments,
-        request.profile,
-        request.breadcrumb,
-        request.request
+        authNino = request.authNino,
+        nino = ninoFromCitizenDetailsIfPresent,
+        retrievedName = request.retrievedName,
+        saUserType = request.saUserType,
+        credentials = request.credentials,
+        confidenceLevel = request.confidenceLevel,
+        personDetails = personalDetails,
+        trustedHelper = request.trustedHelper,
+        enrolments = request.enrolments,
+        profile = request.profile,
+        breadcrumb = request.breadcrumb,
+        request = request.request
       )
     }.value
 
