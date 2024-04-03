@@ -405,7 +405,7 @@ label.account_home=Hafan y cyfrif
 # Income
 title.income=Incwm
 label.pay_as_you_earn_paye=Talu Wrth Ennill (TWE)
-label.your_income_from_employers_and_private_pensions_=Gwirio neu ddiweddaru’r wybodaeth am gyflogaeth, pensiwn, buddiannau cwmni neu incwm arall a ddefnyddir i gyfrifo’ch Treth Incwm TWE a’ch Codau Treth.
+label.your_income_from_employers_and_private_pensions_=Gwirio neu ddiweddaru’r wybodaeth am gyflogaeth, pensiwn neu incwm arall a ddefnyddir i gyfrifo’ch Treth Incwm a’ch codau treth TWE.
 label.claim_your_tax_refund=Gwneud cais am eich ad-daliad treth
 label.find_out_why_you_paid_too_much=Cael gwybod pam yr ydych wedi talu gormod
 label.find_out_why_you_paid_too_little=Cael gwybod pam nad ydych wedi talu digon

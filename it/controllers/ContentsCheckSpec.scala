@@ -231,7 +231,7 @@ class ContentsCheckSpec extends IntegrationSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
       "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 4000,
-      "microservice.services.taxcalc.port"                                   -> server.port(),
+      "microservice.services.taxcalc-frontend.port"                          -> server.port(),
       "microservice.services.tai.port"                                       -> server.port(),
       "sca-wrapper.services.single-customer-account-wrapper-data.url"        -> s"http://localhost:${server.port()}",
       "microservice.services.cachable.session-cache.port"                    -> server.port(),
