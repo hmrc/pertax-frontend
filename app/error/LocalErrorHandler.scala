@@ -16,7 +16,7 @@
 
 package error
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import play.api.i18n.{I18nSupport, MessagesApi}

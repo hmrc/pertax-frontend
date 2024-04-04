@@ -16,7 +16,7 @@
 
 package config
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import play.api.http.{EnabledFilters, HttpFilters}
 import play.api.mvc.{EssentialFilter, RequestHeader, Result}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
