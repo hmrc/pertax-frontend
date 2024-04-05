@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class PertaxResponse(
   code: String,
@@ -26,5 +26,5 @@ case class PertaxResponse(
 )
 
 object PertaxResponse {
-  implicit val formats = Json.format[PertaxResponse]
+  implicit val formats: OFormat[PertaxResponse] = Json.format[PertaxResponse]
 }

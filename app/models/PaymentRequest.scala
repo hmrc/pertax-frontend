@@ -17,7 +17,7 @@
 package models
 
 import config.ConfigDecorator
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OWrites}
 
 case class PaymentRequest(utr: String, returnUrl: String, backUrl: String)
 
@@ -27,5 +27,5 @@ object PaymentRequest {
     PaymentRequest(utr, homePageUrl, homePageUrl)
   }
 
-  implicit val format = Json.writes[PaymentRequest]
+  implicit val format: OWrites[PaymentRequest] = Json.writes[PaymentRequest]
 }

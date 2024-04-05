@@ -19,18 +19,14 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import error.ErrorRenderer
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class NiLetterController @Inject() (
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
-  featureFlagService: FeatureFlagService,
-  cc: MessagesControllerComponents,
-  errorRenderer: ErrorRenderer
+  cc: MessagesControllerComponents
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
