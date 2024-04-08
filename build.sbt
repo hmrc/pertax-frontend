@@ -41,8 +41,10 @@ lazy val microservice = Project(appName, file("."))
     scalaSettings,
     libraryDependencies ++= AppDependencies.all,
     scalacOptions ++= Seq(
+      "-unchecked",
       "-feature",
       "-Werror",
+      "-Xlint:_",
       "-Wdead-code",
       "-Wunused:_",
       "-Wextra-implicit",
@@ -68,7 +70,7 @@ lazy val microservice = Project(appName, file("."))
     )
   )
 
-Test / parallelExecution := false
+Test / parallelExecution := true
 Test / Keys.fork := true
 Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
 
