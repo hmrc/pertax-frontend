@@ -281,14 +281,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
     def cardBody: Option[HtmlFormat.Appendable] = controller.getPostalAddressCard(isLocked)
 
     when(controller.configDecorator.closePostalAddressEnabled) thenReturn closePostalAddressEnabled
-
-    lazy val excludedCountries: List[Country] = List(
-      Country("GREAT BRITAIN"),
-      Country("SCOTLAND"),
-      Country("ENGLAND"),
-      Country("WALES"),
-      Country("NORTHERN IRELAND")
-    )
   }
 
   "Calling getPostalAddressCard" must {
