@@ -70,7 +70,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
           .thenReturn(Future.successful(None))
 
         when(
-          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
+          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
         )
           .thenReturn(Future.successful(("", "")))
 
@@ -85,7 +85,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
           .getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any())
 
         verify(mockSessionCacheRepository, times(1))
-          .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
+          .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
 
         verify(mockAgentClientAuthorisationConnector, times(1)).getAgentClientStatus
       }
@@ -104,7 +104,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
           .thenReturn(null)
 
         when(
-          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
+          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
         )
           .thenReturn(null)
 
@@ -116,7 +116,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
           .getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any())
 
         verify(mockSessionCacheRepository, times(0))
-          .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
+          .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
 
         verify(mockAgentClientAuthorisationConnector, times(0)).getAgentClientStatus
       }
