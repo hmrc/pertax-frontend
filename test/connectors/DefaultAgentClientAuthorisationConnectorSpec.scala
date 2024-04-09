@@ -23,7 +23,7 @@ import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class DefaultAgentClientAuthorisationConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience {
 
@@ -64,8 +64,8 @@ class DefaultAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Wi
       stubGet(url, INTERNAL_SERVER_ERROR, None)
       val result = connector.getAgentClientStatus.value.futureValue
 
-      result mustBe a[Left[_, _]]
-      result.swap.getOrElse(HttpResponse(IM_A_TEAPOT, "Invalid Response")) mustBe a[UpstreamErrorResponse]
+      result mustBe a[Left[UpstreamErrorResponse, _]]
+      result.swap.getOrElse(UpstreamErrorResponse("", OK)) mustBe a[UpstreamErrorResponse]
     }
   }
 }

@@ -24,7 +24,7 @@ import play.api.{Application, Logger}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.util.Random
 
@@ -76,8 +76,8 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       stubGet(url, OK, Some(breathingSpaceTrueResponse))
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-      result mustBe a[Right[_, _]]
-      result.getOrElse(HttpResponse(OK, "")) mustBe true
+      result mustBe a[Right[_, Boolean]]
+      result.getOrElse(false) mustBe true
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
@@ -85,8 +85,8 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       stubGet(url, OK, Some(breathingSpaceFalseResponse))
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-      result mustBe a[Right[_, _]]
-      result.getOrElse(HttpResponse(OK, "")) mustBe false
+      result mustBe a[Right[_, Boolean]]
+      result.getOrElse(true) mustBe false
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
