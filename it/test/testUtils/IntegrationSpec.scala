@@ -16,7 +16,7 @@
 
 package testUtils
 
-import akka.Done
+import org.apache.pekko.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.admin._
