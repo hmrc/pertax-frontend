@@ -197,7 +197,7 @@ class ContentsCheckSpec extends IntegrationSpec {
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
-        .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
+        .willReturn(ok(FileHelper.loadFile("./it/test/resources/person-details.json")))
     )
 
     server.stubFor(

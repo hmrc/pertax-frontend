@@ -99,12 +99,12 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
 
     server.stubFor(
       get(urlEqualTo(citizenDetailsUrl))
-        .willReturn(ok(FileHelper.loadFile("./it/resources/citizen-details.json")))
+        .willReturn(ok(FileHelper.loadFile("./it/test/resources/citizen-details.json")))
     )
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
-        .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
+        .willReturn(ok(FileHelper.loadFile("./it/test/resources/person-details.json")))
     )
   }
 
@@ -192,12 +192,12 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
 
       server.stubFor(
         get(urlEqualTo(citizenDetailsUrl))
-          .willReturn(ok(FileHelper.loadFile("./it/resources/citizen-details.json")))
+          .willReturn(ok(FileHelper.loadFile("./it/test/resources/citizen-details.json")))
       )
 
       server.stubFor(
         get(urlEqualTo(personDetailsUrl))
-          .willReturn(ok(FileHelper.loadFile("./it/resources/person-details.json")))
+          .willReturn(ok(FileHelper.loadFile("./it/test/resources/person-details.json")))
       )
 
       server.stubFor(
@@ -228,7 +228,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
 
       server.stubFor(
         get(urlEqualTo(tcsBrokerUrl))
-          .willReturn(ok(FileHelper.loadFile("./it/resources/dashboard-data.json")))
+          .willReturn(ok(FileHelper.loadFile("./it/test/resources/dashboard-data.json")))
       )
 
       val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
