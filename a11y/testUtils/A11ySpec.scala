@@ -1,6 +1,22 @@
+/*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package testUtils
 
-import akka.Done
+import org.apache.pekko.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.AllFeatureFlags
 import org.mockito.ArgumentMatchers
@@ -23,12 +39,13 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
 
-trait A11ySpec extends AnyWordSpec
-  with GuiceOneAppPerSuite
-  with WireMockHelper
-  with ScalaFutures
-  with Matchers
-  with AccessibilityMatchers {
+trait A11ySpec
+    extends AnyWordSpec
+    with GuiceOneAppPerSuite
+    with WireMockHelper
+    with ScalaFutures
+    with Matchers
+    with AccessibilityMatchers {
 
   val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
     override def set(key: String, value: Any, expiration: Duration): Future[Done] = Future.successful(Done)
@@ -36,7 +53,7 @@ trait A11ySpec extends AnyWordSpec
     override def remove(key: String): Future[Done] = Future.successful(Done)
 
     override def getOrElseUpdate[A](key: String, expiration: Duration)(orElse: => Future[A])(implicit
-                                                                                             evidence$1: ClassTag[A]
+      evidence$1: ClassTag[A]
     ): Future[A] = orElse
 
     override def get[T](key: String)(implicit evidence$2: ClassTag[T]): Future[Option[T]] = Future.successful(None)
@@ -46,11 +63,12 @@ trait A11ySpec extends AnyWordSpec
 
   lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
-  implicit override val patienceConfig: PatienceConfig = PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
+  implicit override val patienceConfig: PatienceConfig =
+    PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
 
-  val configTaxYear = 2021
-  val testTaxYear: Int = configTaxYear - 1
-  val generatedNino: Nino = new Generator().nextNino
+  val configTaxYear        = 2021
+  val testTaxYear: Int     = configTaxYear - 1
+  val generatedNino: Nino  = new Generator().nextNino
   val generatedUtr: String = new Generator().nextAtedUtr.utr
 
   val authResponse: String =
@@ -130,15 +148,15 @@ trait A11ySpec extends AnyWordSpec
     GuiceApplicationBuilder()
       .overrides(
         api.inject.bind[AsyncCacheApi].toInstance(mockCacheApi),
-        api.inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService),
+        api.inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       )
       .configure(
-        "microservice.services.citizen-details.port" -> server.port(),
-        "microservice.services.auth.port" -> server.port(),
-        "microservice.services.message-frontend.port" -> server.port(),
+        "microservice.services.citizen-details.port"            -> server.port(),
+        "microservice.services.auth.port"                       -> server.port(),
+        "microservice.services.message-frontend.port"           -> server.port(),
         "microservice.services.agent-client-authorisation.port" -> server.port(),
-        "microservice.services.cachable.session-cache.port" -> server.port(),
-        "microservice.services.breathing-space-if-proxy.port" -> server.port()
+        "microservice.services.cachable.session-cache.port"     -> server.port(),
+        "microservice.services.breathing-space-if-proxy.port"   -> server.port()
       )
 
   override def beforeEach(): Unit = {
@@ -152,6 +170,8 @@ trait A11ySpec extends AnyWordSpec
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
-    server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details")).willReturn(ok(designatoryDetailsResponse)))
+    server.stubFor(
+      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details")).willReturn(ok(designatoryDetailsResponse))
+    )
   }
 }
