@@ -5,10 +5,10 @@ import config.ConfigDecorator
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
+import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, status => getStatus, _}
-import play.api.Application
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -54,7 +54,6 @@ class PertaxAuthActionItSpec extends IntegrationSpec {
           get(urlEqualTo(s"/pertax/$generatedNino/authorise"))
             .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
         )
-
         val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
         val result  = route(app, request)
         result.map(getStatus).get mustBe OK

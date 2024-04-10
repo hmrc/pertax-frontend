@@ -75,7 +75,7 @@ class HomeController @Inject() (
       showUserResearchBanner flatMap { showUserResearchBanner =>
         paperlessInterruptHelper.enforcePaperlessPreference {
           for {
-            taxSummaryState         <- retrieveTaxComponentsState(Some(request.authNino), current.currentYear)
+            taxSummaryState         <- retrieveTaxComponentsState(request.nino, current.currentYear)
             _                       <- seissService.hasClaims(saUserType)
             breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino).map {
                                          case WithinPeriod => true
