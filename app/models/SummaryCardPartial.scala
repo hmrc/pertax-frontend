@@ -16,18 +16,19 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{JsString, JsSuccess, Json, Reads}
+import play.twirl.api.HtmlFormat
 
-case class TaxCalculation(
-  p800_status: String,
-  amount: BigDecimal,
-  taxYear: Int,
-  paymentStatus: Option[String],
-  datePaid: Option[String],
-  businessReason: Option[String],
-  dueDate: Option[String]
+case class SummaryCardPartial(
+  partialName: String,
+  partialContent: HtmlFormat.Appendable,
+  partialReconciliationStatus: ReconciliationStatus
 )
 
-object TaxCalculation {
-  implicit val formats: OFormat[TaxCalculation] = Json.format[TaxCalculation]
+object SummaryCardPartial {
+  implicit val htmlReads: Reads[HtmlFormat.Appendable] = jsValue => {
+    JsSuccess(HtmlFormat.raw(jsValue.as[JsString].value))
+  }
+
+  implicit val reads: Reads[SummaryCardPartial] = Json.reads[SummaryCardPartial]
 }

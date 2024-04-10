@@ -39,16 +39,25 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
         .getObject("feature.news")
         .asScala
         .map { case (newsSection, _) =>
-          val formatter       = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-          val localStartDate  =
+          val formatter                                   = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+          val localStartDate                              =
             LocalDate.parse(configuration.get[String](s"feature.news.$newsSection.start-date"), formatter)
-          val optionalEndDate = configuration.getOptional[String](s"feature.news.$newsSection.end-date")
-          val localEndDate    = optionalEndDate match {
+          val optionalEndDate                             = configuration.getOptional[String](s"feature.news.$newsSection.end-date")
+          val localEndDate                                = optionalEndDate match {
             case Some(endDate) => LocalDate.parse(endDate, formatter)
             case None          => LocalDate.MAX
           }
-
-          if (localDateUtilities.isBetween(LocalDate.now(), localStartDate, localEndDate)) {
+          val overrideStartAndEndDatesForNewsItemsEnabled = configuration
+            .getOptional[String]("feature.override-start-and-end-dates-for-news-items.enabled")
+            .getOrElse("false")
+            .toBoolean
+          if (
+            overrideStartAndEndDatesForNewsItemsEnabled || localDateUtilities.isBetween(
+              LocalDate.now(),
+              localStartDate,
+              localEndDate
+            )
+          ) {
             val isDynamicOptional = configuration.getOptional[Boolean](s"feature.news.$newsSection.dynamic-content")
             isDynamicOptional match {
               case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate))
