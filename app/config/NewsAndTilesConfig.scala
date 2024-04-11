@@ -17,6 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
+import com.typesafe.config.{ConfigObject, ConfigValue}
 import models.NewsAndContentModel
 import play.api.Configuration
 import play.api.i18n.Messages
@@ -24,6 +25,7 @@ import util.LocalDateUtilities
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 @Singleton
@@ -35,14 +37,15 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
     val config = configuration.underlying
 
     if (config.hasPathOrNull("feature.news")) {
-      config
-        .getObject("feature.news")
-        .asScala
-        .map { case (newsSection, _) =>
+      val totalNewsItems = config.getObjectList("feature.news").size()
+      (0 until totalNewsItems)
+        .map { i =>
+          val newsSection                                 = configuration.get[String](s"feature.news.$i.name")
+          println("\n>>>>" + newsSection)
           val formatter                                   = DateTimeFormatter.ofPattern("yyyy-MM-dd")
           val localStartDate                              =
-            LocalDate.parse(configuration.get[String](s"feature.news.$newsSection.start-date"), formatter)
-          val optionalEndDate                             = configuration.getOptional[String](s"feature.news.$newsSection.end-date")
+            LocalDate.parse(configuration.get[String](s"feature.news.$i.start-date"), formatter)
+          val optionalEndDate                             = configuration.getOptional[String](s"feature.news.$i.end-date")
           val localEndDate                                = optionalEndDate match {
             case Some(endDate) => LocalDate.parse(endDate, formatter)
             case None          => LocalDate.MAX
@@ -58,19 +61,19 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
               localEndDate
             )
           ) {
-            val isDynamicOptional = configuration.getOptional[Boolean](s"feature.news.$newsSection.dynamic-content")
+            val isDynamicOptional = configuration.getOptional[Boolean](s"feature.news.$i.dynamic-content")
             isDynamicOptional match {
               case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate))
               case None    =>
                 val shortDescription = if (messages.lang.code equals "en") {
-                  configuration.get[String](s"feature.news.$newsSection.short-description-en")
+                  configuration.get[String](s"feature.news.$i.short-description-en")
                 } else {
-                  configuration.get[String](s"feature.news.$newsSection.short-description-cy")
+                  configuration.get[String](s"feature.news.$i.short-description-cy")
                 }
                 val content          = if (messages.lang.code equals "en") {
-                  configuration.get[String](s"feature.news.$newsSection.content-en")
+                  configuration.get[String](s"feature.news.$i.content-en")
                 } else {
-                  configuration.get[String](s"feature.news.$newsSection.content-cy")
+                  configuration.get[String](s"feature.news.$i.content-cy")
                 }
                 Some(NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false, localStartDate))
             }
