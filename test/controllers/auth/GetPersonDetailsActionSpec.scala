@@ -33,55 +33,78 @@ import services.partials.MessageFrontendService
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
+import scala.util.Random
 
 class GetPersonDetailsActionSpec extends BaseSpec {
 
-  val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
-  val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
-  val configDecorator: ConfigDecorator                   = mock[ConfigDecorator]
-
-  override lazy val app: Application = localGuiceApplicationBuilder()
+  private val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
+  private val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
+  private val configDecorator: ConfigDecorator                   = mock[ConfigDecorator]
+  private val requestNino: Nino                                  = Nino(Fixtures.fakeNino.nino)
+  private val citizenDetailsNino: Nino                           = Nino(new Generator(new Random()).nextNino.nino)
+  override lazy val app: Application                             = localGuiceApplicationBuilder()
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
     .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
     .overrides(bind[ConfigDecorator].toInstance(configDecorator))
     .configure(Map("metrics.enabled" -> false))
     .build()
 
-  val refinedRequest: UserRequest[AnyContentAsEmpty.type] =
+  private val fakeNinoAuthNino: Nino = Nino(new Generator(new Random()).nextNino.nino)
+
+  private val refinedRequest: UserRequest[AnyContentAsEmpty.type] =
     UserRequest(
-      Fixtures.fakeNino,
-      Some(Fixtures.fakeNino),
-      None,
-      WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-      Credentials("", "GovernmentGateway"),
-      ConfidenceLevel.L50,
-      None,
-      None,
-      Set(),
-      None,
-      None,
-      FakeRequest("", "")
+      authNino = fakeNinoAuthNino,
+      nino = Some(Fixtures.fakeNino),
+      retrievedName = None,
+      saUserType = WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+      credentials = Credentials("", "GovernmentGateway"),
+      confidenceLevel = ConfidenceLevel.L50,
+      personDetails = None,
+      trustedHelper = None,
+      enrolments = Set(),
+      profile = None,
+      breadcrumb = None,
+      request = FakeRequest("", "")
     )
 
-  val personDetails: PersonDetails =
-    PersonDetails(Person(Some("TestFirstName"), None, None, None, None, None, None, None, None), None, None)
+  private val personDetails: PersonDetails =
+    PersonDetails(
+      person = Person(
+        firstName = Some("TestFirstName"),
+        middleName = None,
+        lastName = None,
+        initials = None,
+        title = None,
+        honours = None,
+        sex = None,
+        dateOfBirth = None,
+        nino = Some(citizenDetailsNino)
+      ),
+      address = None,
+      correspondenceAddress = None
+    )
 
-  val personDetailsBlock: UserRequest[_] => Future[Result] = userRequest => {
+  private val personDetailsNoNino: PersonDetails =
+    personDetails copy (person = personDetails.person copy (nino = None))
+
+  private val personDetailsBlock: UserRequest[_] => Future[Result] = userRequest => {
     val person = userRequest.personDetails match {
-      case Some(PersonDetails(Person(Some(firstName), None, None, None, None, None, None, None, None), None, None)) =>
-        firstName
-      case _                                                                                                        => "No Person Details Defined"
+      case Some(PersonDetails(Person(Some(firstName), None, None, None, None, None, None, None, _), None, None)) =>
+        s"""Firstname: $firstName, nino: ${userRequest.nino.getOrElse(
+          "None"
+        )}, authNino: ${userRequest.authNino.nino}"""
+      case _                                                                                                     => "No Person Details Defined"
     }
 
     Future.successful(Ok(s"Person Details: $person"))
   }
 
-  def harness[A](block: UserRequest[_] => Future[Result])(implicit request: UserRequest[A]): Future[Result] = {
+  private def harness[A](block: UserRequest[_] => Future[Result])(implicit request: UserRequest[A]): Future[Result] = {
     lazy val actionProvider = app.injector.instanceOf[GetPersonDetailsAction]
     actionProvider.invokeBlock(request, block)
   }
@@ -95,13 +118,32 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
     "a user has PersonDetails in CitizenDetails" must {
 
-      "add the PersonDetails to the request" in {
+      "add the PersonDetails to the request + use the nino from citizen details when present but keep original nino" in {
         when(mockCitizenDetailsService.personDetails(any())(any(), any()))
           .thenReturn(EitherT[Future, UpstreamErrorResponse, PersonDetails](Future.successful(Right(personDetails))))
 
         val result = harness(personDetailsBlock)(refinedRequest)
         status(result) mustBe OK
-        contentAsString(result) mustBe "Person Details: TestFirstName"
+        contentAsString(
+          result
+        ) mustBe s"Person Details: Firstname: TestFirstName, nino: ${citizenDetailsNino.nino}, authNino: ${Fixtures.fakeNino}"
+
+        verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
+      }
+
+      "add the PersonDetails to the request + use the nino from request when citizen details nino not present but keep original nino" in {
+        when(mockCitizenDetailsService.personDetails(any())(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, PersonDetails](
+              Future.successful(Right(personDetailsNoNino))
+            )
+          )
+
+        val result = harness(personDetailsBlock)(refinedRequest)
+        status(result) mustBe OK
+        contentAsString(
+          result
+        ) mustBe s"Person Details: Firstname: TestFirstName, nino: ${requestNino.nino}, authNino: ${Fixtures.fakeNino}"
 
         verify(mockCitizenDetailsService, times(1)).personDetails(any())(any(), any())
       }

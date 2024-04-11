@@ -35,21 +35,18 @@ class BreathingSpaceService @Inject() (
 ) {
 
   def getBreathingSpaceIndicator(
-    ninoOpt: Option[Nino]
+    nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[BreathingSpaceIndicatorResponse] =
     featureFlagService.get(BreathingSpaceIndicatorToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        ninoOpt match {
-          case Some(nino) =>
-            breathingSpaceConnector
-              .getBreathingSpaceIndicator(nino)
-              .fold(
-                errorResponse => breathingSpaceIndicatorResponseForErrorResponse(errorResponse),
-                breathingSpaceIndicator => BreathingSpaceIndicatorResponse.fromBoolean(breathingSpaceIndicator)
-              )
-              .recover { case _ => BreathingSpaceIndicatorResponse.StatusUnknown }
-          case _          => Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)
-        }
+        breathingSpaceConnector
+          .getBreathingSpaceIndicator(nino)
+          .fold(
+            errorResponse => breathingSpaceIndicatorResponseForErrorResponse(errorResponse),
+            breathingSpaceIndicator => BreathingSpaceIndicatorResponse.fromBoolean(breathingSpaceIndicator)
+          )
+          .recover { case _ => BreathingSpaceIndicatorResponse.StatusUnknown }
+
       } else {
         Future.successful(BreathingSpaceIndicatorResponse.StatusUnknown)
       }

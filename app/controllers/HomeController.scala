@@ -77,7 +77,7 @@ class HomeController @Inject() (
           for {
             taxSummaryState         <- retrieveTaxComponentsState(request.nino, current.currentYear)
             _                       <- seissService.hasClaims(saUserType)
-            breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.nino).map {
+            breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino).map {
                                          case WithinPeriod => true
                                          case _            => false
                                        }
