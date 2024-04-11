@@ -196,7 +196,7 @@ class testSpec extends A11ySpec {
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
-        .willReturn(ok(FileHelper.loadFile("./it/test/resources/person-details.json")))
+        .willReturn(ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino)))
     )
 
     server.stubFor(

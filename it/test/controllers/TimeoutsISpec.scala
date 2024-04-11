@@ -239,9 +239,14 @@ class TimeoutsISpec extends IntegrationSpec {
               )
           )
       )
+
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-          .willReturn(ok(FileHelper.loadFile("./it/test/resources/person-details.json")))
+          .willReturn(
+            ok(
+              FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino)
+            )
+          )
       )
       server.stubFor(
         get(urlPathEqualTo(s"/tcs/$generatedNino/exclusion"))
@@ -264,7 +269,9 @@ class TimeoutsISpec extends IntegrationSpec {
 
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-          .willReturn(ok(FileHelper.loadFile("./it/test/resources/person-details.json")))
+          .willReturn(
+            ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino))
+          )
       )
       server.stubFor(
         get(urlEqualTo(dfsPartialNinoUrl))
@@ -284,7 +291,9 @@ class TimeoutsISpec extends IntegrationSpec {
         .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-          .willReturn(ok(FileHelper.loadFile("./it/test/resources/person-details.json")))
+          .willReturn(
+            ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino))
+          )
       )
       server.stubFor(
         get(urlEqualTo(dfsPartialNinoUrl))

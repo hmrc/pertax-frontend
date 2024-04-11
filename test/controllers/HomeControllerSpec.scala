@@ -734,7 +734,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   "Calling retrieveTaxComponentsState" must {
 
-    val userNino = Some(fakeNino)
+    val userNino = fakeNino
 
     "return TaxComponentsDisabled where taxComponents is not enabled" in new LocalSetup {
       when(mockTaiService.taxComponents(any(), any())(any(), any())).thenReturn(null)
@@ -757,7 +757,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val result = await(controller.retrieveTaxComponentsState(userNino, year))
+      val result = await(controller.retrieveTaxComponentsState(Some(userNino), year))
 
       result mustBe TaxComponentsDisabledState
       verify(mockTaiService, times(0)).taxComponents(any(), any())(any(), any())
@@ -780,7 +780,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       private val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      private val result = await(controller.retrieveTaxComponentsState(userNino, year))
+      private val result = await(controller.retrieveTaxComponentsState(Some(userNino), year))
       result mustBe TaxComponentsAvailableState(
         TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
       )
@@ -810,7 +810,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      private val result = await(controller.retrieveTaxComponentsState(userNino, year))
+      private val result = await(controller.retrieveTaxComponentsState(Some(userNino), year))
 
       result mustBe TaxComponentsNotAvailableState
       verify(mockTaiService, times(1)).taxComponents(any(), any())(any(), any())
@@ -839,7 +839,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         )
       }
 
-      private val result = await(controller.retrieveTaxComponentsState(userNino, year))
+      private val result = await(controller.retrieveTaxComponentsState(Some(userNino), year))
 
       result mustBe TaxComponentsUnreachableState
     }
