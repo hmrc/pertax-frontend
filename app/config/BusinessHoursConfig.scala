@@ -64,7 +64,6 @@ class BusinessHoursConfig @Inject() (configuration: Configuration) extends Loggi
       configuration.getOptional[String](s"feature.business-hours.$i.day") match {
         case None            => None
         case Some(dayOfWeek) =>
-          val formatter      = DateTimeFormatter.ofPattern("H:m").withZone(TimeZone.getTimeZone("Europe/London").toZoneId)
           val localStartTime = parseDateTime(s"feature.business-hours.$i.start-time")
           val localEndTime   = parseDateTime(s"feature.business-hours.$i.end-time")
           (localStartTime, localEndTime) match {

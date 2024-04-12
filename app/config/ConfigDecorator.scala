@@ -105,7 +105,7 @@ class ConfigDecorator @Inject() (
   lazy val ssoUrl: Option[String]                          = getExternalUrl("sso-portal.host")
   private lazy val annualTaxSummariesUrl: String           = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
   lazy val isNewsAndUpdatesTileEnabled: Boolean            =
-    runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
+    runModeConfiguration.get[String]("feature.news.enabled").toBoolean
   lazy val isBreathingSpaceIndicatorEnabled: Boolean       =
     servicesConfig.getBoolean("feature.breathing-space-indicator.enabled")
   lazy val annualTaxSaSummariesTileLink                    = s"$annualTaxSummariesUrl/annual-tax-summary"
