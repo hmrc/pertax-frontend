@@ -36,56 +36,51 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
   def getNewsAndContentModelList()(implicit messages: Messages): List[NewsAndContentModel] = {
     val config = configuration.underlying
 
-    if (config.hasPathOrNull("feature.news")) {
-      val totalNewsItems = config.getObjectList("feature.news").size()
-      (0 until totalNewsItems)
-        .map { i =>
-          val newsSection                                 = configuration.get[String](s"feature.news.$i.name")
-          println("\n>>>>" + newsSection)
-          val formatter                                   = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-          val localStartDate                              =
-            LocalDate.parse(configuration.get[String](s"feature.news.$i.start-date"), formatter)
-          val optionalEndDate                             = configuration.getOptional[String](s"feature.news.$i.end-date")
-          val localEndDate                                = optionalEndDate match {
-            case Some(endDate) => LocalDate.parse(endDate, formatter)
-            case None          => LocalDate.MAX
-          }
-          val overrideStartAndEndDatesForNewsItemsEnabled = configuration
-            .getOptional[String]("feature.override-start-and-end-dates-for-news-items.enabled")
-            .getOrElse("false")
-            .toBoolean
-          if (
-            overrideStartAndEndDatesForNewsItemsEnabled || localDateUtilities.isBetween(
-              LocalDate.now(),
-              localStartDate,
-              localEndDate
-            )
-          ) {
-            val isDynamicOptional = configuration.getOptional[Boolean](s"feature.news.$i.dynamic-content")
-            isDynamicOptional match {
-              case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate))
-              case None    =>
-                val shortDescription = if (messages.lang.code equals "en") {
-                  configuration.get[String](s"feature.news.$i.short-description-en")
-                } else {
-                  configuration.get[String](s"feature.news.$i.short-description-cy")
-                }
-                val content          = if (messages.lang.code equals "en") {
-                  configuration.get[String](s"feature.news.$i.content-en")
-                } else {
-                  configuration.get[String](s"feature.news.$i.content-cy")
-                }
-                Some(NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false, localStartDate))
-            }
-          } else {
-            None
-          }
+    val maxNewsItems: Int = configuration.getOptional[Int]("feature.news.max").getOrElse(10)
+    val totalNewsItems    = (0 until maxNewsItems).takeWhile(i => config.hasPathOrNull(s"feature.news.items.$i.name")).size
+    (0 until totalNewsItems)
+      .map { i =>
+        val newsSection                                          = configuration.get[String](s"feature.news.items.$i.name")
+        val formatter                                            = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val localStartDate                                       =
+          LocalDate.parse(configuration.get[String](s"feature.news.items.$i.start-date"), formatter)
+        val optionalEndDate                                      = configuration.getOptional[String](s"feature.news.items.$i.end-date")
+        val localEndDate                                         = optionalEndDate match {
+          case Some(endDate) => LocalDate.parse(endDate, formatter)
+          case None          => LocalDate.MAX
         }
-        .toList
-        .flatten
-        .sortBy(_.startDate)
-    } else {
-      List.empty
-    }
+        val overrideStartAndEndDatesForNewsItemsEnabled: Boolean = configuration
+          .getOptional[String]("feature.news.override-start-and-end-dates.enabled")
+          .getOrElse("false")
+          .toBoolean
+        if (
+          overrideStartAndEndDatesForNewsItemsEnabled || localDateUtilities.isBetween(
+            LocalDate.now(),
+            localStartDate,
+            localEndDate
+          )
+        ) {
+          configuration.getOptional[Boolean](s"feature.news.items.$i.dynamic-content") match {
+            case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate))
+            case None    =>
+              val shortDescription = if (messages.lang.code equals "en") {
+                configuration.get[String](s"feature.news.items.$i.short-description-en")
+              } else {
+                configuration.get[String](s"feature.news.items.$i.short-description-cy")
+              }
+              val content          = if (messages.lang.code equals "en") {
+                configuration.get[String](s"feature.news.items.$i.content-en")
+              } else {
+                configuration.get[String](s"feature.news.items.$i.content-cy")
+              }
+              Some(NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false, localStartDate))
+          }
+        } else {
+          None
+        }
+      }
+      .toList
+      .flatten
+      .sortBy(_.startDate)
   }
 }
