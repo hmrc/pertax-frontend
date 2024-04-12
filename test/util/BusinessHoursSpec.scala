@@ -41,8 +41,9 @@ class BusinessHoursSpec extends BaseSpec {
       .configure(
         configValues ++
           Map(
-            "feature.business-hours.Thursday.start-time" -> "09:00",
-            "feature.business-hours.Thursday.end-time"   -> "17:00"
+            "feature.business-hours.3.day"        -> "Thursday",
+            "feature.business-hours.3.start-time" -> "09:00",
+            "feature.business-hours.3.end-time"   -> "17:00"
           )
       )
 

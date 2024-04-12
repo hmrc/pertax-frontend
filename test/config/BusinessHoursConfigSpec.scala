@@ -25,10 +25,11 @@ class BusinessHoursConfigSpec extends BaseSpec {
     "read configuration" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.business-hours.Monday.start-time" -> "9:00",
-          "feature.business-hours.Monday.end-time"   -> "17:00",
-          "play.cache.bindCaches"                    -> List("controller-cache", "document-cache"),
-          "play.cache.createBoundCaches"             -> false
+          "feature.business-hours.0.day"        -> "Monday",
+          "feature.business-hours.0.start-time" -> "9:00",
+          "feature.business-hours.0.end-time"   -> "17:00",
+          "play.cache.bindCaches"               -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"        -> false
         )
         .build()
 
@@ -56,10 +57,11 @@ class BusinessHoursConfigSpec extends BaseSpec {
     "end time before start time" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.business-hours.Monday.start-time" -> "17:00",
-          "feature.business-hours.Monday.end-time"   -> "9:00",
-          "play.cache.bindCaches"                    -> List("controller-cache", "document-cache"),
-          "play.cache.createBoundCaches"             -> false
+          "feature.business-hours.0.day"        -> "Monday",
+          "feature.business-hours.0.start-time" -> "17:00",
+          "feature.business-hours.0.end-time"   -> "9:00",
+          "play.cache.bindCaches"               -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"        -> false
         )
         .build()
 
@@ -71,10 +73,11 @@ class BusinessHoursConfigSpec extends BaseSpec {
     "start time is invalid" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.business-hours.Monday.start-time" -> "giberish",
-          "feature.business-hours.Monday.end-time"   -> "17:00",
-          "play.cache.bindCaches"                    -> List("controller-cache", "document-cache"),
-          "play.cache.createBoundCaches"             -> false
+          "feature.business-hours.0.day"        -> "Monday",
+          "feature.business-hours.0.start-time" -> "giberish",
+          "feature.business-hours.0.end-time"   -> "17:00",
+          "play.cache.bindCaches"               -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"        -> false
         )
         .build()
 
@@ -86,10 +89,11 @@ class BusinessHoursConfigSpec extends BaseSpec {
     "end time is invalid" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.business-hours.Monday.start-time" -> "9:00",
-          "feature.business-hours.Monday.end-time"   -> "giberish",
-          "play.cache.bindCaches"                    -> List("controller-cache", "document-cache"),
-          "play.cache.createBoundCaches"             -> false
+          "feature.business-hours.0.day"        -> "Monday",
+          "feature.business-hours.0.start-time" -> "9:00",
+          "feature.business-hours.0.end-time"   -> "giberish",
+          "play.cache.bindCaches"               -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"        -> false
         )
         .build()
 
@@ -101,10 +105,11 @@ class BusinessHoursConfigSpec extends BaseSpec {
     "day is invalid" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.business-hours.Giberish.start-time" -> "9:00",
-          "feature.business-hours.Giberish.end-time"   -> "17:00",
-          "play.cache.bindCaches"                      -> List("controller-cache", "document-cache"),
-          "play.cache.createBoundCaches"               -> false
+          "feature.business-hours.0.day"        -> "Invalid",
+          "feature.business-hours.0.start-time" -> "9:00",
+          "feature.business-hours.0.end-time"   -> "17:00",
+          "play.cache.bindCaches"               -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"        -> false
         )
         .build()
 
@@ -116,9 +121,10 @@ class BusinessHoursConfigSpec extends BaseSpec {
     "end-time is missing" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.business-hours.Monday.start-time" -> "9:00",
-          "play.cache.bindCaches"                    -> List("controller-cache", "document-cache"),
-          "play.cache.createBoundCaches"             -> false
+          "feature.business-hours.0.day"        -> "Monday",
+          "feature.business-hours.0.start-time" -> "9:00",
+          "play.cache.bindCaches"               -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"        -> false
         )
         .build()
 
@@ -130,9 +136,10 @@ class BusinessHoursConfigSpec extends BaseSpec {
     "start-time is missing" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.business-hours.Monday.end-time" -> "9:00",
-          "play.cache.bindCaches"                  -> List("controller-cache", "document-cache"),
-          "play.cache.createBoundCaches"           -> false
+          "feature.business-hours.0.day"      -> "Monday",
+          "feature.business-hours.0.end-time" -> "9:00",
+          "play.cache.bindCaches"             -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"      -> false
         )
         .build()
 

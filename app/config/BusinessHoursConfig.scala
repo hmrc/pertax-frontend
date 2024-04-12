@@ -20,10 +20,9 @@ import com.google.inject.{Inject, Singleton}
 import com.typesafe.config.ConfigException
 import play.api.{Configuration, Logging}
 
-import java.time.{DayOfWeek, LocalTime}
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
+import java.time.{DayOfWeek, LocalTime}
 import java.util.TimeZone
-import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 @Singleton
@@ -44,43 +43,30 @@ class BusinessHoursConfig @Inject() (configuration: Configuration) extends Loggi
         None
     }
 
-  def get: Map[DayOfWeek, (LocalTime, LocalTime)] = {
-    val config = configuration.underlying
+  private def parseDateTime(fieldName: String): Option[LocalTime] = {
+    val formatter = DateTimeFormatter.ofPattern("H:m").withZone(TimeZone.getTimeZone("Europe/London").toZoneId)
+    Try(
+      LocalTime.parse(configuration.get[String](fieldName), formatter)
+    ) match {
+      case Success(localTime)                         => Some(localTime)
+      case Failure(exception: DateTimeParseException) =>
+        logger.error(exception.getMessage, exception)
+        None
+      case Failure(exception: ConfigException)        =>
+        logger.error(exception.getMessage, exception)
+        None
+      case Failure(error)                             => throw error
+    }
+  }
 
-    if (config.hasPathOrNull("feature.business-hours")) {
-      config
-        .getObject("feature.business-hours")
-        .asScala
-        .map { case (dayOfWeek, _) =>
+  def get: Map[DayOfWeek, (LocalTime, LocalTime)] =
+    (0 to 6).flatMap { i =>
+      configuration.getOptional[String](s"feature.business-hours.$i.day") match {
+        case None            => None
+        case Some(dayOfWeek) =>
           val formatter      = DateTimeFormatter.ofPattern("H:m").withZone(TimeZone.getTimeZone("Europe/London").toZoneId)
-          val localStartTime =
-            Try(
-              LocalTime.parse(configuration.get[String](s"feature.business-hours.$dayOfWeek.start-time"), formatter)
-            ) match {
-              case Success(localTime)                         => Some(localTime)
-              case Failure(exception: DateTimeParseException) =>
-                logger.error(exception.getMessage, exception)
-                None
-              case Failure(exception: ConfigException)        =>
-                logger.error(exception.getMessage, exception)
-                None
-              case Failure(error)                             => throw error
-            }
-
-          val localEndTime =
-            Try(
-              LocalTime.parse(configuration.get[String](s"feature.business-hours.$dayOfWeek.end-time"), formatter)
-            ) match {
-              case Success(localTime)                         => Some(localTime)
-              case Failure(exception: DateTimeParseException) =>
-                logger.error(exception.getMessage, exception)
-                None
-              case Failure(exception: ConfigException)        =>
-                logger.error(exception.getMessage, exception)
-                None
-              case Failure(error)                             => throw error
-            }
-
+          val localStartTime = parseDateTime(s"feature.business-hours.$i.start-time")
+          val localEndTime   = parseDateTime(s"feature.business-hours.$i.end-time")
           (localStartTime, localEndTime) match {
             case (Some(start), Some(end)) =>
               if (end.isBefore(start)) {
@@ -90,14 +76,8 @@ class BusinessHoursConfig @Inject() (configuration: Configuration) extends Loggi
               } else {
                 stringToDayOfWeek(dayOfWeek).map(_ -> (start, end))
               }
-
-            case _ => None
+            case _                        => None
           }
-        }
-        .flatten
-        .toMap
-    } else {
-      Map.empty
-    }
-  }
+      }
+    }.toMap
 }
