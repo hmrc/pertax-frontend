@@ -17,7 +17,6 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
-import com.typesafe.config.{ConfigObject, ConfigValue}
 import models.NewsAndContentModel
 import play.api.Configuration
 import play.api.i18n.Messages
@@ -25,8 +24,6 @@ import util.LocalDateUtilities
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import scala.collection.mutable
-import scala.jdk.CollectionConverters._
 
 @Singleton
 class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtilities: LocalDateUtilities) {

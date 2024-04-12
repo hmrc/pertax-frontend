@@ -39,7 +39,7 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "feature.news.override-start-and-end-dates.enabled" -> false,
           "feature.news.items.0.name"                         -> "childBenefits",
           "feature.news.items.0.start-date"                   -> LocalDate.now().format(formatter),
-          "feature.news.items.0.end-date"                     -> LocalDate.now().plusYears(1).format(formatter),
+          "feature.news.items.0.enddate"                      -> LocalDate.now().plusYears(1).format(formatter),
           "feature.news.items.0.dynamic-content"              -> true,
           "feature.news.items.1.name"                         -> "hmrcApp",
           "feature.news.items.1.start-date"                   -> LocalDate.now().minusWeeks(2).format(formatter),
