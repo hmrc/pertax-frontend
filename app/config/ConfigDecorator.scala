@@ -247,9 +247,6 @@ class ConfigDecorator @Inject() (
   lazy val allowSaPreview: Boolean              =
     runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
 
-  lazy val personDetailsMessageCountEnabled: Boolean =
-    runModeConfiguration.getOptional[String]("feature.person-details-message-count.enabled").getOrElse("true").toBoolean
-
   lazy val updateInternationalAddressInPta: Boolean =
     runModeConfiguration
       .getOptional[String]("feature.update-international-address-form.enabled")
