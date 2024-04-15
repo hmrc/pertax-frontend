@@ -32,24 +32,32 @@ class NewsAndTilesConfigSpec extends BaseSpec {
   val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
   "getNewsAndContentModelList" must {
-    "read configuration and create a list ordered by recency" in {
+    "read configuration and create a list ordered by recency, truncating after max items reached" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.override-start-and-end-dates-for-news-items.enabled" -> false,
-          "feature.news.childBenefits.start-date"                       -> LocalDate.now().format(formatter),
-          "feature.news.childBenefits.end-date"                         -> LocalDate.now().plusYears(1).format(formatter),
-          "feature.news.childBenefits.dynamic-content"                  -> true,
-          "feature.news.hmrcApp.start-date"                             -> LocalDate.now().minusWeeks(2).format(formatter),
-          "feature.news.hmrcApp.dynamic-content"                        -> true,
-          "feature.news.payeEmployments.start-date"                     -> LocalDate.now().minusWeeks(1).format(formatter),
-          "feature.news.payeEmployments.end-date"                       -> LocalDate.now().plusYears(1).format(formatter),
-          "feature.news.payeEmployments.dynamic-content"                -> true,
-          "play.cache.bindCaches"                                       -> List("controller-cache", "document-cache"),
-          "play.cache.createBoundCaches"                                -> false
+          "feature.news.max"                                  -> 3,
+          "feature.news.override-start-and-end-dates.enabled" -> false,
+          "feature.news.items.0.name"                         -> "childBenefits",
+          "feature.news.items.0.start-date"                   -> LocalDate.now().format(formatter),
+          "feature.news.items.0.enddate"                      -> LocalDate.now().plusYears(1).format(formatter),
+          "feature.news.items.0.dynamic-content"              -> true,
+          "feature.news.items.1.name"                         -> "hmrcApp",
+          "feature.news.items.1.start-date"                   -> LocalDate.now().minusWeeks(2).format(formatter),
+          "feature.news.items.1.dynamic-content"              -> true,
+          "feature.news.items.2.name"                         -> "payeEmployments",
+          "feature.news.items.2.start-date"                   -> LocalDate.now().minusWeeks(1).format(formatter),
+          "feature.news.items.2.end-date"                     -> LocalDate.now().plusYears(1).format(formatter),
+          "feature.news.items.2.dynamic-content"              -> true,
+          "feature.news.items.3.name"                         -> "third",
+          "feature.news.items.3.start-date"                   -> LocalDate.now().minusWeeks(1).format(formatter),
+          "feature.news.items.3.end-date"                     -> LocalDate.now().plusYears(1).format(formatter),
+          "feature.news.items.3.dynamic-content"              -> true,
+          "play.cache.bindCaches"                             -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"                      -> false
         )
         .build()
 
-      val sut = app.injector.instanceOf[NewsAndTilesConfig]
+      val sut: NewsAndTilesConfig = app.injector.instanceOf[NewsAndTilesConfig]
 
       sut.getNewsAndContentModelList() mustBe List(
         NewsAndContentModel(
@@ -79,17 +87,21 @@ class NewsAndTilesConfigSpec extends BaseSpec {
     "read configuration and create a list without expired entries" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.override-start-and-end-dates-for-news-items.enabled" -> false,
-          "feature.news.childBenefits.start-date"                       -> LocalDate.now().format(formatter),
-          "feature.news.childBenefits.end-date"                         -> LocalDate.now().minusDays(1).format(formatter),
-          "feature.news.childBenefits.dynamic-content"                  -> true,
-          "feature.news.hmrcApp.start-date"                             -> LocalDate.now().minusWeeks(2).format(formatter),
-          "feature.news.hmrcApp.dynamic-content"                        -> true,
-          "feature.news.payeEmployments.start-date"                     -> LocalDate.now().minusWeeks(1).format(formatter),
-          "feature.news.payeEmployments.end-date"                       -> LocalDate.now().minusDays(1).format(formatter),
-          "feature.news.payeEmployments.dynamic-content"                -> true,
-          "play.cache.bindCaches"                                       -> List("controller-cache", "document-cache"),
-          "play.cache.createBoundCaches"                                -> false
+          "feature.news.max"                                  -> 3,
+          "feature.news.override-start-and-end-dates.enabled" -> false,
+          "feature.news.items.0.name"                         -> "childBenefits",
+          "feature.news.items.0.start-date"                   -> LocalDate.now().format(formatter),
+          "feature.news.items.0.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.0.dynamic-content"              -> true,
+          "feature.news.items.1.name"                         -> "hmrcApp",
+          "feature.news.items.1.start-date"                   -> LocalDate.now().minusWeeks(2).format(formatter),
+          "feature.news.items.1.dynamic-content"              -> true,
+          "feature.news.items.2.name"                         -> "payeEmployments",
+          "feature.news.items.2.start-date"                   -> LocalDate.now().minusWeeks(1).format(formatter),
+          "feature.news.items.2.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.2.dynamic-content"              -> true,
+          "play.cache.bindCaches"                             -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"                      -> false
         )
         .build()
 
@@ -108,17 +120,21 @@ class NewsAndTilesConfigSpec extends BaseSpec {
     "read configuration and create a list with expired entries or not started entries if overrideStartAndEndDatesForNewsItemsEnabled is true" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.override-start-and-end-dates-for-news-items.enabled" -> true,
-          "feature.news.childBenefits.start-date"                       -> LocalDate.now().format(formatter),
-          "feature.news.childBenefits.end-date"                         -> LocalDate.now().minusDays(1).format(formatter),
-          "feature.news.childBenefits.dynamic-content"                  -> true,
-          "feature.news.hmrcApp.start-date"                             -> LocalDate.now().minusWeeks(2).format(formatter),
-          "feature.news.hmrcApp.dynamic-content"                        -> true,
-          "feature.news.payeEmployments.start-date"                     -> LocalDate.now().minusWeeks(1).format(formatter),
-          "feature.news.payeEmployments.end-date"                       -> LocalDate.now().minusDays(1).format(formatter),
-          "feature.news.payeEmployments.dynamic-content"                -> true,
-          "play.cache.bindCaches"                                       -> List("controller-cache", "document-cache"),
-          "play.cache.createBoundCaches"                                -> false
+          "feature.news.max"                                  -> 3,
+          "feature.news.override-start-and-end-dates.enabled" -> true,
+          "feature.news.items.0.name"                         -> "childBenefits",
+          "feature.news.items.0.start-date"                   -> LocalDate.now().format(formatter),
+          "feature.news.items.0.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.0.dynamic-content"              -> true,
+          "feature.news.items.1.name"                         -> "hmrcApp",
+          "feature.news.items.1.start-date"                   -> LocalDate.now().minusWeeks(2).format(formatter),
+          "feature.news.items.1.dynamic-content"              -> true,
+          "feature.news.items.2.name"                         -> "payeEmployments",
+          "feature.news.items.2.start-date"                   -> LocalDate.now().minusWeeks(1).format(formatter),
+          "feature.news.items.2.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.2.dynamic-content"              -> true,
+          "play.cache.bindCaches"                             -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"                      -> false
         )
         .build()
 
@@ -131,18 +147,22 @@ class NewsAndTilesConfigSpec extends BaseSpec {
     "read configuration and create an empty list if all entries have expired" in {
       val app = localGuiceApplicationBuilder()
         .configure(
-          "feature.override-start-and-end-dates-for-news-items.enabled" -> false,
-          "feature.news.childBenefits.start-date"                       -> LocalDate.now().format(formatter),
-          "feature.news.childBenefits.end-date"                         -> LocalDate.now().minusDays(1).format(formatter),
-          "feature.news.childBenefits.dynamic-content"                  -> true,
-          "feature.news.hmrcApp.start-date"                             -> LocalDate.now().minusWeeks(2).format(formatter),
-          "feature.news.hmrcApp.end-date"                               -> LocalDate.now().minusDays(1).format(formatter),
-          "feature.news.hmrcApp.dynamic-content"                        -> true,
-          "feature.news.payeEmployments.start-date"                     -> LocalDate.now().minusWeeks(1).format(formatter),
-          "feature.news.payeEmployments.end-date"                       -> LocalDate.now().minusDays(1).format(formatter),
-          "feature.news.payeEmployments.dynamic-content"                -> true,
-          "play.cache.bindCaches"                                       -> List("controller-cache", "document-cache"),
-          "play.cache.createBoundCaches"                                -> false
+          "feature.news.max"                                  -> 3,
+          "feature.news.override-start-and-end-dates.enabled" -> false,
+          "feature.news.items.0.name"                         -> "childBenefits",
+          "feature.news.items.0.start-date"                   -> LocalDate.now().format(formatter),
+          "feature.news.items.0.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.0.dynamic-content"              -> true,
+          "feature.news.items.1.name"                         -> "hmrcApp",
+          "feature.news.items.1.start-date"                   -> LocalDate.now().minusWeeks(2).format(formatter),
+          "feature.news.items.1.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.1.dynamic-content"              -> true,
+          "feature.news.items.2.name"                         -> "payeEmployments",
+          "feature.news.items.2.start-date"                   -> LocalDate.now().minusWeeks(1).format(formatter),
+          "feature.news.items.2.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.2.dynamic-content"              -> true,
+          "play.cache.bindCaches"                             -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"                      -> false
         )
         .build()
 

@@ -32,7 +32,6 @@ class DefaultAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Wi
       "microservice.services.agent-client-authorisation.port" -> server.port(),
       "feature.agent-client-authorisation.maxTps"             -> 100,
       "feature.agent-client-authorisation.cache"              -> true,
-      "feature.agent-client-authorisation.enabled"            -> true,
       "feature.agent-client-authorisation.timeoutInSec"       -> 1
     )
   )
