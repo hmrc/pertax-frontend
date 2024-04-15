@@ -34,9 +34,10 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
     GuiceApplicationBuilder()
       .configure(
         Map(
-          "feature.news.nicSection.short-description-en" -> "1.25 percentage points uplift in National Insurance contributions",
-          "feature.news.nicSection.content-en"           -> "<p class=\"govuk-body\">From 6 April 2022 to 5 April 2023 National Insurance contributions will increase by 1.25 percentage points. This will be spent on the NHS, health and social care in the UK.</p><p class=\"govuk-body\">The increase will apply to:</p><ul class=\"govuk-list govuk-list--bullet\"><li>Class 1 (paid by employees)</li><li>Class 4 (paid by self-employed)</li><li>secondary Class 1, 1A and 1B (paid by employers)</li></ul><p class=\"govuk-body\">The increase will not apply if you are over the State Pension age.</p><p class=\"govuk-body govuk-!-margin-bottom-3\"><a href=\"https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy\" class=\"govuk-link\" target=\"_blank\" rel=\"noopener noreferrer\">Prepare for the Health and Social Care Levy (opens in new tab)</a></p>",
-          "feature.news.nicSection.start-date"           -> "2022-04-01"
+          "feature.news.items.0.name"                 -> "nicSection",
+          "feature.news.items.0.short-description-en" -> "1.25 percentage points uplift in National Insurance contributions",
+          "feature.news.items.0.content-en"           -> "<p class=\"govuk-body\">From 6 April 2022 to 5 April 2023 National Insurance contributions will increase by 1.25 percentage points. This will be spent on the NHS, health and social care in the UK.</p><p class=\"govuk-body\">The increase will apply to:</p><ul class=\"govuk-list govuk-list--bullet\"><li>Class 1 (paid by employees)</li><li>Class 4 (paid by self-employed)</li><li>secondary Class 1, 1A and 1B (paid by employers)</li></ul><p class=\"govuk-body\">The increase will not apply if you are over the State Pension age.</p><p class=\"govuk-body govuk-!-margin-bottom-3\"><a href=\"https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy\" class=\"govuk-link\" target=\"_blank\" rel=\"noopener noreferrer\">Prepare for the Health and Social Care Levy (opens in new tab)</a></p>",
+          "feature.news.items.0.start-date"           -> "2022-04-01"
         )
       )
 

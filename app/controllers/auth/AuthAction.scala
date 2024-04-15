@@ -24,17 +24,17 @@ import io.lemonlabs.uri.Url
 import models.UserName
 import models.admin.SingleAccountCheckToggle
 import play.api.mvc._
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import util.{BusinessHours, EnrolmentsHelper}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import util.{BusinessHours, EnrolmentsHelper}
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
