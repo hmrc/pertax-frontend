@@ -23,7 +23,6 @@ import play.api.Logging
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.sca.models.BannerConfig
@@ -58,7 +57,6 @@ trait MainView {
 
 class MainViewImpl @Inject() (
   appConfig: ConfigDecorator,
-  featureFlagService: FeatureFlagService,
   wrapperService: WrapperService,
   additionalScripts: AdditionalJavascript,
   headBlock: HeadBlock

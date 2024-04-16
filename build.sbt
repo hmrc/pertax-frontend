@@ -1,24 +1,28 @@
-import com.typesafe.sbt.digest.Import.digest
-import com.typesafe.sbt.web.Import.pipelineStages
-import play.sbt.PlayImport.PlayKeys
-import play.sbt.routes.RoutesKeys._
-import sbt.Keys._
-import sbt._
+/*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import sbt.*
 import scoverage.ScoverageKeys
-import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
+import uk.gov.hmrc.DefaultBuildSettings
+import uk.gov.hmrc.DefaultBuildSettings.*
 
 val appName = "pertax-frontend"
 
-scalaVersion := "2.13.8"
-
-lazy val plugins: Seq[Plugins] =
-  Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
-
-lazy val playSettings: Seq[Setting[_]] = Seq(
-  pipelineStages := Seq(digest)
-)
+ThisBuild / majorVersion := 2
+ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalafmtOnCompile := true
 
 lazy val scoverageSettings =
   Seq(
@@ -29,25 +33,21 @@ lazy val scoverageSettings =
   )
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(plugins: _*)
-  .disablePlugins(JUnitXmlReportPlugin)
-  .configs(IntegrationTest)
+  .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
+  .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
-    inConfig(Test)(testSettings),
-    inConfig(IntegrationTest)(itSettings),
-    IntegrationTest / Keys.fork := false,
-    addTestReportOption(IntegrationTest, "int-test-reports"),
-    playSettings,
+    PlayKeys.playDefaultPort := 9232,
     scoverageSettings,
     scalaSettings,
-    defaultSettings(),
     libraryDependencies ++= AppDependencies.all,
-    PlayKeys.playDefaultPort := 9232,
-    scalafmtOnCompile := true,
-    majorVersion := 1,
     scalacOptions ++= Seq(
+      "-unchecked",
       "-feature",
       "-Werror",
+      "-Xlint:_",
+      "-Wdead-code",
+      "-Wunused:_",
+      "-Wextra-implicit",
       "-Wconf:cat=unused-imports&site=.*views\\.html.*:s",
       "-Wconf:cat=unused-imports&site=<empty>:s",
       "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
@@ -55,11 +55,7 @@ lazy val microservice = Project(appName, file("."))
       "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
       "-Wconf:cat=unused&src=.*JavaScriptReverseRoutes\\.scala:s"
     ),
-    routesImport ++= Seq(
-      "uk.gov.hmrc.play.bootstrap.binders._",
-      "controllers.bindable._",
-      "models.admin._"
-    ),
+    routesImport ++= Seq("uk.gov.hmrc.play.bootstrap.binders._", "controllers.bindable._", "models.admin._"),
     TwirlKeys.templateImports ++= Seq(
       "models._",
       "models.dto._",
@@ -72,27 +68,19 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.hmrcfrontend.views.html.components._",
       "uk.gov.hmrc.hmrcfrontend.views.html.helpers._"
     )
+  ).configs(A11yTest)
+  .settings(inConfig(A11yTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings) *)
+  .settings(headerSettings(A11yTest) *)
+  .settings(automateHeaderSettings(A11yTest))
+
+Test / parallelExecution := true
+Test / Keys.fork := true
+Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
+
+lazy val it = project
+  .enablePlugins(play.sbt.PlayScala)
+  .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
+  .settings(
+    libraryDependencies ++= AppDependencies.test,
+    DefaultBuildSettings.itSettings()
   )
-
-ThisBuild / libraryDependencySchemes ++= Seq(
-  "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
-)
-
-lazy val testSettings = Seq(
-  unmanagedSourceDirectories ++= Seq(
-    baseDirectory.value / "test"
-  ),
-  fork := true
-)
-
-lazy val itSettings = Defaults.itSettings ++ Seq(
-  unmanagedSourceDirectories := Seq(
-    baseDirectory.value / "it"
-  ),
-  parallelExecution := false,
-  fork := true
-)
-
-addCommandAlias("scalafmtAll", "all scalafmtSbt scalafmt test:scalafmt it:scalafmt")
-addCommandAlias("testAll", ";coverage ;test ;it:test ;coverageReport")
-addCommandAlias("testAllWithScalafmt", ";scalafmtAll ;testAll")

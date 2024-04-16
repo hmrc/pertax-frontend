@@ -36,7 +36,6 @@ object UserRequestFixture {
     personDetails: Option[PersonDetails] = Some(Fixtures.buildPersonDetails),
     trustedHelper: Option[TrustedHelper] = None,
     profile: Option[String] = None,
-    messageCount: Option[Int] = None,
     enrolments: Set[Enrolment] = Set(
       Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")
     ),

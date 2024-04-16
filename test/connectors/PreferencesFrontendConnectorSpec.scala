@@ -196,10 +196,9 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
         .value
         .futureValue
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[_, PaperlessMessagesStatus]]
 
-      result.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe
-        a[PaperlessStatusOptIn]
+      result.getOrElse(PaperlessStatusNewCustomer()) mustBe a[PaperlessStatusOptIn]
     }
     "return a PaperlessStatusResponse with status Bounced" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
@@ -224,9 +223,9 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
         .value
         .futureValue
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[_, PaperlessMessagesStatus]]
 
-      result.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST, BAD_REQUEST)) mustBe a[PaperlessStatusBounced]
+      result.getOrElse(PaperlessStatusNewCustomer()) mustBe a[PaperlessStatusBounced]
     }
 
     List(

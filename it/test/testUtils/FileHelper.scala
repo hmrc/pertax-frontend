@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package testUtils
 
-import config.ConfigDecorator
-import play.api.libs.json.{Json, OWrites}
+import uk.gov.hmrc.domain.Nino
+import scala.io.Source.fromFile
 
-case class PaymentRequest(utr: String, returnUrl: String, backUrl: String)
+object FileHelper {
 
-object PaymentRequest {
-  def apply(configDecorator: ConfigDecorator, utr: String): PaymentRequest = {
-    val homePageUrl = configDecorator.pertaxFrontendBackLink
-    PaymentRequest(utr, homePageUrl, homePageUrl)
+  def loadFile(name: String): String = {
+    val source = fromFile(name)
+    try source.mkString
+    finally source.close()
   }
 
-  implicit val format: OWrites[PaymentRequest] = Json.writes[PaymentRequest]
+  def loadFileInterpolatingNino(name: String, nino: Nino): String =
+    loadFile(name).replaceAll("<NINO>", nino.nino)
 }

@@ -16,10 +16,9 @@
 
 package config
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import play.api.http.{EnabledFilters, HttpFilters}
 import play.api.mvc.{EssentialFilter, RequestHeader, Result}
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.sca.connectors.ScaWrapperDataConnector
 import uk.gov.hmrc.sca.filters.WrapperDataFilter
 
@@ -27,8 +26,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 class SCAWrapperDataFilter @Inject() (
-  scaWrapperDataConnector: ScaWrapperDataConnector,
-  featureFlagService: FeatureFlagService
+  scaWrapperDataConnector: ScaWrapperDataConnector
 )(implicit val ec: ExecutionContext, override val mat: Materializer)
     extends WrapperDataFilter(scaWrapperDataConnector)(ec, mat) {
 
