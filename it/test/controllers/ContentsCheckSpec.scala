@@ -365,7 +365,6 @@ class ContentsCheckSpec extends IntegrationSpec {
           }
           val result: Future[Result] = route(app, request(url)).get
           val content                = Jsoup.parse(contentAsString(result))
-          print(content)
 
           status(result) mustBe OK
           content.title() mustBe expectedData.title
