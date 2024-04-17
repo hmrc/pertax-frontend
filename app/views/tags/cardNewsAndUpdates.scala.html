@@ -18,8 +18,9 @@
 @(id: Option[String] = None,
         heading: String,
         headingTag: String = "h2",
-        newsAndContentModelList: List[NewsAndContentModel]
-)(implicit configDecorator: ConfigDecorator)
+        newsAndContentModelList: List[NewsAndContentModel],
+        configDecorator: ConfigDecorator
+)
 
 <div class="card" @id.map { i => id="@i" }>
 
