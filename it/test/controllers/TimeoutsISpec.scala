@@ -43,7 +43,6 @@ class TimeoutsISpec extends IntegrationSpec {
   private val delayInMilliseconds             = 200
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled"                              -> true,
       "microservice.services.breathing-space-if-proxy.port"                    -> server.port(),
       "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds"   -> timeoutThresholdInMilliseconds,
       "microservice.services.tai.port"                                         -> server.port(),
