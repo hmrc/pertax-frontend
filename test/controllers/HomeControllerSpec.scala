@@ -610,7 +610,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   }
 
-  "banner is set to false in configuration" when {
+  "banner is present" when {
     "it is enabled and user has not closed it" in new LocalSetup {
       when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(false))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
