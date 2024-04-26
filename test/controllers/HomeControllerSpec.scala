@@ -689,6 +689,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       contentAsString(r) mustNot include(configDecorator.bannerHomePageHeadingEn)
       contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkTextEn)
     }
+
     "it is enabled and user has closed it" in new LocalSetup {
       when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(true))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
@@ -757,7 +758,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val result = await(controller.retrieveTaxComponentsState(Some(userNino), year))
+      val result: TaxComponentsState = await(controller.retrieveTaxComponentsState(Some(userNino), year))
 
       result mustBe TaxComponentsDisabledState
       verify(mockTaiService, times(0)).taxComponents(any(), any())(any(), any())
