@@ -281,7 +281,7 @@ class ConfigDecorator @Inject() (
   lazy val seissClaimsUrl          = s"$seissFrontendHost/self-employment-support/claim/your-claims"
   lazy val manageTaxAgentsUrl      = s"$agentClientManagementFrontendHost/manage-your-tax-agents"
 
-  lazy val bannerHomePageIsEnabled: Boolean = false
+  val bannerHomePageIsEnabled: Boolean      = servicesConfig.getBoolean("feature.banner.home.enabled")
   lazy val bannerHomePageHeadingEn: String  =
     runModeConfiguration.getOptional[String]("feature.banner.home.heading.en").getOrElse("")
   lazy val bannerHomePageLinkTextEn: String =
