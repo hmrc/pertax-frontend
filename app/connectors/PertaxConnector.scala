@@ -51,6 +51,20 @@ class PertaxConnector @Inject() (
       )
       .map(_.json.as[PertaxResponse])
 
+  def pertaxPostAuthorise(implicit
+                          hc: HeaderCarrier,
+                          ec: ExecutionContext
+                         ): EitherT[Future, UpstreamErrorResponse, PertaxResponse] =
+    httpClientResponse
+      .read(
+        httpClient
+          .POSTEmpty[Either[UpstreamErrorResponse, HttpResponse]](
+            s"$pertaxUrl/pertax/authorise",
+            Seq((HeaderNames.ACCEPT -> "application/vnd.hmrc.2.0+json"))
+          )
+      )
+      .map(_.json.as[PertaxResponse])
+
   def loadPartial(url: String)(implicit request: RequestHeader, ec: ExecutionContext): Future[HtmlPartial] = {
     implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
 
@@ -58,7 +72,7 @@ class PertaxConnector @Inject() (
       case partial: HtmlPartial.Success =>
         partial
       case partial: HtmlPartial.Failure =>
-        logger.error(s"Failed to load partial from $url, partial info: $partial")
+        logger.error(s"Failed to load partial from $url, partial info: $partial, body: ${partial.body}")
         partial
     } recover { case e =>
       logger.error(s"Failed to load partial from $url", e)
