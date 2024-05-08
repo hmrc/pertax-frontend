@@ -18,7 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}
+import controllers.auth.{AuthJourney, AuthRetrievals, SelfAssessmentStatusAction}
 import controllers.bindable.Origin
 import models._
 import org.mockito.ArgumentMatchers.any
@@ -49,7 +49,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockAuditConnector: AuditConnector                                           = mock[AuditConnector]
   val mockIdentityVerificationFrontendService: IdentityVerificationFrontendService =
     mock[IdentityVerificationFrontendService]
-  val mockAuthAction: AuthAction                                                   = mock[AuthAction]
+  val mockAuthAction: AuthRetrievals                                               = mock[AuthRetrievals]
   val mockSelfAssessmentStatusAction: SelfAssessmentStatusAction                   = mock[SelfAssessmentStatusAction]
   val mockAuthJourney: AuthJourney                                                 = mock[AuthJourney]
   val mockInterstitialController: InterstitialController                           = mock[InterstitialController]
@@ -59,7 +59,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[IdentityVerificationFrontendService].toInstance(mockIdentityVerificationFrontendService),
-      bind[AuthAction].toInstance(mockAuthAction),
+      bind[AuthRetrievals].toInstance(mockAuthAction),
       bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[HomeController].toInstance(mockHomeController),

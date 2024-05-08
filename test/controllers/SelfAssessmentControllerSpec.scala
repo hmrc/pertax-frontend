@@ -48,7 +48,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   override def now: () => LocalDate = () => LocalDate.now()
 
   val mockAuditConnector: AuditConnector                         = mock[AuditConnector]
-  val mockAuthAction: AuthAction                                 = mock[AuthAction]
+  val mockAuthAction: AuthRetrievals                             = mock[AuthRetrievals]
   val mockSelfAssessmentStatusAction: SelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
   val mockPayApiConnector: PayApiConnector                       = mock[PayApiConnector]
   val mockSelfAssessmentService: SelfAssessmentService           = mock[SelfAssessmentService]

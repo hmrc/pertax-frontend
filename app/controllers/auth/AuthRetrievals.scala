@@ -50,7 +50,9 @@ class AuthRetrievalsImpl @Inject() (
   businessHours: BusinessHours,
   featureFlagService: FeatureFlagService
 )(implicit ec: ExecutionContext, configDecorator: ConfigDecorator)
-  extends AuthRetrievals with AuthorisedFunctions with Logging {
+    extends AuthRetrievals
+    with AuthorisedFunctions
+    with Logging {
 
   private def addRedirect(profileUrl: Option[String]): Option[String] =
     for {
@@ -68,7 +70,9 @@ class AuthRetrievalsImpl @Inject() (
       if (confLevel.level >= ConfidenceLevel.L200.level) Some(confLevel) else None
   }
 
-  type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[String] ~ ConfidenceLevel ~ Option[Name] ~ Option[TrustedHelper] ~ Option[String]
+  type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
+    String
+  ] ~ ConfidenceLevel ~ Option[Name] ~ Option[TrustedHelper] ~ Option[String]
 
   //scalastyle:off cyclomatic.complexity
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
@@ -79,7 +83,7 @@ class AuthRetrievalsImpl @Inject() (
 
     val retrievals: Retrieval[RetrievalsType] =
       Retrievals.nino and Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.credentials and Retrievals.credentialStrength and
-    Retrievals.confidenceLevel and Retrievals.name and Retrievals.trustedHelper and Retrievals.profile
+        Retrievals.confidenceLevel and Retrievals.name and Retrievals.trustedHelper and Retrievals.profile
 
     authorised()
       .retrieve(retrievals) {

@@ -52,9 +52,9 @@ class PertaxConnector @Inject() (
       .map(_.json.as[PertaxResponse])
 
   def pertaxPostAuthorise(implicit
-                          hc: HeaderCarrier,
-                          ec: ExecutionContext
-                         ): EitherT[Future, UpstreamErrorResponse, PertaxResponse] =
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): EitherT[Future, UpstreamErrorResponse, PertaxResponse] =
     httpClientResponse
       .read(
         httpClient

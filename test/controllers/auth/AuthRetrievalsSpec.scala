@@ -46,7 +46,7 @@ import util.{BusinessHours, EnrolmentsHelper}
 import java.time.LocalDateTime
 import scala.concurrent.Future
 
-class AuthActionSpec extends BaseSpec {
+class AuthRetrievalsSpec extends BaseSpec {
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
@@ -61,7 +61,7 @@ class AuthActionSpec extends BaseSpec {
 
   val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
 
-  class Harness(authAction: AuthAction) extends InjectedController {
+  class Harness(authAction: AuthRetrievalsImpl) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.nino.getOrElse("fail").toString}, Enrolments: ${request.enrolments.toString}," +
@@ -115,7 +115,7 @@ class AuthActionSpec extends BaseSpec {
     )
 
     val authAction =
-      new AuthActionImpl(
+      new AuthRetrievalsImpl(
         mockAuthConnector,
         sessionAuditor,
         messagesControllerComponents,
@@ -201,22 +201,17 @@ class AuthActionSpec extends BaseSpec {
 
   "A user with a Credential Strength of 'none' must" must {
     "be redirected to the auth provider choice page" in {
+      val controller = retrievals(credentialStrength = "none")
+
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(IncorrectCredentialStrength()))
-      val authAction =
-        new AuthActionImpl(
-          mockAuthConnector,
-          sessionAuditor,
-          messagesControllerComponents,
-          enrolmentsHelper,
-          fakeBusinessHours,
-          mockFeatureFlagService
-        )(implicitly, config)
-      val controller = new Harness(authAction)
-      val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
+
+      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
+
       status(result) mustBe SEE_OTHER
       redirectLocation(result).get must endWith("/auth-login-stub")
     }
+
   }
 
   "A user with no active session must" must {
@@ -224,7 +219,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(
+        new AuthRetrievalsImpl(
           mockAuthConnector,
           sessionAuditor,
           messagesControllerComponents,
@@ -242,7 +237,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(
+        new AuthRetrievalsImpl(
           mockAuthConnector,
           sessionAuditor,
           messagesControllerComponents,
@@ -267,7 +262,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
       val authAction =
-        new AuthActionImpl(
+        new AuthRetrievalsImpl(
           mockAuthConnector,
           sessionAuditor,
           messagesControllerComponents,
@@ -364,7 +359,7 @@ class AuthActionSpec extends BaseSpec {
     )
 
     val authAction =
-      new AuthActionImpl(
+      new AuthRetrievalsImpl(
         mockAuthConnector,
         sessionAuditor,
         messagesControllerComponents,
