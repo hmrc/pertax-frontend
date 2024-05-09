@@ -200,24 +200,37 @@ class AuthRetrievalsSpec extends BaseSpec {
   }
 
   "A user with a Credential Strength of 'none' must" must {
-    "be redirected to the auth provider choice page" in {
-      val controller = retrievals(credentialStrength = "none")
-
+    "throw a IncorrectCredentialStrength exception" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(IncorrectCredentialStrength()))
+        .thenReturn(Future.failed(new IncorrectCredentialStrength))
+
+      val authAction =
+        new AuthRetrievalsImpl(
+          mockAuthConnector,
+          sessionAuditor,
+          messagesControllerComponents,
+          enrolmentsHelper,
+          fakeBusinessHours,
+          mockFeatureFlagService
+        )(implicitly, config)
+
+      val controller = new Harness(authAction)
 
       val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
 
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result).get must endWith("/auth-login-stub")
+      whenReady(result.failed) { ex =>
+        ex mustBe an[IncorrectCredentialStrength]
+
+      }
     }
 
   }
 
   "A user with no active session must" must {
-    "be redirected to the auth provider choice page if unknown provider" in {
+    "throw a SessionRecordNotFound exception" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(SessionRecordNotFound()))
+        .thenReturn(Future.failed(new SessionRecordNotFound))
+
       val authAction =
         new AuthRetrievalsImpl(
           mockAuthConnector,
@@ -229,13 +242,17 @@ class AuthRetrievalsSpec extends BaseSpec {
         )(implicitly, config)
       val controller = new Harness(authAction)
       val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result).get must endWith("/auth-login-stub")
+
+      whenReady(result.failed) { ex =>
+        ex mustBe an[SessionRecordNotFound]
+
+      }
     }
 
-    "be redirected to the GG login page if GG provider" in {
+    "throw a SessionRecordNotFound exception if GG provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(SessionRecordNotFound()))
+        .thenReturn(Future.failed(new SessionRecordNotFound))
+
       val authAction =
         new AuthRetrievalsImpl(
           mockAuthConnector,
@@ -245,22 +262,26 @@ class AuthRetrievalsSpec extends BaseSpec {
           fakeBusinessHours,
           mockFeatureFlagService
         )(implicitly, config)
-      val controller = new Harness(authAction)
-      val request    =
-        FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
-      val result     = controller.onPageLoad(request)
-      status(result) mustBe SEE_OTHER
 
-      redirectLocation(result).get must endWith(
-        "http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3Dhttp%253A%252F%252Flocalhost%253A9232%252Ffoo&accountType=individual&origin=PERTAX"
-      )
+      val controller = new Harness(authAction)
+
+      val request =
+        FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
+
+      val result  = controller.onPageLoad(request)
+
+      whenReady(result.failed) { ex =>
+        ex mustBe an[SessionRecordNotFound]
+
+      }
     }
   }
 
   "A user with insufficient enrolments must" must {
     "be redirected to the Sorry there is a problem page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(InsufficientEnrolments()))
+        .thenReturn(Future.failed(new InsufficientEnrolments))
+
       val authAction =
         new AuthRetrievalsImpl(
           mockAuthConnector,
@@ -270,8 +291,10 @@ class AuthRetrievalsSpec extends BaseSpec {
           fakeBusinessHours,
           mockFeatureFlagService
         )(implicitly, config)
+
       val controller = new Harness(authAction)
-      val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
+
+      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
 
       whenReady(result.failed) { ex =>
         ex mustBe an[InsufficientEnrolments]
