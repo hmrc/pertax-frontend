@@ -242,7 +242,8 @@ class PersonalDetailsViewModel @Inject() (
     )
 
   def getManageTaxAgentsRow(implicit
-    messages: play.api.i18n.Messages
+    messages: play.api.i18n.Messages,
+    request: UserRequest[_]
   ): Option[PersonalDetailsTableRowModel] =
     Some(
       PersonalDetailsTableRowModel(
@@ -251,7 +252,7 @@ class PersonalDetailsViewModel @Inject() (
         HtmlFormat.raw(messages("label.add_view_change_tax_agents")),
         "label.manage",
         "label.your_tax_agents",
-        Some(configDecorator.manageTaxAgentsUrl)
+        Some(configDecorator.manageTaxAgentsUrl(request.uri))
       )
     )
 

@@ -392,4 +392,15 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       }
     }
   }
+
+  "getManageTaxAgentsRow" must {
+    "render the correct manageTaxAgentsUrl with return url" in {
+      val returnUrl = "/personal-account/returnUrl"
+      val request   = userRequest.copy(request = FakeRequest("GET", returnUrl))
+
+      val result = personalDetailsViewModel.getManageTaxAgentsRow(messages, request)
+
+      result.get.linkUrl mustBe Some(s"http://localhost:9568/manage-your-tax-agents?source=PTA&returnUrl=$returnUrl")
+    }
+  }
 }

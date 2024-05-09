@@ -277,9 +277,10 @@ class ConfigDecorator @Inject() (
 
   lazy val saPartialReturnLinkText = "Back to account home"
 
-  lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
-  lazy val seissClaimsUrl          = s"$seissFrontendHost/self-employment-support/claim/your-claims"
-  lazy val manageTaxAgentsUrl      = s"$agentClientManagementFrontendHost/manage-your-tax-agents"
+  lazy val manageTrustedHelpersUrl          = s"$fandfFrontendHost/trusted-helpers/select-a-service"
+  lazy val seissClaimsUrl                   = s"$seissFrontendHost/self-employment-support/claim/your-claims"
+  def manageTaxAgentsUrl(returnUrl: String) =
+    s"$agentClientManagementFrontendHost/manage-your-tax-agents?source=PTA&returnUrl=$returnUrl"
 
   val bannerHomePageIsEnabled: Boolean      = servicesConfig.getBoolean("feature.banner.home.enabled")
   lazy val bannerHomePageHeadingEn: String  =
