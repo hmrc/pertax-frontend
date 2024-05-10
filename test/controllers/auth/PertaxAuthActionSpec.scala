@@ -152,7 +152,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
         val result = pertaxAuthAction.filter(expectedRequest).futureValue
 
-        result must not be empty
+        result                                         must not be empty
         result.get.header.status mustBe INTERNAL_SERVER_ERROR
         contentAsString(Future.successful(result.get)) must include(
           messages("global.error.InternalServerError500.title")

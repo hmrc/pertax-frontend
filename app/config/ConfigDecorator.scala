@@ -79,11 +79,11 @@ class ConfigDecorator @Inject() (
   private lazy val saveYourNationalInsuranceNumberHost     =
     getExternalUrl(s"save-your-national-insurance-number.host").getOrElse("")
 
-  private lazy val identityVerificationHost: String           = getExternalUrl(s"identity-verification.host").getOrElse("")
-  private lazy val identityVerificationPrefix: String         =
+  private lazy val identityVerificationHost: String   = getExternalUrl(s"identity-verification.host").getOrElse("")
+  private lazy val identityVerificationPrefix: String =
     getExternalUrl(s"identity-verification.prefix").getOrElse("mdtp")
-  lazy val basGatewayFrontendHost: String                     = getExternalUrl(s"bas-gateway-frontend.host").getOrElse("")
-  lazy val ggSignInUrl: String = servicesConfig.getString("external-url.government-gateway-sign-in.host")
+  lazy val basGatewayFrontendHost: String             = getExternalUrl(s"bas-gateway-frontend.host").getOrElse("")
+  lazy val ggSignInUrl: String                        = servicesConfig.getString("external-url.government-gateway-sign-in.host")
 
   private lazy val taxEnrolmentAssignmentFrontendHost: String =
     getExternalUrl(s"tax-enrolment-assignment-frontend.host").getOrElse("")
@@ -205,9 +205,9 @@ class ConfigDecorator @Inject() (
     "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/change-your-personal-details"
   lazy val scottishRateIncomeTaxUrl           = "https://www.gov.uk/scottish-rate-income-tax/how-it-works"
 
-  lazy val serviceIdentityCheckFailedUrl      = "/personal-account/identity-check-failed"
-  lazy val personalAccountYourAddress         = "/personal-account/your-address"
-  lazy val personalAccount                    = "/personal-account"
+  lazy val serviceIdentityCheckFailedUrl = "/personal-account/identity-check-failed"
+  lazy val personalAccountYourAddress    = "/personal-account/your-address"
+  lazy val personalAccount               = "/personal-account"
 
   lazy val claimChildBenefits: String = "https://www.gov.uk/child-benefit/how-to-claim"
 

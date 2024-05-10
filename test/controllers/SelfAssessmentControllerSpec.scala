@@ -18,7 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import connectors.PayApiConnector
-import controllers.auth._
+import controllers.auth.{FakeAuthJourney, _}
 import error.ErrorRenderer
 import models._
 import org.jsoup.Jsoup
@@ -28,7 +28,7 @@ import org.scalatest.exceptions.TestFailedException
 import play.api.Application
 import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, REQUEST_TIMEOUT, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
 import play.api.inject.bind
-import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsEmpty, DefaultActionBuilder, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
 import services.SelfAssessmentService
@@ -54,7 +54,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockSelfAssessmentService: SelfAssessmentService           = mock[SelfAssessmentService]
 
   val saUtr: SaUtr           = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-  val defaultFakeAuthJourney = new FakeAuthJourney(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -70,11 +69,21 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
 
   trait LocalSetup {
 
-    def fakeAuthJourney: FakeAuthJourney = defaultFakeAuthJourney
+    val mockAuthJourney: AuthJourneyImpl = mock[AuthJourneyImpl]
+
+    def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(
+      authAction = mock[AuthRetrievals],
+      selfAssessmentStatusAction = mock[SelfAssessmentStatusAction],
+      pertaxAuthAction = mock[PertaxAuthAction],
+      getPersonDetailsAction = mock[GetPersonDetailsAction],
+      defaultActionBuilder = mock[DefaultActionBuilder],
+      saUser = NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
+      mcc = mock[MessagesControllerComponents]
+    )
 
     def controller: SelfAssessmentController =
       new SelfAssessmentController(
-        fakeAuthJourney,
+        mockAuthJourney,
         inject[WithBreadcrumbAction],
         mockAuditConnector,
         mockSelfAssessmentService,

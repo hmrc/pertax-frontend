@@ -19,9 +19,9 @@ package controllers.auth
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import connectors.PertaxConnector
-//import controllers.auth.requests.UserRequest
+import views.html.MainView
 import models.PertaxResponse
-import views.html.{InternalServerErrorView, MainView}
+import views.html.InternalServerErrorView
 import play.api.Logging
 import play.api.http.Status.UNAUTHORIZED
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -35,38 +35,37 @@ import play.api.mvc.{ControllerComponents, Request, Results}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-
 @Singleton
 class PertaxAuthAction @Inject() (
   pertaxConnector: PertaxConnector,
   internalServerErrorView: InternalServerErrorView,
   mainView: MainView,
   cc: ControllerComponents
-)(implicit appConfig: ConfigDecorator) extends ActionFilter[Request]
-  with Results
-  with I18nSupport
-  with Logging {
+)(implicit appConfig: ConfigDecorator)
+    extends ActionFilter[Request]
+    with Results
+    with I18nSupport
+    with Logging {
 
   override def messagesApi: MessagesApi = cc.messagesApi
 
   // scalastyle:off cyclomatic.complexity
   override def filter[A](request: Request[A]): Future[Option[Result]] = {
     implicit val implicitRequest: Request[A] = request
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    //implicit val userRequest: UserRequest[A]              = request
+    implicit val hc: HeaderCarrier           = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     pertaxConnector.pertaxPostAuthorise.value.flatMap {
-      case Left(UpstreamErrorResponse(_, status, _, _)) if status == UNAUTHORIZED =>
+      case Left(UpstreamErrorResponse(_, status, _, _)) if status == UNAUTHORIZED          =>
         Future.successful(Some(signInJourney))
-      case Left(_) =>
+      case Left(_)                                                                         =>
         Future.successful(Some(InternalServerError(internalServerErrorView())))
-      case Right(PertaxResponse("ACCESS_GRANTED", _, _, _)) =>
+      case Right(PertaxResponse("ACCESS_GRANTED", _, _, _))                                =>
         Future.successful(None)
-      case Right(PertaxResponse("NO_HMRC_PT_ENROLMENT", _, _, Some(redirect))) =>
+      case Right(PertaxResponse("NO_HMRC_PT_ENROLMENT", _, _, Some(redirect)))             =>
         Future.successful(Some(Redirect(s"$redirect?redirectUrl=${SafeRedirectUrl(request.uri).encodedUrl}")))
       case Right(PertaxResponse("CONFIDENCE_LEVEL_UPLIFT_REQUIRED", _, _, Some(redirect))) =>
         Future.successful(Some(upliftJourney(redirect)))
-      case Right(PertaxResponse("CREDENTIAL_STRENGTH_UPLIFT_REQUIRED", _, _, Some(_))) =>
+      case Right(PertaxResponse("CREDENTIAL_STRENGTH_UPLIFT_REQUIRED", _, _, Some(_)))     =>
         val ex =
           new RuntimeException(
             s"Weak credentials should be dealt before the service"
@@ -78,11 +77,11 @@ class PertaxAuthAction @Inject() (
         pertaxConnector.loadPartial(errorView.url).map {
           case partial: HtmlPartial.Success =>
             Some(Status(errorView.statusCode)(mainView(partial.title.getOrElse(""))(partial.content)))
-          case _: HtmlPartial.Failure =>
+          case _: HtmlPartial.Failure       =>
             logger.error(s"The partial ${errorView.url} failed to be retrieved")
             Some(InternalServerError(internalServerErrorView()))
         }
-      case Right(response) =>
+      case Right(response)                                 =>
         val ex =
           new RuntimeException(
             s"Pertax response `${response.code}` with message ${response.message} is not handled"
@@ -94,14 +93,13 @@ class PertaxAuthAction @Inject() (
 
   override protected implicit val executionContext: ExecutionContext = cc.executionContext
 
-
   private def signInJourney[A]: Result =
     Redirect(
       appConfig.ggSignInUrl,
       Map(
         "continue_url" -> Seq(s"${appConfig.pertaxFrontendHost}${appConfig.personalAccount}"),
-        "origin" -> Seq("cocar-frontend"),
-        "accountType" -> Seq("individual")
+        "origin"       -> Seq("cocar-frontend"),
+        "accountType"  -> Seq("individual")
       )
     )
 
@@ -109,10 +107,10 @@ class PertaxAuthAction @Inject() (
     Redirect(
       redirect,
       Map(
-        "origin" -> Seq("TAI"),
+        "origin"          -> Seq("TAI"),
         "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
-        "completionURL" -> Seq(s"${appConfig.pertaxFrontendHost}${appConfig.personalAccount}"),
-        "failureURL" -> Seq(
+        "completionURL"   -> Seq(s"${appConfig.pertaxFrontendHost}${appConfig.personalAccount}"),
+        "failureURL"      -> Seq(
           s"${appConfig.pertaxFrontendHost}${appConfig.serviceIdentityCheckFailedUrl}?continueUrl=${appConfig.personalAccount}"
         )
       )

@@ -18,7 +18,6 @@ package testUtils
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, FakeAuthJourney}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.admin._
@@ -354,7 +353,6 @@ trait BaseSpec
       .overrides(
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
         bind[EditAddressLockRepository].toInstance(mockEditAddressLockRepository),
-        bind[AuthJourney].toInstance(new FakeAuthJourney(saUser, personDetails)),
         bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       )
       .configure(configValues)
