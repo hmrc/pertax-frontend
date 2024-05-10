@@ -16,24 +16,33 @@
 
 package views.html
 
+import controllers.auth.requests.UserRequest
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.inject.bind
 import play.api.i18n._
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.{Request, WrappedRequest}
 import testUtils.BaseSpec
 
-trait ViewSpec extends BaseSpec {
+trait ViewSpec extends BaseSpec with GuiceOneAppPerSuite {
 
   def hasLink(document: Document, content: String): Assertion =
     document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
   implicit lazy val messageProvider: MessagesProvider = inject[MessagesProvider]
+  lazy val messagesApi: MessagesApi                   = inject[MessagesApi]
+  implicit lazy val messages: Messages                = MessagesImpl(Lang("en"), messagesApi)
+  lazy val welshMessages: Messages                    = MessagesImpl(Lang("cy"), messagesApi)
+  val mockUserRequest: UserRequest                 = mock[UserRequest]
 
-  lazy val messagesApi: MessagesApi = inject[MessagesApi]
-
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
-
-  lazy val welshMessages: Messages = MessagesImpl(Lang("cy"), messagesApi)
+  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
+    GuiceApplicationBuilder()
+      .overrides(
+        bind[UserRequest[_]].toInstance(mockUserRequest)
+      )
 
   def assertContainsText(doc: Document, text: String): Assertion =
     assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")

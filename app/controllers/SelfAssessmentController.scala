@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourneyImpl, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -38,7 +38,7 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentController @Inject() (
-  authJourney: AuthJourneyImpl,
+  authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: AuditConnector,
   selfAssessmentService: SelfAssessmentService,

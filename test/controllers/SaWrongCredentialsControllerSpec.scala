@@ -16,9 +16,9 @@
 
 package controllers
 
-import controllers.auth.FakeAuthJourney
-import models.WrongCredentialsSelfAssessmentUser
-import play.api.mvc.MessagesControllerComponents
+import controllers.auth.{AuthRetrievals, FakeAuthJourney, GetPersonDetailsAction, PertaxAuthAction, SelfAssessmentStatusAction}
+import models.{PersonDetails, WrongCredentialsSelfAssessmentUser}
+import play.api.mvc.{DefaultActionBuilder, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.BaseSpec
@@ -28,7 +28,14 @@ import views.html.selfassessment._
 class SaWrongCredentialsControllerSpec extends BaseSpec {
 
   val fakeAuthJourney = new FakeAuthJourney(
-    WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))
+    authAction = mock[AuthRetrievals],
+    selfAssessmentStatusAction = mock[SelfAssessmentStatusAction],
+    pertaxAuthAction = mock[PertaxAuthAction],
+    getPersonDetailsAction = mock[GetPersonDetailsAction],
+    defaultActionBuilder = mock[DefaultActionBuilder],
+    saUser = WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+    mcc = mock[MessagesControllerComponents],
+    personDetails = Some(mock[PersonDetails])
   )
 
   def controller: SaWrongCredentialsController =

@@ -16,7 +16,6 @@
 
 package util
 
-import controllers.auth.{AuthJourney, FakeAuthJourney}
 import models.{PersonDetails, SelfAssessmentUserType}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -35,8 +34,7 @@ class BusinessHoursSpec extends BaseSpec {
     GuiceApplicationBuilder()
       .overrides(
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
-        bind[EditAddressLockRepository].toInstance(mockEditAddressLockRepository),
-        bind[AuthJourney].toInstance(new FakeAuthJourney(saUser, personDetails))
+        bind[EditAddressLockRepository].toInstance(mockEditAddressLockRepository)
       )
       .configure(
         configValues ++

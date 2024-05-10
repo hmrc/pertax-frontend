@@ -20,7 +20,6 @@ import com.google.inject.Inject
 import controllers.auth.requests.UserRequest
 import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder}
 
-
 class AuthJourney @Inject() (
   authAction: AuthRetrievals,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,

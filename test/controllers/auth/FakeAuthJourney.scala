@@ -33,7 +33,13 @@ class FakeAuthJourney @Inject() (
   saUser: SelfAssessmentUserType,
   mcc: MessagesControllerComponents,
   personDetails: Option[PersonDetails] = None
-) extends AuthJourney(authAction, selfAssessmentStatusAction, pertaxAuthAction, getPersonDetailsAction, defaultActionBuilder) {
+) extends AuthJourney(
+      authAction,
+      selfAssessmentStatusAction,
+      pertaxAuthAction,
+      getPersonDetailsAction,
+      defaultActionBuilder
+    ) {
 
   private val actionBuilderFixture: ActionBuilder[UserRequest, AnyContent] =
     new ActionBuilder[UserRequest, AnyContent] {
@@ -52,4 +58,17 @@ class FakeAuthJourney @Inject() (
     }
 
   override val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] = actionBuilderFixture
+
+  def copy(saUser: SelfAssessmentUserType = this.saUser): FakeAuthJourney =
+    new FakeAuthJourney(
+      authAction = authAction,
+      selfAssessmentStatusAction = selfAssessmentStatusAction,
+      pertaxAuthAction = pertaxAuthAction,
+      getPersonDetailsAction = getPersonDetailsAction,
+      defaultActionBuilder = defaultActionBuilder,
+      saUser = saUser,
+      mcc = mcc,
+      personDetails = personDetails
+    )
+
 }
