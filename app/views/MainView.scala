@@ -23,6 +23,7 @@ import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import play.twirl.api.{Html, HtmlFormat}
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -59,7 +60,6 @@ trait MainView {
 class MainViewImpl @Inject() (
   appConfig: ConfigDecorator,
   wrapperService: WrapperService,
-  userRequest: UserRequest[_],
   additionalScripts: AdditionalJavascript,
   headBlock: HeadBlock
 ) extends MainView
@@ -82,6 +82,8 @@ class MainViewImpl @Inject() (
     hideAccountMenu: Boolean = false,
     showUserResearchBanner: Boolean = true
   )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
+
+    val trustedHelper: Option[TrustedHelper] = request.asInstanceOf[UserRequest[_]].trustedHelper
 
     val fullPageTitle = s"$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"
 
@@ -111,7 +113,7 @@ class MainViewImpl @Inject() (
         showBetaBanner = true,
         showHelpImproveBanner = showUserResearchBanner
       ),
-      optTrustedHelper = userRequest.trustedHelper,
+      optTrustedHelper = trustedHelper,
       fullWidth = fullWidth,
       hideMenuBar = hideAccountMenu,
       disableSessionExpired = disableSessionExpired

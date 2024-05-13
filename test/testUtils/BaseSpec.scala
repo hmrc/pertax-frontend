@@ -41,7 +41,7 @@ import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
 
 trait BaseSpec
-  extends AnyWordSpec
+    extends AnyWordSpec
     with GuiceOneAppPerSuite
     with Matchers
     with BeforeAndAfterEach
@@ -71,16 +71,19 @@ trait BaseSpec
 
   val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
+  //val mockUserRequest: UserRequest[_] = mock[UserRequest[_]]
+
   @nowarn("msg=parameter (saUser|personDetails) in method localGuiceApplicationBuilder is never used")
   protected def localGuiceApplicationBuilder(
-                                              saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
-                                              personDetails: Option[PersonDetails] = None
-                                            ): GuiceApplicationBuilder =
+    saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
+    personDetails: Option[PersonDetails] = None
+  ): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
         bind[EditAddressLockRepository].toInstance(mockEditAddressLockRepository),
         bind[FeatureFlagService].toInstance(mockFeatureFlagService)
+        // bind[UserRequest[_]].toInstance(mockUserRequest)
       )
       .configure(configValues)
 

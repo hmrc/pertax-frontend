@@ -20,6 +20,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class TemplateFunctionSpec extends AnyWordSpec with Matchers {
+
   "TemplateFunctions.upperCaseToTitleCase" must {
     "convert a name string which is all uppercase" in {
       TemplateFunctions.upperCaseToTitleCase("FIRSTNAME LASTNAME") must be("Firstname Lastname")
