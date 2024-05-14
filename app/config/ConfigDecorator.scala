@@ -83,7 +83,7 @@ class ConfigDecorator @Inject() (
   private lazy val identityVerificationPrefix: String =
     getExternalUrl(s"identity-verification.prefix").getOrElse("mdtp")
   lazy val basGatewayFrontendHost: String             = getExternalUrl(s"bas-gateway-frontend.host").getOrElse("")
-  lazy val ggSignInUrl: String                        = servicesConfig.getString("external-url.government-gateway-sign-in.host")
+  lazy val ggSignInUrl: String                        = servicesConfig.getString("external-url.bas-gateway-frontend-sign-in.host")
 
   private lazy val taxEnrolmentAssignmentFrontendHost: String =
     getExternalUrl(s"tax-enrolment-assignment-frontend.host").getOrElse("")

@@ -20,6 +20,7 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.{PreferencesFrontendConnector, TaiConnector}
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
@@ -36,7 +37,8 @@ import play.twirl.api.Html
 import services._
 import services.partials.MessageFrontendService
 import testUtils.Fixtures._
-import testUtils.{BaseSpec, Fixtures}
+import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
@@ -80,6 +82,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   override def now: () => LocalDate = () => LocalDate.now()
 
   trait LocalSetup {
+
+    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+        block(
+          buildUserRequest(request = request)
+        )
+    })
 
     lazy val authProviderType: String             = UserDetails.GovernmentGatewayAuthProvider
     lazy val nino: Nino                           = Fixtures.fakeNino

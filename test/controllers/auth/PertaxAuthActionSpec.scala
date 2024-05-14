@@ -108,7 +108,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
         result must not be empty
         result.get.header.headers
-          .get("Location") mustBe Some("redirectLocation?redirectUrl=%2personal-account")
+          .get("Location") mustBe Some("redirectLocation?redirectUrl=%2Fpersonal-account")
       }
     }
 
@@ -155,7 +155,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
         result                                         must not be empty
         result.get.header.status mustBe INTERNAL_SERVER_ERROR
         contentAsString(Future.successful(result.get)) must include(
-          messages("global.error.InternalServerError500.title")
+          messages("global.error.InternalServerError500.pta.title")
         )
       }
     }

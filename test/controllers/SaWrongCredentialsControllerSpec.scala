@@ -16,31 +16,24 @@
 
 package controllers
 
-import controllers.auth.{AuthRetrievals, FakeAuthJourney, GetPersonDetailsAction, PertaxAuthAction, SelfAssessmentStatusAction}
-import models.{PersonDetails, WrongCredentialsSelfAssessmentUser}
-import play.api.mvc.{DefaultActionBuilder, MessagesControllerComponents}
+import controllers.auth.requests.UserRequest
+import controllers.auth.AuthJourney
+import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import testUtils.BaseSpec
-import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import testUtils.{ActionBuilderFixture, BaseSpec}
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.selfassessment._
+
+import scala.concurrent.Future
 
 class SaWrongCredentialsControllerSpec extends BaseSpec {
 
-  val fakeAuthJourney = new FakeAuthJourney(
-    authAction = mock[AuthRetrievals],
-    selfAssessmentStatusAction = mock[SelfAssessmentStatusAction],
-    pertaxAuthAction = mock[PertaxAuthAction],
-    getPersonDetailsAction = mock[GetPersonDetailsAction],
-    defaultActionBuilder = mock[DefaultActionBuilder],
-    saUser = WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-    mcc = mock[MessagesControllerComponents],
-    personDetails = Some(mock[PersonDetails])
-  )
+  val mockAuthJourney: AuthJourney = mock[AuthJourney]
 
   def controller: SaWrongCredentialsController =
     new SaWrongCredentialsController(
-      fakeAuthJourney,
+      mockAuthJourney,
       inject[MessagesControllerComponents],
       inject[SignedInWrongAccountView],
       inject[DoYouKnowOtherCredentialsView],
@@ -50,15 +43,14 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
       inject[FindYourUserIdView]
     )(config)
 
-  "processDoYouKnowOtherCredentials" must {
-    "redirect to 'Sign in' page when supplied with value Yes" in {
-      val result = controller.processDoYouKnowOtherCredentials()(
-        FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
+  when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+      block(
+        buildUserRequest(request = request)
       )
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.signInAgain().url)
-    }
+  })
 
+  "processDoYouKnowOtherCredentials" must {
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
       val result = controller.processDoYouKnowOtherCredentials()(
         FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
@@ -74,6 +66,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
   }
 
   "processDoYouKnowUserId" must {
+
     "redirect to 'Sign in' page when supplied with value Yes" in {
       val result = controller.processDoYouKnowUserId()(
         FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")

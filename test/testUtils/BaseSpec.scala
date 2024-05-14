@@ -29,6 +29,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Injecting
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
@@ -71,8 +72,6 @@ trait BaseSpec
 
   val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
-  //val mockUserRequest: UserRequest[_] = mock[UserRequest[_]]
-
   @nowarn("msg=parameter (saUser|personDetails) in method localGuiceApplicationBuilder is never used")
   protected def localGuiceApplicationBuilder(
     saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
@@ -83,13 +82,13 @@ trait BaseSpec
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
         bind[EditAddressLockRepository].toInstance(mockEditAddressLockRepository),
         bind[FeatureFlagService].toInstance(mockFeatureFlagService)
-        // bind[UserRequest[_]].toInstance(mockUserRequest)
       )
       .configure(configValues)
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
-  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext     = app.injector.instanceOf[ExecutionContext]
+  lazy val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   lazy val config: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
