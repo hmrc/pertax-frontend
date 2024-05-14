@@ -29,7 +29,6 @@ trait ViewSpec extends BaseSpec with GuiceOneAppPerSuite {
     document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
   implicit lazy val messageProvider: MessagesProvider = inject[MessagesProvider]
-  lazy val messagesApi: MessagesApi                   = inject[MessagesApi]
   implicit lazy val messages: Messages                = MessagesImpl(Lang("en"), messagesApi)
   lazy val welshMessages: Messages                    = MessagesImpl(Lang("cy"), messagesApi)
 

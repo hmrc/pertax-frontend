@@ -17,6 +17,7 @@
 package testUtils
 
 import config.ConfigDecorator
+import controllers.auth.AuthJourney
 import models.{NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
 import models.admin.{AddressChangeAllowedToggle, AllFeatureFlags, DfsDigitalFormFrontendAvailableToggle, GetPersonFromCitizenDetailsToggle}
 import org.mockito.ArgumentMatchers.any
@@ -27,6 +28,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
+import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.MessagesControllerComponents
@@ -86,9 +88,11 @@ trait BaseSpec
       .configure(configValues)
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+  val mockAuthJourney: AuthJourney            = mock[AuthJourney]
 
   implicit lazy val ec: ExecutionContext     = app.injector.instanceOf[ExecutionContext]
   lazy val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
+  implicit def messagesApi: MessagesApi      = inject[MessagesApi]
 
   lazy val config: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 

@@ -18,6 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import connectors.PayApiConnector
+import controllers.auth.requests.UserRequest
 import controllers.auth.{FakeAuthJourney, _}
 import error.ErrorRenderer
 import models._
@@ -28,12 +29,13 @@ import org.scalatest.exceptions.TestFailedException
 import play.api.Application
 import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, REQUEST_TIMEOUT, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
 import play.api.inject.bind
-import play.api.mvc.{AnyContentAsEmpty, DefaultActionBuilder, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsEmpty, DefaultActionBuilder, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
 import services.SelfAssessmentService
-import testUtils.BaseSpec
+import testUtils.{ActionBuilderFixture, BaseSpec}
 import testUtils.Fixtures.buildFakeRequestWithAuth
+import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
@@ -70,6 +72,13 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   trait LocalSetup {
 
     val mockAuthJourney: AuthJourney = mock[AuthJourney]
+
+    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+        block(
+          buildUserRequest(request = request)
+        )
+    })
 
     def defaultFakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(
       authAction = mock[AuthRetrievals],

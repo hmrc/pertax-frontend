@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,45 @@
 
 package controllers.address
 import cats.data.EitherT
+import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import models.{NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
 import models.admin.{AddressChangeAllowedToggle, AddressTaxCreditsBrokerCallToggle}
 import models.dto.AddressPageVisitedDto
-import models.{NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{LocalSessionCache, TaxCreditsService}
-import testUtils.BaseSpec
 import testUtils.Fixtures.buildPersonDetailsCorrespondenceAddress
+import testUtils.{ActionBuilderFixture, WireMockHelper}
+import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import views.html.InternalServerErrorView
+import views.html.interstitial.DisplayAddressInterstitialView
+import views.html.personaldetails.TaxCreditsChoiceView
 
 import scala.concurrent.Future
 
-class TaxCreditsChoiceControllerSpec extends BaseSpec {
+class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper {
 
   private val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
-  private val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
   private val mockAddressJourneyCachingHelper          = mock[AddressJourneyCachingHelper]
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder(saUserType, personDetailsForRequest)
+  override def fakeApplication(): Application = new GuiceApplicationBuilder()
+    .configure(
+      "microservice.services.auth.port"   -> server.port(),
+      "microservice.services.pertax.port" -> server.port()
+    )
     .overrides(
       bind[LocalSessionCache].toInstance(mockLocalSessionCache),
       bind[TaxCreditsService].toInstance(mockTaxCreditsService),
@@ -58,11 +67,35 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
     reset(mockLocalSessionCache, mockTaxCreditsService, mockAddressJourneyCachingHelper)
   }
 
-  private def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-
+  private def currentRequest[A]: Request[A]                  = FakeRequest().asInstanceOf[Request[A]]
   private def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
+  private def saUserType: SelfAssessmentUserType             = NonFilerSelfAssessmentUser
 
-  private def saUserType: SelfAssessmentUserType = NonFilerSelfAssessmentUser
+  def controller: TaxCreditsChoiceController =
+    new TaxCreditsChoiceController(
+      mockAuthJourney,
+      mcc,
+      mockAddressJourneyCachingHelper,
+      mockEditAddressLockRepository,
+      inject[DisplayAddressInterstitialView],
+      mockTaxCreditsService,
+      mockFeatureFlagService,
+      inject[InternalServerErrorView],
+      inject[TaxCreditsChoiceView],
+      mockLocalSessionCache
+    )(config, ec)
+
+  when(mockAuthJourney.authWithPersonalDetails)
+    .thenReturn(new ActionBuilderFixture {
+    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+      block(
+        buildUserRequest(
+          request = currentRequest[A],
+          personDetails = personDetailsForRequest,
+          saUser = saUserType
+        )
+      )
+  })
 
   private val sessionCacheResponse: Option[CacheMap] =
     Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -73,8 +106,6 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
   when(mockLocalSessionCache.remove()(any(), any())) thenReturn {
     Future.successful(mock[HttpResponse])
   }
-
-  private val controller = inject[TaxCreditsChoiceController]
 
   "onPageLoad" when {
     "Tax-credit-broker call is used" must {
@@ -121,8 +152,6 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
             )
           when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
             .thenReturn(Future.successful(Ok("Fake Page")))
-
-          val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
           val result = controller.onPageLoad(currentRequest)
 
@@ -172,8 +201,6 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
   "onSubmit" must {
     "redirect to expected tax credits page when supplied with value = Yes (true)" in {
 
-      val controller = app.injector.instanceOf[TaxCreditsChoiceController]
-
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
@@ -201,7 +228,6 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
     }
 
     "redirect to InternationalAddressChoice page when supplied with value = No (false)" in {
-      val controller = app.injector.instanceOf[TaxCreditsChoiceController]
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
@@ -229,6 +255,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
     }
 
     "return a bad request when supplied no value" in {
+
       when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
         Future.successful(sessionCacheResponse)
       }

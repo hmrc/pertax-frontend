@@ -98,7 +98,7 @@ class PertaxAuthAction @Inject() (
       appConfig.ggSignInUrl,
       Map(
         "continue_url" -> Seq(s"${appConfig.pertaxFrontendHost}${appConfig.personalAccount}"),
-        "origin"       -> Seq("cocar-frontend"),
+        "origin"       -> Seq("pertax-frontend"),
         "accountType"  -> Seq("individual")
       )
     )

@@ -17,7 +17,6 @@
 package controllers
 
 import controllers.auth.requests.UserRequest
-import controllers.auth.AuthJourney
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -28,8 +27,6 @@ import views.html.selfassessment._
 import scala.concurrent.Future
 
 class SaWrongCredentialsControllerSpec extends BaseSpec {
-
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
 
   def controller: SaWrongCredentialsController =
     new SaWrongCredentialsController(

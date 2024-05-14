@@ -18,7 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, AuthRetrievals, SelfAssessmentStatusAction}
+import controllers.auth.{AuthRetrievals, SelfAssessmentStatusAction}
 import controllers.bindable.Origin
 import models._
 import org.mockito.ArgumentMatchers.any
@@ -51,7 +51,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     mock[IdentityVerificationFrontendService]
   val mockAuthAction: AuthRetrievals                                               = mock[AuthRetrievals]
   val mockSelfAssessmentStatusAction: SelfAssessmentStatusAction                   = mock[SelfAssessmentStatusAction]
-  val mockAuthJourney: AuthJourney                                                 = mock[AuthJourney]
   val mockInterstitialController: InterstitialController                           = mock[InterstitialController]
   val mockHomeController: HomeController                                           = mock[HomeController]
   val mockRlsConfirmAddressController: RlsController                               = mock[RlsController]

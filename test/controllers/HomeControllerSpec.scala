@@ -19,7 +19,6 @@ package controllers
 import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.{PreferencesFrontendConnector, TaiConnector}
-import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
@@ -59,7 +58,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockIdentityVerificationFrontendService: IdentityVerificationFrontendService =
     mock[IdentityVerificationFrontendService]
   val mockLocalSessionCache: LocalSessionCache                                     = mock[LocalSessionCache]
-  val mockAuthJourney: AuthJourney                                                 = mock[AuthJourney]
   val mockHomePageCachingHelper: HomePageCachingHelper                             = mock[HomePageCachingHelper]
   val mockBreathingSpaceService: BreathingSpaceService                             = mock[BreathingSpaceService]
   val mockHomeCardGenerator: HomeCardGenerator                                     = mock[HomeCardGenerator]

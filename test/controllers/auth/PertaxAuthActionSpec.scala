@@ -25,7 +25,7 @@ import org.mockito.ArgumentMatchers.any
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, UNAUTHORIZED}
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
@@ -50,7 +50,6 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
   val internalServerErrorView: InternalServerErrorView = app.injector.instanceOf[InternalServerErrorView]
   val mainView: MainView                               = app.injector.instanceOf[MainView]
   private val cc                                       = app.injector.instanceOf[ControllerComponents]
-  val messagesApi: MessagesApi                         = inject[MessagesApi]
   implicit lazy val messages: Messages                 = MessagesImpl(Lang("en"), messagesApi).messages
 
   val pertaxAuthAction =
