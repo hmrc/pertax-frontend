@@ -18,7 +18,7 @@ package controllers.address
 import cats.data.EitherT
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.{NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
 import models.admin.{AddressChangeAllowedToggle, AddressTaxCreditsBrokerCallToggle}
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.any
@@ -34,7 +34,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{LocalSessionCache, TaxCreditsService}
 import testUtils.Fixtures.buildPersonDetailsCorrespondenceAddress
-import testUtils.{ActionBuilderFixture, WireMockHelper}
+import testUtils.{ActionBuilderFixture, Fixtures, WireMockHelper}
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
@@ -85,18 +85,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
       mockLocalSessionCache
     )(config, ec)
 
-  when(mockAuthJourney.authWithPersonalDetails)
-    .thenReturn(new ActionBuilderFixture {
-    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-      block(
-        buildUserRequest(
-          request = currentRequest[A],
-          personDetails = personDetailsForRequest,
-          saUser = saUserType
-        )
-      )
-  })
-
   private val sessionCacheResponse: Option[CacheMap] =
     Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
@@ -110,6 +98,8 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
   "onPageLoad" when {
     "Tax-credit-broker call is used" must {
       "redirect to `do-you-live-in-the-uk` if the user does not receives tax credits" in {
+        def saUserType: SelfAssessmentUserType = NotEnrolledSelfAssessmentUser(Fixtures.saUtr)
+
         val arg = ArgumentCaptor.forClass(classOf[Result])
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
@@ -124,6 +114,18 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
           )
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
+
+        when(mockAuthJourney.authWithPersonalDetails)
+          .thenReturn(new ActionBuilderFixture {
+            override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+              block(
+                buildUserRequest(
+                  request = currentRequest[A],
+                  personDetails = personDetailsForRequest,
+                  saUser = saUserType
+                )
+              )
+          })
 
         val result = controller.onPageLoad(currentRequest)
 
@@ -153,6 +155,21 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
           when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
             .thenReturn(Future.successful(Ok("Fake Page")))
 
+          when(mockAuthJourney.authWithPersonalDetails)
+            .thenReturn(new ActionBuilderFixture {
+              override def invokeBlock[A](
+                request: Request[A],
+                block: UserRequest[A] => Future[Result]
+              ): Future[Result] =
+                block(
+                  buildUserRequest(
+                    request = currentRequest[A],
+                    personDetails = personDetailsForRequest,
+                    saUser = saUserType
+                  )
+                )
+            })
+
           val result = controller.onPageLoad(currentRequest)
 
           status(result) mustBe OK
@@ -168,7 +185,8 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
 
     "Tax-credit-broker call is not used and the question ask to the user" must {
       "display do you get tax credits page if the user has tax credits" in {
-        val arg = ArgumentCaptor.forClass(classOf[Result])
+        def saUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(Fixtures.saUtr)
+        val arg                                = ArgumentCaptor.forClass(classOf[Result])
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
@@ -183,7 +201,17 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
         when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
           .thenReturn(Future.successful(Ok("Fake Page")))
 
-        val controller = app.injector.instanceOf[TaxCreditsChoiceController]
+        when(mockAuthJourney.authWithPersonalDetails)
+          .thenReturn(new ActionBuilderFixture {
+            override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+              block(
+                buildUserRequest(
+                  request = currentRequest[A],
+                  personDetails = personDetailsForRequest,
+                  saUser = saUserType
+                )
+              )
+          })
 
         val result = controller.onPageLoad(currentRequest)
 
@@ -200,6 +228,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
 
   "onSubmit" must {
     "redirect to expected tax credits page when supplied with value = Yes (true)" in {
+      def saUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(Fixtures.saUtr)
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
@@ -217,18 +246,30 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
       when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
         .thenReturn(Future.successful(Ok("Page")))
 
-      val result =
-        controller.onSubmit(
-          FakeRequest("POST", "")
-            .withFormUrlEncodedBody("taxCreditsChoice" -> "true")
-        )
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                request = currentRequest[A],
+                personDetails = personDetailsForRequest,
+                saUser = saUserType
+              )
+            )
+        })
+
+      def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("taxCreditsChoice" -> "true")
+          .asInstanceOf[Request[A]]
+
+      val result: Future[Result] = controller.onSubmit(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/change-address-tax-credits")
     }
 
     "redirect to InternationalAddressChoice page when supplied with value = No (false)" in {
-
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
@@ -245,10 +286,24 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
         Future.successful(true)
       }
 
-      val result = controller.onSubmit(
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                request = currentRequest[A],
+                personDetails = personDetailsForRequest,
+                saUser = saUserType
+              )
+            )
+        })
+
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("taxCreditsChoice" -> "false")
-      )
+          .asInstanceOf[Request[A]]
+
+      val result: Future[Result] = controller.onSubmit(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/do-you-live-in-the-uk")
@@ -263,6 +318,17 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
         .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                request = currentRequest[A],
+                personDetails = personDetailsForRequest,
+                saUser = saUserType
+              )
+            )
+        })
 
       val result = controller.onSubmit(FakeRequest())
 
