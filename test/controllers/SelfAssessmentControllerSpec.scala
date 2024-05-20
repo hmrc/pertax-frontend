@@ -19,7 +19,7 @@ package controllers
 import cats.data.EitherT
 import connectors.PayApiConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{FakeAuthJourney, _}
+import controllers.auth._
 import error.ErrorRenderer
 import models._
 import org.jsoup.Jsoup
@@ -29,7 +29,7 @@ import org.scalatest.exceptions.TestFailedException
 import play.api.Application
 import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, REQUEST_TIMEOUT, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
 import play.api.inject.bind
-import play.api.mvc.{AnyContentAsEmpty, DefaultActionBuilder, MessagesControllerComponents, Request, Result}
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
 import services.SelfAssessmentService
@@ -85,17 +85,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     def currentRequest[A]: Request[A] =
       FakeRequest("GET", "")
         .asInstanceOf[Request[A]]
-
-    def defaultFakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(
-      authAction = mock[AuthRetrievals],
-      selfAssessmentStatusAction = mock[SelfAssessmentStatusAction],
-      pertaxAuthAction = mock[PertaxAuthAction],
-      getPersonDetailsAction = mock[GetPersonDetailsAction],
-      defaultActionBuilder = mock[DefaultActionBuilder],
-      saUser = NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
-      mcc = mock[MessagesControllerComponents],
-      personDetails = Some(mock[PersonDetails])
-    )
 
     def controller: SelfAssessmentController =
       new SelfAssessmentController(

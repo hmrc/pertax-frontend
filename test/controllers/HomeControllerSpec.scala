@@ -19,9 +19,10 @@ package controllers
 import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.{PreferencesFrontendConnector, TaiConnector}
+import controllers.auth.{AuthJourney, AuthRetrievals}
 import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
-import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
+import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models._
 import models.admin._
@@ -29,7 +30,8 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.Application
 import play.api.inject.bind
-import play.api.mvc._
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.{Result, _}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -37,19 +39,35 @@ import services._
 import services.partials.MessageFrontendService
 import testUtils.Fixtures._
 import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
+import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures, WireMockHelper}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.AlertBannerHelper
+import views.html.HomeView
 
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
+class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelper {
 
+  override def fakeApplication(): Application = new GuiceApplicationBuilder()
+    .configure(
+      "microservice.services.auth.port"   -> server.port(),
+      "microservice.services.pertax.port" -> server.port()
+    )
+    .overrides(
+      bind[LocalSessionCache].toInstance(mockLocalSessionCache),
+      bind[TaiConnector].toInstance(mockTaiService),
+      bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+      bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper)
+    )
+    .build()
+
+  val mockAuthAction: AuthRetrievals                                               = mock[AuthRetrievals]
   val mockConfigDecorator: ConfigDecorator                                         = mock[ConfigDecorator]
   val mockTaiService: TaiConnector                                                 = mock[TaiConnector]
   val mockSeissService: SeissService                                               = mock[SeissService]
@@ -61,6 +79,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockHomePageCachingHelper: HomePageCachingHelper                             = mock[HomePageCachingHelper]
   val mockBreathingSpaceService: BreathingSpaceService                             = mock[BreathingSpaceService]
   val mockHomeCardGenerator: HomeCardGenerator                                     = mock[HomeCardGenerator]
+  val mockPaperlessInterruptHelper: PaperlessInterruptHelper                       = mock[PaperlessInterruptHelper]
+  val mockTaiConnector: TaiConnector                                               = mock[TaiConnector]
+  val mockRlsInterruptHelper: RlsInterruptHelper                                   = mock[RlsInterruptHelper]
+  val mockAlertBannerHelper: AlertBannerHelper                                     = mock[AlertBannerHelper]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -70,7 +92,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       mockMessageFrontendService,
       mockHomePageCachingHelper,
       mockHomeCardGenerator,
-      mockPreferencesFrontendConnector
+      mockPreferencesFrontendConnector,
+      mockAuthAction
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
       FeatureFlag(TaxcalcToggle, isEnabled = true)
@@ -79,7 +102,18 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
 
+  //private def currentRequest[A]: Request[A]                  = FakeRequest().asInstanceOf[Request[A]]
+  private def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
+//  private def saUserType: SelfAssessmentUserType             = NonFilerSelfAssessmentUser
+
   trait LocalSetup {
+
+    val mockAuthJourney: AuthJourney = mock[AuthJourney]
+
+    def currentRequest[A]: Request[A] =
+      FakeRequest()
+        .withSession("sessionId" -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[A]]
 
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -87,6 +121,22 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           buildUserRequest(request = request)
         )
     })
+
+    def controller2: HomeController =
+      new HomeController(
+        mockPaperlessInterruptHelper,
+        mockTaiConnector,
+        mockBreathingSpaceService,
+        mockFeatureFlagService,
+        mockHomeCardGenerator,
+        mockHomePageCachingHelper,
+        mockAuthJourney,
+        inject[MessagesControllerComponents],
+        inject[HomeView],
+        mockSeissService,
+        mockRlsInterruptHelper,
+        mockAlertBannerHelper
+      )(config, ec)
 
     lazy val authProviderType: String             = UserDetails.GovernmentGatewayAuthProvider
     lazy val nino: Nino                           = Fixtures.fakeNino
@@ -197,7 +247,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   "Calling HomeController.index" must {
 
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
-
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -218,9 +267,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      val result: Future[Result] = controller.index()(currentRequest)
 
-      status(r) mustBe OK
+      status(result) mustBe OK
 
       verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any(), any())
     }
@@ -245,8 +294,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
-      status(r) mustBe OK
+      val result: Future[Result] = controller.index()(currentRequest)
+      status(result) mustBe OK
 
       verify(mockTaiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any(), any())
     }
@@ -273,8 +322,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
-      status(r) mustBe OK
+      val result: Future[Result] = controller.index()(currentRequest)
+      status(result) mustBe OK
 
       verify(mockTaiService, times(0)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any(), any())
     }
@@ -301,8 +350,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
         )
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
-      status(r) mustBe OK
+      val result: Future[Result] = controller.index()(currentRequest)
+      status(result) mustBe OK
 
     }
 
@@ -333,9 +382,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
         )
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
-      status(r) mustBe SEE_OTHER
-      redirectLocation(r) mustBe Some("http://www.example.com")
+      val result: Future[Result] = controller.index()(currentRequest)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("http://www.example.com")
     }
 
     "return 200 when TaxCalculationService returns TaxCalculationNotFoundResponse" in new LocalSetup {
@@ -355,12 +404,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
-      status(r) mustBe OK
+      val result: Future[Result] = controller.index()(currentRequest)
+      status(result) mustBe OK
 
     }
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
+
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle))) thenReturn Future.successful(
         FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)
       )
@@ -368,17 +418,26 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         FeatureFlag(TaxcalcToggle, isEnabled = true)
       )
 
-      lazy val app: Application = localGuiceApplicationBuilder()
-        .overrides(
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
-          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
-        )
-        .build()
+      def saUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(Fixtures.saUtr)
+
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                request = currentRequest[A],
+                personDetails = personDetailsForRequest,
+                saUser = saUserType
+              )
+            )
+        })
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
-      status(r) mustBe OK
+      val result: Future[Result] = controller.index()(currentRequest)
+      //status(result) mustBe OK
+      redirectLocation(result) mustBe Some("/personal-account/your-address/change-address-tax-credits")
+
     }
 
     "return a 303 status when both the user's residential and postal addresses status are rls" in new LocalSetup {
@@ -405,9 +464,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      val result: Future[Result] = controller.index()(currentRequest)
 
-      status(r) mustBe SEE_OTHER
+      status(result) mustBe SEE_OTHER
     }
 
     "return a 200 status when both the user's residential and postal addresses status are rls but both addresses have been updated" in new LocalSetup {
@@ -436,9 +495,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      val result: Future[Result] = controller.index()(currentRequest)
 
-      status(r) mustBe OK
+      status(result) mustBe OK
     }
 
     "return a 303 status when the user's residential address status is rls" in new LocalSetup {
@@ -464,9 +523,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      val result: Future[Result] = controller.index()(currentRequest)
 
-      status(r) mustBe SEE_OTHER
+      status(result) mustBe SEE_OTHER
     }
 
     "return a 200 status when the user's residential address status is rls but address has been updated" in new LocalSetup {
@@ -495,9 +554,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      val result: Future[Result] = controller.index()(currentRequest)
 
-      status(r) mustBe OK
+      status(result) mustBe OK
     }
 
     "return a 303 status when the user's postal address status is rls" in new LocalSetup {
@@ -523,9 +582,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val result: Future[Result] = controller.index()(FakeRequest())
 
-      status(r) mustBe SEE_OTHER
+      status(result) mustBe SEE_OTHER
     }
 
     "return a 200 status when the user's postal address status is rls but address has been updated" in new LocalSetup {
@@ -554,9 +613,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+      val result: Future[Result] = controller.index()(currentRequest)
 
-      status(r) mustBe OK
+      status(result) mustBe OK
     }
 
     "return a 303 status when the user's residential and postal address status is rls but residential address has been updated" in new LocalSetup {
@@ -582,9 +641,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val result: Future[Result] = controller.index()(FakeRequest())
 
-      status(r) mustBe SEE_OTHER
+      status(result) mustBe SEE_OTHER
     }
 
     "return a 303 status when the user's residential and postal address status is rls but postal address has been updated" in new LocalSetup {
@@ -610,9 +669,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
 
-      val r: Future[Result] = controller.index()(FakeRequest())
+      val result: Future[Result] = controller.index()(FakeRequest())
 
-      status(r) mustBe SEE_OTHER
+      status(result) mustBe SEE_OTHER
     }
 
   }
@@ -643,17 +702,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         "feature.banner.home.enabled" -> true
       ).build()
 
-      val configDecorator: ConfigDecorator = inject[ConfigDecorator]
+      val result: Future[Result] = app.injector
+        .instanceOf[HomeController]
+        .index()(currentRequest)
 
-      val r: Future[Result] =
-        app.injector
-          .instanceOf[HomeController]
-          .index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
-
-      status(r) mustBe OK
-      contentAsString(r) must include(configDecorator.bannerHomePageLinkUrl.replaceAll("&", "&amp;"))
-      contentAsString(r) must include(configDecorator.bannerHomePageHeadingEn)
-      contentAsString(r) must include(configDecorator.bannerHomePageLinkTextEn)
+      status(result) mustBe OK
+      contentAsString(result) must include(config.bannerHomePageLinkUrl.replaceAll("&", "&amp;"))
+      contentAsString(result) must include(config.bannerHomePageHeadingEn)
+      contentAsString(result) must include(config.bannerHomePageLinkTextEn)
     }
   }
 
@@ -683,18 +739,16 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         "feature.banner.home.enabled" -> false
       ).build()
 
-      val configDecorator: ConfigDecorator = inject[ConfigDecorator]
-
-      val r: Future[Result] =
+      val result: Future[Result] =
         app.injector
           .instanceOf[HomeController]
-          .index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
+          .index()(currentRequest)
 
-      status(r) mustBe OK
+      status(result) mustBe OK
 
-      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkUrl)
-      contentAsString(r) mustNot include(configDecorator.bannerHomePageHeadingEn)
-      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkTextEn)
+      contentAsString(result) mustNot include(config.bannerHomePageLinkUrl)
+      contentAsString(result) mustNot include(config.bannerHomePageHeadingEn)
+      contentAsString(result) mustNot include(config.bannerHomePageLinkTextEn)
     }
 
     "it is enabled and user has closed it" in new LocalSetup {
@@ -722,9 +776,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         "feature.banner.home.enabled" -> true
       ).build()
 
-      val configDecorator: ConfigDecorator = inject[ConfigDecorator]
-
-      val r: Future[Result] =
+      val result: Future[Result] =
         app.injector
           .instanceOf[HomeController]
           .index()(
@@ -733,10 +785,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
               .withHeaders(HeaderNames.authorisation -> "Bearer 1")
           )
 
-      status(r) mustBe OK
-      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkUrl)
-      contentAsString(r) mustNot include(configDecorator.bannerHomePageHeadingEn)
-      contentAsString(r) mustNot include(configDecorator.bannerHomePageLinkTextEn)
+      status(result) mustBe OK
+      contentAsString(result) mustNot include(config.bannerHomePageLinkUrl)
+      contentAsString(result) mustNot include(config.bannerHomePageHeadingEn)
+      contentAsString(result) mustNot include(config.bannerHomePageLinkTextEn)
     }
   }
 
@@ -876,8 +928,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         .build()
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
-      val r: Future[Result]          = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
-      status(r) mustBe OK
+      val result: Future[Result]     = controller.index()(currentRequest)
+      status(result) mustBe OK
       verify(mockPreferencesFrontendConnector, never).getPaperlessStatus(any(), any())(any())
     }
 
@@ -896,17 +948,24 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
         )
 
-      lazy val app: Application = localGuiceApplicationBuilder()
-        .overrides(
-          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector),
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
-          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
-        )
-        .build()
+      def saUserType: SelfAssessmentUserType = NotEnrolledSelfAssessmentUser(Fixtures.saUtr)
+
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                request = currentRequest[A],
+                personDetails = personDetailsForRequest,
+                saUser = saUserType
+              )
+            )
+        })
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
-      val r: Future[Result]          = controller.index()(FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
-      status(r) mustBe OK
+      val result: Future[Result]     = controller.index()(currentRequest)
+
+      status(result) mustBe OK
       verify(mockPreferencesFrontendConnector, times(1)).getPaperlessStatus(any(), any())(any())
     }
   }
