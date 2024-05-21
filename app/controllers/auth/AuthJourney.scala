@@ -16,17 +16,22 @@
 
 package controllers.auth
 
-import com.google.inject.Inject
+import com.google.inject.{ImplementedBy, Inject}
 import controllers.auth.requests.UserRequest
 import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder}
 
-class AuthJourney @Inject() (
+@ImplementedBy(classOf[AuthJourneyImpl])
+trait AuthJourney {
+  val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent]
+}
+
+class AuthJourneyImpl @Inject() (
   authAction: AuthRetrievals,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
   pertaxAuthAction: PertaxAuthAction,
   getPersonDetailsAction: GetPersonDetailsAction,
   defaultActionBuilder: DefaultActionBuilder
-) {
+) extends AuthJourney {
 
   val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
     defaultActionBuilder andThen pertaxAuthAction andThen authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
