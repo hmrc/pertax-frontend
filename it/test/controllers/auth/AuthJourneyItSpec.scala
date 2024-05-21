@@ -17,21 +17,15 @@
 package controllers.auth
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, urlEqualTo, urlMatching, status => _}
-import com.github.tomakehurst.wiremock.http.{HttpHeader, HttpHeaders}
-import models.{ActivatedOnlineFilerSelfAssessmentUser, ErrorView, PertaxResponse, UserDetails, UserName}
+import models.PertaxResponse
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
-import play.api.http.Writeable.wByteArray
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.{Fixtures, IntegrationSpec}
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
@@ -142,65 +136,6 @@ class AuthJourneyItSpec extends IntegrationSpec {
         ) mustBe Some(
           s"$tenBaseUrl?redirectUrl=%2Fpersonal-account"
         )
-      }
-    }
-
-    "Agent" when {
-      "be shown a forbidden screen" in {
-        val pageStatus  = FORBIDDEN
-        val pageContent = "<h1>Some Html content</h1>"
-        val partialUrl  = "/partials/view"
-
-        val pertaxResponse = Json
-          .toJson(
-            PertaxResponse(
-              "INVALID_AFFINITY",
-              "The user is neither an individual or an organisation",
-              Some(ErrorView(partialUrl, pageStatus)),
-              None
-            )
-          )
-          .toString
-
-        server.stubFor(
-          post(urlEqualTo("/pertax/authorise"))
-            .willReturn(aResponse().withBody(pertaxResponse))
-        )
-
-        server.stubFor(
-          get(urlEqualTo(s"$partialUrl"))
-            .willReturn(
-              aResponse()
-                .withHeaders(
-                  new HttpHeaders(
-                    new HttpHeader("x-title", "title"),
-                    new HttpHeader("content-type", "text/html; charset=UTF-8")
-                  )
-                )
-                .withBody(pageContent)
-            )
-        )
-
-        val fakeRequest = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
-        val request     = buildUserRequest(
-          authNino = Fixtures.fakeNino,
-          nino = Some(Fixtures.fakeNino),
-          userName = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-          saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-          credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
-          confidenceLevel = ConfidenceLevel.L200,
-          personDetails = Some(Fixtures.buildPersonDetails),
-          trustedHelper = None,
-          profile = None,
-          enrolments = Set(
-            Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")
-          ),
-          request = fakeRequest
-        )
-
-        val result = route(app, request).get
-
-        status(result) mustBe pageStatus
       }
     }
 

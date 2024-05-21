@@ -47,7 +47,6 @@ import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, UpstreamError
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import views.html.HomeView
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -60,6 +59,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
       "microservice.services.pertax.port" -> server.port()
     )
     .overrides(
+      bind[AuthRetrievals].toInstance(mockAuthAction),
       bind[LocalSessionCache].toInstance(mockLocalSessionCache),
       bind[TaiConnector].toInstance(mockTaiService),
       bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
@@ -93,7 +93,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
       mockHomePageCachingHelper,
       mockHomeCardGenerator,
       mockPreferencesFrontendConnector,
-      mockAuthAction
+      mockAuthAction,
+      mockAuthJourney
     )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle))) thenReturn Future.successful(
       FeatureFlag(TaxcalcToggle, isEnabled = true)
@@ -102,9 +103,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
 
   override def now: () => LocalDate = () => LocalDate.now()
 
-  //private def currentRequest[A]: Request[A]                  = FakeRequest().asInstanceOf[Request[A]]
   private def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
-//  private def saUserType: SelfAssessmentUserType             = NonFilerSelfAssessmentUser
 
   trait LocalSetup {
 
@@ -121,22 +120,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
           buildUserRequest(request = request)
         )
     })
-
-    def controller2: HomeController =
-      new HomeController(
-        mockPaperlessInterruptHelper,
-        mockTaiConnector,
-        mockBreathingSpaceService,
-        mockFeatureFlagService,
-        mockHomeCardGenerator,
-        mockHomePageCachingHelper,
-        mockAuthJourney,
-        inject[MessagesControllerComponents],
-        inject[HomeView],
-        mockSeissService,
-        mockRlsInterruptHelper,
-        mockAlertBannerHelper
-      )(config, ec)
 
     lazy val authProviderType: String             = UserDetails.GovernmentGatewayAuthProvider
     lazy val nino: Nino                           = Fixtures.fakeNino
@@ -919,6 +902,16 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
           )
         )
 
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+              request = request
+            )
+          )
+      })
+
       lazy val app: Application = localGuiceApplicationBuilder()
         .overrides(
           bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector),
@@ -934,6 +927,19 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
     }
 
     "return a 200 status and one call to PreferencesFrontendConnector if AlertFlagToggle is enabled" in new LocalSetup {
+      def saUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(Fixtures.saUtr)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = currentRequest[A],
+              personDetails = personDetailsForRequest,
+              saUser = saUserType
+            )
+          )
+      })
+
       when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -947,20 +953,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
             Future.successful(Right(PaperlessStatusBounced()))
           )
         )
-
-      def saUserType: SelfAssessmentUserType = NotEnrolledSelfAssessmentUser(Fixtures.saUtr)
-
-      when(mockAuthJourney.authWithPersonalDetails)
-        .thenReturn(new ActionBuilderFixture {
-          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(
-              buildUserRequest(
-                request = currentRequest[A],
-                personDetails = personDetailsForRequest,
-                saUser = saUserType
-              )
-            )
-        })
 
       val controller: HomeController = app.injector.instanceOf[HomeController]
       val result: Future[Result]     = controller.index()(currentRequest)
