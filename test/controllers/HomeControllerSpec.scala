@@ -31,6 +31,7 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.Results._
 import play.api.mvc.{Result, _}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -47,6 +48,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, UpstreamError
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
+import views.html.HomeView
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -84,6 +86,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
   val mockRlsInterruptHelper: RlsInterruptHelper                                   = mock[RlsInterruptHelper]
   val mockAlertBannerHelper: AlertBannerHelper                                     = mock[AlertBannerHelper]
 
+  lazy val authProviderType: String             = UserDetails.GovernmentGatewayAuthProvider
+  lazy val nino: Nino                           = Fixtures.fakeNino
+  lazy val personDetailsResponse: PersonDetails = Fixtures.buildPersonDetails
+  lazy val confidenceLevel: ConfidenceLevel     = ConfidenceLevel.L200
+  lazy val withPaye: Boolean                    = true
+  lazy val year                                 = 2017
+  lazy val trustedHelper: Option[TrustedHelper] = None
+
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(
@@ -120,14 +130,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
           buildUserRequest(request = request)
         )
     })
-
-    lazy val authProviderType: String             = UserDetails.GovernmentGatewayAuthProvider
-    lazy val nino: Nino                           = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetails = Fixtures.buildPersonDetails
-    lazy val confidenceLevel: ConfidenceLevel     = ConfidenceLevel.L200
-    lazy val withPaye: Boolean                    = true
-    lazy val year                                 = 2017
-    lazy val trustedHelper: Option[TrustedHelper] = None
 
     lazy val getPaperlessPreferenceResponse: EitherT[Future, UpstreamErrorResponse, HttpResponse]             =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
@@ -225,6 +227,12 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
       .thenReturn(Future.successful(Seq(dummyHtml)))
     when(mockHomeCardGenerator.getPensionCards()(any())).thenReturn(Future.successful(List(dummyHtml)))
     when(mockHomeCardGenerator.getBenefitCards(any(), any())(any())).thenReturn(List(dummyHtml))
+
+    val okBlock: Result = Ok("Block")
+
+    when(mockRlsInterruptHelper.enforceByRlsStatus(any())(any(), any()))
+      .thenReturn(Future(okBlock))
+
   }
 
   "Calling HomeController.index" must {
@@ -773,6 +781,100 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
       contentAsString(result) mustNot include(config.bannerHomePageHeadingEn)
       contentAsString(result) mustNot include(config.bannerHomePageLinkTextEn)
     }
+
+    "return a 200 status and one call to PreferencesFrontendConnector if AlertFlagToggle is enabled" in new LocalSetup {
+
+      val homeController =
+        new HomeController(
+          mockPaperlessInterruptHelper,
+          mockTaiConnector,
+          mockBreathingSpaceService,
+          mockFeatureFlagService,
+          mockHomeCardGenerator,
+          mockHomePageCachingHelper,
+          mockAuthJourney,
+          mcc,
+          inject[HomeView],
+          mockSeissService,
+          mockRlsInterruptHelper,
+          mockAlertBannerHelper
+        )(config, ec)
+
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle))) thenReturn Future
+        .successful(
+          FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = true)
+        )
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, PaperlessMessagesStatus](
+            Future.successful(Right(PaperlessStatusBounced()))
+          )
+        )
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+              request = request
+            )
+          )
+      })
+
+      val result: Future[Result] = homeController.index()(currentRequest)
+
+      status(result) mustBe OK
+      verify(mockPreferencesFrontendConnector, times(1)).getPaperlessStatus(any(), any())(any())
+    }
+
+    "return a 200 status and no calls to PreferencesFrontendConnector if AlertFlagToggle is disabled" in new LocalSetup {
+      val homeController =
+        new HomeController(
+          mockPaperlessInterruptHelper,
+          mockTaiConnector,
+          mockBreathingSpaceService,
+          mockFeatureFlagService,
+          mockHomeCardGenerator,
+          mockHomePageCachingHelper,
+          mockAuthJourney,
+          mcc,
+          inject[HomeView],
+          mockSeissService,
+          mockRlsInterruptHelper,
+          mockAlertBannerHelper
+        )(config, ec)
+
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle))) thenReturn Future
+        .successful(
+          FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = false)
+        )
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, PaperlessMessagesStatus](
+            Future.successful(Right(PaperlessStatusBounced()))
+          )
+        )
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+              request = request
+            )
+          )
+      })
+
+      val result: Future[Result] = homeController.index()(currentRequest)
+      status(result) mustBe OK
+      verify(mockPreferencesFrontendConnector, never).getPaperlessStatus(any(), any())(any())
+    }
   }
 
   "Calling retrieveTaxComponentsState" must {
@@ -885,80 +987,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with WireMockHelpe
       private val result = await(controller.retrieveTaxComponentsState(Some(userNino), year))
 
       result mustBe TaxComponentsUnreachableState
-    }
-
-    "return a 200 status and no calls to PreferencesFrontendConnector if AlertFlagToggle is disabled" in new LocalSetup {
-      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-        .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
-      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = false)
-        )
-      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
-        .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, PaperlessMessagesStatus](
-            Future.successful(Right(PaperlessStatusBounced()))
-          )
-        )
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-              request = request
-            )
-          )
-      })
-
-      lazy val app: Application = localGuiceApplicationBuilder()
-        .overrides(
-          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector),
-          bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
-          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator)
-        )
-        .build()
-
-      val controller: HomeController = app.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      verify(mockPreferencesFrontendConnector, never).getPaperlessStatus(any(), any())(any())
-    }
-
-    "return a 200 status and one call to PreferencesFrontendConnector if AlertFlagToggle is enabled" in new LocalSetup {
-      def saUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(Fixtures.saUtr)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = currentRequest[A],
-              personDetails = personDetailsForRequest,
-              saUser = saUserType
-            )
-          )
-      })
-
-      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
-        .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
-      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = true)
-        )
-      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
-        .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, PaperlessMessagesStatus](
-            Future.successful(Right(PaperlessStatusBounced()))
-          )
-        )
-
-      val controller: HomeController = app.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-
-      status(result) mustBe OK
-      verify(mockPreferencesFrontendConnector, times(1)).getPaperlessStatus(any(), any())(any())
     }
   }
 }
