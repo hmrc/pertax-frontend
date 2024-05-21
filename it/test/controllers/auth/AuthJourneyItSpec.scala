@@ -83,8 +83,6 @@ class AuthJourneyItSpec extends IntegrationSpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
       .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, isEnabled = true)))
   }
 
   "personal-account" must {
