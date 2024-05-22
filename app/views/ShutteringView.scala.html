@@ -37,6 +37,25 @@ showBackLink = true
     @h1("alertBannerShuttering.title", classes = Some("govuk-heading-xl"))
     @p(Text(paragraphText))
     <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("alertBannerShuttering.payeIncomeTaxHistory")</li>
+        @Seq("alertBannerShuttering.cysp",
+        "alertBannerShuttering.taxRefund",
+        "alertBannerShuttering.c2ni",
+        "alertBannerShuttering.cocar",
+        "alertBannerShuttering.ee",
+        "alertBannerShuttering.gmp",
+        "alertBannerShuttering.helpToSave",
+        "alertBannerShuttering.lifetimeISA",
+        "alertBannerShuttering.tamc",
+        "alertBannerShuttering.medben",
+        "alertBannerShuttering.paye",
+        "alertBannerShuttering.pensionLifetimeAllowance",
+        "alertBannerShuttering.personalBenefitsInKind",
+        "alertBannerShuttering.reliefAtSource",
+        "alertBannerShuttering.repayments",
+        "alertBannerShuttering.taxcalc",
+        "alertBannerShuttering.fandf").map{item=>
+            <li>@messages(item)</li>
+        }
+
     </ul>
 }

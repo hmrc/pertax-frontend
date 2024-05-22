@@ -689,6 +689,11 @@ alertBannerShuttering.fandf = Trusted Helpers
 alertBannerShuttering.childBenefit = Child Benefit
 alertBannerShuttering.taxCredits = Tax Credits
 alertBannerShuttering.payeIncomeTaxHistory = PAYE Income Tax History
+alertBannerShuttering.reliefAtSource = Relief At Source
+alertBannerShuttering.personalBenefitsInKind = Personal Benefits In Kind
+alertBannerShuttering.lifetimeISA = Lifetime Individual Savings Account
+alertBannerShuttering.gmp = Guaranteed Minimum Pension
+
 alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Employee Expenses, including working from home, uniform, work clothes, tools and professional subscriptions
 
 #*************************************************************
