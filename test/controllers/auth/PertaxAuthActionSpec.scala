@@ -24,7 +24,7 @@ import models.{ErrorView, PertaxResponse, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, UNAUTHORIZED}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, SEE_OTHER, UNAUTHORIZED}
 import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.ControllerComponents
@@ -111,6 +111,48 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
       }
     }
 
+    "the pertax API response returns a CONFIDENCE_LEVEL_UPLIFT_REQUIRED response" must {
+      "redirect to uplift Journey" in {
+        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, PertaxResponse](
+              Future.successful(
+                Right(PertaxResponse("CONFIDENCE_LEVEL_UPLIFT_REQUIRED", "", None, Some("redirectLocation")))
+              )
+            )
+          )
+
+        val result = pertaxAuthAction.filter(expectedRequest).futureValue
+
+        result must not be empty
+        result.get.header.headers
+          .get("Location") mustBe Some(
+          "redirectLocation?origin=TAI&confidenceLevel=200&completionURL=&failureURL=%3FcontinueUrl%3D"
+        )
+      }
+    }
+
+    "the pertax API response returns a CREDENTIAL_STRENGTH_UPLIFT_REQUIRED response" must {
+      "return an InternalServerError" in {
+        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, PertaxResponse](
+              Future.successful(
+                Right(PertaxResponse("CREDENTIAL_STRENGTH_UPLIFT_REQUIRED", "", None, Some("Something")))
+              )
+            )
+          )
+
+        val result = pertaxAuthAction.filter(expectedRequest).futureValue
+
+        result.get.header.status mustBe INTERNAL_SERVER_ERROR
+        contentAsString(Future.successful(result.get)) must include(
+          messages("global.error.InternalServerError500.pta.title")
+        )
+
+      }
+    }
+
     "the pertax API response returns an error view" must {
       "show the corresponding view" in {
         when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
@@ -137,6 +179,54 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
         result                                         must not be empty
         result.get.header.status mustBe UNAUTHORIZED
         contentAsString(Future.successful(result.get)) must include(messages("Should be in the resulting view"))
+      }
+      "return internal server error" in {
+        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, PertaxResponse](
+              Future.successful(
+                Right(
+                  PertaxResponse(
+                    "INVALID_AFFINITY",
+                    "The user is neither an individual or an organisation",
+                    Some(ErrorView("", UNAUTHORIZED)),
+                    None
+                  )
+                )
+              )
+            )
+          )
+
+        when(mockPertaxConnector.loadPartial(any())(any(), any()))
+          .thenReturn(Future.successful(HtmlPartial.Failure(None, "")))
+
+        val result = pertaxAuthAction.filter(expectedRequest).futureValue
+
+        result                                         must not be empty
+        result.get.header.status mustBe INTERNAL_SERVER_ERROR
+        contentAsString(Future.successful(result.get)) must include(
+          messages("global.error.InternalServerError500.pta.title")
+        )
+      }
+    }
+
+    "the pertax API response returns an unauthorised response" must {
+      "redirect to sign in Journey" in {
+        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, PertaxResponse](
+              Future.successful(Left(UpstreamErrorResponse("", UNAUTHORIZED)))
+            )
+          )
+
+        val result = pertaxAuthAction.filter(expectedRequest).futureValue
+
+        result must not be empty
+        result.get.header.status mustBe SEE_OTHER
+        result.get.header.headers
+          .get("Location") mustBe Some(
+          "?continue_url=&origin=pertax-frontend&accountType=individual"
+        )
       }
     }
 
