@@ -14,7 +14,7 @@ object AppDependencies {
     "io.lemonlabs"      %% "scala-uri"                                  % "4.0.3",
     "org.jsoup"          % "jsoup"                                      % "1.17.2",
     "org.typelevel"     %% "cats-core"                                  % "2.10.0",
-    "org.apache.commons" % "commons-text"                               % "1.11.0",
+    "org.apache.commons" % "commons-text"                               % "1.12.0",
     "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % "1.8.0",
     "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.3.0"
   )
