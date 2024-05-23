@@ -63,7 +63,7 @@ class PostcodeLookupController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { _ =>
-          cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, InternationalAddressChoiceDto(true))
+          cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, InternationalAddressChoiceDto(value = true))
           typ match {
             case PostalAddrType =>
               auditConnector.sendEvent(

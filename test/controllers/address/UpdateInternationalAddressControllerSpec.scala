@@ -72,7 +72,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "fetch the selected address and a residential residencyChoice has been selected from the session cache and return 200" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
@@ -80,7 +80,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-              "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true))
+              "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true))
             )
           )
         )
@@ -93,10 +93,10 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "find no selected address with residential address type but residencyChoice in the session cache and still return 200" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
 
       val result: Future[Result]                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -130,14 +130,14 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "display edit address page and return 200 for postal addressType with pagevisitedDto and addressRecord in cache" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
             Map(
-              "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)),
+              "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)),
               "selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord)
             )
           )
@@ -151,10 +151,10 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "display edit address page and return 200 for postal addressType with pagevisitedDto and no addressRecord in cache" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
 
       val result: Future[Result]                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -175,7 +175,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "find residential selected and submitted addresses in the session cache and return 200" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
@@ -184,7 +184,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
             Map(
               "residentialSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
               "residentialSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-              "addressPageVisitedDto"            -> Json.toJson(AddressPageVisitedDto(true))
+              "addressPageVisitedDto"            -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true))
             )
           )
         )
@@ -197,7 +197,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "find no selected address but a submitted address in the session cache and return 200" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
@@ -205,7 +205,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "residentialSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-              "addressPageVisitedDto"          -> Json.toJson(AddressPageVisitedDto(true))
+              "addressPageVisitedDto"          -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true))
             )
           )
         )
@@ -218,10 +218,10 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "show 'Enter the address' when user amends correspondence address manually and address has not been selected" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
 
       val result: Future[Result]                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -233,10 +233,10 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "show 'Enter your address' when user amends residential address manually and address has not been selected" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
 
       val result: Future[Result]                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -248,10 +248,10 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "verify an audit event has been sent when user chooses to add/amend view address" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
 
       val result: Future[Result]                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -264,10 +264,10 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "verify an audit event has been sent when user chooses to add postal address" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
 
       val result: Future[Result]                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 

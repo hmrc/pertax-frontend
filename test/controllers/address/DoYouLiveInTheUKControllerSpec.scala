@@ -44,7 +44,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       )
 
     def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
 
     def currentRequest[A]: Request[A]          = FakeRequest().asInstanceOf[Request[A]]
   }
@@ -52,7 +52,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
   "onPageLoad" must {
 
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
 
       val result: Future[Result] = controller.onPageLoad(currentRequest)
 
