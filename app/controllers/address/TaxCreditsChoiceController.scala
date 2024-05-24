@@ -71,10 +71,10 @@ class TaxCreditsChoiceController @Inject() (
                     Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form))
                   } { isAddressChangeInPTA =>
                     if (isAddressChangeInPTA) {
-                      cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(hasTaxCredits = false))
+                      cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
                       Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
                     } else {
-                      cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(hasTaxCredits = true))
+                      cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
                       Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
                     }
                   }
