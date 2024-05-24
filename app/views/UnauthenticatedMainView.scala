@@ -87,14 +87,13 @@ class UnauthenticatedMainViewImpl @Inject() (
       timeOutUrl = Some(controllers.routes.SessionManagementController.timeOut.url),
       keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
       showBackLinkJS = showBackLink,
-      showSignOutInHeader = !disableSessionExpired,
       scripts = Seq(additionalScripts(None)(request)),
       styleSheets = Seq(headBlock(None)(request)),
       optTrustedHelper = attorney,
       fullWidth = fullWidth,
       hideMenuBar = true,
       disableSessionExpired = disableSessionExpired
-    )(messages, HeaderCarrierConverter.fromRequest(request), request)
+    )(messages, request)
 
   }
 }

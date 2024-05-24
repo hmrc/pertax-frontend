@@ -65,7 +65,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec {
   private def saUserType: SelfAssessmentUserType = NonFilerSelfAssessmentUser
 
   private val sessionCacheResponse: Option[CacheMap] =
-    Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+    Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
 
   when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
     Future.successful(CacheMap("id", Map.empty))
