@@ -117,6 +117,6 @@ class MainViewImpl @Inject() (
       fullWidth = fullWidth,
       hideMenuBar = hideAccountMenu,
       disableSessionExpired = disableSessionExpired
-    )(messages, request)
+    )(messages, HeaderCarrierConverter.fromRequest(request), request)
   }
 }

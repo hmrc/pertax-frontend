@@ -86,7 +86,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
     )(config, ec)
 
   private val sessionCacheResponse: Option[CacheMap] =
-    Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
+    Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
   when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
     Future.successful(CacheMap("id", Map.empty))

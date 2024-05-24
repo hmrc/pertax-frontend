@@ -34,7 +34,7 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
   trait LocalSetup extends AddressControllerSetup {
 
     def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
+      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
     def currentRequest[A]: Request[A]          = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
