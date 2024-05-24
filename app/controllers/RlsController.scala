@@ -112,7 +112,7 @@ class RlsController @Inject() (
                 if (mainAddress.exists(_.isRls) || postalAddress.exists(_.isRls)) {
                   auditRls(mainAddress, postalAddress)
                   cachingHelper
-                    .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
+                    .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(hasVisitedPage = true))
                   Future.successful(
                     Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
                   )

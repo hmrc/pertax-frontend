@@ -334,7 +334,7 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
         val result: Future[Result] = route(app, request).get
         val content                = Jsoup.parse(contentAsString(result))
 
-        content.getElementsByClass("govuk-phase-banner").get(0).text() must include("beta")
+        content.getElementsByClass("govuk-phase-banner").get(0).text() must include("Beta")
 
         content.getElementsByClass("govuk-phase-banner").get(0).html() must include(
           "/contact/beta-feedback?service=PTA"

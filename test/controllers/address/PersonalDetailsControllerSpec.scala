@@ -177,7 +177,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "addressPageVisitedDto" -> Json
-                .toJson(AddressPageVisitedDto(true))
+                .toJson(AddressPageVisitedDto(hasVisitedPage = true))
             )
           )
         )
@@ -188,7 +188,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
       verify(mockLocalSessionCache, times(1))
         .cache(
           meq("addressPageVisitedDto"),
-          meq(AddressPageVisitedDto(true))
+          meq(AddressPageVisitedDto(hasVisitedPage = true))
         )(any(), any(), any())
       verify(mockEditAddressLockRepository, times(1)).get(any())
     }
@@ -204,7 +204,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
               "id",
               Map(
                 "addressPageVisitedDto" -> Json
-                  .toJson(AddressPageVisitedDto(true))
+                  .toJson(AddressPageVisitedDto(hasVisitedPage = true))
               )
             )
           )
