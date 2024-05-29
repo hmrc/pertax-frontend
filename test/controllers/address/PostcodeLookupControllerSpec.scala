@@ -72,10 +72,10 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
   "onPageLoad" must {
 
     "return 200 if the user has entered a residency choice on the previous page" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
       val result: Future[Result]                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -85,10 +85,10 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
     }
 
     "return 303 if the user has entered a residency choice on the previous page" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = false)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(false)))))
 
       val result: Future[Result]                          = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -98,10 +98,10 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
     }
 
     "return 200 if the user is on correspondence address journey and has postal address type" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
       val result: Future[Result]                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -131,14 +131,14 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
     }
 
     "verify an audit event has been sent for a user clicking the change address link" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
             Map(
-              "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true))
+              "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true))
             )
           )
         )
@@ -154,10 +154,10 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
     }
 
     "verify an audit event has been sent for a user clicking the change postal address link" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(hasVisitedPage = true))
+      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(hasVisitedPage = true)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
       val result: Future[Result]                          = controller.onPageLoad(PostalAddrType)(FakeRequest())
 

@@ -98,7 +98,7 @@ class PersonalDetailsController @Inject() (
                    }
                    .getOrElse(Future.successful(()))
             _ <- cachingHelper
-                   .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(hasVisitedPage = true))
+                   .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
             addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
             addressDetails             <- personalDetailsViewModel.getAddressRow(addressModel)
