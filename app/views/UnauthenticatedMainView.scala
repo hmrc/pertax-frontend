@@ -25,6 +25,7 @@ import play.api.mvc.Request
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.sca.models.BannerConfig
 import uk.gov.hmrc.sca.services.WrapperService
 import views.html.components.{AdditionalJavascript, HeadBlock}
@@ -98,7 +99,7 @@ class UnauthenticatedMainViewImpl @Inject() (
         showBetaBanner = true,
         showHelpImproveBanner = false
       )
-    )(messages, request)
+    )(messages, HeaderCarrierConverter.fromRequest(request), request)
 
   }
 }
