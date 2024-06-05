@@ -16,6 +16,12 @@
         </encoder>
     </appender>
 
+    <appender name="STDOUT_IGNORE_NETTY" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%date{ISO8601} level=[%level] logger=[%logger] thread=[%thread] rid=[not-available] user=[not-available] message=[%message] %replace(exception=[%xException]){'^exception=\[\]$',''}%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="ACCESS_LOG_FILE" class="ch.qos.logback.core.FileAppender">
         <file>logs/access.log</file>
         <encoder>
@@ -33,6 +39,10 @@
 
     <logger name="accesslog" level="WARN" additivity="false">
         <appender-ref ref="ACCESS_LOG_FILE" />
+    </logger>
+
+    <logger name="com.ning.http.client.providers.netty" additivity="false">
+        <appender-ref ref="STDOUT_IGNORE_NETTY" />
     </logger>
 
     <logger name="uk.gov" level="WARN" additivity="false">
