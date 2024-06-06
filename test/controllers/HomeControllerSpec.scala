@@ -334,10 +334,16 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
           |        </div>
           |
           |
+          |<div class="govuk-inset-text govuk-!-margin-top-2">
+          |        <ul class="govuk-list govuk-list govuk-!-margin-left-0">
           |
-          |        <div id="utrNo" class="govuk-inset-text govuk-!-margin-top-0">
-          |  Your Self Assessment Unique Taxpayer Reference (UTR) is <span>0123456789</span>
-          |</div>
+          |                <li><div id="utrNo">Your Self Assessment Unique Taxpayer Reference (UTR) is <strong>0123456789</strong><p></p></div></li>
+          |
+          |            <li><a class="govuk-link govuk-link--no-visited-state" href="http://localhost:9019/save-your-national-insurance-number">
+          |            View and save your National Insurance number</a></li>
+          |        </ul>
+          |    </div>
+          |
           |
           |    <div class="pertax-home">
           |
