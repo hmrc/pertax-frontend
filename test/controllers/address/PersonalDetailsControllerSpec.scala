@@ -16,7 +16,7 @@
 
 package controllers.address
 
-import controllers.controllershelpers.RlsInterruptHelper
+import controllers.controllershelpers.{RlsInterruptHelper, RlsInterruptHelperImpl}
 import models.admin.{HmrcAccountToggle, RlsInterruptToggle}
 import models.dto.AddressPageVisitedDto
 import models.{PersonDetails, UserName}
@@ -54,7 +54,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
       .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, isEnabled = false)))
 
     def rlsInterruptHelper: RlsInterruptHelper =
-      new RlsInterruptHelper(cc, inject[EditAddressLockRepository], mockFeatureFlagService)
+      new RlsInterruptHelperImpl(cc, inject[EditAddressLockRepository], mockFeatureFlagService)
 
     def controller: PersonalDetailsController =
       new PersonalDetailsController(

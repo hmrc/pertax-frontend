@@ -16,7 +16,7 @@
 
 package controllers.controllershelpers
 
-import com.google.inject.Inject
+import com.google.inject.{ImplementedBy, Inject}
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models.admin.PaperlessInterruptToggle
@@ -27,10 +27,17 @@ import uk.gov.hmrc.http.HttpReads.is2xx
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PaperlessInterruptHelper @Inject() (
+@ImplementedBy(classOf[PaperlessInterruptHelperImpl])
+trait PaperlessInterruptHelper {
+  def enforcePaperlessPreference(
+    block: => Future[Result]
+  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Result]
+}
+
+class PaperlessInterruptHelperImpl @Inject() (
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService
-) {
+) extends PaperlessInterruptHelper {
 
   def enforcePaperlessPreference(
     block: => Future[Result]

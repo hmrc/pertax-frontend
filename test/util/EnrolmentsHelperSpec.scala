@@ -19,7 +19,7 @@ package util
 import config.ConfigDecorator
 import models.{Activated, ItsaEnrolmentEnrolled, NotYetActivated, SelfAssessmentEnrolment}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
@@ -35,7 +35,6 @@ class EnrolmentsHelperSpec extends BaseSpec {
   val nino: Nino                                            = Fixtures.fakeNino
   implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   implicit val configDecorator: ConfigDecorator             = app.injector.instanceOf[ConfigDecorator]
-  lazy val messagesApi: MessagesApi                         = inject[MessagesApi]
   implicit lazy val messages: Messages                      = MessagesImpl(Lang("en"), messagesApi)
 
   "singleAccountEnrolmentPresent" when {

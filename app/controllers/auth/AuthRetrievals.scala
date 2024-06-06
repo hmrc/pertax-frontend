@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,18 @@ package controllers.auth
 import com.google.inject.{ImplementedBy, Inject}
 import config.ConfigDecorator
 import controllers.auth.requests.AuthenticatedRequest
-import controllers.{PertaxBaseController, routes}
+import controllers.routes
 import io.lemonlabs.uri.Url
 import models.UserName
 import models.admin.SingleAccountCheckToggle
+import play.api.Logging
+import play.api.i18n.Messages
+import play.api.mvc.Results.Redirect
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
+import uk.gov.hmrc.auth.core.retrieve.v2.{Retrievals, TrustedHelper}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
@@ -39,17 +42,17 @@ import util.{BusinessHours, EnrolmentsHelper}
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthActionImpl @Inject() (
+class AuthRetrievalsImpl @Inject() (
   val authConnector: AuthConnector,
   sessionAuditor: SessionAuditor,
-  cc: MessagesControllerComponents,
+  mcc: MessagesControllerComponents,
   enrolmentsHelper: EnrolmentsHelper,
   businessHours: BusinessHours,
   featureFlagService: FeatureFlagService
 )(implicit ec: ExecutionContext, configDecorator: ConfigDecorator)
-    extends PertaxBaseController(cc)
-    with AuthAction
-    with AuthorisedFunctions {
+    extends AuthRetrievals
+    with AuthorisedFunctions
+    with Logging {
 
   private def addRedirect(profileUrl: Option[String]): Option[String] =
     for {
@@ -67,26 +70,23 @@ class AuthActionImpl @Inject() (
       if (confLevel.level >= ConfidenceLevel.L200.level) Some(confLevel) else None
   }
 
-  override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
+  type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
+    String
+  ] ~ ConfidenceLevel ~ Option[Name] ~ Option[TrustedHelper] ~ Option[String]
 
-    val compositePredicate =
-      CredentialStrength(CredentialStrength.weak) or
-        CredentialStrength(CredentialStrength.strong)
+  //scalastyle:off cyclomatic.complexity
+  override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
+    implicit val messages: Messages = mcc.messagesApi.preferred(request)
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    authorised(compositePredicate)
-      .retrieve(
-        Retrievals.nino and
-          Retrievals.affinityGroup and
-          Retrievals.allEnrolments and
-          Retrievals.credentials and
-          Retrievals.credentialStrength and
-          Retrievals.confidenceLevel and
-          Retrievals.name and
-          Retrievals.trustedHelper and
-          Retrievals.profile
-      ) {
+
+    val retrievals: Retrieval[RetrievalsType] =
+      Retrievals.nino and Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.credentials and Retrievals.credentialStrength and
+        Retrievals.confidenceLevel and Retrievals.name and Retrievals.trustedHelper and Retrievals.profile
+
+    authorised()
+      .retrieve(retrievals) {
 
         case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
@@ -168,32 +168,8 @@ class AuthActionImpl @Inject() (
             }
           }
 
-        case _ => throw new RuntimeException("Can't find credentials for user")
+        case _ => throw new RuntimeException("Can't authenticate user")
       }
-  } recover {
-    case _: NoActiveSession =>
-      def postSignInRedirectUrl(implicit request: Request[_]) =
-        configDecorator.pertaxFrontendForAuthHost + controllers.routes.ApplicationController
-          .uplift(Some(RedirectUrl(configDecorator.pertaxFrontendForAuthHost + request.path)))
-          .url
-
-      request.session.get(configDecorator.authProviderKey) match {
-        case Some(configDecorator.authProviderGG) =>
-          lazy val ggSignIn = s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"
-          Redirect(
-            ggSignIn,
-            Map(
-              "continue_url" -> Seq(postSignInRedirectUrl(request)),
-              "accountType"  -> Seq("individual"),
-              "origin"       -> Seq(configDecorator.defaultOrigin.origin)
-            )
-          )
-        case _                                    => Redirect(configDecorator.authProviderChoice)
-      }
-
-    case _: IncorrectCredentialStrength => Redirect(configDecorator.authProviderChoice)
-
-    case _: InsufficientEnrolments => throw InsufficientEnrolments("")
   }
 
   private def upliftCredentialStrength: Future[Result] =
@@ -226,12 +202,10 @@ class AuthActionImpl @Inject() (
       )
     )
 
-  override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+  override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
 
-  override protected def executionContext: ExecutionContext = cc.executionContext
+  override protected def executionContext: ExecutionContext = mcc.executionContext
 }
 
-@ImplementedBy(classOf[AuthActionImpl])
-trait AuthAction
-    extends ActionBuilder[AuthenticatedRequest, AnyContent]
-    with ActionFunction[Request, AuthenticatedRequest]
+@ImplementedBy(classOf[AuthRetrievalsImpl])
+trait AuthRetrievals extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, Request]

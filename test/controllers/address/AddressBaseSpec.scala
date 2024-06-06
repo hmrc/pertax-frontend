@@ -19,7 +19,6 @@ package controllers.address
 import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.AddressLookupConnector
-import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
@@ -28,7 +27,7 @@ import models.addresslookup.RecordSet
 import models.dto.{AddressDto, Dto}
 import org.mockito.ArgumentMatchers.any
 import play.api.http.Status.NO_CONTENT
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import services._
 import testUtils.Fixtures._
@@ -47,7 +46,6 @@ import scala.concurrent.Future
 
 trait AddressBaseSpec extends BaseSpec {
 
-  val mockAuthJourney: AuthJourney                                         = mock[AuthJourney]
   val mockLocalSessionCache: LocalSessionCache                             = mock[LocalSessionCache]
   val mockAddressLookupConnector: AddressLookupConnector                   = mock[AddressLookupConnector]
   val mockCitizenDetailsService: CitizenDetailsService                     = mock[CitizenDetailsService]
@@ -56,8 +54,6 @@ trait AddressBaseSpec extends BaseSpec {
   val mockAgentClientAuthorisationService: AgentClientAuthorisationService = mock[AgentClientAuthorisationService]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
-
-  lazy val messagesApi: MessagesApi = inject[MessagesApi]
 
   lazy val cc: MessagesControllerComponents                               = inject[MessagesControllerComponents]
   lazy val errorRenderer: ErrorRenderer                                   = inject[ErrorRenderer]
@@ -93,38 +89,24 @@ trait AddressBaseSpec extends BaseSpec {
 
   trait AddressControllerSetup {
 
-    lazy val nino: Nino = fakeNino
-
+    lazy val nino: Nino                       = fakeNino
     lazy val fakePersonDetails: PersonDetails = buildPersonDetails
-
-    lazy val fakeAddress: Address = buildFakeAddress
+    lazy val fakeAddress: Address             = buildFakeAddress
 
     def controller: AddressController
-
     def sessionCacheResponse: Option[CacheMap]
-
     def currentRequest[A]: Request[A]
-
-    def saUserType: SelfAssessmentUserType = NonFilerSelfAssessmentUser
-
-    def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
-
-    def personDetailsResponse: PersonDetails = fakePersonDetails
-
-    def eTagResponse: Option[ETag] = Some(ETag("115"))
-
+    def saUserType: SelfAssessmentUserType                                            = NonFilerSelfAssessmentUser
+    def personDetailsForRequest: Option[PersonDetails]                                = Some(buildPersonDetailsCorrespondenceAddress)
+    def personDetailsResponse: PersonDetails                                          = fakePersonDetails
+    def eTagResponse: Option[ETag]                                                    = Some(ETag("115"))
     def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
       EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(NO_CONTENT, ""))))
-
-    def getAddressesLockResponse: AddressesLock = AddressesLock(main = false, postal = false)
-
-    def addressLookupResponse: RecordSet = oneAndTwoOtherPlacePafRecordSet
-
-    def isInsertCorrespondenceAddressLockSuccessful: Boolean = true
-
-    def getEditedAddressIndicators: List[AddressJourneyTTLModel] = List.empty
-
-    def fetchAndGetEntryDto: Option[Dto] = None
+    def getAddressesLockResponse: AddressesLock                                       = AddressesLock(main = false, postal = false)
+    def addressLookupResponse: RecordSet                                              = oneAndTwoOtherPlacePafRecordSet
+    def isInsertCorrespondenceAddressLockSuccessful: Boolean                          = true
+    def getEditedAddressIndicators: List[AddressJourneyTTLModel]                      = List.empty
+    def fetchAndGetEntryDto: Option[Dto]                                              = None
 
     when(mockAgentClientAuthorisationService.getAgentClientStatus(any(), any(), any())).thenReturn(
       Future.successful(true)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import play.api.Logging
 import play.api.i18n.Messages
+import play.api.mvc.Request
 import play.twirl.api.{Html, HtmlFormat}
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -50,7 +52,7 @@ trait MainView {
     hideAccountMenu: Boolean = false,
     showUserResearchBanner: Boolean = false
   )(contentBlock: Html)(implicit
-    request: UserRequest[_],
+    request: Request[_],
     messages: Messages
   ): HtmlFormat.Appendable
 }
@@ -79,7 +81,9 @@ class MainViewImpl @Inject() (
     yourProfileActive: Boolean = false,
     hideAccountMenu: Boolean = false,
     showUserResearchBanner: Boolean = true
-  )(contentBlock: Html)(implicit request: UserRequest[_], messages: Messages): HtmlFormat.Appendable = {
+  )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
+
+    val trustedHelper: Option[TrustedHelper] = request.asInstanceOf[UserRequest[_]].trustedHelper
 
     val fullPageTitle = s"$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"
 
@@ -109,7 +113,7 @@ class MainViewImpl @Inject() (
         showBetaBanner = true,
         showHelpImproveBanner = showUserResearchBanner
       ),
-      optTrustedHelper = request.trustedHelper,
+      optTrustedHelper = trustedHelper,
       fullWidth = fullWidth,
       hideMenuBar = hideAccountMenu,
       disableSessionExpired = disableSessionExpired

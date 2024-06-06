@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
 import controllers.auth.requests.UserRequest
-import play.api.mvc.{ActionBuilder, AnyContent}
+import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder}
 
 @ImplementedBy(classOf[AuthJourneyImpl])
 trait AuthJourney {
@@ -26,12 +26,14 @@ trait AuthJourney {
 }
 
 class AuthJourneyImpl @Inject() (
-  authAction: AuthAction,
+  authAction: AuthRetrievals,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
   pertaxAuthAction: PertaxAuthAction,
-  getPersonDetailsAction: GetPersonDetailsAction
+  getPersonDetailsAction: GetPersonDetailsAction,
+  defaultActionBuilder: DefaultActionBuilder
 ) extends AuthJourney {
 
-  override val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
-    authAction andThen selfAssessmentStatusAction andThen pertaxAuthAction andThen getPersonDetailsAction
+  val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+    defaultActionBuilder andThen pertaxAuthAction andThen authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
+
 }
