@@ -25,7 +25,7 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -82,6 +82,76 @@ class HomeControllerErrorISpec extends IntegrationSpec {
   }
 
   "personal-account" must {
+    "show an error view" in {
+      val expectedMessage = "<<<It works!>>>"
+      server.stubFor(
+        post(urlEqualTo("/pertax/authorise"))
+          .willReturn(
+            aResponse()
+              .withBody("""{
+                  | "code": "INVALID_AFFINITY",
+                  | "message": "The user is neither an individual or an organisation",
+                  | "errorView": {
+                  |   "url": "/partials/view",
+                  |   "statusCode": 403
+                  | }
+                  |}""".stripMargin)
+          )
+      )
+
+      server.stubFor(
+        get(urlEqualTo("/partials/view"))
+          .willReturn(
+            aResponse()
+              .withBody(expectedMessage)
+          )
+      )
+
+      val authResponseNoHmrcPt =
+        s"""
+           |{
+           |    "confidenceLevel": 50,
+           |    "nino": "$generatedNino",
+           |    "name": {
+           |        "name": "John",
+           |        "lastName": "Smith"
+           |    },
+           |    "loginTimes": {
+           |        "currentLogin": "2021-06-07T10:52:02.594Z",
+           |        "previousLogin": null
+           |    },
+           |    "optionalCredentials": {
+           |        "providerId": "4911434741952698",
+           |        "providerType": "GovernmentGateway"
+           |    },
+           |    "authProviderId": {
+           |        "ggCredId": "xyz"
+           |    },
+           |    "externalId": "testExternalId",
+           |    "allEnrolments": [],
+           |    "affinityGroup": "Agent",
+           |    "credentialStrength": "strong"
+           |}
+           |""".stripMargin
+
+      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseNoHmrcPt)))
+      server.stubFor(
+        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+          .willReturn(serverError())
+      )
+      server.stubFor(
+        put(urlMatching(s"/keystore/pertax-frontend/.*"))
+          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+      )
+
+      val result: Future[Result] = route(app, request).get
+      httpStatus(result) mustBe FORBIDDEN
+      contentAsString(result) must include(expectedMessage)
+      server.verify(0, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
+      server.verify(0, getRequestedFor(urlEqualTo("/tax-you-paid/summary-card-partials")))
+
+    }
+
     "redirect to protect-tax-info if HMRC-PT enrolment is not present" in {
       val authResponseNoHmrcPt =
         s"""

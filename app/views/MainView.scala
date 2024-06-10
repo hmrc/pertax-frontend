@@ -32,6 +32,7 @@ import uk.gov.hmrc.sca.services.WrapperService
 import views.html.components.{AdditionalJavascript, HeadBlock}
 
 import javax.inject.Inject
+import scala.util.{Failure, Success, Try}
 
 @ImplementedBy(classOf[MainViewImpl])
 trait MainView {
@@ -83,7 +84,10 @@ class MainViewImpl @Inject() (
     showUserResearchBanner: Boolean = true
   )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
 
-    val trustedHelper: Option[TrustedHelper] = request.asInstanceOf[UserRequest[_]].trustedHelper
+    val trustedHelper: Option[TrustedHelper] = Try(request.asInstanceOf[UserRequest[_]]) match {
+      case Success(userRequest) => userRequest.trustedHelper
+      case Failure(_)           => None
+    }
 
     val fullPageTitle = s"$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"
 
