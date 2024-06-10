@@ -18,7 +18,7 @@ package address
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
-import models.admin.{AgentClientAuthorisationToggle, HmrcAccountToggle}
+import models.admin.AgentClientAuthorisationToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -79,8 +79,6 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(HmrcAccountToggle)))
-      .thenReturn(Future.successful(FeatureFlag(HmrcAccountToggle, isEnabled = false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientAuthorisationToggle)))
       .thenReturn(Future.successful(FeatureFlag(AgentClientAuthorisationToggle, isEnabled = true)))
   }

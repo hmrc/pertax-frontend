@@ -18,7 +18,6 @@ package testUtils
 
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import models.{NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
 import models.admin.{AddressChangeAllowedToggle, AllFeatureFlags, DfsDigitalFormFrontendAvailableToggle, GetPersonFromCitizenDetailsToggle}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentMatchers, MockitoSugar}
@@ -40,7 +39,6 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.FormPartialRetriever
 
-import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
 
 trait BaseSpec
@@ -74,11 +72,7 @@ trait BaseSpec
 
   val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
-  @nowarn("msg=parameter (saUser|personDetails) in method localGuiceApplicationBuilder is never used")
-  protected def localGuiceApplicationBuilder(
-    saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
-    personDetails: Option[PersonDetails] = None
-  ): GuiceApplicationBuilder =
+  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),

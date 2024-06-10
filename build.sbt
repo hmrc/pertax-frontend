@@ -46,7 +46,6 @@ lazy val microservice = Project(appName, file("."))
       "-Werror",
       "-Xlint:_",
       "-Wdead-code",
-      "-Wunused:_",
       "-Wextra-implicit",
       "-Wconf:cat=unused-imports&site=.*views\\.html.*:s",
       "-Wconf:cat=unused-imports&site=<empty>:s",

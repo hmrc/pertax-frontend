@@ -28,9 +28,7 @@ object AllFeatureFlags {
     RlsInterruptToggle,
     PaperlessInterruptToggle,
     TaxSummariesTileToggle,
-    SingleAccountCheckToggle,
     ShowOutageBannerToggle,
-    HmrcAccountToggle,
     AgentClientAuthorisationToggle,
     BreathingSpaceIndicatorToggle,
     AlertBannerPaperlessStatusToggle,
@@ -83,21 +81,9 @@ case object TaxSummariesTileToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable the tile for annual tax summary")
 }
 
-case object SingleAccountCheckToggle extends FeatureFlagName {
-  override val name: String                = "single-account-check"
-  override val description: Option[String] = Some("Enable/disable single account check")
-}
-
 case object ShowOutageBannerToggle extends FeatureFlagName {
   override val name: String                = "show-outage-banner-toggle"
   override val description: Option[String] = Some("Enable/disable the show outage banner")
-}
-
-case object HmrcAccountToggle extends FeatureFlagName {
-  override val name: String                = "hmrc-account-toggle"
-  override val description: Option[String] = Some(
-    "Enable/disable the hmrc-account service replacing the Profile and Settings page"
-  )
 }
 
 case object AgentClientAuthorisationToggle extends FeatureFlagName {

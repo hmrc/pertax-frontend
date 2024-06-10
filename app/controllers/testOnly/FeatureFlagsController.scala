@@ -43,8 +43,6 @@ class FeatureFlagsController @Inject() (
           RlsInterruptToggle                    -> true,
           PaperlessInterruptToggle              -> false,
           TaxSummariesTileToggle                -> true,
-          SingleAccountCheckToggle              -> false,
-          HmrcAccountToggle                     -> false,
           AgentClientAuthorisationToggle        -> true,
           BreathingSpaceIndicatorToggle         -> true,
           ShowOutageBannerToggle                -> false,

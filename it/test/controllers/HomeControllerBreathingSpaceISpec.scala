@@ -17,7 +17,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{BreathingSpaceIndicatorToggle, SingleAccountCheckToggle}
+import models.admin.BreathingSpaceIndicatorToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -69,8 +69,6 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
     super.beforeEach()
     beforeEachHomeController(memorandum = false)
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
       .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
   }

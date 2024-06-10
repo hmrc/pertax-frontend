@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.{AddressJourneyCachingHelper, RlsInterruptHelper}
-import models.admin.{AddressChangeAllowedToggle, HmrcAccountToggle}
+import models.admin.AddressChangeAllowedToggle
 import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
@@ -32,6 +32,7 @@ import viewmodels.PersonalDetailsViewModel
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PersonalDetailsView
+import models.dto.AddressPageVisitedDto
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -60,71 +61,57 @@ class PersonalDetailsController @Inject() (
     ) {
 
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>
-    featureFlagService.get(HmrcAccountToggle).map { toggle =>
-      if (toggle.isEnabled) {
-        Redirect(configDecorator.hmrcAccountUrl, MOVED_PERMANENTLY)
-      } else {
-        Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad, MOVED_PERMANENTLY)
-      }
-    }
+    Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad, MOVED_PERMANENTLY))
   }
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
-      featureFlagService.get(HmrcAccountToggle).flatMap { toggle =>
-        if (toggle.isEnabled) {
-          Future.successful(Redirect(configDecorator.hmrcAccountUrl, MOVED_PERMANENTLY))
-        } else {
-          import models.dto.AddressPageVisitedDto
+      rlsInterruptHelper.enforceByRlsStatus(for {
+        agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
+        addressModel      <- request.nino
+                               .map { nino =>
+                                 editAddressLockRepository.get(nino.withoutSuffix)
+                               }
+                               .getOrElse(
+                                 Future.successful(List[AddressJourneyTTLModel]())
+                               )
 
-          rlsInterruptHelper.enforceByRlsStatus(for {
-            agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
-            addressModel      <- request.nino
-                                   .map { nino =>
-                                     editAddressLockRepository.get(nino.withoutSuffix)
-                                   }
-                                   .getOrElse(
-                                     Future.successful(List[AddressJourneyTTLModel]())
-                                   )
+        _ <- request.personDetails
+               .map { details =>
+                 auditConnector.sendEvent(
+                   buildPersonDetailsEvent(
+                     "personalDetailsPageLinkClicked",
+                     details
+                   )
+                 )
+               }
+               .getOrElse(Future.successful(()))
+        _ <- cachingHelper
+               .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
-            _ <- request.personDetails
-                   .map { details =>
-                     auditConnector.sendEvent(
-                       buildPersonDetailsEvent(
-                         "personalDetailsPageLinkClicked",
-                         details
-                       )
-                     )
-                   }
-                   .getOrElse(Future.successful(()))
-            _ <- cachingHelper
-                   .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
+        addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
+        addressDetails             <- personalDetailsViewModel.getAddressRow(addressModel)
+        paperLessPreference        <- personalDetailsViewModel.getPaperlessSettingsRow
+        personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(request.nino)
 
-            addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
-            addressDetails             <- personalDetailsViewModel.getAddressRow(addressModel)
-            paperLessPreference        <- personalDetailsViewModel.getPaperlessSettingsRow
-            personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(request.nino)
+      } yield {
+        val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow
+        val paperlessHelpers     = paperLessPreference
+        val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
+        val manageTaxAgent       = if (agentClientStatus) personalDetailsViewModel.getManageTaxAgentsRow else None
 
-          } yield {
-            val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow
-            val paperlessHelpers     = paperLessPreference
-            val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
-            val manageTaxAgent       = if (agentClientStatus) personalDetailsViewModel.getManageTaxAgentsRow else None
-
-            Ok(
-              personalDetailsView(
-                personalDetails,
-                addressDetails,
-                trustedHelpers,
-                paperlessHelpers,
-                signinDetailsHelpers,
-                manageTaxAgent,
-                addressChangeAllowedToggle.isEnabled
-              )
-            )
-          })
-        }
-      }
+        Ok(
+          personalDetailsView(
+            personalDetails,
+            addressDetails,
+            trustedHelpers,
+            paperlessHelpers,
+            signinDetailsHelpers,
+            manageTaxAgent,
+            addressChangeAllowedToggle.isEnabled
+          )
+        )
+      })
     }
 
 }

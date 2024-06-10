@@ -16,34 +16,26 @@
 
 package controllers.auth
 
-import com.google.inject.Inject
-import config.BusinessHoursConfig
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
-import models.admin.SingleAccountCheckToggle
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
-import play.api.http.HeaderNames
-import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
-import play.api.test.Helpers.{redirectLocation, _}
-import play.api.test.{FakeHeaders, FakeRequest}
+import play.api.test.Helpers._
+import play.api.test.FakeRequest
 import services.partials.MessageFrontendService
 import testUtils.RetrievalOps._
 import testUtils.{BaseSpec, Fixtures}
-import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
+import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import util.{BusinessHours, EnrolmentsHelper}
+import util.EnrolmentsHelper
 
-import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class AuthRetrievalsSpec extends BaseSpec {
@@ -70,11 +62,6 @@ class AuthRetrievalsSpec extends BaseSpec {
     }
   }
 
-  class FakeBusinessHours @Inject() (businessHoursConfig: BusinessHoursConfig)
-      extends BusinessHours(businessHoursConfig) {
-    override def isTrue(dateTime: LocalDateTime): Boolean = true
-  }
-
   type AuthRetrievals =
     Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
       Option[String] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~
@@ -85,11 +72,7 @@ class AuthRetrievalsSpec extends BaseSpec {
   val fakeCredentialStrength: String                             = CredentialStrength.strong
   val fakeConfidenceLevel: ConfidenceLevel                       = ConfidenceLevel.L200
   val enrolmentHelper: EnrolmentsHelper                          = inject[EnrolmentsHelper]
-  val fakeBusinessHours                                          = new FakeBusinessHours(inject[BusinessHoursConfig])
   def messagesControllerComponents: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-    .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
 
   def fakeEnrolments(utr: String): Set[Enrolment] = Set(
     Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
@@ -117,217 +100,14 @@ class AuthRetrievalsSpec extends BaseSpec {
     val authAction =
       new AuthRetrievalsImpl(
         mockAuthConnector,
-        sessionAuditor,
-        messagesControllerComponents,
-        enrolmentsHelper,
-        fakeBusinessHours,
-        mockFeatureFlagService
+        messagesControllerComponents
       )(implicitly, config)
 
     new Harness(authAction)
   }
 
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
-  }
-
   val ivRedirectUrl =
     "http://localhost:9948/iv-stub/uplift?origin=PERTAX&confidenceLevel=200&completionURL=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account"
-
-  "A user without a L200 confidence level must" when {
-    "be redirected to the IV uplift endpoint when" must {
-      "the user is an Individual" in {
-        val controller = retrievals(confidenceLevel = ConfidenceLevel.L50)
-        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must endWith(ivRedirectUrl)
-      }
-
-      "the user is an Organisation" in {
-
-        val controller = retrievals(affinityGroup = Some(Organisation), confidenceLevel = ConfidenceLevel.L50)
-        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must endWith(ivRedirectUrl)
-      }
-
-      "the user is an Agent" in {
-
-        val controller = retrievals(affinityGroup = Some(Agent), confidenceLevel = ConfidenceLevel.L50)
-        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must endWith(ivRedirectUrl)
-      }
-    }
-  }
-
-  "A user without a credential strength of Strong must" when {
-    "be redirected to the MFA uplift endpoint when" must {
-
-      val mfaRedirectUrl =
-        Some(
-          "http://localhost:9553/bas-gateway/uplift-mfa?origin=PERTAX&continueUrl=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account"
-        )
-
-      "the user in an Individual" in {
-
-        val controller = retrievals(credentialStrength = CredentialStrength.weak)
-        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe mfaRedirectUrl
-      }
-
-      "the user in an Organisation" in {
-
-        val controller = retrievals(affinityGroup = Some(Organisation), credentialStrength = CredentialStrength.weak)
-        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe
-          mfaRedirectUrl
-      }
-
-      "the user in an Agent" in {
-
-        val controller = retrievals(affinityGroup = Some(Agent), credentialStrength = CredentialStrength.weak)
-        val result     = controller.onPageLoad(FakeRequest("GET", "/personal-account"))
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe
-          mfaRedirectUrl
-      }
-    }
-  }
-
-  "A user with a Credential Strength of 'none' must" must {
-    "throw a IncorrectCredentialStrength exception" in {
-      when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(new IncorrectCredentialStrength))
-
-      val authAction =
-        new AuthRetrievalsImpl(
-          mockAuthConnector,
-          sessionAuditor,
-          messagesControllerComponents,
-          enrolmentsHelper,
-          fakeBusinessHours,
-          mockFeatureFlagService
-        )(implicitly, config)
-
-      val controller = new Harness(authAction)
-
-      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
-
-      whenReady(result.failed) { ex =>
-        ex mustBe an[IncorrectCredentialStrength]
-
-      }
-    }
-
-  }
-
-  "A user with no active session must" must {
-    "throw a SessionRecordNotFound exception" in {
-      when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(new SessionRecordNotFound))
-
-      val authAction =
-        new AuthRetrievalsImpl(
-          mockAuthConnector,
-          sessionAuditor,
-          messagesControllerComponents,
-          enrolmentsHelper,
-          fakeBusinessHours,
-          mockFeatureFlagService
-        )(implicitly, config)
-      val controller = new Harness(authAction)
-      val result     = controller.onPageLoad(FakeRequest("GET", "/foo"))
-
-      whenReady(result.failed) { ex =>
-        ex mustBe an[SessionRecordNotFound]
-
-      }
-    }
-
-    "throw a SessionRecordNotFound exception if GG provider" in {
-      when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(new SessionRecordNotFound))
-
-      val authAction =
-        new AuthRetrievalsImpl(
-          mockAuthConnector,
-          sessionAuditor,
-          messagesControllerComponents,
-          enrolmentsHelper,
-          fakeBusinessHours,
-          mockFeatureFlagService
-        )(implicitly, config)
-
-      val controller = new Harness(authAction)
-
-      val request =
-        FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
-
-      val result  = controller.onPageLoad(request)
-
-      whenReady(result.failed) { ex =>
-        ex mustBe an[SessionRecordNotFound]
-
-      }
-    }
-  }
-
-  "A user with insufficient enrolments must" must {
-    "be redirected to the Sorry there is a problem page" in {
-      when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(new InsufficientEnrolments))
-
-      val authAction =
-        new AuthRetrievalsImpl(
-          mockAuthConnector,
-          sessionAuditor,
-          messagesControllerComponents,
-          enrolmentsHelper,
-          fakeBusinessHours,
-          mockFeatureFlagService
-        )(implicitly, config)
-
-      val controller = new Harness(authAction)
-
-      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
-
-      whenReady(result.failed) { ex =>
-        ex mustBe an[InsufficientEnrolments]
-      }
-    }
-  }
-
-  "A user with nino and no SA enrolment must" must {
-    "create an authenticated request" in {
-
-      val controller = retrievals()
-
-      val result = controller.onPageLoad(FakeRequest("", ""))
-      status(result) mustBe OK
-      contentAsString(result) must include(nino)
-    }
-  }
-
-  "A user with no nino but an SA enrolment must" must {
-    "create an authenticated request" in {
-
-      val utr = new SaUtrGenerator().nextSaUtr.utr
-
-      val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeEnrolments(utr)))
-
-      val result = controller.onPageLoad(FakeRequest("", ""))
-
-      whenReady(result.failed) { ex =>
-        ex mustBe an[RuntimeException]
-        ex.getMessage mustBe "No nino found in session for an Individual with confidence level 200 and strong credentials"
-      }
-    }
-  }
 
   "A user with a nino and an SA enrolment must" must {
     "create an authenticated request" in {
@@ -365,45 +145,6 @@ class AuthRetrievalsSpec extends BaseSpec {
     val result = controller.onPageLoad(FakeRequest("", ""))
     status(result) mustBe OK
     contentAsString(result) must include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
-  }
-
-  "A user with a no SingleAccount enrolment should redirect" in {
-
-    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
-      Some(nino) ~
-        Some(Individual) ~
-        Enrolments(Set.empty) ~
-        Some(fakeCredentials) ~
-        Some(CredentialStrength.strong) ~
-        ConfidenceLevel.L200 ~
-        None ~
-        None ~
-        None
-    )
-
-    val authAction =
-      new AuthRetrievalsImpl(
-        mockAuthConnector,
-        sessionAuditor,
-        messagesControllerComponents,
-        enrolmentsHelper,
-        fakeBusinessHours,
-        mockFeatureFlagService
-      )(implicitly, config)
-
-    val controller = new Harness(authAction)
-
-    val result = controller.onPageLoad(
-      FakeRequest(
-        method = "GET",
-        uri = "https://example.com",
-        headers = FakeHeaders(Seq(HeaderNames.HOST -> "localhost")),
-        body = AnyContentAsEmpty
-      )
-    )
-
-    status(result) mustBe SEE_OTHER
-    redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=https%3A%2F%2Fexample.com")
   }
 
   "A user without a SCP Profile Url must continue to not have one" in {
