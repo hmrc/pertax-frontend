@@ -32,8 +32,6 @@ class ConfigDecorator @Inject() (
   servicesConfig: ServicesConfig
 ) {
 
-  lazy val authProviderChoice: String = runModeConfiguration.get[String](s"external-url.auth-provider-choice.host")
-
   lazy val internalAuthResourceType: String =
     runModeConfiguration.getOptional[String]("internal-auth.resource-type").getOrElse("ddcn-live-admin-frontend")
 
@@ -74,7 +72,6 @@ class ConfigDecorator @Inject() (
   private lazy val incomeTaxViewChangeFrontendHost: String =
     getExternalUrl(s"income-tax-view-change-frontend.host").getOrElse("")
   lazy val preferencesFrontendService: String              = getExternalUrl(s"preferences-frontend").getOrElse("")
-  private lazy val contactHost: String                     = getExternalUrl(s"contact-frontend.host").getOrElse("")
   lazy val taiHost: String                                 = getExternalUrl(s"tai-frontend.host").getOrElse("")
   private lazy val saveYourNationalInsuranceNumberHost     =
     getExternalUrl(s"save-your-national-insurance-number.host").getOrElse("")
@@ -83,7 +80,7 @@ class ConfigDecorator @Inject() (
   private lazy val identityVerificationPrefix: String =
     getExternalUrl(s"identity-verification.prefix").getOrElse("mdtp")
   lazy val basGatewayFrontendHost: String             = getExternalUrl(s"bas-gateway-frontend.host").getOrElse("")
-  lazy val ggSignInUrl: String                        = servicesConfig.getString("external-url.bas-gateway-frontend-sign-in.host")
+  lazy val ggSignInUrl: String                        = s"$basGatewayFrontendHost/bas-gateway/sign-in"
 
   private lazy val taxEnrolmentAssignmentFrontendHost: String =
     getExternalUrl(s"tax-enrolment-assignment-frontend.host").getOrElse("")
@@ -104,12 +101,9 @@ class ConfigDecorator @Inject() (
 
   private lazy val enrolmentManagementFrontendHost: String =
     getExternalUrl(s"enrolment-management-frontend.host").getOrElse("")
-  lazy val ssoUrl: Option[String]                          = getExternalUrl("sso-portal.host")
   private lazy val annualTaxSummariesUrl: String           = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
   lazy val isNewsAndUpdatesTileEnabled: Boolean            =
     runModeConfiguration.get[String]("feature.news.enabled").toBoolean
-  lazy val isBreathingSpaceIndicatorEnabled: Boolean       =
-    servicesConfig.getBoolean("feature.breathing-space-indicator.enabled")
   lazy val annualTaxSaSummariesTileLink                    = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink                  = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
@@ -145,13 +139,9 @@ class ConfigDecorator @Inject() (
       else { "cym" }
     )
 
-  def betaFeedbackUnauthenticatedUrl(aDeskproToken: String): String =
-    s"$contactHost/contact/beta-feedback?service=$aDeskproToken"
-
   lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
 
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
-  lazy val deskproToken    = "PTA"
 
   private lazy val accessibilityBaseUrl: String = servicesConfig.getString("accessibility-statement.baseUrl")
   lazy private val accessibilityRedirectUrl     =
@@ -245,12 +235,6 @@ class ConfigDecorator @Inject() (
   lazy val taxCreditsEnabled: Boolean =
     runModeConfiguration.getOptional[String]("feature.tax-credits.enabled").getOrElse("true").toBoolean
 
-  // Only used in HomeControllerSpec
-  lazy val allowLowConfidenceSAEnabled: Boolean =
-    runModeConfiguration.getOptional[String]("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
-  lazy val allowSaPreview: Boolean              =
-    runModeConfiguration.getOptional[String]("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
-
   lazy val updateInternationalAddressInPta: Boolean =
     runModeConfiguration
       .getOptional[String]("feature.update-international-address-form.enabled")
@@ -261,13 +245,6 @@ class ConfigDecorator @Inject() (
 
   lazy val partialUpgradeEnabled: Boolean =
     runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)
-
-  private val defaultSessionTimeoutInSeconds   = 900
-  lazy val sessionTimeoutInSeconds: Int        =
-    runModeConfiguration.getOptional[Int]("ptaSession.timeout").getOrElse(defaultSessionTimeoutInSeconds)
-  private val defaultSessionCountdownInSeconds = 120
-  lazy val sessionCountdownInSeconds: Int      =
-    runModeConfiguration.getOptional[Int]("ptaSession.countdown").getOrElse(defaultSessionCountdownInSeconds)
 
   lazy val itsaViewUrl = s"$incomeTaxViewChangeFrontendHost/report-quarterly/income-and-expenses/view?origin=PTA"
 
@@ -286,17 +263,7 @@ class ConfigDecorator @Inject() (
   def manageTaxAgentsUrl(returnUrl: String) =
     s"$agentClientManagementFrontendHost/manage-your-tax-agents?source=PTA&returnUrl=$returnUrl"
 
-  val bannerHomePageIsEnabled: Boolean      = servicesConfig.getBoolean("feature.banner.home.enabled")
-  lazy val bannerHomePageHeadingEn: String  =
-    runModeConfiguration.getOptional[String]("feature.banner.home.heading.en").getOrElse("")
-  lazy val bannerHomePageLinkTextEn: String =
-    runModeConfiguration.getOptional[String]("feature.banner.home.link.text.en").getOrElse("")
-  lazy val bannerHomePageHeadingCy: String  =
-    runModeConfiguration.getOptional[String]("feature.banner.home.heading.cy").getOrElse("")
-  lazy val bannerHomePageLinkTextCy: String =
-    runModeConfiguration.getOptional[String]("feature.banner.home.link.text.cy").getOrElse("")
-  lazy val bannerHomePageLinkUrl: String    =
-    runModeConfiguration.getOptional[String]("feature.banner.home.link.url").getOrElse("")
+  val bannerHomePageIsEnabled: Boolean = servicesConfig.getBoolean("feature.banner.home.enabled")
 
   lazy val shutterBannerParagraphEn: String =
     runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.paragraph.en").getOrElse("")
