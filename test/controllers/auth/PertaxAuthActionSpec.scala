@@ -127,7 +127,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
         result must not be empty
         result.get.header.headers
           .get("Location") mustBe Some(
-          "redirectLocation?origin=TAI&confidenceLevel=200&completionURL=&failureURL=%3FcontinueUrl%3D"
+          "redirectLocation?origin=PERTAX&confidenceLevel=200&completionURL=&failureURL=%3FcontinueUrl%3D"
         )
       }
     }

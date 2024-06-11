@@ -107,7 +107,7 @@ class PertaxAuthAction @Inject() (
     Redirect(
       redirect,
       Map(
-        "origin"          -> Seq("TAI"),
+        "origin"          -> Seq("PERTAX"),
         "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
         "completionURL"   -> Seq(s"${appConfig.pertaxFrontendHost}${appConfig.personalAccount}"),
         "failureURL"      -> Seq(
