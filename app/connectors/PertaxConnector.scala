@@ -42,7 +42,7 @@ class PertaxConnector @Inject() (
     ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, PertaxResponse] =
     httpClientResponse
-      .read(
+      .readLogUnauthorisedAsInfo(
         httpClient
           .POSTEmpty[Either[UpstreamErrorResponse, HttpResponse]](
             s"$pertaxUrl/pertax/authorise",
