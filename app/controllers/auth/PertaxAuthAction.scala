@@ -109,9 +109,9 @@ class PertaxAuthAction @Inject() (
       Map(
         "origin"          -> Seq(appConfig.defaultOrigin.origin),
         "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
-        "completionURL"   -> Seq(s"${appConfig.pertaxFrontendHost}${request.uri}"),
+        "completionURL"   -> Seq(s"${appConfig.pertaxFrontendForAuthHost}${request.uri}"),
         "failureURL"      -> Seq(
-          s"${appConfig.pertaxFrontendHost}${appConfig.serviceIdentityCheckFailedUrl}?continueUrl=${appConfig.personalAccount}"
+          s"${appConfig.pertaxFrontendForAuthHost}${appConfig.serviceIdentityCheckFailedUrl}?continueUrl=${appConfig.pertaxFrontendForAuthHost}${request.uri}"
         )
       )
     )
