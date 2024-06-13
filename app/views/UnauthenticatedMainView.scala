@@ -26,6 +26,7 @@ import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.sca.models.BannerConfig
 import uk.gov.hmrc.sca.services.WrapperService
 import views.html.components.{AdditionalJavascript, HeadBlock}
 
@@ -87,13 +88,17 @@ class UnauthenticatedMainViewImpl @Inject() (
       timeOutUrl = Some(controllers.routes.SessionManagementController.timeOut.url),
       keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
       showBackLinkJS = showBackLink,
-      showSignOutInHeader = !disableSessionExpired,
       scripts = Seq(additionalScripts(None)(request)),
       styleSheets = Seq(headBlock(None)(request)),
       optTrustedHelper = attorney,
       fullWidth = fullWidth,
       hideMenuBar = true,
-      disableSessionExpired = disableSessionExpired
+      disableSessionExpired = disableSessionExpired,
+      bannerConfig = BannerConfig(
+        showAlphaBanner = false,
+        showBetaBanner = true,
+        showHelpImproveBanner = false
+      )
     )(messages, HeaderCarrierConverter.fromRequest(request), request)
 
   }
