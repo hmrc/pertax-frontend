@@ -55,17 +55,17 @@ class PertaxAuthAction @Inject() (
     implicit val hc: HeaderCarrier           = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     pertaxConnector.pertaxPostAuthorise.value.flatMap {
-      case Left(UpstreamErrorResponse(_, status, _, _)) if status == UNAUTHORIZED          =>
+      case Left(UpstreamErrorResponse(_, status, _, _)) if status == UNAUTHORIZED                =>
         Future.successful(Some(signInJourney))
-      case Left(_)                                                                         =>
+      case Left(_)                                                                               =>
         Future.successful(Some(InternalServerError(internalServerErrorView())))
-      case Right(PertaxResponse("ACCESS_GRANTED", _, _, _))                                =>
+      case Right(PertaxResponse("ACCESS_GRANTED", _, _, _))                                      =>
         Future.successful(None)
-      case Right(PertaxResponse("NO_HMRC_PT_ENROLMENT", _, _, Some(redirect)))             =>
+      case Right(PertaxResponse("NO_HMRC_PT_ENROLMENT", _, _, Some(redirect)))                   =>
         Future.successful(Some(Redirect(s"$redirect?redirectUrl=${SafeRedirectUrl(request.uri).encodedUrl}")))
-      case Right(PertaxResponse("CONFIDENCE_LEVEL_UPLIFT_REQUIRED", _, _, Some(redirect))) =>
-        Future.successful(Some(upliftJourney(redirect)))
-      case Right(PertaxResponse("CREDENTIAL_STRENGTH_UPLIFT_REQUIRED", _, _, Some(_)))     =>
+      case Right(PertaxResponse("CONFIDENCE_LEVEL_UPLIFT_REQUIRED", _, _, Some(upliftRedirect))) =>
+        Future.successful(Some(upliftJourney(request, upliftRedirect)))
+      case Right(PertaxResponse("CREDENTIAL_STRENGTH_UPLIFT_REQUIRED", _, _, Some(_)))           =>
         val ex =
           new RuntimeException(
             s"Weak credentials should be dealt before the service"
@@ -103,15 +103,15 @@ class PertaxAuthAction @Inject() (
       )
     )
 
-  private def upliftJourney(redirect: String): Result =
+  private def upliftJourney(request: Request[_], upliftRedirect: String): Result =
     Redirect(
-      redirect,
+      upliftRedirect,
       Map(
-        "origin"          -> Seq("TAI"),
+        "origin"          -> Seq(appConfig.defaultOrigin.origin),
         "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
-        "completionURL"   -> Seq(s"${appConfig.pertaxFrontendHost}${appConfig.personalAccount}"),
+        "completionURL"   -> Seq(s"${appConfig.pertaxFrontendForAuthHost}${request.uri}"),
         "failureURL"      -> Seq(
-          s"${appConfig.pertaxFrontendHost}${appConfig.serviceIdentityCheckFailedUrl}?continueUrl=${appConfig.personalAccount}"
+          s"${appConfig.pertaxFrontendForAuthHost}${appConfig.serviceIdentityCheckFailedUrl}?continueUrl=${appConfig.pertaxFrontendForAuthHost}${request.uri}"
         )
       )
     )

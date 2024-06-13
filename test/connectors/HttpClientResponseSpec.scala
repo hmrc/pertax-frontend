@@ -61,6 +61,16 @@ class HttpClientResponseSpec
     )
   }
 
+  "readLogUnauthorisedAsInfo" must {
+    behave like clientResponseLogger(
+      httpClientResponseUsingMockLogger.readLogUnauthorisedAsInfo,
+      infoLevel = Set(UNAUTHORIZED),
+      warnLevel = Set(),
+      errorLevelWithThrowable = Set(UNPROCESSABLE_ENTITY),
+      errorLevelWithoutThrowable = Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR)
+    )
+  }
+
   private def clientResponseLogger(
     block: Future[Either[UpstreamErrorResponse, HttpResponse]] => EitherT[Future, UpstreamErrorResponse, HttpResponse],
     infoLevel: Set[Int],

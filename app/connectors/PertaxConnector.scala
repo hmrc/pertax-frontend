@@ -23,7 +23,6 @@ import models.PertaxResponse
 import play.api.Logging
 import play.api.http.HeaderNames
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpException, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
@@ -35,28 +34,15 @@ class PertaxConnector @Inject() (
   httpClientResponse: HttpClientResponse,
   configDecorator: ConfigDecorator,
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
-)(implicit ec: ExecutionContext)
-    extends Logging {
+) extends Logging {
   private val pertaxUrl = configDecorator.pertaxUrl
-
-  def pertaxAuthorise(
-    nino: Nino
-  )(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, PertaxResponse] =
-    httpClientResponse
-      .read(
-        httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
-          s"$pertaxUrl/pertax/${nino.nino}/authorise",
-          headers = Seq((HeaderNames.ACCEPT, "application/vnd.hmrc.1.0+json"))
-        )
-      )
-      .map(_.json.as[PertaxResponse])
 
   def pertaxPostAuthorise(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, PertaxResponse] =
     httpClientResponse
-      .read(
+      .readLogUnauthorisedAsInfo(
         httpClient
           .POSTEmpty[Either[UpstreamErrorResponse, HttpResponse]](
             s"$pertaxUrl/pertax/authorise",

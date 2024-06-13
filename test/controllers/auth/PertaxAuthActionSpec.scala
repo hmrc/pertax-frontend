@@ -20,6 +20,7 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.PertaxConnector
 import controllers.auth.requests.UserRequest
+import controllers.bindable.Origin
 import models.{ErrorView, PertaxResponse, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.concurrent.IntegrationPatience
@@ -61,6 +62,8 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
     )(configDecorator)
 
   when(configDecorator.pertaxUrl).thenReturn("PERTAX_URL")
+  when(configDecorator.defaultOrigin).thenReturn(Origin("PERTAX"))
+  when(configDecorator.serviceIdentityCheckFailedUrl).thenReturn("/personal-account/identity-check-failed")
 
   private val fakeRequest             = FakeRequest("GET", "/personal-account")
   val expectedRequest: UserRequest[_] =
@@ -127,7 +130,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
         result must not be empty
         result.get.header.headers
           .get("Location") mustBe Some(
-          "redirectLocation?origin=TAI&confidenceLevel=200&completionURL=&failureURL=%3FcontinueUrl%3D"
+          "redirectLocation?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-failed%3FcontinueUrl%3D%2Fpersonal-account"
         )
       }
     }
