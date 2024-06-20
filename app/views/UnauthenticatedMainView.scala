@@ -99,7 +99,7 @@ class UnauthenticatedMainViewImpl @Inject() (
         showBetaBanner = true,
         showHelpImproveBanner = false
       )
-    )(messages, HeaderCarrierConverter.fromRequest(request), request)
+    )(messages, request)
 
   }
 }
