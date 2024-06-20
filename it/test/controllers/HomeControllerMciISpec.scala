@@ -17,7 +17,6 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.SingleAccountCheckToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -60,9 +59,6 @@ class HomeControllerMciISpec extends IntegrationSpec {
         .willReturn(aResponse().withStatus(LOCKED))
     )
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
-
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
   }
 
   "personal-account" must {

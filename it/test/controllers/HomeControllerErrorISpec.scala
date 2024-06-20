@@ -17,9 +17,6 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.SingleAccountCheckToggle
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
 import play.api.libs.json.Json
@@ -29,7 +26,6 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirec
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -76,9 +72,6 @@ class HomeControllerErrorISpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     beforeEachHomeController(auth = false, memorandum = false)
-
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
   }
 
   "personal-account" must {
@@ -190,9 +183,21 @@ class HomeControllerErrorISpec extends IntegrationSpec {
           .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
       )
 
+      server.stubFor(
+        post(urlEqualTo("/pertax/authorise"))
+          .willReturn(
+            aResponse()
+              .withBody("""{
+                  | "code": "NO_HMRC_PT_ENROLMENT",
+                  | "message": "There is no valid HMRC PT enrolment",
+                  | "redirect": "https://example.com/redirect"
+                  |}""".stripMargin)
+          )
+      )
+
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=%2Fpersonal-account")
+      redirectLocation(result) mustBe Some("https://example.com/redirect?redirectUrl=%2Fpersonal-account")
       server.verify(0, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
       server.verify(0, getRequestedFor(urlEqualTo("/tax-you-paid/summary-card-partials")))
     }

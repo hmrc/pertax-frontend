@@ -52,7 +52,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   lazy val mockPreferencesConnector: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
   lazy val personalDetailsViewModel: PersonalDetailsViewModel     = inject[PersonalDetailsViewModel]
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser, None)
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[PreferencesFrontendConnector].toInstance(mockPreferencesConnector)
     )

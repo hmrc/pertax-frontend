@@ -19,36 +19,23 @@ package controllers.auth
 import com.google.inject.{ImplementedBy, Inject}
 import config.ConfigDecorator
 import controllers.auth.requests.AuthenticatedRequest
-import controllers.routes
 import io.lemonlabs.uri.Url
 import models.UserName
-import models.admin.SingleAccountCheckToggle
 import play.api.Logging
-import play.api.i18n.Messages
-import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.{Retrievals, TrustedHelper}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import util.{BusinessHours, EnrolmentsHelper}
 
-import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthRetrievalsImpl @Inject() (
   val authConnector: AuthConnector,
-  sessionAuditor: SessionAuditor,
-  mcc: MessagesControllerComponents,
-  enrolmentsHelper: EnrolmentsHelper,
-  businessHours: BusinessHours,
-  featureFlagService: FeatureFlagService
+  mcc: MessagesControllerComponents
 )(implicit ec: ExecutionContext, configDecorator: ConfigDecorator)
     extends AuthRetrievals
     with AuthorisedFunctions
@@ -60,24 +47,12 @@ class AuthRetrievalsImpl @Inject() (
       res <- Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
     } yield res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
 
-  private object LT200 {
-    def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
-      if (confLevel.level < ConfidenceLevel.L200.level) Some(confLevel) else None
-  }
-
-  private object GTOE200 {
-    def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
-      if (confLevel.level >= ConfidenceLevel.L200.level) Some(confLevel) else None
-  }
-
   type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
     String
   ] ~ ConfidenceLevel ~ Option[Name] ~ Option[TrustedHelper] ~ Option[String]
 
   //scalastyle:off cyclomatic.complexity
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
-    implicit val messages: Messages = mcc.messagesApi.preferred(request)
-
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
@@ -87,33 +62,12 @@ class AuthRetrievalsImpl @Inject() (
 
     authorised()
       .retrieve(retrievals) {
-
-        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
-          upliftCredentialStrength
-
-        case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ =>
-          upliftConfidenceLevel(request)
-
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ =>
-          upliftConfidenceLevel(request)
-
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
-          upliftCredentialStrength
-
-        case None ~ affinityGroup ~ _ ~ _ ~ credentialStrength ~ confidenceLevel ~ _ ~ _ ~ _ =>
-          // After the uplifts required above a nino should always be present
-          val affinityGroupText      = affinityGroup.map("an " + _).getOrElse("a user without affinity group")
-          val credentialStrengthText = credentialStrength.map(_ + " credentials").getOrElse("no credential strength")
-          throw new RuntimeException(
-            s"No nino found in session for $affinityGroupText with confidence level ${confidenceLevel.toString} and $credentialStrengthText"
-          )
-
         case Some(nino) ~
             affinityGroup ~
             Enrolments(enrolments) ~
             Some(credentials) ~
             Some(CredentialStrength.strong) ~
-            GTOE200(confidenceLevel) ~
+            confidenceLevel ~
             name ~
             trustedHelper ~
             profile =>
@@ -143,64 +97,11 @@ class AuthRetrievalsImpl @Inject() (
             request = trimmedRequest,
             affinityGroup = affinityGroup
           )
-
-          lazy val updatedResult = for {
-            result        <- block(authenticatedRequest)
-            updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
-          } yield updatedResult
-
-          featureFlagService.get(SingleAccountCheckToggle).flatMap { toggle =>
-            (toggle.isEnabled, businessHours.isTrue(LocalDateTime.now())) match {
-              case (true, true) =>
-                implicit val request: AuthenticatedRequest[A] = authenticatedRequest
-                enrolmentsHelper
-                  .singleAccountEnrolmentPresent(enrolments, domain.Nino(nino))
-                  .fold(
-                    left => Future.successful(left),
-                    status =>
-                      if (status) {
-                        updatedResult
-                      } else {
-                        Future.successful(Redirect(configDecorator.taxEnrolmentDeniedRedirect(request.uri)))
-                      }
-                  )
-              case _            => updatedResult
-            }
-          }
+          block(authenticatedRequest)
 
         case _ => throw new RuntimeException("Can't authenticate user")
       }
   }
-
-  private def upliftCredentialStrength: Future[Result] =
-    Future.successful(
-      Redirect(
-        configDecorator.multiFactorAuthenticationUpliftUrl,
-        Map(
-          "origin"      -> Seq(configDecorator.origin),
-          "continueUrl" -> Seq(configDecorator.pertaxFrontendForAuthHost + configDecorator.personalAccount)
-        )
-      )
-    )
-
-  private def upliftConfidenceLevel(request: Request[_]): Future[Result] =
-    Future.successful(
-      Redirect(
-        configDecorator.identityVerificationUpliftUrl,
-        Map(
-          "origin"          -> Seq(configDecorator.origin),
-          "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
-          "completionURL"   -> Seq(
-            configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
-              .showUpliftJourneyOutcome(Some(RedirectUrl(request.uri)))
-          ),
-          "failureURL"      -> Seq(
-            configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
-              .showUpliftJourneyOutcome(Some(RedirectUrl(request.uri)))
-          )
-        )
-      )
-    )
 
   override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
 
