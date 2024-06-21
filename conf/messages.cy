@@ -684,7 +684,6 @@ alertBannerShuttering.cysp = Gwirioʼch Pensiwn y Wladwriaeth
 alertBannerShuttering.taxRefund = Gwneud cais am ad-daliad treth
 alertBannerShuttering.c2ni = Yswiriant Gwladol Dosbarth 2
 alertBannerShuttering.cocar = Car cwmni
-alertBannerShuttering.ee = Treuliau’r Cyflogai
 alertBannerShuttering.helpToSave = Cymorth i Gynilo
 alertBannerShuttering.tamc = Lwfans Priodasol
 alertBannerShuttering.medben = Buddiannau meddygol
