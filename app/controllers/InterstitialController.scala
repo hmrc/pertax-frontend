@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NiAndSpMergeTileToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NiAndSpMergeTileToggle, ShowOutageBannerToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -221,13 +221,13 @@ class InterstitialController @Inject() (
   }
 
   def displayShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>
-//    featureFlagService.get(ShowOutageBannerToggle).flatMap { featureFlag =>
-    if (true) {
-      Future.successful(Ok(shutteringView()))
-    } else {
-      Future.successful(Redirect(routes.HomeController.index))
+    featureFlagService.get(ShowOutageBannerToggle).flatMap { featureFlag =>
+      if (featureFlag.isEnabled) {
+        Future.successful(Ok(shutteringView()))
+      } else {
+        Future.successful(Redirect(routes.HomeController.index))
+      }
     }
-    //  }
   }
 
 }
