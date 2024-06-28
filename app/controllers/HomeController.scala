@@ -36,19 +36,19 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
-                                 paperlessInterruptHelper: PaperlessInterruptHelper,
-                                 taiService: TaiService,
-                                 breathingSpaceService: BreathingSpaceService,
-                                 featureFlagService: FeatureFlagService,
-                                 homeCardGenerator: HomeCardGenerator,
-                                 homePageCachingHelper: HomePageCachingHelper,
-                                 authJourney: AuthJourney,
-                                 cc: MessagesControllerComponents,
-                                 homeView: HomeView,
-                                 rlsInterruptHelper: RlsInterruptHelper,
-                                 alertBannerHelper: AlertBannerHelper
-                               )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-  extends PertaxBaseController(cc)
+  paperlessInterruptHelper: PaperlessInterruptHelper,
+  taiService: TaiService,
+  breathingSpaceService: BreathingSpaceService,
+  featureFlagService: FeatureFlagService,
+  homeCardGenerator: HomeCardGenerator,
+  homePageCachingHelper: HomePageCachingHelper,
+  authJourney: AuthJourney,
+  cc: MessagesControllerComponents,
+  homeView: HomeView,
+  rlsInterruptHelper: RlsInterruptHelper,
+  alertBannerHelper: AlertBannerHelper
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+    extends PertaxBaseController(cc)
     with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
@@ -72,9 +72,9 @@ class HomeController @Inject() (
           for {
             taxSummaryState         <- taiService.retrieveTaxComponentsState(request.nino, current.currentYear)
             breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino).map {
-              case WithinPeriod => true
-              case _            => false
-            }
+                                         case WithinPeriod => true
+                                         case _            => false
+                                       }
             incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
             shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
             alertBannerContent      <- alertBannerHelper.getContent
