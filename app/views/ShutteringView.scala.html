@@ -38,6 +38,7 @@ showBackLink = true
     @p(Text(paragraphText))
     <ul class="govuk-list govuk-list--bullet">
         @Seq("alertBannerShuttering.cysp",
+        "alertBannerShuttering.childBenefit",
         "alertBannerShuttering.taxRefund",
         "alertBannerShuttering.c2ni",
         "alertBannerShuttering.cocar",
@@ -46,13 +47,11 @@ showBackLink = true
         "alertBannerShuttering.tamc",
         "alertBannerShuttering.medben",
         "alertBannerShuttering.paye",
+        "alertBannerShuttering.payeIncomeTaxHistory",
         "alertBannerShuttering.pensionLifetimeAllowance",
         "alertBannerShuttering.repayments",
         "alertBannerShuttering.taxcalc",
-        "alertBannerShuttering.fandf",
-        "alertBannerShuttering.childBenefit",
-        "alertBannerShuttering.taxCredits",
-        "alertBannerShuttering.payeIncomeTaxHistory"
+        "alertBannerShuttering.fandf"
         ).map{item=>
             <li>@messages(item)</li>
         }
