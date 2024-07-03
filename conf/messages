@@ -686,7 +686,6 @@ alertBannerShuttering.repayments = Repayments
 alertBannerShuttering.taxcalc = Tax Calculation
 alertBannerShuttering.fandf = Trusted Helpers
 alertBannerShuttering.childBenefit = Child Benefit
-alertBannerShuttering.payeIncomeTaxHistory = PAYE Income Tax History
 alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Employee Expenses, including working from home, uniform, work clothes, tools and professional subscriptions
 
 #*************************************************************

@@ -693,7 +693,6 @@ alertBannerShuttering.repayments = Ad-daliadau
 alertBannerShuttering.taxcalc = Cyfrifiad Treth
 alertBannerShuttering.fandf = Cynorthwywyr Dibynadwy
 alertBannerShuttering.childBenefit = Budd-dal Plant
-alertBannerShuttering.payeIncomeTaxHistory = Hanes Treth Incwm TWE
 alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau’r Cyflogai, gan gynnwys gweithio gartref, gwisg, dillad gwaith, offer a thanysgrifiadau proffesiynol
 
 #*************************************************************
