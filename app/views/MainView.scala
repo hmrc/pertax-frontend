@@ -81,7 +81,7 @@ class MainViewImpl @Inject() (
     messagesActive: Boolean = false,
     yourProfileActive: Boolean = false,
     hideAccountMenu: Boolean = false,
-    showUserResearchBanner: Boolean = true
+    showUserResearchBanner: Boolean = false
   )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
 
     val trustedHelper: Option[TrustedHelper] = Try(request.asInstanceOf[UserRequest[_]]) match {

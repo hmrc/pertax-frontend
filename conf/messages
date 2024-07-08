@@ -677,7 +677,6 @@ alertBannerShuttering.cysp = Check your State Pension
 alertBannerShuttering.taxRefund = Claim a Tax Refund
 alertBannerShuttering.c2ni = Class 2 National Insurance
 alertBannerShuttering.cocar = Company Car
-alertBannerShuttering.ee = Employee Expenses
 alertBannerShuttering.helpToSave = Help to Save
 alertBannerShuttering.tamc = Marriage Allowance
 alertBannerShuttering.medben = Medical Benefits
@@ -687,8 +686,6 @@ alertBannerShuttering.repayments = Repayments
 alertBannerShuttering.taxcalc = Tax Calculation
 alertBannerShuttering.fandf = Trusted Helpers
 alertBannerShuttering.childBenefit = Child Benefit
-alertBannerShuttering.taxCredits = Tax Credits
-alertBannerShuttering.payeIncomeTaxHistory = PAYE Income Tax History
 alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Employee Expenses, including working from home, uniform, work clothes, tools and professional subscriptions
 
 #*************************************************************

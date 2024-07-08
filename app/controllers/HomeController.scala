@@ -45,7 +45,6 @@ class HomeController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
-  seissService: SeissService,
   rlsInterruptHelper: RlsInterruptHelper,
   alertBannerHelper: AlertBannerHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
@@ -72,7 +71,6 @@ class HomeController @Inject() (
         paperlessInterruptHelper.enforcePaperlessPreference {
           for {
             taxSummaryState         <- taiService.retrieveTaxComponentsState(request.nino, current.currentYear)
-            _                       <- seissService.hasClaims(saUserType)
             breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino).map {
                                          case WithinPeriod => true
                                          case _            => false

@@ -684,7 +684,6 @@ alertBannerShuttering.cysp = Gwirioʼch Pensiwn y Wladwriaeth
 alertBannerShuttering.taxRefund = Gwneud cais am ad-daliad treth
 alertBannerShuttering.c2ni = Yswiriant Gwladol Dosbarth 2
 alertBannerShuttering.cocar = Car cwmni
-alertBannerShuttering.ee = Treuliau’r Cyflogai
 alertBannerShuttering.helpToSave = Cymorth i Gynilo
 alertBannerShuttering.tamc = Lwfans Priodasol
 alertBannerShuttering.medben = Buddiannau meddygol
@@ -694,8 +693,6 @@ alertBannerShuttering.repayments = Ad-daliadau
 alertBannerShuttering.taxcalc = Cyfrifiad Treth
 alertBannerShuttering.fandf = Cynorthwywyr Dibynadwy
 alertBannerShuttering.childBenefit = Budd-dal Plant
-alertBannerShuttering.taxCredits = Credydau Treth
-alertBannerShuttering.payeIncomeTaxHistory = Hanes Treth Incwm TWE
 alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau’r Cyflogai, gan gynnwys gweithio gartref, gwisg, dillad gwaith, offer a thanysgrifiadau proffesiynol
 
 #*************************************************************
