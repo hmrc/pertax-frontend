@@ -16,6 +16,10 @@
 
 package connectors
 
+import cats.data.EitherT
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
@@ -23,6 +27,7 @@ import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import scala.concurrent.Future
 import scala.util.Random
 
 class IdentityVerificationFrontendConnectorSpec
@@ -30,6 +35,12 @@ class IdentityVerificationFrontendConnectorSpec
     with WireMockHelper
     with DefaultAwaitTimeout
     with Injecting {
+
+  private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
+
+  private val mockHttpClient: HttpClient = mock[HttpClient]
+
+  private val dummyContent = "error message"
 
   override implicit lazy val app: Application = app(
     Map("microservice.services.identity-verification-frontend.port" -> server.port())
@@ -63,22 +74,50 @@ class IdentityVerificationFrontendConnectorSpec
     }
 
     List(
-      TOO_MANY_REQUESTS,
-      INTERNAL_SERVER_ERROR,
-      BAD_GATEWAY,
       SERVICE_UNAVAILABLE,
       IM_A_TEAPOT,
-      NOT_FOUND,
-      BAD_REQUEST,
-      UNPROCESSABLE_ENTITY
+      BAD_REQUEST
     ).foreach { statusCode =>
-      s"return Left when a $statusCode is retreived" in new SpecSetup {
+      s"return Left when a $statusCode is retrieved" in new SpecSetup {
         stubGet("/mdtp/journey/journeyId/1234", statusCode, None)
 
         val result: UpstreamErrorResponse =
           connector.getIVJourneyStatus("1234").value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
 
         result.statusCode mustBe statusCode
+      }
+    }
+
+    List(
+      TOO_MANY_REQUESTS,
+      INTERNAL_SERVER_ERROR,
+      BAD_GATEWAY,
+      NOT_FOUND,
+      UNPROCESSABLE_ENTITY
+    ).foreach { httpResponse =>
+      s"return $httpResponse response from HttpClientResponse service returns not found" in {
+
+        when(mockHttpClientResponse.read(any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            Future(Left(UpstreamErrorResponse(dummyContent, httpResponse)))
+          )
+        )
+
+        when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+          .thenReturn(Future.successful(HttpResponse(httpResponse, "")))
+
+        def identityVerificationFrontendConnectorWithMock: IdentityVerificationFrontendConnector =
+          new IdentityVerificationFrontendConnector(mockHttpClient, inject[ServicesConfig], mockHttpClientResponse)
+
+        val result: UpstreamErrorResponse =
+          identityVerificationFrontendConnectorWithMock
+            .getIVJourneyStatus("1234")
+            .value
+            .futureValue
+            .swap
+            .getOrElse(UpstreamErrorResponse("", OK))
+
+        result.statusCode mustBe httpResponse
       }
     }
   }
