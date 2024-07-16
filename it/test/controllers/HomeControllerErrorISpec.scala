@@ -37,28 +37,7 @@ class HomeControllerErrorISpec extends IntegrationSpec {
     .configure(
       "feature.breathing-space-indicator.enabled"   -> true,
       "microservice.services.taxcalc-frontend.port" -> server.port(),
-      "microservice.services.tai.port"              -> server.port(),
-      "feature.business-hours.0.day"                -> "Monday",
-      "feature.business-hours.0.start-time"         -> "0:00",
-      "feature.business-hours.0.end-time"           -> "23:59",
-      "feature.business-hours.1.day"                -> "Tuesday",
-      "feature.business-hours.1.start-time"         -> "0:00",
-      "feature.business-hours.1.end-time"           -> "23:59",
-      "feature.business-hours.2.day"                -> "Wednesday",
-      "feature.business-hours.2.start-time"         -> "0:00",
-      "feature.business-hours.2.end-time"           -> "23:59",
-      "feature.business-hours.3.day"                -> "Thursday",
-      "feature.business-hours.3.start-time"         -> "0:00",
-      "feature.business-hours.3.end-time"           -> "23:59",
-      "feature.business-hours.4.day"                -> "Friday",
-      "feature.business-hours.4.start-time"         -> "0:00",
-      "feature.business-hours.4.end-time"           -> "23:59",
-      "feature.business-hours.5.day"                -> "Saturday",
-      "feature.business-hours.5.start-time"         -> "0:00",
-      "feature.business-hours.5.end-time"           -> "23:59",
-      "feature.business-hours.6.day"                -> "Sunday",
-      "feature.business-hours.6.start-time"         -> "0:00",
-      "feature.business-hours.6.end-time"           -> "23:59"
+      "microservice.services.tai.port"              -> server.port()
     )
     .build()
 
