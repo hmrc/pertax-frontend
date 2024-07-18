@@ -4,8 +4,8 @@ import play.sbt.PlayImport.*
 object AppDependencies {
 
   private val playVersion      = "play-30"
-  private val hmrcMongoVersion = "2.1.0"
-  private val bootstrapVersion = "9.0.0"
+  private val hmrcMongoVersion = "1.9.0"
+  private val bootstrapVersion = "8.6.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -16,7 +16,7 @@ object AppDependencies {
     "org.typelevel"     %% "cats-core"                                  % "2.12.0",
     "org.apache.commons" % "commons-text"                               % "1.11.0",
     "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % "1.6.0",
-    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.6.0"
+    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.5.0"
   )
 
   val test: Seq[ModuleID] = Seq(
