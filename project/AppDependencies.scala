@@ -16,7 +16,7 @@ object AppDependencies {
     "org.typelevel"     %% "cats-core"                                  % "2.10.0",
     "org.apache.commons" % "commons-text"                               % "1.11.0",
     "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % "1.6.0",
-    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.3.0"
+    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.5.0"
   )
 
   val test: Seq[ModuleID] = Seq(
