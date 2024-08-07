@@ -9,7 +9,6 @@ object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc"       %% s"http-caching-client-$playVersion"          % "11.2.0",
     "uk.gov.hmrc"       %% "tax-year"                                   % "4.0.0",
     "io.lemonlabs"      %% "scala-uri"                                  % "4.0.3",
     "org.jsoup"          % "jsoup"                                      % "1.17.2",
