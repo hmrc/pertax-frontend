@@ -18,6 +18,8 @@ import play.api.libs.json._
 
 package object models {
 
+  type Breadcrumb = List[(String, String)]
+
   implicit class RichJsObject(jsObject: JsObject) {
 
     def setObject(path: JsPath, value: JsValue): JsResult[JsObject] =
