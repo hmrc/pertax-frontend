@@ -18,7 +18,7 @@ package models
 
 import play.api.libs.Files.logger
 import play.api.libs.json._
-import queries.Settable
+import queries.{Gettable, Settable}
 import routePages.QuestionPage
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
