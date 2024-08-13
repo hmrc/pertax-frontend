@@ -78,6 +78,9 @@ final case class UserAnswers(
 
 object UserAnswers {
 
+  val empty: UserAnswers             = empty("")
+  def empty(id: String): UserAnswers = new UserAnswers(id, Json.obj())
+
   val reads: Reads[UserAnswers] = {
 
     import play.api.libs.functional.syntax._

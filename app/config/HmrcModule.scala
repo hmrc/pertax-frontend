@@ -19,13 +19,10 @@ package config
 import connectors.{AgentClientAuthorisationConnector, CachingAgentClientAuthorisationConnector, DefaultAgentClientAuthorisationConnector}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
-import services.LocalSessionCache
-import uk.gov.hmrc.http.cache.client.SessionCache
 
 class HmrcModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
     val defaultBindings: Seq[Binding[_]] = Seq(
-      bind[SessionCache].to[LocalSessionCache],
       bind[ApplicationStartUp].toSelf.eagerly()
     )
 
