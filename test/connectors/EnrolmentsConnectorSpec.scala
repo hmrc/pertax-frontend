@@ -16,18 +16,33 @@
 
 package connectors
 
+import cats.data.EitherT
+import config.ConfigDecorator
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import play.api.Application
-import play.api.test.DefaultAwaitTimeout
+import play.api.test._
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
 
-class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout {
+import scala.concurrent.Future
+
+class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
 
   val baseUrl: String = "/enrolment-store-proxy"
 
   override lazy val app: Application = app(
     Map("microservice.services.enrolment-store-proxy.port" -> server.port())
   )
+
+  private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
+
+  private val mockHttpClient: HttpClient = mock[HttpClient]
+
+  private val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+
+  private val dummyContent = "error message"
 
   def connector: EnrolmentsConnector = app.injector.instanceOf[EnrolmentsConnector]
 
@@ -36,8 +51,22 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
     "BAD_REQUEST response should return Left BAD_REQUEST status" in {
-      stubGet(url, BAD_REQUEST, None)
-      lazy val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
+      when(mockHttpClientResponse.read(any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, HttpResponse](
+          Future(Left(UpstreamErrorResponse(dummyContent, BAD_REQUEST)))
+        )
+      )
+
+      when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
+
+      def enrolmentsConnectorWithMock: EnrolmentsConnector = new EnrolmentsConnector(
+        mockHttpClient,
+        mockConfigDecorator,
+        mockHttpClientResponse
+      )
+
+      lazy val result = enrolmentsConnectorWithMock.getUserIdsWithEnrolments(utr).value.futureValue
       result.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_REQUEST
     }
 

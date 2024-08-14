@@ -16,16 +16,19 @@
 
 package connectors
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import config.ConfigDecorator
+import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito, MockitoSugar}
 import play.api.{Application, Logger}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
+import scala.concurrent.Future
 import scala.util.Random
 
 class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with MockitoSugar {
@@ -38,6 +41,14 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
   private val url        = s"/$nino/memorandum"
 
   private def connector: BreathingSpaceConnector = app.injector.instanceOf[BreathingSpaceConnector]
+
+  private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
+
+  private val mockHttpClientV2: HttpClientV2 = mock[HttpClientV2]
+
+  private val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
+
+  private val mockConfigDecorator = mock[ConfigDecorator]
 
   private def verifyHeader(requestPattern: RequestPatternBuilder): Unit = server.verify(
     requestPattern.withHeader(
@@ -60,7 +71,8 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
        |}
     """.stripMargin
 
-  private def httpClientV2: HttpClientV2       = app.injector.instanceOf[HttpClientV2]
+  private def httpClientV2: HttpClientV2 = app.injector.instanceOf[HttpClientV2]
+
   private def configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
   private val mockLogger: Logger = mock[Logger]
@@ -90,16 +102,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
 
-    List(
-      TOO_MANY_REQUESTS,
-      INTERNAL_SERVER_ERROR,
-      BAD_GATEWAY,
-      SERVICE_UNAVAILABLE,
-      NOT_FOUND,
-      IM_A_TEAPOT,
-      BAD_REQUEST,
-      UNPROCESSABLE_ENTITY
-    ).foreach { httpResponse =>
+    List(SERVICE_UNAVAILABLE, IM_A_TEAPOT, BAD_REQUEST).foreach { httpResponse =>
       s"return an UpstreamErrorResponse when $httpResponse status is received" in {
         reset(mockLogger)
         val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
@@ -109,6 +112,30 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
         result mustBe a[Left[UpstreamErrorResponse, _]]
         verifyHeader(getRequestedFor(urlEqualTo(url)))
       }
+    }
+
+    List(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR, BAD_GATEWAY, NOT_FOUND, UNPROCESSABLE_ENTITY).foreach {
+      httpResponse =>
+        s"return an UpstreamErrorResponse from HttpClientResponse when $httpResponse status is received" in {
+
+          when(mockHttpClientResponse.readLogForbiddenAsWarning(any())).thenReturn(
+            EitherT[Future, UpstreamErrorResponse, HttpResponse](
+              Future(Left(UpstreamErrorResponse(dummyContent, httpResponse)))
+            )
+          )
+
+          when(mockHttpClientV2.get(any())(any())).thenReturn(mockRequestBuilder)
+
+          when(mockRequestBuilder.transform(any()))
+            .thenReturn(mockRequestBuilder)
+
+          when(mockConfigDecorator.breathingSpaceBaseUrl).thenReturn("http://localhost:/bs")
+
+          val connector = new BreathingSpaceConnector(mockHttpClientV2, mockHttpClientResponse, configDecorator)
+
+          val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
+          result mustBe a[Left[UpstreamErrorResponse, _]]
+        }
     }
 
     "return Left but 1 WARN level message logged if receive 403 (indicates IF being restarted due to new release)" in {

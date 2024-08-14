@@ -16,15 +16,24 @@
 
 package connectors
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, post, urlEqualTo}
+import config.ConfigDecorator
 import models.{ErrorView, PertaxResponse}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.Injecting
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 
-class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience {
+import scala.concurrent.Future
+
+class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience with Injecting {
 
   override lazy val app: Application =
     new GuiceApplicationBuilder()
@@ -34,6 +43,14 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
       .build()
 
   lazy val pertaxConnector: PertaxConnector = app.injector.instanceOf[PertaxConnector]
+
+  private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
+
+  private val mockHttpClient: HttpClient = mock[HttpClient]
+
+  private val mockConfigDecorator = mock[ConfigDecorator]
+
+  private val dummyContent = "error message"
 
   def postAuthoriseUrl: String = s"/pertax/authorise"
 
@@ -112,28 +129,54 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
 
     "return a UpstreamErrorResponse with the correct error code" when {
 
-      List(
-        UNAUTHORIZED,
-        BAD_REQUEST,
-        NOT_FOUND,
-        FORBIDDEN,
-        INTERNAL_SERVER_ERROR
-      ).foreach { error =>
-        s"an $error is returned from the backend" in {
+      s"an 400 is returned from the backend" in {
 
-          server.stubFor(
-            post(urlEqualTo(postAuthoriseUrl)).willReturn(
-              aResponse()
-                .withStatus(error)
-            )
+        server.stubFor(
+          post(urlEqualTo(postAuthoriseUrl)).willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
           )
+        )
 
-          val result = pertaxConnector.pertaxPostAuthorise.value.futureValue.swap
-            .getOrElse(UpstreamErrorResponse("INCORRECT RESPONSE", IM_A_TEAPOT))
-          result.statusCode mustBe error
+        val result = pertaxConnector.pertaxPostAuthorise.value.futureValue.swap
+          .getOrElse(UpstreamErrorResponse("INCORRECT RESPONSE", IM_A_TEAPOT))
+        result.statusCode mustBe BAD_REQUEST
+      }
+
+      "return a UpstreamErrorResponse with the correct error code" when {
+
+        List(
+          UNAUTHORIZED,
+          NOT_FOUND,
+          FORBIDDEN,
+          INTERNAL_SERVER_ERROR
+        ).foreach { error =>
+          s"an $error is returned from the HttpClientResponse" in {
+
+            when(mockHttpClientResponse.readLogUnauthorisedAsInfo(any())).thenReturn(
+              EitherT[Future, UpstreamErrorResponse, HttpResponse](
+                Future(Left(UpstreamErrorResponse(dummyContent, error)))
+              )
+            )
+
+            when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+              .thenReturn(Future.successful(HttpResponse(error, "")))
+
+            def pertaxConnectorWithMock: PertaxConnector =
+              new PertaxConnector(
+                mockHttpClient,
+                mockHttpClientResponse,
+                mockConfigDecorator,
+                inject[HeaderCarrierForPartialsConverter]
+              )
+
+            val result = pertaxConnectorWithMock.pertaxPostAuthorise.value.futureValue.swap
+              .getOrElse(UpstreamErrorResponse("INCORRECT RESPONSE", IM_A_TEAPOT))
+            result.statusCode mustBe error
+          }
         }
       }
-    }
 
+    }
   }
 }
