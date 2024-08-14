@@ -215,7 +215,7 @@ class ConfigDecorator @Inject() (
 
   lazy val viewPaymentHistory: String = s"$childBenefitViewFrontend/child-benefit/view-payment-history"
 
-  lazy val viewProofEntitlement: String = s"$childBenefitViewFrontend/child-benefit/view-proof-entitlement"
+  lazy val viewProofEntitlement: String = runModeConfiguration.get[String]("child-benefits.view-payment-history-url")
 
   lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
 
