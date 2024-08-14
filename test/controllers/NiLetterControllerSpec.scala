@@ -16,9 +16,8 @@
 
 package controllers
 
-import connectors.PdfGeneratorConnector
-import controllers.auth.requests.UserRequest
 import controllers.auth.WithBreadcrumbAction
+import controllers.auth.requests.UserRequest
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
@@ -31,7 +30,6 @@ import scala.concurrent.Future
 
 class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
-  val mockPdfGeneratorConnector: PdfGeneratorConnector   = mock[PdfGeneratorConnector]
   val mockInterstitialController: InterstitialController = mock[InterstitialController]
   val mockHomeController: HomeController                 = mock[HomeController]
   val mockRlsConfirmAddressController: RlsController     = mock[RlsController]
@@ -39,7 +37,6 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
-      bind[PdfGeneratorConnector].toInstance(mockPdfGeneratorConnector),
       bind[HomeController].toInstance(mockHomeController),
       bind[RlsController].toInstance(mockRlsConfirmAddressController)
     )
