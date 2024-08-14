@@ -29,7 +29,8 @@ class LocalErrorHandlerSpec extends ViewSpec {
   lazy val standardError: UnauthenticatedErrorView      = inject[UnauthenticatedErrorView]
 
   implicit val configDecorator: ConfigDecorator                 = inject[ConfigDecorator]
-  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+    buildUserRequest(request = FakeRequest())
 
   "standardErrorTemplate" in {
     val doc =

@@ -153,6 +153,7 @@ trait A11ySpec
       .configure(
         "microservice.services.citizen-details.port"            -> server.port(),
         "microservice.services.auth.port"                       -> server.port(),
+        "microservice.services.pertax.port"                     -> server.port(),
         "microservice.services.message-frontend.port"           -> server.port(),
         "microservice.services.agent-client-authorisation.port" -> server.port(),
         "microservice.services.cachable.session-cache.port"     -> server.port(),
@@ -167,11 +168,28 @@ trait A11ySpec
         .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
     }
 
-    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
-    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+    server.stubFor(
+      post(urlEqualTo("/auth/authorise"))
+        .willReturn(aResponse().withBody(authResponse))
+    )
+
+    server.stubFor(
+      get(urlEqualTo(s"/citizen-details/nino/$generatedNino"))
+        .willReturn(ok(citizenResponse))
+    )
+
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
+
     server.stubFor(
       get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details")).willReturn(ok(designatoryDetailsResponse))
+    )
+
+    server.stubFor(
+      post(urlEqualTo("/pertax/authorise"))
+        .willReturn(
+          aResponse()
+            .withBody("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}")
+        )
     )
   }
 }

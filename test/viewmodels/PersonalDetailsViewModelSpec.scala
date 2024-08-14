@@ -52,7 +52,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   lazy val mockPreferencesConnector: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
   lazy val personalDetailsViewModel: PersonalDetailsViewModel     = inject[PersonalDetailsViewModel]
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder(NonFilerSelfAssessmentUser, None)
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[PreferencesFrontendConnector].toInstance(mockPreferencesConnector)
     )
@@ -390,6 +390,17 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
         actual.futureValue.postalAddress.isEmpty mustBe true
       }
+    }
+  }
+
+  "getManageTaxAgentsRow" must {
+    "render the correct manageTaxAgentsUrl with return url" in {
+      val returnUrl = "/personal-account/returnUrl"
+      val request   = userRequest.copy(request = FakeRequest("GET", returnUrl))
+
+      val result = personalDetailsViewModel.getManageTaxAgentsRow(messages, request)
+
+      result.get.linkUrl mustBe Some(s"http://localhost:9568/manage-your-tax-agents?source=PTA&returnUrl=$returnUrl")
     }
   }
 }

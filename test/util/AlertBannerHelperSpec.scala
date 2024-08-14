@@ -20,7 +20,7 @@ import cats.data.EitherT
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models.{PaperlessMessagesStatus, PaperlessStatusBounced, PaperlessStatusNewCustomer, PaperlessStatusNoEmail, PaperlessStatusOptIn, PaperlessStatusOptOut, PaperlessStatusReopt, PaperlessStatusReoptModified, PaperlessStatusUnverified}
-import models.admin.{AlertBannerPaperlessStatusToggle}
+import models.admin.AlertBannerPaperlessStatusToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.concurrent.IntegrationPatience
@@ -47,19 +47,20 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
     reset(mockPreferencesFrontendConnector)
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle)))
-      .thenReturn(Future.successful(FeatureFlag(AlertBannerPaperlessStatusToggle, true)))
+      .thenReturn(Future.successful(FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = true)))
   }
 
-  override lazy val app: Application            = localGuiceApplicationBuilder()
+  override lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
     )
     .build()
-  lazy val messagesApi                          = app.injector.instanceOf[MessagesApi]
+
+  override lazy val messagesApi: MessagesApi    = app.injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages          = MessagesImpl(Lang("en"), messagesApi)
   lazy val alertBannerHelper: AlertBannerHelper = app.injector.instanceOf[AlertBannerHelper]
-  lazy val bouncedEmailView                     = app.injector.instanceOf[bouncedEmail]
-  lazy val unverifiedEmailView                  = app.injector.instanceOf[unverifiedEmail]
+  lazy val bouncedEmailView: bouncedEmail       = app.injector.instanceOf[bouncedEmail]
+  lazy val unverifiedEmailView: unverifiedEmail = app.injector.instanceOf[unverifiedEmail]
 
   "AlertBannerHelper.getContent" must {
     "return bounce email content " in {

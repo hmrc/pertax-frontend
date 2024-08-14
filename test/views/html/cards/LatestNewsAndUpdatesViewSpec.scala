@@ -30,7 +30,7 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
+  override protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .configure(
         Map(
@@ -67,6 +67,24 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
     "render the given content correctly" in {
 
       doc.text() must include(Messages("label.percentage_points_uplift_in_NIC"))
+    }
+
+    "render the correct HTML" in {
+      val expectedView =
+        """
+          |<div class="card" id="news-card">
+          |  <div class="card-body card-body-news">
+          |    <h3 class="govuk-heading-s card-heading card-heading-news">
+          |      Latest news and updates
+          |    </h3>
+          |    <p class="govuk-body"><a class="ga-track-anchor-click govuk-link" href="/personal-account/news/nicSection" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="1.25 percentage points uplift in National Insurance contributions">1.25 percentage points uplift in National Insurance contributions</a></p>
+          |  </div>
+          |</div>
+          |""".stripMargin.replaceAll("\\s", "")
+
+      val originalView = latestNewsAndUpdatesView().toString.trim.replaceAll("\\s", "")
+
+      originalView mustBe expectedView
     }
   }
 }

@@ -18,7 +18,7 @@ package controllers.controllershelpers
 
 import cats.data.OptionT
 import cats.instances.future._
-import com.google.inject.Inject
+import com.google.inject.{ImplementedBy, Inject}
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
 import models.admin.RlsInterruptToggle
@@ -29,11 +29,22 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class RlsInterruptHelper @Inject() (
+@ImplementedBy(classOf[RlsInterruptHelperImpl])
+trait RlsInterruptHelper {
+  def enforceByRlsStatus(
+    block: => Future[Result]
+  )(implicit
+    request: UserRequest[_],
+    ec: ExecutionContext
+  ): Future[Result]
+}
+
+class RlsInterruptHelperImpl @Inject() (
   cc: MessagesControllerComponents,
   editAddressLockRepository: EditAddressLockRepository,
   featureFlagService: FeatureFlagService
 ) extends PertaxBaseController(cc)
+    with RlsInterruptHelper
     with Logging {
 
   def enforceByRlsStatus(

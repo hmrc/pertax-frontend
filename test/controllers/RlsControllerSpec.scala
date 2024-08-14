@@ -17,7 +17,6 @@
 package controllers
 
 import config.ConfigDecorator
-import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.admin.RlsInterruptToggle
@@ -40,7 +39,6 @@ import scala.concurrent.Future
 
 class RlsControllerSpec extends BaseSpec {
 
-  val mockAuthJourney: AuthJourney       = mock[AuthJourney]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
   when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))

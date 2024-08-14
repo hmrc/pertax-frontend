@@ -18,18 +18,14 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.TaiConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models._
-import models.admin.{ShowOutageBannerToggle, TaxComponentsToggle}
+import models.admin.ShowOutageBannerToggle
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
@@ -41,7 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
-  taiConnector: TaiConnector,
+  taiService: TaiService,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   homeCardGenerator: HomeCardGenerator,
@@ -49,7 +45,6 @@ class HomeController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
-  seissService: SeissService,
   rlsInterruptHelper: RlsInterruptHelper,
   alertBannerHelper: AlertBannerHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
@@ -75,8 +70,7 @@ class HomeController @Inject() (
       showUserResearchBanner flatMap { showUserResearchBanner =>
         paperlessInterruptHelper.enforcePaperlessPreference {
           for {
-            taxSummaryState         <- retrieveTaxComponentsState(request.nino, current.currentYear)
-            _                       <- seissService.hasClaims(saUserType)
+            taxSummaryState         <- taiService.retrieveTaxComponentsState(request.nino, current.currentYear)
             breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino).map {
                                          case WithinPeriod => true
                                          case _            => false
@@ -108,29 +102,4 @@ class HomeController @Inject() (
       }
     )
   }
-
-  private[controllers] def retrieveTaxComponentsState(ninoOpt: Option[Nino], year: Int)(implicit
-    hc: HeaderCarrier
-  ): Future[TaxComponentsState] =
-    ninoOpt.fold[Future[TaxComponentsState]](
-      Future.successful(TaxComponentsDisabledState)
-    ) { nino =>
-      featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
-        if (toggle.isEnabled) {
-          taiConnector
-            .taxComponents(nino, year)
-            .fold(
-              error =>
-                if (error.statusCode == BAD_REQUEST || error.statusCode == NOT_FOUND) {
-                  TaxComponentsNotAvailableState
-                } else {
-                  TaxComponentsUnreachableState
-                },
-              result => TaxComponentsAvailableState(TaxComponents.fromJsonTaxComponents(result.json))
-            )
-        } else {
-          Future.successful(TaxComponentsDisabledState)
-        }
-      }
-    }
 }

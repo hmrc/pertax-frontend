@@ -37,6 +37,7 @@ class SaWrongCredentialsController @Inject() (
   findYourUserIdView: FindYourUserIdView
 )(implicit configDecorator: ConfigDecorator)
     extends PertaxBaseController(cc) {
+
   private val authenticate: ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails
 
   def ggSignInUrl: String = {

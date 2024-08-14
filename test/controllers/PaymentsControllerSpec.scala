@@ -19,7 +19,7 @@ package controllers
 import cats.data.EitherT
 import connectors._
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import controllers.auth.WithBreadcrumbAction
 import error.ErrorRenderer
 import models.PayApiModels
 import org.mockito.ArgumentMatchers.any
@@ -43,7 +43,6 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
   lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
 
   val mockPayConnector: PayApiConnector = mock[PayApiConnector]
-  val mockAuthJourney: AuthJourney      = mock[AuthJourney]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(

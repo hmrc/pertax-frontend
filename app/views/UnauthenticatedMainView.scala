@@ -26,6 +26,7 @@ import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.hmrcfrontend.config.AccessibilityStatementConfig
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+import uk.gov.hmrc.sca.models.BannerConfig
 import uk.gov.hmrc.sca.services.WrapperService
 import views.html.components.{AdditionalJavascript, HeadBlock}
 
@@ -35,33 +36,33 @@ import scala.util.{Failure, Success, Try}
 @ImplementedBy(classOf[UnauthenticatedMainViewImpl])
 trait UnauthenticatedMainView {
   def apply(
-    pageTitle: String,
-    sidebarContent: Option[Html] = None,
-    showBackLink: Boolean = false,
-    disableSessionExpired: Boolean = false,
-    fullWidth: Boolean = false
-  )(contentBlock: Html)(implicit
-    request: Request[_],
-    messages: Messages
-  ): HtmlFormat.Appendable
+             pageTitle: String,
+             sidebarContent: Option[Html] = None,
+             showBackLink: Boolean = false,
+             disableSessionExpired: Boolean = false,
+             fullWidth: Boolean = false
+           )(contentBlock: Html)(implicit
+                                 request: Request[_],
+                                 messages: Messages
+           ): HtmlFormat.Appendable
 }
 
 class UnauthenticatedMainViewImpl @Inject() (
-  appConfig: ConfigDecorator,
-  wrapperService: WrapperService,
-  additionalScripts: AdditionalJavascript,
-  headBlock: HeadBlock,
-  accessibilityStatementConfig: AccessibilityStatementConfig
-) extends UnauthenticatedMainView
-    with Logging {
+                                              appConfig: ConfigDecorator,
+                                              wrapperService: WrapperService,
+                                              additionalScripts: AdditionalJavascript,
+                                              headBlock: HeadBlock,
+                                              accessibilityStatementConfig: AccessibilityStatementConfig
+                                            ) extends UnauthenticatedMainView
+  with Logging {
 
   override def apply(
-    pageTitle: String,
-    sidebarContent: Option[Html] = None,
-    showBackLink: Boolean = false,
-    disableSessionExpired: Boolean = false,
-    fullWidth: Boolean = false
-  )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
+                      pageTitle: String,
+                      sidebarContent: Option[Html] = None,
+                      showBackLink: Boolean = false,
+                      disableSessionExpired: Boolean = false,
+                      fullWidth: Boolean = false
+                    )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
 
     val fullPageTitle = s"$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"
     val attorney      = Try(request.asInstanceOf[UserRequest[_]]) match {
@@ -93,7 +94,12 @@ class UnauthenticatedMainViewImpl @Inject() (
       optTrustedHelper = attorney,
       fullWidth = fullWidth,
       hideMenuBar = true,
-      disableSessionExpired = disableSessionExpired
+      disableSessionExpired = disableSessionExpired,
+      bannerConfig = BannerConfig(
+        showAlphaBanner = false,
+        showBetaBanner = true,
+        showHelpImproveBanner = false
+      )
     )(messages, request)
 
   }

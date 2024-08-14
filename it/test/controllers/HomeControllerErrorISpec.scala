@@ -17,19 +17,15 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.SingleAccountCheckToggle
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -40,28 +36,7 @@ class HomeControllerErrorISpec extends IntegrationSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
       "microservice.services.taxcalc-frontend.port" -> server.port(),
-      "microservice.services.tai.port"              -> server.port(),
-      "feature.business-hours.0.day"                -> "Monday",
-      "feature.business-hours.0.start-time"         -> "0:00",
-      "feature.business-hours.0.end-time"           -> "23:59",
-      "feature.business-hours.1.day"                -> "Tuesday",
-      "feature.business-hours.1.start-time"         -> "0:00",
-      "feature.business-hours.1.end-time"           -> "23:59",
-      "feature.business-hours.2.day"                -> "Wednesday",
-      "feature.business-hours.2.start-time"         -> "0:00",
-      "feature.business-hours.2.end-time"           -> "23:59",
-      "feature.business-hours.3.day"                -> "Thursday",
-      "feature.business-hours.3.start-time"         -> "0:00",
-      "feature.business-hours.3.end-time"           -> "23:59",
-      "feature.business-hours.4.day"                -> "Friday",
-      "feature.business-hours.4.start-time"         -> "0:00",
-      "feature.business-hours.4.end-time"           -> "23:59",
-      "feature.business-hours.5.day"                -> "Saturday",
-      "feature.business-hours.5.start-time"         -> "0:00",
-      "feature.business-hours.5.end-time"           -> "23:59",
-      "feature.business-hours.6.day"                -> "Sunday",
-      "feature.business-hours.6.start-time"         -> "0:00",
-      "feature.business-hours.6.end-time"           -> "23:59"
+      "microservice.services.tai.port"              -> server.port()
     )
     .build()
 
@@ -75,12 +50,79 @@ class HomeControllerErrorISpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     beforeEachHomeController(auth = false, memorandum = false)
-
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = true)))
   }
 
   "personal-account" must {
+    "show an error view" in {
+      val expectedMessage = "<<<It works!>>>"
+      server.stubFor(
+        post(urlEqualTo("/pertax/authorise"))
+          .willReturn(
+            aResponse()
+              .withBody("""{
+                  | "code": "INVALID_AFFINITY",
+                  | "message": "The user is neither an individual or an organisation",
+                  | "errorView": {
+                  |   "url": "/partials/view",
+                  |   "statusCode": 403
+                  | }
+                  |}""".stripMargin)
+          )
+      )
+
+      server.stubFor(
+        get(urlEqualTo("/partials/view"))
+          .willReturn(
+            aResponse()
+              .withBody(expectedMessage)
+          )
+      )
+
+      val authResponseNoHmrcPt =
+        s"""
+           |{
+           |    "confidenceLevel": 50,
+           |    "nino": "$generatedNino",
+           |    "name": {
+           |        "name": "John",
+           |        "lastName": "Smith"
+           |    },
+           |    "loginTimes": {
+           |        "currentLogin": "2021-06-07T10:52:02.594Z",
+           |        "previousLogin": null
+           |    },
+           |    "optionalCredentials": {
+           |        "providerId": "4911434741952698",
+           |        "providerType": "GovernmentGateway"
+           |    },
+           |    "authProviderId": {
+           |        "ggCredId": "xyz"
+           |    },
+           |    "externalId": "testExternalId",
+           |    "allEnrolments": [],
+           |    "affinityGroup": "Agent",
+           |    "credentialStrength": "strong"
+           |}
+           |""".stripMargin
+
+      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseNoHmrcPt)))
+      server.stubFor(
+        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+          .willReturn(serverError())
+      )
+      server.stubFor(
+        put(urlMatching(s"/keystore/pertax-frontend/.*"))
+          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+      )
+
+      val result: Future[Result] = route(app, request).get
+      httpStatus(result) mustBe FORBIDDEN
+      contentAsString(result) must include(expectedMessage)
+      server.verify(0, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
+      server.verify(0, getRequestedFor(urlEqualTo("/tax-you-paid/summary-card-partials")))
+
+    }
+
     "redirect to protect-tax-info if HMRC-PT enrolment is not present" in {
       val authResponseNoHmrcPt =
         s"""
@@ -119,9 +161,21 @@ class HomeControllerErrorISpec extends IntegrationSpec {
           .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
       )
 
+      server.stubFor(
+        post(urlEqualTo("/pertax/authorise"))
+          .willReturn(
+            aResponse()
+              .withBody("""{
+                  | "code": "NO_HMRC_PT_ENROLMENT",
+                  | "message": "There is no valid HMRC PT enrolment",
+                  | "redirect": "https://example.com/redirect"
+                  |}""".stripMargin)
+          )
+      )
+
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("http://localhost:7750/protect-tax-info?redirectUrl=%2Fpersonal-account")
+      redirectLocation(result) mustBe Some("https://example.com/redirect?redirectUrl=%2Fpersonal-account")
       server.verify(0, getRequestedFor(urlEqualTo(s"/$generatedNino/memorandum")))
       server.verify(0, getRequestedFor(urlEqualTo("/tax-you-paid/summary-card-partials")))
     }

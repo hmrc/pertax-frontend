@@ -17,15 +17,13 @@
 package config
 
 import models.NewsAndContentModel
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.{Lang, Messages, MessagesImpl}
 import testUtils.BaseSpec
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class NewsAndTilesConfigSpec extends BaseSpec {
-
-  lazy val messagesApi: MessagesApi = inject[MessagesApi]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 

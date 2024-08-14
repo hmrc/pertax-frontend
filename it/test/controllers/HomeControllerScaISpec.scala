@@ -190,8 +190,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, isEnabled = true)))
   }
 
   "personal-account" when {

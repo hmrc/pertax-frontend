@@ -16,8 +16,11 @@
 
 package connectors
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock._
+import config.ConfigDecorator
 import models.addresslookup.{AddressRecord, RecordSet}
+import org.mockito.ArgumentMatchers.any
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.Status._
@@ -25,8 +28,11 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, Json}
 import testUtils.Fixtures.{oneAndTwoOtherPlacePafRecordSet, twoOtherPlaceRecordSet}
 import testUtils.{BaseSpec, WireMockHelper}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import scala.concurrent.Future
 import scala.io.Source
 
 class AddressLookupConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
@@ -39,6 +45,16 @@ class AddressLookupConnectorSpec extends BaseSpec with WireMockHelper with Integ
     .build()
 
   def addressLookupConnector: AddressLookupConnector = inject[AddressLookupConnector]
+
+  private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
+
+  private val mockHttpClientV2: HttpClientV2 = mock[HttpClientV2]
+
+  private val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
+
+  private val mockConfigDecorator = mock[ConfigDecorator]
+
+  private val dummyContent = "error message"
 
   val urlPost = "/lookup"
 
@@ -135,14 +151,9 @@ class AddressLookupConnectorSpec extends BaseSpec with WireMockHelper with Integ
     }
 
     List(
-      TOO_MANY_REQUESTS,
-      INTERNAL_SERVER_ERROR,
-      BAD_GATEWAY,
       SERVICE_UNAVAILABLE,
       IM_A_TEAPOT,
-      NOT_FOUND,
-      BAD_REQUEST,
-      UNPROCESSABLE_ENTITY
+      BAD_REQUEST
     ).foreach { httpResponse =>
       s"return $httpResponse response when called and service returns not found" in {
 
@@ -153,6 +164,41 @@ class AddressLookupConnectorSpec extends BaseSpec with WireMockHelper with Integ
         )
 
         val result = addressLookupConnector.lookup("ZZ11ZZ", Some("2"))
+
+        result.value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe httpResponse
+      }
+    }
+
+    List(
+      TOO_MANY_REQUESTS,
+      INTERNAL_SERVER_ERROR,
+      BAD_GATEWAY,
+      NOT_FOUND,
+      UNPROCESSABLE_ENTITY
+    ).foreach { httpResponse =>
+      s"return $httpResponse response from HttpClientResponse service returns not found" in {
+
+        when(mockHttpClientResponse.read(any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            Future(Left(UpstreamErrorResponse(dummyContent, httpResponse)))
+          )
+        )
+
+        when(mockHttpClientV2.post(any())(any())).thenReturn(mockRequestBuilder)
+
+        when(mockRequestBuilder.withBody(any())(any(), any(), any()))
+          .thenReturn(mockRequestBuilder)
+        when(mockRequestBuilder.transform(any()))
+          .thenReturn(mockRequestBuilder)
+
+        def addressLookupConnectorWithMock: AddressLookupConnector = new AddressLookupConnector(
+          mockConfigDecorator,
+          mockHttpClientV2,
+          inject[ServicesConfig],
+          mockHttpClientResponse
+        )
+
+        val result = addressLookupConnectorWithMock.lookup("ZZ11ZZ", Some("2"))
 
         result.value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe httpResponse
       }

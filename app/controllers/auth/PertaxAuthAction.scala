@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,81 +16,104 @@
 
 package controllers.auth
 
-import com.google.inject.Inject
+import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import connectors.PertaxConnector
-import controllers.auth.requests.UserRequest
+import views.html.MainView
 import models.PertaxResponse
-import models.admin.PertaxBackendToggle
+import views.html.InternalServerErrorView
 import play.api.Logging
+import play.api.http.Status.UNAUTHORIZED
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Results.{InternalServerError, Redirect, Status}
-import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import play.api.mvc._
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.partials.HtmlPartial
-import views.html.{InternalServerErrorView, MainView}
+import play.api.mvc.{ControllerComponents, Request, Results}
 
-import java.net.URLEncoder
 import scala.concurrent.{ExecutionContext, Future}
 
+@Singleton
 class PertaxAuthAction @Inject() (
-  configDecorator: ConfigDecorator,
   pertaxConnector: PertaxConnector,
-  featureFlagService: FeatureFlagService,
-  val messagesApi: MessagesApi,
   internalServerErrorView: InternalServerErrorView,
   mainView: MainView,
   cc: ControllerComponents
-) extends ActionRefiner[UserRequest, UserRequest]
-    with ActionFunction[UserRequest, UserRequest]
+)(implicit appConfig: ConfigDecorator)
+    extends ActionFilter[Request]
+    with Results
     with I18nSupport
     with Logging {
 
-  override def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] = {
-    implicit val hc: HeaderCarrier                        =
-      HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    implicit val implicitConfigDecorator: ConfigDecorator = configDecorator
-    implicit val userRequest: UserRequest[A]              = request
+  override def messagesApi: MessagesApi = cc.messagesApi
 
-    featureFlagService.get(PertaxBackendToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
-        pertaxConnector
-          .pertaxAuthorise(request.authNino)
-          .value
-          .flatMap {
-            case Right(PertaxResponse("ACCESS_GRANTED", _, _, _))                    =>
-              Future.successful(Right(request))
-            case Right(PertaxResponse("NO_HMRC_PT_ENROLMENT", _, _, Some(redirect))) =>
-              Future.successful(
-                Left(Redirect(s"$redirect/?redirectUrl=${URLEncoder.encode(request.uri, "UTF-8")}"))
-              )
-            case Right(PertaxResponse(_, _, Some(errorView), _))                     =>
-              pertaxConnector.loadPartial(errorView.url).map {
-                case partial: HtmlPartial.Success =>
-                  Left(Status(errorView.statusCode)(mainView(partial.title.getOrElse(""))(partial.content)))
-                case _: HtmlPartial.Failure       =>
-                  logger.error(s"The partial ${errorView.url} failed to be retrieved")
-                  Left(InternalServerError(internalServerErrorView()))
-              }
-            case Right(response)                                                     =>
-              val ex =
-                new RuntimeException(
-                  s"Pertax response `${response.code}` with message ${response.message} is not handled"
-                )
-              logger.error(ex.getMessage, ex)
-              Future.successful(Left(InternalServerError(internalServerErrorView())))
+  // scalastyle:off cyclomatic.complexity
+  override def filter[A](request: Request[A]): Future[Option[Result]] = {
+    implicit val implicitRequest: Request[A] = request
+    implicit val hc: HeaderCarrier           = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-            case _ =>
-              logger.error("Unknown response from Pertax")
-              Future.successful(Right(request))
-          }
-      } else {
-        Future.successful(Right(request))
-      }
+    pertaxConnector.pertaxPostAuthorise.value.flatMap {
+      case Left(UpstreamErrorResponse(_, status, _, _)) if status == UNAUTHORIZED                =>
+        Future.successful(Some(signInJourney))
+      case Left(_)                                                                               =>
+        Future.successful(Some(InternalServerError(internalServerErrorView())))
+      case Right(PertaxResponse("ACCESS_GRANTED", _, _, _))                                      =>
+        Future.successful(None)
+      case Right(PertaxResponse("NO_HMRC_PT_ENROLMENT", _, _, Some(redirect)))                   =>
+        Future.successful(Some(Redirect(s"$redirect?redirectUrl=${SafeRedirectUrl(request.uri).encodedUrl}")))
+      case Right(PertaxResponse("CONFIDENCE_LEVEL_UPLIFT_REQUIRED", _, _, Some(upliftRedirect))) =>
+        Future.successful(Some(upliftJourney(request, upliftRedirect)))
+      case Right(PertaxResponse("CREDENTIAL_STRENGTH_UPLIFT_REQUIRED", _, _, Some(_)))           =>
+        val ex =
+          new RuntimeException(
+            s"Weak credentials should be dealt before the service"
+          )
+        logger.error(ex.getMessage, ex)
+        Future.successful(Some(InternalServerError(internalServerErrorView())))
+
+      case Right(PertaxResponse(_, _, Some(errorView), _)) =>
+        pertaxConnector.loadPartial(errorView.url).map {
+          case partial: HtmlPartial.Success =>
+            Some(Status(errorView.statusCode)(mainView(partial.title.getOrElse(""))(partial.content)))
+          case _: HtmlPartial.Failure       =>
+            logger.error(s"The partial ${errorView.url} failed to be retrieved")
+            Some(InternalServerError(internalServerErrorView()))
+        }
+      case Right(response)                                 =>
+        val ex =
+          new RuntimeException(
+            s"Pertax response `${response.code}` with message ${response.message} is not handled"
+          )
+        logger.error(ex.getMessage, ex)
+        Future.successful(Some(InternalServerError(internalServerErrorView())))
     }
   }
 
   override protected implicit val executionContext: ExecutionContext = cc.executionContext
+
+  private def signInJourney[A]: Result =
+    Redirect(
+      appConfig.ggSignInUrl,
+      Map(
+        "continue_url" -> Seq(s"${appConfig.pertaxFrontendHost}${appConfig.personalAccount}"),
+        "origin"       -> Seq("pertax-frontend"),
+        "accountType"  -> Seq("individual")
+      )
+    )
+
+  private def upliftJourney(request: Request[_], upliftRedirect: String): Result =
+    Redirect(
+      upliftRedirect,
+      Map(
+        "origin"          -> Seq(appConfig.defaultOrigin.origin),
+        "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
+        "completionURL"   -> Seq(s"${appConfig.pertaxFrontendForAuthHost}${request.uri}"),
+        "failureURL"      -> Seq(
+          s"${appConfig.pertaxFrontendForAuthHost}${appConfig.serviceIdentityCheckFailedUrl}?continueUrl=${appConfig.pertaxFrontendForAuthHost}${request.uri}"
+        )
+      )
+    )
+
 }

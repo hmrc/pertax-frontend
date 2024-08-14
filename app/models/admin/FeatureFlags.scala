@@ -28,11 +28,8 @@ object AllFeatureFlags {
     RlsInterruptToggle,
     PaperlessInterruptToggle,
     TaxSummariesTileToggle,
-    SingleAccountCheckToggle,
     ShowOutageBannerToggle,
-    HmrcAccountToggle,
     AgentClientAuthorisationToggle,
-    PertaxBackendToggle,
     BreathingSpaceIndicatorToggle,
     AlertBannerPaperlessStatusToggle,
     GetPersonFromCitizenDetailsToggle,
@@ -84,34 +81,15 @@ case object TaxSummariesTileToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable the tile for annual tax summary")
 }
 
-case object SingleAccountCheckToggle extends FeatureFlagName {
-  override val name: String                = "single-account-check"
-  override val description: Option[String] = Some("Enable/disable single account check")
-}
-
 case object ShowOutageBannerToggle extends FeatureFlagName {
   override val name: String                = "show-outage-banner-toggle"
   override val description: Option[String] = Some("Enable/disable the show outage banner")
-}
-
-case object HmrcAccountToggle extends FeatureFlagName {
-  override val name: String                = "hmrc-account-toggle"
-  override val description: Option[String] = Some(
-    "Enable/disable the hmrc-account service replacing the Profile and Settings page"
-  )
 }
 
 case object AgentClientAuthorisationToggle extends FeatureFlagName {
   override val name: String                = "agent-client-authorisation-toggle"
   override val description: Option[String] = Some(
     "Enable/disable calls to agent-client-authorisation service from Profile and Setting page"
-  )
-}
-
-case object PertaxBackendToggle extends FeatureFlagName {
-  override val name: String                = "pertax-backend-toggle"
-  override val description: Option[String] = Some(
-    "Enable/disable pertax backend during auth"
   )
 }
 

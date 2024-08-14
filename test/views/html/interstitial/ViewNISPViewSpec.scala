@@ -31,7 +31,8 @@ class ViewNISPViewSpec extends ViewSpec {
   lazy val view: ViewNISPView = inject[ViewNISPView]
 
   lazy implicit val configDecorator: ConfigDecorator            = inject[ConfigDecorator]
-  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+    buildUserRequest(request = FakeRequest())
 
   "Rendering ViewNISPView.scala.html" must {
 

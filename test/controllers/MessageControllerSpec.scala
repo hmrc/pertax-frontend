@@ -19,7 +19,7 @@ package controllers
 import org.apache.pekko.stream.Materializer
 import connectors.CitizenDetailsConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import controllers.auth.WithBreadcrumbAction
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
@@ -42,7 +42,6 @@ class MessageControllerSpec extends BaseSpec {
     reset(mockMessageFrontendService, mock[CitizenDetailsConnector])
   }
 
-  val mockAuthJourney: AuthJourney                       = mock[AuthJourney]
   val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()

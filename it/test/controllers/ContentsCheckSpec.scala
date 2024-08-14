@@ -22,8 +22,9 @@ import models.admin.BreathingSpaceIndicatorToggle
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import play.api.http.Status.OK
+import org.scalatest.AppendedClues.convertToClueful
 import play.api.Application
+import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
@@ -441,6 +442,7 @@ class ContentsCheckSpec extends IntegrationSpec {
           govUkBanner.get(0).getElementsByClass("govuk-link").get(0).attr("href") must include(
             "http://localhost:9250/contact/beta-feedback?service=PTA"
           )
+          govUkBanner.text() mustBe "beta This is a new service – your feedback will help us to improve it."
 
           val accessibilityStatement = content
             .getElementsByClass("govuk-footer__link")
@@ -453,15 +455,10 @@ class ContentsCheckSpec extends IntegrationSpec {
             "http://localhost:12346/accessibility-statement/personal-account?referrerUrl=%2Fpersonal-account"
           )
 
-          val urBannerLink = content
+          val urBannerPresent = content
             .getElementsByClass("hmrc-user-research-banner__link")
-            .get(0)
-            .attr("href")
-          if (url.equals("/personal-account/child-benefit/home")) {
-            urBannerLink mustBe "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"
-          } else {
-            urBannerLink mustBe "https://signup.take-part-in-research.service.gov.uk/home?utm_campaign=PTAhomepage&utm_source=Other&utm_medium=other&t=HMRC&id=209"
-          }
+            .size > 0
+          urBannerPresent mustBe false withClue "UR banned must not be present"
 
           val menuItems = content
             .getElementsByClass("hmrc-account-menu__link")

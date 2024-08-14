@@ -750,7 +750,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
       status(result) mustBe OK
       contentAsString(result) must include(
-        "The following services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
+        "The following services will be unavailable from 10pm on Friday 12 July to 7am on Monday 15 July."
       )
     }
 

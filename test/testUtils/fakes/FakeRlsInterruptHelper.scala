@@ -1,5 +1,5 @@
-@*
- * Copyright 2023 HM Revenue & Customs
+/*
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,20 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import config.NewsAndTilesConfig
-@import tags._
-@import config.ConfigDecorator
+package testUtils.fakes
 
-@this(newsAndTilesConfig: NewsAndTilesConfig)
+import controllers.auth.requests.UserRequest
+import controllers.controllershelpers.RlsInterruptHelper
+import play.api.mvc._
 
-@()(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
+import scala.concurrent.{ExecutionContext, Future}
 
-@cardNewsAndUpdates(
-    id = Some("news-card"),
-    heading = messages("label.latest_news_and_updates"),
-    headingTag = "h3",
-    newsAndContentModelList = newsAndTilesConfig.getNewsAndContentModelList(),
-    configDecorator
-)
+class FakeRlsInterruptHelper extends RlsInterruptHelper {
+  def enforceByRlsStatus(
+    block: => Future[Result]
+  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Result] = block
+}

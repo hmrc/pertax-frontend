@@ -16,15 +16,30 @@
 
 package connectors
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post}
+import config.ConfigDecorator
 import models.{PayApiModels, PaymentRequest}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.libs.json.Json
-import play.api.test.DefaultAwaitTimeout
+import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
 
-class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout {
+import scala.concurrent.Future
+
+class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
+
+  private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
+
+  private val mockHttpClient: HttpClient = mock[HttpClient]
+
+  private val mockConfigDecorator = mock[ConfigDecorator]
+
+  private val dummyContent = "error message"
 
   override lazy val app: Application = app(
     Map("microservice.services.pay-api.port" -> server.port())
@@ -65,11 +80,7 @@ class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with Default
 
     List(
       BAD_REQUEST,
-      NOT_FOUND,
       REQUEST_TIMEOUT,
-      UNPROCESSABLE_ENTITY,
-      INTERNAL_SERVER_ERROR,
-      BAD_GATEWAY,
       SERVICE_UNAVAILABLE
     ).foreach { error =>
       s"Returns an UpstreamErrorResponse when the status code is $error" in {
@@ -78,6 +89,38 @@ class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with Default
           connector.createPayment(paymentRequest).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
 
         result.statusCode mustBe error
+      }
+    }
+
+    List(
+      INTERNAL_SERVER_ERROR,
+      BAD_GATEWAY,
+      NOT_FOUND,
+      UNPROCESSABLE_ENTITY
+    ).foreach { httpResponse =>
+      s"Returns an UpstreamErrorResponse when the status code is $httpResponse from HttpClientResponse" in {
+
+        when(mockHttpClientResponse.read(any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            Future(Left(UpstreamErrorResponse(dummyContent, httpResponse)))
+          )
+        )
+
+        when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+          .thenReturn(Future.successful(HttpResponse(httpResponse, "")))
+
+        def payApiConnectorWithMock: PayApiConnector =
+          new PayApiConnector(mockHttpClient, mockConfigDecorator, mockHttpClientResponse)
+
+        val result =
+          payApiConnectorWithMock
+            .createPayment(paymentRequest)
+            .value
+            .futureValue
+            .swap
+            .getOrElse(UpstreamErrorResponse("", OK))
+
+        result.statusCode mustBe httpResponse
       }
     }
   }

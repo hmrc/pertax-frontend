@@ -97,7 +97,7 @@ class HomeViewSpec extends ViewSpec {
       val view                                                      = home(homeViewModel, shutteringMessaging = true).toString
 
       view must include(
-        "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
+        "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
       )
     }
 
@@ -106,7 +106,7 @@ class HomeViewSpec extends ViewSpec {
       val view                                                      = home(homeViewModel, shutteringMessaging = false).toString
 
       view mustNot include(
-        "A number of services will be unavailable from 12.00pm on Friday 23 June to 7.00am on Monday 26 June."
+        "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
       )
     }
 

@@ -30,7 +30,8 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
 
   lazy val viewNewsAndUpdatesView: ViewNewsAndUpdatesView       = inject[ViewNewsAndUpdatesView]
   lazy implicit val configDecorator: ConfigDecorator            = inject[ConfigDecorator]
-  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+    buildUserRequest(request = FakeRequest())
 
   "Rendering ViewNewsAndUpdatesView.scala.html" must {
 

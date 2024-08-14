@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import controllers.auth.WithBreadcrumbAction
 import play.api.Application
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
@@ -32,8 +32,6 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
   import testUtils.BetterOptionValues._
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
-
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
 
   def controller: PaperlessPreferencesController =
     new PaperlessPreferencesController(

@@ -17,9 +17,6 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.PertaxBackendToggle
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
 import play.api.mvc.{AnyContentAsEmpty, Result}
@@ -28,7 +25,6 @@ import play.api.test.FakeRequest
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
 import scala.annotation.tailrec
@@ -46,7 +42,7 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
 
   val url          = s"/personal-account"
   val uuid: String = UUID.randomUUID().toString
-  val pertaxUrl    = s"/pertax/$generatedNino/authorise"
+  val pertaxUrl    = s"/pertax/authorise"
   val authUrl      = s"/auth/authorise"
 
   @tailrec
@@ -111,12 +107,12 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
     super.beforeEach()
     beforeEachHomeController(memorandum = false)
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PertaxBackendToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PertaxBackendToggle, isEnabled = true)))
-
     server.stubFor(
-      get(urlPathEqualTo(pertaxUrl))
-        .willReturn(ok("""{"code":"ACCESS_GRANTED","message":"Access granted"}"""))
+      post(urlEqualTo("/pertax/authorise"))
+        .willReturn(
+          aResponse()
+            .withBody("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}")
+        )
     )
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authTrustedHelperResponse)))
@@ -129,7 +125,7 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
-      server.verify(1, getRequestedFor(urlEqualTo(pertaxUrl)))
+      server.verify(1, postRequestedFor(urlEqualTo(pertaxUrl)))
       server.verify(1, getRequestedFor(urlEqualTo(s"/citizen-details/nino/$generatedHelperNino")))
 
     }

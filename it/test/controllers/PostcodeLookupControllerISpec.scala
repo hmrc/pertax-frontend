@@ -18,7 +18,7 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
-import models.admin.{SingleAccountCheckToggle, TaxComponentsToggle}
+import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -165,8 +165,6 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
         )
     )
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(SingleAccountCheckToggle)))
-      .thenReturn(Future.successful(FeatureFlag(SingleAccountCheckToggle, isEnabled = false)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
   }

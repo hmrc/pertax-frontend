@@ -16,15 +16,24 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, urlEqualTo}
+import cats.data.EitherT
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, post, urlEqualTo}
+import config.ConfigDecorator
 import models.{ErrorView, PertaxResponse}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import testUtils.{Fixtures, WireMockHelper}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import play.api.test.Injecting
+import testUtils.WireMockHelper
+import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 
-class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience {
+import scala.concurrent.Future
+
+class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience with Injecting {
 
   override lazy val app: Application =
     new GuiceApplicationBuilder()
@@ -35,26 +44,31 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
 
   lazy val pertaxConnector: PertaxConnector = app.injector.instanceOf[PertaxConnector]
 
-  def authoriseUrl(nino: String): String = s"/pertax/$nino/authorise"
+  private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
 
-  "PertaxConnector" must {
+  private val mockHttpClient: HttpClient = mock[HttpClient]
+
+  private val mockConfigDecorator = mock[ConfigDecorator]
+
+  private val dummyContent = "error message"
+
+  def postAuthoriseUrl: String = s"/pertax/authorise"
+
+  "PertaxConnector with post" must {
     "return a PertaxResponse with ACCESS_GRANTED code" in {
       server.stubFor(
-        get(urlEqualTo(authoriseUrl(Fixtures.fakeNino.nino)))
+        post(urlEqualTo(postAuthoriseUrl))
           .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
       )
 
-      val result = pertaxConnector
-        .pertaxAuthorise(Fixtures.fakeNino)
-        .value
-        .futureValue
+      val result = pertaxConnector.pertaxPostAuthorise.value.futureValue
         .getOrElse(PertaxResponse("INCORRECT RESPONSE", "INCORRECT", None, None))
       result mustBe PertaxResponse("ACCESS_GRANTED", "Access granted", None, None)
     }
 
     "return a PertaxResponse with NO_HMRC_PT_ENROLMENT code with a redirect link" in {
       server.stubFor(
-        get(urlEqualTo(authoriseUrl(Fixtures.fakeNino.nino)))
+        post(urlEqualTo(postAuthoriseUrl))
           .willReturn(
             ok(
               "{\"code\": \"NO_HMRC_PT_ENROLMENT\", \"message\": \"There is no valid HMRC PT enrolment\", \"redirect\": \"/tax-enrolment-assignment-frontend/account\"}"
@@ -62,10 +76,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
           )
       )
 
-      val result = pertaxConnector
-        .pertaxAuthorise(Fixtures.fakeNino)
-        .value
-        .futureValue
+      val result = pertaxConnector.pertaxPostAuthorise.value.futureValue
         .getOrElse(PertaxResponse("INCORRECT RESPONSE", "INCORRECT", None, None))
       result mustBe PertaxResponse(
         "NO_HMRC_PT_ENROLMENT",
@@ -77,7 +88,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
 
     "return a PertaxResponse with INVALID_AFFINITY code and an errorView" in {
       server.stubFor(
-        get(urlEqualTo(authoriseUrl(Fixtures.fakeNino.nino)))
+        post(urlEqualTo(postAuthoriseUrl))
           .willReturn(
             ok(
               "{\"code\": \"INVALID_AFFINITY\", \"message\": \"The user is neither an individual or an organisation\", \"errorView\": {\"url\": \"/path/for/partial\", \"statusCode\": 401}}"
@@ -85,11 +96,9 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
           )
       )
 
-      val result = pertaxConnector
-        .pertaxAuthorise(Fixtures.fakeNino)
-        .value
-        .futureValue
+      val result = pertaxConnector.pertaxPostAuthorise.value.futureValue
         .getOrElse(PertaxResponse("INCORRECT RESPONSE", "INCORRECT", None, None))
+
       result mustBe PertaxResponse(
         "INVALID_AFFINITY",
         "The user is neither an individual or an organisation",
@@ -100,7 +109,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
 
     "return a PertaxResponse with MCI_RECORD code and an errorView" in {
       server.stubFor(
-        get(urlEqualTo(authoriseUrl(Fixtures.fakeNino.nino)))
+        post(urlEqualTo(postAuthoriseUrl))
           .willReturn(
             ok(
               "{\"code\": \"MCI_RECORD\", \"message\": \"Manual correspondence indicator is set\", \"errorView\": {\"url\": \"/path/for/partial\", \"statusCode\": 423}}"
@@ -108,10 +117,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
           )
       )
 
-      val result = pertaxConnector
-        .pertaxAuthorise(Fixtures.fakeNino)
-        .value
-        .futureValue
+      val result = pertaxConnector.pertaxPostAuthorise.value.futureValue
         .getOrElse(PertaxResponse("INCORRECT RESPONSE", "INCORRECT", None, None))
       result mustBe PertaxResponse(
         "MCI_RECORD",
@@ -123,30 +129,54 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
 
     "return a UpstreamErrorResponse with the correct error code" when {
 
-      List(
-        BAD_REQUEST,
-        NOT_FOUND,
-        FORBIDDEN,
-        INTERNAL_SERVER_ERROR
-      ).foreach { error =>
-        s"an $error is returned from the backend" in {
+      s"an 400 is returned from the backend" in {
 
-          server.stubFor(
-            get(urlEqualTo(authoriseUrl(Fixtures.fakeNino.nino))).willReturn(
-              aResponse()
-                .withStatus(error)
-            )
+        server.stubFor(
+          post(urlEqualTo(postAuthoriseUrl)).willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
           )
+        )
 
-          val result = pertaxConnector
-            .pertaxAuthorise(Fixtures.fakeNino)
-            .value
-            .futureValue
-            .swap
-            .getOrElse(UpstreamErrorResponse("INCORRECT RESPONSE", IM_A_TEAPOT))
-          result.statusCode mustBe error
+        val result = pertaxConnector.pertaxPostAuthorise.value.futureValue.swap
+          .getOrElse(UpstreamErrorResponse("INCORRECT RESPONSE", IM_A_TEAPOT))
+        result.statusCode mustBe BAD_REQUEST
+      }
+
+      "return a UpstreamErrorResponse with the correct error code" when {
+
+        List(
+          UNAUTHORIZED,
+          NOT_FOUND,
+          FORBIDDEN,
+          INTERNAL_SERVER_ERROR
+        ).foreach { error =>
+          s"an $error is returned from the HttpClientResponse" in {
+
+            when(mockHttpClientResponse.readLogUnauthorisedAsInfo(any())).thenReturn(
+              EitherT[Future, UpstreamErrorResponse, HttpResponse](
+                Future(Left(UpstreamErrorResponse(dummyContent, error)))
+              )
+            )
+
+            when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+              .thenReturn(Future.successful(HttpResponse(error, "")))
+
+            def pertaxConnectorWithMock: PertaxConnector =
+              new PertaxConnector(
+                mockHttpClient,
+                mockHttpClientResponse,
+                mockConfigDecorator,
+                inject[HeaderCarrierForPartialsConverter]
+              )
+
+            val result = pertaxConnectorWithMock.pertaxPostAuthorise.value.futureValue.swap
+              .getOrElse(UpstreamErrorResponse("INCORRECT RESPONSE", IM_A_TEAPOT))
+            result.statusCode mustBe error
+          }
         }
       }
+
     }
   }
 }

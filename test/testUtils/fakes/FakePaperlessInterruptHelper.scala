@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package util
+package testUtils.fakes
 
-import com.google.inject.Inject
-import config.BusinessHoursConfig
+import controllers.auth.requests.UserRequest
+import controllers.controllershelpers.{PaperlessInterruptHelper}
+import play.api.mvc._
 
-import java.time.{DayOfWeek, LocalDateTime, LocalTime}
+import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessHours @Inject() (businessHoursConfig: BusinessHoursConfig) {
-
-  def isTrue(dateTime: LocalDateTime): Boolean = {
-    val dayOfWeek: DayOfWeek = dateTime.getDayOfWeek
-    val time: LocalTime      = dateTime.toLocalTime
-
-    businessHoursConfig.get.get(dayOfWeek).exists { case (start, end) =>
-      time.compareTo(start) >= 0 && time.compareTo(end) <= 0
-    }
-  }
-
+class FakePaperlessInterruptHelper extends PaperlessInterruptHelper {
+  def enforcePaperlessPreference(
+    block: => Future[Result]
+  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Result] = block
 }
