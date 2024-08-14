@@ -26,15 +26,29 @@
     govukPanel : GovukPanel
 )
 
-@(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]], subheading: Option[String])(implicit request: UserRequest[_],
+@(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]], subheading: Option[String], displayP85Message: Boolean)(implicit request: UserRequest[_],
 messages: play.api.i18n.Messages)
 
 
 @content = {
-    @subheading.map{p1 =>
-        @h2("label.what_happens_next")
-        @p(Text(messages(p1)))
+    @if(displayP85Message) {
+        @p85Content
+    } else {
+        @subheading.map{p1 =>
+            @h2("label.what_happens_next")
+            @p(Text(messages(p1)))
+        }
     }
+}
+
+@p85Content = {
+
+    @h2("p85.heading")
+    @p(HtmlContent(messages("p85.p1.pre_link") + " " + link(controllers.address.routes.PersonalDetailsController.onPageLoad.url, "p85.p1.link_text", inParagraph=true) + " " + messages("p85.p1.post_link")))
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("p85.bullet1")</li>
+        <li>@messages("p85.bullet2")</li>
+    <ul/>
 }
 
 @main(

@@ -165,6 +165,7 @@ class AddressSubmissionController @Inject() (
                                 version,
                                 addressType
                               )
+                              val displayP85                      = journeyData.submittedInternationalAddressChoiceDto.exists(!_.value)
                               cachingHelper.clearCache()
 
                               Ok(
@@ -172,7 +173,8 @@ class AddressSubmissionController @Inject() (
                                   typ,
                                   closedPostalAddress = false,
                                   None,
-                                  addressMovedService.toMessageKey(addressChanged)
+                                  addressMovedService.toMessageKey(addressChanged),
+                                  displayP85Message = displayP85
                                 )
                               )
                             }
@@ -204,11 +206,10 @@ class AddressSubmissionController @Inject() (
   private def ensuringSubmissionRequirements(typ: AddrType, journeyData: AddressJourneyData)(
     block: => Future[Result]
   ): Future[Result] =
-    if (journeyData.submittedStartDateDto.isEmpty && typ == ResidentialAddrType) {
+    if (journeyData.submittedStartDateDto.isEmpty && typ == ResidentialAddrType)
       Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
-    } else {
-      block
-    }
+    else block
+
 
   private def handleAddressChangeAuditing(
     originalAddressDto: Option[AddressDto],

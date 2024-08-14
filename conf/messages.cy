@@ -712,3 +712,13 @@ alert_banner.paperlessStatus.bounced_email.p2.start = Gwiriwch
 alert_banner.paperlessStatus.bounced_email.p2.end = nawr.
 alert_banner.paperlessStatus.unverified_email.link = ddilysu’ch cyfeiriad e-bost
 alert_banner.paperlessStatus.unverified_email.p1 = Mae angen i chi
+
+#*************************************************************
+# P85
+#*************************************************************
+p85.heading=Gadael y DU
+p85.p1.pre_link=Mae angen i chi roi gwybod i CThEF os ydych yn gadael y DU.
+p85.p1.link_text=Llenwch Ffurflen P85 (yn agor tab newydd)
+p85.p1.post_link=er mwyn:
+p85.bullet1=rhoi gwybod i CThEF eich bod yn gadael y DU
+p85.bullet2=cael eich Treth Incwm yn iawn, gan gynnwys hawlio rhyddhad treth neu ad-daliad treth
