@@ -23,8 +23,8 @@ import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import play.twirl.api.{Html, HtmlFormat}
-import uk.gov.hmrc.hmrcfrontend.config.AccessibilityStatementConfig
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.hmrcfrontend.config.AccessibilityStatementConfig
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.models.BannerConfig
@@ -37,53 +37,53 @@ import scala.util.{Failure, Success, Try}
 @ImplementedBy(classOf[MainViewImpl])
 trait MainView {
   def apply(
-             pageTitle: String,
-             serviceName: String = "label.your_personal_tax_account",
-             sidebarContent: Option[Html] = None,
-             showBackLink: Boolean = false,
-             backLinkID: Boolean = true,
-             backLinkUrl: String = "#",
-             disableSessionExpired: Boolean = false,
-             fullWidth: Boolean = false,
-             stylesheets: Option[Html] = None,
-             scripts: Option[Html] = None,
-             accountHome: Boolean = false,
-             messagesActive: Boolean = false,
-             yourProfileActive: Boolean = false,
-             hideAccountMenu: Boolean = false,
-             showUserResearchBanner: Boolean = false
-           )(contentBlock: Html)(implicit
-                                 request: Request[_],
-                                 messages: Messages
-           ): HtmlFormat.Appendable
+    pageTitle: String,
+    serviceName: String = "label.your_personal_tax_account",
+    sidebarContent: Option[Html] = None,
+    showBackLink: Boolean = false,
+    backLinkID: Boolean = true,
+    backLinkUrl: String = "#",
+    disableSessionExpired: Boolean = false,
+    fullWidth: Boolean = false,
+    stylesheets: Option[Html] = None,
+    scripts: Option[Html] = None,
+    accountHome: Boolean = false,
+    messagesActive: Boolean = false,
+    yourProfileActive: Boolean = false,
+    hideAccountMenu: Boolean = false,
+    showUserResearchBanner: Boolean = false
+  )(contentBlock: Html)(implicit
+    request: Request[_],
+    messages: Messages
+  ): HtmlFormat.Appendable
 }
 
 class MainViewImpl @Inject() (
-                               appConfig: ConfigDecorator,
-                               wrapperService: WrapperService,
-                               additionalScripts: AdditionalJavascript,
-                               headBlock: HeadBlock,
-                               accessibilityStatementConfig: AccessibilityStatementConfig
-                             ) extends MainView
-  with Logging {
+  appConfig: ConfigDecorator,
+  wrapperService: WrapperService,
+  additionalScripts: AdditionalJavascript,
+  headBlock: HeadBlock,
+  accessibilityStatementConfig: AccessibilityStatementConfig
+) extends MainView
+    with Logging {
 
   override def apply(
-                      pageTitle: String,
-                      serviceName: String = "label.your_personal_tax_account",
-                      sidebarContent: Option[Html] = None,
-                      showBackLink: Boolean = false,
-                      backLinkID: Boolean = true,
-                      backLinkUrl: String = "#",
-                      disableSessionExpired: Boolean = false,
-                      fullWidth: Boolean = false,
-                      stylesheets: Option[Html] = None,
-                      scripts: Option[Html] = None,
-                      accountHome: Boolean = false,
-                      messagesActive: Boolean = false,
-                      yourProfileActive: Boolean = false,
-                      hideAccountMenu: Boolean = false,
-                      showUserResearchBanner: Boolean = false
-                    )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
+    pageTitle: String,
+    serviceName: String = "label.your_personal_tax_account",
+    sidebarContent: Option[Html] = None,
+    showBackLink: Boolean = false,
+    backLinkID: Boolean = true,
+    backLinkUrl: String = "#",
+    disableSessionExpired: Boolean = false,
+    fullWidth: Boolean = false,
+    stylesheets: Option[Html] = None,
+    scripts: Option[Html] = None,
+    accountHome: Boolean = false,
+    messagesActive: Boolean = false,
+    yourProfileActive: Boolean = false,
+    hideAccountMenu: Boolean = false,
+    showUserResearchBanner: Boolean = false
+  )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
 
     val trustedHelper: Option[TrustedHelper] = Try(request.asInstanceOf[UserRequest[_]]) match {
       case Success(userRequest) => userRequest.trustedHelper
