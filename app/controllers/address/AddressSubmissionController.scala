@@ -210,7 +210,6 @@ class AddressSubmissionController @Inject() (
       Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
     else block
 
-
   private def handleAddressChangeAuditing(
     originalAddressDto: Option[AddressDto],
     addressDto: AddressDto,
