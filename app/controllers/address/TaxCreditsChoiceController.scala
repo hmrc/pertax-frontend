@@ -28,7 +28,7 @@ import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import services.{LocalSessionCache, TaxCreditsService}
+import services.TaxCreditsService
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
@@ -44,8 +44,7 @@ class TaxCreditsChoiceController @Inject() (
   taxCreditsService: TaxCreditsService,
   featureFlagService: FeatureFlagService,
   internalServerErrorView: InternalServerErrorView,
-  taxCreditsChoiceView: TaxCreditsChoiceView,
-  val sessionCache: LocalSessionCache
+  taxCreditsChoiceView: TaxCreditsChoiceView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
