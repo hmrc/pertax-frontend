@@ -42,7 +42,8 @@ class WithBreadcrumbAction @Inject() (implicit ec: ExecutionContext) {
               request.enrolments,
               request.profile,
               Some(breadcrumb),
-              request.request
+              request.request,
+              request.userAnswers
             )
           )
         )
