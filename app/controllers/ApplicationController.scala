@@ -140,13 +140,19 @@ class ApplicationController @Inject() (
     Action {
       val safeUrl = continueUrl.flatMap { redirectUrl =>
         redirectUrl.getEither(OnlyRelative) match {
-          case Right(safeRedirectUrl) => Some(safeRedirectUrl.url)
-          case _                      => Some(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))
+          case Right(safeRedirectUrl) =>
+            println("\nAAAA" + safeRedirectUrl)
+            Some(safeRedirectUrl.url)
+          case _                      =>
+            println("\nBBB" + configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))
+            Some(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))
         }
       }
       safeUrl
         .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
         .fold(BadRequest("Missing origin")) { url: String =>
+          println("\nccccc" + url)
+          println("\nccccc2" + configDecorator.getBasGatewayFrontendSignOutUrl(url))
           Redirect(configDecorator.getBasGatewayFrontendSignOutUrl(url))
         }
     }
