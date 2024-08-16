@@ -23,7 +23,7 @@ import play.api.Logging
 import repositories.JourneyCacheRepository
 import routePages.SelfAssessmentUserTypePage
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,11 +42,8 @@ class EnrolmentStoreCachingService @Inject() (
 
   def getSaUserTypeFromCache(
     saUtr: SaUtr
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] = {
-    val cacheId                     = SelfAssessmentUserType.cacheId
-    val saUserTypeHc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(cacheId)))
-
-    journeyCacheRepository.get(saUserTypeHc).flatMap { userAnswers =>
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
+    journeyCacheRepository.get(hc).flatMap { userAnswers =>
       userAnswers.get[SelfAssessmentUserType](SelfAssessmentUserTypePage) match {
         case Some(userType) => Future.successful(userType)
         case None           =>
@@ -63,5 +60,4 @@ class EnrolmentStoreCachingService @Inject() (
             )
       }
     }
-  }
 }

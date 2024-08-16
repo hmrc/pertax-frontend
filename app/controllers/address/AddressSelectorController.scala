@@ -16,7 +16,6 @@
 
 package controllers.address
 
-import cats.data.OptionT
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.address
@@ -27,11 +26,14 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.addresslookup.RecordSet
 import models.dto.{AddressDto, AddressSelectorDto, DateDto}
-import models.{SelectedAddressRecordId, SelectedRecordSetId, SubmittedAddressDtoId, SubmittedStartDateId}
+import models.{SelectedAddressRecordId, SubmittedAddressDtoId, SubmittedStartDateId}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.JourneyCacheRepository
+import routePages.RecordSetPage
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import services.{AddressSelectorService, LocalSessionCache}
+import services.AddressSelectorService
+import uk.gov.hmrc.http.HeaderCarrier
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -42,7 +44,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AddressSelectorController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
-  localSessionCache: LocalSessionCache,
+  journeyCacheRepository: JourneyCacheRepository,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
@@ -51,7 +53,7 @@ class AddressSelectorController @Inject() (
   addressSelectorService: AddressSelectorService,
   featureFlagService: FeatureFlagService,
   internalServerErrorView: InternalServerErrorView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext, hc: HeaderCarrier)
     extends AddressController(
       authJourney,
       cc,
@@ -63,20 +65,23 @@ class AddressSelectorController @Inject() (
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      OptionT(localSessionCache.fetchAndGetEntry[RecordSet](SelectedRecordSetId(typ).id))
-        .map { recordSet =>
-          val orderedSet = RecordSet(addressSelectorService.orderSet(recordSet.addresses))
-          Ok(
-            addressSelectorView(
-              AddressSelectorDto.form,
-              orderedSet,
-              typ,
-              postcodeFromRequest,
-              filterFromRequest
+      journeyCacheRepository.get(hc).map { userAnswers =>
+        userAnswers.get(RecordSetPage) match {
+          case Some(recordSet) =>
+            val orderedSet = RecordSet(addressSelectorService.orderSet(recordSet.addresses))
+            Ok(
+              addressSelectorView(
+                AddressSelectorDto.form,
+                orderedSet,
+                typ,
+                postcodeFromRequest,
+                filterFromRequest
+              )
             )
-          )
+          case None            =>
+            Redirect(address.routes.PostcodeLookupController.onPageLoad(typ))
         }
-        .getOrElse(Redirect(address.routes.PostcodeLookupController.onPageLoad(typ)))
+      }
     }
 
   def onSubmit(typ: AddrType): Action[AnyContent] =

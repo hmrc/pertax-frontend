@@ -17,10 +17,11 @@
 package controllers.controllershelpers
 
 import com.google.inject.Inject
+import controllers.auth.requests.UserRequest
 import models.UserAnswers
 import repositories.JourneyCacheRepository
 import routePages.HasUrBannerDismissedPage
-import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -28,23 +29,16 @@ class HomePageCachingHelper @Inject() (
   val journeyCacheRepository: JourneyCacheRepository
 )(implicit executionContext: ExecutionContext) {
 
-  def hasUserDismissedBanner: Future[Boolean] = {
-
-    val cacheId                     = "urBannerDismissal"
-    val userBannerDismissalHc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(cacheId)))
-
-    journeyCacheRepository.get(userBannerDismissalHc).flatMap { userAnswers =>
+  def hasUserDismissedBanner(implicit hc: HeaderCarrier): Future[Boolean] =
+    journeyCacheRepository.get(hc).flatMap { userAnswers =>
       userAnswers.get[Boolean](HasUrBannerDismissedPage) match {
         case Some(hasDismissed) => Future.successful(hasDismissed)
-        case None => Future.successful(false)
+        case None               => Future.successful(false)
       }
     }
-  }
 
-  def storeUserUrDismissal(): Future[UserAnswers] = {
-    val cacheId = "urBannerDismissal"
-    val userAnswers = UserAnswers.empty(cacheId).setOrException(HasUrBannerDismissedPage, true)
-
-    journeyCacheRepository.set(userAnswers).map(_=> userAnswers)
+  def storeUserUrDismissal()(implicit request: UserRequest[_]): Future[UserAnswers] = {
+    val updatedUserAnswers = request.userAnswers.setOrException(HasUrBannerDismissedPage, true)
+    journeyCacheRepository.set(updatedUserAnswers).map(_ => updatedUserAnswers)
   }
 }
