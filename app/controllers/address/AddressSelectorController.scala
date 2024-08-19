@@ -26,11 +26,10 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.addresslookup.RecordSet
 import models.dto.{AddressDto, AddressSelectorDto, DateDto}
-import models.{SelectedAddressRecordId, SubmittedAddressDtoId, SubmittedStartDateId}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.JourneyCacheRepository
-import routePages.RecordSetPage
+import routePages.{SelectedAddressRecordPage, SelectedRecordSetPage, SubmittedAddressPage, SubmittedStartDatePage}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.AddressSelectorService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -66,7 +65,7 @@ class AddressSelectorController @Inject() (
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       journeyCacheRepository.get(hc).map { userAnswers =>
-        userAnswers.get(RecordSetPage) match {
+        userAnswers.get(SelectedRecordSetPage(typ)) match {
           case Some(recordSet) =>
             val orderedSet = RecordSet(addressSelectorService.orderSet(recordSet.addresses))
             Ok(
@@ -118,8 +117,8 @@ class AddressSelectorController @Inject() (
                     val addressDto = AddressDto.fromAddressRecord(addressRecord)
 
                     for {
-                      _ <- cachingHelper.addToCache(SelectedAddressRecordId(typ), addressRecord)
-                      _ <- cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto)
+                      _ <- cachingHelper.addToCache(SelectedAddressRecordPage(typ), addressRecord)
+                      _ <- cachingHelper.addToCache(SubmittedAddressPage(typ), addressDto)
                     } yield {
                       val postCodeHasChanged = !postcodeFromRequest
                         .replace(" ", "")
@@ -129,7 +128,7 @@ class AddressSelectorController @Inject() (
                           Redirect(routes.UpdateAddressController.onPageLoad(typ))
                         case (_, true)               => Redirect(routes.StartDateController.onPageLoad(typ))
                         case (_, false)              =>
-                          cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
+                          cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(LocalDate.now()))
                           Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                       }
                     }

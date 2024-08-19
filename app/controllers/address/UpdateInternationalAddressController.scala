@@ -22,8 +22,8 @@ import controllers.auth.AuthJourney
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper}
 import models.dto.{AddressDto, DateDto}
-import models.{SubmittedAddressDtoId, SubmittedStartDateId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import routePages.{SubmittedAddressPage, SubmittedStartDatePage}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildAddressChangeEvent
@@ -100,10 +100,10 @@ class UpdateInternationalAddressController @Inject() (
                   BadRequest(updateInternationalAddressView(formWithErrors, typ, countryHelper.countries))
                 ),
               addressDto =>
-                cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
+                cachingHelper.addToCache(SubmittedAddressPage(typ), addressDto) flatMap { _ =>
                   typ match {
                     case PostalAddrType =>
-                      cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
+                      cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(LocalDate.now()))
                       Future.successful(Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
                     case _              =>
                       Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))

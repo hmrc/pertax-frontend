@@ -23,9 +23,10 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.admin.RlsInterruptToggle
 import models.dto.AddressPageVisitedDto
-import models.{Address, AddressPageVisitedDtoId, AddressesLock}
+import models.{Address, AddressesLock}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
+import routePages.HasAddressAlreadyVisitedPage
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
@@ -112,7 +113,7 @@ class RlsController @Inject() (
                 if (mainAddress.exists(_.isRls) || postalAddress.exists(_.isRls)) {
                   auditRls(mainAddress, postalAddress)
                   cachingHelper
-                    .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
+                    .addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
                   Future.successful(
                     Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
                   )

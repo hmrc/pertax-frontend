@@ -22,9 +22,10 @@ import controllers.auth.AuthJourney
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.DateDto
-import models.{Address, SubmittedStartDateId}
+import models.Address
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import routePages.SubmittedStartDatePage
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.language.LanguageUtils
 import views.html.InternalServerErrorView
@@ -85,7 +86,7 @@ class StartDateController @Inject() (
             .fold(
               formWithErrors => Future.successful(BadRequest(enterStartDateView(formWithErrors, typ))),
               dateDto =>
-                cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map { _ =>
+                cachingHelper.addToCache(SubmittedStartDatePage(typ), dateDto) map { _ =>
                   val proposedStartDate = dateDto.startDate
 
                   personDetails.address match {

@@ -22,8 +22,8 @@ import controllers.auth.AuthJourney
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.{AddressDto, DateDto}
-import models.{SubmittedAddressDtoId, SubmittedStartDateId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import routePages.{SubmittedAddressPage, SubmittedStartDatePage}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.InternalServerErrorView
@@ -88,7 +88,7 @@ class UpdateAddressController @Inject() (
                   )
                 ),
               addressDto =>
-                cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
+                cachingHelper.addToCache(SubmittedAddressPage(typ), addressDto) flatMap { _ =>
                   val postCodeHasChanged = !addressDto.postcode
                     .getOrElse("")
                     .replace(" ", "")
@@ -114,5 +114,5 @@ class UpdateAddressController @Inject() (
     }
 
   private def cacheStartDate(typ: AddrType, redirect: Result)(implicit hc: HeaderCarrier): Future[Result] =
-    cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now())) map (_ => redirect)
+    cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(LocalDate.now())) map (_ => redirect)
 }

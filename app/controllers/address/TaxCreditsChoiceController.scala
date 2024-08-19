@@ -21,12 +21,12 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.TaxCreditsChoiceId
 import models.admin.AddressTaxCreditsBrokerCallToggle
 import models.dto.TaxCreditsChoiceDto
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
+import routePages.TaxCreditsChoicePage
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.TaxCreditsService
 import views.html.InternalServerErrorView
@@ -70,10 +70,10 @@ class TaxCreditsChoiceController @Inject() (
                     Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form))
                   } { isAddressChangeInPTA =>
                     if (isAddressChangeInPTA) {
-                      cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
+                      cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(false))
                       Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
                     } else {
-                      cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
+                      cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(true))
                       Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
                     }
                   }
@@ -98,7 +98,7 @@ class TaxCreditsChoiceController @Inject() (
               Future
                 .successful(BadRequest(taxCreditsChoiceView(formWithErrors))),
             taxCreditsChoiceDto =>
-              cachingHelper.addToCache(TaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
+              cachingHelper.addToCache(TaxCreditsChoicePage, taxCreditsChoiceDto) map { _ =>
                 if (taxCreditsChoiceDto.hasTaxCredits) {
                   editAddressLockRepository
                     .insert(
