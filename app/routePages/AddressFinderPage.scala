@@ -16,11 +16,13 @@
 
 package routePages
 
-import models.dto.AddressPageVisitedDto
+import controllers.bindable.AddrType
+import models.dto.AddressFinderDto
 import play.api.libs.json.JsPath
 
-case object HasAddressAlreadyVisitedPage extends QuestionPage[AddressPageVisitedDto] {
+case class AddressFinderPage(typ: AddrType) extends QuestionPage[AddressFinderDto] {
 
-  override def toString: String = "addressPageVisited"
-  override def path: JsPath     = JsPath \ toString
+  override def toString: String = "addressFinder"
+
+  override def path: JsPath = JsPath \ s"$typ" \ toString
 }

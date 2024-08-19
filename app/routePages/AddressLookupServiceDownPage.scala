@@ -16,11 +16,11 @@
 
 package routePages
 
-import models.dto.AddressPageVisitedDto
 import play.api.libs.json.JsPath
 
-case object HasAddressAlreadyVisitedPage extends QuestionPage[AddressPageVisitedDto] {
+case object AddressLookupServiceDownPage extends QuestionPage[Boolean] {
 
-  override def toString: String = "addressPageVisited"
-  override def path: JsPath     = JsPath \ toString
+  override def toString: String = "addressLookupServiceDown"
+
+  override def path: JsPath = JsPath \ toString
 }

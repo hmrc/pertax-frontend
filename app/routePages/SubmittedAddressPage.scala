@@ -16,11 +16,13 @@
 
 package routePages
 
-import models.addresslookup.RecordSet
+import controllers.bindable.AddrType
+import models.dto.AddressDto
 import play.api.libs.json.JsPath
 
-case object RecordSetPage extends QuestionPage[RecordSet] {
+case class SubmittedAddressPage(typ: AddrType) extends QuestionPage[AddressDto] {
 
-  override def toString: String = "recordSet"
-  override def path: JsPath     = JsPath \ toString
+  override def toString: String = "submittedAddress"
+
+  override def path: JsPath = JsPath \ s"$typ" \ toString
 }
