@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, NiAndSpMergeTileToggle, ShowOutageBannerToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, ShowOutageBannerToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -113,37 +113,10 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayNationalInsurance" must {
 
-    "call FormPartialService.getNationalInsurancePartial and return 200 when called by authorised user " in new LocalSetup {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "GovernmentGateway"),
-              request = request
-            )
-          )
-      })
-
-      when(mockFeatureFlagService.get(NiAndSpMergeTileToggle))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = false, None)))
-
-      lazy val simulateFormPartialServiceFailure = false
-      lazy val simulateSaPartialServiceFailure   = false
-
-      val testController: InterstitialController = controller
-
-      val result: Future[Result] = testController.displayNationalInsurance(fakeRequest)
-
-      status(result) mustBe OK
-
-      verify(testController.formPartialService, times(1)).getNationalInsurancePartial(any())
-    }
-
-    "redirect to /your-national-insurance-state-pension when NI/SP merge tile toggle is enabled" in new LocalSetup {
+    "redirect to /your-national-insurance-state-pension when when call displayNationalInsurance" in new LocalSetup {
       override def simulateFormPartialServiceFailure: Boolean = false
-      override def simulateSaPartialServiceFailure: Boolean   = false
+
+      override def simulateSaPartialServiceFailure: Boolean = false
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -155,9 +128,6 @@ class InterstitialControllerSpec extends BaseSpec {
             )
           )
       })
-
-      when(mockFeatureFlagService.get(NiAndSpMergeTileToggle))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true, None)))
 
       val result = controller.displayNationalInsurance(fakeRequest)
 

@@ -92,12 +92,5 @@
         @viewModel.benefitCards
         </div>
 
-        @if(viewModel.pensionCards.nonEmpty) {
-            @h2("title.pensions", classes = Some("govuk-heading-m section-header"), elmId = Some("pensionsTitle"))
-            <div class="flex-container grid-row" id="pensionsTiles">
-            @viewModel.pensionCards
-            </div>
-        }
-
     </div>
 }
