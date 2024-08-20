@@ -114,11 +114,12 @@ class StartDateController @Inject() (
                           )
                         )
                       } else {
-                        cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map { cache =>
-                          Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                        }
+                        for {
+                          _ <- cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto)
+                        } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                       }
-                    case _                                                                   => Future.successful(Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
+                    case _                                                                   =>
+                      Future.successful(Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
                   }
                 }
             )
