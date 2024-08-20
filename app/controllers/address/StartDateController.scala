@@ -91,8 +91,6 @@ class StartDateController @Inject() (
                   val proposedStartDate = dateDto.startDate
                   val p85Enabled        = cache.submittedInternationalAddressChoiceDto.exists(!_.value)
 
-                  println("aaaaaaa " + p85Enabled + "bbbbb " + cache)
-
                   personDetails.address match {
                     case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
                       if (!currentStartDate.isBefore(proposedStartDate)) {
