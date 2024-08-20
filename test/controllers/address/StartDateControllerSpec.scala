@@ -19,7 +19,7 @@ package controllers.address
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.PersonDetails
-import models.dto.{AddressPageVisitedDto, DateDto}
+import models.dto.{AddressPageVisitedDto, DateDto, InternationalAddressChoiceDto}
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
@@ -32,7 +32,7 @@ import testUtils.fixtures.AddressFixture.{address => addressFixture}
 import testUtils.fixtures.PersonFixture._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.language.LanguageUtils
-import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
+import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, CannotUpdateAddressFutureDateView, EnterStartDateView}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -48,7 +48,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         inject[LanguageUtils],
         inject[EnterStartDateView],
-        inject[CannotUpdateAddressView],
+        inject[CannotUpdateAddressEarlyDateView],
+        inject[CannotUpdateAddressFutureDateView],
         displayAddressInterstitialView,
         mockFeatureFlagService,
         internalServerErrorView
@@ -218,12 +219,20 @@ class StartDateControllerSpec extends AddressBaseSpec {
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
-    "return 400 when passed ResidentialAddrType and the updated start date is not after the start date on record" in new LocalSetup {
+    "return 400 with P85 messaging when passed ResidentialAddrType and the updated start date is not after the start date on record (international address)" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+        Some(
+          CacheMap(
+            "id",
+            Map(
+              "addressPageVisitedDto"         -> Json.toJson(AddressPageVisitedDto(true)),
+              "internationalAddressChoiceDto" -> Json.toJson(InternationalAddressChoiceDto(false))
+            )
+          )
+        )
 
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "3", "startDate.month" -> "2", "startDate.year" -> "2016")
           .asInstanceOf[Request[A]]
@@ -242,15 +251,62 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
-      verify(mockLocalSessionCache, times(1)).cache(any(), any())(any(), any(), any())
+      contentAsString(result) must include("Complete a P85 form (opens in new tab)")
     }
 
-    "return a 400 when startDate is earlier than recorded with residential address type" in new LocalSetup {
+    "return 400 with P85 messaging when passed ResidentialAddrType and the start date is after todays date (international address)" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+        Some(
+          CacheMap(
+            "id",
+            Map(
+              "addressPageVisitedDto"         -> Json.toJson(AddressPageVisitedDto(true)),
+              "internationalAddressChoiceDto" -> Json.toJson(InternationalAddressChoiceDto(false))
+            )
+          )
+        )
 
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody(
+            "startDate.day"   -> "3",
+            "startDate.month" -> "2",
+            "startDate.year"  -> (LocalDate.now().getYear + 1).toString
+          )
+          .asInstanceOf[Request[A]]
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = currentRequest,
+              personDetails = Some(
+                PersonDetails(emptyPerson, Some(addressFixture(startDate = Some(LocalDate.of(2016, 11, 22)))), None)
+              )
+            ).asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      status(result) mustBe BAD_REQUEST
+      contentAsString(result) must include("Complete a P85 form (opens in new tab)")
+    }
+
+    "return a 400 without p85 messaging when startDate is earlier than recorded with residential address type (domestic address)" in new LocalSetup {
+
+      override def sessionCacheResponse: Option[CacheMap] =
+        Some(
+          CacheMap(
+            "id",
+            Map(
+              "addressPageVisitedDto"         -> Json.toJson(AddressPageVisitedDto(true)),
+              "internationalAddressChoiceDto" -> Json.toJson(InternationalAddressChoiceDto(true))
+            )
+          )
+        )
+
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
@@ -258,6 +314,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
+      contentAsString(result) mustNot include("Complete a P85 form (opens in new tab)")
     }
 
     "return a 400 when startDate is the same as recorded with residential address type" in new LocalSetup {
