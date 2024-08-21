@@ -81,6 +81,7 @@ class StartDateController @Inject() (
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
+        println(s"aaaaaaa $personDetails")
         nonPostalJourneyEnforcer(typ) {
           dateDtoForm
             .bindFromRequest()
@@ -119,7 +120,9 @@ class StartDateController @Inject() (
                         } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                       }
                     case _                                                                   =>
-                      Future.successful(Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
+                      for {
+                        _ <- cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto)
+                      } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                   }
                 }
             )
