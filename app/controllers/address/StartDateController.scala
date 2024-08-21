@@ -81,7 +81,6 @@ class StartDateController @Inject() (
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
-        println(s"aaaaaaa $personDetails")
         nonPostalJourneyEnforcer(typ) {
           dateDtoForm
             .bindFromRequest()
