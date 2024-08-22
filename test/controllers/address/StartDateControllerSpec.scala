@@ -18,19 +18,18 @@ package controllers.address
 
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import models.PersonDetails
-import models.dto.{AddressPageVisitedDto, DateDto}
-import org.mockito.ArgumentMatchers.{any, eq => meq}
-import play.api.libs.json.Json
+import models.{PersonDetails, UserAnswers}
+import models.dto.{AddressDto, AddressPageVisitedDto, DateDto}
+import org.mockito.ArgumentMatchers.any
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
+import routePages.{HasAddressAlreadyVisitedPage, SubmittedAddressPage, SubmittedStartDatePage}
 import testUtils.ActionBuilderFixture
 import testUtils.Fixtures.fakeStreetTupleListAddressForUnmodified
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fixtures.AddressFixture.{address => addressFixture}
 import testUtils.fixtures.PersonFixture._
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.language.LanguageUtils
 import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
 
@@ -54,36 +53,35 @@ class StartDateControllerSpec extends AddressBaseSpec {
         internalServerErrorView
       )
 
-    def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+    def defaultUserAnswers: UserAnswers =
+      UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-    def currentRequest[A]: Request[A]          = FakeRequest().asInstanceOf[Request[A]]
+    when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(defaultUserAnswers))
+
+    def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
 
   "onPageLoad" must {
-    "return 200 when passed ResidentialAddrType and submittedAddressDto is in keystore" in new LocalSetup {
-      override def sessionCacheResponse: Option[CacheMap] = Some(
-        CacheMap(
-          "id",
-          Map("residentialSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)))
-        )
-      )
+    "return 200 when passed ResidentialAddrType and submittedAddress is in keystore" in new LocalSetup {
+      val addressDto: AddressDto                   = asAddressDto(fakeStreetTupleListAddressForUnmodified)
+      override def defaultUserAnswers: UserAnswers =
+        UserAnswers
+          .empty("id")
+          .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
     "redirect to 'edit address' when passed PostalAddrType as this step is not valid for postal" in new LocalSetup {
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val result: Future[Result]                          = controller.onPageLoad(PostalAddrType)(currentRequest)
+      val result: Future[Result] = controller.onPageLoad(PostalAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/edit-address")
-      verify(mockLocalSessionCache, times(0)).fetch()(any(), any())
+      verify(mockJourneyCacheRepository, times(0)).get(any())
     }
   }
 
@@ -91,10 +89,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
     "return 303 when passed ResidentialAddrType and a valid form with low numbers" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "1", "startDate.year" -> "2016")
           .asInstanceOf[Request[A]]
@@ -103,16 +98,16 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
-      verify(mockLocalSessionCache, times(1))
-        .cache(meq("residentialSubmittedStartDateDto"), meq(DateDto.build(1, 1, 2016)))(any(), any(), any())
+
+      val userAnswers: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(SubmittedStartDatePage(ResidentialAddrType), DateDto.build(1, 1, 2016))
+      verify(mockJourneyCacheRepository, times(1)).set(userAnswers)
     }
 
     "return 303 when passed ResidentialAddrType and date is in the today" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "2", "startDate.month" -> "2", "startDate.year" -> "2016")
           .asInstanceOf[Request[A]]
@@ -121,16 +116,16 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
-      verify(mockLocalSessionCache, times(1))
-        .cache(meq("residentialSubmittedStartDateDto"), meq(DateDto.build(2, 2, 2016)))(any(), any(), any())
+
+      val userAnswers: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(SubmittedStartDatePage(ResidentialAddrType), DateDto.build(2, 2, 2016))
+      verify(mockJourneyCacheRepository, times(1)).set(userAnswers)
     }
 
     "redirect to the changes to residential address page when passed ResidentialAddrType and a valid form with high numbers" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "12", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
@@ -139,45 +134,41 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
-      verify(mockLocalSessionCache, times(1))
-        .cache(meq("residentialSubmittedStartDateDto"), meq(DateDto.build(31, 12, 2019)))(any(), any(), any())
+
+      val userAnswers: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(SubmittedStartDatePage(ResidentialAddrType), DateDto.build(31, 12, 2019))
+      verify(mockJourneyCacheRepository, times(1)).set(userAnswers)
     }
 
     "return 400 when passed ResidentialAddrType and missing date fields" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "").withFormUrlEncodedBody().asInstanceOf[Request[A]]
 
       val result: Future[Result] =
         controller.onSubmit(ResidentialAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
-      verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
+
+      verify(mockJourneyCacheRepository, times(0)).set(any())
     }
 
     "return 400 when passed ResidentialAddrType and day out of range - too early" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "0", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
-      verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
+
+      verify(mockJourneyCacheRepository, times(0)).set(any())
     }
 
     "return 400 when passed ResidentialAddrType and day out of range - too late" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "32", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
@@ -185,45 +176,36 @@ class StartDateControllerSpec extends AddressBaseSpec {
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
-      verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
+      verify(mockJourneyCacheRepository, times(0)).set(any())
     }
 
     "return 400 when passed ResidentialAddrType and month out of range at lower bound" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "0", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
-      verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
+      verify(mockJourneyCacheRepository, times(0)).set(any())
     }
 
     "return 400 when passed ResidentialAddrType and month out of range at upper bound" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "13", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
-      verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
+      verify(mockJourneyCacheRepository, times(0)).set(any())
     }
 
     "return 400 when passed ResidentialAddrType and the updated start date is not after the start date on record" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "3", "startDate.month" -> "2", "startDate.year" -> "2016")
           .asInstanceOf[Request[A]]
@@ -242,15 +224,11 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
-      verify(mockLocalSessionCache, times(1)).cache(any(), any())(any(), any(), any())
     }
 
     "return a 400 when startDate is earlier than recorded with residential address type" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
@@ -262,10 +240,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
     "return a 400 when startDate is the same as recorded with residential address type" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
@@ -277,10 +252,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
     "return a 400 when startDate is earlier than recorded with Residential address type" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
@@ -292,10 +264,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
     "return a 400 when startDate is the same as recorded with Residential address type" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
@@ -307,10 +276,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
     "redirect to correct successful url when supplied with startDate after recorded with residential address type" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "16", "startDate.month" -> "03", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
@@ -323,10 +289,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
     "redirect to correct successful url when supplied with startDate after startDate on record with Residential address" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
@@ -339,10 +302,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
     "redirect to success page when no startDate is on record" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
@@ -355,10 +315,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
     "redirect to success page when no address is on record" in new LocalSetup {
 
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      override def currentRequest[A]: Request[A]          =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]

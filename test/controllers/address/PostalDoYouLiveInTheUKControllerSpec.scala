@@ -17,13 +17,13 @@
 package controllers.address
 
 import config.ConfigDecorator
-import models.dto.{AddressPageVisitedDto, Dto}
+import models.UserAnswers
+import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.any
-import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.cache.client.CacheMap
+import routePages.HasAddressAlreadyVisitedPage
 import views.html.personaldetails.PostalInternationalAddressChoiceView
 
 import scala.concurrent.Future
@@ -43,30 +43,31 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
         internalServerErrorView
       )
 
-    def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+    def userAnswersToReturn: UserAnswers = UserAnswers
+      .empty("id")
+      .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+    when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswersToReturn))
 
-    def currentRequest[A]: Request[A]          = FakeRequest().asInstanceOf[Request[A]]
+    def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
 
   "onPageLoad" must {
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
-      override def fetchAndGetEntryDto: Option[Dto] = Some(AddressPageVisitedDto(true))
 
       val result: Future[Result] = controller.onPageLoad(currentRequest)
 
       status(result) mustBe OK
-      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
+      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
-      override def sessionCacheResponse: Option[CacheMap] = None
+      override def userAnswersToReturn: UserAnswers = UserAnswers.empty
 
       val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
-      verify(mockLocalSessionCache, times(1)).fetchAndGetEntry[AddressPageVisitedDto](any())(any(), any(), any())
+      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
   }
 

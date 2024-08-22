@@ -24,17 +24,17 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models._
 import models.addresslookup.RecordSet
-import models.dto.{AddressDto, Dto}
+import models.dto.AddressDto
 import org.mockito.ArgumentMatchers.any
 import play.api.http.Status.NO_CONTENT
 import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import repositories.JourneyCacheRepository
 import services._
 import testUtils.Fixtures._
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -46,14 +46,14 @@ import scala.concurrent.Future
 
 trait AddressBaseSpec extends BaseSpec {
 
-  val mockLocalSessionCache: LocalSessionCache                             = mock[LocalSessionCache]
+  val mockJourneyCacheRepository: JourneyCacheRepository                   = mock[JourneyCacheRepository]
   val mockAddressLookupConnector: AddressLookupConnector                   = mock[AddressLookupConnector]
   val mockCitizenDetailsService: CitizenDetailsService                     = mock[CitizenDetailsService]
   val mockAddressMovedService: AddressMovedService                         = mock[AddressMovedService]
   val mockAuditConnector: AuditConnector                                   = mock[AuditConnector]
   val mockAgentClientAuthorisationService: AgentClientAuthorisationService = mock[AgentClientAuthorisationService]
 
-  lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
+  lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockJourneyCacheRepository)
 
   lazy val cc: MessagesControllerComponents                               = inject[MessagesControllerComponents]
   lazy val errorRenderer: ErrorRenderer                                   = inject[ErrorRenderer]
@@ -69,7 +69,7 @@ trait AddressBaseSpec extends BaseSpec {
     super.beforeEach()
     reset(
       mockAuthJourney,
-      mockLocalSessionCache,
+      mockJourneyCacheRepository,
       mockAddressLookupConnector,
       mockCitizenDetailsService,
       mockAddressMovedService,
@@ -94,7 +94,6 @@ trait AddressBaseSpec extends BaseSpec {
     lazy val fakeAddress: Address             = buildFakeAddress
 
     def controller: AddressController
-    def sessionCacheResponse: Option[CacheMap]
     def currentRequest[A]: Request[A]
     def saUserType: SelfAssessmentUserType                                            = NonFilerSelfAssessmentUser
     def personDetailsForRequest: Option[PersonDetails]                                = Some(buildPersonDetailsCorrespondenceAddress)
@@ -106,23 +105,11 @@ trait AddressBaseSpec extends BaseSpec {
     def addressLookupResponse: RecordSet                                              = oneAndTwoOtherPlacePafRecordSet
     def isInsertCorrespondenceAddressLockSuccessful: Boolean                          = true
     def getEditedAddressIndicators: List[AddressJourneyTTLModel]                      = List.empty
-    def fetchAndGetEntryDto: Option[Dto]                                              = None
 
     when(mockAgentClientAuthorisationService.getAgentClientStatus(any(), any(), any())).thenReturn(
       Future.successful(true)
     )
-    when(mockLocalSessionCache.fetchAndGetEntry[Dto](any())(any(), any(), any())).thenReturn(
-      Future.successful(fetchAndGetEntryDto: Option[Dto])
-    )
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())).thenReturn(
-      Future.successful(CacheMap("id", Map.empty))
-    )
-    when(mockLocalSessionCache.fetch()(any(), any())).thenReturn(
-      Future.successful(sessionCacheResponse)
-    )
-    when(mockLocalSessionCache.remove()(any(), any())).thenReturn(
-      Future.successful(mock[HttpResponse])
-    )
+
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
       Future.successful(AuditResult.Success)
     )

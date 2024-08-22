@@ -20,7 +20,7 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.admin.GetPersonFromCitizenDetailsToggle
-import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
+import models.{Person, PersonDetails, UserAnswers, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
@@ -69,7 +69,8 @@ class GetPersonDetailsActionSpec extends BaseSpec {
       enrolments = Set(),
       profile = None,
       breadcrumb = None,
-      request = FakeRequest("", "")
+      request = FakeRequest("", ""),
+      userAnswers = UserAnswers.empty
     )
 
   private val personDetails: PersonDetails =

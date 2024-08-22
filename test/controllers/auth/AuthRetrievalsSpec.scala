@@ -25,6 +25,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.FakeRequest
+import repositories.JourneyCacheRepository
 import services.partials.MessageFrontendService
 import testUtils.RetrievalOps._
 import testUtils.{BaseSpec, Fixtures}
@@ -52,6 +53,7 @@ class AuthRetrievalsSpec extends BaseSpec {
     new SessionAuditorFake(app.injector.instanceOf[AuditConnector], enrolmentsHelper)
 
   val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
+  val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
 
   class Harness(authAction: AuthRetrievalsImpl) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -100,7 +102,8 @@ class AuthRetrievalsSpec extends BaseSpec {
     val authAction =
       new AuthRetrievalsImpl(
         mockAuthConnector,
-        messagesControllerComponents
+        messagesControllerComponents,
+        mockJourneyCacheRepository
       )(implicitly, config)
 
     new Harness(authAction)

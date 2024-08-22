@@ -19,19 +19,18 @@ package controllers.address
 import controllers.controllershelpers.{RlsInterruptHelper, RlsInterruptHelperImpl}
 import models.admin.RlsInterruptToggle
 import models.dto.AddressPageVisitedDto
-import models.{PersonDetails, UserName}
+import models.{PersonDetails, UserAnswers, UserName}
 import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.{any, eq => meq}
+import org.mockito.ArgumentMatchers.any
 import play.api.http.Status._
-import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import repositories.EditAddressLockRepository
+import routePages.HasAddressAlreadyVisitedPage
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.SaUtrGenerator
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import viewmodels.PersonalDetailsViewModel
 import views.html.personaldetails.PersonalDetailsView
@@ -69,11 +68,14 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         mockFeatureFlagService,
         internalServerErrorView
       )
+
+    def defaultUserAnswers: UserAnswers = UserAnswers.empty("id")
+
+    when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(defaultUserAnswers))
   }
 
   "Calling redirectToYourProfile" must {
     "redirect to the profile-and-settings page" in new LocalSetup {
-      override def sessionCacheResponse: Option[CacheMap] = None
 
       val result: Future[Result] = controller.redirectToYourProfile()(FakeRequest())
 
@@ -85,7 +87,6 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
   "Calling onPageLoad" must {
     "redirect to the rls interrupt page" when {
       "main address has an rls status with true" in new LocalSetup {
-        override def sessionCacheResponse: Option[CacheMap] = None
 
         override def personDetailsResponse: PersonDetails = {
           val address = fakeAddress.copy(isRls = true)
@@ -104,7 +105,6 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
       }
 
       "postal address has an rls status with true" in new LocalSetup {
-        override def sessionCacheResponse: Option[CacheMap] = None
 
         override def personDetailsResponse: PersonDetails = {
           val address = fakeAddress.copy(isRls = true)
@@ -123,7 +123,6 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
       }
 
       "main and postal address has an rls status with true" in new LocalSetup {
-        override def sessionCacheResponse: Option[CacheMap] = None
 
         override def personDetailsResponse: PersonDetails = {
           val address = fakeAddress.copy(isRls = true)
@@ -144,7 +143,6 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
     "show the your profile page" when {
       "no address has an rls status with true" in new LocalSetup {
-        override def sessionCacheResponse: Option[CacheMap] = None
 
         val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
@@ -155,25 +153,15 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
   "Calling onPageLoad" must {
     "call citizenDetailsService.fakePersonDetails and return 200" in new LocalSetup {
-      override def sessionCacheResponse: Option[CacheMap] =
-        Some(
-          CacheMap(
-            "id",
-            Map(
-              "addressPageVisitedDto" -> Json
-                .toJson(AddressPageVisitedDto(true))
-            )
-          )
-        )
+
+      override def defaultUserAnswers: UserAnswers =
+        UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
       status(result) mustBe OK
-      verify(mockLocalSessionCache, times(1))
-        .cache(
-          meq("addressPageVisitedDto"),
-          meq(AddressPageVisitedDto(true))
-        )(any(), any(), any())
+
+      verify(mockJourneyCacheRepository, times(1)).set(defaultUserAnswers)
       verify(mockEditAddressLockRepository, times(1)).get(any())
     }
   }

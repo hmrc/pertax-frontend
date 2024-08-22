@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,55 +21,33 @@ import connectors.EnrolmentsConnector
 import models._
 import org.mockito.ArgumentMatchers.any
 import play.api.http.Status.INTERNAL_SERVER_ERROR
-import play.api.libs.json.Json
+import repositories.JourneyCacheRepository
+import routePages.SelfAssessmentUserTypePage
 import testUtils.BaseSpec
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import uk.gov.hmrc.http.cache.client.CacheMap
 
 import scala.concurrent.Future
 
 class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
-  val mockSessionCache: LocalSessionCache          = mock[LocalSessionCache]
-  val mockEnrolmentsConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
+  val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
+  val mockEnrolmentsConnector: EnrolmentsConnector       = mock[EnrolmentsConnector]
+  val saUtr: SaUtr                                       = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockSessionCache, mockEnrolmentsConnector)
+    reset(mockJourneyCacheRepository, mockEnrolmentsConnector)
   }
 
   trait LocalSetup {
 
-    val cacheResult: CacheMap                                       = CacheMap("", Map.empty)
-    val fetchResult: Option[SelfAssessmentUserType]                 = None
-    val connectorResult: Either[UpstreamErrorResponse, Seq[String]] = Right(Seq[String]())
+    when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
+    when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(UserAnswers.empty("")))
 
-    lazy val sut: EnrolmentStoreCachingService = {
-
-      val c = new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector)
-
-      when(
-        mockSessionCache.cache[SelfAssessmentUserType](any(), any())(any(), any(), any())
-      ).thenReturn(Future.successful(cacheResult))
-
-      when(
-        mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())
-      ).thenReturn(Future.successful(fetchResult))
-
-      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Seq[String]](
-          Future.successful(
-            connectorResult
-          )
-        )
-      )
-
-      c
-    }
+    lazy val sut: EnrolmentStoreCachingService =
+      new EnrolmentStoreCachingService(mockJourneyCacheRepository, mockEnrolmentsConnector)
   }
-
-  val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   "EnrolmentStoreCachingService" when {
 
@@ -77,31 +55,57 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
       "return NonFilerSelfAssessmentUser when the connector returns a Left" in new LocalSetup {
 
-        override val connectorResult: Either[UpstreamErrorResponse, Seq[String]] =
-          Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR))
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Seq[String]](
+            Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
+          )
+        )
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue mustBe NonFilerSelfAssessmentUser
+        val result: SelfAssessmentUserType = sut.getSaUserTypeFromCache(saUtr).futureValue
+
+        result mustBe NonFilerSelfAssessmentUser
+
+        verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
       }
 
       "return NotEnrolledSelfAssessmentUser when the connector returns a Right with an empty sequence" in new LocalSetup {
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue mustBe NotEnrolledSelfAssessmentUser(saUtr)
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Seq[String]](
+            Future.successful(Right(Seq[String]()))
+          )
+        )
+
+        val result: SelfAssessmentUserType = sut.getSaUserTypeFromCache(saUtr).futureValue
+
+        result mustBe NotEnrolledSelfAssessmentUser(saUtr)
+
+        verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
       }
 
       "return WrongCredentialsSelfAssessmentUser when the connector returns a Right with a non-empty sequence" in new LocalSetup {
 
-        override val connectorResult: Either[UpstreamErrorResponse, Seq[String]] = Right(Seq[String]("Hello there"))
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Seq[String]](
+            Future.successful(Right(Seq("Hello there")))
+          )
+        )
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue mustBe WrongCredentialsSelfAssessmentUser(saUtr)
+        val result: SelfAssessmentUserType = sut.getSaUserTypeFromCache(saUtr).futureValue
+
+        result mustBe WrongCredentialsSelfAssessmentUser(saUtr)
+
+        verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
       }
     }
 
     "only call the connector once" in {
-      lazy val sut: EnrolmentStoreCachingService =
-        new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector)
 
-      val cacheMap =
-        CacheMap("id", Map("id" -> Json.toJson(NotEnrolledSelfAssessmentUser(saUtr): SelfAssessmentUserType)))
+      val cachedUserAnswers: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(SelfAssessmentUserTypePage, NotEnrolledSelfAssessmentUser(saUtr))
+
+      val sut = new EnrolmentStoreCachingService(mockJourneyCacheRepository, mockEnrolmentsConnector)
 
       when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Seq[String]](
@@ -111,16 +115,12 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         )
       )
 
-      when(mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())).thenReturn(
-        Future
-          .successful(None),
-        Future.successful(Some(NotEnrolledSelfAssessmentUser(saUtr)))
+      when(mockJourneyCacheRepository.get(any())).thenReturn(
+        Future.successful(UserAnswers.empty("id")),
+        Future.successful(cachedUserAnswers)
       )
 
-      when(mockSessionCache.cache[SelfAssessmentUserType](any(), any())(any(), any(), any())).thenReturn(
-        Future
-          .successful(cacheMap)
-      )
+      when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       sut.getSaUserTypeFromCache(saUtr).futureValue
 

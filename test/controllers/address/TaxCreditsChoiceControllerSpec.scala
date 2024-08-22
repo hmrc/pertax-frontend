@@ -18,7 +18,7 @@ package controllers.address
 import cats.data.EitherT
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, PersonDetails, SelfAssessmentUserType, UserAnswers}
 import models.admin.{AddressChangeAllowedToggle, AddressTaxCreditsBrokerCallToggle}
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.any
@@ -27,17 +27,16 @@ import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{LocalSessionCache, TaxCreditsService}
+import routePages.HasAddressAlreadyVisitedPage
+import services.TaxCreditsService
 import testUtils.Fixtures.buildPersonDetailsCorrespondenceAddress
 import testUtils.{ActionBuilderFixture, Fixtures, WireMockHelper}
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -56,7 +55,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
       "microservice.services.pertax.port" -> server.port()
     )
     .overrides(
-      bind[LocalSessionCache].toInstance(mockLocalSessionCache),
       bind[TaxCreditsService].toInstance(mockTaxCreditsService),
       bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper)
     )
@@ -64,7 +62,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockLocalSessionCache, mockTaxCreditsService, mockAddressJourneyCachingHelper)
+    reset(mockJourneyCacheRepository, mockTaxCreditsService, mockAddressJourneyCachingHelper)
   }
 
   private def currentRequest[A]: Request[A]                  = FakeRequest().asInstanceOf[Request[A]]
@@ -81,19 +79,17 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
       mockTaxCreditsService,
       mockFeatureFlagService,
       inject[InternalServerErrorView],
-      inject[TaxCreditsChoiceView],
-      mockLocalSessionCache
+      inject[TaxCreditsChoiceView]
     )(config, ec)
 
-  private val sessionCacheResponse: Option[CacheMap] =
-    Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+  def userAnswers: UserAnswers =
+    UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-  when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
-    Future.successful(CacheMap("id", Map.empty))
-  }
-  when(mockLocalSessionCache.remove()(any(), any())) thenReturn {
-    Future.successful(mock[HttpResponse])
-  }
+  when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
+
+  when(mockJourneyCacheRepository.clear(any())).thenReturn(
+    Future.successful((): Unit)
+  )
 
   "onPageLoad" when {
     "Tax-credit-broker call is used" must {
@@ -234,11 +230,9 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
         .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-      when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
-        Future.successful(sessionCacheResponse)
-      }
+      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
       when(mockAddressJourneyCachingHelper.addToCache(any(), any())(any(), any())) thenReturn {
-        Future.successful(CacheMap("id", Map.empty))
+        Future.successful(UserAnswers.empty("id"))
       }
       when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
         Future.successful(true)
@@ -274,13 +268,9 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
         .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-      when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
-        Future.successful(sessionCacheResponse)
-      }
-      when(
-        mockAddressJourneyCachingHelper.addToCache(any(), any())(any(), any())
-      ) thenReturn {
-        Future.successful(CacheMap("id", Map.empty))
+      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
+      when(mockAddressJourneyCachingHelper.addToCache(any(), any())(any(), any())) thenReturn {
+        Future.successful(UserAnswers.empty("id"))
       }
       when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
         Future.successful(true)
@@ -311,9 +301,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
 
     "return a bad request when supplied no value" in {
 
-      when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
-        Future.successful(sessionCacheResponse)
-      }
+      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))

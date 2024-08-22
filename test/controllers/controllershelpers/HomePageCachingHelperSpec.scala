@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,97 +16,95 @@
 
 package controllers.controllershelpers
 
-import org.mockito.ArgumentMatchers.{any, eq => meq}
-import play.api.Application
-import play.api.inject.bind
-import play.api.libs.json.JsBoolean
-import services.LocalSessionCache
-import testUtils.BaseSpec
-import uk.gov.hmrc.http.cache.client.CacheMap
+import controllers.auth.requests.UserRequest
+import models.{NonFilerSelfAssessmentUser, UserAnswers, UserName}
+import org.mockito.ArgumentMatchers.any
+import play.api.test.FakeRequest
+import repositories.JourneyCacheRepository
+import routePages.HasUrBannerDismissedPage
+import testUtils.{BaseSpec, Fixtures}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 
 import scala.concurrent.Future
 
 class HomePageCachingHelperSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(bind[LocalSessionCache].toInstance(mock[LocalSessionCache]))
-    .build()
+  private val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
+
+  val cachingHelper: HomePageCachingHelper = new HomePageCachingHelper(mockJourneyCacheRepository)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(inject[LocalSessionCache])
+    reset(mockJourneyCacheRepository)
   }
 
-  "Calling HomePageCachingHelper.hasUserDismissedUrInvitation" must {
-    trait LocalSetup {
+  "Calling HomePageCachingHelper.hasUserDismissedBanner" must {
 
-      def urBannerDismissedValueInSessionCache: Option[Boolean]
+    "return true if cached value returns true" in {
+      val userAnswers: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(HasUrBannerDismissedPage, true)
+      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
 
-      lazy val cachingHelper: HomePageCachingHelper = {
+      val result: Boolean = cachingHelper.hasUserDismissedBanner.futureValue
 
-        val c = inject[HomePageCachingHelper]
-
-        when(inject[LocalSessionCache].fetch()(any(), any())) thenReturn {
-
-          Future.successful {
-            urBannerDismissedValueInSessionCache.map { myBool =>
-              CacheMap("id", Map("urBannerDismissed" -> JsBoolean(myBool)))
-            }
-          }
-        }
-        c
-      }
-
-      lazy val hasUserDismissedUrInvitationResult: Boolean = cachingHelper.hasUserDismissedBanner.futureValue
+      result mustBe true
+      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
-    "return true if cached value returns true" in new LocalSetup {
-      lazy val urBannerDismissedValueInSessionCache: Option[Boolean] = Some(true)
+    "return false if cached value returns false" in {
+      val userAnswers: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(HasUrBannerDismissedPage, false)
+      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
 
-      hasUserDismissedUrInvitationResult mustBe true
+      val result: Boolean = cachingHelper.hasUserDismissedBanner.futureValue
 
-      verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
+      result mustBe false
+      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
-    "return false if cached value returns false" in new LocalSetup {
-      lazy val urBannerDismissedValueInSessionCache: Option[Boolean] = Some(false)
+    "return false if cache returns no record for HasUrBannerDismissedPage" in {
+      val userAnswers: UserAnswers = UserAnswers.empty("id")
+      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
 
-      hasUserDismissedUrInvitationResult mustBe false
+      val result: Boolean = cachingHelper.hasUserDismissedBanner.futureValue
 
-      verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "return false if cache returns no record" in new LocalSetup {
-      lazy val urBannerDismissedValueInSessionCache: Option[Nothing] = None
-
-      hasUserDismissedUrInvitationResult mustBe false
-
-      verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
+      result mustBe false
+      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
   }
 
   "Calling HomePageCachingHelper.StoreUserUrDismissal" must {
 
-    trait LocalSetup {
+    "store the dismissal flag and return the updated UserAnswers" in {
+      val initialUserAnswers: UserAnswers = UserAnswers.empty("id")
+      val updatedUserAnswers: UserAnswers = initialUserAnswers.setOrException(HasUrBannerDismissedPage, true)
 
-      lazy val cachingHelper: HomePageCachingHelper = {
+      implicit val userRequest: UserRequest[_] =
+        UserRequest(
+          Fixtures.fakeNino,
+          Some(Fixtures.fakeNino),
+          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+          NonFilerSelfAssessmentUser,
+          Credentials("", "GovernmentGateway"),
+          ConfidenceLevel.L200,
+          None,
+          None,
+          Set(),
+          None,
+          None,
+          FakeRequest(),
+          initialUserAnswers
+        )
 
-        val c = inject[HomePageCachingHelper]
+      when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
-        when(inject[LocalSessionCache].cache(any(), any())(any(), any(), any())) thenReturn {
-          Future.successful(CacheMap("id", Map.empty))
-        }
-        c
-      }
-    }
+      val result: UserAnswers = cachingHelper.storeUserUrDismissal().futureValue
 
-    "Store true in session cache" in new LocalSetup {
-
-      val result: CacheMap = cachingHelper.storeUserUrDismissal().futureValue
-
-      result mustBe CacheMap("id", Map.empty)
-      verify(cachingHelper.sessionCache, times(1)).cache(meq("urBannerDismissed"), meq(true))(any(), any(), any())
+      result mustBe updatedUserAnswers
+      verify(mockJourneyCacheRepository, times(1)).set(updatedUserAnswers)
     }
   }
-
 }
