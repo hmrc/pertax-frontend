@@ -46,61 +46,61 @@ class testSpec extends A11ySpec {
   //scalastyle:off cyclomatic.complexity
   def getExpectedData(key: String): ExpectedData =
     key match {
-      case "id-check-complete"          =>
+      case "id-check-complete"                     =>
         ExpectedData("Service unavailable - Personal tax account - GOV.UK")
-      case "sign-in"                    =>
+      case "sign-in"                               =>
         ExpectedData("Sign in - Personal tax account - GOV.UK")
-      case "sa-home"                    =>
+      case "sa-home"                               =>
         ExpectedData("Your Self Assessment - Personal tax account - GOV.UK")
-      case "sa-reset-password"          =>
+      case "sa-reset-password"                     =>
         ExpectedData("You need to reset your password - Personal tax account - GOV.UK")
-      case "sa-sign-in-again"           =>
+      case "sa-sign-in-again"                      =>
         ExpectedData(
           "You need to sign back in to Government Gateway using different details - Personal tax account - GOV.UK"
         )
-      case "sa-find-user-id"            =>
+      case "sa-find-user-id"                       =>
         ExpectedData("Get help finding your user ID - Personal tax account - GOV.UK")
-      case "sa-know-user-id"            =>
+      case "sa-know-user-id"                       =>
         ExpectedData("Do you know the user ID? - Personal tax account - GOV.UK")
-      case "sa-other-credentials"       =>
+      case "sa-other-credentials"                  =>
         ExpectedData(
           "Do you know the user ID and password for the account you use for Self Assessment? - Personal tax account - GOV.UK"
         )
-      case "sa-wrong-account"           =>
+      case "sa-wrong-account"                      =>
         ExpectedData("You are not signed in to the right account - Personal tax account - GOV.UK")
-      case "breathing-space"            =>
+      case "breathing-space"                       =>
         ExpectedData("BREATHING SPACE - Personal tax account - GOV.UK")
-      case "child-benefit-home"         =>
+      case "child-benefit-home"                    =>
         ExpectedData(
           "Child Benefit - Personal tax account - GOV.UK"
         )
-      case "print-letter"               =>
+      case "print-letter"                          =>
         ExpectedData(
           "Print your National Insurance summary - Personal tax account - GOV.UK"
         )
-      case "self-assessment-summary"    =>
+      case "self-assessment-summary"               =>
         ExpectedData(
           "Self Assessment summary - Personal tax account - GOV.UK"
         )
       case "your-national-insurance-state-pension" =>
         ExpectedData("Your National Insurance and State Pension - Personal tax account - GOV.UK")
-      case "postal-address-uk"          =>
+      case "postal-address-uk"                     =>
         ExpectedData(
           "Is your postal address in the UK? - Personal tax account - GOV.UK"
         )
-      case "change-address-tcs"         =>
+      case "change-address-tcs"                    =>
         ExpectedData(
           "Change of address - Personal tax account - GOV.UK"
         )
-      case "live-in-uk"                 =>
+      case "live-in-uk"                            =>
         ExpectedData(
           "Is your main address in the UK? - Personal tax account - GOV.UK"
         )
-      case "profile-and-settings"       =>
+      case "profile-and-settings"                  =>
         ExpectedData(
           "Profile and settings - Personal tax account - GOV.UK"
         )
-      case "/"                          =>
+      case "/"                                     =>
         ExpectedData(
           "Account home - Personal tax account - GOV.UK"
         )
@@ -114,7 +114,9 @@ class testSpec extends A11ySpec {
     "/personal-account/your-address/residential/do-you-live-in-the-uk"       -> getExpectedData("live-in-uk"),
     "/personal-account/your-address/change-address-tax-credits"              -> getExpectedData("change-address-tcs"),
     "/personal-account/your-address/postal/is-your-postal-address-in-the-uk" -> getExpectedData("postal-address-uk"),
-    "/personal-account/your-national-insurance-state-pension"                -> getExpectedData("your-national-insurance-state-pension"),
+    "/personal-account/your-national-insurance-state-pension"                -> getExpectedData(
+      "your-national-insurance-state-pension"
+    ),
     "/personal-account/self-assessment-summary"                              -> getExpectedData("self-assessment-summary"),
     "/personal-account/child-benefit/home"                                   -> getExpectedData("child-benefit-home"),
     "/personal-account/breathing-space"                                      -> getExpectedData("breathing-space"),
