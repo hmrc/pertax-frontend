@@ -131,7 +131,8 @@ class MainViewSpec extends IntegrationSpec {
       personDetails: Option[PersonDetails] = Some(fakePersonDetails),
       trustedHelper: Option[TrustedHelper] = None,
       profile: Option[String] = None,
-      request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+      request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
+      userAnswers: UserAnswers = UserAnswers.empty
     ): UserRequest[A] =
       UserRequest(
         authNino,
@@ -145,7 +146,8 @@ class MainViewSpec extends IntegrationSpec {
         Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
         profile,
         None,
-        request
+        request,
+        userAnswers
       )
 
     def buildUserRequestNoSA[A](
@@ -158,7 +160,8 @@ class MainViewSpec extends IntegrationSpec {
       personDetails: Option[PersonDetails] = Some(fakePersonDetails),
       trustedHelper: Option[TrustedHelper] = None,
       profile: Option[String] = None,
-      request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+      request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
+      userAnswers: UserAnswers = UserAnswers.empty
     ): UserRequest[A] =
       UserRequest(
         authNino,
@@ -172,7 +175,8 @@ class MainViewSpec extends IntegrationSpec {
         Set(),
         profile,
         None,
-        request
+        request,
+        userAnswers
       )
 
     implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest()
