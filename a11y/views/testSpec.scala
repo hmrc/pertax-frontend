@@ -82,8 +82,8 @@ class testSpec extends A11ySpec {
         ExpectedData(
           "Self Assessment summary - Personal tax account - GOV.UK"
         )
-      case "national-insurance-summary" =>
-        ExpectedData("National Insurance summary - Personal tax account - GOV.UK")
+      case "your-national-insurance-state-pension" =>
+        ExpectedData("Your National Insurance and State Pension - Personal tax account - GOV.UK")
       case "postal-address-uk"          =>
         ExpectedData(
           "Is your postal address in the UK? - Personal tax account - GOV.UK"
@@ -114,7 +114,7 @@ class testSpec extends A11ySpec {
     "/personal-account/your-address/residential/do-you-live-in-the-uk"       -> getExpectedData("live-in-uk"),
     "/personal-account/your-address/change-address-tax-credits"              -> getExpectedData("change-address-tcs"),
     "/personal-account/your-address/postal/is-your-postal-address-in-the-uk" -> getExpectedData("postal-address-uk"),
-    "/personal-account/national-insurance-summary"                           -> getExpectedData("national-insurance-summary"),
+    "/personal-account/your-national-insurance-state-pension"                -> getExpectedData("your-national-insurance-state-pension"),
     "/personal-account/self-assessment-summary"                              -> getExpectedData("self-assessment-summary"),
     "/personal-account/child-benefit/home"                                   -> getExpectedData("child-benefit-home"),
     "/personal-account/breathing-space"                                      -> getExpectedData("breathing-space"),
