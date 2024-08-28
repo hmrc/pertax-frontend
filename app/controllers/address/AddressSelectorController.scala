@@ -32,7 +32,7 @@ import repositories.JourneyCacheRepository
 import routePages.{SelectedAddressRecordPage, SelectedRecordSetPage, SubmittedAddressPage, SubmittedStartDatePage}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.AddressSelectorService
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -52,7 +52,7 @@ class AddressSelectorController @Inject() (
   addressSelectorService: AddressSelectorService,
   featureFlagService: FeatureFlagService,
   internalServerErrorView: InternalServerErrorView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext, hc: HeaderCarrier)
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
       cc,
@@ -64,6 +64,7 @@ class AddressSelectorController @Inject() (
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
       journeyCacheRepository.get(hc).map { userAnswers =>
         userAnswers.get(SelectedRecordSetPage(typ)) match {
           case Some(recordSet) =>
