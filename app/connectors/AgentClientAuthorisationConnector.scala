@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ class CachingAgentClientAuthorisationConnector @Inject() (
     agentClientStatusPage: QuestionPage[A]
   )(f: => EitherT[Future, L, A])(implicit request: Request[_]): EitherT[Future, L, A] = {
 
-    val hc                                   = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    implicit val hc: HeaderCarrier           = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     def fetchAndCache: EitherT[Future, L, A] =
       for {
         result <- f

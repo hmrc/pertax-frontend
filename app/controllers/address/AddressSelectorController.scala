@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import repositories.JourneyCacheRepository
 import routePages.{SelectedAddressRecordPage, SelectedRecordSetPage, SubmittedAddressPage, SubmittedStartDatePage}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.AddressSelectorService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.InternalServerErrorView
@@ -64,7 +65,7 @@ class AddressSelectorController @Inject() (
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
       journeyCacheRepository.get(hc).map { userAnswers =>
         userAnswers.get(SelectedRecordSetPage(typ)) match {
           case Some(recordSet) =>
