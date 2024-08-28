@@ -33,6 +33,7 @@ import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import util.{FutureEarlyTimeout, Limiters, Throttle}
 
 import scala.concurrent.duration.DurationInt
@@ -55,8 +56,9 @@ class CachingAgentClientAuthorisationConnector @Inject() (
 
   private def cache[L, A: Format](
     agentClientStatusPage: QuestionPage[A]
-  )(f: => EitherT[Future, L, A])(implicit hc: HeaderCarrier): EitherT[Future, L, A] = {
+  )(f: => EitherT[Future, L, A])(implicit request: Request[_]): EitherT[Future, L, A] = {
 
+    val hc                                   = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     def fetchAndCache: EitherT[Future, L, A] =
       for {
         result <- f

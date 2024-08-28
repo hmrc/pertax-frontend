@@ -19,13 +19,13 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.{AddressDto, DateDto}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import routePages.{SubmittedAddressPage, SubmittedStartDatePage}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import uk.gov.hmrc.http.HeaderCarrier
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateAddressView
@@ -113,6 +113,6 @@ class UpdateAddressController @Inject() (
       }
     }
 
-  private def cacheStartDate(typ: AddrType, redirect: Result)(implicit hc: HeaderCarrier): Future[Result] =
+  private def cacheStartDate(typ: AddrType, redirect: Result)(implicit request: UserRequest[_]): Future[Result] =
     cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(LocalDate.now())) map (_ => redirect)
 }

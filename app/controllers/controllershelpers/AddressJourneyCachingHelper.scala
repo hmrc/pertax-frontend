@@ -17,6 +17,7 @@
 package controllers.controllershelpers
 
 import com.google.inject.{Inject, Singleton}
+import controllers.auth.requests.UserRequest
 import controllers.bindable.AddrType
 import models._
 import play.api.Logging
@@ -24,7 +25,7 @@ import play.api.libs.json.{JsResultException, Writes}
 import play.api.mvc.{Result, Results}
 import repositories.JourneyCacheRepository
 import routePages._
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -35,19 +36,26 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
 ) extends Results
     with Logging {
 
-  def addToCache[A: Writes](page: QuestionPage[A], record: A)(implicit hc: HeaderCarrier): Future[UserAnswers] =
-    journeyCacheRepository.get.flatMap { userAnswers =>
+  def addToCache[A: Writes](page: QuestionPage[A], record: A)(implicit request: UserRequest[_]): Future[UserAnswers] = {
+    val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    journeyCacheRepository.get(hc).flatMap { userAnswers =>
       val updatedAnswers = userAnswers.setOrException(page, record)
       journeyCacheRepository.set(updatedAnswers).map(_ => updatedAnswers)
     }
+  }
 
-  def cacheAddressLookupServiceDown()(implicit hc: HeaderCarrier): Future[UserAnswers] =
+  def cacheAddressLookupServiceDown()(implicit request: UserRequest[_]): Future[UserAnswers] =
     addToCache(AddressLookupServiceDownPage, true)
 
-  def clearCache()(implicit hc: HeaderCarrier): Future[Unit] =
+  def clearCache()(implicit request: UserRequest[_]): Future[Unit] = {
+    val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     journeyCacheRepository.clear(hc)
+  }
 
-  def gettingCachedAddressLookupServiceDown[T](block: Option[Boolean] => T)(implicit hc: HeaderCarrier): Future[T] =
+  def gettingCachedAddressLookupServiceDown[T](
+    block: Option[Boolean] => T
+  )(implicit request: UserRequest[_]): Future[T] = {
+    val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     journeyCacheRepository
       .get(hc)
       .map { userAnswers =>
@@ -59,10 +67,12 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
           block(None)
         case NonFatal(e)          => throw e
       }
+  }
 
   def gettingCachedJourneyData[T](
     typ: AddrType
-  )(block: AddressJourneyData => Future[T])(implicit hc: HeaderCarrier): Future[T] =
+  )(block: AddressJourneyData => Future[T])(implicit request: UserRequest[_]): Future[T] = {
+    val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     journeyCacheRepository
       .get(hc)
       .flatMap { userAnswers =>
@@ -90,12 +100,15 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
         case NonFatal(e)          =>
           throw e
       }
+  }
 
-  def enforceDisplayAddressPageVisited(result: Result)(implicit hc: HeaderCarrier): Future[Result] =
-    journeyCacheRepository.get.map { userAnswers =>
+  def enforceDisplayAddressPageVisited(result: Result)(implicit request: UserRequest[_]): Future[Result] = {
+    val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    journeyCacheRepository.get(hc).map { userAnswers =>
       userAnswers.get(HasAddressAlreadyVisitedPage) match {
         case Some(_) => result
         case None    => Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad)
       }
     }
+  }
 }
