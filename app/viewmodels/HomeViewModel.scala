@@ -22,7 +22,6 @@ import play.twirl.api.Html
 final case class HomeViewModel(
   incomeCards: Seq[Html],
   benefitCards: Seq[Html],
-  pensionCards: Seq[Html],
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
@@ -33,7 +32,6 @@ object HomeViewModel {
   def apply(
     incomeCards: Seq[Html],
     benefitCards: Seq[Html],
-    pensionCards: Seq[Html],
     showUserResearchBanner: Boolean,
     selfAssessmentUserType: SelfAssessmentUserType,
     breathingSpaceIndicator: Boolean,
@@ -48,7 +46,6 @@ object HomeViewModel {
     HomeViewModel(
       incomeCards,
       benefitCards,
-      pensionCards,
       showUserResearchBanner,
       utr,
       breathingSpaceIndicator,

@@ -37,7 +37,6 @@ class FeatureFlagsController @Inject() (
         Map(
           AddressTaxCreditsBrokerCallToggle     -> false,
           TaxcalcToggle                         -> true,
-          NationalInsuranceTileToggle           -> true,
           ItsAdvertisementMessageToggle         -> true,
           TaxComponentsToggle                   -> true,
           RlsInterruptToggle                    -> true,

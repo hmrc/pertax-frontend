@@ -39,7 +39,7 @@ class HomeViewSpec extends ViewSpec {
   implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
   val homeViewModel: HomeViewModel =
-    HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty)
+    HomeViewModel(Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty)
 
   "Rendering HomeView.scala.html" must {
 
@@ -128,35 +128,6 @@ class HomeViewSpec extends ViewSpec {
       val view                                                      = Jsoup.parse(home(homeViewModel, shutteringMessaging = true).toString)
 
       view.getElementById("alert-banner") mustBe null
-    }
-
-    "show pensions title when state pension content is present" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = Jsoup.parse(
-        home(
-          homeViewModel.copy(pensionCards = Seq(Html("""<p id="pensionsText">pensions</p>"""))),
-          shutteringMessaging = false
-        ).toString
-      )
-
-      view.toString must include(
-        "Pensions"
-      )
-
-      view.getElementById("pensionsText").text mustBe "pensions"
-    }
-
-    "not show pensions title when state pension cards is empty" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = Jsoup.parse(
-        home(
-          homeViewModel.copy(pensionCards = Nil),
-          shutteringMessaging = false
-        ).toString
-      )
-
-      view.toString must not include "Pensions"
-
     }
   }
 }
