@@ -29,7 +29,7 @@ import routePages.AddressLookupServiceDownPage
 import testUtils.Fixtures
 import testUtils.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
@@ -105,7 +105,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     )
 
     val userAnswers: UserAnswers = UserAnswers.empty("id").setOrException(AddressLookupServiceDownPage, true)
-    when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }

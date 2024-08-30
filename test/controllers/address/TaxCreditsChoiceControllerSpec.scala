@@ -31,12 +31,13 @@ import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.JourneyCacheRepository
 import routePages.HasAddressAlreadyVisitedPage
 import services.TaxCreditsService
 import testUtils.Fixtures.buildPersonDetailsCorrespondenceAddress
 import testUtils.{ActionBuilderFixture, Fixtures, WireMockHelper}
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -55,6 +56,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
       "microservice.services.pertax.port" -> server.port()
     )
     .overrides(
+      bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
       bind[TaxCreditsService].toInstance(mockTaxCreditsService),
       bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper)
     )
@@ -230,7 +232,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
         .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockAddressJourneyCachingHelper.addToCache(any(), any())(any(), any())) thenReturn {
         Future.successful(UserAnswers.empty("id"))
       }
@@ -268,7 +270,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
         .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockAddressJourneyCachingHelper.addToCache(any(), any())(any(), any())) thenReturn {
         Future.successful(UserAnswers.empty("id"))
       }
@@ -301,7 +303,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
 
     "return a bad request when supplied no value" in {
 
-      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))

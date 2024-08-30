@@ -25,6 +25,7 @@ import routePages.HasUrBannerDismissedPage
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -45,7 +46,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasUrBannerDismissedPage, true)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Boolean = cachingHelper.hasUserDismissedBanner.futureValue
 
@@ -57,7 +58,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasUrBannerDismissedPage, false)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Boolean = cachingHelper.hasUserDismissedBanner.futureValue
 
@@ -67,7 +68,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
     "return false if cache returns no record for HasUrBannerDismissedPage" in {
       val userAnswers: UserAnswers = UserAnswers.empty("id")
-      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Boolean = cachingHelper.hasUserDismissedBanner.futureValue
 

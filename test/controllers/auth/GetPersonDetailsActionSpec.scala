@@ -28,13 +28,14 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.JourneyCacheRepository
 import services.CitizenDetailsService
 import services.partials.MessageFrontendService
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
@@ -44,12 +45,14 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
   private val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
   private val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
+  private val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
   private val configDecorator: ConfigDecorator                   = mock[ConfigDecorator]
   private val requestNino: Nino                                  = Nino(Fixtures.fakeNino.nino)
   private val citizenDetailsNino: Nino                           = Nino(new Generator(new Random()).nextNino.nino)
   override lazy val app: Application                             = localGuiceApplicationBuilder()
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
     .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
+    .overrides(bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository))
     .overrides(bind[ConfigDecorator].toInstance(configDecorator))
     .configure(Map("metrics.enabled" -> false))
     .build()
@@ -113,6 +116,8 @@ class GetPersonDetailsActionSpec extends BaseSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockCitizenDetailsService)
+
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty("id")))
   }
 
   "GetPersonDetailsAction" when {

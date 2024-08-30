@@ -24,6 +24,7 @@ import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import routePages.HasAddressAlreadyVisitedPage
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.personaldetails.InternationalAddressChoiceView
 
 import scala.concurrent.Future
@@ -46,7 +47,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
     def userAnswersToReturn: UserAnswers = UserAnswers
       .empty("id")
       .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-    when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswersToReturn))
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }

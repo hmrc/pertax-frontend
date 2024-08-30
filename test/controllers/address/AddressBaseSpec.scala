@@ -35,7 +35,7 @@ import testUtils.Fixtures._
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import views.html.InternalServerErrorView
@@ -109,7 +109,9 @@ trait AddressBaseSpec extends BaseSpec {
     when(mockAgentClientAuthorisationService.getAgentClientStatus(any(), any(), any())).thenReturn(
       Future.successful(true)
     )
-
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
+    when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
+    when(mockJourneyCacheRepository.clear(any[HeaderCarrier])).thenReturn(Future.successful((): Unit))
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
       Future.successful(AuditResult.Success)
     )

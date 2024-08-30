@@ -24,6 +24,7 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import routePages.HasAddressAlreadyVisitedPage
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.personaldetails._
@@ -37,7 +38,7 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
     val userAnswers: UserAnswers = UserAnswers
       .empty("id")
       .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-    when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(userAnswers))
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
     def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 

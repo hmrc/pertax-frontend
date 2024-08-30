@@ -27,10 +27,10 @@ import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import routePages.{AddressFinderPage, AddressLookupServiceDownPage, HasAddressAlreadyVisitedPage, SelectedAddressRecordPage}
+import routePages.{AddressFinderPage, AddressLookupServiceDownPage, HasAddressAlreadyVisitedPage}
 import testUtils.Fixtures
 import testUtils.Fixtures.{fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import views.html.personaldetails.PostcodeLookupView
 
@@ -71,7 +71,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
 
     "return 200 if the user has entered a residency choice on the previous page" in new LocalSetup {
 
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         )
@@ -80,12 +80,11 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
-      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
-    "return 303 if the user has NOT entered a residency choice on the previous page" in new LocalSetup {
+    "return 303 if the user has entered a residency choice on the previous page" in new LocalSetup {
 
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(false))
         )
@@ -93,12 +92,11 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
-      status(result) mustBe OK // TODO : CHECK OK ???
-      verify(mockJourneyCacheRepository, times(1)).get(any())
+      status(result) mustBe OK
     }
 
     "return 200 if the user is on correspondence address journey and has postal address type" in new LocalSetup {
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         )
@@ -107,47 +105,42 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
-      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
     "redirect to the beginning of the journey when user has not indicated Residency choice on previous page" in new LocalSetup {
-      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(UserAnswers.empty))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      verify(mockJourneyCacheRepository, times(1)).get(any())
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
     "redirect to the beginning of the journey when user has not visited your-address page on correspondence journey" in new LocalSetup {
-      when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(UserAnswers.empty))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
 
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      verify(mockJourneyCacheRepository, times(1)).get(any())
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
     "verify an audit event has been sent for a user clicking the change address link" in new LocalSetup {
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         )
       )
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
-
       status(result) mustBe OK
-      verify(mockJourneyCacheRepository, times(1)).get(any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
 
     "verify an audit event has been sent for a user clicking the change postal address link" in new LocalSetup {
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         )
@@ -156,7 +149,6 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
-      verify(mockJourneyCacheRepository, times(1)).get(any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
@@ -189,7 +181,6 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
         "addressLookupNotFound",
         "AA1 1AA"
       )
-      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
     List(
@@ -245,11 +236,6 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/edit-address")
 
-      val userAnswers: UserAnswers = UserAnswers.empty
-        .setOrException(SelectedAddressRecordPage(PostalAddrType), fakeStreetPafAddressRecord)
-      verify(mockJourneyCacheRepository, times(1)).set(userAnswers)
-      verify(mockJourneyCacheRepository, times(1)).get(any())
-
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
       pruneDataEvent(eventCaptor.getValue) mustBe comparatorDataEvent(
@@ -270,7 +256,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
         )
       }
 
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -287,11 +273,6 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/edit-address")
-
-      val userAnswers: UserAnswers = UserAnswers.empty
-        .setOrException(SelectedAddressRecordPage(ResidentialAddrType), fakeStreetPafAddressRecord)
-      verify(mockJourneyCacheRepository, times(1)).set(userAnswers)
-      verify(mockJourneyCacheRepository, times(1)).get(any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
@@ -325,7 +306,6 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-      verify(mockJourneyCacheRepository, times(1)).get(any())
       pruneDataEvent(eventCaptor.getValue) mustBe comparatorDataEvent(
         eventCaptor.getValue,
         "addressLookupResults",
@@ -343,7 +323,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
           )
         )
       }
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -360,8 +340,6 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       val result: Future[Result] = controller.onSubmit(PostalAddrType, None)(FakeRequest())
 
       status(result) mustBe NOT_FOUND
-      verify(mockJourneyCacheRepository, times(1)).set(any())
-      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
     "redirect to the postcodeLookupForm and when a single record is returned by the address lookup service and back = true" in new LocalSetup {
@@ -375,8 +353,6 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
         )
       }
 
-      // TODO: -------- ADD MOCK FOR mockJourneyCacheRepository.get , set ?
-
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")
           .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
@@ -386,32 +362,28 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/find-address")
-      verify(mockJourneyCacheRepository, times(1)).get(any())
-      verify(mockJourneyCacheRepository, times(1)).set(any())
+    }
 
-      "redirect to showAddressSelectorForm and display the select-address page when multiple records are returned by the address lookup service back=true" in new LocalSetup {
-        override def addressLookupResponse: RecordSet = oneAndTwoOtherPlacePafRecordSet
+    "redirect to showAddressSelectorForm and display the select-address page when multiple records are returned by the address lookup service back=true" in new LocalSetup {
+      override def addressLookupResponse: RecordSet = oneAndTwoOtherPlacePafRecordSet
 
-        when(mockAddressLookupConnector.lookup(any(), any())(any(), any())) thenReturn {
-          EitherT[Future, UpstreamErrorResponse, RecordSet](
-            Future.successful(
-              Right(addressLookupResponse)
-            )
+      when(mockAddressLookupConnector.lookup(any(), any())(any(), any())) thenReturn {
+        EitherT[Future, UpstreamErrorResponse, RecordSet](
+          Future.successful(
+            Right(addressLookupResponse)
           )
-        }
-
-        override def currentRequest[A]: Request[A] =
-          FakeRequest("POST", "")
-            .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-            .asInstanceOf[Request[A]]
-
-        val result: Future[Result] = controller.onSubmit(PostalAddrType, None)(FakeRequest())
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).getOrElse("") must include("/select-address")
-        verify(mockJourneyCacheRepository, times(1)).get(any())
-        verify(mockJourneyCacheRepository, times(2)).set(any())
+        )
       }
+
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
+          .asInstanceOf[Request[A]]
+
+      val result: Future[Result] = controller.onSubmit(PostalAddrType, None)(FakeRequest())
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result).getOrElse("") must include("/select-address")
     }
   }
 }

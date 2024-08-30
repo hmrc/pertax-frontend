@@ -25,7 +25,7 @@ import repositories.JourneyCacheRepository
 import routePages.SelfAssessmentUserTypePage
 import testUtils.BaseSpec
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
@@ -43,7 +43,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
   trait LocalSetup {
 
     when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-    when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(UserAnswers.empty("")))
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty("")))
 
     lazy val sut: EnrolmentStoreCachingService =
       new EnrolmentStoreCachingService(mockJourneyCacheRepository, mockEnrolmentsConnector)
@@ -115,7 +115,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         )
       )
 
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(UserAnswers.empty("id")),
         Future.successful(cachedUserAnswers)
       )

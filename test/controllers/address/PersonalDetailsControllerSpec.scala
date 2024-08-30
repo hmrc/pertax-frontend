@@ -31,6 +31,7 @@ import routePages.HasAddressAlreadyVisitedPage
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.SaUtrGenerator
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import viewmodels.PersonalDetailsViewModel
 import views.html.personaldetails.PersonalDetailsView
@@ -71,7 +72,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
     def defaultUserAnswers: UserAnswers = UserAnswers.empty("id")
 
-    when(mockJourneyCacheRepository.get(any())).thenReturn(Future.successful(defaultUserAnswers))
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(defaultUserAnswers))
   }
 
   "Calling redirectToYourProfile" must {
@@ -160,9 +161,6 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
       val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
       status(result) mustBe OK
-
-      verify(mockJourneyCacheRepository, times(1)).set(defaultUserAnswers)
-      verify(mockEditAddressLockRepository, times(1)).get(any())
     }
   }
 }

@@ -30,6 +30,7 @@ import play.api.test.Helpers._
 import routePages.{SelectedAddressRecordPage, SubmittedAddressPage, SubmittedStartDatePage}
 import testUtils.Fixtures
 import testUtils.Fixtures._
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.model.DataEvent
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
@@ -67,7 +68,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
     "return 200 if only submittedAddress is present in keystore for postal" in new LocalSetup {
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers.empty("id").setOrException(SubmittedAddressPage(PostalAddrType), addressDto)
         )
@@ -81,7 +82,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
     "redirect back to start of journey if submittedAddress is missing from keystore for non-postal" in new LocalSetup {
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers.empty("id").setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
         )
@@ -95,7 +96,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     }
 
     "redirect back to start of journey if submittedAddress is missing from keystore for postal" in new LocalSetup {
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(UserAnswers.empty("id"))
       )
 
@@ -108,7 +109,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     "display the appropriate label for address when the residential address has changed" in new LocalSetup {
       val addressDtoWithUpdatedPostcode: AddressDto = asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)
       val submittedStartDateDto: DateDto            = DateDto.build(15, 3, 2015)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -126,7 +127,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     "display the appropriate label for address when the residential address has not changed" in new LocalSetup {
       val addressDto: AddressDto         = asAddressDto(fakeStreetTupleListAddressForUnmodified)
       val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -180,7 +181,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
     "redirect to start of journey if ResidentialSubmittedStartDate is missing from the cache, and the journey type is ResidentialAddrType" in new LocalSetup {
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -204,7 +205,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
     "redirect to start of journey if residentialSubmittedStartDate is missing from the cache, and the journey type is residentialAddrType" in new LocalSetup {
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -230,7 +231,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
 
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -251,7 +252,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
     "redirect to start of journey if residentialSubmittedAddress is missing from the cache" in new LocalSetup {
       val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -275,7 +276,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     "render the thank-you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address" in new LocalSetup {
       val addressDto: AddressDto         = asAddressDto(fakeStreetTupleListAddressForUnmodified)
       val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -308,7 +309,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
 
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -342,7 +343,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     "render the thank you page and log a manualAddressSubmitted audit event upon successful submission of a manually entered address" in new LocalSetup {
       val addressDto: AddressDto         = asAddressDto(fakeStreetTupleListAddressForManuallyEntered)
       val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -375,7 +376,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       override lazy val fakeAddress: Address = buildFakeAddress.copy(line1 = Some("11 Fake Street"), isRls = false)
       val addressDto: AddressDto             = asAddressDto(fakeStreetTupleListAddressForModified)
       val submittedStartDateDto: DateDto     = DateDto.build(15, 3, 2015)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
@@ -413,7 +414,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       override lazy val fakeAddress: Address     =
         buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
       val addressDto: AddressDto                 = asAddressDto(fakeStreetTupleListAddressForUnmodified)
-      when(mockJourneyCacheRepository.get(any())).thenReturn(
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
