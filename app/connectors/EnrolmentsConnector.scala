@@ -19,14 +19,24 @@ package connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import config.ConfigDecorator
+import models.enrolments.EnrolmentEnum.IRSAKey
+import models.enrolments.{KnownFactQueryForNINO, KnownFactResponseForNINO}
 import play.api.http.Status._
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import play.api.libs.Files.logger
+import play.api.libs.json.Format.GenericFormat
+import play.api.libs.json.Json
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.HttpReads.Implicits.{readEitherOf, readRaw}
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http._
 
+import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 class EnrolmentsConnector @Inject() (
   http: HttpClient,
+  httpv2: HttpClientV2,
   configDecorator: ConfigDecorator,
   httpClientResponse: HttpClientResponse
 ) {
@@ -34,9 +44,10 @@ class EnrolmentsConnector @Inject() (
   val baseUrl: String = configDecorator.enrolmentStoreProxyUrl
 
   def getUserIdsWithEnrolments(
-    saUtr: String
+    enrolmentIdentifier: String,
+    enrolmentValue: String
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Seq[String]] = {
-    val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$saUtr/users"
+    val url = s"$baseUrl/enrolment-store/enrolments/$enrolmentIdentifier~$enrolmentValue/users"
     httpClientResponse
       .read(
         http.GET[Either[UpstreamErrorResponse, HttpResponse]](url)
@@ -50,4 +61,33 @@ class EnrolmentsConnector @Inject() (
         }
       }
   }
+
+  def getKnownFacts(nino: Nino)(implicit
+    headerCarrier: HeaderCarrier,
+    ec: ExecutionContext
+  ): EitherT[Future, UpstreamErrorResponse, Option[String]] = {
+    val requestBody = KnownFactQueryForNINO.apply(nino, IRSAKey.toString)
+    httpClientResponse
+      .read(
+        httpv2
+          .post(url"${configDecorator.enrolmentStoreProxyUrl}/enrolment-store/enrolments")
+          .withBody(Json.toJson(requestBody))
+          .transform(_.withRequestTimeout(configDecorator.enrolmentStoreProxyTimeoutInMilliseconds.milliseconds))
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+      )
+      .map(httpResponse =>
+        httpResponse.status match {
+          case OK         =>
+            Some(httpResponse.json.as[KnownFactResponseForNINO].getHMRCMTDIT)
+          case NO_CONTENT => None
+          case status     =>
+            logger.error(
+              s"EACD returned status of $status when searching for users with $IRSAKey enrolment for NINO ${nino.nino}." +
+                s"\nError Message: ${httpResponse.body}"
+            )
+            None
+        }
+      )
+  }
+
 }

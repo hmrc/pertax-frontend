@@ -18,15 +18,21 @@ package connectors
 
 import cats.data.EitherT
 import config.ConfigDecorator
+import models.enrolments.EnrolmentEnum.IRSAKey
+import models.enrolments.KnownFactQueryForNINO
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.mockito.MockitoSugar.mock
 import play.api.Application
+import play.api.libs.json.Json
 import play.api.test._
 import testUtils.WireMockHelper
+import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
+import scala.util.Random
 
 class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
 
@@ -39,6 +45,8 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
   private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
 
   private val mockHttpClient: HttpClient = mock[HttpClient]
+
+  private val mockHttpV2Client: HttpClientV2 = mock[HttpClientV2]
 
   private val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
@@ -62,17 +70,18 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
 
       def enrolmentsConnectorWithMock: EnrolmentsConnector = new EnrolmentsConnector(
         mockHttpClient,
+        mockHttpV2Client,
         mockConfigDecorator,
         mockHttpClientResponse
       )
 
-      lazy val result = enrolmentsConnectorWithMock.getUserIdsWithEnrolments(utr).value.futureValue
+      lazy val result = enrolmentsConnectorWithMock.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
       result.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_REQUEST
     }
 
     "NO_CONTENT response should return no enrolments" in {
       stubGet(url, NO_CONTENT, None)
-      val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
+      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
 
       result mustBe a[Right[_, _]]
       result.getOrElse(Seq("", "")) mustBe empty
@@ -88,7 +97,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
         """.stripMargin
 
       stubGet(url, OK, Some(json))
-      val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
+      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
 
       result mustBe a[Right[_, _]]
       result.getOrElse(Seq("", "")) mustBe empty
@@ -113,10 +122,77 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       val expected = Seq("ABCEDEFGI1234567", "ABCEDEFGI1234568")
 
       stubGet(url, OK, Some(json))
-      val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
+      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
 
       result mustBe a[Right[_, _]]
       result.getOrElse(Seq("", "")) must contain.allElementsOf(expected)
+    }
+  }
+
+  "getKnownFacts" must {
+    "return a Some(VALUE) of MTDITD enrolments relating to NINO" in {
+      val generator = new Generator(new Random())
+
+      val testNino: Nino = generator.nextNino
+
+      val mtdValue = "Example Enrolment Value"
+
+      val expectedJson =
+        s"""{
+           |    "service": "IR-SA",
+           |    "enrolments": [{
+           |        "identifiers": [{
+           |            "key": "NINO",
+           |            "value": "$testNino"
+           |        }],
+           |        "verifiers": [{
+           |            "key": "UTR",
+           |            "value": "123456789"
+           |        },
+           |        {
+           |            "key": "MTDITID",
+           |            "value": "$mtdValue"
+           |        }]
+           |    }]
+           |}""".stripMargin
+
+      val url         = "/enrolment-store-proxy/enrolment-store/enrolments"
+      val requestBody = Json.toJson(KnownFactQueryForNINO.apply(testNino, IRSAKey.toString)).toString()
+
+      stubPost(url, OK, Some(requestBody), Some(expectedJson))
+
+      val result = connector.getKnownFacts(nino = testNino).value.futureValue
+      result mustBe a[Right[_, _]]
+      result.getOrElse(None) mustBe Some(mtdValue)
+    }
+    "return None when enrolment store gives no content" in {
+      val generator = new Generator(new Random())
+
+      val testNino = generator.nextNino
+
+      val url         = "/enrolment-store-proxy/enrolment-store/enrolments"
+      val requestBody = Json.toJson(KnownFactQueryForNINO.apply(testNino, IRSAKey.toString)).toString()
+
+      stubPost(url, NO_CONTENT, Some(requestBody), None)
+
+      val result = connector.getKnownFacts(nino = testNino).value.futureValue
+      result mustBe a[Right[_, _]]
+      result.getOrElse(Some("invalid result")) mustBe None
+    }
+
+    "return None when enrolment store gives an unexpected response of status < 400" in {
+      val generator = new Generator(new Random())
+
+      val testNino = generator.nextNino
+
+      val url         = "/enrolment-store-proxy/enrolment-store/enrolments"
+      val requestBody = Json.toJson(KnownFactQueryForNINO.apply(testNino, IRSAKey.toString)).toString()
+
+      stubPost(url, 1, Some(requestBody), None)
+
+      val result = connector.getKnownFacts(nino = testNino).value.futureValue
+      result mustBe a[Right[_, _]]
+      result.getOrElse(Some("invalid result")) mustBe None
     }
   }
 }
