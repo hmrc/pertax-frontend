@@ -22,10 +22,10 @@ import controllers.auth.requests.AuthenticatedRequest
 import io.lemonlabs.uri.Url
 import models.UserName
 import play.api.Logging
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.{Retrievals, TrustedHelper}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
@@ -83,7 +83,11 @@ class AuthRetrievalsImpl @Inject() (
 
           val authenticatedRequest = AuthenticatedRequest[A](
             authNino = Nino(nino),
-            nino = Some(trustedHelper.fold(domain.Nino(nino))(helper => domain.Nino(helper.principalNino))),
+            nino = Some(
+              trustedHelper.fold(domain.Nino(nino))(helper =>
+                helper.principalNino.fold(domain.Nino(nino))(principalRealNino => domain.Nino(principalRealNino))
+              )
+            ),
             credentials = credentials,
             confidenceLevel = confidenceLevel,
             name = Some(

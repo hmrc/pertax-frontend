@@ -129,7 +129,7 @@ class ContentsCheckSpec extends IntegrationSpec {
     "/personal-account/self-assessment-home"                                 -> getExpectedData("sa-home")
   )
 
-  val unauthUrls: Map[String, ExpectedData] = Map(
+  val unAuthUrls: Map[String, ExpectedData] = Map(
     "/personal-account/signin"                  -> getExpectedData("sign-in"),
     "/personal-account/identity-check-complete" -> getExpectedData("id-check-complete")
   )
@@ -184,7 +184,7 @@ class ContentsCheckSpec extends IntegrationSpec {
   )
   val wrapperDataResponse: String          = Json
     .toJson(
-      WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"))
+      WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"), List(), List())
     )
     .toString
 
@@ -426,7 +426,7 @@ class ContentsCheckSpec extends IntegrationSpec {
       }
     }
     "calling unauthenticated pages" must {
-      unauthUrls.foreach { case (url, expectedData: ExpectedData) =>
+      unAuthUrls.foreach { case (url, expectedData: ExpectedData) =>
         s"pass content checks at url $url" in {
           server.stubFor(
             WireMock
@@ -444,7 +444,7 @@ class ContentsCheckSpec extends IntegrationSpec {
           govUkBanner.get(0).getElementsByClass("govuk-link").get(0).attr("href") must include(
             "http://localhost:9250/contact/beta-feedback?service=PTA"
           )
-          govUkBanner.text() mustBe "beta This is a new service – your feedback will help us to improve it."
+          govUkBanner.text() mustBe "Beta This is a new service – your feedback will help us to improve it."
 
           val accessibilityStatement = content
             .getElementsByClass("govuk-footer__link")

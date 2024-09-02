@@ -16,16 +16,16 @@
 
 package error
 
-import org.apache.pekko.stream.Materializer
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
+import org.apache.pekko.stream.Materializer
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import views.html.{InternalServerErrorView, UnauthenticatedErrorView}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class LocalErrorHandler @Inject() (
@@ -37,14 +37,12 @@ class LocalErrorHandler @Inject() (
     extends FrontendErrorHandler
     with I18nSupport {
 
-  override def standardErrorTemplate(
-    pageTitle: String,
-    heading: String,
-    message: String
-  )(implicit request: Request[_]): Html =
-    unauthenticatedErrorTemplate(pageTitle, heading, message)
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit
+    request: RequestHeader
+  ): Future[Html] =
+    Future.successful(unauthenticatedErrorTemplate(pageTitle, heading, message))
 
-  override def internalServerErrorTemplate(implicit request: Request[_]): Html =
-    internalServerErrorView()
+  override def internalServerErrorTemplate(implicit request: RequestHeader): Future[Html] =
+    Future.successful(internalServerErrorView())
 
 }

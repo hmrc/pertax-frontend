@@ -129,12 +129,14 @@ class AuthRetrievalsSpec extends BaseSpec {
       val fakePrincipalNino = Fixtures.fakeNino.toString()
 
       val controller =
-        retrievals(trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)))
+        retrievals(trustedHelper =
+          Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(fakePrincipalNino)))
+        )
 
       val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(
-        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))"
+        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,Some($fakePrincipalNino)))"
       )
     }
   }
