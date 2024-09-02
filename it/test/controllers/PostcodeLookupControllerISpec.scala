@@ -17,7 +17,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.AgentClientStatus
+import models.{AgentClientStatus, UserAnswers}
 import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -28,7 +28,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsFormUrlEncoded}
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
@@ -155,7 +154,7 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
 
     server.stubFor(
       put(urlMatching(s"/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+        .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
     )
 
     server.stubFor(

@@ -17,6 +17,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import models.UserAnswers
 import play.api.Application
 import play.api.http.Status._
 import play.api.libs.json.Json
@@ -25,7 +26,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.http.cache.client.CacheMap
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -113,7 +113,7 @@ class HomeControllerErrorISpec extends IntegrationSpec {
       )
       server.stubFor(
         put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
       )
 
       val result: Future[Result] = route(app, request).get
@@ -159,7 +159,7 @@ class HomeControllerErrorISpec extends IntegrationSpec {
       )
       server.stubFor(
         put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
       )
 
       server.stubFor(

@@ -18,6 +18,7 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, put, urlEqualTo, urlMatching, urlPathMatching}
+import models.UserAnswers
 import models.admin.BreathingSpaceIndicatorToggle
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -31,7 +32,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 
@@ -207,7 +207,7 @@ class ContentsCheckSpec extends IntegrationSpec {
 
     server.stubFor(
       put(urlMatching(s"/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+        .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
     )
 
     server.stubFor(

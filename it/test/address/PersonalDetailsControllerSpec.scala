@@ -17,7 +17,7 @@
 package address
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.AgentClientStatus
+import models.{AgentClientStatus, UserAnswers}
 import models.admin.AgentClientAuthorisationToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -29,7 +29,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => getStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
@@ -95,7 +94,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       )
       server.stubFor(
         put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
       )
       server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))
@@ -127,7 +126,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       )
       server.stubFor(
         put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
       )
       server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))
@@ -167,7 +166,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       )
       server.stubFor(
         put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
       )
       server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))

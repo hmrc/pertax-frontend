@@ -17,6 +17,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import models.UserAnswers
 import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -29,7 +30,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.time.TaxYear
 
@@ -121,7 +121,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       )
       server.stubFor(
         put(urlMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
       )
 
       val result: Future[Result] = route(app, request).get
@@ -158,7 +158,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       )
       server.stubFor(
         put(urlMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
       )
 
       val result: Future[Result] = route(app, request).get
