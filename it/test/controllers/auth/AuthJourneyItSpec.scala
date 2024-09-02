@@ -74,9 +74,6 @@ class AuthJourneyItSpec extends IntegrationSpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
-
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
   }

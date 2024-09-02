@@ -78,7 +78,6 @@ class HomeController @Inject() (
             incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
             shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
             alertBannerContent      <- alertBannerHelper.getContent
-            pensionCards            <- homeCardGenerator.getPensionCards()
           } yield {
 
             val benefitCards: Seq[Html] =
@@ -88,7 +87,6 @@ class HomeController @Inject() (
                 HomeViewModel(
                   incomeCards,
                   benefitCards,
-                  pensionCards,
                   showUserResearchBanner,
                   saUserType,
                   breathingSpaceIndicator,

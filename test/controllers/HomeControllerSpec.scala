@@ -80,9 +80,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     when(mockHomeCardGenerator.getIncomeCards(any())(any(), any())).thenReturn(
       Future.successful(Seq.empty)
     )
-    when(mockHomeCardGenerator.getPensionCards()(any())).thenReturn(
-      Future.successful(List.empty)
-    )
     when(mockHomeCardGenerator.getBenefitCards(any(), any())(any())).thenReturn(
       List.empty
     )
@@ -246,21 +243,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       val expectedHtml: Html = Html(expectedHtmlString)
 
       when(mockAlertBannerHelper.getContent(any(), any(), any()))
-        .thenReturn(Future.successful(List(expectedHtml)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
-    "Pension Cards are displayed if returned" in {
-      val expectedHtmlString = "<div class='pensionCards'></div>"
-      val expectedHtml: Html = Html(expectedHtmlString)
-
-      when(mockHomeCardGenerator.getPensionCards()(any()))
         .thenReturn(Future.successful(List(expectedHtml)))
 
       val appLocal: Application = appBuilder.build()

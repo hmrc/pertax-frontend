@@ -140,8 +140,10 @@ class ApplicationController @Inject() (
     Action {
       val safeUrl = continueUrl.flatMap { redirectUrl =>
         redirectUrl.getEither(OnlyRelative) match {
-          case Right(safeRedirectUrl) => Some(safeRedirectUrl.url)
-          case _                      => Some(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))
+          case Right(safeRedirectUrl) =>
+            Some(safeRedirectUrl.url)
+          case _                      =>
+            Some(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))
         }
       }
       safeUrl
