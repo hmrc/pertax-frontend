@@ -18,7 +18,9 @@ package views
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
+import models.UserAnswers
 import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle}
+import models.dto.AddressPageVisitedDto
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -28,9 +30,9 @@ import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
+import routePages.HasAddressAlreadyVisitedPage
 import testUtils.{A11ySpec, FileHelper}
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
 import uk.gov.hmrc.scalatestaccessibilitylinter.domain.OutputFormat
@@ -203,32 +205,21 @@ class testSpec extends A11ySpec {
 
     server.stubFor(
       put(urlMatching(s"/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
+        .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
     )
 
     server.stubFor(
       get(urlPathMatching(s"$cacheMap/.*"))
         .willReturn(
-          aResponse()
-            .withStatus(OK)
-            .withBody("""
-                |{
-                |	"id": "session-id",
-                |	"data": {
-                |   "addressPageVisitedDto": {
-                |     "hasVisitedPage": true
-                |   }
-                |	},
-                |	"modifiedDetails": {
-                |		"createdAt": {
-                |			"$date": 1400258561678
-                |		},
-                |		"lastUpdated": {
-                |			"$date": 1400258561675
-                |		}
-                |	}
-                |}
-                |""".stripMargin)
+          ok(
+            Json
+              .toJson(
+                UserAnswers
+                  .empty("session-id")
+                  .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+              )
+              .toString
+          )
         )
     )
 

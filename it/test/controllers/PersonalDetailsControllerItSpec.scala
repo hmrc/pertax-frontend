@@ -17,11 +17,15 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import models.UserAnswers
+import models.dto.AddressPageVisitedDto
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.i18n._
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
+import routePages.HasAddressAlreadyVisitedPage
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 
@@ -63,25 +67,18 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
         )
     )
     server.stubFor(
-      put(urlEqualTo(cacheMap + "addressPageVisitedDto"))
-        .willReturn(ok(s"""
-                          |{
-                          |	"id": "session-$uuid",
-                          |	"data": {
-                          |   "addressPageVisitedDto": {
-                          |     "hasVisitedPage": true
-                          |   }
-                          |	},
-                          |	"modifiedDetails": {
-                          |		"createdAt": {
-                          |			"$$date": 1400258561678
-                          |		},
-                          |		"lastUpdated": {
-                          |			"$$date": 1400258561675
-                          |		}
-                          |	}
-                          |}
-                          |""".stripMargin))
+      put(urlEqualTo(cacheMap + "addressPageVisited"))
+        .willReturn(
+          ok(
+            Json
+              .toJson(
+                UserAnswers
+                  .empty(s"session-$uuid")
+                  .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+              )
+              .toString
+          )
+        )
     )
     server.stubFor(
       get(urlEqualTo(agentClientAuthorisationUrl))

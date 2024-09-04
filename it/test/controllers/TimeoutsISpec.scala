@@ -18,7 +18,8 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin._
-import models.{Person, PersonDetails}
+import models.dto.AddressPageVisitedDto
+import models.{Person, PersonDetails, UserAnswers}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.Mockito.when
@@ -30,6 +31,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
+import routePages.HasAddressAlreadyVisitedPage
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -232,11 +234,15 @@ class TimeoutsISpec extends IntegrationSpec {
       server.stubFor(
         get(urlPathMatching("/keystore/pertax-frontend/.*"))
           .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(
-                """{"id": "session-id","data": {"addressPageVisitedDto": {"hasVisitedPage": true}}}""".stripMargin
-              )
+            ok(
+              Json
+                .toJson(
+                  UserAnswers
+                    .empty("session-id")
+                    .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+                )
+                .toString
+            )
           )
       )
 
@@ -257,6 +263,8 @@ class TimeoutsISpec extends IntegrationSpec {
         .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
       val result  = route(app, request)
 
+      val resp = result.get.futureValue
+      println("\n\n resp " + resp)
       result.get.futureValue.header.status mustBe OK
       contentAsString(result.get).contains("Do you get tax credits?") mustBe true
     }
