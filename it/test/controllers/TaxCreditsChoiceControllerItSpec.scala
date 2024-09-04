@@ -18,7 +18,9 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import models.UserAnswers
 import models.admin.AddressTaxCreditsBrokerCallToggle
+import models.dto.AddressPageVisitedDto
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -26,8 +28,10 @@ import org.scalatest.{Assertion, BeforeAndAfterEach}
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
+import routePages.HasAddressAlreadyVisitedPage
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.{SessionId, SessionKeys}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -74,26 +78,15 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
     server.stubFor(
       get(urlPathMatching(s"$cacheMap/.*"))
         .willReturn(
-          aResponse()
-            .withStatus(OK)
-            .withBody("""
-                |{
-                |	"id": "session-id",
-                |	"data": {
-                |   "addressPageVisitedDto": {
-                |     "hasVisitedPage": true
-                |   }
-                |	},
-                |	"modifiedDetails": {
-                |		"createdAt": {
-                |			"$date": 1400258561678
-                |		},
-                |		"lastUpdated": {
-                |			"$date": 1400258561675
-                |		}
-                |	}
-                |}
-                |""".stripMargin)
+          ok(
+            Json
+              .toJson(
+                UserAnswers
+                  .empty("session-id")
+                  .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+              )
+              .toString
+          )
         )
     )
 
@@ -208,26 +201,15 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
       server.stubFor(
         get(urlPathMatching(s"$cacheMap/.*"))
           .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody("""
-                  |{
-                  |	"id": "session-id",
-                  |	"data": {
-                  |   "addressPageVisitedDto": {
-                  |     "hasVisitedPage": true
-                  |   }
-                  |	},
-                  |	"modifiedDetails": {
-                  |		"createdAt": {
-                  |			"$date": 1400258561678
-                  |		},
-                  |		"lastUpdated": {
-                  |			"$date": 1400258561675
-                  |		}
-                  |	}
-                  |}
-                  |""".stripMargin)
+            ok(
+              Json
+                .toJson(
+                  UserAnswers
+                    .empty("session-id")
+                    .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+                )
+                .toString
+            )
           )
       )
 
