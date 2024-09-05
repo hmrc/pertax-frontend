@@ -32,6 +32,7 @@ import play.api.cache.AsyncCacheApi
 import play.api.http.Status.NOT_FOUND
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
+import repositories.JourneyCacheRepository
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -63,6 +64,8 @@ trait IntegrationSpec
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
   val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+
+  val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
 
   lazy val messagesApi: MessagesApi    = app.injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)

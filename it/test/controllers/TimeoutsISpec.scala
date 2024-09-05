@@ -24,6 +24,8 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.Mockito.when
 import org.mockito.{ArgumentMatchers, Mockito}
+import org.mockito.ArgumentMatchers.any
+import play.api
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.i18n.Messages
@@ -31,9 +33,10 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
+import repositories.JourneyCacheRepository
 import routePages.HasAddressAlreadyVisitedPage
 import testUtils.{FileHelper, IntegrationSpec}
-import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.time.TaxYear
 
@@ -58,6 +61,9 @@ class TimeoutsISpec extends IntegrationSpec {
       "microservice.services.tcs-broker.timeoutInMilliseconds"                 -> timeoutThresholdInMilliseconds,
       "microservice.services.dfs-digital-forms-frontend.port"                  -> server.port(),
       "microservice.services.dfs-digital-forms-frontend.timeoutInMilliseconds" -> timeoutThresholdInMilliseconds
+    )
+    .overrides(
+      api.inject.bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository)
     )
     .build()
 
@@ -156,6 +162,7 @@ class TimeoutsISpec extends IntegrationSpec {
 
   override def beforeEach(): Unit = {
     Mockito.reset(mockFeatureFlagService)
+    Mockito.reset(mockJourneyCacheRepository)
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
       .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
@@ -163,6 +170,13 @@ class TimeoutsISpec extends IntegrationSpec {
       .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
+      Future.successful(
+        UserAnswers
+          .empty("1")
+          .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+      )
+    )
   }
 
   "/personal-account" must {
@@ -231,20 +245,6 @@ class TimeoutsISpec extends IntegrationSpec {
     "render the do you get tax credits page when tax credits broker connector times out" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
         .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
-      server.stubFor(
-        get(urlPathMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(
-            ok(
-              Json
-                .toJson(
-                  UserAnswers
-                    .empty("session-id")
-                    .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-                )
-                .toString
-            )
-          )
-      )
 
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
@@ -263,8 +263,6 @@ class TimeoutsISpec extends IntegrationSpec {
         .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
       val result  = route(app, request)
 
-      val resp = result.get.futureValue
-      println("\n\n resp " + resp)
       result.get.futureValue.header.status mustBe OK
       contentAsString(result.get).contains("Do you get tax credits?") mustBe true
     }
