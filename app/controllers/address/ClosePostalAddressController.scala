@@ -165,7 +165,8 @@ class ClosePostalAddressController @Inject() (
                             PostalAddrType,
                             closedPostalAddress = true,
                             Some(getAddress(personDetails.address).fullAddress),
-                            None
+                            None,
+                            displayP85Message = false
                           )
                         )
                       } else {

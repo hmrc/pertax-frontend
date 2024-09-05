@@ -16,24 +16,31 @@
 
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
-@import components.{H1, H2, P, Link}
+@import components.{H1, H2, P, Link, P85Content}
 
 @this(
     main: MainView,
     h2: H2,
     p: P,
     link: Link,
-    govukPanel : GovukPanel
+    govukPanel : GovukPanel,
+    p85Content: P85Content
 )
 
-@(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]], subheading: Option[String])(implicit request: UserRequest[_],
+@(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]], subheading: Option[String], displayP85Message: Boolean)(implicit request: UserRequest[_],
 messages: play.api.i18n.Messages)
 
 
 @content = {
-    @subheading.map{p1 =>
-        @h2("label.what_happens_next")
-        @p(Text(messages(p1)))
+    @p(Text(messages("label.your_main_address_updated_once_a_day")))
+
+    @if(displayP85Message) {
+        @p85Content()
+    } else {
+        @subheading.map{p1 =>
+            @h2("label.what_happens_next")
+            @p(Text(messages(p1)))
+        }
     }
 }
 
@@ -62,7 +69,7 @@ messages: play.api.i18n.Messages)
             residential = { content },
             postal = Html("")
         )
-
+        <br>
         @link(controllers.address.routes.PersonalDetailsController.onPageLoad.url, "label.return_to_your_profile_page")
 
     }

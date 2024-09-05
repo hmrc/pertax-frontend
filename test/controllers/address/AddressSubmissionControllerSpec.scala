@@ -19,7 +19,7 @@ package controllers.address
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.{Address, ETag}
-import models.dto.DateDto
+import models.dto.{DateDto, InternationalAddressChoiceDto}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.http.Status.{OK, SEE_OTHER}
@@ -447,5 +447,57 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe INTERNAL_SERVER_ERROR
     }
+
+    "render the confirmation page with the P85 messaging when updating to move to international address" in new LocalSetup {
+      override lazy val fakeAddress: Address              = buildFakeAddress.copy(line1 = Some("11 Fake Street"), isRls = false)
+      override def sessionCacheResponse: Option[CacheMap] =
+        Some(
+          CacheMap(
+            "id",
+            Map(
+              "residentialSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecordOutsideUk),
+              "residentialSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModified)),
+              "residentialSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015)),
+              "internationalAddressChoiceDto"    -> Json.toJson(InternationalAddressChoiceDto(false))
+            )
+          )
+        )
+
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "/test")
+          .asInstanceOf[Request[A]]
+
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(FakeRequest())
+
+      status(result) mustBe 200
+      contentAsString(result) must include("Complete a P85 form (opens in new tab)")
+
+    }
+    "render the confirmation page without the P85 messaging when updating a UK address" in new LocalSetup {
+      override lazy val fakeAddress: Address              = buildFakeAddress.copy(line1 = Some("11 Fake Street"), isRls = false)
+      override def sessionCacheResponse: Option[CacheMap] =
+        Some(
+          CacheMap(
+            "id",
+            Map(
+              "residentialSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecordOutsideUk),
+              "residentialSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModified)),
+              "residentialSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015)),
+              "internationalAddressChoiceDto"    -> Json.toJson(InternationalAddressChoiceDto(true))
+            )
+          )
+        )
+
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "/test")
+          .asInstanceOf[Request[A]]
+
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(FakeRequest())
+
+      status(result) mustBe 200
+      contentAsString(result) mustNot include("Complete a P85 form (opens in new tab)")
+
+    }
+
   }
 }

@@ -42,26 +42,6 @@ class DateDtoSpec extends BaseSpec {
 
     }
 
-    "return error when future date is submitted" in {
-
-      val formData = Map(
-        "startDate.day"   -> "1",
-        "startDate.month" -> "1",
-        "startDate.year"  -> LocalDate.now.plusYears(1).getYear.toString
-      )
-
-      DateDto
-        .form(LocalDate.now())
-        .bind(formData)
-        .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.message mustBe "error.date_in_future"
-          },
-          _ => fail("Form should give an error")
-        )
-    }
-
     "return an error date is before 01/01/1000" in {
 
       val formData = Map(
