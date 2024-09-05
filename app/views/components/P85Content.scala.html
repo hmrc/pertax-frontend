@@ -14,17 +14,20 @@
  * limitations under the License.
  *@
 
+@import config.ConfigDecorator
+
 @this(
     h2: H2,
     link: Link,
-    p: P
+    p: P,
+    configDecorator: ConfigDecorator
 )
 
 @()(implicit messages: Messages)
 
 
     @h2("p85.heading")
-    @p(HtmlContent(messages("p85.p1.before_link") + " " + link(controllers.address.routes.PersonalDetailsController.onPageLoad.url, "p85.p1.link_text", inParagraph=true) + " " + messages("p85.p1.after_link")))
+    @p(HtmlContent(messages("p85.p1.before_link") + " " + link(configDecorator.p85Link, "p85.p1.link_text", inParagraph=true, attrTarget = true) + " " + messages("p85.p1.after_link")))
     <ul class="govuk-list govuk-list--bullet">
         <li>@messages("p85.bullet1")</li>
         <li>@messages("p85.bullet2")</li>
