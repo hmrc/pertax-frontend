@@ -19,7 +19,7 @@ package models.enrolments
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json._
 
-case class AdditonalFactors(factorType: String, phoneNumber: Option[String] = None, name: Option[String] = None) {
+case class AdditionalFactors(factorType: String, phoneNumber: Option[String] = None, name: Option[String] = None) {
   val FIVE                       = 5
   def trimmedPhoneNumber: String = phoneNumber.fold("")(_.trim.takeRight(FIVE))
 }
@@ -29,14 +29,14 @@ case class UsersGroupResponse(
   obfuscatedUserId: Option[String],
   email: Option[String],
   lastAccessedTimestamp: Option[String],
-  additionalFactors: Option[List[AdditonalFactors]]
+  additionalFactors: Option[List[AdditionalFactors]]
 ) {
   def isIdentityProviderSCP: Boolean      = identityProviderType == SCP
   def isIdentityProviderOneLogin: Boolean = identityProviderType == ONE_LOGIN
 }
 
-object AdditonalFactors {
-  implicit val format: Format[AdditonalFactors] = Json.format[AdditonalFactors]
+object AdditionalFactors {
+  implicit val format: Format[AdditionalFactors] = Json.format[AdditionalFactors]
 }
 
 object UsersGroupResponse {
@@ -47,7 +47,7 @@ object UsersGroupResponse {
       (JsPath \ "obfuscatedUserId").readNullable[String] and
       (JsPath \ "email").readNullable[String] and
       (JsPath \ "lastAccessedTimestamp").readNullable[String] and
-      (JsPath \ "additionalFactors").readNullable[List[AdditonalFactors]]
+      (JsPath \ "additionalFactors").readNullable[List[AdditionalFactors]]
   )(UsersGroupResponse.apply _)
 
   implicit val writes: Writes[UsersGroupResponse] = new Writes[UsersGroupResponse] {

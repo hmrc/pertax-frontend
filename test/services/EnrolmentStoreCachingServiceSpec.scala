@@ -19,7 +19,7 @@ package services
 import cats.data.EitherT
 import connectors.{EnrolmentsConnector, UsersGroupsSearchConnector}
 import models._
-import models.enrolments.{EACDEnrolment, IdentifiersOrVerifiers, KnownFactResponseForNINO}
+import models.enrolments.{AdditionalFactors, EACDEnrolment, EnrolmentDoesNotExist, EnrolmentError, IdentifiersOrVerifiers, KnownFactResponseForNINO, SCP, UsersAssignedEnrolment, UsersGroupResponse}
 import org.mockito.ArgumentMatchers.any
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.Json
@@ -244,6 +244,70 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
         val result = sut.checkEnrolmentId("KEY", "VALUE")
         result.futureValue mustBe None
+      }
+    }
+
+    "checkEnrolmentExists" must {
+      "return UsersAssignedEnrolment" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        val usersGroupSearchResponse: UsersGroupResponse = UsersGroupResponse(
+          identityProviderType = SCP,
+          obfuscatedUserId = Some("********6037"),
+          email = Some("email1@test.com"),
+          lastAccessedTimestamp = Some("2022-02-27T12:00:27Z"),
+          additionalFactors = Some(List(AdditionalFactors("sms", Some("07783924321"))))
+        )
+
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
+            Future.successful(
+              Right(
+                Some(usersGroupSearchResponse)
+              )
+            )
+          )
+        )
+
+        val result = sut.checkEnrolmentExists("123")
+        result.futureValue mustBe a[UsersAssignedEnrolment]
+      }
+
+      "return EnrolmentDoesNotExist when no enrolments returned" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
+            Future.successful(
+              Right(
+                None
+              )
+            )
+          )
+        )
+
+        val result = sut.checkEnrolmentExists("123")
+        result.futureValue mustBe a[EnrolmentDoesNotExist]
+      }
+
+      "return EnrolmentError when the connector returns an error" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
+            Future.successful(
+              Left(
+                UpstreamErrorResponse.apply("ERROR", 400)
+              )
+            )
+          )
+        )
+
+        val result = sut.checkEnrolmentExists("123")
+        result.futureValue mustBe a[EnrolmentError]
       }
     }
   }

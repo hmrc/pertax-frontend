@@ -28,16 +28,16 @@ import java.time.{Instant, ZoneId, ZonedDateTime}
 import java.util.Locale
 
 case class MFADetails(factorNameKey: String, factorValue: String) {
-  def this(additonalFactors: AdditonalFactors) =
+  def this(AdditionalFactors: AdditionalFactors) =
     this(
-      factorNameKey = additonalFactors.factorType match {
+      factorNameKey = AdditionalFactors.factorType match {
         case "totp"  => "mfaDetails.totp"
         case "voice" => "mfaDetails.voice"
         case _       => "mfaDetails.text"
       },
-      factorValue = additonalFactors.factorType match {
-        case "totp" => additonalFactors.name.getOrElse("")
-        case _      => additonalFactors.trimmedPhoneNumber
+      factorValue = AdditionalFactors.factorType match {
+        case "totp" => AdditionalFactors.name.getOrElse("")
+        case _      => AdditionalFactors.trimmedPhoneNumber
       }
     )
 }
@@ -73,7 +73,7 @@ case class AccountDetails(
 
 object AccountDetails {
 
-  def additionalFactorsToMFADetails(additionalFactors: Option[List[AdditonalFactors]]): Seq[MFADetails] =
+  def additionalFactorsToMFADetails(additionalFactors: Option[List[AdditionalFactors]]): Seq[MFADetails] =
     additionalFactors.fold[Seq[MFADetails]](Seq.empty[MFADetails]) { additionalFactors =>
       additionalFactors.map { additionalFactor =>
         new MFADetails(additionalFactor)

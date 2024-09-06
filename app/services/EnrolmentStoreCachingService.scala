@@ -90,7 +90,7 @@ class EnrolmentStoreCachingService @Inject() (
     usersGroupsSearchConnector
       .getUserDetails(id)
       .foldF(
-        _ => Future.successful(EnrolmentError),
+        _ => Future.successful(EnrolmentError()),
         groupDetails =>
           groupDetails match {
             case Some(userDetails) =>
@@ -107,7 +107,7 @@ class EnrolmentStoreCachingService @Inject() (
                   )
                 )
               )
-            case None              => Future.successful(EnrolmentDoesNotExist)
+            case None              => Future.successful(EnrolmentDoesNotExist())
           }
       )
 

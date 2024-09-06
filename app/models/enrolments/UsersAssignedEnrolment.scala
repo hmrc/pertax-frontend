@@ -20,6 +20,6 @@ sealed trait EnrolmentResult
 
 case class UsersAssignedEnrolment(accountDetails: AccountDetails) extends EnrolmentResult
 
-object EnrolmentDoesNotExist extends EnrolmentResult
+case class EnrolmentDoesNotExist() extends EnrolmentResult
 
-object EnrolmentError extends EnrolmentResult
+case class EnrolmentError() extends EnrolmentResult
