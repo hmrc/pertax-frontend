@@ -38,11 +38,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class HomeCardGenerator @Inject() (
   featureFlagService: FeatureFlagService,
   payAsYouEarnView: PayAsYouEarnView,
-  nationalInsuranceView: NationalInsuranceView,
   taxCreditsView: TaxCreditsView,
   childBenefitSingleAccountView: ChildBenefitSingleAccountView,
   marriageAllowanceView: MarriageAllowanceView,
-  statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
   saAndItsaMergeView: SaAndItsaMergeView,
@@ -74,7 +72,7 @@ class HomeCardGenerator @Inject() (
 
     val cards3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
       Future.successful(getSaAndItsaMergeCard().toSeq),
-      getNationalInsuranceCard().map(_.toSeq),
+      Future.successful(getNationalInsuranceCard().toSeq),
       if (request.trustedHelper.isEmpty) {
         getAnnualTaxSummaryCard.value.map(_.toSeq)
       } else {
@@ -140,17 +138,7 @@ class HomeCardGenerator @Inject() (
       None
     }
 
-  def getNationalInsuranceCard()(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
-    for {
-      nispToggle              <- featureFlagService.get(NiAndSpMergeTileToggle)
-      nationalInsuranceToggle <- featureFlagService.get(NationalInsuranceTileToggle)
-    } yield (nispToggle.isEnabled, nationalInsuranceToggle.isEnabled) match {
-      case (false, true) => Some(nationalInsuranceView())
-      case (true, _)     => Some(nispView())
-      case _             => None
-    }
-
-  def getNationalInsuranceAndStatePensionCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+  def getNationalInsuranceCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
     Some(nispView())
 
   def getBenefitCards(
@@ -177,17 +165,5 @@ class HomeCardGenerator @Inject() (
     messages: Messages
   ): Some[HtmlFormat.Appendable] =
     Some(marriageAllowanceView(taxComponents))
-
-  def getPensionCards()(implicit messages: Messages): Future[List[HtmlFormat.Appendable]] =
-    featureFlagService.get(NiAndSpMergeTileToggle).map { toggle =>
-      if (toggle.isEnabled) {
-        List()
-      } else {
-        List(getStatePensionCard()).flatten
-      }
-    }
-
-  def getStatePensionCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
-    Some(statePensionView())
 
 }

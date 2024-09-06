@@ -222,6 +222,8 @@ class ConfigDecorator @Inject() (
 
   lazy val childBenefitTaxChargeWelsh: String = "https://www.gov.uk/tal-treth-budd-dal-plant"
 
+  lazy val p85Link: String = "https://www.gov.uk/tax-right-retire-abroad-return-to-uk"
+
   lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord/pta"
 
   lazy val statePensionSummary = s"$nispFrontendHost/check-your-state-pension/account"
