@@ -215,7 +215,8 @@ class ConfigDecorator @Inject() (
 
   lazy val viewPaymentHistory: String = s"$childBenefitViewFrontend/child-benefit/view-payment-history"
 
-  lazy val viewProofEntitlement: String = s"$childBenefitViewFrontend/child-benefit/view-proof-entitlement"
+  lazy val viewProofEntitlement: String =
+    runModeConfiguration.get[String]("external-url.child-benefits.view-proof-entitlement-url")
 
   lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
 
@@ -279,23 +280,25 @@ class ConfigDecorator @Inject() (
   lazy val shutterPageParagraphCy: String =
     runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.cy").getOrElse("")
 
-  lazy val breathingSpaceBaseUrl: String            = servicesConfig.baseUrl("breathing-space-if-proxy")
-  lazy val breathingSpaceTimeoutInMilliseconds: Int =
+  lazy val breathingSpaceBaseUrl: String                 = servicesConfig.baseUrl("breathing-space-if-proxy")
+  lazy val breathingSpaceTimeoutInMilliseconds: Int      =
     servicesConfig.getInt("microservice.services.breathing-space-if-proxy.timeoutInMilliseconds")
-  lazy val citizenDetailsTimeoutInMilliseconds: Int =
+  lazy val citizenDetailsTimeoutInMilliseconds: Int      =
     servicesConfig.getInt("microservice.services.citizen-details.timeoutInMilliseconds")
-  lazy val tcsBrokerTimeoutInMilliseconds: Int      =
+  lazy val tcsBrokerTimeoutInMilliseconds: Int           =
     servicesConfig.getInt("microservice.services.tcs-broker.timeoutInMilliseconds")
-  lazy val taiTimeoutInMilliseconds: Int            =
+  lazy val taiTimeoutInMilliseconds: Int                 =
     servicesConfig.getInt("microservice.services.tai.timeoutInMilliseconds")
-  lazy val dfsPartialTimeoutInMilliseconds: Int     =
+  lazy val dfsPartialTimeoutInMilliseconds: Int          =
     servicesConfig.getInt("microservice.services.dfs-digital-forms-frontend.timeoutInMilliseconds")
-  lazy val taxCalcPartialTimeoutInMilliseconds: Int =
+  lazy val taxCalcPartialTimeoutInMilliseconds: Int      =
     servicesConfig.getInt("microservice.services.taxcalc-frontend.timeoutInMilliseconds")
-  lazy val preferenceFrontendTimeoutInSec: Int      =
+  lazy val preferenceFrontendTimeoutInSec: Int           =
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
-  lazy val ptaNinoSaveUrl: String                   = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
-  lazy val guidanceForWhenYourChildTurnsSixteen     = "https://www.gov.uk/child-benefit-16-19"
+  lazy val enrolmentStoreProxyTimeoutInMilliseconds: Int =
+    servicesConfig.getInt("microservice.services.enrolment-store-proxy.timeoutInMilliseconds")
+  lazy val ptaNinoSaveUrl: String                        = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
+  lazy val guidanceForWhenYourChildTurnsSixteen          = "https://www.gov.uk/child-benefit-16-19"
 
   lazy val guidanceForWhenYourChildTurnsSixteenWelsh = "https://www.gov.uk/budd-dal-plant-16-19"
 

@@ -57,7 +57,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())
       ).thenReturn(Future.successful(fetchResult))
 
-      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())).thenReturn(
+      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Seq[String]](
           Future.successful(
             connectorResult
@@ -103,7 +103,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
       val cacheMap =
         CacheMap("id", Map("id" -> Json.toJson(NotEnrolledSelfAssessmentUser(saUtr): SelfAssessmentUserType)))
 
-      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())).thenReturn(
+      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Seq[String]](
           Future.successful(
             Right(Seq[String]())
@@ -126,7 +126,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
       sut.getSaUserTypeFromCache(saUtr).futureValue
 
-      verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
+      verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any(), any())(any(), any())
     }
   }
 }
