@@ -40,7 +40,6 @@ object DateDto {
     Form(
       mapping(
         "startDate" -> mandatoryDateTuple("error.enter_a_date")
-          .verifying("error.date_in_future", !_.isAfter(today))
           .verifying(
             "error.enter_valid_date",
             !_.isBefore(LocalDate.of(yearValidation, monthValidation, dayValidation))

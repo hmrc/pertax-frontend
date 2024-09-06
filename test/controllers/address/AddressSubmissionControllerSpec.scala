@@ -19,7 +19,7 @@ package controllers.address
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.{Address, ETag, UserAnswers}
-import models.dto.{AddressDto, DateDto}
+import models.dto.{AddressDto, DateDto, InternationalAddressChoiceDto}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.http.Status.{OK, SEE_OTHER}
@@ -27,7 +27,7 @@ import play.api.i18n.{Lang, Messages}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import routePages.{SelectedAddressRecordPage, SubmittedAddressPage, SubmittedStartDatePage}
+import routePages.{SelectedAddressRecordPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage, SubmittedStartDatePage}
 import testUtils.Fixtures
 import testUtils.Fixtures._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -429,5 +429,57 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe INTERNAL_SERVER_ERROR
     }
+
+    "render the confirmation page with the P85 messaging when updating to move to international address" in new LocalSetup {
+      override lazy val fakeAddress: Address = buildFakeAddress.copy(line1 = Some("11 Fake Street"), isRls = false)
+      val addressDto: AddressDto             = asAddressDto(fakeStreetTupleListAddressForModified)
+      val submittedStartDateDto: DateDto     = DateDto.build(15, 3, 2015)
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
+        Future.successful(
+          UserAnswers
+            .empty("id")
+            .setOrException(SelectedAddressRecordPage(ResidentialAddrType), fakeStreetPafAddressRecordOutsideUk)
+            .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
+            .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
+            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto(false))
+        )
+      )
+
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "/test")
+          .asInstanceOf[Request[A]]
+
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(FakeRequest())
+
+      status(result) mustBe 200
+      contentAsString(result) must include("Complete a P85 form (opens in new tab)")
+
+    }
+    "render the confirmation page without the P85 messaging when updating a UK address" in new LocalSetup {
+      override lazy val fakeAddress: Address = buildFakeAddress.copy(line1 = Some("11 Fake Street"), isRls = false)
+      val addressDto: AddressDto             = asAddressDto(fakeStreetTupleListAddressForModified)
+      val submittedStartDateDto: DateDto     = DateDto.build(15, 3, 2015)
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
+        Future.successful(
+          UserAnswers
+            .empty("id")
+            .setOrException(SelectedAddressRecordPage(ResidentialAddrType), fakeStreetPafAddressRecordOutsideUk)
+            .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
+            .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
+            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto(true))
+        )
+      )
+
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "/test")
+          .asInstanceOf[Request[A]]
+
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(FakeRequest())
+
+      status(result) mustBe 200
+      contentAsString(result) mustNot include("Complete a P85 form (opens in new tab)")
+
+    }
+
   }
 }

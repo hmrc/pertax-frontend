@@ -46,7 +46,8 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       PostalAddrType,
       closedPostalAddress = true,
       Some(fakeAddress.fullAddress),
-      None
+      None,
+      false
     )(
       buildUserRequest(request = FakeRequest(), saUser = NonFilerSelfAssessmentUser),
       messages
