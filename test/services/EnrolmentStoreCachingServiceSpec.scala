@@ -19,11 +19,12 @@ package services
 import cats.data.EitherT
 import connectors.{EnrolmentsConnector, UsersGroupsSearchConnector}
 import models._
-import models.enrolments.{AdditionalFactors, EACDEnrolment, EnrolmentDoesNotExist, EnrolmentError, IdentifiersOrVerifiers, KnownFactResponseForNINO, SCP, UsersAssignedEnrolment, UsersGroupResponse}
+import models.enrolments.{AccountDetails, AdditionalFactors, EACDEnrolment, EnrolmentDoesNotExist, EnrolmentError, IdentifiersOrVerifiers, KnownFactResponseForNINO, SCP, UsersAssignedEnrolment, UsersGroupResponse}
 import org.mockito.ArgumentMatchers.any
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.Json
 import testUtils.BaseSpec
+import uk.gov.hmrc.crypto.Sensitive.SensitiveString
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -308,6 +309,53 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
         val result = sut.checkEnrolmentExists("123")
         result.futureValue mustBe a[EnrolmentError]
+      }
+    }
+
+    "checkEnrolmentStatus" must {
+      "return user details if both matching userIds and userDetails calls are successful" in {
+
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        val usersGroupSearchResponse: UsersGroupResponse = UsersGroupResponse(
+          identityProviderType = SCP,
+          obfuscatedUserId = Some("********6037"),
+          email = Some("email1@test.com"),
+          lastAccessedTimestamp = Some("2022-02-27T12:00:27Z"),
+          additionalFactors = Some(List(AdditionalFactors("sms", Some("07783924321"))))
+        )
+
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Seq[String]](
+            Future.successful(
+              Right(Seq("ID 1", "ID 2", "ID 3"))
+            )
+          )
+        )
+
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
+            Future.successful(
+              Right(
+                Some(usersGroupSearchResponse)
+              )
+            )
+          )
+        )
+        val expectedResult = UsersAssignedEnrolment(
+          AccountDetails(
+            usersGroupSearchResponse.identityProviderType,
+            "ID 1",
+            usersGroupSearchResponse.obfuscatedUserId.getOrElse(""),
+            usersGroupSearchResponse.email.map(SensitiveString),
+            usersGroupSearchResponse.lastAccessedTimestamp,
+            AccountDetails.additionalFactorsToMFADetails(usersGroupSearchResponse.additionalFactors),
+            None
+          )
+        )
+
+        sut.checkEnrolmentStatus("key", "value").futureValue mustBe expectedResult
       }
     }
   }
