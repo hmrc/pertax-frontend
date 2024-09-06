@@ -278,7 +278,7 @@ class TimeoutsISpec extends IntegrationSpec {
           .willReturn(aResponse.withFixedDelay(delayInMilliseconds))
       )
 
-      val request   = FakeRequest(GET, "/personal-account/national-insurance-summary")
+      val request   = FakeRequest(GET, "/personal-account/your-national-insurance-state-pension")
         .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
       val result    = route(app, request).get
       val content   = Jsoup.parse(contentAsString(result))
@@ -300,7 +300,7 @@ class TimeoutsISpec extends IntegrationSpec {
           .willReturn(ok(dummyContent))
       )
 
-      val request   = FakeRequest(GET, "/personal-account/national-insurance-summary")
+      val request   = FakeRequest(GET, "/personal-account/your-national-insurance-state-pension")
         .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
       val result    = route(app, request).get
       val content   = Jsoup.parse(contentAsString(result))

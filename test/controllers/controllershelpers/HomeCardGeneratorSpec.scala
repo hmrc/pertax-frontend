@@ -51,11 +51,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val generator = new Generator(new Random())
 
   private val payAsYouEarn              = inject[PayAsYouEarnView]
-  private val nationalInsurance         = inject[NationalInsuranceView]
   private val taxCredits                = inject[TaxCreditsView]
   private val childBenefitSingleAccount = inject[ChildBenefitSingleAccountView]
   private val marriageAllowance         = inject[MarriageAllowanceView]
-  private val statePension              = inject[StatePensionView]
   private val taxSummaries              = inject[TaxSummariesView]
   private val latestNewsAndUpdatesView  = inject[LatestNewsAndUpdatesView]
   private val saAndItsaMergeView        = inject[SaAndItsaMergeView]
@@ -73,11 +71,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     new HomeCardGenerator(
       mockFeatureFlagService,
       payAsYouEarn,
-      nationalInsurance,
       taxCredits,
       childBenefitSingleAccount,
       marriageAllowance,
-      statePension,
       taxSummaries,
       latestNewsAndUpdatesView,
       saAndItsaMergeView,
@@ -91,11 +87,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     new HomeCardGenerator(
       mockFeatureFlagService,
       payAsYouEarn,
-      nationalInsurance,
       taxCredits,
       childBenefitSingleAccount,
       marriageAllowance,
-      statePension,
       taxSummaries,
       latestNewsAndUpdatesView,
       saAndItsaMergeView,
@@ -209,61 +203,13 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "Calling getNationalInsuranceCard" must {
-    "return NI Card when toggled on and NISP toggle is disabled" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
+    "Always returns NI and SP markup" in {
 
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = false)))
-
-      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
-
-      cardBody mustBe Some(nationalInsurance())
-    }
-
-    "return None when NationalInsuranceTileToggle is disabled and NiAndSpMergeTileToggle is disabled" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = false)))
-
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = false)))
-
-      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
-
-      cardBody mustBe None
-    }
-
-    "return None when NationalInsuranceTileToggle is disabled and NiAndSpMergeTileToggle is enabled" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = false)))
-
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
-
-      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard().futureValue
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard()
 
       cardBody mustBe Some(nispView())
     }
-  }
 
-  "calling getPensionCards" must {
-    "return NI and SP card when NiAndSpMergeTileToggle is enabled" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
-
-      lazy val cardBody = homeCardGenerator.getPensionCards().futureValue
-
-      cardBody mustBe List()
-    }
-
-    "return SP card when NiAndSpMergeTileToggle is disabled" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = false)))
-
-      lazy val cardBody = homeCardGenerator.getPensionCards().futureValue
-
-      cardBody mustBe List(statePension())
-    }
   }
 
   "Calling getTaxCreditsCard" must {
@@ -337,15 +283,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
       cardBody mustBe Some(marriageAllowance(tc))
-    }
-  }
-
-  "Calling getStatePensionCard" must {
-    "always return the same markup" in {
-
-      lazy val cardBody = homeCardGenerator.getStatePensionCard()
-
-      cardBody mustBe Some(statePension())
     }
   }
 
@@ -491,14 +428,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   "Calling getIncomeCards" must {
     "when taxcalc toggle on return tax calc cards plus surrounding cards, all in correct position" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
-
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
+        .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List[NewsAndContentModel](
@@ -533,14 +465,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "when taxcalc toggle off return no tax calc cards" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
-
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
-
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = false)))
+        .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = false)))
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List[NewsAndContentModel](
@@ -573,14 +499,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "when taxcalc toggle on but trusted helper present return no tax calc cards" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
-
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(NiAndSpMergeTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-        .thenReturn(Future.successful(FeatureFlag(NiAndSpMergeTileToggle, isEnabled = true)))
+        .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List[NewsAndContentModel](
