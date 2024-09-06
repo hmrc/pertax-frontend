@@ -54,7 +54,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
 
   def connector: EnrolmentsConnector = app.injector.instanceOf[EnrolmentsConnector]
 
-  "getAssignedEnrolments" must {
+  "getUserIdsWithEnrolments" must {
     val utr = "1234500000"
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
@@ -115,6 +115,81 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
           |     "dont care"
           |    ]
           |}
+        """.stripMargin
+
+      stubGet(url, OK, Some(json))
+
+      val expected = Seq("ABCEDEFGI1234567", "ABCEDEFGI1234568")
+
+      stubGet(url, OK, Some(json))
+      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(Seq("", "")) must contain.allElementsOf(expected)
+    }
+  }
+
+  "getGroupIdsWithEnrolments" must {
+    val utr = "1234500000"
+    val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/groups"
+
+    "BAD_REQUEST response should return Left BAD_REQUEST status" in {
+      when(mockHttpClientResponse.read(any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, HttpResponse](
+          Future(Left(UpstreamErrorResponse(dummyContent, BAD_REQUEST)))
+        )
+      )
+
+      when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
+
+      def enrolmentsConnectorWithMock: EnrolmentsConnector = new EnrolmentsConnector(
+        mockHttpClient,
+        mockHttpV2Client,
+        mockConfigDecorator,
+        mockHttpClientResponse
+      )
+
+      lazy val result = enrolmentsConnectorWithMock.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
+      result.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_REQUEST
+    }
+
+    "NO_CONTENT response should return no enrolments" in {
+      stubGet(url, NO_CONTENT, None)
+      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(Seq("", "")) mustBe empty
+    }
+
+    "query users with no principal enrolment returns empty enrolments" in {
+      val json =
+        """
+        |{
+        |    "principalGroupIds": [],
+        |     "delegatedGroupIds": []
+        |}
+        """.stripMargin
+
+      stubGet(url, OK, Some(json))
+      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(Seq("", "")) mustBe empty
+    }
+
+    "query users with assigned enrolment return two principleIds" in {
+      val json =
+        """
+        |{
+        |    "principalGroupIds": [
+        |       "ABCEDEFGI1234567",
+        |       "ABCEDEFGI1234568"
+        |    ],
+        |    "delegatedGroupIds": [
+        |     "dont care"
+        |    ]
+        |}
         """.stripMargin
 
       stubGet(url, OK, Some(json))

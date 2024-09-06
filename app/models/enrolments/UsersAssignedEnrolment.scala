@@ -16,24 +16,10 @@
 
 package models.enrolments
 
-import play.api.libs.json._
+sealed trait EnrolmentResult
 
-case class UsersAssignedEnrolment(enrolledCredential: Option[String])
+case class UsersAssignedEnrolment(accountDetails: AccountDetails) extends EnrolmentResult
 
-object UsersAssignedEnrolment {
+object EnrolmentDoesNotExist extends EnrolmentResult
 
-  val readsCache: Reads[UsersAssignedEnrolment] =
-    Json.reads[UsersAssignedEnrolment]
-
-  val reads: Reads[UsersAssignedEnrolment]   = (json: JsValue) => {
-    for {
-      jsObject         <- json.validate[JsObject]
-      principleUserIds <- (jsObject \ "principalUserIds").validate[List[String]]
-    } yield UsersAssignedEnrolment(principleUserIds.headOption)
-  }
-  val writes: Writes[UsersAssignedEnrolment] =
-    Json.writes[UsersAssignedEnrolment]
-
-  implicit val format: Format[UsersAssignedEnrolment] =
-    Format(readsCache, writes)
-}
+object EnrolmentError extends EnrolmentResult

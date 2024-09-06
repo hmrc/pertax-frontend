@@ -25,10 +25,10 @@ case class KnownFactResponseForNINO(service: String, enrolments: List[EACDEnrolm
       case identifier if identifier.key == "UTR" => identifier.value
     }.head
 
-  def getHMRCMTDIT: String =
+  def getHMRCMTDIT: Option[String] =
     enrolments.head.verifiers.collect {
       case identifier if identifier.key == "MTDITID" => identifier.value
-    }.head
+    }.headOption
 }
 
 object KnownFactResponseForNINO {

@@ -65,7 +65,7 @@ class EnrolmentsConnector @Inject() (
   def getKnownFacts(nino: Nino)(implicit
     headerCarrier: HeaderCarrier,
     ec: ExecutionContext
-  ): EitherT[Future, UpstreamErrorResponse, Option[String]] = {
+  ): EitherT[Future, UpstreamErrorResponse, Option[KnownFactResponseForNINO]] = {
     val requestBody = KnownFactQueryForNINO.apply(nino, IRSAKey.toString)
     httpClientResponse
       .read(
@@ -78,7 +78,7 @@ class EnrolmentsConnector @Inject() (
       .map(httpResponse =>
         httpResponse.status match {
           case OK         =>
-            Some(httpResponse.json.as[KnownFactResponseForNINO].getHMRCMTDIT)
+            Some(httpResponse.json.as[KnownFactResponseForNINO])
           case NO_CONTENT => None
           case status     =>
             logger.error(

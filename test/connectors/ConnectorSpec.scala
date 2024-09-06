@@ -80,7 +80,7 @@ trait ConnectorSpec
     responseBody: Option[String]
   ): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
-    val response     = responseBody.fold(baseResponse) { body => baseResponse.withBody(body) }
+    val response     = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
     requestBody.fold(post(url).willReturn(response))(requestBody =>
       post(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
