@@ -18,13 +18,13 @@ package services
 
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.cache.client.SessionCache
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class LocalSessionCache @Inject() (
-  override val http: HttpClient,
+  override val httpClientV2: HttpClientV2,
   servicesConfig: ServicesConfig,
   @Named("appName") appName: String
 ) extends SessionCache {

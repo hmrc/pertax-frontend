@@ -21,7 +21,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import play.api.Logging
 import play.api.i18n.Messages
-import play.api.mvc.Request
+import play.api.mvc.RequestHeader
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
@@ -52,7 +52,7 @@ trait MainView {
     hideAccountMenu: Boolean = false,
     showUserResearchBanner: Boolean = false
   )(contentBlock: Html)(implicit
-    request: Request[_],
+    request: RequestHeader,
     messages: Messages
   ): HtmlFormat.Appendable
 }
@@ -81,7 +81,7 @@ class MainViewImpl @Inject() (
     yourProfileActive: Boolean = false,
     hideAccountMenu: Boolean = false,
     showUserResearchBanner: Boolean = false
-  )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
+  )(contentBlock: Html)(implicit request: RequestHeader, messages: Messages): HtmlFormat.Appendable = {
 
     val trustedHelper: Option[TrustedHelper] = Try(request.asInstanceOf[UserRequest[_]]) match {
       case Success(userRequest) => userRequest.trustedHelper

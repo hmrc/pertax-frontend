@@ -16,10 +16,16 @@
 
 package models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Format, JsValue, Json, Writes}
+import play.api.libs.ws.BodyWritable
 
 final case class SeissRequest(utr: String)
 
 object SeissRequest {
   implicit val format: Format[SeissRequest] = Json.format[SeissRequest]
+
+  implicit def jsonBodyWritable[T](implicit
+    writes: Writes[T],
+    jsValueBodyWritable: BodyWritable[JsValue]
+  ): BodyWritable[T] = jsValueBodyWritable.map(writes.writes)
 }

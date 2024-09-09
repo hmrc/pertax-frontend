@@ -28,7 +28,8 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Injecting
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HttpReads, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 
 import scala.concurrent.Future
@@ -46,16 +47,19 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
 
   private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
 
-  private val mockHttpClient: HttpClient = mock[HttpClient]
+  private val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
 
   private val mockConfigDecorator = mock[ConfigDecorator]
 
   private val dummyContent = "error message"
 
+  private val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
+
   def postAuthoriseUrl: String = s"/pertax/authorise"
 
   "PertaxConnector with post" must {
     "return a PertaxResponse with ACCESS_GRANTED code" in {
+
       server.stubFor(
         post(urlEqualTo(postAuthoriseUrl))
           .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
@@ -153,13 +157,27 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
         ).foreach { error =>
           s"an $error is returned from the HttpClientResponse" in {
 
+            when(mockConfigDecorator.pertaxUrl).thenReturn(
+              s"http://localhost:8080"
+            )
+
+            when(mockHttpClient.post(any())(any())).thenReturn(mockRequestBuilder)
+
+            when(mockRequestBuilder.setHeader(any()))
+              .thenReturn(mockRequestBuilder)
+
+            when(mockRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
+              .thenReturn(Future.successful(HttpResponse(CREATED, "")))
+
             when(mockHttpClientResponse.readLogUnauthorisedAsInfo(any())).thenReturn(
               EitherT[Future, UpstreamErrorResponse, HttpResponse](
                 Future(Left(UpstreamErrorResponse(dummyContent, error)))
               )
             )
 
-            when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+            when(mockHttpClient.get(any())(any())).thenReturn(mockRequestBuilder)
+
+            when(mockRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
               .thenReturn(Future.successful(HttpResponse(error, "")))
 
             def pertaxConnectorWithMock: PertaxConnector =

@@ -17,11 +17,10 @@
 @import views.html.helper.CSPNonce
 
 @this(autocompleteJavascript: HmrcAccessibleAutocompleteJavascript)
-@(scripts: Option[Html])(implicit request: Request[_])
+@(scripts: Option[Html])(implicit request: RequestHeader)
 
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
-    @autocompleteJavascript()
-    @scripts
-
+<script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
+<script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
+<script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
+@autocompleteJavascript()
+@scripts

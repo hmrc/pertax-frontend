@@ -26,8 +26,8 @@ import play.api.Logging
 import play.api.libs.json.Writes
 import play.api.mvc.{Result, Results}
 import services.LocalSessionCache
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.{CacheMap, KeyStoreEntryValidationException}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -45,7 +45,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
   def cacheAddressLookupServiceDown()(implicit hc: HeaderCarrier): Future[CacheMap] =
     sessionCache.cache(addressLookupServiceDownKey, true)
 
-  def clearCache()(implicit hc: HeaderCarrier): Future[HttpResponse] =
+  def clearCache()(implicit hc: HeaderCarrier): Future[Unit] =
     sessionCache.remove()
 
   def gettingCachedAddressLookupServiceDown[T](block: Option[Boolean] => T)(implicit hc: HeaderCarrier): Future[T] =

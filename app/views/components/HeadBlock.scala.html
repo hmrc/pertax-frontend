@@ -17,9 +17,9 @@
 @import views.html.helper.CSPNonce
 
 @this(autocompleteCss: HmrcAccessibleAutocompleteCss)
-@(stylesheets: Option[Html])(implicit request: Request[_])
+@(stylesheets: Option[Html])(implicit request: RequestHeader)
 
-    <meta name="format-detection" content="telephone=no" />
-    <link @CSPNonce.attr rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
-    @autocompleteCss()
-    @stylesheets
+<meta name="format-detection" content="telephone=no" />
+<link @CSPNonce.attr rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")'/>
+@autocompleteCss()
+@stylesheets

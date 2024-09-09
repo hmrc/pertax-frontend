@@ -21,12 +21,13 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import play.api.http.Status._
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class EnrolmentsConnector @Inject() (
-  http: HttpClient,
+  http: HttpClientV2,
   configDecorator: ConfigDecorator,
   httpClientResponse: HttpClientResponse
 ) {
@@ -37,9 +38,10 @@ class EnrolmentsConnector @Inject() (
     saUtr: String
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Seq[String]] = {
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$saUtr/users"
+
     httpClientResponse
       .read(
-        http.GET[Either[UpstreamErrorResponse, HttpResponse]](url)
+        http.get(url"$url").execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
       .map { response =>
         response.status match {

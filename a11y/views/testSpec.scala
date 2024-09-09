@@ -184,7 +184,7 @@ class testSpec extends A11ySpec {
   )
   val wrapperDataResponse: String          = Json
     .toJson(
-      WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"))
+      WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"), List(), List())
     )
     .toString
 

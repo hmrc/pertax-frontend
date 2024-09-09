@@ -24,7 +24,8 @@ import org.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.test._
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HttpReads, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
@@ -38,7 +39,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
 
   private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
 
-  private val mockHttpClient: HttpClient = mock[HttpClient]
+  private val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
 
   private val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
@@ -46,18 +47,29 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
 
   def connector: EnrolmentsConnector = app.injector.instanceOf[EnrolmentsConnector]
 
+  private val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    org.mockito.MockitoSugar.reset(mockHttpClientResponse, mockHttpClient, mockConfigDecorator)
+  }
+
   "getAssignedEnrolments" must {
     val utr = "1234500000"
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
     "BAD_REQUEST response should return Left BAD_REQUEST status" in {
+
+      when(mockConfigDecorator.enrolmentStoreProxyUrl).thenReturn("http://localhost")
       when(mockHttpClientResponse.read(any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future(Left(UpstreamErrorResponse(dummyContent, BAD_REQUEST)))
         )
       )
 
-      when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+      when(mockHttpClient.get(any())(any())).thenReturn(mockRequestBuilder)
+
+      when(mockRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
 
       def enrolmentsConnectorWithMock: EnrolmentsConnector = new EnrolmentsConnector(
@@ -71,6 +83,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
     }
 
     "NO_CONTENT response should return no enrolments" in {
+
       stubGet(url, NO_CONTENT, None)
       val result = connector.getUserIdsWithEnrolments(utr).value.futureValue
 

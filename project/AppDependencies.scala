@@ -4,19 +4,19 @@ import play.sbt.PlayImport.*
 object AppDependencies {
 
   private val playVersion      = "play-30"
-  private val hmrcMongoVersion = "1.9.0"
-  private val bootstrapVersion = "9.0.0"
+  private val hmrcMongoVersion = "2.2.0"
+  private val bootstrapVersion = "9.4.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc"       %% s"http-caching-client-$playVersion"          % "11.2.0",
-    "uk.gov.hmrc"       %% "tax-year"                                   % "4.0.0",
+    "uk.gov.hmrc"       %% s"http-caching-client-$playVersion"          % "12.1.0",
+    "uk.gov.hmrc"       %% "tax-year"                                   % "5.0.0",
     "io.lemonlabs"      %% "scala-uri"                                  % "4.0.3",
     "org.jsoup"          % "jsoup"                                      % "1.18.1",
     "org.typelevel"     %% "cats-core"                                  % "2.12.0",
-    "org.apache.commons" % "commons-text"                               % "1.11.0",
-    "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % "1.12.0",
-    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.5.0"
+    "org.apache.commons" % "commons-text"                               % "1.12.0",
+    "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % "1.13.0-SNAPSHOT",
+    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.6.0"
   )
 
   val test: Seq[ModuleID] = Seq(
