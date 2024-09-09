@@ -19,7 +19,7 @@ package connectors
 import cats.data.EitherT
 import config.ConfigDecorator
 import models.enrolments.EnrolmentEnum.IRSAKey
-import models.enrolments.KnownFactQueryForNINO
+import models.enrolments.{EACDEnrolment, IdentifiersOrVerifiers, KnownFactQueryForNINO, KnownFactResponseForNINO}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.mockito.MockitoSugar.mock
@@ -129,81 +129,6 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
     }
   }
 
-  "getGroupIdsWithEnrolments" must {
-    val utr = "1234500000"
-    val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/groups"
-
-    "BAD_REQUEST response should return Left BAD_REQUEST status" in {
-      when(mockHttpClientResponse.read(any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, HttpResponse](
-          Future(Left(UpstreamErrorResponse(dummyContent, BAD_REQUEST)))
-        )
-      )
-
-      when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
-
-      def enrolmentsConnectorWithMock: EnrolmentsConnector = new EnrolmentsConnector(
-        mockHttpClient,
-        mockHttpV2Client,
-        mockConfigDecorator,
-        mockHttpClientResponse
-      )
-
-      lazy val result = enrolmentsConnectorWithMock.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
-      result.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_REQUEST
-    }
-
-    "NO_CONTENT response should return no enrolments" in {
-      stubGet(url, NO_CONTENT, None)
-      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
-
-      result mustBe a[Right[_, _]]
-      result.getOrElse(Seq("", "")) mustBe empty
-    }
-
-    "query users with no principal enrolment returns empty enrolments" in {
-      val json =
-        """
-        |{
-        |    "principalGroupIds": [],
-        |     "delegatedGroupIds": []
-        |}
-        """.stripMargin
-
-      stubGet(url, OK, Some(json))
-      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
-
-      result mustBe a[Right[_, _]]
-      result.getOrElse(Seq("", "")) mustBe empty
-    }
-
-    "query users with assigned enrolment return two principleIds" in {
-      val json =
-        """
-        |{
-        |    "principalGroupIds": [
-        |       "ABCEDEFGI1234567",
-        |       "ABCEDEFGI1234568"
-        |    ],
-        |    "delegatedGroupIds": [
-        |     "dont care"
-        |    ]
-        |}
-        """.stripMargin
-
-      stubGet(url, OK, Some(json))
-
-      val expected = Seq("ABCEDEFGI1234567", "ABCEDEFGI1234568")
-
-      stubGet(url, OK, Some(json))
-      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
-
-      result mustBe a[Right[_, _]]
-      result.getOrElse(Seq("", "")) must contain.allElementsOf(expected)
-    }
-  }
-
   "getKnownFacts" must {
     "return a Some(VALUE) of MTDITD enrolments relating to NINO" in {
       val generator = new Generator(new Random())
@@ -231,6 +156,16 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
            |    }]
            |}""".stripMargin
 
+      lazy val expectedResult = KnownFactResponseForNINO(
+        "IR-SA",
+        List(
+          EACDEnrolment(
+            identifiers = List(IdentifiersOrVerifiers("NINO", testNino.toString())),
+            verifiers = List(IdentifiersOrVerifiers("UTR", "123456789"), IdentifiersOrVerifiers("MTDITID", mtdValue))
+          )
+        )
+      )
+
       val url         = "/enrolment-store-proxy/enrolment-store/enrolments"
       val requestBody = Json.toJson(KnownFactQueryForNINO.apply(testNino, IRSAKey.toString)).toString()
 
@@ -238,7 +173,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
 
       val result = connector.getKnownFacts(nino = testNino).value.futureValue
       result mustBe a[Right[_, _]]
-      result.getOrElse(None) mustBe Some(mtdValue)
+      result.getOrElse(None) mustBe Some(expectedResult)
     }
     "return None when enrolment store gives no content" in {
       val generator = new Generator(new Random())

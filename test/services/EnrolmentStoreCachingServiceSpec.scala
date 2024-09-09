@@ -161,16 +161,12 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         lazy val sut: EnrolmentStoreCachingService =
           new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
 
-        lazy val enrolment      = KnownFactResponseForNINO(
-          "IR-SA",
-          List(EACDEnrolment(List.empty, List.empty))
-        )
         lazy val testNino: Nino = new Generator().nextNino
 
         when(mockEnrolmentsConnector.getKnownFacts(any())(any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[KnownFactResponseForNINO]](
             Future.successful(
-              Right(Some(enrolment))
+              Right(None)
             )
           )
         )
