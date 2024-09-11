@@ -14,15 +14,11 @@
  * limitations under the License.
  *@
 
+@import components.{Button, ErrorSummary, InputValue}
 @import controllers.auth.requests.UserRequest
-@import tags._
-@import scala.concurrent.ExecutionContext
-@import components.{ErrorSummary, InputValue, Button}
-
 @import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
-@import views.html.helper.CSPNonce
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
-@import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -54,7 +50,8 @@
 @main(
     pageTitle = title.toString,
     showBackLink = true,
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
 

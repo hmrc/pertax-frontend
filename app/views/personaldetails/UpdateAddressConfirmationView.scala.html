@@ -14,9 +14,9 @@
  * limitations under the License.
  *@
 
+@import components.{H2, Link, P}
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{H1, H2, P, Link}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -39,7 +39,8 @@ messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.your_address_has_been_changed"),
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @if(closedPostalAddress) {

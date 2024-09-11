@@ -14,9 +14,9 @@
  * limitations under the License.
  *@
 
-@import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
 @import components.H1
+@import controllers.auth.requests.UserRequest
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -26,7 +26,8 @@
 @(managePrefsPartial: Html)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
-    pageTitle = messages("label.manage_your_paperless_settings")
+    pageTitle = messages("label.manage_your_paperless_settings"),
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("label.manage_your_paperless_settings")

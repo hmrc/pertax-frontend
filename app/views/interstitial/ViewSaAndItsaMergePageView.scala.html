@@ -14,9 +14,10 @@
  * limitations under the License.
  *@
 
+@import components.{H1, H2, Link, P}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import components.{H1, H2, P, Link}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     mainView: MainView,
@@ -30,7 +31,8 @@
 
 @mainView(
     pageTitle = messages("label.your_self_assessment"),
-    showBackLink = true
+    showBackLink = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @if(isItsa) {

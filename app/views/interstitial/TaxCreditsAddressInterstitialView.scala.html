@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
-@import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import views.html.components.{H1, P, Button}
 @import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import util.TrustedHelperFinder.getTrustedHelper
+@import views.html.components.{Button, H1, P}
 
 @this(
     mainView: MainView,
@@ -30,7 +30,8 @@
 
 @mainView(
     pageTitle = messages("tax_credits.interstitial.title"),
-    showBackLink = true
+    showBackLink = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("tax_credits.interstitial.title", classes=Some("govuk-heading-xl govuk-!-margin-bottom-7"))

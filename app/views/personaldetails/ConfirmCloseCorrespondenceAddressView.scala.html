@@ -14,9 +14,9 @@
  * limitations under the License.
  *@
 
+@import components.{Button, H1}
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{H1, Button}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -31,7 +31,8 @@
 @main(
     pageTitle = messages("label.check_your_details"),
     showBackLink = true,
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("label.check_your_details")

@@ -14,11 +14,9 @@
  * limitations under the License.
  *@
 
-@import tags._
-@import scala.util.Try
+@import components.{Button, ErrorSummary, InputRadios, Link}
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{ErrorSummary, InputRadios, Link, Button}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -42,7 +40,8 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], mess
 @main(
     pageTitle = title.toString,
     showBackLink = true,
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @errorSummary(addressSelectorForm, Some("radio-0"))

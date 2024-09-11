@@ -18,7 +18,6 @@ package views.html
 
 import com.google.inject.ImplementedBy
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
 import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
@@ -31,7 +30,6 @@ import uk.gov.hmrc.sca.services.WrapperService
 import views.html.components.{AdditionalJavascript, HeadBlock}
 
 import javax.inject.Inject
-import scala.util.{Failure, Success, Try}
 
 @ImplementedBy(classOf[MainViewImpl])
 trait MainView {
@@ -50,7 +48,8 @@ trait MainView {
     messagesActive: Boolean = false,
     yourProfileActive: Boolean = false,
     hideAccountMenu: Boolean = false,
-    showUserResearchBanner: Boolean = false
+    showUserResearchBanner: Boolean = false,
+    trustedHelper: Option[TrustedHelper] = None
   )(contentBlock: Html)(implicit
     request: RequestHeader,
     messages: Messages
@@ -80,13 +79,9 @@ class MainViewImpl @Inject() (
     messagesActive: Boolean = false,
     yourProfileActive: Boolean = false,
     hideAccountMenu: Boolean = false,
-    showUserResearchBanner: Boolean = false
+    showUserResearchBanner: Boolean = false,
+    trustedHelper: Option[TrustedHelper] = None
   )(contentBlock: Html)(implicit request: RequestHeader, messages: Messages): HtmlFormat.Appendable = {
-
-    val trustedHelper: Option[TrustedHelper] = Try(request.asInstanceOf[UserRequest[_]]) match {
-      case Success(userRequest) => userRequest.trustedHelper
-      case Failure(_)           => None
-    }
 
     val fullPageTitle = s"$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"
 

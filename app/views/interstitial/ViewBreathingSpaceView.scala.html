@@ -15,7 +15,8 @@
  *@
 
 @import controllers.auth.requests.UserRequest
-@import views.html.components.{H1, Link, P, H2}
+@import util.TrustedHelperFinder.getTrustedHelper
+@import views.html.components.{H1, P}
 
 @this(
     mainView: MainView,
@@ -26,7 +27,8 @@
 @()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 @mainView(
     pageTitle = messages("label.breathing_space"),
-    showBackLink = true
+    showBackLink = true,
+    trustedHelper = getTrustedHelper(request)
 ){
 
     @h1("label.you_are_in_breathing_space", elmId =Some("youAreInBreathingSpaceHeading"))

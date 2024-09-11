@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
+@import components.{Button, H1, Link, P}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link, Button}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     mainView: MainView,
@@ -29,7 +29,7 @@
 
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
-@mainView(pageTitle = messages("label.activate_your_self_assessment")) {
+@mainView(pageTitle = messages("label.activate_your_self_assessment"), trustedHelper = getTrustedHelper(request)) {
     @h1("label.activate_your_self_assessment_registration")
     @p(Text(messages("label.you_need_to_activate_your_self_assessment_registration_using_your_text_before_link_1")))
     @p(Text(messages("label.you_need_to_activate_your_self_assessment_registration_using_your_text_before_link_2")))

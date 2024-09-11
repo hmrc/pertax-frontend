@@ -16,8 +16,8 @@
 
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-@import scala.concurrent.ExecutionContext
-@import views.html.components.{H1, P, Button}
+@import util.TrustedHelperFinder.getTrustedHelper
+@import views.html.components.{Button, H1, P}
 
 @this(
     mainView: MainView,
@@ -28,7 +28,8 @@
 @(continueUrl: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @mainView(
-    pageTitle = messages("label.profile")
+    pageTitle = messages("label.profile"),
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("label.profile")

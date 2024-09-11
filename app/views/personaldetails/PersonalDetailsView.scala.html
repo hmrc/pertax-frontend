@@ -14,8 +14,9 @@
  * limitations under the License.
  *@
 
-@import components.{H1, H2, P}
+@import components.{H1, H2}
 @import controllers.auth.requests.UserRequest
+@import util.TrustedHelperFinder.getTrustedHelper
 @import viewmodels.{AddressRowModel, ExtraLinks, PersonalDetailsTableRowModel}
 
 @this(
@@ -113,7 +114,8 @@
 
 @main(
     pageTitle = messages("label.profile_and_settings"),
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
         @h1("label.profile_and_settings", classes=Some("govuk-heading-xl"))

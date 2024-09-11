@@ -14,11 +14,10 @@
  * limitations under the License.
  *@
 
+@import components.{Button, ErrorSummary, InputDate, Link, P}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import tags._
-@import scala.concurrent.ExecutionContext
-@import components.{ErrorSummary, InputDate, P, Link, Button}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -52,7 +51,8 @@
 @main(
     pageTitle = title.toString,
     showBackLink = true,
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @errorSummary(residenceStartDateForm, Some("startDate.day"))

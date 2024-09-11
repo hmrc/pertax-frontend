@@ -14,10 +14,9 @@
  * limitations under the License.
  *@
 
-@import tags._
+@import components.{Button, ErrorSummary, InputRadios, P}
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{ErrorSummary, P, InputRadios, Button}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -44,7 +43,8 @@
 @main(
     pageTitle = title.toString,
     showBackLink = true,
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @errorSummary(closePostalAddressChoiceForm, Some("onPageLoad-true"))

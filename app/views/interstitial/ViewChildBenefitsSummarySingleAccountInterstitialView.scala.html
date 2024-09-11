@@ -17,7 +17,8 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-@import views.html.components.{Button, H1, H2, H3, Link, P}
+@import util.TrustedHelperFinder.getTrustedHelper
+@import views.html.components.{Button, H1, H2, Link, P}
 
 @this(
         main: MainView,
@@ -69,7 +70,7 @@
         }
     }
 
-    @main(pageTitle = messages("label.child_benefit"), showBackLink = true) {
+    @main(pageTitle = messages("label.child_benefit"), showBackLink = true, trustedHelper = getTrustedHelper(request)) {
 
         @h1(messages("label.child_benefit"), classes = Some("govuk-heading-l govuk-!-padding-bottom-6"))
         @if(request.nino.isDefined) {

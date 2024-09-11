@@ -249,14 +249,27 @@ class MainViewSpec extends IntegrationSpec {
       "render the trusted helpers banner" when {
 
         "a trusted helper is set in the request" in new LocalSetup {
-          val principalName                                                      = "John Doe"
-          val url                                                                = "/return-url"
-          val helper: TrustedHelper                                              = TrustedHelper(
+          val principalName         = "John Doe"
+          val url                   = "/return-url"
+          val helper: TrustedHelper = TrustedHelper(
             principalName,
             "Attorney name",
             url,
             Some(generator.nextNino.nino)
           )
+
+          override def main: Html =
+            view(
+              pageTitle = title,
+              serviceName = heading,
+              sidebarContent = Some(Html("SidebarLinks")),
+              scripts = Some(Html("script")),
+              showBackLink = true,
+              backLinkUrl = backLinkUrl,
+              trustedHelper = Some(helper)
+            )(Html(content))
+
+          override def doc: Document                                             = Jsoup.parse(main.toString)
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(request = FakeRequest(), trustedHelper = Some(helper))
 

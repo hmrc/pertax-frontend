@@ -14,9 +14,9 @@
  * limitations under the License.
  *@
 
+@import components.{H1, Link, P}
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -27,7 +27,8 @@
 @()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
-    pageTitle = messages("global.page.not.found.error.title")
+    pageTitle = messages("global.page.not.found.error.title"),
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("global.page.not.found.error.title")

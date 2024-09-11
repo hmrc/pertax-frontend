@@ -16,65 +16,15 @@
 
 package util
 
-import play.api.data.Forms._
-import play.api.data.format.Formatter
-import play.api.data.{FieldMapping, FormError}
+import controllers.auth.requests.UserRequest
+import play.api.mvc.Request
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 
-import scala.util.matching.Regex
+import scala.util.{Failure, Success, Try}
 
-object PertaxValidators {
-
-  private type FormDataValidator = (String, Map[String, String]) => Seq[FormError]
-
-  private def fieldsArePresentIfCurrentFieldIsMissingFormDataValidator(
-    fieldsToCheck: String*
-  )(key: String, formData: Map[String, String]): Seq[FormError] =
-    formData.getOrElse(key, "") match {
-      case "" =>
-        val anyCheckedFieldContainsData =
-          fieldsToCheck.foldLeft[Boolean](false)((dataFound, rf) => dataFound || formData.getOrElse(rf, "").nonEmpty)
-        if (anyCheckedFieldContainsData) Seq(FormError(key, s"error.${key}_required")) else Nil
-      case _  =>
-        Nil
-    }
-
-  def optionalTextIfFieldsHaveContent(requiredFields: String*): FieldMapping[Option[String]] =
-    optionalTextIfFormDataValidatesMapping(fieldsArePresentIfCurrentFieldIsMissingFormDataValidator(requiredFields: _*))
-
-  private def optionalTextIfFormDataValidatesMapping(
-    formDataValidator: FormDataValidator
-  ): FieldMapping[Option[String]] =
-    of(new Formatter[Option[String]] {
-
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[String]] = {
-
-        def formValueUnlessEmptyString: Option[String] = {
-          val v = data.get(key)
-          if (v.fold(true)(_.isEmpty)) None else v
-        }
-
-        formDataValidator(key, data) match {
-          case Nil        => Right(formValueUnlessEmptyString)
-          case formErrors => Left(formErrors)
-        }
-      }
-
-      override def unbind(key: String, value: Option[String]): Map[String, String] =
-        value.fold[Map[String, String]](Map.empty)(v => Map(key -> v))
-    })
-
-  private val AddressLineRegex = """^[A-Za-z0-9 \-,.&'\/]+""".r
-  val PostcodeRegex: Regex     =
-    """^(GIR ?0AA|[A-PR-UWYZa-pr-uwyz]([0-9]{1,2}|([A-HK-Ya-jk-y][0-9]([0-9ABEHMNPRV-Yabehmnprv-y])?)|[0-9][A-HJKPS-UWa-hjkps-u])\s?[0-9][ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2})$""".r
-
-  def validateAddressLineCharacters(addressLine: Option[String]): Boolean = addressLine match {
-    case Some(line) =>
-      line match {
-        case AddressLineRegex() => true
-        case ""                 => true
-        case _                  => false
-      }
-    case None       => true
+object TrustedHelperFinder {
+  def getTrustedHelper(request: Request[_]): Option[TrustedHelper] = Try(request.asInstanceOf[UserRequest[_]]) match {
+    case Success(userRequest) => userRequest.trustedHelper
+    case Failure(_)           => None
   }
-
 }

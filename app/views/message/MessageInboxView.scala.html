@@ -15,7 +15,7 @@
  *@
 
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(mainView: MainView)
 
@@ -24,7 +24,8 @@
     pageTitle = messages("label.your_messages"),
     showBackLink = true,
     messagesActive = true,
-    fullWidth = true
+    fullWidth = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @messageListPartial
