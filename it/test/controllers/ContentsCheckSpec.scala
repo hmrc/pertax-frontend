@@ -184,7 +184,7 @@ class ContentsCheckSpec extends IntegrationSpec {
   )
   val wrapperDataResponse: String          = Json
     .toJson(
-      WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"), List(), List())
+      WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"), List())
     )
     .toString
 
