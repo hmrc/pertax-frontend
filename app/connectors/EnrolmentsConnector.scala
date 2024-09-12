@@ -33,18 +33,18 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
-class EnrolmentsConnector @Inject()(
-                                     httpv2: HttpClientV2,
-                                     configDecorator: ConfigDecorator,
-                                     httpClientResponse: HttpClientResponse
-                                   ) {
+class EnrolmentsConnector @Inject() (
+  httpv2: HttpClientV2,
+  configDecorator: ConfigDecorator,
+  httpClientResponse: HttpClientResponse
+) {
 
   val baseUrl: String = configDecorator.enrolmentStoreProxyUrl
 
   def getUserIdsWithEnrolments(
-                                enrolmentIdentifier: String,
-                                enrolmentValue: String
-                              )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Seq[String]] = {
+    enrolmentIdentifier: String,
+    enrolmentValue: String
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Seq[String]] = {
     val url = s"$baseUrl/enrolment-store/enrolments/$enrolmentIdentifier~$enrolmentValue/users"
     httpClientResponse
       .read(
@@ -54,15 +54,15 @@ class EnrolmentsConnector @Inject()(
         response.status match {
           case OK =>
             (response.json \ "principalUserIds").as[Seq[String]]
-          case _ =>
+          case _  =>
             Seq.empty
         }
       }
   }
 
   def getKnownFacts(nino: Nino)(implicit
-                                headerCarrier: HeaderCarrier,
-                                ec: ExecutionContext
+    headerCarrier: HeaderCarrier,
+    ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, Option[KnownFactResponseForNINO]] = {
     val requestBody = KnownFactQueryForNINO.apply(nino, IRSAKey.toString)
     httpClientResponse
@@ -75,10 +75,10 @@ class EnrolmentsConnector @Inject()(
       )
       .map(httpResponse =>
         httpResponse.status match {
-          case OK =>
+          case OK         =>
             Some(httpResponse.json.as[KnownFactResponseForNINO])
           case NO_CONTENT => None
-          case status =>
+          case status     =>
             logger.error(
               s"EACD returned status of $status when searching for users with $IRSAKey enrolment for NINO ${nino.nino}." +
                 s"\nError Message: ${httpResponse.body}"
