@@ -42,9 +42,13 @@ class ConfigDecorator @Inject() (
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
-  private val defaultSessionTimeoutInSec = 900
-  lazy val sessionTimeoutInSeconds: Int  =
-    runModeConfiguration.getOptional[Int]("feature.session-cache.timeoutInSec").getOrElse(defaultSessionTimeoutInSec)
+  private val defaultSessionCacheTtl = 15
+  val sessionCacheTtl: Int           =
+    runModeConfiguration.getOptional[Int]("feature.session-cache.ttl").getOrElse(defaultSessionCacheTtl)
+
+  private val defaultSessionCacheTtlInSec = 900
+  val sessionTimeoutInSeconds: Int        =
+    runModeConfiguration.getOptional[Int]("feature.session-cache.timeoutInSec").getOrElse(defaultSessionCacheTtlInSec)
 
   def seissUrl: String = servicesConfig.baseUrl("self-employed-income-support")
 

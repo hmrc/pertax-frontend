@@ -26,14 +26,13 @@ import play.api.Logging
 import play.api.libs.json.Format
 import play.api.libs.json.Format.GenericFormat
 import play.api.mvc.Request
-import repositories.JourneyCacheRepository
-import routePages.{AgentClientStatusPage, QuestionPage}
+import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import util.{FutureEarlyTimeout, Limiters, Throttle}
 
 import scala.concurrent.duration.DurationInt
@@ -50,34 +49,30 @@ trait AgentClientAuthorisationConnector {
 
 class CachingAgentClientAuthorisationConnector @Inject() (
   @Named("default") underlying: AgentClientAuthorisationConnector,
-  journeyCacheRepository: JourneyCacheRepository
+  sessionCacheRepository: SessionCacheRepository
 )(implicit ec: ExecutionContext)
     extends AgentClientAuthorisationConnector {
 
   private def cache[L, A: Format](
-    agentClientStatusPage: QuestionPage[A]
+    key: String
   )(f: => EitherT[Future, L, A])(implicit request: Request[_]): EitherT[Future, L, A] = {
 
-    implicit val hc: HeaderCarrier           = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     def fetchAndCache: EitherT[Future, L, A] =
       for {
         result <- f
-        _      <- EitherT.right(
-                    journeyCacheRepository.get(hc).map { userAnswers =>
-                      val updatedAnswers = userAnswers.setOrException(agentClientStatusPage, result)
-                      journeyCacheRepository.set(updatedAnswers)
-                    }
+        _      <- EitherT[Future, L, (String, String)](
+                    sessionCacheRepository
+                      .putSession[A](DataKey[A](key), result)
+                      .map(Right(_))
                   )
       } yield result
 
     EitherT(
-      journeyCacheRepository
-        .get(hc)
-        .map { userAnswers =>
-          userAnswers.get(agentClientStatusPage) match {
-            case None        => fetchAndCache
-            case Some(value) => EitherT.rightT[Future, L](value)
-          }
+      sessionCacheRepository
+        .getFromSession[A](DataKey[A](key))
+        .map {
+          case None        => fetchAndCache
+          case Some(value) => EitherT.rightT[Future, L](value)
         }
         .map(_.value)
         .flatten
@@ -91,7 +86,7 @@ class CachingAgentClientAuthorisationConnector @Inject() (
     ec: ExecutionContext,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] =
-    cache(AgentClientStatusPage) {
+    cache("agentClientStatus") {
       underlying.getAgentClientStatus
     }
 

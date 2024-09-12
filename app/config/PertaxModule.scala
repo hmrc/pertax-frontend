@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package routePages
+package config
 
-import models.AgentClientStatus
-import play.api.libs.json.JsPath
+import com.google.inject.AbstractModule
 
-case object AgentClientStatusPage extends QuestionPage[AgentClientStatus] {
+import java.time.{Clock, ZoneId}
 
-  override def toString: String = "agentClientStatus"
-  override def path: JsPath     = JsPath \ toString
+class PertaxModule extends AbstractModule {
+  override def configure(): Unit =
+    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneId.of("Europe/London")))
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,9 @@ import connectors.{AgentClientAuthorisationConnector, CachingAgentClientAuthoris
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 
-import java.time.{Clock, ZoneOffset}
-
 class HmrcModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
     val defaultBindings: Seq[Binding[_]] = Seq(
-      bind[Clock].toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC)),
       bind[ApplicationStartUp].toSelf.eagerly()
     )
 

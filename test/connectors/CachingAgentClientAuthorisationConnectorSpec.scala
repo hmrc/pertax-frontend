@@ -18,23 +18,23 @@ package connectors
 
 import cats.data.EitherT
 import cats.implicits._
-import models.{AgentClientStatus, UserAnswers}
+import models.AgentClientStatus
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import repositories.JourneyCacheRepository
-import routePages.AgentClientStatusPage
+import repositories.SessionCacheRepository
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.mongo.cache.DataKey
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with BaseSpec with WireMockHelper {
 
   val mockAgentClientAuthorisationConnector: AgentClientAuthorisationConnector = mock[AgentClientAuthorisationConnector]
-  val mockJourneyCacheRepository: JourneyCacheRepository                       = mock[JourneyCacheRepository]
+  val mockSessionCacheRepository: SessionCacheRepository                       = mock[SessionCacheRepository]
 
   override implicit val hc: HeaderCarrier         = HeaderCarrier()
   override implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -44,12 +44,12 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
     bind(classOf[AgentClientAuthorisationConnector])
       .qualifiedWith("default")
       .toInstance(mockAgentClientAuthorisationConnector),
-    bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository)
+    bind[SessionCacheRepository].toInstance(mockSessionCacheRepository)
   )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockAgentClientAuthorisationConnector, mockJourneyCacheRepository)
+    reset(mockAgentClientAuthorisationConnector, mockSessionCacheRepository)
   }
 
   def connector: CachingAgentClientAuthorisationConnector = inject[CachingAgentClientAuthorisationConnector]
@@ -66,10 +66,13 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
           hasExistingRelationships = true
         )
 
-        when(mockJourneyCacheRepository.get(any[HeaderCarrier]))
-          .thenReturn(Future.successful(UserAnswers.empty("id")))
+        when(mockSessionCacheRepository.getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any()))
+          .thenReturn(Future.successful(None))
 
-        when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
+        when(
+          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
+        )
+          .thenReturn(Future.successful(("", "")))
 
         when(mockAgentClientAuthorisationConnector.getAgentClientStatus)
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](expected))
@@ -78,8 +81,12 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
 
         result mustBe Right(expected)
 
-        verify(mockJourneyCacheRepository, times(2)).get(any[HeaderCarrier])
-        verify(mockJourneyCacheRepository, times(1)).set(any[UserAnswers])
+        verify(mockSessionCacheRepository, times(1))
+          .getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any())
+
+        verify(mockSessionCacheRepository, times(1))
+          .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
+
         verify(mockAgentClientAuthorisationConnector, times(1)).getAgentClientStatus
       }
 
@@ -90,17 +97,27 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
           hasExistingRelationships = true
         )
 
-        val userAnswers = UserAnswers.empty("id").setOrException(AgentClientStatusPage, expected)
+        when(mockSessionCacheRepository.getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any()))
+          .thenReturn(Future.successful(Some(expected)))
 
-        when(mockJourneyCacheRepository.get(any[HeaderCarrier]))
-          .thenReturn(Future.successful(userAnswers))
+        when(mockAgentClientAuthorisationConnector.getAgentClientStatus)
+          .thenReturn(null)
+
+        when(
+          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
+        )
+          .thenReturn(null)
 
         val result = connector.getAgentClientStatus.value.futureValue
 
         result mustBe Right(expected)
 
-        verify(mockJourneyCacheRepository, times(1)).get(any[HeaderCarrier])
-        verify(mockJourneyCacheRepository, times(0)).set(any[UserAnswers])
+        verify(mockSessionCacheRepository, times(1))
+          .getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any())
+
+        verify(mockSessionCacheRepository, times(0))
+          .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
+
         verify(mockAgentClientAuthorisationConnector, times(0)).getAgentClientStatus
       }
     }
