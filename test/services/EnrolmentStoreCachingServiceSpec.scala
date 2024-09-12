@@ -17,26 +17,30 @@
 package services
 
 import cats.data.EitherT
-import connectors.EnrolmentsConnector
+import connectors.{EnrolmentsConnector, UsersGroupsSearchConnector}
 import models._
+import models.enrolments.{AccountDetails, AdditionalFactors, EACDEnrolment, EnrolmentDoesNotExist, EnrolmentError, IdentifiersOrVerifiers, KnownFactResponseForNINO, SCP, UsersAssignedEnrolment, UsersGroupResponse}
 import org.mockito.ArgumentMatchers.any
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.Json
 import testUtils.BaseSpec
+import uk.gov.hmrc.crypto.Sensitive.SensitiveString
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.domain.{Generator, Nino}
 
 import scala.concurrent.Future
 
 class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
-  val mockSessionCache: LocalSessionCache          = mock[LocalSessionCache]
-  val mockEnrolmentsConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
+  val mockSessionCache: LocalSessionCache                        = mock[LocalSessionCache]
+  val mockEnrolmentsConnector: EnrolmentsConnector               = mock[EnrolmentsConnector]
+  val mockUsersGroupsSearchConnector: UsersGroupsSearchConnector = mock[UsersGroupsSearchConnector]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockSessionCache, mockEnrolmentsConnector)
+    reset(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
   }
 
   trait LocalSetup {
@@ -47,7 +51,8 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
     lazy val sut: EnrolmentStoreCachingService = {
 
-      val c = new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector)
+      val c =
+        new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
 
       when(
         mockSessionCache.cache[SelfAssessmentUserType](any(), any())(any(), any(), any())
@@ -57,7 +62,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())
       ).thenReturn(Future.successful(fetchResult))
 
-      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())).thenReturn(
+      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Seq[String]](
           Future.successful(
             connectorResult
@@ -98,12 +103,12 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
     "only call the connector once" in {
       lazy val sut: EnrolmentStoreCachingService =
-        new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector)
+        new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
 
       val cacheMap =
         CacheMap("id", Map("id" -> Json.toJson(NotEnrolledSelfAssessmentUser(saUtr): SelfAssessmentUserType)))
 
-      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())).thenReturn(
+      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Seq[String]](
           Future.successful(
             Right(Seq[String]())
@@ -126,7 +131,228 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
       sut.getSaUserTypeFromCache(saUtr).futureValue
 
-      verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
+      verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any(), any())(any(), any())
+    }
+
+    "retrieveMTDEnrolment" must {
+      "return MTDIT value" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        lazy val enrolment      = KnownFactResponseForNINO(
+          "IR-SA",
+          List(EACDEnrolment(List.empty, List(IdentifiersOrVerifiers("MTDITID", "Enrolment Value"))))
+        )
+        lazy val testNino: Nino = new Generator().nextNino
+
+        when(mockEnrolmentsConnector.getKnownFacts(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[KnownFactResponseForNINO]](
+            Future.successful(
+              Right(Some(enrolment))
+            )
+          )
+        )
+
+        val result = sut.retrieveMTDEnrolment(testNino)
+        verify(mockEnrolmentsConnector, times(1)).getKnownFacts(any())(any(), any())
+        result.futureValue mustBe Some("Enrolment Value")
+      }
+      "return None when no verifiers are returned" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        lazy val testNino: Nino = new Generator().nextNino
+
+        when(mockEnrolmentsConnector.getKnownFacts(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[KnownFactResponseForNINO]](
+            Future.successful(
+              Right(None)
+            )
+          )
+        )
+
+        val result = sut.retrieveMTDEnrolment(testNino)
+        verify(mockEnrolmentsConnector, times(1)).getKnownFacts(any())(any(), any())
+        result.futureValue mustBe None
+      }
+
+      "return None when connector call fails" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        lazy val testNino: Nino = new Generator().nextNino
+
+        when(mockEnrolmentsConnector.getKnownFacts(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[KnownFactResponseForNINO]](
+            Future.successful(
+              Left(UpstreamErrorResponse.apply("ERROR", 400))
+            )
+          )
+        )
+
+        val result = sut.retrieveMTDEnrolment(testNino)
+        verify(mockEnrolmentsConnector, times(1)).getKnownFacts(any())(any(), any())
+        result.futureValue mustBe None
+      }
+    }
+    "checkEnrolmentId"     must {
+      "return the head primaryId when found" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Seq[String]](
+            Future.successful(
+              Right(Seq("ID 1", "ID 2", "ID 3"))
+            )
+          )
+        )
+
+        val result = sut.checkEnrolmentId("KEY", "VALUE")
+        result.futureValue mustBe Some("ID 1")
+      }
+      "return none when no enrolments returned" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Seq[String]](
+            Future.successful(
+              Right(Seq.empty)
+            )
+          )
+        )
+
+        val result = sut.checkEnrolmentId("KEY", "VALUE")
+        result.futureValue mustBe None
+      }
+
+      "return none when an upstream error occurs" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Seq[String]](
+            Future.successful(
+              Left(UpstreamErrorResponse.apply("ERROR", 400))
+            )
+          )
+        )
+
+        val result = sut.checkEnrolmentId("KEY", "VALUE")
+        result.futureValue mustBe None
+      }
+    }
+
+    "checkEnrolmentExists" must {
+      "return UsersAssignedEnrolment" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        val usersGroupSearchResponse: UsersGroupResponse = UsersGroupResponse(
+          identityProviderType = SCP,
+          obfuscatedUserId = Some("********6037"),
+          email = Some("email1@test.com"),
+          lastAccessedTimestamp = Some("2022-02-27T12:00:27Z"),
+          additionalFactors = Some(List(AdditionalFactors("sms", Some("07783924321"))))
+        )
+
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
+            Future.successful(
+              Right(
+                Some(usersGroupSearchResponse)
+              )
+            )
+          )
+        )
+
+        val result = sut.checkEnrolmentExists("123")
+        result.futureValue mustBe a[UsersAssignedEnrolment]
+      }
+
+      "return EnrolmentDoesNotExist when no enrolments returned" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
+            Future.successful(
+              Right(
+                None
+              )
+            )
+          )
+        )
+
+        val result = sut.checkEnrolmentExists("123")
+        result.futureValue mustBe a[EnrolmentDoesNotExist]
+      }
+
+      "return EnrolmentError when the connector returns an error" in {
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
+            Future.successful(
+              Left(
+                UpstreamErrorResponse.apply("ERROR", 400)
+              )
+            )
+          )
+        )
+
+        val result = sut.checkEnrolmentExists("123")
+        result.futureValue mustBe a[EnrolmentError]
+      }
+    }
+
+    "checkEnrolmentStatus" must {
+      "return user details if both matching userIds and userDetails calls are successful" in {
+
+        lazy val sut: EnrolmentStoreCachingService =
+          new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+
+        val usersGroupSearchResponse: UsersGroupResponse = UsersGroupResponse(
+          identityProviderType = SCP,
+          obfuscatedUserId = Some("********6037"),
+          email = Some("email1@test.com"),
+          lastAccessedTimestamp = Some("2022-02-27T12:00:27Z"),
+          additionalFactors = Some(List(AdditionalFactors("sms", Some("07783924321"))))
+        )
+
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Seq[String]](
+            Future.successful(
+              Right(Seq("ID 1", "ID 2", "ID 3"))
+            )
+          )
+        )
+
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
+            Future.successful(
+              Right(
+                Some(usersGroupSearchResponse)
+              )
+            )
+          )
+        )
+        val expectedResult = UsersAssignedEnrolment(
+          AccountDetails(
+            usersGroupSearchResponse.identityProviderType,
+            "ID 1",
+            usersGroupSearchResponse.obfuscatedUserId.getOrElse(""),
+            usersGroupSearchResponse.email.map(SensitiveString),
+            usersGroupSearchResponse.lastAccessedTimestamp,
+            AccountDetails.additionalFactorsToMFADetails(usersGroupSearchResponse.additionalFactors),
+            None
+          )
+        )
+
+        sut.checkEnrolmentStatus("key", "value").futureValue mustBe expectedResult
+      }
     }
   }
 }

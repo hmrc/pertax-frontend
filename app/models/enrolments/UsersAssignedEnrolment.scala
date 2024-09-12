@@ -1,5 +1,5 @@
-@*
- * Copyright 2024 HM Revenue & Customs
+/*
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,24 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import config.ConfigDecorator
+package models.enrolments
 
-@this(
-    h2: H2,
-    link: Link,
-    p: P,
-    configDecorator: ConfigDecorator
-)
+sealed trait EnrolmentResult
 
-@()(implicit messages: Messages)
+case class UsersAssignedEnrolment(accountDetails: AccountDetails) extends EnrolmentResult
 
+case class EnrolmentDoesNotExist() extends EnrolmentResult
 
-    @h2("p85.heading")
-    @p(HtmlContent(messages("p85.p1.before_link") + " " + link(configDecorator.p85Link, "p85.p1.link_text", inParagraph=true, attrTarget = true) + " " + messages("p85.p1.after_link")))
-
-    <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("p85.bullet1")</li>
-        <li>@messages("p85.bullet2")</li>
-    </ul>
+case class EnrolmentError() extends EnrolmentResult
