@@ -1,46 +1,55 @@
 @*
- * Copyright 2023 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *@
+* Copyright 2023 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
 
-@import components.{H2, Link, P}
+@import components.{H2, Link, P, P85Content}
 @import controllers.auth.requests.UserRequest
 @import util.TrustedHelperFinder.getTrustedHelper
 
+
 @this(
-    main: MainView,
-    h2: H2,
-    p: P,
-    link: Link,
-    govukPanel : GovukPanel
+        main: MainView,
+        h2: H2,
+        p: P,
+        link: Link,
+        govukPanel : GovukPanel,
+        p85Content: P85Content
 )
 
-@(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]], subheading: Option[String])(implicit request: UserRequest[_],
-messages: play.api.i18n.Messages)
+@(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]], subheading: Option[String], displayP85Message: Boolean)(implicit request: UserRequest[_],
+        messages: play.api.i18n.Messages)
 
 
 @content = {
+@p(Text(messages("label.your_main_address_updated_once_a_day")))
+
+@if(displayP85Message) {
+    @p85Content()
+} else {
     @subheading.map{p1 =>
         @h2("label.what_happens_next")
         @p(Text(messages(p1)))
     }
+}
 }
 
 @main(
     pageTitle = messages("label.your_address_has_been_changed"),
     yourProfileActive = true,
     trustedHelper = getTrustedHelper(request)
+
 ) {
 
     @if(closedPostalAddress) {
@@ -63,7 +72,7 @@ messages: play.api.i18n.Messages)
             residential = { content },
             postal = Html("")
         )
-
+        <br>
         @link(controllers.address.routes.PersonalDetailsController.onPageLoad.url, "label.return_to_your_profile_page")
 
     }

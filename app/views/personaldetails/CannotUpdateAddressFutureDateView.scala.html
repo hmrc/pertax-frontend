@@ -1,0 +1,48 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import components.{H1, Link, P, P85Content}
+@import controllers.auth.requests.UserRequest
+@import util.TrustedHelperFinder.getTrustedHelper
+
+@this(
+    main: MainView,
+    h1: H1,
+    p: P,
+    link: Link,
+    p85Content: P85Content
+)
+
+@(typ: AddrType, proposedStartDate: String, p85Enabled: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+
+@main(
+    pageTitle = messages("label.your_address_cannot_be_updated"),
+    showBackLink = true,
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
+) {
+
+    @h1("label.future_date_than_record_h1")
+
+    @p(HtmlContent(messages("label.go_back_to_change_before_link") +
+                link(controllers.address.routes.StartDateController.onPageLoad(typ).url, "label.go_back_to_change_link_text", inParagraph = true)+ " " +
+                Messages("label.go_back_to_change_after_link", proposedStartDate)
+    ))
+
+    @if(p85Enabled) {
+        @p85Content()
+    }
+}

@@ -29,8 +29,9 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.language.LanguageUtils
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
+import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, CannotUpdateAddressFutureDateView, EnterStartDateView}
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class StartDateController @Inject() (
@@ -39,7 +40,8 @@ class StartDateController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   languageUtils: LanguageUtils,
   enterStartDateView: EnterStartDateView,
-  cannotUpdateAddressView: CannotUpdateAddressView,
+  cannotUpdateAddressEarlyDateView: CannotUpdateAddressEarlyDateView,
+  cannotUpdateAddressFutureDateView: CannotUpdateAddressFutureDateView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   featureFlagService: FeatureFlagService,
   internalServerErrorView: InternalServerErrorView
@@ -85,19 +87,41 @@ class StartDateController @Inject() (
             .fold(
               formWithErrors => Future.successful(BadRequest(enterStartDateView(formWithErrors, typ))),
               dateDto =>
-                cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map { _ =>
+                cachingHelper.gettingCachedJourneyData(typ) { cache =>
                   val proposedStartDate = dateDto.startDate
+                  val p85Enabled        = cache.submittedInternationalAddressChoiceDto.exists(!_.value)
 
                   personDetails.address match {
                     case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
                       if (!currentStartDate.isBefore(proposedStartDate)) {
-                        BadRequest(
-                          cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate))
+                        Future.successful(
+                          BadRequest(
+                            cannotUpdateAddressEarlyDateView(
+                              typ,
+                              languageUtils.Dates.formatDate(proposedStartDate),
+                              p85Enabled
+                            )
+                          )
+                        )
+                      } else if (proposedStartDate.isAfter(LocalDate.now())) {
+                        Future.successful(
+                          BadRequest(
+                            cannotUpdateAddressFutureDateView(
+                              typ,
+                              languageUtils.Dates.formatDate(proposedStartDate),
+                              p85Enabled
+                            )
+                          )
                         )
                       } else {
-                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                        for {
+                          _ <- cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto)
+                        } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                       }
-                    case _                                                                   => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                    case _                                                                   =>
+                      for {
+                        _ <- cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto)
+                      } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                   }
                 }
             )
