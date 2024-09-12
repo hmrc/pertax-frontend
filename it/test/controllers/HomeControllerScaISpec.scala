@@ -111,7 +111,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
           )
         ),
         PtaMinMenuConfig("MenuName", "BackName"),
-        List(),
         List()
       )
     )
