@@ -17,7 +17,6 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.UserAnswers
 import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -119,10 +118,6 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))
           .willReturn(ok(taxComponentsJson))
       )
-      server.stubFor(
-        put(urlMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
-      )
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
@@ -155,10 +150,6 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))
           .willReturn(ok(taxComponentsJson))
-      )
-      server.stubFor(
-        put(urlMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
       )
 
       val result: Future[Result] = route(app, request).get

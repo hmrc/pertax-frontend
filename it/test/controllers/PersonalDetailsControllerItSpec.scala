@@ -17,15 +17,11 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.UserAnswers
-import models.dto.AddressPageVisitedDto
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.i18n._
-import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
-import routePages.HasAddressAlreadyVisitedPage
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 
@@ -39,7 +35,6 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
     .build()
 
   val uuid: String                                    = UUID.randomUUID().toString
-  val cacheMap: String                                = s"/keystore/pertax-frontend/session-$uuid/data/"
   val agentClientAuthorisationUrl: String             = "/agent-client-authorisation/status"
   val personDetailsUrl: String                        = s"/citizen-details/$generatedNino/designatory-details"
   implicit lazy val messageProvider: MessagesProvider = app.injector.instanceOf[MessagesProvider]
@@ -64,20 +59,6 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
       get(urlEqualTo(personDetailsUrl))
         .willReturn(
           ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino))
-        )
-    )
-    server.stubFor(
-      put(urlEqualTo(cacheMap + "addressPageVisited"))
-        .willReturn(
-          ok(
-            Json
-              .toJson(
-                UserAnswers
-                  .empty(s"session-$uuid")
-                  .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-              )
-              .toString
-          )
         )
     )
     server.stubFor(

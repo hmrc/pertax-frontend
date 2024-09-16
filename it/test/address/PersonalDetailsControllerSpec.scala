@@ -17,7 +17,7 @@
 package address
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.{AgentClientStatus, UserAnswers}
+import models.AgentClientStatus
 import models.admin.AgentClientAuthorisationToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -93,10 +93,6 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
           .willReturn(ok(designatoryDetails))
       )
       server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
-      )
-      server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))
           .willReturn(
             ok(
@@ -123,10 +119,6 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
           .willReturn(ok(designatoryDetails))
-      )
-      server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
       )
       server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))
@@ -163,10 +155,6 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
           .willReturn(ok(designatoryDetails))
-      )
-      server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
       )
       server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))

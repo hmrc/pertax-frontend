@@ -17,7 +17,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.{AgentClientStatus, UserAnswers}
+import models.AgentClientStatus
 import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -150,11 +150,6 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
               .toString
           )
         )
-    )
-
-    server.stubFor(
-      put(urlMatching(s"/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
     )
 
     server.stubFor(

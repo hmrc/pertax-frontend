@@ -17,14 +17,12 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.UserAnswers
 import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
-import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
@@ -55,10 +53,6 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     beforeEachHomeController(auth = false, matchingDetails = false)
-    server.stubFor(
-      put(urlMatching("/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
-    )
     server.stubFor(
       get(urlMatching(s"/enrolment-store-proxy/enrolment-store/enrolments/IR-SA~UTR~$generatedUtr/users"))
         .willReturn(aResponse().withStatus(NO_CONTENT))

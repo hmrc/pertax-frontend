@@ -111,10 +111,6 @@ class HomeControllerErrorISpec extends IntegrationSpec {
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
           .willReturn(serverError())
       )
-      server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
-      )
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe FORBIDDEN
@@ -156,10 +152,6 @@ class HomeControllerErrorISpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
           .willReturn(serverError())
-      )
-      server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
       )
 
       server.stubFor(

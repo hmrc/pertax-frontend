@@ -17,8 +17,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, put, urlEqualTo, urlMatching, urlPathMatching}
-import models.UserAnswers
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo, urlMatching}
 import models.admin.BreathingSpaceIndicatorToggle
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -206,37 +205,6 @@ class ContentsCheckSpec extends IntegrationSpec {
     )
 
     server.stubFor(
-      put(urlMatching(s"/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
-    )
-
-    server.stubFor(
-      get(urlPathMatching(s"$cacheMap/.*"))
-        .willReturn(
-          aResponse()
-            .withStatus(OK)
-            .withBody("""
-                        |{
-                        |	"id": "session-id",
-                        |	"data": {
-                        |   "addressPageVisitedDto": {
-                        |     "hasVisitedPage": true
-                        |   }
-                        |	},
-                        |	"modifiedDetails": {
-                        |		"createdAt": {
-                        |			"$date": 1400258561678
-                        |		},
-                        |		"lastUpdated": {
-                        |			"$date": 1400258561675
-                        |		}
-                        |	}
-                        |}
-                        |""".stripMargin)
-        )
-    )
-
-    server.stubFor(
       WireMock
         .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
         .willReturn(ok(wrapperDataResponse))
@@ -261,8 +229,6 @@ class ContentsCheckSpec extends IntegrationSpec {
     .build()
 
   val uuid: String = UUID.randomUUID().toString
-
-  val cacheMap = s"/keystore/pertax-frontend"
 
   val authResponseAttorney: String =
     s"""

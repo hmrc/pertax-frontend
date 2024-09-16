@@ -73,8 +73,6 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
 
   def taxCreditsBrokerResponse(excluded: Boolean) = s"""{"excluded": $excluded}"""
 
-  val cacheMap = s"/keystore/pertax-frontend"
-
   val citizenDetailsUrl = s"/citizen-details/nino/$generatedNino"
 
   val personDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"

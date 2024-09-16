@@ -18,9 +18,7 @@ package views
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.UserAnswers
 import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle}
-import models.dto.AddressPageVisitedDto
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -30,7 +28,6 @@ import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
-import routePages.HasAddressAlreadyVisitedPage
 import testUtils.{A11ySpec, FileHelper}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -204,26 +201,6 @@ class testSpec extends A11ySpec {
     )
 
     server.stubFor(
-      put(urlMatching(s"/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(UserAnswers.empty("id")).toString))
-    )
-
-    server.stubFor(
-      get(urlPathMatching(s"$cacheMap/.*"))
-        .willReturn(
-          ok(
-            Json
-              .toJson(
-                UserAnswers
-                  .empty("session-id")
-                  .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-              )
-              .toString
-          )
-        )
-    )
-
-    server.stubFor(
       WireMock
         .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
         .willReturn(ok(wrapperDataResponse))
@@ -250,8 +227,6 @@ class testSpec extends A11ySpec {
     .build()
 
   val uuid: String = UUID.randomUUID().toString
-
-  val cacheMap = s"/keystore/pertax-frontend"
 
   val authResponseSA: String =
     s"""

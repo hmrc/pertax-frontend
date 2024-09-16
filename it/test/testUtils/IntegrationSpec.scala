@@ -207,10 +207,6 @@ trait IntegrationSpec
         .willReturn(aResponse().withStatus(NOT_FOUND))
     )
     server.stubFor(
-      get(urlMatching("/keystore/pertax-frontend/.*"))
-        .willReturn(aResponse().withStatus(NOT_FOUND))
-    )
-    server.stubFor(
       get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
         .willReturn(serverError())
     )
