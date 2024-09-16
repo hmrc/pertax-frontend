@@ -17,19 +17,22 @@
 package services
 
 import com.google.inject.Inject
-import connectors.EnrolmentsConnector
+import connectors.{EnrolmentsConnector, UsersGroupsSearchConnector}
+import models.enrolments.{AccountDetails, EnrolmentDoesNotExist, EnrolmentError, EnrolmentResult, UsersAssignedEnrolment}
+import uk.gov.hmrc.crypto.Sensitive.SensitiveString
 import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUserType, UserAnswers, WrongCredentialsSelfAssessmentUser}
 import play.api.Logging
 import repositories.JourneyCacheRepository
 import routePages.SelfAssessmentUserTypePage
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class EnrolmentStoreCachingService @Inject() (
   val journeyCacheRepository: JourneyCacheRepository,
-  enrolmentsConnector: EnrolmentsConnector
+  enrolmentsConnector: EnrolmentsConnector,
+  usersGroupsSearchConnector: UsersGroupsSearchConnector
 ) extends Logging {
 
   private def addSaUserTypeToCache(
@@ -48,7 +51,7 @@ class EnrolmentStoreCachingService @Inject() (
         case Some(userType) => Future.successful(userType)
         case None           =>
           enrolmentsConnector
-            .getUserIdsWithEnrolments(saUtr.utr)
+            .getUserIdsWithEnrolments("IR-SA~UTR", saUtr.utr)
             .foldF(
               _ => addSaUserTypeToCache(userAnswers, NonFilerSelfAssessmentUser),
               response =>
@@ -60,4 +63,61 @@ class EnrolmentStoreCachingService @Inject() (
             )
       }
     }
+
+  def retrieveMTDEnrolment(nino: Nino)(implicit hc: HeaderCarrier, ec: ExecutionContext) =
+    enrolmentsConnector
+      .getKnownFacts(nino)
+      .fold(
+        _ => None,
+        _ match {
+          case Some(response) => response.getHMRCMTDIT
+          case _              => None
+        }
+      )
+
+  def checkEnrolmentId(key: String, value: String)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Option[String]] =
+    enrolmentsConnector
+      .getUserIdsWithEnrolments(key, value)
+      .foldF(
+        _ => Future.successful(None),
+        ids => Future.successful(ids.headOption)
+      )
+
+  def checkEnrolmentExists(id: String)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[EnrolmentResult] =
+    usersGroupsSearchConnector
+      .getUserDetails(id)
+      .foldF(
+        _ => Future.successful(EnrolmentError()),
+        groupDetails =>
+          groupDetails match {
+            case Some(userDetails) =>
+              Future.successful(
+                UsersAssignedEnrolment(
+                  AccountDetails(
+                    userDetails.identityProviderType,
+                    id,
+                    userDetails.obfuscatedUserId.getOrElse(""),
+                    userDetails.email.map(SensitiveString),
+                    userDetails.lastAccessedTimestamp,
+                    AccountDetails.additionalFactorsToMFADetails(userDetails.additionalFactors),
+                    None
+                  )
+                )
+              )
+            case None              => Future.successful(EnrolmentDoesNotExist())
+          }
+      )
+
+  def checkEnrolmentStatus(key: String, value: String)(implicit hc: HeaderCarrier, executionContext: ExecutionContext) =
+    for {
+      userIds     <- checkEnrolmentId(key, value)
+      accountInfo <- checkEnrolmentExists(userIds.head)
+    } yield accountInfo
+
 }

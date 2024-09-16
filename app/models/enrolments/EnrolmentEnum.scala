@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package config
+package models.enrolments
 
-import com.google.inject.AbstractModule
+object EnrolmentEnum extends Enumeration {
 
-import java.time.{Clock, ZoneId}
+  val hmrcPTKey: EnrolmentEnum.Value    = Value("HMRC-PT")
+  val IRSAKey: EnrolmentEnum.Value      = Value("IR-SA")
+  val hmrcMTDITKey: EnrolmentEnum.Value = Value("HMRC-MTD-IT")
+  val hmrcNIKey: EnrolmentEnum.Value    = Value("HMRC-NI")
 
-class PertaxModule extends AbstractModule {
-  override def configure(): Unit =
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneId.of("Europe/London")))
+  val saEnrolmentSet: Set[String] =
+    Set(IRSAKey.toString, hmrcMTDITKey.toString, hmrcNIKey.toString)
 }

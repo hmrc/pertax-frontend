@@ -20,9 +20,12 @@ import connectors.{AgentClientAuthorisationConnector, CachingAgentClientAuthoris
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 
+import java.time.{Clock, ZoneId}
+
 class HmrcModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
     val defaultBindings: Seq[Binding[_]] = Seq(
+      bind[Clock].toInstance(Clock.systemDefaultZone.withZone(ZoneId.of("Europe/London"))),
       bind[ApplicationStartUp].toSelf.eagerly()
     )
 
