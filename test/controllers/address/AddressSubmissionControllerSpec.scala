@@ -66,7 +66,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
   "onPageLoad" must {
 
-    "return 200 if only submittedAddress is present in keystore for postal" in new LocalSetup {
+    "return 200 if only submittedAddress is present in cache for postal address type" in new LocalSetup {
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
@@ -80,7 +80,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
-    "redirect back to start of journey if submittedAddress is missing from keystore for non-postal" in new LocalSetup {
+    "redirect back to start of journey if submittedAddress is missing from cache for non-postal" in new LocalSetup {
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
@@ -95,7 +95,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
-    "redirect back to start of journey if submittedAddress is missing from keystore for postal" in new LocalSetup {
+    "redirect back to start of journey if submittedAddress is missing from cache for postal" in new LocalSetup {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(UserAnswers.empty("id"))
       )

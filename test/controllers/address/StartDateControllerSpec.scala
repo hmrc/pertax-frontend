@@ -63,7 +63,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
   }
 
   "onPageLoad" must {
-    "return 200 when passed ResidentialAddrType and submittedAddress is in keystore" in new LocalSetup {
+    "return 200 when passed ResidentialAddrType and submittedAddress is in cache" in new LocalSetup {
       val addressDto: AddressDto   = asAddressDto(fakeStreetTupleListAddressForUnmodified)
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
