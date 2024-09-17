@@ -182,7 +182,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         principalName,
         "Attorney name",
         url,
-        generator.nextNino.nino
+        Some(generator.nextNino.nino)
       )
 
       lazy val cardBody =
@@ -523,7 +523,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
         personDetails = None,
-        trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", "fakePrincipalNino")),
+        trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some("fakePrincipalNino"))),
         request = FakeRequest()
       )
 

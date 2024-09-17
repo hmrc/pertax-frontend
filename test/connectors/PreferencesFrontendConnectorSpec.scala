@@ -36,7 +36,7 @@ import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, FileHelper, WireMockHelper}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.http.HttpReads.{is4xx, is5xx}
+import uk.gov.hmrc.http.HttpErrorFunctions.{is4xx, is5xx}
 import uk.gov.hmrc.http.{HttpResponse, SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.metrics.Metrics
 

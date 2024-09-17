@@ -19,8 +19,8 @@ package controllers
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import controllers.auth.requests.UserRequest
-import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserDetails, UserName}
 import models.admin._
+import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserDetails, UserName}
 import org.jsoup.Jsoup
 import org.mockito.{ArgumentMatchers, MockitoSugar}
 import play.api.Application
@@ -29,9 +29,9 @@ import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import testUtils.IntegrationSpec
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -110,7 +110,9 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
             None
           )
         ),
-        PtaMinMenuConfig("MenuName", "BackName")
+        PtaMinMenuConfig("MenuName", "BackName"),
+        List(),
+        List()
       )
     )
     .toString
@@ -161,7 +163,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     personDetails: Option[PersonDetails] = Some(fakePersonDetails),
     trustedHelper: Option[TrustedHelper] = None,
     profile: Option[String] = None,
-    messageCount: Option[Int] = None,
     request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   ): UserRequest[A] =
     UserRequest(
@@ -332,7 +333,7 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
         val result: Future[Result] = route(app, request).get
         val content                = Jsoup.parse(contentAsString(result))
 
-        content.getElementsByClass("govuk-phase-banner").get(0).text() must include("beta")
+        content.getElementsByClass("govuk-phase-banner").get(0).text() must include("Beta")
 
         content.getElementsByClass("govuk-phase-banner").get(0).html() must include(
           "/contact/beta-feedback?service=PTA"

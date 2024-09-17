@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import scala.concurrent.ExecutionContext
 @import components.{H1, P}
 
 @this(
@@ -23,14 +22,14 @@
     p: P
 )
 
-@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messages: play.api.i18n.Messages)
+@(pageTitle: String, heading: String, message: String)(implicit request: RequestHeader, messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages(pageTitle),
     showBackLink = true
-) {
+){
 
     @h1(heading)
     @p(HtmlContent(messages(message)))
 
-}
+}(request.withBody(), messages)

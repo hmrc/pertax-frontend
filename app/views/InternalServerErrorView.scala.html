@@ -14,9 +14,8 @@
  * limitations under the License.
  *@
 
+@import components.{H1, Link, P}
 @import config.ConfigDecorator
-@import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link}
 
 @this(
     main: UnauthenticatedMainView,
@@ -25,7 +24,7 @@
     link: Link
 )
 
-@()(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@()(implicit request: RequestHeader, configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("global.error.InternalServerError500.pta.title"),
@@ -40,4 +39,4 @@
                     messages("global.error.InternalServerError500.pta.message.by.phone.post")
     ))
 
-}
+}(request.withBody(), messages)

@@ -100,7 +100,9 @@ class MainViewSpec extends IntegrationSpec {
           MenuItemConfig("id", "NewLayout Item", "link", leftAligned = false, 0, None, None),
           MenuItemConfig("signout", "Sign out", "link", leftAligned = false, 0, None, None)
         ),
-        PtaMinMenuConfig("MenuName", "BackName")
+        PtaMinMenuConfig("MenuName", "BackName"),
+        List(),
+        List()
       )
     )
     .toString
@@ -253,7 +255,7 @@ class MainViewSpec extends IntegrationSpec {
             principalName,
             "Attorney name",
             url,
-            generator.nextNino.nino
+            Some(generator.nextNino.nino)
           )
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(request = FakeRequest(), trustedHelper = Some(helper))
