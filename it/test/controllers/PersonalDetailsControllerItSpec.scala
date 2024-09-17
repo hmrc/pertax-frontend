@@ -35,7 +35,6 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
     .build()
 
   val uuid: String                                    = UUID.randomUUID().toString
-  val cacheMap: String                                = s"/keystore/pertax-frontend/session-$uuid/data/"
   val agentClientAuthorisationUrl: String             = "/agent-client-authorisation/status"
   val personDetailsUrl: String                        = s"/citizen-details/$generatedNino/designatory-details"
   implicit lazy val messageProvider: MessagesProvider = app.injector.instanceOf[MessagesProvider]
@@ -61,27 +60,6 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
         .willReturn(
           ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino))
         )
-    )
-    server.stubFor(
-      put(urlEqualTo(cacheMap + "addressPageVisitedDto"))
-        .willReturn(ok(s"""
-                          |{
-                          |	"id": "session-$uuid",
-                          |	"data": {
-                          |   "addressPageVisitedDto": {
-                          |     "hasVisitedPage": true
-                          |   }
-                          |	},
-                          |	"modifiedDetails": {
-                          |		"createdAt": {
-                          |			"$$date": 1400258561678
-                          |		},
-                          |		"lastUpdated": {
-                          |			"$$date": 1400258561675
-                          |		}
-                          |	}
-                          |}
-                          |""".stripMargin))
     )
     server.stubFor(
       get(urlEqualTo(agentClientAuthorisationUrl))

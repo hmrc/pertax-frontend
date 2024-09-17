@@ -21,9 +21,9 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.SubmittedInternationalAddressChoiceId
 import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import routePages.SubmittedInternationalAddressChoicePage
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -70,16 +70,17 @@ class PostalDoYouLiveInTheUKController @Inject() (
           .fold(
             formWithErrors => Future.successful(BadRequest(postalInternationalAddressChoiceView(formWithErrors))),
             internationalAddressChoiceDto =>
-              cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
-                if (internationalAddressChoiceDto.value) {
-                  Redirect(routes.PostcodeLookupController.onPageLoad(PostalAddrType))
-                } else {
-                  if (configDecorator.updateInternationalAddressInPta) {
-                    Redirect(routes.UpdateInternationalAddressController.onPageLoad(PostalAddrType))
+              cachingHelper.addToCache(SubmittedInternationalAddressChoicePage, internationalAddressChoiceDto) map {
+                _ =>
+                  if (internationalAddressChoiceDto.value) {
+                    Redirect(routes.PostcodeLookupController.onPageLoad(PostalAddrType))
                   } else {
-                    Redirect(routes.AddressErrorController.cannotUseThisService(PostalAddrType))
+                    if (configDecorator.updateInternationalAddressInPta) {
+                      Redirect(routes.UpdateInternationalAddressController.onPageLoad(PostalAddrType))
+                    } else {
+                      Redirect(routes.AddressErrorController.cannotUseThisService(PostalAddrType))
+                    }
                   }
-                }
               }
           )
 

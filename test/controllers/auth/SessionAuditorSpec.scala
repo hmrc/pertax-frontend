@@ -18,6 +18,7 @@ package controllers.auth
 
 import controllers.auth.UserSessionAuditEvent.writes
 import controllers.auth.requests.AuthenticatedRequest
+import models.UserAnswers
 import org.hamcrest.CustomMatcher
 import org.mockito.ArgumentMatchers.any
 import org.mockito.hamcrest.MockitoHamcrest.argThat
@@ -62,7 +63,8 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
     None,
     Set.empty,
     request,
-    None
+    None,
+    UserAnswers.empty
   )
 
   def eqExtendedDataEvent[A](authenticatedRequest: AuthenticatedRequest[A]): ExtendedDataEvent = {

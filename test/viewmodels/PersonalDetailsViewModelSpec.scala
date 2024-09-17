@@ -71,7 +71,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     Set(),
     None,
     None,
-    fakeRequest
+    fakeRequest,
+    UserAnswers.empty
   )
 
   val examplePerson: Person = Person(

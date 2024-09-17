@@ -6,17 +6,18 @@ object AppDependencies {
   private val playVersion      = "play-30"
   private val hmrcMongoVersion = "1.9.0"
   private val bootstrapVersion = "8.6.0"
+  private val cryptoVersion    = "8.1.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc"       %% s"http-caching-client-$playVersion"          % "11.2.0",
     "uk.gov.hmrc"       %% "tax-year"                                   % "4.0.0",
     "io.lemonlabs"      %% "scala-uri"                                  % "4.0.3",
     "org.jsoup"          % "jsoup"                                      % "1.18.1",
     "org.typelevel"     %% "cats-core"                                  % "2.12.0",
     "org.apache.commons" % "commons-text"                               % "1.11.0",
     "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % "1.6.0",
-    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.5.0"
+    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.5.0",
+    "uk.gov.hmrc"       %% s"crypto-json-$playVersion"                  % cryptoVersion
   )
 
   val test: Seq[ModuleID] = Seq(

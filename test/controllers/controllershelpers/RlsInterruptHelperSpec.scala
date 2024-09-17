@@ -19,7 +19,7 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.admin.RlsInterruptToggle
-import models.{AddressesLock, NonFilerSelfAssessmentUser, UserName}
+import models.{AddressesLock, NonFilerSelfAssessmentUser, UserAnswers, UserName}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.mvc.Results._
@@ -55,7 +55,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
     Set(),
     None,
     None,
-    FakeRequest()
+    FakeRequest(),
+    UserAnswers.empty
   )
 
   "enforceByRlsStatus" when {
@@ -87,7 +88,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Set(),
           None,
           None,
-          FakeRequest()
+          FakeRequest(),
+          UserAnswers.empty
         )
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
@@ -114,7 +116,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Set(),
           None,
           None,
-          FakeRequest()
+          FakeRequest(),
+          UserAnswers.empty
         )
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
@@ -144,7 +147,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Set(),
           None,
           None,
-          FakeRequest()
+          FakeRequest(),
+          UserAnswers.empty
         )
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
@@ -169,7 +173,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Set(),
           None,
           None,
-          FakeRequest()
+          FakeRequest(),
+          UserAnswers.empty
         )
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
@@ -196,7 +201,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Set(),
           None,
           None,
-          FakeRequest()
+          FakeRequest(),
+          UserAnswers.empty
         )
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
@@ -226,7 +232,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Set(),
           None,
           None,
-          FakeRequest()
+          FakeRequest(),
+          UserAnswers.empty
         )
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
@@ -256,7 +263,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Set(),
           None,
           None,
-          FakeRequest()
+          FakeRequest(),
+          UserAnswers.empty
         )
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
@@ -286,7 +294,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Set(),
           None,
           None,
-          FakeRequest()
+          FakeRequest(),
+          UserAnswers.empty
         )
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
@@ -319,7 +328,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Set(),
           None,
           None,
-          FakeRequest()
+          FakeRequest(),
+          UserAnswers.empty
         )
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock))

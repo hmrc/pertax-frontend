@@ -81,7 +81,8 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
       None,
       enrolments,
       FakeRequest(),
-      Some(AffinityGroup.Agent)
+      Some(AffinityGroup.Agent),
+      UserAnswers.empty
     )
 
   "An SA user with an activated enrolment must" must {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,15 @@
  * limitations under the License.
  */
 
-package object models {
-  type Breadcrumb = List[(String, String)]
+package routePages
+
+import controllers.bindable.AddrType
+import models.dto.AddressDto
+import play.api.libs.json.JsPath
+
+case class SubmittedAddressPage(typ: AddrType) extends QuestionPage[AddressDto] {
+
+  override def toString: String = "submittedAddress"
+
+  override def path: JsPath = JsPath \ s"$typ" \ toString
 }

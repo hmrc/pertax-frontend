@@ -29,7 +29,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.time.TaxYear
 
@@ -119,10 +118,6 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))
           .willReturn(ok(taxComponentsJson))
       )
-      server.stubFor(
-        put(urlMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
-      )
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
@@ -155,10 +150,6 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))
           .willReturn(ok(taxComponentsJson))
-      )
-      server.stubFor(
-        put(urlMatching("/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
       )
 
       val result: Future[Result] = route(app, request).get

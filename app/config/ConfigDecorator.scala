@@ -46,6 +46,10 @@ class ConfigDecorator @Inject() (
   val sessionCacheTtl: Int           =
     runModeConfiguration.getOptional[Int]("feature.session-cache.ttl").getOrElse(defaultSessionCacheTtl)
 
+  private val defaultSessionCacheTtlInSec = 900
+  val sessionTimeoutInSeconds: Int        =
+    runModeConfiguration.getOptional[Int]("feature.session-cache.timeoutInSec").getOrElse(defaultSessionCacheTtlInSec)
+
   def seissUrl: String = servicesConfig.baseUrl("self-employed-income-support")
 
   private lazy val formFrontendService       = servicesConfig.baseUrl("dfs-digital-forms-frontend")
@@ -268,8 +272,6 @@ class ConfigDecorator @Inject() (
   lazy val seissClaimsUrl                   = s"$seissFrontendHost/self-employment-support/claim/your-claims"
   def manageTaxAgentsUrl(returnUrl: String) =
     s"$agentClientManagementFrontendHost/manage-your-tax-agents?source=PTA&returnUrl=$returnUrl"
-
-  val bannerHomePageIsEnabled: Boolean = servicesConfig.getBoolean("feature.banner.home.enabled")
 
   lazy val shutterBannerParagraphEn: String =
     runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.paragraph.en").getOrElse("")

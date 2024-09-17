@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.admin.RlsInterruptToggle
-import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails}
+import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
@@ -39,7 +39,8 @@ import scala.concurrent.Future
 
 class RlsControllerSpec extends BaseSpec {
 
-  val mockAuditConnector: AuditConnector = mock[AuditConnector]
+  val mockAuditConnector: AuditConnector             = mock[AuditConnector]
+  val mockCachingHelper: AddressJourneyCachingHelper = mock[AddressJourneyCachingHelper]
 
   when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
 
@@ -47,7 +48,7 @@ class RlsControllerSpec extends BaseSpec {
     new RlsController(
       mockAuthJourney,
       mockAuditConnector,
-      inject[AddressJourneyCachingHelper],
+      mockCachingHelper,
       mockEditAddressLockRepository,
       mockFeatureFlagService,
       inject[MessagesControllerComponents],
@@ -59,6 +60,9 @@ class RlsControllerSpec extends BaseSpec {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
+    when(mockCachingHelper.addToCache(any(), any())(any(), any())) thenReturn {
+      Future.successful(UserAnswers.empty("id"))
+    }
   }
 
   "rlsInterruptOnPageLoad" must {

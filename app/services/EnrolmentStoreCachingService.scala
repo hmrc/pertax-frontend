@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,49 +16,52 @@
 
 package services
 
-//import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.{EnrolmentsConnector, UsersGroupsSearchConnector}
 import models.enrolments.{AccountDetails, EnrolmentDoesNotExist, EnrolmentError, EnrolmentResult, UsersAssignedEnrolment}
 import uk.gov.hmrc.crypto.Sensitive.SensitiveString
-//import models.enrolments.{EnrolmentDoesNotExist, EnrolmentError, EnrolmentResult, GroupAssignedEnrolment, UsersAssignedEnrolment}
-import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUserType, WrongCredentialsSelfAssessmentUser}
+import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUserType, UserAnswers, WrongCredentialsSelfAssessmentUser}
 import play.api.Logging
+import repositories.JourneyCacheRepository
+import routePages.SelfAssessmentUserTypePage
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class EnrolmentStoreCachingService @Inject() (
-  val sessionCache: LocalSessionCache,
+  val journeyCacheRepository: JourneyCacheRepository,
   enrolmentsConnector: EnrolmentsConnector,
   usersGroupsSearchConnector: UsersGroupsSearchConnector
 ) extends Logging {
 
   private def addSaUserTypeToCache(
-    user: SelfAssessmentUserType
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
-    sessionCache.cache[SelfAssessmentUserType](SelfAssessmentUserType.cacheId, user).map(_ => user)
+    userAnswers: UserAnswers,
+    userType: SelfAssessmentUserType
+  )(implicit ec: ExecutionContext): Future[SelfAssessmentUserType] = {
+    val updatedUserAnswers = userAnswers.setOrException(SelfAssessmentUserTypePage, userType)
+    journeyCacheRepository.set(updatedUserAnswers).map(_ => userType)
+  }
 
   def getSaUserTypeFromCache(
     saUtr: SaUtr
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
-    sessionCache.fetchAndGetEntry[SelfAssessmentUserType](SelfAssessmentUserType.cacheId).flatMap {
-
-      case Some(user) => Future.successful(user)
-
-      case _ =>
-        enrolmentsConnector
-          .getUserIdsWithEnrolments("IR-SA~UTR", saUtr.utr)
-          .foldF(
-            _ => addSaUserTypeToCache(NonFilerSelfAssessmentUser),
-            response =>
-              if (response.nonEmpty) {
-                addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
-              } else {
-                addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
-              }
-          )
+    journeyCacheRepository.get(hc).flatMap { userAnswers =>
+      userAnswers.get[SelfAssessmentUserType](SelfAssessmentUserTypePage) match {
+        case Some(userType) => Future.successful(userType)
+        case None           =>
+          enrolmentsConnector
+            .getUserIdsWithEnrolments("IR-SA~UTR", saUtr.utr)
+            .foldF(
+              _ => addSaUserTypeToCache(userAnswers, NonFilerSelfAssessmentUser),
+              response =>
+                if (response.nonEmpty) {
+                  addSaUserTypeToCache(userAnswers, WrongCredentialsSelfAssessmentUser(saUtr))
+                } else {
+                  addSaUserTypeToCache(userAnswers, NotEnrolledSelfAssessmentUser(saUtr))
+                }
+            )
+      }
     }
 
   def retrieveMTDEnrolment(nino: Nino)(implicit hc: HeaderCarrier, ec: ExecutionContext) =

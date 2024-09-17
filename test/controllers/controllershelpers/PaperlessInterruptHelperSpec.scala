@@ -21,7 +21,7 @@ import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models.admin.PaperlessInterruptToggle
-import models.{NonFilerSelfAssessmentUser, UserName}
+import models.{NonFilerSelfAssessmentUser, UserAnswers, UserName}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
@@ -64,7 +64,8 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
     Set(),
     None,
     None,
-    FakeRequest()
+    FakeRequest(),
+    UserAnswers.empty
   )
 
   implicit lazy val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
