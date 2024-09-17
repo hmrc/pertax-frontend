@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.auth.AuthJourney
-import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
+import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowOutageBannerToggle
 import models.{BreathingSpaceIndicatorResponse, TaxComponents, TaxComponentsAvailableState}
@@ -46,7 +46,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   val mockTaiService: TaiService                       = mock[TaiService]
   val mockBreathingSpaceService: BreathingSpaceService = mock[BreathingSpaceService]
   val mockHomeCardGenerator: HomeCardGenerator         = mock[HomeCardGenerator]
-  val mockHomePageCachingHelper: HomePageCachingHelper = mock[HomePageCachingHelper]
   val mockAlertBannerHelper: AlertBannerHelper         = mock[AlertBannerHelper]
 
   lazy val appBuilder: GuiceApplicationBuilder = localGuiceApplicationBuilder()
@@ -57,7 +56,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       bind[TaiService].toInstance(mockTaiService),
       bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
       bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-      bind[HomePageCachingHelper].toInstance(mockHomePageCachingHelper),
       bind[AlertBannerHelper].toInstance(mockAlertBannerHelper)
     )
 
@@ -70,7 +68,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       mockTaiService,
       mockBreathingSpaceService,
       mockHomeCardGenerator,
-      mockHomePageCachingHelper,
       mockAlertBannerHelper,
       mockFeatureFlagService
     )
@@ -103,45 +100,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       .asInstanceOf[Request[A]]
 
   "Calling HomeController.index" must {
-    "return a the UR banner if that's not dismissed when banner is enabled" in {
-      when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(false))
-      val expectedBannerOutput  =
-        """<div class="hmrc-user-research-banner" data-module="hmrc-user-research-banner">
-          """.stripMargin.replaceAll("\\s", "")
-      val appLocal: Application = appBuilder.configure("feature.banner.home.enabled" -> true).build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedBannerOutput))
-    }
-
-    "Don't return a the UR banner if that's dismissed when banner is enabled" in {
-      when(mockHomePageCachingHelper.hasUserDismissedBanner(any())).thenReturn(Future.successful(true))
-      val expectedBannerOutput  =
-        """<div class="hmrc-user-research-banner" data-module="hmrc-user-research-banner">
-          """.stripMargin.replaceAll("\\s", "")
-      val appLocal: Application = appBuilder.configure("feature.banner.home.enabled" -> true).build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedBannerOutput))
-    }
-
-    "Don't return a the UR banner if banner itself is disabled and the check for dismissal should not be invoked" in {
-      val expectedBannerOutput  =
-        """<div class="hmrc-user-research-banner" data-module="hmrc-user-research-banner">
-          """.stripMargin.replaceAll("\\s", "")
-      val appLocal: Application = appBuilder.configure("feature.banner.home.enabled" -> false).build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedBannerOutput))
-      verify(mockHomePageCachingHelper, times(0)).hasUserDismissedBanner(any())
-    }
-
     "Return a Html that is returned as part of Benefit Cards" in {
       val expectedHtmlString = "<div class='TestingForBenefitCards'></div>"
       val expectedHtml: Html = Html(expectedHtmlString)

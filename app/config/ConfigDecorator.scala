@@ -273,8 +273,6 @@ class ConfigDecorator @Inject() (
   def manageTaxAgentsUrl(returnUrl: String) =
     s"$agentClientManagementFrontendHost/manage-your-tax-agents?source=PTA&returnUrl=$returnUrl"
 
-  val bannerHomePageIsEnabled: Boolean = servicesConfig.getBoolean("feature.banner.home.enabled")
-
   lazy val shutterBannerParagraphEn: String =
     runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.paragraph.en").getOrElse("")
   lazy val shutterBannerParagraphCy: String =
