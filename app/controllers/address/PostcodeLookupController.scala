@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.addresslookup.RecordSet
 import models.dto.{AddressFinderDto, InternationalAddressChoiceDto}
-import models.{AddressFinderDtoId, SelectedAddressRecordId, SelectedRecordSetId, SubmittedInternationalAddressChoiceId}
 import play.api.Logging
 import play.api.data.FormError
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import routePages.{AddressFinderPage, SelectedAddressRecordPage, SelectedRecordSetPage, SubmittedInternationalAddressChoicePage}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.{buildAddressChangeEvent, buildEvent}
@@ -63,7 +63,7 @@ class PostcodeLookupController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { _ =>
-          cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, InternationalAddressChoiceDto(true))
+          cachingHelper.addToCache(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto(true))
           typ match {
             case PostalAddrType =>
               auditConnector.sendEvent(
@@ -94,7 +94,7 @@ class PostcodeLookupController @Inject() (
               }
 
               for {
-                _          <- cachingHelper.addToCache(AddressFinderDtoId(typ), addressFinderDto)
+                _          <- cachingHelper.addToCache(AddressFinderPage(typ), addressFinderDto)
                 lookupDown <- cachingHelper.gettingCachedAddressLookupServiceDown { lookup =>
                                 lookup
                               }
@@ -139,9 +139,9 @@ class PostcodeLookupController @Inject() (
                                         )
                                       )
                                     )
-                                    cachingHelper.addToCache(SelectedAddressRecordId(typ), addressList.addresses.head) map {
-                                      _ =>
-                                        Redirect(routes.UpdateAddressController.onPageLoad(typ))
+                                    cachingHelper
+                                      .addToCache(SelectedAddressRecordPage(typ), addressList.addresses.head) map { _ =>
+                                      Redirect(routes.UpdateAddressController.onPageLoad(typ))
                                     }
                                   }
                                 case addressList                                      =>
@@ -153,7 +153,7 @@ class PostcodeLookupController @Inject() (
                                     )
                                   )
 
-                                  cachingHelper.addToCache(SelectedRecordSetId(typ), addressList) map { _ =>
+                                  cachingHelper.addToCache(SelectedRecordSetPage(typ), addressList) map { _ =>
                                     Redirect(routes.AddressSelectorController.onPageLoad(typ))
                                       .addingToSession(
                                         (postcode, addressFinderDto.postcode),

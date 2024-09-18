@@ -17,13 +17,15 @@
 package controllers.address
 
 import controllers.bindable.ResidentialAddrType
+import models.UserAnswers
 import models.dto._
-import play.api.libs.json.Json
+import org.mockito.ArgumentMatchers.any
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import routePages.HasAddressAlreadyVisitedPage
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.InternalServerErrorView
 import views.html.personaldetails._
 
@@ -33,10 +35,12 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
 
-    def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+    val userAnswers: UserAnswers = UserAnswers
+      .empty("id")
+      .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
-    def currentRequest[A]: Request[A]          = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+    def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
     def controller: AddressErrorController =
       new AddressErrorController(

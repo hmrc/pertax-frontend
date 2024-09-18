@@ -28,7 +28,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsFormUrlEncoded}
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
@@ -151,11 +150,6 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
               .toString
           )
         )
-    )
-
-    server.stubFor(
-      put(urlMatching(s"/keystore/pertax-frontend/.*"))
-        .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
     )
 
     server.stubFor(

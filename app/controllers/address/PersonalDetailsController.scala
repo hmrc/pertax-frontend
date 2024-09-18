@@ -21,7 +21,7 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.{AddressJourneyCachingHelper, RlsInterruptHelper}
 import models.admin.AddressChangeAllowedToggle
-import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
+import models.AddressJourneyTTLModel
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
 import services.AgentClientAuthorisationService
@@ -33,6 +33,7 @@ import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PersonalDetailsView
 import models.dto.AddressPageVisitedDto
+import routePages.HasAddressAlreadyVisitedPage
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -87,7 +88,7 @@ class PersonalDetailsController @Inject() (
                }
                .getOrElse(Future.successful(()))
         _ <- cachingHelper
-               .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
+               .addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
         addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
         addressDetails             <- personalDetailsViewModel.getAddressRow(addressModel)

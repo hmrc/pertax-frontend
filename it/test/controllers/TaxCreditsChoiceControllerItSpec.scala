@@ -18,18 +18,24 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import models.UserAnswers
 import models.admin.AddressTaxCreditsBrokerCallToggle
+import models.dto.AddressPageVisitedDto
 import org.jsoup.nodes.Document
-import org.mockito.ArgumentMatchers
+import org.mockito.{ArgumentMatchers, Mockito}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.{Assertion, BeforeAndAfterEach}
+import play.api
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
+import repositories.JourneyCacheRepository
+import routePages.HasAddressAlreadyVisitedPage
 import testUtils.{FileHelper, IntegrationSpec}
-import uk.gov.hmrc.http.{SessionId, SessionKeys}
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId, SessionKeys}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
@@ -50,6 +56,9 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
       "json.encryption.key"                                    -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "metrics.enabled"                                        -> false
     )
+    .overrides(
+      api.inject.bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository)
+    )
     .build()
 
   val sessionId: Option[SessionId]                                  = Some(SessionId("session-00000000-0000-0000-0000-000000000000"))
@@ -64,38 +73,11 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
 
   def taxCreditsBrokerResponse(excluded: Boolean) = s"""{"excluded": $excluded}"""
 
-  val cacheMap = s"/keystore/pertax-frontend"
-
   val citizenDetailsUrl = s"/citizen-details/nino/$generatedNino"
 
   val personDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
 
   private def beforeEachAddressTaxCreditsBrokerCallToggleOn(): Unit = {
-    server.stubFor(
-      get(urlPathMatching(s"$cacheMap/.*"))
-        .willReturn(
-          aResponse()
-            .withStatus(OK)
-            .withBody("""
-                |{
-                |	"id": "session-id",
-                |	"data": {
-                |   "addressPageVisitedDto": {
-                |     "hasVisitedPage": true
-                |   }
-                |	},
-                |	"modifiedDetails": {
-                |		"createdAt": {
-                |			"$date": 1400258561678
-                |		},
-                |		"lastUpdated": {
-                |			"$date": 1400258561675
-                |		}
-                |	}
-                |}
-                |""".stripMargin)
-        )
-    )
 
     server.stubFor(
       get(urlEqualTo(citizenDetailsUrl))
@@ -110,6 +92,15 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
           ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino))
         )
     )
+  }
+
+  override def beforeEach(): Unit = {
+    Mockito.reset(mockJourneyCacheRepository)
+    super.beforeEach()
+    val userAnswers: UserAnswers = UserAnswers
+      .empty("1")
+      .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
   }
 
   "/personal-account/your-address/tax-credits-choice" must {
@@ -202,32 +193,6 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
         get(urlEqualTo(personDetailsUrl))
           .willReturn(
             ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino))
-          )
-      )
-
-      server.stubFor(
-        get(urlPathMatching(s"$cacheMap/.*"))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody("""
-                  |{
-                  |	"id": "session-id",
-                  |	"data": {
-                  |   "addressPageVisitedDto": {
-                  |     "hasVisitedPage": true
-                  |   }
-                  |	},
-                  |	"modifiedDetails": {
-                  |		"createdAt": {
-                  |			"$date": 1400258561678
-                  |		},
-                  |		"lastUpdated": {
-                  |			"$date": 1400258561675
-                  |		}
-                  |	}
-                  |}
-                  |""".stripMargin)
           )
       )
 

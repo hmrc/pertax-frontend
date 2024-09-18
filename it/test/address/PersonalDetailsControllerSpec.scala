@@ -29,7 +29,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => getStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
@@ -94,10 +93,6 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
           .willReturn(ok(designatoryDetails))
       )
       server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
-      )
-      server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))
           .willReturn(
             ok(
@@ -124,10 +119,6 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
           .willReturn(ok(designatoryDetails))
-      )
-      server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
       )
       server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))
@@ -164,10 +155,6 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
           .willReturn(ok(designatoryDetails))
-      )
-      server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
       )
       server.stubFor(
         get(urlEqualTo(s"/agent-client-authorisation/status"))

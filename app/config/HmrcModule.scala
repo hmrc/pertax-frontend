@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ package config
 import connectors.{AgentClientAuthorisationConnector, CachingAgentClientAuthorisationConnector, DefaultAgentClientAuthorisationConnector}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
-import services.LocalSessionCache
-import uk.gov.hmrc.http.cache.client.SessionCache
+
+import java.time.{Clock, ZoneId}
 
 class HmrcModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
     val defaultBindings: Seq[Binding[_]] = Seq(
-      bind[SessionCache].to[LocalSessionCache],
+      bind[Clock].toInstance(Clock.systemDefaultZone.withZone(ZoneId.of("Europe/London"))),
       bind[ApplicationStartUp].toSelf.eagerly()
     )
 

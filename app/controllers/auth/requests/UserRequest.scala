@@ -35,7 +35,8 @@ final case class UserRequest[+A](
   enrolments: Set[Enrolment],
   profile: Option[String],
   breadcrumb: Option[Breadcrumb] = None,
-  request: Request[A]
+  request: Request[A],
+  userAnswers: UserAnswers
 ) extends WrappedRequest[A](request) {
 
   def name: Option[String] = personDetails match {
@@ -74,6 +75,7 @@ object UserRequest {
       authenticatedRequest.enrolments,
       authenticatedRequest.profile,
       breadcrumb,
-      authenticatedRequest.request
+      authenticatedRequest.request,
+      authenticatedRequest.userAnswers
     )
 }

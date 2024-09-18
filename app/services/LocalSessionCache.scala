@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package services
-
-import com.google.inject.name.Named
-import com.google.inject.{Inject, Singleton}
-import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-
-@Singleton
-class LocalSessionCache @Inject() (
-  override val httpClientV2: HttpClientV2,
-  servicesConfig: ServicesConfig,
-  @Named("appName") appName: String
-) extends SessionCache {
-  override lazy val defaultSource: String = appName
-  override lazy val baseUri: String       = servicesConfig.baseUrl("cachable.session-cache")
-  override lazy val domain: String        = servicesConfig.getConfString("cachable.session-cache.domain", "keystore")
-}

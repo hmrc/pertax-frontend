@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import controllers.auth.requests.UserRequest
 import models.admin._
-import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserDetails, UserName}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserAnswers, UserDetails, UserName}
 import org.jsoup.Jsoup
 import org.mockito.{ArgumentMatchers, MockitoSugar}
 import play.api.Application
@@ -35,7 +35,7 @@ import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig}
 
 import java.time.LocalDate
 import java.util.UUID
@@ -110,8 +110,7 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
             None
           )
         ),
-        PtaMinMenuConfig("MenuName", "BackName"),
-        List()
+        PtaMinMenuConfig("MenuName", "BackName"), List()
       )
     )
     .toString
@@ -151,19 +150,21 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
   )
 
   def buildUserRequest[A](
-    authNino: Nino = testNino,
-    nino: Option[Nino] = Some(testNino),
-    userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-    saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
-      SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-    ),
-    credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
-    confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-    personDetails: Option[PersonDetails] = Some(fakePersonDetails),
-    trustedHelper: Option[TrustedHelper] = None,
-    profile: Option[String] = None,
-    request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-  ): UserRequest[A] =
+                           authNino: Nino = testNino,
+                           nino: Option[Nino] = Some(testNino),
+                           userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+                           saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
+                             SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+                           ),
+                           credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
+                           confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
+                           personDetails: Option[PersonDetails] = Some(fakePersonDetails),
+                           trustedHelper: Option[TrustedHelper] = None,
+                           profile: Option[String] = None,
+                           messageCount: Option[Int] = None,
+                           request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
+                           userAnswers: UserAnswers = UserAnswers.empty
+                         ): UserRequest[A] =
     UserRequest(
       authNino,
       nino,
@@ -176,7 +177,8 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
       profile,
       None,
-      request
+      request,
+      userAnswers
     )
 
   override def beforeEach(): Unit = {

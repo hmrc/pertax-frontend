@@ -23,6 +23,7 @@ import io.lemonlabs.uri.Url
 import models.UserName
 import play.api.Logging
 import play.api.mvc._
+import repositories.JourneyCacheRepository
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.{Retrievals, TrustedHelper}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
@@ -35,7 +36,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthRetrievalsImpl @Inject() (
   val authConnector: AuthConnector,
-  mcc: MessagesControllerComponents
+  mcc: MessagesControllerComponents,
+  journeyCacheRepository: JourneyCacheRepository
 )(implicit ec: ExecutionContext, configDecorator: ConfigDecorator)
     extends AuthRetrievals
     with AuthorisedFunctions
@@ -47,7 +49,7 @@ class AuthRetrievalsImpl @Inject() (
       res <- Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
     } yield res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
 
-  type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
+  private type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
     String
   ] ~ ConfidenceLevel ~ Option[Name] ~ Option[TrustedHelper] ~ Option[String]
 
@@ -71,38 +73,40 @@ class AuthRetrievalsImpl @Inject() (
             name ~
             trustedHelper ~
             profile =>
-          val trimmedRequest: Request[A] = request
-            .map {
-              case AnyContentAsFormUrlEncoded(data) =>
-                AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
-                  (key, vals.map(_.trim))
-                })
-              case b                                => b
-            }
-            .asInstanceOf[Request[A]]
+          journeyCacheRepository.get(hc).flatMap { userAnswers =>
+            val trimmedRequest: Request[A] = request
+              .map {
+                case AnyContentAsFormUrlEncoded(data) =>
+                  AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
+                    (key, vals.map(_.trim))
+                  })
+                case b                                => b
+              }
+              .asInstanceOf[Request[A]]
 
-          val authenticatedRequest = AuthenticatedRequest[A](
-            authNino = Nino(nino),
-            nino = Some(
-              trustedHelper.fold(domain.Nino(nino))(helper =>
-                helper.principalNino.fold(domain.Nino(nino))(principalRealNino => domain.Nino(principalRealNino))
-              )
-            ),
-            credentials = credentials,
-            confidenceLevel = confidenceLevel,
-            name = Some(
-              UserName(
-                trustedHelper.fold(name.getOrElse(Name(None, None)))(helper => Name(Some(helper.principalName), None))
-              )
-            ),
-            trustedHelper = trustedHelper,
-            profile = addRedirect(profile),
-            enrolments = enrolments,
-            request = trimmedRequest,
-            affinityGroup = affinityGroup
-          )
-          block(authenticatedRequest)
-
+            val authenticatedRequest = AuthenticatedRequest[A](
+              authNino = Nino(nino),
+              nino = Some(
+                trustedHelper.fold(domain.Nino(nino))(helper =>
+                  helper.principalNino.fold(domain.Nino(nino))(principalRealNino => domain.Nino(principalRealNino))
+                )
+              ),
+              credentials = credentials,
+              confidenceLevel = confidenceLevel,
+              name = Some(
+                UserName(
+                  trustedHelper.fold(name.getOrElse(Name(None, None)))(helper => Name(Some(helper.principalName), None))
+                )
+              ),
+              trustedHelper = trustedHelper,
+              profile = addRedirect(profile),
+              enrolments = enrolments,
+              request = trimmedRequest,
+              affinityGroup = affinityGroup,
+              userAnswers = userAnswers
+            )
+            block(authenticatedRequest)
+          }
         case _ => throw new RuntimeException("Can't authenticate user")
       }
   }

@@ -39,7 +39,8 @@ object UserRequestFixture {
     enrolments: Set[Enrolment] = Set(
       Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")
     ),
-    request: Request[A]
+    request: Request[A],
+    userAnswers: UserAnswers = UserAnswers.empty
   ): UserRequest[A] =
     UserRequest(
       authNino,
@@ -53,6 +54,7 @@ object UserRequestFixture {
       enrolments,
       profile,
       None,
-      request
+      request,
+      userAnswers
     )
 }

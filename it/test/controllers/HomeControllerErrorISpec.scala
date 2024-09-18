@@ -17,6 +17,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import models.UserAnswers
 import play.api.Application
 import play.api.http.Status._
 import play.api.libs.json.Json
@@ -25,7 +26,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.http.cache.client.CacheMap
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -111,10 +111,6 @@ class HomeControllerErrorISpec extends IntegrationSpec {
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
           .willReturn(serverError())
       )
-      server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
-      )
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe FORBIDDEN
@@ -156,10 +152,6 @@ class HomeControllerErrorISpec extends IntegrationSpec {
       server.stubFor(
         get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
           .willReturn(serverError())
-      )
-      server.stubFor(
-        put(urlMatching(s"/keystore/pertax-frontend/.*"))
-          .willReturn(ok(Json.toJson(CacheMap("id", Map.empty)).toString))
       )
 
       server.stubFor(
