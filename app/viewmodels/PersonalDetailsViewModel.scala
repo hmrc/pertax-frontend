@@ -27,7 +27,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.TemplateFunctions
-import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
+import views.html.personaldetails.partials.{AddressLockedView, AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,6 +37,7 @@ class PersonalDetailsViewModel @Inject() (
   configDecorator: ConfigDecorator,
   countryHelper: CountryHelper,
   addressView: AddressView,
+  addressLockedView: AddressLockedView,
   correspondenceAddressView: CorrespondenceAddressView,
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService
@@ -45,7 +46,7 @@ class PersonalDetailsViewModel @Inject() (
   private def getMainAddress(
     personDetails: Option[PersonDetails],
     optionalEditAddress: List[EditedAddress]
-  ): Future[Option[PersonalDetailsTableRowModel]] = {
+  )(implicit messages: play.api.i18n.Messages): Future[Option[PersonalDetailsTableRowModel]] = {
     val isMainAddressChangeLocked = optionalEditAddress.exists(
       _.isInstanceOf[EditResidentialAddress]
     )
@@ -57,12 +58,12 @@ class PersonalDetailsViewModel @Inject() (
         if (isMainAddressChangeLocked) {
           personDetails.map(_.address.map { address =>
             PersonalDetailsTableRowModel(
-              "main_address",
-              "label.main_address",
-              addressView(address, countryHelper.excludedCountries),
-              "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
-              "label.your_main_home",
-              None
+              id = "main_address",
+              titleMessage = "label.main_address",
+              content = addressLockedView(displayAllLettersLine = false),
+              linkTextMessage = "",
+              visuallyhiddenText = "label.your_main_home",
+              linkUrl = None
             )
           })
         } else {
@@ -157,9 +158,19 @@ class PersonalDetailsViewModel @Inject() (
     isCorrespondenceChangeLocked: Boolean
   )(implicit
     messages: play.api.i18n.Messages
-  ) =
+  ): Option[PersonalDetailsTableRowModel] =
     personDetails.flatMap(_.correspondenceAddress.find(!_.isWelshLanguageUnit).map { correspondenceAddress =>
-      def createRow(linkTextMessage: String, linkUrl: Option[String]) =
+      if (isCorrespondenceChangeLocked) {
+        PersonalDetailsTableRowModel(
+          id = "postal_address",
+          titleMessage = "label.postal_address",
+          content = addressLockedView(displayAllLettersLine = true),
+          linkTextMessage = "",
+          visuallyhiddenText = "label.your.postal_address",
+          linkUrl = None
+        )
+
+      } else {
         PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
@@ -167,15 +178,10 @@ class PersonalDetailsViewModel @Inject() (
             Some(correspondenceAddress),
             countryHelper.excludedCountries
           ),
-          linkTextMessage,
+          "label.change",
           "label.your.postal_address",
-          linkUrl
+          Some(AddressRowModel.changePostalAddressUrl)
         )
-
-      if (isCorrespondenceChangeLocked) {
-        createRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
-      } else {
-        createRow("label.change", Some(AddressRowModel.changePostalAddressUrl))
       }
     })
 
