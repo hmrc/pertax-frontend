@@ -33,7 +33,7 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import views.html.ViewSpec
-import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
+import views.html.personaldetails.partials.{AddressLockedView, AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
 import java.time.{Instant, LocalDate}
@@ -47,6 +47,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   private val testNino: Nino                                      = generator.nextNino
   lazy val configDecorator: ConfigDecorator                       = inject[ConfigDecorator]
   lazy val addressView: AddressView                               = inject[AddressView]
+  lazy val addressLockedView: AddressLockedView                   = inject[AddressLockedView]
   lazy val correspondenceAddressView: CorrespondenceAddressView   = inject[CorrespondenceAddressView]
   lazy val countryHelper: CountryHelper                           = inject[CountryHelper]
   lazy val mockPreferencesConnector: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
@@ -298,14 +299,15 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val actual   = personalDetailsViewModel.getAddressRow(
           List(AddressJourneyTTLModel(testNino.nino, editedAddress()))
         )(request, messages)
-        val expected = PersonalDetailsTableRowModel(
-          "main_address",
-          "label.main_address",
-          addressView(testAddress, countryHelper.excludedCountries),
-          "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
-          "label.your_main_home",
-          None
-        )
+        val expected =
+          PersonalDetailsTableRowModel(
+            id = "main_address",
+            titleMessage = "label.main_address",
+            content = addressLockedView(displayAllLettersLine = false),
+            linkTextMessage = "",
+            visuallyhiddenText = "label.your_main_home",
+            linkUrl = None
+          )
 
         actual.futureValue.mainAddress mustBe Some(expected)
       }
@@ -352,14 +354,15 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val actual   = personalDetailsViewModel.getAddressRow(
           List(AddressJourneyTTLModel(testNino.nino, editedOtherAddress()))
         )(request, messages)
-        val expected = PersonalDetailsTableRowModel(
-          "postal_address",
-          "label.postal_address",
-          correspondenceAddressView(Some(testAddress), countryHelper.excludedCountries),
-          "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
-          "label.your.postal_address",
-          None
-        )
+        val expected =
+          PersonalDetailsTableRowModel(
+            id = "postal_address",
+            titleMessage = "label.postal_address",
+            content = addressLockedView(displayAllLettersLine = true),
+            linkTextMessage = "",
+            visuallyhiddenText = "label.your.postal_address",
+            linkUrl = None
+          )
 
         actual.futureValue.postalAddress mustBe Some(expected)
       }
