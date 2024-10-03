@@ -28,8 +28,8 @@ import play.api.libs.json.Json
 import play.api.test._
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HttpReads, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 import scala.util.Random
@@ -44,8 +44,6 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
 
   private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
 
-  private val mockHttpClient: HttpClient = mock[HttpClient]
-
   private val mockHttpV2Client: HttpClientV2 = mock[HttpClientV2]
 
   private val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
@@ -54,22 +52,33 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
 
   def connector: EnrolmentsConnector = app.injector.instanceOf[EnrolmentsConnector]
 
+  private val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    org.mockito.MockitoSugar.reset(mockHttpClientResponse, mockHttpV2Client, mockConfigDecorator)
+  }
+
   "getUserIdsWithEnrolments" must {
     val utr = "1234500000"
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
     "BAD_REQUEST response should return Left BAD_REQUEST status" in {
+
+      when(mockConfigDecorator.enrolmentStoreProxyUrl).thenReturn("http://localhost")
+
       when(mockHttpClientResponse.read(any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future(Left(UpstreamErrorResponse(dummyContent, BAD_REQUEST)))
         )
       )
 
-      when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+      when(mockHttpV2Client.get(any())(any())).thenReturn(mockRequestBuilder)
+
+      when(mockRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
 
       def enrolmentsConnectorWithMock: EnrolmentsConnector = new EnrolmentsConnector(
-        mockHttpClient,
         mockHttpV2Client,
         mockConfigDecorator,
         mockHttpClientResponse

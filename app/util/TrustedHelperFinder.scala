@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,28 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import components.H1
-@import controllers.auth.requests.UserRequest
-@import util.TrustedHelperFinder.getTrustedHelper
+package util
 
-@this(
-    main: MainView,
-    h1: H1,
-    govukInsetText: GovukInsetText
-)
-@(managePrefsPartial: Html)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+import controllers.auth.requests.UserRequest
+import play.api.mvc.Request
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 
-@main(
-    pageTitle = messages("label.manage_your_paperless_settings"),
-    trustedHelper = getTrustedHelper(request)
-) {
+import scala.util.{Failure, Success, Try}
 
-    @h1("label.manage_your_paperless_settings")
-
-    @govukInsetText(InsetText(content = Text(messages("label.any_updates_to_your_contact_details"))))
-
-    @managePrefsPartial
-
+object TrustedHelperFinder {
+  def getTrustedHelper(request: Request[_]): Option[TrustedHelper] = Try(request.asInstanceOf[UserRequest[_]]) match {
+    case Success(userRequest) => userRequest.trustedHelper
+    case Failure(_)           => None
+  }
 }

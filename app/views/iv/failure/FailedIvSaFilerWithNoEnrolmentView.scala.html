@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
+@import components.{H1, H2, Link, P}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{H1, H2, P, Link}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     mainView: MainView,
@@ -40,7 +40,7 @@
     </div>
 }
 
-@mainView(messages("label.you_cannot_access_your_self_assessment_"), sidebarContent = Some(sidebar)) {
+@mainView(messages("label.you_cannot_access_your_self_assessment_"), sidebarContent = Some(sidebar), trustedHelper = getTrustedHelper(request)) {
 
     @webChatPartial
 

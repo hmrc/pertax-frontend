@@ -24,7 +24,8 @@ import play.api.Application
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HttpReads, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.Future
@@ -38,7 +39,9 @@ class IdentityVerificationFrontendConnectorSpec
 
   private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
 
-  private val mockHttpClient: HttpClient = mock[HttpClient]
+  private val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
+
+  private val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
 
   private val dummyContent = "error message"
 
@@ -54,7 +57,7 @@ class IdentityVerificationFrontendConnectorSpec
     lazy val connector: IdentityVerificationFrontendConnector = {
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
       new IdentityVerificationFrontendConnector(
-        inject[HttpClient],
+        inject[HttpClientV2],
         serviceConfig,
         inject[HttpClientResponse]
       )
@@ -103,7 +106,9 @@ class IdentityVerificationFrontendConnectorSpec
           )
         )
 
-        when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+        when(mockHttpClient.get(any())(any())).thenReturn(mockRequestBuilder)
+
+        when(mockRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
           .thenReturn(Future.successful(HttpResponse(httpResponse, "")))
 
         def identityVerificationFrontendConnectorWithMock: IdentityVerificationFrontendConnector =

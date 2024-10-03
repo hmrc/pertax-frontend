@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
+@import components.{H1, Link, P}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -30,7 +30,8 @@
 
 @main(
     pageTitle = messages("label.your_address_has_already_been_updated"),
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("label.your_address_has_already_been_updated")

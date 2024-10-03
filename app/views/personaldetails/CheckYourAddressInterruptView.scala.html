@@ -14,11 +14,9 @@
  * limitations under the License.
  *@
 
+@import components.{H1, Link, P}
 @import controllers.auth.requests.UserRequest
-@import viewmodels.{AddressRowModel, ExtraLinks, PersonalDetailsTableRowModel}
-@import views.html.personaldetails.partials.AddressView
-@import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -33,7 +31,8 @@
 @main(
     pageTitle = messages("rls.title.update_your_address"),
     hideAccountMenu = true,
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("rls.title.update_your_address")

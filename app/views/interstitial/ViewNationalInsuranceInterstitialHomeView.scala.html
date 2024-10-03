@@ -18,6 +18,7 @@
 @import controllers.auth.requests.UserRequest
 @import tags._
 @import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+@import util.TrustedHelperFinder.getTrustedHelper
 @import views.html.components.{Button, H1, H2, Link, P}
 
 @this(
@@ -33,7 +34,8 @@
 @(formPartial: Html, redirectUrl: String, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
-    pageTitle = messages("label.national_insurance_summary")
+    pageTitle = messages("label.national_insurance_summary"),
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("label.national_insurance")

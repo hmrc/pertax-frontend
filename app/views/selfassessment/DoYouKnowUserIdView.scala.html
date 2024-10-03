@@ -15,8 +15,8 @@
  *@
 
 @import controllers.auth.requests.UserRequest
+@import util.TrustedHelperFinder.getTrustedHelper
 @import views.html.selfassessment.selfAssessmentForm
-@import scala.concurrent.ExecutionContext
 
 @this(main: MainView, saForm: selfAssessmentForm)
 @(wrongCredentialsUserForm: Form[dto.SAWrongCredentialsDto])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
@@ -29,7 +29,8 @@
     pageTitle = title.toString,
     showBackLink = true,
     backLinkID = false,
-    backLinkUrl = routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url
+    backLinkUrl = routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @saForm(routes.SaWrongCredentialsController.processDoYouKnowUserId(), messages("title.do_you_know_user_id.h1"), wrongCredentialsUserForm)

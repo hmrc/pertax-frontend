@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
+@import components.{H1, Link, P}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -31,7 +31,8 @@
 @main(
     pageTitle = messages("label.your_address_cannot_be_updated"),
     showBackLink = true,
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("label.you_cannot_use_this_service_to_update_your_address")

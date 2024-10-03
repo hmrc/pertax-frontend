@@ -14,17 +14,17 @@
  * limitations under the License.
  *@
 
+@import components.{H1, Link, P, P85Content}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link, P85Content}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
-    main: MainView,
-    h1: H1,
-    p: P,
-    link: Link,
-    p85Content: P85Content
+        main: MainView,
+        h1: H1,
+        p: P,
+        link: Link,
+        p85Content: P85Content
 )
 
 @(typ: AddrType, proposedStartDate: String, p85Enabled: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,messages: play.api.i18n.Messages)
@@ -32,7 +32,8 @@
 @main(
     pageTitle = messages("label.your_address_cannot_be_updated"),
     showBackLink = true,
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("label.the_date_you_entered_is_earlier_than_a_date_previously_held_")
@@ -42,11 +43,11 @@
             Messages("label.go_back_to_change_after_link", proposedStartDate)))
 
     @p(HtmlContent(messages("label.if_you_entered_the_correct_date_contact_HMRC_text_before_link") + " " +
-                    link(configDecorator.changePersonalDetailsUrl,
-                            messages("label.if_you_entered_the_correct_date_contact_HMRC_link_text") + " " + messages("label.opens_in_a_new_window"),
-                            attrTarget = true,
-                            inParagraph = true) + " " +
-                            messages("label.if_you_entered_the_correct_date_contact_HMRC_text_after_link")+"."
+            link(configDecorator.changePersonalDetailsUrl,
+                messages("label.if_you_entered_the_correct_date_contact_HMRC_link_text") + " " + messages("label.opens_in_a_new_window"),
+                attrTarget = true,
+                inParagraph = true) + " " +
+            messages("label.if_you_entered_the_correct_date_contact_HMRC_text_after_link")+"."
     ))
 
     @if(p85Enabled) {

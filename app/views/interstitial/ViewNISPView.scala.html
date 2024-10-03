@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukInsetText
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
+@import util.TrustedHelperFinder.getTrustedHelper
 @import views.html.components.{H1, H2, Link, P}
 
 @this(
@@ -35,7 +36,8 @@
 @(formPartial: Html, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
-    pageTitle = messages("label.your_national_insurance_and_state_pension")
+    pageTitle = messages("label.your_national_insurance_and_state_pension"),
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("label.your_national_insurance_and_state_pension")

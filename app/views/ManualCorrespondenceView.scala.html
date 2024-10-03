@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
+@import components.{H1, Link, P}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -29,7 +29,8 @@
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
-    pageTitle = messages("label.you_cannot_access_your_account")
+    pageTitle = messages("label.you_cannot_access_your_account"),
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("label.you_cannot_access_your_account")

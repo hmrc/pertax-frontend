@@ -27,7 +27,8 @@ import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HttpReads, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
@@ -35,9 +36,11 @@ class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with Default
 
   private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
 
-  private val mockHttpClient: HttpClient = mock[HttpClient]
+  private val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
 
   private val mockConfigDecorator = mock[ConfigDecorator]
+
+  private val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
 
   private val dummyContent = "error message"
 
@@ -58,6 +61,22 @@ class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with Default
 
     "parse the json load for a successful CREATED response" in {
       stubPost(url, CREATED, Some(Json.toJson(paymentRequest).toString()), Some(json.toString()))
+
+      when(mockConfigDecorator.makeAPaymentUrl).thenReturn(
+        s"http://localhost:/pay-api/pta/sa/journey/start"
+      )
+
+      when(mockHttpClientResponse.read(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(CREATED, json.toString()))
+      )
+
+      when(mockHttpClient.post(any())(any())).thenReturn(mockRequestBuilder)
+
+      when(mockRequestBuilder.withBody(any())(any(), any(), any()))
+        .thenReturn(mockRequestBuilder)
+
+      when(mockRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
+        .thenReturn(Future.successful(HttpResponse(CREATED, json.toString())))
       val result = connector.createPayment(paymentRequest).value.futureValue.getOrElse(None)
 
       result mustBe Some(PayApiModels("exampleJourneyId", "testNextUrl"))
@@ -100,13 +119,22 @@ class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with Default
     ).foreach { httpResponse =>
       s"Returns an UpstreamErrorResponse when the status code is $httpResponse from HttpClientResponse" in {
 
+        when(mockConfigDecorator.makeAPaymentUrl).thenReturn(
+          s"http://localhost:/pay-api/pta/sa/journey/start"
+        )
+
         when(mockHttpClientResponse.read(any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
             Future(Left(UpstreamErrorResponse(dummyContent, httpResponse)))
           )
         )
 
-        when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+        when(mockHttpClient.post(any())(any())).thenReturn(mockRequestBuilder)
+
+        when(mockRequestBuilder.withBody(any())(any(), any(), any()))
+          .thenReturn(mockRequestBuilder)
+
+        when(mockRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
           .thenReturn(Future.successful(HttpResponse(httpResponse, "")))
 
         def payApiConnectorWithMock: PayApiConnector =

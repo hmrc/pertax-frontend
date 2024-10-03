@@ -14,10 +14,9 @@
  * limitations under the License.
  *@
 
-@import tags._
+@import components.{Button, ErrorSummary, InputYesNo}
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{ErrorSummary, InputYesNo, Button}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -36,7 +35,8 @@
 @main(
     pageTitle = title.toString,
     showBackLink = true,
-    yourProfileActive = true
+    yourProfileActive = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @errorSummary(internationalAddressChoiceForm, Some("internationalAddressChoice-yes"))

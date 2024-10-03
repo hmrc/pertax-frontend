@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
+@import components.{Button, H1, Link, P}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link, Button}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -45,7 +45,8 @@
 }
 
 @main(
-    pageTitle = messages("label.get_your_sa302_calculation")
+    pageTitle = messages("label.get_your_sa302_calculation"),
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @h1("label.get_your_sa302_calculation")

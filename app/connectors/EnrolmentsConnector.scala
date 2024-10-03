@@ -27,15 +27,13 @@ import play.api.libs.json.Format.GenericFormat
 import play.api.libs.json.Json
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits.{readEitherOf, readRaw}
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 class EnrolmentsConnector @Inject() (
-  http: HttpClient,
   httpv2: HttpClientV2,
   configDecorator: ConfigDecorator,
   httpClientResponse: HttpClientResponse
@@ -50,7 +48,7 @@ class EnrolmentsConnector @Inject() (
     val url = s"$baseUrl/enrolment-store/enrolments/$enrolmentIdentifier~$enrolmentValue/users"
     httpClientResponse
       .read(
-        http.GET[Either[UpstreamErrorResponse, HttpResponse]](url)
+        httpv2.get(url"$url").execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
       .map { response =>
         response.status match {

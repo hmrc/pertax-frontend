@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
+@import components.{Button, P}
 @import controllers.auth.requests.UserRequest
+@import util.TrustedHelperFinder.getTrustedHelper
 @import views.html.selfassessment.selfAssessmentHeading
-@import scala.concurrent.ExecutionContext
-@import components.{P, Button}
 
 @this(main: MainView, selfAssessmentHeading: selfAssessmentHeading, p: P, button: Button)
 
@@ -27,7 +27,8 @@
  pageTitle = messages("title.signed_in_wrong_account.h1"),
  showBackLink = true,
  backLinkID = false,
- backLinkUrl = routes.HomeController.index.url
+ backLinkUrl = routes.HomeController.index.url,
+ trustedHelper = getTrustedHelper(request)
 ) {
 
     @selfAssessmentHeading("title.signed_in_wrong_account.h1")

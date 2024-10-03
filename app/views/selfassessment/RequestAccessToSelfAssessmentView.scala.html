@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
-@import controllers.auth.requests.UserRequest
+@import components.{Button, H2, P}
 @import config.ConfigDecorator
-@import scala.concurrent.ExecutionContext
-@import components.{H2, P, Button}
+@import controllers.auth.requests.UserRequest
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     main: MainView,
@@ -33,7 +33,8 @@
     pageTitle = messages("title.request_sa_access.h1"),
     showBackLink = true,
     backLinkID = false,
-    backLinkUrl = controllers.routes.HomeController.index.url
+    backLinkUrl = controllers.routes.HomeController.index.url,
+    trustedHelper = getTrustedHelper(request)
 ) {
 
     @hmrcPageHeading(PageHeading(

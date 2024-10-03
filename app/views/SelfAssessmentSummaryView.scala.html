@@ -15,7 +15,7 @@
  *@
 
 @import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(main: MainView)
 
@@ -23,7 +23,8 @@
 
 @main(
     pageTitle = messages("label.self_assessment_summary"),
-    fullWidth = true
+    fullWidth = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
     <div class="summary-page">
             @saPartial

@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
+@import components.{Button, H1, P}
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-@import scala.concurrent.ExecutionContext
-@import components.{H1, P, Button}
+@import util.TrustedHelperFinder.getTrustedHelper
 
 @this(
     mainView: MainView,
@@ -28,7 +28,7 @@
 
 @(redirectUrl: Option[String])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
-@mainView(messages("label.confirm_your_identity")) {
+@mainView(messages("label.confirm_your_identity"), trustedHelper = getTrustedHelper(request)) {
 
     @h1("label.confirm_your_identity")
     @p(Text(messages("label.before_you_continue_we_need_to_check")))

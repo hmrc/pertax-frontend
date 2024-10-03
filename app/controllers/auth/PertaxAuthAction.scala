@@ -32,6 +32,7 @@ import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.partials.HtmlPartial
 import play.api.mvc.{ControllerComponents, Request, Results}
+import util.TrustedHelperFinder.getTrustedHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -76,7 +77,11 @@ class PertaxAuthAction @Inject() (
       case Right(PertaxResponse(_, _, Some(errorView), _)) =>
         pertaxConnector.loadPartial(errorView.url).map {
           case partial: HtmlPartial.Success =>
-            Some(Status(errorView.statusCode)(mainView(partial.title.getOrElse(""))(partial.content)))
+            Some(
+              Status(errorView.statusCode)(
+                mainView(partial.title.getOrElse(""), trustedHelper = getTrustedHelper(request))(partial.content)
+              )
+            )
           case _: HtmlPartial.Failure       =>
             logger.error(s"The partial ${errorView.url} failed to be retrieved")
             Some(InternalServerError(internalServerErrorView()))

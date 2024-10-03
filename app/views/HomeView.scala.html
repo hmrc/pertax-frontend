@@ -17,6 +17,7 @@
 @import components.H2
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import util.TrustedHelperFinder.getTrustedHelper
 @import viewmodels.HomeViewModel
 @import views.html.components.alertBanner.AlertBanner
 
@@ -25,7 +26,7 @@
         h2: H2,
         govukNotificationBanner : GovukNotificationBanner,
         alertBanner: AlertBanner,
-        configDecorator: ConfigDecorator
+        configDecorator: ConfigDecorator,
 )
 
 @(viewModel: HomeViewModel, shutteringMessaging: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
@@ -41,7 +42,8 @@
     pageTitle = messages("label.account_home"),
     fullWidth = true,
     showUserResearchBanner = viewModel.showUserResearchBanner,
-    accountHome = true
+    accountHome = true,
+    trustedHelper = getTrustedHelper(request)
 ) {
     @if(shutteringMessaging) {
         @govukNotificationBanner(NotificationBanner(

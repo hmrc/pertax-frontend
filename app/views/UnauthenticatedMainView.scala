@@ -21,11 +21,10 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import play.api.Logging
 import play.api.i18n.Messages
-import play.api.mvc.Request
+import play.api.mvc.RequestHeader
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.sca.models.BannerConfig
 import uk.gov.hmrc.sca.services.WrapperService
 import views.html.components.{AdditionalJavascript, HeadBlock}
@@ -42,7 +41,7 @@ trait UnauthenticatedMainView {
     disableSessionExpired: Boolean = false,
     fullWidth: Boolean = false
   )(contentBlock: Html)(implicit
-    request: Request[_],
+    request: RequestHeader,
     messages: Messages
   ): HtmlFormat.Appendable
 }
@@ -61,7 +60,7 @@ class UnauthenticatedMainViewImpl @Inject() (
     showBackLink: Boolean = false,
     disableSessionExpired: Boolean = false,
     fullWidth: Boolean = false
-  )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
+  )(contentBlock: Html)(implicit request: RequestHeader, messages: Messages): HtmlFormat.Appendable = {
 
     val fullPageTitle = s"$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"
     val attorney      = Try(request.asInstanceOf[UserRequest[_]]) match {
@@ -99,7 +98,7 @@ class UnauthenticatedMainViewImpl @Inject() (
         showBetaBanner = true,
         showHelpImproveBanner = false
       )
-    )(messages, HeaderCarrierConverter.fromRequest(request), request)
+    )(messages, request)
 
   }
 }
