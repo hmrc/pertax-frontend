@@ -27,7 +27,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.TemplateFunctions
-import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
+import views.html.personaldetails.partials.{AddressUnavailableView, AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,23 +39,24 @@ class PersonalDetailsViewModel @Inject() (
   addressView: AddressView,
   correspondenceAddressView: CorrespondenceAddressView,
   preferencesFrontendConnector: PreferencesFrontendConnector,
-  featureFlagService: FeatureFlagService
+  featureFlagService: FeatureFlagService,
+  addressUnavailableView: AddressUnavailableView
 )(implicit ec: ExecutionContext) {
 
   private def getMainAddress(
     personDetails: Option[PersonDetails],
     optionalEditAddress: List[EditedAddress]
-  ): Future[Option[PersonalDetailsTableRowModel]] = {
+  )(implicit messages: play.api.i18n.Messages): Future[Option[PersonalDetailsTableRowModel]] = {
     val isMainAddressChangeLocked = optionalEditAddress.exists(
       _.isInstanceOf[EditResidentialAddress]
     )
 
-    val mainAddress = for {
+    for {
       addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
     } yield
       if (addressChangeAllowedToggle.isEnabled) {
         if (isMainAddressChangeLocked) {
-          personDetails.map(_.address.map { address =>
+          personDetails.flatMap(_.address.map { address =>
             PersonalDetailsTableRowModel(
               "main_address",
               "label.main_address",
@@ -66,7 +67,7 @@ class PersonalDetailsViewModel @Inject() (
             )
           })
         } else {
-          personDetails.map(_.address.map { address =>
+          personDetails.flatMap(_.address.map { address =>
             PersonalDetailsTableRowModel(
               "main_address",
               "label.main_address",
@@ -78,18 +79,17 @@ class PersonalDetailsViewModel @Inject() (
           })
         }
       } else {
-        personDetails.map(_.address.map { address =>
+        Option(
           PersonalDetailsTableRowModel(
-            "main_address",
-            "label.main_address",
-            addressView(address, countryHelper.excludedCountries),
-            "",
-            "label.your_main_home",
+            id = "main_address",
+            titleMessage = "label.main_address",
+            content = addressUnavailableView(displayAllLettersLine = false),
+            linkTextMessage = "",
+            visuallyhiddenText = "label.your_main_home",
             linkUrl = None
           )
-        })
+        )
       }
-    mainAddress.map(_.flatten)
   }
 
   private def getPostalAddress(
@@ -123,32 +123,16 @@ class PersonalDetailsViewModel @Inject() (
             })
         }
       } else {
-        postalAddress match {
-          case Some(address) =>
-            Some(
-              PersonalDetailsTableRowModel(
-                address.id,
-                address.titleMessage,
-                address.content,
-                "",
-                address.visuallyhiddenText,
-                None,
-                address.isPostalAddressSame
-              )
-            )
-          case _             =>
-            personDetails.flatMap(_.address.map { address =>
-              PersonalDetailsTableRowModel(
-                "postal_address",
-                "label.postal_address",
-                correspondenceAddressView(Some(address), countryHelper.excludedCountries),
-                "",
-                "label.your.postal_address",
-                None,
-                isPostalAddressSame = true
-              )
-            })
-        }
+        Some(
+          PersonalDetailsTableRowModel(
+            id = "postal_address",
+            titleMessage = "label.postal_address",
+            content = addressUnavailableView(displayAllLettersLine = true),
+            linkTextMessage = "",
+            visuallyhiddenText = "label.your.postal_address",
+            linkUrl = None
+          )
+        )
       }
   }
 
