@@ -27,7 +27,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.TemplateFunctions
-import views.html.personaldetails.partials.{AddressLockedView, AddressView, CorrespondenceAddressView}
+import views.html.personaldetails.partials.{AddressUnavailableView, AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,7 +40,7 @@ class PersonalDetailsViewModel @Inject() (
   correspondenceAddressView: CorrespondenceAddressView,
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService,
-  addressLockedView: AddressLockedView
+  addressUnavailableView: AddressUnavailableView
 )(implicit ec: ExecutionContext) {
 
   private def getMainAddress(
@@ -69,23 +69,31 @@ class PersonalDetailsViewModel @Inject() (
         } else {
           personDetails.map(_.address.map { address =>
             PersonalDetailsTableRowModel(
-              id = "main_address",
-              titleMessage = "label.main_address",
-              content = addressLockedView(displayAllLettersLine = false),
-              linkTextMessage = "",
-              visuallyhiddenText = "label.your_main_home",
-              linkUrl = None
+              "main_address",
+              "label.main_address",
+              addressView(address, countryHelper.excludedCountries),
+              "label.change",
+              "label.your_main_home",
+              Some(AddressRowModel.changeMainAddressUrl)
             )
           })
         }
       } else {
         personDetails.map(_.address.map { address =>
+//          PersonalDetailsTableRowModel(
+//            "main_address",
+//            "label.main_address",
+//            addressView(address, countryHelper.excludedCountries),
+//            "",
+//            "label.your_main_home",
+//            linkUrl = None
+//          )
           PersonalDetailsTableRowModel(
-            "main_address",
-            "label.main_address",
-            addressView(address, countryHelper.excludedCountries),
-            "",
-            "label.your_main_home",
+            id = "main_address",
+            titleMessage = "label.main_address",
+            content = addressUnavailableView(displayAllLettersLine = false),
+            linkTextMessage = "",
+            visuallyhiddenText = "label.your_main_home",
             linkUrl = None
           )
         })
@@ -128,32 +136,42 @@ class PersonalDetailsViewModel @Inject() (
           case Some(address) =>
             Some(
 //              PersonalDetailsTableRowModel(
-//                address.id,
-//                address.titleMessage,
-//                address.content,
-//                "",
-//                address.visuallyhiddenText,
-//                None,
-//                address.isPostalAddressSame
+//                id = address.id,
+//                titleMessage = address.titleMessage,
+//                content = address.content,
+//                linkTextMessage = "",
+//                visuallyhiddenText = address.visuallyhiddenText,
+//                linkUrl = None,
+//                displayChangelink = address.isPostalAddressSame
 //              )
               PersonalDetailsTableRowModel(
                 id = "postal_address",
                 titleMessage = "label.postal_address",
-                content = addressLockedView(displayAllLettersLine = true),
+                content = addressUnavailableView(displayAllLettersLine = true),
                 linkTextMessage = "",
                 visuallyhiddenText = "label.your.postal_address",
-                linkUrl = None
+                linkUrl = None,
+                displayChangelink = address.isPostalAddressSame
               )
             )
           case _             =>
             personDetails.flatMap(_.address.map { address =>
+//              PersonalDetailsTableRowModel(
+//                id = "postal_address",
+//                titleMessage = "label.postal_address",
+//                content = correspondenceAddressView(Some(address), countryHelper.excludedCountries),
+//                linkTextMessage = "",
+//                visuallyhiddenText = "label.your.postal_address",
+//                linkUrl = None,
+//                isPostalAddressSame = true
+//              )
               PersonalDetailsTableRowModel(
-                "postal_address",
-                "label.postal_address",
-                correspondenceAddressView(Some(address), countryHelper.excludedCountries),
-                "",
-                "label.your.postal_address",
-                None,
+                id = "postal_address",
+                titleMessage = "label.postal_address",
+                content = addressUnavailableView(displayAllLettersLine = true),
+                linkTextMessage = "",
+                visuallyhiddenText = "label.your.postal_address",
+                linkUrl = None,
                 isPostalAddressSame = true
               )
             })
