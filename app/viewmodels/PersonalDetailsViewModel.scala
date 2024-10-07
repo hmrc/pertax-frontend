@@ -27,7 +27,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.TemplateFunctions
-import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
+import views.html.personaldetails.partials.{AddressLockedView, AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,13 +39,14 @@ class PersonalDetailsViewModel @Inject() (
   addressView: AddressView,
   correspondenceAddressView: CorrespondenceAddressView,
   preferencesFrontendConnector: PreferencesFrontendConnector,
-  featureFlagService: FeatureFlagService
+  featureFlagService: FeatureFlagService,
+  addressLockedView: AddressLockedView
 )(implicit ec: ExecutionContext) {
 
   private def getMainAddress(
     personDetails: Option[PersonDetails],
     optionalEditAddress: List[EditedAddress]
-  ): Future[Option[PersonalDetailsTableRowModel]] = {
+  )(implicit messages: play.api.i18n.Messages): Future[Option[PersonalDetailsTableRowModel]] = {
     val isMainAddressChangeLocked = optionalEditAddress.exists(
       _.isInstanceOf[EditResidentialAddress]
     )
@@ -68,12 +69,12 @@ class PersonalDetailsViewModel @Inject() (
         } else {
           personDetails.map(_.address.map { address =>
             PersonalDetailsTableRowModel(
-              "main_address",
-              "label.main_address",
-              addressView(address, countryHelper.excludedCountries),
-              "label.change",
-              "label.your_main_home",
-              Some(AddressRowModel.changeMainAddressUrl)
+              id = "main_address",
+              titleMessage = "label.main_address",
+              content = addressLockedView(displayAllLettersLine = false),
+              linkTextMessage = "",
+              visuallyhiddenText = "label.your_main_home",
+              linkUrl = None
             )
           })
         }
@@ -126,14 +127,22 @@ class PersonalDetailsViewModel @Inject() (
         postalAddress match {
           case Some(address) =>
             Some(
+//              PersonalDetailsTableRowModel(
+//                address.id,
+//                address.titleMessage,
+//                address.content,
+//                "",
+//                address.visuallyhiddenText,
+//                None,
+//                address.isPostalAddressSame
+//              )
               PersonalDetailsTableRowModel(
-                address.id,
-                address.titleMessage,
-                address.content,
-                "",
-                address.visuallyhiddenText,
-                None,
-                address.isPostalAddressSame
+                id = "postal_address",
+                titleMessage = "label.postal_address",
+                content = addressLockedView(displayAllLettersLine = true),
+                linkTextMessage = "",
+                visuallyhiddenText = "label.your.postal_address",
+                linkUrl = None
               )
             )
           case _             =>
