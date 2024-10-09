@@ -21,7 +21,7 @@ import config.ConfigDecorator
 import connectors.PertaxConnector
 import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
-import models.{ErrorView, PertaxResponse, WrongCredentialsSelfAssessmentUser}
+import models.{ErrorView, PertaxResponse, UserAnswers, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
@@ -79,7 +79,8 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
       Set(),
       None,
       None,
-      fakeRequest
+      fakeRequest,
+      UserAnswers.empty
     )
 
   "Pertax auth action" when {

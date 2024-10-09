@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package controllers
+package models.enrolments
 
-import com.google.inject.Inject
-import controllers.auth.AuthJourney
-import controllers.controllershelpers.HomePageCachingHelper
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+object EnrolmentEnum extends Enumeration {
 
-class UserResearchDismissalController @Inject() (
-  val homePageCachingHelper: HomePageCachingHelper,
-  authJourney: AuthJourney,
-  cc: MessagesControllerComponents
-) extends PertaxBaseController(cc) {
+  val hmrcPTKey: EnrolmentEnum.Value    = Value("HMRC-PT")
+  val IRSAKey: EnrolmentEnum.Value      = Value("IR-SA")
+  val hmrcMTDITKey: EnrolmentEnum.Value = Value("HMRC-MTD-IT")
+  val hmrcNIKey: EnrolmentEnum.Value    = Value("HMRC-NI")
 
-  def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
-    homePageCachingHelper.storeUserUrDismissal()
-    NoContent
-  }
+  val saEnrolmentSet: Set[String] =
+    Set(IRSAKey.toString, hmrcMTDITKey.toString, hmrcNIKey.toString)
 }

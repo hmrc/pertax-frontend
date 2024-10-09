@@ -17,16 +17,17 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
-@import components.{H1, P, Link}
+@import components.{H1, P, Link, P85Content}
 
 @this(
     main: MainView,
     h1: H1,
     p: P,
-    link: Link
+    link: Link,
+    p85Content: P85Content
 )
 
-@(typ: AddrType, proposedStartDate: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,messages: play.api.i18n.Messages)
+@(typ: AddrType, proposedStartDate: String, p85Enabled: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.your_address_cannot_be_updated"),
@@ -34,14 +35,11 @@
     yourProfileActive = true
 ) {
 
-    @h1("label.you_cannot_use_this_service_to_update_your_address")
+    @h1("label.the_date_you_entered_is_earlier_than_a_date_previously_held_")
 
-    @p(Text(messages("label.the_date_you_entered_is_earlier_than_a_date_previously_held_")), classes = Some("govuk-body-l"))
-
-    @p(HtmlContent(messages("label.if_you_entered_proposedStartDate_by_mistake_text_before_link_1") + " " +
-                    proposedStartDate + " " +
-                    Messages("label.if_you_entered_proposedStartDate_by_mistake_text_before_link_2") + " " +
-                    link(controllers.address.routes.StartDateController.onPageLoad(typ).url, "label.if_you_entered_proposedStartDate_by_mistake_link_text", inParagraph = true, fullStop = true)))
+    @p(HtmlContent(messages("label.go_back_to_change_before_link") +
+            link(controllers.address.routes.StartDateController.onPageLoad(typ).url, "label.go_back_to_change_link_text", inParagraph = true)+ " " +
+            Messages("label.go_back_to_change_after_link", proposedStartDate)))
 
     @p(HtmlContent(messages("label.if_you_entered_the_correct_date_contact_HMRC_text_before_link") + " " +
                     link(configDecorator.changePersonalDetailsUrl,
@@ -51,4 +49,7 @@
                             messages("label.if_you_entered_the_correct_date_contact_HMRC_text_after_link")+"."
     ))
 
+    @if(p85Enabled) {
+        @p85Content()
+    }
 }

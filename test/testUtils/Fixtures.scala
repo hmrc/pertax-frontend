@@ -34,8 +34,22 @@ import scala.util.Random
 
 trait PafFixtures {
 
-  val exampleCountryUK: Country    = Country("UK", "United Kingdom")
-  val subDivision: Option[Country] = Some(Country("GB-ENG", "England"))
+  val exampleCountryUK: Country        = Country("UK", "United Kingdom")
+  val exampleCountryOutsideUK: Country = Country("FR", "France")
+  val subDivision: Option[Country]     = Some(Country("GB-ENG", "England"))
+
+  val fakeStreetPafAddressRecordOutsideUk: AddressRecord = AddressRecord(
+    "GB101",
+    PafAddress(
+      List("1 Fake Street", "Fake Town", "Fake City"),
+      Some("Fake Region"),
+      None,
+      "AA1 1AA",
+      subDivision,
+      exampleCountryOutsideUK
+    ),
+    "en"
+  )
 
   val fakeStreetPafAddressRecord: AddressRecord = AddressRecord(
     "GB101",

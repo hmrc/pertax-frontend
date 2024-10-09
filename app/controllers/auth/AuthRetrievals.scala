@@ -24,6 +24,7 @@ import models.UserName
 import play.api.Logging
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
 import play.api.mvc._
+import repositories.JourneyCacheRepository
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.{Retrievals, TrustedHelper}
 import uk.gov.hmrc.domain
@@ -35,7 +36,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthRetrievalsImpl @Inject() (
   val authConnector: AuthConnector,
-  mcc: MessagesControllerComponents
+  mcc: MessagesControllerComponents,
+  journeyCacheRepository: JourneyCacheRepository
 )(implicit ec: ExecutionContext, configDecorator: ConfigDecorator)
     extends AuthRetrievals
     with AuthorisedFunctions
@@ -71,34 +73,36 @@ class AuthRetrievalsImpl @Inject() (
             name ~
             trustedHelper ~
             profile =>
-          val trimmedRequest: Request[A] = request
-            .map {
-              case AnyContentAsFormUrlEncoded(data) =>
-                AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
-                  (key, vals.map(_.trim))
-                })
-              case b                                => b
-            }
-            .asInstanceOf[Request[A]]
+          journeyCacheRepository.get(hc).flatMap { userAnswers =>
+            val trimmedRequest: Request[A] = request
+              .map {
+                case AnyContentAsFormUrlEncoded(data) =>
+                  AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
+                    (key, vals.map(_.trim))
+                  })
+                case b                                => b
+              }
+              .asInstanceOf[Request[A]]
 
-          val authenticatedRequest = AuthenticatedRequest[A](
-            authNino = Nino(nino),
-            nino = Some(trustedHelper.fold(domain.Nino(nino))(helper => domain.Nino(helper.principalNino))),
-            credentials = credentials,
-            confidenceLevel = confidenceLevel,
-            name = Some(
-              UserName(
-                trustedHelper.fold(name.getOrElse(Name(None, None)))(helper => Name(Some(helper.principalName), None))
-              )
-            ),
-            trustedHelper = trustedHelper,
-            profile = addRedirect(profile),
-            enrolments = enrolments,
-            request = trimmedRequest,
-            affinityGroup = affinityGroup
-          )
-          block(authenticatedRequest)
-
+            val authenticatedRequest = AuthenticatedRequest[A](
+              authNino = Nino(nino),
+              nino = Some(trustedHelper.fold(domain.Nino(nino))(helper => domain.Nino(helper.principalNino))),
+              credentials = credentials,
+              confidenceLevel = confidenceLevel,
+              name = Some(
+                UserName(
+                  trustedHelper.fold(name.getOrElse(Name(None, None)))(helper => Name(Some(helper.principalName), None))
+                )
+              ),
+              trustedHelper = trustedHelper,
+              profile = addRedirect(profile),
+              enrolments = enrolments,
+              request = trimmedRequest,
+              affinityGroup = affinityGroup,
+              userAnswers = userAnswers
+            )
+            block(authenticatedRequest)
+          }
         case _ => throw new RuntimeException("Can't authenticate user")
       }
   }

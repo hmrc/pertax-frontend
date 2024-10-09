@@ -13,8 +13,6 @@ GET         /personal-account/identity-check-failed                             
 
 GET         /personal-account/signout                                                  controllers.ApplicationController.signout(continueUrl: Option[RedirectUrl], origin: Option[Origin])
 
-GET         /personal-account/dismiss-ur-banner                                        controllers.UserResearchDismissalController.dismissUrBanner
-
 GET         /personal-account/self-assessment                                          controllers.SelfAssessmentController.handleSelfAssessment
 GET         /personal-account/self-assessment/request-access                           controllers.SelfAssessmentController.requestAccess
 GET         /personal-account/sa-continue                                              controllers.SelfAssessmentController.ivExemptLandingPage(continueUrl: Option[RedirectUrl])

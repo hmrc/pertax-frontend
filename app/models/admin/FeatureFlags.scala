@@ -22,7 +22,6 @@ object AllFeatureFlags {
   val list: List[FeatureFlagName] = List(
     AddressTaxCreditsBrokerCallToggle,
     TaxcalcToggle,
-    NationalInsuranceTileToggle,
     ItsAdvertisementMessageToggle,
     TaxComponentsToggle,
     RlsInterruptToggle,
@@ -34,8 +33,7 @@ object AllFeatureFlags {
     AlertBannerPaperlessStatusToggle,
     GetPersonFromCitizenDetailsToggle,
     DfsDigitalFormFrontendAvailableToggle,
-    AddressChangeAllowedToggle,
-    NiAndSpMergeTileToggle
+    AddressChangeAllowedToggle
   )
 }
 
@@ -49,11 +47,6 @@ case object AddressTaxCreditsBrokerCallToggle extends FeatureFlagName {
 case object TaxcalcToggle extends FeatureFlagName {
   override val name: String                = "taxcalc"
   override val description: Option[String] = Some("Enable/disable the tile for payments and repayments")
-}
-
-case object NationalInsuranceTileToggle extends FeatureFlagName {
-  override val name: String                = "national-insurance-tile"
-  override val description: Option[String] = Some("Enable/disable the tile for check your National Insurance")
 }
 
 case object ItsAdvertisementMessageToggle extends FeatureFlagName {
@@ -125,12 +118,5 @@ case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
   override val name: String                = "alert-banner-paperless-status-toggle"
   override val description: Option[String] = Some(
     "Enable/disable paperless alerts in alert banner on the home page"
-  )
-}
-
-case object NiAndSpMergeTileToggle extends FeatureFlagName {
-  override val name: String                = "ni-and-sp-tile-merge"
-  override val description: Option[String] = Some(
-    "Enable/disable NI and SP tile merge"
   )
 }

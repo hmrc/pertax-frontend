@@ -68,7 +68,8 @@ class GetPersonDetailsAction @Inject() (
         enrolments = request.enrolments,
         profile = request.profile,
         breadcrumb = request.breadcrumb,
-        request = request.request
+        request = request.request,
+        userAnswers = request.userAnswers
       )
     }.value
 

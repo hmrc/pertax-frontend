@@ -16,7 +16,7 @@
 
 package controllers.auth.requests
 
-import models.UserName
+import models.{UserAnswers, UserName}
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
@@ -33,5 +33,6 @@ case class AuthenticatedRequest[A](
   profile: Option[String],
   enrolments: Set[Enrolment],
   request: Request[A],
-  affinityGroup: Option[AffinityGroup]
+  affinityGroup: Option[AffinityGroup],
+  userAnswers: UserAnswers
 ) extends WrappedRequest[A](request)

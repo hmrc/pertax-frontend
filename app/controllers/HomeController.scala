@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,9 @@
 package controllers
 
 import com.google.inject.Inject
-import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
+import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowOutageBannerToggle
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
@@ -33,7 +32,7 @@ import viewmodels.HomeViewModel
 import views.html.HomeView
 
 import java.time.LocalDate
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
@@ -41,13 +40,12 @@ class HomeController @Inject() (
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   homeCardGenerator: HomeCardGenerator,
-  homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
   rlsInterruptHelper: RlsInterruptHelper,
   alertBannerHelper: AlertBannerHelper
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+)(implicit ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
 
@@ -57,47 +55,36 @@ class HomeController @Inject() (
     authJourney.authWithPersonalDetails
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
-    val showUserResearchBanner: Future[Boolean] =
-      if (configDecorator.bannerHomePageIsEnabled) {
-        homePageCachingHelper.hasUserDismissedBanner.map(!_)
-      } else {
-        Future.successful(false)
-      }
-
     val saUserType = request.saUserType
 
     rlsInterruptHelper.enforceByRlsStatus(
-      showUserResearchBanner flatMap { showUserResearchBanner =>
-        paperlessInterruptHelper.enforcePaperlessPreference {
-          for {
-            taxSummaryState         <- taiService.retrieveTaxComponentsState(request.nino, current.currentYear)
-            breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino).map {
-                                         case WithinPeriod => true
-                                         case _            => false
-                                       }
-            incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
-            shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
-            alertBannerContent      <- alertBannerHelper.getContent
-            pensionCards            <- homeCardGenerator.getPensionCards()
-          } yield {
+      paperlessInterruptHelper.enforcePaperlessPreference {
+        for {
+          taxSummaryState         <- taiService.retrieveTaxComponentsState(request.nino, current.currentYear)
+          breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino).map {
+                                       case WithinPeriod => true
+                                       case _            => false
+                                     }
+          incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
+          shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
+          alertBannerContent      <- alertBannerHelper.getContent
+        } yield {
 
-            val benefitCards: Seq[Html] =
-              homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
-            Ok(
-              homeView(
-                HomeViewModel(
-                  incomeCards,
-                  benefitCards,
-                  pensionCards,
-                  showUserResearchBanner,
-                  saUserType,
-                  breathingSpaceIndicator,
-                  alertBannerContent
-                ),
-                shutteringMessaging.isEnabled
-              )
+          val benefitCards: Seq[Html] =
+            homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
+          Ok(
+            homeView(
+              HomeViewModel(
+                incomeCards,
+                benefitCards,
+                showUserResearchBanner = false,
+                saUserType,
+                breathingSpaceIndicator = breathingSpaceIndicator,
+                alertBannerContent
+              ),
+              shutteringMessaging.isEnabled
             )
-          }
+          )
         }
       }
     )

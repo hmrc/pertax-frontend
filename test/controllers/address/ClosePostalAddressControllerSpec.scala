@@ -22,15 +22,14 @@ import models._
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
-import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import routePages.AddressLookupServiceDownPage
 import testUtils.Fixtures
 import testUtils.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
@@ -47,7 +46,8 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       PostalAddrType,
       closedPostalAddress = true,
       Some(fakeAddress.fullAddress),
-      None
+      None,
+      false
     )(
       buildUserRequest(request = FakeRequest(), saUser = NonFilerSelfAssessmentUser),
       messages
@@ -105,10 +105,10 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       dataEvent.generatedAt
     )
 
-    def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
+    val userAnswers: UserAnswers = UserAnswers.empty("id").setOrException(AddressLookupServiceDownPage, true)
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
-    def currentRequest[A]: Request[A]          = FakeRequest().asInstanceOf[Request[A]]
+    def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
 
   "onPageLoad" must {

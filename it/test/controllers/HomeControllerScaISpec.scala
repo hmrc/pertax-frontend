@@ -19,7 +19,7 @@ package controllers
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import controllers.auth.requests.UserRequest
-import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserDetails, UserName}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserAnswers, UserDetails, UserName}
 import models.admin._
 import org.jsoup.Jsoup
 import org.mockito.{ArgumentMatchers, MockitoSugar}
@@ -161,7 +161,8 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     trustedHelper: Option[TrustedHelper] = None,
     profile: Option[String] = None,
     messageCount: Option[Int] = None,
-    request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+    request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
+    userAnswers: UserAnswers = UserAnswers.empty
   ): UserRequest[A] =
     UserRequest(
       authNino,
@@ -175,7 +176,8 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
       profile,
       None,
-      request
+      request,
+      userAnswers
     )
 
   override def beforeEach(): Unit = {
@@ -186,8 +188,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(NationalInsuranceTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(NationalInsuranceTileToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
   }

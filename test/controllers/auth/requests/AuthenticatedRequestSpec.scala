@@ -46,7 +46,8 @@ class AuthenticatedRequestSpec extends BaseSpec {
     profile = None,
     saEnrolments,
     FakeRequest(),
-    affinityGroup = Some(Individual)
+    affinityGroup = Some(Individual),
+    UserAnswers.empty
   )
 
   "AuthenticatedRequest" when {

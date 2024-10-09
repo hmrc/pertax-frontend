@@ -21,9 +21,9 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.ResidentialAddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.SubmittedInternationalAddressChoiceId
 import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import routePages.SubmittedInternationalAddressChoicePage
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -66,16 +66,17 @@ class DoYouLiveInTheUKController @Inject() (
           .fold(
             formWithErrors => Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors))),
             internationalAddressChoiceDto =>
-              cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
-                if (internationalAddressChoiceDto.value) {
-                  Redirect(routes.PostcodeLookupController.onPageLoad(ResidentialAddrType))
-                } else {
-                  if (configDecorator.updateInternationalAddressInPta) {
-                    Redirect(routes.UpdateInternationalAddressController.onPageLoad(ResidentialAddrType))
+              cachingHelper.addToCache(SubmittedInternationalAddressChoicePage, internationalAddressChoiceDto) map {
+                _ =>
+                  if (internationalAddressChoiceDto.value) {
+                    Redirect(routes.PostcodeLookupController.onPageLoad(ResidentialAddrType))
                   } else {
-                    Redirect(routes.AddressErrorController.cannotUseThisService(ResidentialAddrType))
+                    if (configDecorator.updateInternationalAddressInPta) {
+                      Redirect(routes.UpdateInternationalAddressController.onPageLoad(ResidentialAddrType))
+                    } else {
+                      Redirect(routes.AddressErrorController.cannotUseThisService(ResidentialAddrType))
+                    }
                   }
-                }
               }
           )
 

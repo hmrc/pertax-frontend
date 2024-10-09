@@ -95,6 +95,7 @@ class ViewNISPViewSpec extends ViewSpec {
       val document    = asDocument(view(Html(""), Some(nino)).toString)
       val ninoElement = document.select(".nino")
       ninoElement.text().trim shouldBe nino.value
+      document.body().toString    must include("Your National Insurance number is")
     }
 
     "display the expected National Insurance Number use cases" in {

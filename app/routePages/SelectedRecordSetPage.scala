@@ -1,5 +1,5 @@
-@*
- * Copyright 2023 HM Revenue & Customs
+/*
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,19 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import tags._
-@this()
-@()(implicit messages: play.api.i18n.Messages)
+package routePages
 
-@card(
-    id = Some("ni-card"),
-    url = Some(controllers.routes.InterstitialController.displayNationalInsurance.url),
-    gaAction = Some("Income"),
-    gaLabel = Some("National Insurance"),
-    heading = messages("label.national_insurance"),
-    headingTag = "h3",
-    bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.check_your_national_insurance_contributions_and_view_and_save_") + "</p>"))
-) {
+import controllers.bindable.AddrType
+import models.addresslookup.RecordSet
+import play.api.libs.json.JsPath
+
+case class SelectedRecordSetPage(typ: AddrType) extends QuestionPage[RecordSet] {
+
+  override def toString: String = "selectedRecordSet"
+
+  override def path: JsPath = JsPath \ s"$typ" \ toString
 }
