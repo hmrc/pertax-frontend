@@ -28,9 +28,9 @@ import java.time.LocalDate
 
 @Singleton
 class ConfigDecorator @Inject() (
-  runModeConfiguration: Configuration,
-  servicesConfig: ServicesConfig
-) {
+                                  runModeConfiguration: Configuration,
+                                  servicesConfig: ServicesConfig
+                                ) {
 
   lazy val internalAuthResourceType: String =
     runModeConfiguration.getOptional[String]("internal-auth.resource-type").getOrElse("ddcn-live-admin-frontend")
@@ -114,8 +114,7 @@ class ConfigDecorator @Inject() (
   lazy val isSeissTileEnabled: Boolean =
     runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean
 
-  lazy val portalBaseUrl: String = runModeConfiguration.get[String]("external-url.sso-portal.host")
-
+  lazy val portalBaseUrl: String     = runModeConfiguration.get[String]("external-url.sso-portal.host")
   def toPortalUrl(path: String): URL = new URL(portalBaseUrl + path)
 
   def transformUrlForSso(url: URL): String =
@@ -129,29 +128,20 @@ class ConfigDecorator @Inject() (
 
   def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang): String =
     s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (
-      if (lang.code equals "en") {
-        "eng"
-      } else {
-        "cym"
-      }
-    )
-
-  lazy val ssoToActivateSaEnrolmentPinUrl      =
+      if (lang.code equals "en") { "eng" }
+      else { "cym" }
+      )
+  lazy val ssoToActivateSaEnrolmentPinUrl                                          =
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
-  lazy val ssoToRegisterForSaEnrolment: String = transformUrlForSso(toPortalUrl("/home/services/enroll"))
-  lazy val ssoToRegistration: String           = transformUrlForSso(toPortalUrl("/registration"))
-
-  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String): String =
+  lazy val ssoToRegisterForSaEnrolment: String                                     = transformUrlForSso(toPortalUrl("/home/services/enroll"))
+  lazy val ssoToRegistration: String                                               = transformUrlForSso(toPortalUrl("/registration"))
+  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String): String             =
     transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
-
-  def viewSaPaymentsUrl(saUtr: String, lang: Lang): String =
+  def viewSaPaymentsUrl(saUtr: String, lang: Lang): String                         =
     s"/self-assessment/ind/$saUtr/account/payments?lang=" + (
-      if (lang.code equals "en") {
-        "eng"
-      } else {
-        "cym"
-      }
-    )
+      if (lang.code equals "en") { "eng" }
+      else { "cym" }
+      )
 
   lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
 
@@ -161,8 +151,7 @@ class ConfigDecorator @Inject() (
   lazy private val accessibilityRedirectUrl     =
     servicesConfig.getString("accessibility-statement.redirectUrl")
 
-  private val enc: String => String = URLEncoder.encode(_: String, "UTF-8")
-
+  private val enc: String => String                       = URLEncoder.encode(_: String, "UTF-8")
   def accessibilityStatementUrl(referrer: String): String =
     s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${enc(accessibilityBaseUrl + referrer)}"
 
@@ -187,11 +176,8 @@ class ConfigDecorator @Inject() (
   lazy val generalQueriesUrl     = "https://www.gov.uk/contact-hmrc"
 
   def makingTaxDigitalForIncomeTaxUrl(lang: Lang): String =
-    if (lang.code equals "en") {
-      "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax"
-    } else {
-      "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy"
-    }
+    if (lang.code equals "en") { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax" }
+    else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
   def taxEnrolmentDeniedRedirect(url: String): String =
     s"$taxEnrolmentAssignmentFrontendHost/protect-tax-info?redirectUrl=${enc(url)}"
@@ -282,9 +268,8 @@ class ConfigDecorator @Inject() (
 
   lazy val saPartialReturnLinkText = "Back to account home"
 
-  lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
-  lazy val seissClaimsUrl          = s"$seissFrontendHost/self-employment-support/claim/your-claims"
-
+  lazy val manageTrustedHelpersUrl          = s"$fandfFrontendHost/trusted-helpers/select-a-service"
+  lazy val seissClaimsUrl                   = s"$seissFrontendHost/self-employment-support/claim/your-claims"
   def manageTaxAgentsUrl(returnUrl: String) =
     s"$agentClientManagementFrontendHost/manage-your-tax-agents?source=PTA&returnUrl=$returnUrl"
 
