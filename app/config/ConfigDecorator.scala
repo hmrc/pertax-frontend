@@ -28,9 +28,9 @@ import java.time.LocalDate
 
 @Singleton
 class ConfigDecorator @Inject() (
-                                  runModeConfiguration: Configuration,
-                                  servicesConfig: ServicesConfig
-                                ) {
+  runModeConfiguration: Configuration,
+  servicesConfig: ServicesConfig
+) {
 
   lazy val internalAuthResourceType: String =
     runModeConfiguration.getOptional[String]("internal-auth.resource-type").getOrElse("ddcn-live-admin-frontend")
@@ -130,7 +130,7 @@ class ConfigDecorator @Inject() (
     s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (
       if (lang.code equals "en") { "eng" }
       else { "cym" }
-      )
+    )
   lazy val ssoToActivateSaEnrolmentPinUrl                                          =
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
   lazy val ssoToRegisterForSaEnrolment: String                                     = transformUrlForSso(toPortalUrl("/home/services/enroll"))
@@ -141,7 +141,7 @@ class ConfigDecorator @Inject() (
     s"/self-assessment/ind/$saUtr/account/payments?lang=" + (
       if (lang.code equals "en") { "eng" }
       else { "cym" }
-      )
+    )
 
   lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
 
