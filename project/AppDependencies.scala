@@ -1,5 +1,5 @@
-import sbt.*
 import play.sbt.PlayImport.*
+import sbt.*
 
 object AppDependencies {
 
@@ -15,7 +15,7 @@ object AppDependencies {
     "org.jsoup"          % "jsoup"                                      % "1.18.1",
     "org.typelevel"     %% "cats-core"                                  % "2.12.0",
     "org.apache.commons" % "commons-text"                               % "1.11.0",
-    "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % "1.6.0",
+    "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % "1.7.0",
     "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.5.0",
     "uk.gov.hmrc"       %% s"crypto-json-$playVersion"                  % cryptoVersion
   )

@@ -35,7 +35,6 @@ class HomeControllerErrorISpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled"   -> true,
       "microservice.services.taxcalc-frontend.port" -> server.port(),
       "microservice.services.tai.port"              -> server.port()
     )

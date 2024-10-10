@@ -24,9 +24,9 @@ import play.api.i18n.Messages
 import play.api.mvc.Request
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.hmrcfrontend.config.AccessibilityStatementConfig
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.sca.models.BannerConfig
 import uk.gov.hmrc.sca.services.WrapperService
 import views.html.components.{AdditionalJavascript, HeadBlock}
@@ -62,7 +62,8 @@ class MainViewImpl @Inject() (
   appConfig: ConfigDecorator,
   wrapperService: WrapperService,
   additionalScripts: AdditionalJavascript,
-  headBlock: HeadBlock
+  headBlock: HeadBlock,
+  accessibilityStatementConfig: AccessibilityStatementConfig
 ) extends MainView
     with Logging {
 
@@ -103,7 +104,7 @@ class MainViewImpl @Inject() (
             .signout(Some(RedirectUrl(appConfig.getFeedbackSurveyUrl(appConfig.defaultOrigin))), None)
             .url
         ),
-        accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(request.uri))
+        accessibilityStatementUrl = accessibilityStatementConfig.url
       ),
       sidebarContent = sidebarContent,
       timeOutUrl = Some(controllers.routes.SessionManagementController.timeOut.url),
@@ -121,6 +122,6 @@ class MainViewImpl @Inject() (
       fullWidth = fullWidth,
       hideMenuBar = hideAccountMenu,
       disableSessionExpired = disableSessionExpired
-    )(messages, HeaderCarrierConverter.fromRequest(request), request)
+    )(messages, request)
   }
 }
