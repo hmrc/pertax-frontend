@@ -96,6 +96,7 @@ label.your_address_has_already_been_updated=Mae’ch cyfeiriad wedi’i ddiwedda
 label.your_address_has_been_changed=Mae’ch cyfeiriad wedi’i newid
 label.your_main_address_has_been_changed=Mae’ch prif gyfeiriad wedi’i ddiweddaru
 label.your_main_address_updated_once_a_day=Dim ond unwaith y dydd y gallwch ddiweddaru’ch prif gyfeiriad
+label.address_unavailable = Nid yw’r cyfeiriad ar gael ar hyn o bryd. Rhowch gynnig arall arni yn nes ymlaen.
 label.enter_your_address_if_it_is_not_shown=Nodi’ch cyfeiriad os nad yw’n cael ei ddangos
 label.enter_your_address_yourself=Nodi’ch cyfeiriad eich hun
 label.sign_in=Mewngofnodi
