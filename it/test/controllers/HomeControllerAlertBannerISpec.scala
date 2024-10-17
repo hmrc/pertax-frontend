@@ -37,7 +37,6 @@ class HomeControllerAlertBannerISpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.breathing-space-indicator.enabled"       -> false,
       "microservice.services.preferences-frontend.port" -> server.port()
     )
     .build()

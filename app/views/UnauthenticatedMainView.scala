@@ -23,6 +23,7 @@ import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import play.twirl.api.{Html, HtmlFormat}
+import uk.gov.hmrc.hmrcfrontend.config.AccessibilityStatementConfig
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.models.BannerConfig
@@ -50,7 +51,8 @@ class UnauthenticatedMainViewImpl @Inject() (
   appConfig: ConfigDecorator,
   wrapperService: WrapperService,
   additionalScripts: AdditionalJavascript,
-  headBlock: HeadBlock
+  headBlock: HeadBlock,
+  accessibilityStatementConfig: AccessibilityStatementConfig
 ) extends UnauthenticatedMainView
     with Logging {
 
@@ -82,7 +84,7 @@ class UnauthenticatedMainViewImpl @Inject() (
             .signout(Some(RedirectUrl(appConfig.getFeedbackSurveyUrl(appConfig.defaultOrigin))), None)
             .url
         ),
-        accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(request.uri))
+        accessibilityStatementUrl = accessibilityStatementConfig.url
       ),
       timeOutUrl = Some(controllers.routes.SessionManagementController.timeOut.url),
       keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
