@@ -14,9 +14,8 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.hmrcfrontend.views.config.{HmrcPageHeadingLegend, HmrcSectionCaption}
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits._
-@import uk.gov.hmrc.hmrcfrontend.views.config.HmrcPageHeadingLegend
-@import uk.gov.hmrc.hmrcfrontend.views.config.HmrcSectionCaption
 
 
 @this(govukDateInput: GovukDateInput)
@@ -59,4 +58,4 @@
         attributes = fieldSetAttrs
     )),
     items = items
-).withFormField(form(fieldName)))
+).withDayMonthYearFormField(form(fieldName)))

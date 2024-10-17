@@ -22,8 +22,8 @@ import controllers.auth.requests.UserRequest
 import models.admin.PaperlessInterruptToggle
 import play.api.mvc.Result
 import play.api.mvc.Results._
+import uk.gov.hmrc.http.HttpErrorFunctions.is2xx
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import uk.gov.hmrc.http.HttpReads.is2xx
 
 import scala.concurrent.{ExecutionContext, Future}
 

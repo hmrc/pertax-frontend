@@ -17,7 +17,8 @@
 package models
 
 import config.ConfigDecorator
-import play.api.libs.json.{Json, OWrites}
+import play.api.libs.json.{JsValue, Json, OFormat, Writes}
+import play.api.libs.ws.BodyWritable
 
 case class PaymentRequest(utr: String, returnUrl: String, backUrl: String)
 
@@ -27,5 +28,10 @@ object PaymentRequest {
     PaymentRequest(utr, homePageUrl, homePageUrl)
   }
 
-  implicit val format: OWrites[PaymentRequest] = Json.writes[PaymentRequest]
+  implicit val format: OFormat[PaymentRequest] = Json.format[PaymentRequest]
+
+  implicit def jsonBodyWritable[T](implicit
+    writes: Writes[T],
+    jsValueBodyWritable: BodyWritable[JsValue]
+  ): BodyWritable[T] = jsValueBodyWritable.map(writes.writes)
 }

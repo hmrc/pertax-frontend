@@ -16,13 +16,19 @@
 
 package models
 
-import play.api.libs.json.{Json, Reads, Writes}
+import play.api.libs.json.{JsValue, Json, Reads, Writes}
+import play.api.libs.ws.BodyWritable
 import uk.gov.hmrc.domain.SaUtr
 
 case class SaEnrolmentRequest(origin: String, utr: Option[SaUtr], providerId: String)
 
 object SaEnrolmentRequest {
   implicit val writes: Writes[SaEnrolmentRequest] = Json.writes[SaEnrolmentRequest]
+
+  implicit def jsonBodyWritable[T](implicit
+    writes: Writes[T],
+    jsValueBodyWritable: BodyWritable[JsValue]
+  ): BodyWritable[T] = jsValueBodyWritable.map(writes.writes)
 }
 
 case class SaEnrolmentResponse(redirectUrl: String)

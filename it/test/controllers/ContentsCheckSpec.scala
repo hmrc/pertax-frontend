@@ -32,7 +32,7 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -42,6 +42,7 @@ import scala.util.Random
 class ContentsCheckSpec extends IntegrationSpec {
 
   case class ExpectedData(title: String, attorneyBannerPresent: Boolean = true, signOutInHeader: Boolean = false)
+
   def getExpectedData(key: String): ExpectedData =
     key match {
       case "id-check-complete"                     =>
@@ -183,7 +184,7 @@ class ContentsCheckSpec extends IntegrationSpec {
   )
   val wrapperDataResponse: String          = Json
     .toJson(
-      WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"))
+      WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"), List.empty[UrBanner])
     )
     .toString
 
@@ -410,7 +411,7 @@ class ContentsCheckSpec extends IntegrationSpec {
           govUkBanner.get(0).getElementsByClass("govuk-link").get(0).attr("href") must include(
             "http://localhost:9250/contact/beta-feedback?service=PTA"
           )
-          govUkBanner.text() mustBe "beta This is a new service – your feedback will help us to improve it."
+          govUkBanner.text() mustBe "Beta This is a new service – your feedback will help us to improve it."
 
           val accessibilityStatement = content
             .getElementsByClass("govuk-footer__link")

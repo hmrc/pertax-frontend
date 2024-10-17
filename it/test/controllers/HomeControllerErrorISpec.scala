@@ -17,10 +17,8 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.UserAnswers
 import play.api.Application
 import play.api.http.Status._
-import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => httpStatus}

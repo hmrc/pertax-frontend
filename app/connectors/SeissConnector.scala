@@ -22,14 +22,15 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import models.{SeissModel, SeissRequest}
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SeissConnector @Inject() (
-  http: HttpClient,
+  httpClient: HttpClientV2,
   httpClientResponse: HttpClientResponse,
   implicit val ec: ExecutionContext,
   configDecorator: ConfigDecorator
@@ -38,13 +39,14 @@ class SeissConnector @Inject() (
   def getClaims(utr: String)(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, List[SeissModel]] = {
     val seissRequest = SeissRequest(utr)
 
+    val url = s"${configDecorator.seissUrl}/self-employed-income-support/get-claims"
+
+    val request = httpClient
+      .post(url"$url")
+      .withBody(seissRequest)
+
     httpClientResponse
-      .read(
-        http.POST[SeissRequest, Either[UpstreamErrorResponse, HttpResponse]](
-          s"${configDecorator.seissUrl}/self-employed-income-support/get-claims",
-          seissRequest
-        )
-      )
+      .read(request.execute[Either[UpstreamErrorResponse, HttpResponse]])
       .map(_.json.as[List[SeissModel]])
   }
 }
