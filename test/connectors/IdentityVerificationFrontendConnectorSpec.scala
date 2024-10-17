@@ -24,9 +24,11 @@ import play.api.Application
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
 import scala.concurrent.Future
 import scala.util.Random
 
@@ -38,9 +40,11 @@ class IdentityVerificationFrontendConnectorSpec
 
   private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
 
-  private val mockHttpClient: HttpClient = mock[HttpClient]
+  private val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
 
   private val dummyContent = "error message"
+
+  private val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
 
   override implicit lazy val app: Application = app(
     Map("microservice.services.identity-verification-frontend.port" -> server.port())
@@ -54,7 +58,7 @@ class IdentityVerificationFrontendConnectorSpec
     lazy val connector: IdentityVerificationFrontendConnector = {
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
       new IdentityVerificationFrontendConnector(
-        inject[HttpClient],
+        inject[HttpClientV2],
         serviceConfig,
         inject[HttpClientResponse]
       )
@@ -103,7 +107,13 @@ class IdentityVerificationFrontendConnectorSpec
           )
         )
 
-        when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+        when(mockRequestBuilder.setHeader(any()))
+          .thenReturn(mockRequestBuilder)
+
+        when(mockHttpClient.get(any[URL])(any[HeaderCarrier]))
+          .thenReturn(mockRequestBuilder)
+
+        when(mockRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
           .thenReturn(Future.successful(HttpResponse(httpResponse, "")))
 
         def identityVerificationFrontendConnectorWithMock: IdentityVerificationFrontendConnector =

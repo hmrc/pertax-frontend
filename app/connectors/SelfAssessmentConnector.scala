@@ -21,12 +21,13 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import models.SaEnrolmentRequest
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentConnector @Inject() (
-  http: HttpClient,
+  http: HttpClientV2,
   configDecorator: ConfigDecorator,
   httpClientResponse: HttpClientResponse
 )(implicit
@@ -36,10 +37,14 @@ class SelfAssessmentConnector @Inject() (
   def enrolForSelfAssessment(
     saEnrolmentRequest: SaEnrolmentRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+
     val url = s"${configDecorator.addTaxesFrontendUrl}/internal/self-assessment/enrol-for-sa"
+
+    val request = http
+      .post(url"$url")
+      .withBody(saEnrolmentRequest)
+
     httpClientResponse
-      .read(
-        http.POST[SaEnrolmentRequest, Either[UpstreamErrorResponse, HttpResponse]](url, saEnrolmentRequest)
-      )
+      .read(request.execute[Either[UpstreamErrorResponse, HttpResponse]])
   }
 }

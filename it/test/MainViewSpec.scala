@@ -33,7 +33,7 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
 import views.html.MainView
 
 import java.time.LocalDate
@@ -100,7 +100,8 @@ class MainViewSpec extends IntegrationSpec {
           MenuItemConfig("id", "NewLayout Item", "link", leftAligned = false, 0, None, None),
           MenuItemConfig("signout", "Sign out", "link", leftAligned = false, 0, None, None)
         ),
-        PtaMinMenuConfig("MenuName", "BackName")
+        PtaMinMenuConfig("MenuName", "BackName"),
+        List.empty[UrBanner]
       )
     )
     .toString
@@ -257,7 +258,7 @@ class MainViewSpec extends IntegrationSpec {
             principalName,
             "Attorney name",
             url,
-            generator.nextNino.nino
+            Some(generator.nextNino.nino)
           )
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(request = FakeRequest(), trustedHelper = Some(helper))

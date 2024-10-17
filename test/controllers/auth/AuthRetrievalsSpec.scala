@@ -23,8 +23,8 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
-import play.api.test.Helpers._
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import repositories.JourneyCacheRepository
 import services.partials.MessageFrontendService
 import testUtils.RetrievalOps._
@@ -135,12 +135,14 @@ class AuthRetrievalsSpec extends BaseSpec {
       val fakePrincipalNino = Fixtures.fakeNino.toString()
 
       val controller =
-        retrievals(trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)))
+        retrievals(trustedHelper =
+          Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(fakePrincipalNino)))
+        )
 
       val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(
-        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))"
+        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,Some($fakePrincipalNino)))"
       )
     }
   }
