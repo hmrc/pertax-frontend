@@ -19,27 +19,32 @@ package connectors
 import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post}
 import config.ConfigDecorator
+import izumi.reflect.Tag
 import models.{PayApiModels, PaymentRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.libs.json.Json
+import play.api.libs.ws.BodyWritable
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, UpstreamErrorResponse}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
 
   private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
 
-  private val mockHttpClient: HttpClient = mock[HttpClient]
+  private val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
 
   private val mockConfigDecorator = mock[ConfigDecorator]
 
   private val dummyContent = "error message"
+
+  private val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
 
   override lazy val app: Application = app(
     Map("microservice.services.pay-api.port" -> server.port())
@@ -106,8 +111,15 @@ class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with Default
           )
         )
 
-        when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
+        when(mockHttpClient.post(any())(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
+
+        when(mockRequestBuilder.withBody(any())(any[BodyWritable[Any]], any[Tag[Any]], any[ExecutionContext]))
+          .thenReturn(mockRequestBuilder)
+
+        when(mockRequestBuilder.execute(any[HttpReads[HttpResponse]], any[ExecutionContext]))
           .thenReturn(Future.successful(HttpResponse(httpResponse, "")))
+
+        when(mockConfigDecorator.makeAPaymentUrl).thenReturn("http://localhost:8080" + url)
 
         def payApiConnectorWithMock: PayApiConnector =
           new PayApiConnector(mockHttpClient, mockConfigDecorator, mockHttpClientResponse)
