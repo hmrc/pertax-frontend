@@ -96,6 +96,7 @@ label.if_you_do_not_live_in_the_uk_link_text=fill in the ‘Notification of a ch
 label.all_letters_will_be_sent_to_this_address=All letters will be sent to this address.
 label.same_as_main_address=Same as main address
 label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow=You can only change this address once a day. Please try again tomorrow.
+label.address_unavailable = Address temporarily unavailable. Try again later.
 label.select_your_address=Select your address
 label.your_address_has_already_been_updated=Your address has already been updated
 label.your_address_has_been_changed=Your address has been changed

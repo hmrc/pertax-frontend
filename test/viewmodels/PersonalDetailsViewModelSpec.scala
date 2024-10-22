@@ -22,6 +22,8 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
+import models.admin.AddressChangeAllowedToggle
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
@@ -32,8 +34,9 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.ViewSpec
-import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
+import views.html.personaldetails.partials.{AddressUnavailableView, AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
 import java.time.{Instant, LocalDate}
@@ -51,6 +54,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   lazy val countryHelper: CountryHelper                           = inject[CountryHelper]
   lazy val mockPreferencesConnector: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
   lazy val personalDetailsViewModel: PersonalDetailsViewModel     = inject[PersonalDetailsViewModel]
+  lazy val addressUnavailableView: AddressUnavailableView         = inject[AddressUnavailableView]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -110,6 +114,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   def editedAddress(): EditResidentialAddress = EditResidentialAddress(Instant.now())
 
   def editedOtherAddress(): EditCorrespondenceAddress = EditCorrespondenceAddress(Instant.now())
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockFeatureFlagService)
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
+      .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+  }
 
   "getSignInDetailsRow" must {
     "return None" when {
@@ -273,6 +284,29 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   }
 
   "getAddressRow" must {
+
+    "display address unavailable content" when {
+      "AddressChangeAllowedToggle toggle switched off" in {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
+          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
+        val details = exampleDetails.copy(address = Some(testAddress))
+        val request = userRequest.copy(personDetails = Some(details))
+
+        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val expected =
+          PersonalDetailsTableRowModel(
+            id = "main_address",
+            titleMessage = "label.main_address",
+            content = addressUnavailableView(displayAllLettersLine = false),
+            linkTextMessage = "",
+            visuallyhiddenText = "label.your_main_home",
+            linkUrl = None
+          )
+
+        actual.futureValue.mainAddress mustBe Some(expected)
+      }
+    }
+
     "contain main address row" when {
       "main address is defined and it hasn't been changed" in {
         val details = exampleDetails.copy(address = Some(testAddress))
@@ -324,6 +358,29 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val request = userRequest.copy(personDetails = Some(details))
         val actual  = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
         actual.futureValue.mainAddress.isEmpty mustBe true
+      }
+    }
+
+    "display address unavailable content for postal address row" when {
+      "AddressChangeAllowedToggle toggle switched off" in {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
+          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
+
+        val details = exampleDetails.copy(correspondenceAddress = Some(testAddress))
+        val request = userRequest.copy(personDetails = Some(details))
+
+        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val expected =
+          PersonalDetailsTableRowModel(
+            id = "postal_address",
+            titleMessage = "label.postal_address",
+            content = addressUnavailableView(displayAllLettersLine = true),
+            linkTextMessage = "",
+            visuallyhiddenText = "label.your.postal_address",
+            linkUrl = None
+          )
+        actual.futureValue.postalAddress mustBe Some(expected)
+
       }
     }
 
