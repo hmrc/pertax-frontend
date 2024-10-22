@@ -77,7 +77,6 @@ GET         /personal-account/national-insurance-summary/print-letter           
 GET         /personal-account/national-insurance-summary/save-letter-as-pdf            controllers.NiLetterController.saveNationalInsuranceNumberAsPdf
 GET         /personal-account/child-benefit-forms                                      controllers.InterstitialController.displayChildBenefits
 GET         /personal-account/child-benefit/home                                       controllers.InterstitialController.displayChildBenefitsSingleAccountView
-
 GET         /personal-account/messages                                                 controllers.MessageController.messageList
 GET         /personal-account/messages/:url                                            controllers.MessageController.messageDetail(url: String)
 
@@ -85,6 +84,7 @@ GET         /personal-account/keep-alive                                        
 GET         /personal-account/timeout                                                  controllers.SessionManagementController.timeOut
 
 GET         /personal-account/preferences                                              controllers.PaperlessPreferencesController.managePreferences
+GET         /personal-account/self-assessment-who-needs-to-register                    controllers.InterstitialController.displaySaWithoutUtrPage
 
 GET         /personal-account/services-unavailable                                     controllers.InterstitialController.displayShutteringPage
 

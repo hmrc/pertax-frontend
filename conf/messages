@@ -724,3 +724,38 @@ p85.p1.link_text=Complete a P85 form (opens in new tab)
 p85.p1.after_link=to:
 p85.bullet1=tell HMRC you are leaving the UK
 p85.bullet2=get your Income Tax right, including claiming tax relief or a tax refund
+
+#*************************************************************
+# Self Assessment Who Needs to Register
+#*************************************************************
+selfAssessment.register.findout = Find out if you need to register for Self Assessment and send a tax return.
+selfAssessment.whoNeedsToRegister = Self Assessment: who needs to register
+selfAssessment.tax.deductedFromWages = Tax is usually deducted directly from wages and pensions.
+selfAssessment.sendTaxReturn.businesses = People and businesses with other income must send a tax return.
+selfAssessment.taxReturn.tellsIncome = A tax return tells HMRC your income, expenses and other relevant financial information
+selfAssessment.taxReturn.howMuchTax = From this, HMRC works out how much tax you need to pay.
+selfAssessment.sendReturn.needToRegister = To send a tax return you need to register for Self Assessment.
+selfAssessment.whoMustSendReturn = Who must send a tax return
+selfAssessment.mustSendReturn.lastTaxYear = You must send a tax return if, in the last tax year (6 April to 5 April), you:
+selfAssessment.selfEmployedSoleTrader = were self-employed as a sole trader and earned more than £1,000 (before taking off anything you can claim tax relief on)
+selfAssessment.partnerInBusiness = were a partner in a business partnership
+selfAssessment.totalTaxableIncome.prefix = had a total
+selfAssessment.totalTaxableIncome.linkText = taxable income
+selfAssessment.totalTaxableIncome.suffix = of more than £150,000
+selfAssessment.capitalGainsTax.prefix = had to pay
+selfAssessment.capitalGainsTax.linkText = Capital Gains Tax
+selfAssessment.highIncomeChildBenefitCharge.prefix = had to pay the
+selfAssessment.highIncomeChildBenefitCharge.linkText = High Income Child Benefit Charge
+selfAssessment.untaxedIncome = You may also need to send a tax return if you have any untaxed income, such as:
+selfAssessment.rentingProperty = money from renting out a property
+selfAssessment.tipsAndCommission = tips and commission
+selfAssessment.savingsInterest = interest from savings
+selfAssessment.investmentsAndDividends = investments and dividends
+selfAssessment.foreignIncome = foreign income
+selfAssessment.registerByOctober5 = Register for Self Assessment by 5 October if you need to complete a tax return and have not sent one before.
+selfAssessment.checkIfNeedReturn = Check if you need to send a Self Assessment tax return
+selfAssessment.notSureCheckReturn.linkText = Check if you need to send a Self Assessment tax return
+selfAssessment.notSureCheckReturn.suffix = if you’re not sure.
+selfAssessment.registerSelfAssessment = Register for Self Assessment
+selfAssessment.needToSendReturn.prefix = If you need to send a tax return, you will first need to
+selfAssessment.needToSendReturn.linkText = register for Self Assessment

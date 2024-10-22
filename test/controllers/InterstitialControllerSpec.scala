@@ -73,7 +73,6 @@ class InterstitialControllerSpec extends BaseSpec {
         inject[WithBreadcrumbAction],
         inject[MessagesControllerComponents],
         inject[ErrorRenderer],
-        inject[ViewNationalInsuranceInterstitialHomeView],
         inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
         inject[SelfAssessmentSummaryView],
         inject[Sa302InterruptView],
@@ -86,7 +85,8 @@ class InterstitialControllerSpec extends BaseSpec {
         inject[SeissService],
         mockNewsAndTileConfig,
         mockFeatureFlagService,
-        inject[ViewNISPView]
+        inject[ViewNISPView],
+        inject[SelfAssessmentForNonUtrUserPageView]
       )(config, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) {
@@ -129,7 +129,7 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      val result = controller.displayNationalInsurance(fakeRequest)
+      val result: Future[Result] = controller.displayNationalInsurance(fakeRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(controllers.routes.InterstitialController.displayNISP.url)
@@ -158,7 +158,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -171,7 +170,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentForNonUtrUserPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -213,7 +213,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -226,7 +225,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentForNonUtrUserPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -440,7 +440,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -453,7 +452,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           inject[FeatureFlagService],
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentForNonUtrUserPageView]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -516,7 +516,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -529,7 +528,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentForNonUtrUserPageView]
         )(stubConfigDecorator, ec)
 
       lazy val fakeRequest       = FakeRequest("", "")
@@ -560,7 +560,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -573,7 +572,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mockNewsAndTileConfig,
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentForNonUtrUserPageView]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -629,7 +629,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -642,7 +641,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentForNonUtrUserPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -660,6 +660,75 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val result = controller.displaySaAndItsaMergePage()(fakeRequest)
 
+      status(result) mustBe OK
+      contentAsString(result) must include("Your Self Assessment")
+    }
+  }
+
+  "Calling displaySaWithoutUtrPage" must {
+
+    lazy val fakeRequest = FakeRequest("", "")
+
+    val mockAuthJourney = mock[AuthJourney]
+
+    val stubConfigDecorator = new ConfigDecorator(
+      inject[Configuration],
+      inject[ServicesConfig]
+    )
+
+    def controller: InterstitialController =
+      new InterstitialController(
+        mock[FormPartialService],
+        mock[SaPartialService],
+        mockAuthJourney,
+        inject[WithBreadcrumbAction],
+        inject[MessagesControllerComponents],
+        inject[ErrorRenderer],
+        inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
+        inject[SelfAssessmentSummaryView],
+        inject[Sa302InterruptView],
+        inject[ViewNewsAndUpdatesView],
+        inject[ViewSaAndItsaMergePageView],
+        inject[ViewBreathingSpaceView],
+        inject[ShutteringView],
+        inject[TaxCreditsAddressInterstitialView],
+        inject[EnrolmentsHelper],
+        inject[SeissService],
+        mock[NewsAndTilesConfig],
+        mock[FeatureFlagService],
+        inject[ViewNISPView],
+        inject[SelfAssessmentForNonUtrUserPageView]
+      )(stubConfigDecorator, ec)
+
+    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+        block(
+          buildUserRequest(
+            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+            request = request
+          )
+        )
+    })
+
+    def mockWithoutSaUtr(): Unit =
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              request = request
+            )
+          )
+      })
+
+    "return UNAUTHORIZED when SA UTR exists" in {
+      lazy val result = controller.displaySaWithoutUtrPage()(fakeRequest)
+      status(result) mustBe UNAUTHORIZED
+    }
+
+    "return Ok when SA UTR does not exist" in {
+      mockWithoutSaUtr()
+      lazy val result = controller.displaySaWithoutUtrPage()(fakeRequest)
       status(result) mustBe OK
       contentAsString(result) must include("Your Self Assessment")
     }
@@ -687,7 +756,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -700,7 +768,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentForNonUtrUserPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -744,7 +813,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -757,7 +825,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentForNonUtrUserPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -801,7 +870,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -814,7 +882,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentForNonUtrUserPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {

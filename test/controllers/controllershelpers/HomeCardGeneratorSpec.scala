@@ -50,17 +50,19 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   private val generator = new Generator(new Random())
 
-  private val payAsYouEarn              = inject[PayAsYouEarnView]
-  private val taxCredits                = inject[TaxCreditsView]
-  private val childBenefitSingleAccount = inject[ChildBenefitSingleAccountView]
-  private val marriageAllowance         = inject[MarriageAllowanceView]
-  private val taxSummaries              = inject[TaxSummariesView]
-  private val latestNewsAndUpdatesView  = inject[LatestNewsAndUpdatesView]
-  private val saAndItsaMergeView        = inject[SaAndItsaMergeView]
-  private val nispView                  = inject[NISPView]
-  private val enrolmentsHelper          = inject[EnrolmentsHelper]
-  private val newsAndTilesConfig        = mock[NewsAndTilesConfig]
-  private val stubConfigDecorator       = new ConfigDecorator(
+  private val payAsYouEarn                     = inject[PayAsYouEarnView]
+  private val taxCredits                       = inject[TaxCreditsView]
+  private val childBenefitSingleAccount        = inject[ChildBenefitSingleAccountView]
+  private val marriageAllowance                = inject[MarriageAllowanceView]
+  private val taxSummaries                     = inject[TaxSummariesView]
+  private val latestNewsAndUpdatesView         = inject[LatestNewsAndUpdatesView]
+  private val saAndItsaMergeView               = inject[SaAndItsaMergeView]
+  private val nispView                         = inject[NISPView]
+  private val enrolmentsHelper                 = inject[EnrolmentsHelper]
+  private val selfAssessmentForNonUtrUsersView = inject[SelfAssessmentForNonUtrUsersView]
+
+  private val newsAndTilesConfig  = mock[NewsAndTilesConfig]
+  private val stubConfigDecorator = new ConfigDecorator(
     inject[Configuration],
     inject[ServicesConfig]
   )
@@ -80,6 +82,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
+      selfAssessmentForNonUtrUsersView,
       mockTaxCalcPartialService
     )(stubConfigDecorator, ec)
 
@@ -96,6 +99,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
+      selfAssessmentForNonUtrUsersView,
       mockTaxCalcPartialService
     )(stubConfigDecorator, ec)
 
@@ -190,7 +194,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       cardBody.isEmpty
 
-      //Just verifying the feature flags as it should only be checked if there is no trusted helpers
       verify(mockFeatureFlagService, times(0)).get(any())
 
     }
@@ -342,11 +345,13 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "Calling getItsaCard" must {
+
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
           request = FakeRequest()
         )
+
       "return Itsa Card when with Itsa enrolments" in {
 
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
@@ -357,14 +362,14 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             request = FakeRequest()
           )
 
-        lazy val cardBody = sut.getSaAndItsaMergeCard()
+        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
 
         cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = true))
       }
 
       "return Itsa Card when without Itsa enrolments" in {
 
-        lazy val cardBody = sut.getSaAndItsaMergeCard()
+        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
 
         cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
       }
@@ -377,7 +382,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             request = FakeRequest()
           )
 
-        lazy val cardBody = sut.getSaAndItsaMergeCard()
+        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
 
         cardBody mustBe None
       }
@@ -390,9 +395,33 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             request = FakeRequest()
           )
 
-        lazy val cardBody = sut.getSaAndItsaMergeCard()
+        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
 
         cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
+      }
+
+      "return Self Assessment for non-UTR users when saUtr is empty" in {
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(
+            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("")),
+            request = FakeRequest()
+          )
+
+        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
+
+        cardBody mustBe Some(selfAssessmentForNonUtrUsersView())
+      }
+
+      "return None for non-SA user" in {
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(
+            saUser = NonFilerSelfAssessmentUser,
+            request = FakeRequest()
+          )
+
+        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
+
+        cardBody mustBe None
       }
     }
   }

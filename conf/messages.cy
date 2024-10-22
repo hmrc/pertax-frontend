@@ -731,3 +731,38 @@ p85.p1.link_text=Llenwch Ffurflen P85 (yn agor tab newydd)
 p85.p1.after_link=er mwyn:
 p85.bullet1=rhoi gwybod i CThEF eich bod yn gadael y DU
 p85.bullet2=cael eich Treth Incwm yn iawn, gan gynnwys hawlio rhyddhad treth neu ad-daliad treth
+
+#*************************************************************
+# Self Assessment Who Needs to Register
+#*************************************************************
+selfAssessment.register.findout = Cael gwybod a oes angen i chi gofrestru ar gyfer Hunanasesiad ac anfon Ffurflen Dreth.
+selfAssessment.whoNeedsToRegister = Hunanasesiad: pwy sydd angen cofrestru
+selfAssessment.tax.deductedFromWages = Fel arfer, didynnir treth yn uniongyrchol o gyflogau a phensiynau.
+selfAssessment.sendTaxReturn.businesses = Mae’n rhaid i bobl a busnesau sy’n cael incwm arall anfon Ffurflen Dreth.
+selfAssessment.taxReturn.tellsIncome = Mae Ffurflen Dreth yn rhoi gwybod i CThEF am eich incwm, gwariant a gwybodaeth ariannol arall sy’n berthnasol.
+selfAssessment.taxReturn.howMuchTax = Gan ddefnyddio’r wybodaeth hon, mae CThEF yn cyfrifo faint o dreth y bydd angen i chi ei dalu.
+selfAssessment.sendReturn.needToRegister = Bydd angen i chi gofrestru ar gyfer Hunanasesiad er mwyn anfon Ffurflen Dreth.
+selfAssessment.whoMustSendReturn = Pwy ddylai anfon Ffurflen Dreth
+selfAssessment.mustSendReturn.lastTaxYear = Os oedd unrhyw un o’r canlynol yn berthnasol i chi yn ystod y flwyddyn dreth ddiwethaf (6 Ebrill i 5 Ebrill), mae’n rhaid i chi anfon Ffurflen Dreth:
+selfAssessment.selfEmployedSoleTrader = roeddech yn hunangyflogedig fel unig fasnachwr ac wedi ennill mwy na £1,000 (cyn tynnu unrhyw beth y gallwch hawlio rhyddhad treth arno)
+selfAssessment.partnerInBusiness = roeddech yn bartner mewn partneriaeth busnes
+selfAssessment.totalTaxableIncome.prefix = roedd cyfanswm eich
+selfAssessment.totalTaxableIncome.linkText = incwm trethadwy
+selfAssessment.totalTaxableIncome.suffix = yn fwy na £150,000
+selfAssessment.capitalGainsTax.prefix = roedd angen i chi dalu
+selfAssessment.capitalGainsTax.linkText = Treth Enillion Cyfalaf
+selfAssessment.highIncomeChildBenefitCharge.prefix = roedd angen i chi dalu’r
+selfAssessment.highIncomeChildBenefitCharge.linkText = Tâl Treth Budd-dal Plant Incwm Uchel
+selfAssessment.untaxedIncome = Efallai y bydd hefyd angen i chi anfon Ffurflen Dreth os oes gennych unrhyw incwm sydd heb ei drethu, megis:
+selfAssessment.rentingProperty = arian o roi eiddo ar osod
+selfAssessment.tipsAndCommission = cildyrnau a chomisiwn
+selfAssessment.savingsInterest = llog o gynilion
+selfAssessment.investmentsAndDividends = buddsoddiadau a difidendau
+selfAssessment.foreignIncome = incwm tramor
+selfAssessment.registerByOctober5 = Mae’n rhaid i chi gofrestru ar gyfer Hunanasesiad erbyn 5 Hydref os oes angen i chi lenwi Ffurflen Dreth ac nid ydych wedi anfon un o’r blaen.
+selfAssessment.checkIfNeedReturn = Gwirio a oes angen i chi anfon Ffurflen Dreth Hunanasesiad
+selfAssessment.notSureCheckReturn.linkText = Os nad ydych yn siŵr, gwiriwch a oes angen i chi anfon Ffurflen Hunanasesiad Dreth
+selfAssessment.notSureCheckReturn.suffix = .
+selfAssessment.registerSelfAssessment = Cofrestru ar gyfer Hunanasesiad
+selfAssessment.needToSendReturn.prefix = Os bydd angen i chi anfon Ffurflen Dreth, bydd angen i chi
+selfAssessment.needToSendReturn.linkText = gofrestru ar gyfer Hunanasesiad

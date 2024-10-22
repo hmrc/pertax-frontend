@@ -47,6 +47,7 @@ class HomeCardGenerator @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig,
   nispView: NISPView,
+  selfAssessmentForNonUtrUsersView: SelfAssessmentForNonUtrUsersView,
   taxCalcPartialService: TaxCalcPartialService
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
 
@@ -71,7 +72,7 @@ class HomeCardGenerator @Inject() (
     )
 
     val cards3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
-      Future.successful(getSaAndItsaMergeCard().toSeq),
+      Future.successful(getSaAndItsaMergeCardOrSaWithoutUtrCard().toSeq),
       Future.successful(getNationalInsuranceCard().toSeq),
       if (request.trustedHelper.isEmpty) {
         getAnnualTaxSummaryCard.value.map(_.toSeq)
@@ -95,23 +96,27 @@ class HomeCardGenerator @Inject() (
       }
     }
 
-  def getSaAndItsaMergeCard()(implicit
+  def getSaAndItsaMergeCardOrSaWithoutUtrCard()(implicit
     messages: Messages,
     request: UserRequest[_]
-  ): Option[HtmlFormat.Appendable] =
-    if (
-      request.trustedHelper.isEmpty &&
-      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
-    ) {
-      Some(
-        saAndItsaMergeView(
-          (current.currentYear + 1).toString,
-          enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
-        )
-      )
-    } else {
-      None
+  ): Option[HtmlFormat.Appendable] = {
+
+    val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
+
+    request.saUserType match {
+      case saUser: SelfAssessmentUser =>
+        if (request.trustedHelper.isEmpty) {
+          if (saUser.saUtr.utr.nonEmpty && (isItsaEnrolled || request.isSa)) {
+            Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsaEnrolled))
+          } else {
+            Some(selfAssessmentForNonUtrUsersView())
+          }
+        } else {
+          None
+        }
+      case _                          => None
     }
+  }
 
   def getAnnualTaxSummaryCard(implicit
     request: UserRequest[AnyContent],
