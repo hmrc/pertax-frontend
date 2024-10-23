@@ -20,8 +20,8 @@ import config.ConfigDecorator
 import models.{Activated, ItsaEnrolmentEnrolled, NotYetActivated, SelfAssessmentEnrolment}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.i18n.{Lang, Messages, MessagesImpl}
-import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.mvc.Results.Ok
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
@@ -139,7 +139,7 @@ class EnrolmentsHelperSpec extends BaseSpec {
         "no sa enrolment is present" in {
           val result = sut.selfAssessmentStatus(
             Set(Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.nino)), "Activated")),
-            Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))
+            Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some("principalNino")))
           )
 
           result mustBe None
@@ -149,7 +149,7 @@ class EnrolmentsHelperSpec extends BaseSpec {
           s"sa enrolment is present and is $status" in {
             val result = sut.selfAssessmentStatus(
               Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "utr")), status.toString)),
-              Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))
+              Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some("principalNino")))
             )
 
             result mustBe None
@@ -159,7 +159,7 @@ class EnrolmentsHelperSpec extends BaseSpec {
         "sa enrolment is present and is invalid" in {
           val result = sut.selfAssessmentStatus(
             Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "utr")), "invalidState")),
-            Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", "principalNino"))
+            Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some("principalNino")))
           )
 
           result mustBe None

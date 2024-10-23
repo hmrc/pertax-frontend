@@ -24,13 +24,14 @@ import play.api.Logging
 import play.api.http.HeaderNames
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpException, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class PertaxConnector @Inject() (
-  httpClient: HttpClient,
+  httpClient: HttpClientV2,
   httpClientResponse: HttpClientResponse,
   configDecorator: ConfigDecorator,
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
@@ -40,27 +41,31 @@ class PertaxConnector @Inject() (
   def pertaxPostAuthorise(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
-  ): EitherT[Future, UpstreamErrorResponse, PertaxResponse] =
+  ): EitherT[Future, UpstreamErrorResponse, PertaxResponse] = {
+    val url = s"$pertaxUrl/pertax/authorise"
+
+    lazy val request = httpClient
+      .post(url"$url")
+      .setHeader(HeaderNames.ACCEPT -> "application/vnd.hmrc.2.0+json")
+
     httpClientResponse
-      .readLogUnauthorisedAsInfo(
-        httpClient
-          .POSTEmpty[Either[UpstreamErrorResponse, HttpResponse]](
-            s"$pertaxUrl/pertax/authorise",
-            Seq((HeaderNames.ACCEPT -> "application/vnd.hmrc.2.0+json"))
-          )
-      )
+      .readLogUnauthorisedAsInfo(request.execute[Either[UpstreamErrorResponse, HttpResponse]])
       .map(_.json.as[PertaxResponse])
+  }
 
   def loadPartial(url: String)(implicit request: RequestHeader, ec: ExecutionContext): Future[HtmlPartial] = {
     implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
 
-    httpClient.GET[HtmlPartial](s"$pertaxUrl$url") map {
-      case partial: HtmlPartial.Success =>
-        partial
-      case partial: HtmlPartial.Failure =>
-        logger.error(s"Failed to load partial from $url, partial info: $partial, body: ${partial.body}")
-        partial
-    } recover { case e =>
+    val urlValue = s"$pertaxUrl$url"
+    httpClient
+      .get(url"$urlValue")
+      .execute[HtmlPartial]
+      .map {
+        case partial: HtmlPartial.Success => partial
+        case partial: HtmlPartial.Failure =>
+          logger.error(s"Failed to load partial from $url, partial info: $partial, body: ${partial.body}")
+          partial
+      } recover { case e =>
       logger.error(s"Failed to load partial from $url", e)
       e match {
         case ex: HttpException =>

@@ -16,16 +16,16 @@
 
 package error
 
-import org.apache.pekko.stream.Materializer
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import play.api.i18n.{I18nSupport, MessagesApi}
+import org.apache.pekko.stream.Materializer
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import views.html.{InternalServerErrorView, UnauthenticatedErrorView}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class LocalErrorHandler @Inject() (
@@ -41,10 +41,16 @@ class LocalErrorHandler @Inject() (
     pageTitle: String,
     heading: String,
     message: String
-  )(implicit request: Request[_]): Html =
-    unauthenticatedErrorTemplate(pageTitle, heading, message)
+  )(implicit requestHeader: RequestHeader): Future[Html] = {
+    val messages: Messages = messagesApi.preferred(requestHeader)
+    val dummyRequest       = Request(requestHeader, AnyContentAsEmpty)
+    Future.successful(unauthenticatedErrorTemplate(pageTitle, heading, message)(dummyRequest, messages))
+  }
 
-  override def internalServerErrorTemplate(implicit request: Request[_]): Html =
-    internalServerErrorView()
+  override def internalServerErrorTemplate(implicit requestHeader: RequestHeader): Future[Html] = {
+    val messages: Messages = messagesApi.preferred(requestHeader)
+    val dummyRequest       = Request(requestHeader, AnyContentAsEmpty)
+    Future.successful(internalServerErrorView()(dummyRequest, configDecorator, messages))
+  }
 
 }

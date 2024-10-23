@@ -21,12 +21,13 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import models.{PayApiModels, PaymentRequest}
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class PayApiConnector @Inject() (
-  http: HttpClient,
+  http: HttpClientV2,
   configDecorator: ConfigDecorator,
   httpClientResponse: HttpClientResponse
 ) {
@@ -37,7 +38,10 @@ class PayApiConnector @Inject() (
     val postUrl = configDecorator.makeAPaymentUrl
     httpClientResponse
       .read(
-        http.POST[PaymentRequest, Either[UpstreamErrorResponse, HttpResponse]](postUrl, request)
+        http
+          .post(url"$postUrl")
+          .withBody(request)
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
       .map(_.json.asOpt[PayApiModels])
   }

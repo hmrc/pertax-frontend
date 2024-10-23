@@ -25,19 +25,18 @@ import play.api.Logging
 import play.api.http.Status.PRECONDITION_FAILED
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.http.{HttpClient, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PreferencesFrontendConnector @Inject() (
-  httpClient: HttpClient,
   httpClientV2: HttpClientV2,
   val messagesApi: MessagesApi,
   val configDecorator: ConfigDecorator,
@@ -49,36 +48,33 @@ class PreferencesFrontendConnector @Inject() (
     with I18nSupport
     with Logging {
 
-  val preferencesFrontendUrl: String = servicesConfig.baseUrl("preferences-frontend")
-  val url: String                    = preferencesFrontendUrl
+  private val preferencesFrontendUrl: String = servicesConfig.baseUrl("preferences-frontend")
+  val url: String                            = preferencesFrontendUrl
 
   def getPaperlessPreference()(implicit
     request: UserRequest[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
 
     def newReadEitherOf[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
-      HttpReads.ask.flatMap { case (_, _, response) =>
-        response.status match {
-          case PRECONDITION_FAILED => HttpReads[A].map(Right.apply)
-          case _                   => readEitherOf
-        }
+      HttpReads.ask.flatMap {
+        case (_, _, response) if response.status == PRECONDITION_FAILED => HttpReads[A].map(Right.apply)
+        case _                                                          => readEitherOf
       }
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
 
     val url =
       s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
-        .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
+        .encryptAndEncode(Messages("label.continue"))}"
+
+    val body: JsObject = Json.obj("active" -> true)
+
+    val requestBuilder = httpClientV2
+      .put(url"$url")
+      .withBody(body)
 
     httpClientResponse
-      .read(
-        httpClient.PUT[JsObject, Either[UpstreamErrorResponse, HttpResponse]](url, Json.obj("active" -> true))(
-          wts = implicitly,
-          rds = newReadEitherOf,
-          ec = implicitly,
-          hc = implicitly
-        )
-      )
+      .read(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](newReadEitherOf, implicitly))
   }
 
   def getPaperlessStatus(url: String, returnMessage: String)(implicit
@@ -86,7 +82,8 @@ class PreferencesFrontendConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, PaperlessMessagesStatus] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + url
-    val fullUrl     =
+
+    val fullUrl =
       url"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptOnly(absoluteUrl)}&returnLinkText=${tools
         .encryptOnly(returnMessage)}"
     httpClientResponse

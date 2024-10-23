@@ -28,9 +28,11 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Injecting
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.{HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 
+import java.net.URL
 import scala.concurrent.Future
 
 class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience with Injecting {
@@ -46,7 +48,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
 
   private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
 
-  private val mockHttpClient: HttpClient = mock[HttpClient]
+  private val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
 
   private val mockConfigDecorator = mock[ConfigDecorator]
 
@@ -153,14 +155,20 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
         ).foreach { error =>
           s"an $error is returned from the HttpClientResponse" in {
 
+            val mockRequestBuilder = mock[RequestBuilder]
+            when(mockHttpClient.post(any[URL])(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
+
+            when(mockRequestBuilder.setHeader(any[(String, String)])).thenReturn(mockRequestBuilder)
+            when(mockRequestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
+              .thenReturn(Future.successful(Left(UpstreamErrorResponse(dummyContent, error))))
+
             when(mockHttpClientResponse.readLogUnauthorisedAsInfo(any())).thenReturn(
               EitherT[Future, UpstreamErrorResponse, HttpResponse](
                 Future(Left(UpstreamErrorResponse(dummyContent, error)))
               )
             )
 
-            when(mockHttpClient.GET[HttpResponse](any())(any(), any(), any()))
-              .thenReturn(Future.successful(HttpResponse(error, "")))
+            when(mockConfigDecorator.pertaxUrl).thenReturn("http://localhost:8080")
 
             def pertaxConnectorWithMock: PertaxConnector =
               new PertaxConnector(
