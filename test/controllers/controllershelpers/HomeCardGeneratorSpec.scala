@@ -349,7 +349,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getSelfAssessmentCard" must {
 
     def createController(pegaEnabled: Boolean = true): HomeCardGenerator = {
-      when(mockConfigDecorator.pegaEnabled).thenReturn(pegaEnabled)
+      when(mockConfigDecorator.pegaSaRegistrationEnabled).thenReturn(pegaEnabled)
 
       new HomeCardGenerator(
         mockFeatureFlagService,

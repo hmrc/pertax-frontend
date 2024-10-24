@@ -678,7 +678,7 @@ class InterstitialControllerSpec extends BaseSpec {
       val mockFeatureFlagService = mock[FeatureFlagService]
       val mockConfigDecorator    = mock[ConfigDecorator]
 
-      when(mockConfigDecorator.pegaEnabled).thenReturn(pegaEnabled)
+      when(mockConfigDecorator.pegaSaRegistrationEnabled).thenReturn(pegaEnabled)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
