@@ -315,4 +315,7 @@ class ConfigDecorator @Inject() (
   lazy val addressLookupTimeoutInSec: Int =
     servicesConfig.getInt("feature.address-lookup.timeoutInSec")
 
+  lazy val pegaEnabled: Boolean =
+    servicesConfig.getBoolean("feature.pega.enabled")
+
 }

@@ -35,8 +35,9 @@ import services._
 import services.partials.{FormPartialService, SaPartialService}
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -86,7 +87,7 @@ class InterstitialControllerSpec extends BaseSpec {
         mockNewsAndTileConfig,
         mockFeatureFlagService,
         inject[ViewNISPView],
-        inject[SelfAssessmentForNonUtrUserPageView]
+        inject[SelfAssessmentRegistrationPageView]
       )(config, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) {
@@ -171,7 +172,7 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
           inject[ViewNISPView],
-          inject[SelfAssessmentForNonUtrUserPageView]
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -226,7 +227,7 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
           inject[ViewNISPView],
-          inject[SelfAssessmentForNonUtrUserPageView]
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -453,7 +454,7 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[NewsAndTilesConfig],
           inject[FeatureFlagService],
           inject[ViewNISPView],
-          inject[SelfAssessmentForNonUtrUserPageView]
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -529,7 +530,7 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
           inject[ViewNISPView],
-          inject[SelfAssessmentForNonUtrUserPageView]
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       lazy val fakeRequest       = FakeRequest("", "")
@@ -573,7 +574,7 @@ class InterstitialControllerSpec extends BaseSpec {
           mockNewsAndTileConfig,
           mockFeatureFlagService,
           inject[ViewNISPView],
-          inject[SelfAssessmentForNonUtrUserPageView]
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -642,7 +643,7 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
           inject[ViewNISPView],
-          inject[SelfAssessmentForNonUtrUserPageView]
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -665,18 +666,32 @@ class InterstitialControllerSpec extends BaseSpec {
     }
   }
 
-  "Calling displaySaWithoutUtrPage" must {
+  "Calling displaySaRegistrationPage" must {
 
-    lazy val fakeRequest = FakeRequest("", "")
+    def createController(
+      saUser: SelfAssessmentUserType,
+      enrolments: Set[Enrolment] = Set.empty,
+      trustedHelper: Option[TrustedHelper] = None,
+      pegaEnabled: Boolean = true
+    ): InterstitialController = {
+      val mockAuthJourney        = mock[AuthJourney]
+      val mockFeatureFlagService = mock[FeatureFlagService]
+      val mockConfigDecorator    = mock[ConfigDecorator]
 
-    val mockAuthJourney = mock[AuthJourney]
+      when(mockConfigDecorator.pegaEnabled).thenReturn(pegaEnabled)
 
-    val stubConfigDecorator = new ConfigDecorator(
-      inject[Configuration],
-      inject[ServicesConfig]
-    )
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = saUser,
+              enrolments = enrolments,
+              trustedHelper = trustedHelper,
+              request = request
+            )
+          )
+      })
 
-    def controller: InterstitialController =
       new InterstitialController(
         mock[FormPartialService],
         mock[SaPartialService],
@@ -695,42 +710,62 @@ class InterstitialControllerSpec extends BaseSpec {
         inject[EnrolmentsHelper],
         inject[SeissService],
         mock[NewsAndTilesConfig],
-        mock[FeatureFlagService],
+        mockFeatureFlagService,
         inject[ViewNISPView],
-        inject[SelfAssessmentForNonUtrUserPageView]
-      )(stubConfigDecorator, ec)
+        inject[SelfAssessmentRegistrationPageView]
+      )(mockConfigDecorator, ec)
+    }
 
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(
-            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-            request = request
-          )
-        )
-    })
+    "return UNAUTHORIZED when trustedHelper is defined" in {
+      val controller = createController(
+        saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+        trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "principalNino", "attorneyArn"))
+      )
 
-    def mockWithoutSaUtr(): Unit =
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = request
-            )
-          )
-      })
+      val result = controller.displaySaRegistrationPage()(FakeRequest())
 
-    "return UNAUTHORIZED when SA UTR exists" in {
-      lazy val result = controller.displaySaWithoutUtrPage()(fakeRequest)
       status(result) mustBe UNAUTHORIZED
     }
 
-    "return Ok when SA UTR does not exist" in {
-      mockWithoutSaUtr()
-      lazy val result = controller.displaySaWithoutUtrPage()(fakeRequest)
+    "return UNAUTHORIZED when the user has ITSA enrolments" in {
+      val controller = createController(
+        saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+        enrolments = Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated"))
+      )
+
+      val result = controller.displaySaRegistrationPage()(FakeRequest())
+
+      status(result) mustBe UNAUTHORIZED
+    }
+
+    "return UNAUTHORIZED when the user is an SA user" in {
+      val controller = createController(
+        saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))
+      )
+
+      val result = controller.displaySaRegistrationPage()(FakeRequest())
+
+      status(result) mustBe UNAUTHORIZED
+    }
+
+    "return OK with selfAssessmentRegistrationPageView when no trustedHelper, no ITSA enrolment, and not an SA user and pegaEnabled is true" in {
+      val controller = createController(saUser = NonFilerSelfAssessmentUser)
+
+      val result = controller.displaySaRegistrationPage()(FakeRequest())
+
       status(result) mustBe OK
-      contentAsString(result) must include("Your Self Assessment")
+      contentAsString(result) must include("Self Assessment: who needs to register")
+    }
+
+    "return UNAUTHORIZED when pegaEnabled is false" in {
+      val controller = createController(
+        saUser = NonFilerSelfAssessmentUser,
+        pegaEnabled = false
+      )
+
+      val result = controller.displaySaRegistrationPage()(FakeRequest())
+
+      status(result) mustBe UNAUTHORIZED
     }
   }
 
@@ -769,7 +804,7 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
           inject[ViewNISPView],
-          inject[SelfAssessmentForNonUtrUserPageView]
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -826,7 +861,7 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
           inject[ViewNISPView],
-          inject[SelfAssessmentForNonUtrUserPageView]
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -883,7 +918,7 @@ class InterstitialControllerSpec extends BaseSpec {
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
           inject[ViewNISPView],
-          inject[SelfAssessmentForNonUtrUserPageView]
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {

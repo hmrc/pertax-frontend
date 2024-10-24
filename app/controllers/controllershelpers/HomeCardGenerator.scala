@@ -47,7 +47,7 @@ class HomeCardGenerator @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig,
   nispView: NISPView,
-  selfAssessmentForNonUtrUsersView: SelfAssessmentForNonUtrUsersView,
+  selfAssessmentRegistrationView: SelfAssessmentRegistrationView,
   taxCalcPartialService: TaxCalcPartialService
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
 
@@ -100,21 +100,18 @@ class HomeCardGenerator @Inject() (
     messages: Messages,
     request: UserRequest[_]
   ): Option[HtmlFormat.Appendable] = {
-
     val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
+    val saView         = saAndItsaMergeView(
+      (current.currentYear + 1).toString,
+      isItsaEnrolled
+    )
 
-    request.saUserType match {
-      case saUser: SelfAssessmentUser =>
-        if (request.trustedHelper.isEmpty) {
-          if (saUser.saUtr.utr.nonEmpty && (isItsaEnrolled || request.isSa)) {
-            Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsaEnrolled))
-          } else {
-            Some(selfAssessmentForNonUtrUsersView())
-          }
-        } else {
-          None
-        }
-      case _                          => None
+    request.trustedHelper.isEmpty match {
+      case false                                  => None
+      case true if isItsaEnrolled || request.isSa => Some(saView)
+      case true if configDecorator.pegaEnabled    =>
+        Some(selfAssessmentRegistrationView()) // Temporary pegaEnabled condition
+      case true                                   => None // In the future, this will be removed when pegaEnabled condition is removed
     }
   }
 

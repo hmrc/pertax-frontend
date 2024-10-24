@@ -59,7 +59,7 @@ class InterstitialController @Inject() (
   newsAndTilesConfig: NewsAndTilesConfig,
   featureFlagService: FeatureFlagService,
   viewNISPView: ViewNISPView,
-  selfAssessmentForNonUtrUserPageView: SelfAssessmentForNonUtrUserPageView
+  selfAssessmentRegistrationPageView: SelfAssessmentRegistrationPageView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with Logging {
@@ -108,16 +108,15 @@ class InterstitialController @Inject() (
     )
   }
 
-  def displaySaWithoutUtrPage: Action[AnyContent] = authenticate { implicit request =>
-    val saUtrExists = request.saUserType match {
-      case saUser: SelfAssessmentUser => saUser.saUtr.toString.nonEmpty
-      case _                          => false
-    }
-
-    if (saUtrExists) {
+  def displaySaRegistrationPage: Action[AnyContent] = authenticate { implicit request =>
+    val isHelperOrEnrolledOrSa = request.trustedHelper.isDefined || enrolmentsHelper
+      .itsaEnrolmentStatus(request.enrolments)
+      .isDefined || request.isSa
+    if (isHelperOrEnrolledOrSa || !configDecorator.pegaEnabled) {
+      // Temporarily restricting access based on pegaEnabled, this condition can be removed in future
       errorRenderer.error(UNAUTHORIZED)
     } else {
-      Ok(selfAssessmentForNonUtrUserPageView())
+      Ok(selfAssessmentRegistrationPageView())
     }
   }
 

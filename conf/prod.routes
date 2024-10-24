@@ -84,7 +84,7 @@ GET         /personal-account/keep-alive                                        
 GET         /personal-account/timeout                                                  controllers.SessionManagementController.timeOut
 
 GET         /personal-account/preferences                                              controllers.PaperlessPreferencesController.managePreferences
-GET         /personal-account/self-assessment-who-needs-to-register                    controllers.InterstitialController.displaySaWithoutUtrPage
+GET         /personal-account/self-assessment-who-needs-to-register                    controllers.InterstitialController.displaySaRegistrationPage
 
 GET         /personal-account/services-unavailable                                     controllers.InterstitialController.displayShutteringPage
 

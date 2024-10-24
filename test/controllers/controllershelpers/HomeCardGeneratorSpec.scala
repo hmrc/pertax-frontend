@@ -50,16 +50,17 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   private val generator = new Generator(new Random())
 
-  private val payAsYouEarn                     = inject[PayAsYouEarnView]
-  private val taxCredits                       = inject[TaxCreditsView]
-  private val childBenefitSingleAccount        = inject[ChildBenefitSingleAccountView]
-  private val marriageAllowance                = inject[MarriageAllowanceView]
-  private val taxSummaries                     = inject[TaxSummariesView]
-  private val latestNewsAndUpdatesView         = inject[LatestNewsAndUpdatesView]
-  private val saAndItsaMergeView               = inject[SaAndItsaMergeView]
-  private val nispView                         = inject[NISPView]
-  private val enrolmentsHelper                 = inject[EnrolmentsHelper]
-  private val selfAssessmentForNonUtrUsersView = inject[SelfAssessmentForNonUtrUsersView]
+  private val payAsYouEarn                   = inject[PayAsYouEarnView]
+  private val taxCredits                     = inject[TaxCreditsView]
+  private val childBenefitSingleAccount      = inject[ChildBenefitSingleAccountView]
+  private val marriageAllowance              = inject[MarriageAllowanceView]
+  private val taxSummaries                   = inject[TaxSummariesView]
+  private val latestNewsAndUpdatesView       = inject[LatestNewsAndUpdatesView]
+  private val saAndItsaMergeView             = inject[SaAndItsaMergeView]
+  private val nispView                       = inject[NISPView]
+  private val enrolmentsHelper               = inject[EnrolmentsHelper]
+  private val selfAssessmentRegistrationView = inject[SelfAssessmentRegistrationView]
+  private val mockConfigDecorator            = mock[ConfigDecorator]
 
   private val newsAndTilesConfig  = mock[NewsAndTilesConfig]
   private val stubConfigDecorator = new ConfigDecorator(
@@ -82,7 +83,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
-      selfAssessmentForNonUtrUsersView,
+      selfAssessmentRegistrationView,
       mockTaxCalcPartialService
     )(stubConfigDecorator, ec)
 
@@ -99,7 +100,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
-      selfAssessmentForNonUtrUsersView,
+      selfAssessmentRegistrationView,
       mockTaxCalcPartialService
     )(stubConfigDecorator, ec)
 
@@ -343,86 +344,109 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         cardBody mustBe None
       }
     }
+  }
 
-    "Calling getItsaCard" must {
+  "Calling getItsaCardOrSaWithoutUtrCard" must {
+
+    def createController(pegaEnabled: Boolean = true): HomeCardGenerator = {
+      when(mockConfigDecorator.pegaEnabled).thenReturn(pegaEnabled)
+
+      new HomeCardGenerator(
+        mockFeatureFlagService,
+        payAsYouEarn,
+        taxCredits,
+        childBenefitSingleAccount,
+        marriageAllowance,
+        taxSummaries,
+        latestNewsAndUpdatesView,
+        saAndItsaMergeView,
+        enrolmentsHelper,
+        newsAndTilesConfig,
+        nispView,
+        selfAssessmentRegistrationView,
+        mockTaxCalcPartialService
+      )(mockConfigDecorator, ec)
+    }
+
+    implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+      buildUserRequest(
+        saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+        request = FakeRequest()
+      )
+
+    "return Itsa Card when the user has ITSA enrolments" in {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+          enrolments =
+            Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
           request = FakeRequest()
         )
 
-      "return Itsa Card when with Itsa enrolments" in {
+      lazy val cardBody = createController().getSaAndItsaMergeCardOrSaWithoutUtrCard()
 
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(
-            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-            enrolments =
-              Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
-            request = FakeRequest()
-          )
+      cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = true))
+    }
 
-        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
+    "return Itsa Card when the user is an SA user but without ITSA enrolments" in {
 
-        cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = true))
-      }
+      lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
 
-      "return Itsa Card when without Itsa enrolments" in {
+      cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
+    }
 
-        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
+    "return None when the trustedHelper is not empty" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          trustedHelper = Some(TrustedHelper("", "", "", "")),
+          request = FakeRequest()
+        )
 
-        cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
-      }
+      lazy val cardBody = createController().getSaAndItsaMergeCardOrSaWithoutUtrCard()
 
-      "return None when without Itsa enrolments and sa enrolment type is NonFilerSelfAssessmentUser" in {
+      cardBody mustBe None
+    }
 
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(
-            saUser = NonFilerSelfAssessmentUser,
-            request = FakeRequest()
-          )
+    "return selfAssessmentRegistrationView when there is no ITSA enrolment and the user is not an SA user" in {
 
-        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
 
-        cardBody mustBe None
-      }
+      lazy val cardBody = createController().getSaAndItsaMergeCardOrSaWithoutUtrCard()
 
-      "return Itsa/sa Card when without Itsa enrolments and sa enrolment type is WrongCredentialsSelfAssessmentUser" in {
+      cardBody mustBe Some(selfAssessmentRegistrationView())
+    }
 
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(
-            saUser = WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-            request = FakeRequest()
-          )
+    "return Itsa/sa Card when user has wrong credentials but no ITSA enrolment" in {
 
-        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+          request = FakeRequest()
+        )
 
-        cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
-      }
+      lazy val cardBody = createController().getSaAndItsaMergeCardOrSaWithoutUtrCard()
 
-      "return Self Assessment for non-UTR users when saUtr is empty" in {
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(
-            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("")),
-            request = FakeRequest()
-          )
+      cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
+    }
 
-        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
+    "return None when pegaEnabled is false" in {
 
-        cardBody mustBe Some(selfAssessmentForNonUtrUsersView())
-      }
+      val controller = createController(pegaEnabled = false)
 
-      "return None for non-SA user" in {
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(
-            saUser = NonFilerSelfAssessmentUser,
-            request = FakeRequest()
-          )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
 
-        lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
+      lazy val cardBody = controller.getSaAndItsaMergeCardOrSaWithoutUtrCard()
 
-        cardBody mustBe None
-      }
+      cardBody mustBe None
     }
   }
 
@@ -486,11 +510,12 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cards =
         homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
-      cards.size mustBe 4
+      cards.size mustBe 5
       cards.head.toString().contains("news-card") mustBe true
       cards(1).toString().contains("test1") mustBe true
       cards(2).toString().contains("test2") mustBe true
-      cards(3).toString().contains("ni-and-sp-card") mustBe true
+      cards(3).toString().contains("sa-non-utr-card") mustBe true
+      cards(4).toString().contains("ni-and-sp-card") mustBe true
     }
 
     "when taxcalc toggle off return no tax calc cards" in {
@@ -522,9 +547,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cards =
         homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
-      cards.size mustBe 2
+      cards.size mustBe 3
       cards.head.toString().contains("news-card") mustBe true
-      cards(1).toString().contains("ni-and-sp-card") mustBe true
+      cards(2).toString().contains("ni-and-sp-card") mustBe true
     }
 
     "when taxcalc toggle on but trusted helper present return no tax calc cards" in {
