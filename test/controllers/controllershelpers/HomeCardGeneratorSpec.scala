@@ -384,14 +384,14 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSaAndItsaMergeCardOrSaWithoutUtrCard()
+      lazy val cardBody = createController().getSelfAssessmentCard()
 
       cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = true))
     }
 
     "return Itsa Card when the user is an SA user but without ITSA enrolments" in {
 
-      lazy val cardBody = sut.getSaAndItsaMergeCardOrSaWithoutUtrCard()
+      lazy val cardBody = sut.getSelfAssessmentCard()
 
       cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
     }
@@ -403,7 +403,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSaAndItsaMergeCardOrSaWithoutUtrCard()
+      lazy val cardBody = createController().getSelfAssessmentCard()
 
       cardBody mustBe None
     }
@@ -416,7 +416,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSaAndItsaMergeCardOrSaWithoutUtrCard()
+      lazy val cardBody = createController().getSelfAssessmentCard()
 
       cardBody mustBe Some(selfAssessmentRegistrationView())
     }
@@ -429,7 +429,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSaAndItsaMergeCardOrSaWithoutUtrCard()
+      lazy val cardBody = createController().getSelfAssessmentCard()
 
       cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
     }
@@ -444,7 +444,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = controller.getSaAndItsaMergeCardOrSaWithoutUtrCard()
+      lazy val cardBody = controller.getSelfAssessmentCard()
 
       cardBody mustBe None
     }
@@ -514,7 +514,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       cards.head.toString().contains("news-card") mustBe true
       cards(1).toString().contains("test1") mustBe true
       cards(2).toString().contains("test2") mustBe true
-      cards(3).toString().contains("sa-non-utr-card") mustBe true
       cards(4).toString().contains("ni-and-sp-card") mustBe true
     }
 
@@ -547,9 +546,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cards =
         homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
-      cards.size mustBe 3
+      cards.size mustBe 2
       cards.head.toString().contains("news-card") mustBe true
-      cards(2).toString().contains("ni-and-sp-card") mustBe true
+      cards(1).toString().contains("ni-and-sp-card") mustBe true
     }
 
     "when taxcalc toggle on but trusted helper present return no tax calc cards" in {

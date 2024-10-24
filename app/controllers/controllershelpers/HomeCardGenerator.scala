@@ -72,7 +72,7 @@ class HomeCardGenerator @Inject() (
     )
 
     val cards3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
-      Future.successful(getSaAndItsaMergeCardOrSaWithoutUtrCard().toSeq),
+      Future.successful(getSelfAssessmentCard().toSeq),
       Future.successful(getNationalInsuranceCard().toSeq),
       if (request.trustedHelper.isEmpty) {
         getAnnualTaxSummaryCard.value.map(_.toSeq)
@@ -96,22 +96,25 @@ class HomeCardGenerator @Inject() (
       }
     }
 
-  def getSaAndItsaMergeCardOrSaWithoutUtrCard()(implicit
-    messages: Messages,
-    request: UserRequest[_]
+  def getSelfAssessmentCard()(implicit
+                              messages: Messages,
+                              request: UserRequest[_]
   ): Option[HtmlFormat.Appendable] = {
-    val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
-    val saView         = saAndItsaMergeView(
-      (current.currentYear + 1).toString,
-      isItsaEnrolled
-    )
 
-    request.trustedHelper.isEmpty match {
-      case false                                  => None
-      case true if isItsaEnrolled || request.isSa => Some(saView)
-      case true if configDecorator.pegaEnabled    =>
-        Some(selfAssessmentRegistrationView()) // Temporary pegaEnabled condition
-      case true                                   => None // In the future, this will be removed when pegaEnabled condition is removed
+    val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
+    val saView = saAndItsaMergeView((current.currentYear + 1).toString, isItsaEnrolled)
+
+    if (request.trustedHelper.isDefined) {
+      None
+    } else {
+      if (isItsaEnrolled || request.isSa) {
+        Some(saView)
+      } else if (configDecorator.pegaEnabled) {
+        // Temporary condition for Pega
+        Some(selfAssessmentRegistrationView())
+      } else {
+        None
+      }
     }
   }
 
