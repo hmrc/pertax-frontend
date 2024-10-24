@@ -97,12 +97,12 @@ class HomeCardGenerator @Inject() (
     }
 
   def getSelfAssessmentCard()(implicit
-                              messages: Messages,
-                              request: UserRequest[_]
+    messages: Messages,
+    request: UserRequest[_]
   ): Option[HtmlFormat.Appendable] = {
 
     val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
-    val saView = saAndItsaMergeView((current.currentYear + 1).toString, isItsaEnrolled)
+    val saView         = saAndItsaMergeView((current.currentYear + 1).toString, isItsaEnrolled)
 
     request.trustedHelper.flatMap(_ => None).orElse {
       if (isItsaEnrolled || request.isSa) {
