@@ -510,11 +510,11 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cards =
         homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
-      cards.size mustBe 5
+      cards.size mustBe 4
       cards.head.toString().contains("news-card") mustBe true
       cards(1).toString().contains("test1") mustBe true
       cards(2).toString().contains("test2") mustBe true
-      cards(4).toString().contains("ni-and-sp-card") mustBe true
+      cards(3).toString().contains("ni-and-sp-card") mustBe true
     }
 
     "when taxcalc toggle off return no tax calc cards" in {

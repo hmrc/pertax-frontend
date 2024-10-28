@@ -104,7 +104,7 @@ class HomeCardGenerator @Inject() (
     val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
     val saView         = saAndItsaMergeView((current.currentYear + 1).toString, isItsaEnrolled)
 
-    request.trustedHelper.flatMap(_ => None).orElse {
+    request.trustedHelper.map(_ => None).getOrElse {
       if (isItsaEnrolled || request.isSa) {
         Some(saView)
       } else if (configDecorator.pegaSaRegistrationEnabled) {
