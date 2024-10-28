@@ -311,7 +311,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
-      contentAsString(result).contains(Messages("selfAssessment.whoNeedsToRegister")) mustBe true
+      contentAsString(result).contains(Messages("label.self_assessment")) mustBe false
 
       val urlSa                    = "/personal-account/self-assessment-home"
       val requestSa                = FakeRequest(GET, urlSa)
