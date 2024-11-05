@@ -46,7 +46,6 @@ class InterstitialController @Inject() (
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
-  viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
   viewChildBenefitsSummarySingleAccountInterstitialView: ViewChildBenefitsSummarySingleAccountInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
@@ -59,7 +58,8 @@ class InterstitialController @Inject() (
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
   featureFlagService: FeatureFlagService,
-  viewNISPView: ViewNISPView
+  viewNISPView: ViewNISPView,
+  selfAssessmentRegistrationPageView: SelfAssessmentRegistrationPageView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with Logging {
@@ -106,6 +106,18 @@ class InterstitialController @Inject() (
         redirectUrl = currentUrl
       )
     )
+  }
+
+  def displaySaRegistrationPage: Action[AnyContent] = authenticate { implicit request =>
+    val isHelperOrEnrolledOrSa = request.trustedHelper.isDefined || enrolmentsHelper
+      .itsaEnrolmentStatus(request.enrolments)
+      .isDefined || request.isSa
+    if (isHelperOrEnrolledOrSa || !configDecorator.pegaSaRegistrationEnabled) {
+      // Temporarily restricting access based on pegaEnabled, this condition can be removed in future
+      errorRenderer.error(UNAUTHORIZED)
+    } else {
+      Ok(selfAssessmentRegistrationPageView())
+    }
   }
 
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
@@ -177,7 +189,6 @@ class InterstitialController @Inject() (
     if (configDecorator.isNewsAndUpdatesTileEnabled) {
       val models = newsAndTilesConfig.getNewsAndContentModelList()
       if (models.nonEmpty) {
-        //service to get the dynamic content send the models and get the details from the dynamic list
         Ok(viewNewsAndUpdatesView(models, newsSectionId))
       } else {
         Redirect(routes.HomeController.index)

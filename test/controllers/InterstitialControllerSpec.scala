@@ -35,8 +35,9 @@ import services._
 import services.partials.{FormPartialService, SaPartialService}
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -73,7 +74,6 @@ class InterstitialControllerSpec extends BaseSpec {
         inject[WithBreadcrumbAction],
         inject[MessagesControllerComponents],
         inject[ErrorRenderer],
-        inject[ViewNationalInsuranceInterstitialHomeView],
         inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
         inject[SelfAssessmentSummaryView],
         inject[Sa302InterruptView],
@@ -86,7 +86,8 @@ class InterstitialControllerSpec extends BaseSpec {
         inject[SeissService],
         mockNewsAndTileConfig,
         mockFeatureFlagService,
-        inject[ViewNISPView]
+        inject[ViewNISPView],
+        inject[SelfAssessmentRegistrationPageView]
       )(config, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) {
@@ -129,7 +130,7 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      val result = controller.displayNationalInsurance(fakeRequest)
+      val result: Future[Result] = controller.displayNationalInsurance(fakeRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(controllers.routes.InterstitialController.displayNISP.url)
@@ -158,7 +159,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -171,7 +171,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -213,7 +214,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -226,7 +226,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -440,7 +441,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -453,7 +453,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           inject[FeatureFlagService],
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -516,7 +517,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -529,7 +529,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       lazy val fakeRequest       = FakeRequest("", "")
@@ -560,7 +561,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -573,7 +573,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mockNewsAndTileConfig,
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec) {
           private def formPartialServiceResponse = Future.successful {
             HtmlPartial.Success(Some("Success"), Html("any"))
@@ -629,7 +630,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -642,7 +642,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -662,6 +663,109 @@ class InterstitialControllerSpec extends BaseSpec {
 
       status(result) mustBe OK
       contentAsString(result) must include("Your Self Assessment")
+    }
+  }
+
+  "Calling displaySaRegistrationPage" must {
+
+    def createController(
+      saUser: SelfAssessmentUserType,
+      enrolments: Set[Enrolment] = Set.empty,
+      trustedHelper: Option[TrustedHelper] = None,
+      pegaEnabled: Boolean = true
+    ): InterstitialController = {
+      val mockAuthJourney        = mock[AuthJourney]
+      val mockFeatureFlagService = mock[FeatureFlagService]
+      val mockConfigDecorator    = mock[ConfigDecorator]
+
+      when(mockConfigDecorator.pegaSaRegistrationEnabled).thenReturn(pegaEnabled)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = saUser,
+              enrolments = enrolments,
+              trustedHelper = trustedHelper,
+              request = request
+            )
+          )
+      })
+
+      new InterstitialController(
+        mock[FormPartialService],
+        mock[SaPartialService],
+        mockAuthJourney,
+        inject[WithBreadcrumbAction],
+        inject[MessagesControllerComponents],
+        inject[ErrorRenderer],
+        inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
+        inject[SelfAssessmentSummaryView],
+        inject[Sa302InterruptView],
+        inject[ViewNewsAndUpdatesView],
+        inject[ViewSaAndItsaMergePageView],
+        inject[ViewBreathingSpaceView],
+        inject[ShutteringView],
+        inject[TaxCreditsAddressInterstitialView],
+        inject[EnrolmentsHelper],
+        inject[SeissService],
+        mock[NewsAndTilesConfig],
+        mockFeatureFlagService,
+        inject[ViewNISPView],
+        inject[SelfAssessmentRegistrationPageView]
+      )(mockConfigDecorator, ec)
+    }
+
+    "return UNAUTHORIZED when trustedHelper is defined" in {
+      val controller = createController(
+        saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+        trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "principalNino", "attorneyArn"))
+      )
+
+      val result = controller.displaySaRegistrationPage()(FakeRequest())
+
+      status(result) mustBe UNAUTHORIZED
+    }
+
+    "return UNAUTHORIZED when the user has ITSA enrolments" in {
+      val controller = createController(
+        saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+        enrolments = Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated"))
+      )
+
+      val result = controller.displaySaRegistrationPage()(FakeRequest())
+
+      status(result) mustBe UNAUTHORIZED
+    }
+
+    "return UNAUTHORIZED when the user is an SA user" in {
+      val controller = createController(
+        saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))
+      )
+
+      val result = controller.displaySaRegistrationPage()(FakeRequest())
+
+      status(result) mustBe UNAUTHORIZED
+    }
+
+    "return OK with selfAssessmentRegistrationPageView when no trustedHelper, no ITSA enrolment, and not an SA user and pegaEnabled is true" in {
+      val controller = createController(saUser = NonFilerSelfAssessmentUser)
+
+      val result = controller.displaySaRegistrationPage()(FakeRequest())
+
+      status(result) mustBe OK
+      contentAsString(result) must include("Self Assessment: who needs to register")
+    }
+
+    "return UNAUTHORIZED when pegaEnabled is false" in {
+      val controller = createController(
+        saUser = NonFilerSelfAssessmentUser,
+        pegaEnabled = false
+      )
+
+      val result = controller.displaySaRegistrationPage()(FakeRequest())
+
+      status(result) mustBe UNAUTHORIZED
     }
   }
 
@@ -687,7 +791,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -700,7 +803,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -744,7 +848,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -757,7 +860,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -801,7 +905,6 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[WithBreadcrumbAction],
           inject[MessagesControllerComponents],
           inject[ErrorRenderer],
-          inject[ViewNationalInsuranceInterstitialHomeView],
           inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
@@ -814,7 +917,8 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SeissService],
           mock[NewsAndTilesConfig],
           mockFeatureFlagService,
-          inject[ViewNISPView]
+          inject[ViewNISPView],
+          inject[SelfAssessmentRegistrationPageView]
         )(stubConfigDecorator, ec)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {

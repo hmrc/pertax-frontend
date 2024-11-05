@@ -47,6 +47,7 @@ class HomeCardGenerator @Inject() (
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig,
   nispView: NISPView,
+  selfAssessmentRegistrationView: SelfAssessmentRegistrationView,
   taxCalcPartialService: TaxCalcPartialService
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
 
@@ -71,7 +72,7 @@ class HomeCardGenerator @Inject() (
     )
 
     val cards3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
-      Future.successful(getSaAndItsaMergeCard().toSeq),
+      Future.successful(getSelfAssessmentCard().toSeq),
       Future.successful(getNationalInsuranceCard().toSeq),
       if (request.trustedHelper.isEmpty) {
         getAnnualTaxSummaryCard.value.map(_.toSeq)
@@ -95,23 +96,25 @@ class HomeCardGenerator @Inject() (
       }
     }
 
-  def getSaAndItsaMergeCard()(implicit
+  def getSelfAssessmentCard()(implicit
     messages: Messages,
     request: UserRequest[_]
-  ): Option[HtmlFormat.Appendable] =
-    if (
-      request.trustedHelper.isEmpty &&
-      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
-    ) {
-      Some(
-        saAndItsaMergeView(
-          (current.currentYear + 1).toString,
-          enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
-        )
-      )
-    } else {
-      None
+  ): Option[HtmlFormat.Appendable] = {
+
+    val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
+    val saView         = saAndItsaMergeView((current.currentYear + 1).toString, isItsaEnrolled)
+
+    request.trustedHelper.map(_ => None).getOrElse {
+      if (isItsaEnrolled || request.isSa) {
+        Some(saView)
+      } else if (configDecorator.pegaSaRegistrationEnabled) {
+        // Temporary condition for Pega
+        Some(selfAssessmentRegistrationView())
+      } else {
+        None
+      }
     }
+  }
 
   def getAnnualTaxSummaryCard(implicit
     request: UserRequest[AnyContent],

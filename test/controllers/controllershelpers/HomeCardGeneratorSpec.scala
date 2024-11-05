@@ -50,17 +50,20 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   private val generator = new Generator(new Random())
 
-  private val payAsYouEarn              = inject[PayAsYouEarnView]
-  private val taxCredits                = inject[TaxCreditsView]
-  private val childBenefitSingleAccount = inject[ChildBenefitSingleAccountView]
-  private val marriageAllowance         = inject[MarriageAllowanceView]
-  private val taxSummaries              = inject[TaxSummariesView]
-  private val latestNewsAndUpdatesView  = inject[LatestNewsAndUpdatesView]
-  private val saAndItsaMergeView        = inject[SaAndItsaMergeView]
-  private val nispView                  = inject[NISPView]
-  private val enrolmentsHelper          = inject[EnrolmentsHelper]
-  private val newsAndTilesConfig        = mock[NewsAndTilesConfig]
-  private val stubConfigDecorator       = new ConfigDecorator(
+  private val payAsYouEarn                   = inject[PayAsYouEarnView]
+  private val taxCredits                     = inject[TaxCreditsView]
+  private val childBenefitSingleAccount      = inject[ChildBenefitSingleAccountView]
+  private val marriageAllowance              = inject[MarriageAllowanceView]
+  private val taxSummaries                   = inject[TaxSummariesView]
+  private val latestNewsAndUpdatesView       = inject[LatestNewsAndUpdatesView]
+  private val saAndItsaMergeView             = inject[SaAndItsaMergeView]
+  private val nispView                       = inject[NISPView]
+  private val enrolmentsHelper               = inject[EnrolmentsHelper]
+  private val selfAssessmentRegistrationView = inject[SelfAssessmentRegistrationView]
+  private val mockConfigDecorator            = mock[ConfigDecorator]
+
+  private val newsAndTilesConfig  = mock[NewsAndTilesConfig]
+  private val stubConfigDecorator = new ConfigDecorator(
     inject[Configuration],
     inject[ServicesConfig]
   )
@@ -80,6 +83,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
+      selfAssessmentRegistrationView,
       mockTaxCalcPartialService
     )(stubConfigDecorator, ec)
 
@@ -96,6 +100,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
+      selfAssessmentRegistrationView,
       mockTaxCalcPartialService
     )(stubConfigDecorator, ec)
 
@@ -190,7 +195,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       cardBody.isEmpty
 
-      //Just verifying the feature flags as it should only be checked if there is no trusted helpers
       verify(mockFeatureFlagService, times(0)).get(any())
 
     }
@@ -340,60 +344,109 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         cardBody mustBe None
       }
     }
+  }
 
-    "Calling getItsaCard" must {
+  "Calling getSelfAssessmentCard" must {
+
+    def createController(pegaEnabled: Boolean = true): HomeCardGenerator = {
+      when(mockConfigDecorator.pegaSaRegistrationEnabled).thenReturn(pegaEnabled)
+
+      new HomeCardGenerator(
+        mockFeatureFlagService,
+        payAsYouEarn,
+        taxCredits,
+        childBenefitSingleAccount,
+        marriageAllowance,
+        taxSummaries,
+        latestNewsAndUpdatesView,
+        saAndItsaMergeView,
+        enrolmentsHelper,
+        newsAndTilesConfig,
+        nispView,
+        selfAssessmentRegistrationView,
+        mockTaxCalcPartialService
+      )(mockConfigDecorator, ec)
+    }
+
+    implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+      buildUserRequest(
+        saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+        request = FakeRequest()
+      )
+
+    "return Itsa Card when the user has ITSA enrolments" in {
+
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+          enrolments =
+            Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
           request = FakeRequest()
         )
-      "return Itsa Card when with Itsa enrolments" in {
 
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(
-            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-            enrolments =
-              Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
-            request = FakeRequest()
-          )
+      lazy val cardBody = createController().getSelfAssessmentCard()
 
-        lazy val cardBody = sut.getSaAndItsaMergeCard()
+      cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = true))
+    }
 
-        cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = true))
-      }
+    "return Itsa Card when the user is an SA user but without ITSA enrolments" in {
 
-      "return Itsa Card when without Itsa enrolments" in {
+      lazy val cardBody = sut.getSelfAssessmentCard()
 
-        lazy val cardBody = sut.getSaAndItsaMergeCard()
+      cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
+    }
 
-        cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
-      }
+    "return None when the trustedHelper is not empty" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          trustedHelper = Some(TrustedHelper("", "", "", "")),
+          request = FakeRequest()
+        )
 
-      "return None when without Itsa enrolments and sa enrolment type is NonFilerSelfAssessmentUser" in {
+      lazy val cardBody = createController().getSelfAssessmentCard()
 
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(
-            saUser = NonFilerSelfAssessmentUser,
-            request = FakeRequest()
-          )
+      cardBody mustBe None
+    }
 
-        lazy val cardBody = sut.getSaAndItsaMergeCard()
+    "return selfAssessmentRegistrationView when there is no ITSA enrolment and the user is not an SA user" in {
 
-        cardBody mustBe None
-      }
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
 
-      "return Itsa/sa Card when without Itsa enrolments and sa enrolment type is WrongCredentialsSelfAssessmentUser" in {
+      lazy val cardBody = createController().getSelfAssessmentCard()
 
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(
-            saUser = WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-            request = FakeRequest()
-          )
+      cardBody mustBe Some(selfAssessmentRegistrationView())
+    }
 
-        lazy val cardBody = sut.getSaAndItsaMergeCard()
+    "return Itsa/sa Card when user has wrong credentials but no ITSA enrolment" in {
 
-        cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
-      }
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+          request = FakeRequest()
+        )
+
+      lazy val cardBody = createController().getSelfAssessmentCard()
+
+      cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
+    }
+
+    "return None when pegaEnabled is false" in {
+
+      val controller = createController(pegaEnabled = false)
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
+
+      lazy val cardBody = controller.getSelfAssessmentCard()
+
+      cardBody mustBe None
     }
   }
 
