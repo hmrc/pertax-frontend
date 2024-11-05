@@ -719,7 +719,7 @@ class InterstitialControllerSpec extends BaseSpec {
     "return UNAUTHORIZED when trustedHelper is defined" in {
       val controller = createController(
         saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-        trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "principalNino", "attorneyArn"))
+        trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "principalNino", Some("attorneyArn")))
       )
 
       val result = controller.displaySaRegistrationPage()(FakeRequest())
