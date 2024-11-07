@@ -393,11 +393,11 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString))
     }
 
-    "return Itsa Card when the user is an SA user but without ITSA enrolments" in {
+    "return PTA Card when the user is an SA user but without ITSA enrolments" in {
 
       lazy val cardBody = sut.getSelfAssessmentCard()
 
-      cardBody mustBe Some(saMergeView((current.currentYear + 1).toString))
+      cardBody mustBe Some(saMergeView((current.currentYear + 1).toString, configDecorator.selfAssessmentEnrolUrl))
     }
 
     "return None when the trustedHelper is not empty" in {
@@ -435,7 +435,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = createController().getSelfAssessmentCard()
 
-      cardBody mustBe Some(saMergeView((current.currentYear + 1).toString))
+      cardBody mustBe Some(saMergeView((current.currentYear + 1).toString, ""))
     }
 
     "return None when pegaEnabled is false" in {

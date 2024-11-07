@@ -110,7 +110,8 @@ class HomeCardGenerator @Inject() (
       )
     } else {
       saMergeView(
-        (current.currentYear + 1).toString
+        (current.currentYear + 1).toString,
+        configDecorator.selfAssessmentEnrolUrl
       )
     }
 

@@ -25,14 +25,14 @@ class SaMergeViewSpec extends ViewSpec {
 
   val saAndItsaMergeView: SaMergeView           = inject[SaMergeView]
   implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
-
-  val nextDeadlineTaxYear = "2021"
+  private val dummyUrl                          = "/url"
+  val nextDeadlineTaxYear                       = "2021"
 
   "Sa and Itsa card for Pta" must {
 
     val doc =
       asDocument(
-        saAndItsaMergeView(nextDeadlineTaxYear).toString
+        saAndItsaMergeView(nextDeadlineTaxYear, dummyUrl).toString
       )
 
     "render the given heading correctly" in {
