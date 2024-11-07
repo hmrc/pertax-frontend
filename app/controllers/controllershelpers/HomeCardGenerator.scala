@@ -43,8 +43,8 @@ class HomeCardGenerator @Inject() (
   marriageAllowanceView: MarriageAllowanceView,
   taxSummariesView: TaxSummariesView,
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
-  saAndItsaMergeItsaView: SaAndItsaMergeItsaView,
-  saAndItsaMergePtaView: SaAndItsaMergePtaView,
+  itsaMergeView: ItsaMergeView,
+  saMergeView: SaMergeView,
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig,
   nispView: NISPView,
@@ -105,11 +105,11 @@ class HomeCardGenerator @Inject() (
     val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
 
     val saView = if (isItsaEnrolled) {
-      saAndItsaMergeItsaView(
+      itsaMergeView(
         (current.currentYear + 1).toString
       )
     } else {
-      saAndItsaMergePtaView(
+      saMergeView(
         (current.currentYear + 1).toString
       )
     }

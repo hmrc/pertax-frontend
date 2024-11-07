@@ -18,12 +18,12 @@ package views.html.cards
 import config.ConfigDecorator
 import play.api.i18n.Messages
 import views.html.ViewSpec
-import views.html.cards.home.SaAndItsaMergeItsaView
+import views.html.cards.home.ItsaMergeView
 
-class SaAndItsaMergeItsaViewSpec extends ViewSpec {
+class ItsaMergeViewSpec extends ViewSpec {
 
-  val saAndItsaMergeView: SaAndItsaMergeItsaView = inject[SaAndItsaMergeItsaView]
-  implicit val configDecorator: ConfigDecorator  = inject[ConfigDecorator]
+  val saAndItsaMergeView: ItsaMergeView         = inject[ItsaMergeView]
+  implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
   val nextDeadlineTaxYear = "2021"
 
