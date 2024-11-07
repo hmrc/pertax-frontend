@@ -56,7 +56,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val marriageAllowance              = inject[MarriageAllowanceView]
   private val taxSummaries                   = inject[TaxSummariesView]
   private val latestNewsAndUpdatesView       = inject[LatestNewsAndUpdatesView]
-  private val saAndItsaMergeView             = inject[SaAndItsaMergeView]
+  private val saAndItsaMergePtaView          = inject[SaAndItsaMergePtaView]
+  private val saAndItsaMergeItsaView         = inject[SaAndItsaMergeItsaView]
   private val nispView                       = inject[NISPView]
   private val enrolmentsHelper               = inject[EnrolmentsHelper]
   private val selfAssessmentRegistrationView = inject[SelfAssessmentRegistrationView]
@@ -79,7 +80,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       marriageAllowance,
       taxSummaries,
       latestNewsAndUpdatesView,
-      saAndItsaMergeView,
+      saAndItsaMergeItsaView,
+      saAndItsaMergePtaView,
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
@@ -96,7 +98,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       marriageAllowance,
       taxSummaries,
       latestNewsAndUpdatesView,
-      saAndItsaMergeView,
+      saAndItsaMergeItsaView,
+      saAndItsaMergePtaView,
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
@@ -359,7 +362,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         marriageAllowance,
         taxSummaries,
         latestNewsAndUpdatesView,
-        saAndItsaMergeView,
+        saAndItsaMergeItsaView,
+        saAndItsaMergePtaView,
         enrolmentsHelper,
         newsAndTilesConfig,
         nispView,
@@ -386,14 +390,14 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = createController().getSelfAssessmentCard()
 
-      cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = true))
+      cardBody mustBe Some(saAndItsaMergeItsaView((current.currentYear + 1).toString))
     }
 
     "return Itsa Card when the user is an SA user but without ITSA enrolments" in {
 
       lazy val cardBody = sut.getSelfAssessmentCard()
 
-      cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
+      cardBody mustBe Some(saAndItsaMergePtaView((current.currentYear + 1).toString))
     }
 
     "return None when the trustedHelper is not empty" in {
@@ -431,7 +435,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = createController().getSelfAssessmentCard()
 
-      cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, isItsa = false))
+      cardBody mustBe Some(saAndItsaMergePtaView((current.currentYear + 1).toString))
     }
 
     "return None when pegaEnabled is false" in {
