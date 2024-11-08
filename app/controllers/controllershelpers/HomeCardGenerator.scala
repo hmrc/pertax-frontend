@@ -109,6 +109,7 @@ class HomeCardGenerator @Inject() (
         (current.currentYear + 1).toString
       )
     } else {
+    //Or should it be this?: controllers.routes.SelfAssessmentController.redirectToEnrolForSa.url
       saMergeView(
         (current.currentYear + 1).toString,
         configDecorator.selfAssessmentEnrolUrl
