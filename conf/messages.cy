@@ -483,9 +483,6 @@ label.self_assessment_tax_returns=Ffurflenni Treth Hunanasesiad
 label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
 label.online_deadline_final_declarations=Y dyddiad cau ar gyfer datganiadau terfynol neu Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
 label.making_tax_digital=Troi Treth yn Ddigidol
-label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return=O 6 Ebrill 2024 ymlaen bydd y gwasanaeth Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm yn disodli’r Ffurflen Dreth Hunanasesiad.
-label.some_businesses_agents_using_mtd_for_itsa=Mae rhai busnesau ac asiantau eisoes yn defnyddio’r gwasanaeth Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm.
-label.find_out_about_making_tax_digital_for_income_tax_self_assessment=Cael gwybod am y cynllun Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm (yn agor tab newydd)
 
 #
 # Breathing Space

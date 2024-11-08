@@ -50,7 +50,7 @@ class InterstitialController @Inject() (
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
-  viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
+  viewItsaMergePageView: ViewItsaMergePageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
   shutteringView: ShutteringView,
   taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
@@ -121,28 +121,33 @@ class InterstitialController @Inject() (
   }
 
   def displayItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
-    val saUserType = request.saUserType
-
-    if (
-      request.trustedHelper.isEmpty &&
-      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
-    ) {
-      for {
-        hasSeissClaims    <- seissService.hasClaims(saUserType)
-        itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
-      } yield Ok(
-        viewSaAndItsaMergePageView(
-          nextDeadlineTaxYear = (current.currentYear + 1).toString,
-          enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
-          request.isSa,
-          itsaMessageToggle.isEnabled,
-          hasSeissClaims,
-          taxYear = previousAndCurrentTaxYear,
-          saUserType
-        )
-      )
+    if (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined) {
+      Future.successful(NotFound)
+      //Future.successful(Redirect(routes.HomeController.index.url)) // Right page?
     } else {
-      errorRenderer.futureError(UNAUTHORIZED)
+
+      val saUserType = request.saUserType
+
+      if (
+        request.trustedHelper.isEmpty &&
+        (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
+      ) {
+        for {
+          hasSeissClaims    <- seissService.hasClaims(saUserType)
+          itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
+        } yield Ok(
+          viewItsaMergePageView(
+            nextDeadlineTaxYear = (current.currentYear + 1).toString,
+            request.isSa,
+            itsaMessageToggle.isEnabled,
+            hasSeissClaims,
+            taxYear = previousAndCurrentTaxYear,
+            saUserType
+          )
+        )
+      } else {
+        errorRenderer.futureError(UNAUTHORIZED)
+      }
     }
   }
 

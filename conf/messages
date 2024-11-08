@@ -479,9 +479,6 @@ label.self_assessment_tax_returns=Self Assessment tax returns
 label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax Self Assessment or access your Self Assessment tax returns.
 label.online_deadline_final_declarations=The deadline for final declarations or online returns is 31 January {0}.
 label.making_tax_digital=Making Tax Digital
-label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return=From 6 April 2024 the Making Tax Digital service for Income Tax Self Assessment will replace the Self Assessment tax return.
-label.some_businesses_agents_using_mtd_for_itsa=Some businesses and agents are already using the Making Tax Digital service for Income Tax Self Assessment.
-label.find_out_about_making_tax_digital_for_income_tax_self_assessment=Find out about Making Tax Digital for Income Tax Self Assessment (opens in new tab)
 
 #
 # Breathing Space
