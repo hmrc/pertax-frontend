@@ -120,7 +120,7 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
+  def displayItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
 
     if (

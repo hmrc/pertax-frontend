@@ -659,7 +659,7 @@ class InterstitialControllerSpec extends BaseSpec {
       when(mockFeatureFlagService.get(any()))
         .thenReturn(Future.successful(FeatureFlag(ItsAdvertisementMessageToggle, isEnabled = true)))
 
-      val result = controller.displaySaAndItsaMergePage()(fakeRequest)
+      val result = controller.displayItsaMergePage()(fakeRequest)
 
       status(result) mustBe OK
       contentAsString(result) must include("Your Self Assessment")
