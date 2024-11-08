@@ -20,6 +20,7 @@ import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
+import controllers.routes
 import models._
 import models.admin._
 import play.api.i18n.Messages
@@ -104,20 +105,25 @@ class HomeCardGenerator @Inject() (
 
     val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
 
-    val saView = if (isItsaEnrolled) {
-      itsaMergeView(
-        (current.currentYear + 1).toString
-      )
-    } else {
-    //Or should it be this?: controllers.routes.SelfAssessmentController.redirectToEnrolForSa.url
-      saMergeView(
-        (current.currentYear + 1).toString,
-        configDecorator.selfAssessmentEnrolUrl
-      )
-    }
-
     request.trustedHelper.map(_ => None).getOrElse {
       if (isItsaEnrolled || request.isSa) {
+        val saView = if (isItsaEnrolled) {
+          itsaMergeView(
+            (current.currentYear + 1).toString
+          )
+        } else {
+          val redirectUrl: String = (request.saUserType match {
+            case ActivatedOnlineFilerSelfAssessmentUser(_)       => routes.InterstitialController.displaySelfAssessment
+            case NotYetActivatedOnlineFilerSelfAssessmentUser(_) => routes.SelfAssessmentController.handleSelfAssessment
+            case WrongCredentialsSelfAssessmentUser(_)           => routes.SelfAssessmentController.handleSelfAssessment
+            case NotEnrolledSelfAssessmentUser(_)                => routes.SelfAssessmentController.redirectToEnrolForSa
+            case _                                               =>
+            // configDecorator.generalQueriesUrl might be better??? 
+            routes.HomeController.index
+          }).url
+
+          saMergeView((current.currentYear + 1).toString, redirectUrl)
+        }
         Some(saView)
       } else if (configDecorator.pegaSaRegistrationEnabled) {
         // Temporary condition for Pega

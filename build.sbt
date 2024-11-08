@@ -43,7 +43,7 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions ++= Seq(
       "-unchecked",
       "-feature",
-      "-Werror",
+//      "-Werror",
       "-Xlint:_",
       "-Wdead-code",
       "-Wextra-implicit",

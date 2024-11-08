@@ -18,6 +18,7 @@ package controllers.controllershelpers
 
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
+import controllers.routes
 import models._
 import models.admin._
 import org.mockito.ArgumentMatchers.any
@@ -393,11 +394,56 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString))
     }
 
-    "return PTA Card when the user is an SA user but without ITSA enrolments" in {
+    "return PTA Card with link to display self assessment when active user is an SA user but without ITSA enrolments" in {
 
       lazy val cardBody = sut.getSelfAssessmentCard()
 
-      cardBody mustBe Some(saMergeView((current.currentYear + 1).toString, configDecorator.selfAssessmentEnrolUrl))
+      cardBody mustBe Some(
+        saMergeView((current.currentYear + 1).toString, routes.InterstitialController.displaySelfAssessment.url)
+      )
+    }
+
+    "return PTA Card with link to self assessment when not yet activated user is an SA user but without ITSA enrolments" in {
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+          request = FakeRequest()
+        )
+
+      lazy val cardBody = sut.getSelfAssessmentCard()
+
+      cardBody mustBe Some(
+        saMergeView((current.currentYear + 1).toString, routes.SelfAssessmentController.handleSelfAssessment.url)
+      )
+    }
+    "return PTA Card with link to self assessment when not enrolled user is an SA user but without ITSA enrolments" in {
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NotEnrolledSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+          request = FakeRequest()
+        )
+
+      lazy val cardBody = sut.getSelfAssessmentCard()
+
+      cardBody mustBe Some(
+        saMergeView((current.currentYear + 1).toString, routes.SelfAssessmentController.redirectToEnrolForSa.url)
+      )
+    }
+    
+    "return ?? when non-filing user (cannot confirm user's identity) is an SA user but without ITSA enrolments" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
+
+      lazy val cardBody = sut.getSelfAssessmentCard()
+
+      cardBody mustBe Some(
+        saMergeView((current.currentYear + 1).toString, routes.SelfAssessmentController.redirectToEnrolForSa.url)
+      )
     }
 
     "return None when the trustedHelper is not empty" in {
@@ -425,7 +471,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       cardBody mustBe Some(selfAssessmentRegistrationView())
     }
 
-    "return Itsa/sa Card when user has wrong credentials but no ITSA enrolment" in {
+    "return sa Card when user with wrong creds has wrong credentials but no ITSA enrolment" in {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
@@ -435,7 +481,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = createController().getSelfAssessmentCard()
 
-      cardBody mustBe Some(saMergeView((current.currentYear + 1).toString, ""))
+      cardBody mustBe Some(
+        saMergeView((current.currentYear + 1).toString, routes.SelfAssessmentController.handleSelfAssessment.url)
+      )
     }
 
     "return None when pegaEnabled is false" in {
