@@ -121,7 +121,8 @@ class InterstitialController @Inject() (
   }
 
   def displayItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
-    if (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined) {
+    if (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isEmpty) {
+      println("\nHERE")
       Future.successful(NotFound)
       //Future.successful(Redirect(routes.HomeController.index.url)) // Right page?
     } else {
