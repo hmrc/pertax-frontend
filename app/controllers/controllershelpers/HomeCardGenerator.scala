@@ -24,7 +24,7 @@ import controllers.routes
 import models._
 import models.admin._
 import play.api.i18n.Messages
-import play.api.mvc.AnyContent
+import play.api.mvc.{AnyContent, Call}
 import play.twirl.api.{Html, HtmlFormat}
 import services.partials.TaxCalcPartialService
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
@@ -98,6 +98,10 @@ class HomeCardGenerator @Inject() (
       }
     }
 
+  private def displaySACall: Call       = routes.InterstitialController.displaySelfAssessment
+  private def handleSACall: Call        = routes.SelfAssessmentController.handleSelfAssessment
+  private def redirectToEnrolCall: Call = routes.SelfAssessmentController.redirectToEnrolForSa
+
   def getSelfAssessmentCard()(implicit
     messages: Messages,
     request: UserRequest[_]
@@ -112,17 +116,16 @@ class HomeCardGenerator @Inject() (
             (current.currentYear + 1).toString
           )
         } else {
-          val redirectUrl: String = (request.saUserType match {
-            case ActivatedOnlineFilerSelfAssessmentUser(_)       => routes.InterstitialController.displaySelfAssessment
-            case NotYetActivatedOnlineFilerSelfAssessmentUser(_) => routes.SelfAssessmentController.handleSelfAssessment
-            case WrongCredentialsSelfAssessmentUser(_)           => routes.SelfAssessmentController.handleSelfAssessment
-            case NotEnrolledSelfAssessmentUser(_)                => routes.SelfAssessmentController.redirectToEnrolForSa
-            case _                                               =>
-            // configDecorator.generalQueriesUrl might be better??? 
-            routes.HomeController.index
-          }).url
-
-          saMergeView((current.currentYear + 1).toString, redirectUrl)
+          val (redirectUrl, paragraphMessageKey) = request.saUserType match {
+            case ActivatedOnlineFilerSelfAssessmentUser(_)       => (displaySACall, "label.viewAndManageSA")
+            case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
+              (handleSACall, "label.activate_your_self_assessment")
+            case WrongCredentialsSelfAssessmentUser(_)           =>
+              (handleSACall, "label.find_out_how_to_access_your_self_assessment")
+            case NotEnrolledSelfAssessmentUser(_)                => (redirectToEnrolCall, "label.request_access_to_your_sa")
+            case _                                               => (routes.HomeController.index, "label.request_access_to_your_sa") // TODO: 9519 - not sure what to do in this scenario, or even whether it will happen.
+          }
+          saMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey)
         }
         Some(saView)
       } else if (configDecorator.pegaSaRegistrationEnabled) {

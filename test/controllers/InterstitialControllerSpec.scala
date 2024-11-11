@@ -651,7 +651,9 @@ class InterstitialControllerSpec extends BaseSpec {
           block(
             buildUserRequest(
               saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-              request = request
+              request = request,
+              enrolments =
+                Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated"))
             )
           )
       })

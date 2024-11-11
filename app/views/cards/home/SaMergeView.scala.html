@@ -17,10 +17,10 @@
 @import tags._
 @import components.P
 @this(p: P)
-@(nextDeadlineTaxYear: String, redirectUrl: String)(implicit messages: play.api.i18n.Messages)
+@(nextDeadlineTaxYear: String, redirectUrl: String, paragraphMessageKey: String)(implicit messages: play.api.i18n.Messages)
 
 @cardContent = {
-    @p(Text(messages("label.request_access_to_your_sa")))
+    @p(Text(messages(paragraphMessageKey, nextDeadlineTaxYear)))
 }
 @card(
     id = Some("sa-card"),

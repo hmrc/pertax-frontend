@@ -32,7 +32,7 @@ class SaMergeViewSpec extends ViewSpec {
 
     val doc =
       asDocument(
-        saAndItsaMergeView(nextDeadlineTaxYear, dummyUrl).toString
+        saAndItsaMergeView(nextDeadlineTaxYear, dummyUrl, "label.online_deadline_final_declarations").toString
       )
 
     "render the given heading correctly" in {
@@ -43,9 +43,8 @@ class SaMergeViewSpec extends ViewSpec {
     }
 
     "render the given content correctly" in {
-
       doc.text() must include(
-        Messages("label.request_access_to_your_sa")
+        Messages("label.online_deadline_final_declarations", "2021")
       )
     }
   }

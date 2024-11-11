@@ -439,6 +439,7 @@ label.your_tax_has_not_been_calculated=Nid yw’ch treth wedi’i chyfrifo eto
 label.no_need_to_contact_hmrc=Does dim angen i chi gysylltu â CThEM ynglŷn â hyn. Cewch lythyr os ydych wedi talu gormod o dreth neu heb dalu digon.
 label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
 
+label.viewAndManageSA=Bwrw golwg dros eich Ffurflen Dreth Hunanasesiad a’i rheoli. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
 
 label.self_assessment=Hunanasesiad
 label.complete_your_tax_return=Llenwi’ch Ffurflen Dreth
