@@ -25,7 +25,7 @@ import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -343,8 +343,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
       val requestSa                = FakeRequest(GET, urlSa)
         .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
       val resultSa: Future[Result] = route(app, requestSa).get
-      httpStatus(resultSa) mustBe SEE_OTHER
-      redirectLocation(resultSa) mustBe Some("/personal-account")
+      httpStatus(resultSa) mustBe UNAUTHORIZED
     }
   }
 }

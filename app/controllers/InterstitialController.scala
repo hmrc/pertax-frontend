@@ -121,27 +121,27 @@ class InterstitialController @Inject() (
   }
 
   def displayItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
-    if (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isEmpty) {
-      Future.successful(Redirect(routes.HomeController.index.url))
-    } else {
-      val saUserType = request.saUserType
-      if (request.trustedHelper.isEmpty && request.isSa) {
-        for {
-          hasSeissClaims    <- seissService.hasClaims(saUserType)
-          itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
-        } yield Ok(
-          viewItsaMergePageView(
-            nextDeadlineTaxYear = (current.currentYear + 1).toString,
-            request.isSa,
-            itsaMessageToggle.isEnabled,
-            hasSeissClaims,
-            taxYear = previousAndCurrentTaxYear,
-            saUserType
-          )
+    val saUserType = request.saUserType
+    if (
+      enrolmentsHelper
+        .itsaEnrolmentStatus(request.enrolments)
+        .isDefined && request.trustedHelper.isEmpty && request.isSa
+    ) {
+      for {
+        hasSeissClaims    <- seissService.hasClaims(saUserType)
+        itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
+      } yield Ok(
+        viewItsaMergePageView(
+          nextDeadlineTaxYear = (current.currentYear + 1).toString,
+          request.isSa,
+          itsaMessageToggle.isEnabled,
+          hasSeissClaims,
+          taxYear = previousAndCurrentTaxYear,
+          saUserType
         )
-      } else {
-        errorRenderer.futureError(UNAUTHORIZED)
-      }
+      )
+    } else {
+      errorRenderer.futureError(UNAUTHORIZED)
     }
   }
 
