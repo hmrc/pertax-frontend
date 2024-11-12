@@ -222,7 +222,6 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
     }
 
     "show SaUtr and Complete your tax return message when user has an SaUtr in the auth body which has the Activated state" in {
-
       val authResponse =
         s"""
            |{
@@ -296,7 +295,6 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
     }
 
     "redirect to home page if no MDT enrolment present" in {
-
       val authResponse =
         s"""
            |{

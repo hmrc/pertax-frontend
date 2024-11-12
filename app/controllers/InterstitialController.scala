@@ -124,13 +124,8 @@ class InterstitialController @Inject() (
     if (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isEmpty) {
       Future.successful(Redirect(routes.HomeController.index.url))
     } else {
-
       val saUserType = request.saUserType
-
-      if (
-        request.trustedHelper.isEmpty &&
-        (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
-      ) {
+      if (request.trustedHelper.isEmpty && request.isSa) {
         for {
           hasSeissClaims    <- seissService.hasClaims(saUserType)
           itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
