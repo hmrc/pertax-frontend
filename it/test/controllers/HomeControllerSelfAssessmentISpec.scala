@@ -25,7 +25,7 @@ import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -61,7 +61,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
       .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
   }
 
-  "personal-account" must {
+  "self-assessment-home" must {
     "show SaUtr and Request Access message when user has an SaUtr in the matching details body but not the auth body" in {
 
       val citizenResponse =
@@ -113,7 +113,17 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
            |                "value": "$generatedNino"
            |             }
            |          ]
-           |       }
+           |       },
+           |       {
+           |            "key":"HMRC-MTD-IT",
+           |            "identifiers": [
+           |                {
+           |                    "key":"MTDITID",
+           |                    "value": "$generatedUtr"
+           |                }
+           |            ],
+           |            "state": "Activated"
+           |        }
            |    ],
            |    "affinityGroup": "Individual",
            |    "credentialStrength": "strong"
@@ -178,6 +188,16 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
            |                }
            |            ],
            |            "state": "NotYetActivated"
+           |        },
+           |       {
+           |            "key":"HMRC-MTD-IT",
+           |            "identifiers": [
+           |                {
+           |                    "key":"MTDITID",
+           |                    "value": "$generatedUtr"
+           |                }
+           |            ],
+           |            "state": "Activated"
            |        }
            |    ],
            |    "affinityGroup": "Individual",
@@ -243,6 +263,16 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
            |                }
            |            ],
            |            "state": "Activated"
+           |        },
+           |       {
+           |            "key":"HMRC-MTD-IT",
+           |            "identifiers": [
+           |                {
+           |                    "key":"MTDITID",
+           |                    "value": "$generatedUtr"
+           |                }
+           |            ],
+           |            "state": "Activated"
            |        }
            |    ],
            |    "affinityGroup": "Individual",
@@ -263,11 +293,9 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
         .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
       val resultSa: Future[Result] = route(app, requestSa).get
       httpStatus(resultSa) mustBe OK
-      contentAsString(resultSa).contains(Messages("label.complete_your_tax_return")) mustBe true
-      contentAsString(resultSa).contains(Messages("label.view_your_payments")) mustBe true
     }
 
-    "not show SaUtr or Self Assessment tile if no SaUtr is present in the auth or citizen details body" in {
+    "redirect to home page if no MDT enrolment present" in {
 
       val authResponse =
         s"""
@@ -317,7 +345,8 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
       val requestSa                = FakeRequest(GET, urlSa)
         .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
       val resultSa: Future[Result] = route(app, requestSa).get
-      httpStatus(resultSa) mustBe UNAUTHORIZED
+      httpStatus(resultSa) mustBe SEE_OTHER
+      redirectLocation(resultSa) mustBe Some("/personal-account")
     }
   }
 }

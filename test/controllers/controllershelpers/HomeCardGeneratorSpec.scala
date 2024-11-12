@@ -444,20 +444,17 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
     }
 
-// TODO: 9519 - not sure what to do in this scenario, or even whether it will happen.
-//    "return ?? when non-filing user (cannot confirm user's identity) is an SA user but without ITSA enrolments" in {
-//      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-//        buildUserRequest(
-//          saUser = NonFilerSelfAssessmentUser,
-//          request = FakeRequest()
-//        )
-//
-//      lazy val cardBody = sut.getSelfAssessmentCard()
-//
-//      cardBody mustBe Some(
-//        saMergeView((current.currentYear + 1).toString, routes.SelfAssessmentController.redirectToEnrolForSa.url, "")
-//      )
-//    }
+    "return no card when non-filing user (cannot confirm user's identity) is an SA user but without ITSA enrolments" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
+
+      lazy val cardBody = sut.getSelfAssessmentCard()
+
+      cardBody mustBe None
+    }
 
     "return None when the trustedHelper is not empty" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =

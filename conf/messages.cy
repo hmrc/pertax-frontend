@@ -442,9 +442,7 @@ label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
 label.viewAndManageSA=Bwrw golwg dros eich Ffurflen Dreth Hunanasesiad a’i rheoli. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
 
 label.self_assessment=Hunanasesiad
-label.complete_your_tax_return=Llenwi’ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
-label.view_your_payments=Bwrw golwg dros eich taliadau
 label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
 label.find_out_how_to_access_self_assessment=Cael gwybod sut i gael at Hunanasesiad
 label.request_access_to_your_sa=Gwneud cais i gael mynediad at eich Hunanasesiad.
