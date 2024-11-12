@@ -294,7 +294,7 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
       httpStatus(resultSa) mustBe OK
     }
 
-    "redirect to home page if no MDT enrolment present" in {
+    "return unauthorised if no MDT enrolment present" in {
       val authResponse =
         s"""
            |{
