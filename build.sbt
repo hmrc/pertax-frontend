@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import sbt.*
 import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings
@@ -52,7 +53,8 @@ lazy val microservice = Project(appName, file("."))
       "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
       "-Wconf:cat=unused&src=.*Routes\\.scala:s",
       "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
-      "-Wconf:cat=unused&src=.*JavaScriptReverseRoutes\\.scala:s"
+      "-Wconf:cat=unused&src=.*JavaScriptReverseRoutes\\.scala:s",
+      "-Wconf:cat=deprecation&msg=value name in trait Retrievals is deprecated:s"
     ),
     routesImport ++= Seq("uk.gov.hmrc.play.bootstrap.binders._", "controllers.bindable._", "models.admin._"),
     TwirlKeys.templateImports ++= Seq(
