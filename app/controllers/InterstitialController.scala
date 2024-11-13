@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, ShowOutageBannerToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -128,14 +128,12 @@ class InterstitialController @Inject() (
       (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       for {
-        hasSeissClaims    <- seissService.hasClaims(saUserType)
-        itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
+        hasSeissClaims <- seissService.hasClaims(saUserType)
       } yield Ok(
         viewSaAndItsaMergePageView(
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           request.isSa,
-          itsaMessageToggle.isEnabled,
           hasSeissClaims,
           taxYear = previousAndCurrentTaxYear,
           saUserType

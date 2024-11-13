@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
         nextDeadlineTaxYear,
         isItsa = false,
         isSa = true,
-        itsaToggle = true,
         isSeiss = false,
         previousAndCurrentTaxYear,
         user
@@ -71,7 +70,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             nextDeadlineTaxYear,
             isItsa = true,
             isSa = false,
-            itsaToggle = true,
             isSeiss = false,
             previousAndCurrentTaxYear,
             userRequest.saUserType
@@ -81,7 +79,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       doc.text() must include(Messages("label.itsa_header"))
       doc.text() must include(Messages("label.mtd_for_sa"))
       doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
-      doc.text() must not include Messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return")
 
       hasLink(
         doc,
@@ -99,7 +96,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
               nextDeadlineTaxYear,
               isItsa = false,
               isSa = true,
-              itsaToggle = true,
               isSeiss = false,
               previousAndCurrentTaxYear,
               userRequest.saUserType
@@ -110,12 +106,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
         doc.text() must include(
           Messages("label.online_returns_deadline", nextDeadlineTaxYear)
         )
-        doc.text() must include(Messages("label.making_tax_digital"))
-        doc.text() must include(Messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return"))
-
-        doc
-          .getElementsContainingText("Find out about Making Tax Digital for Income Tax Self Assessment")
-          .hasAttr("href") mustBe true
 
         hasLink(
           doc,
@@ -204,7 +194,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             nextDeadlineTaxYear,
             isItsa = false,
             isSa = false,
-            itsaToggle = true,
             isSeiss = true,
             previousAndCurrentTaxYear,
             userRequest.saUserType
@@ -228,7 +217,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             nextDeadlineTaxYear,
             isItsa = true,
             isSa = true,
-            itsaToggle = true,
             isSeiss = true,
             previousAndCurrentTaxYear,
             ActivatedOnlineFilerSelfAssessmentUser(saUtr)
@@ -267,7 +255,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             nextDeadlineTaxYear,
             isItsa = false,
             isSa = true,
-            itsaToggle = false,
             isSeiss = true,
             previousAndCurrentTaxYear,
             userRequest.saUserType
@@ -275,7 +262,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
         )
 
       doc.text() must include(Messages("label.your_self_assessment"))
-      doc.text() must not include Messages("label.making_tax_digital")
 
       hasLink(
         doc,
@@ -296,7 +282,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
             nextDeadlineTaxYear,
             isItsa = true,
             isSa = true,
-            itsaToggle = true,
             isSeiss = true,
             previousAndCurrentTaxYear,
             NotEnrolledSelfAssessmentUser(saUtr)
@@ -309,7 +294,6 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
       doc.text() must include(Messages("label.self_assessment_tax_returns"))
       doc.text() must include(Messages("label.not_enrolled.content"))
       doc.text() must include(Messages("title.seiss"))
-      doc.text() must include(Messages("label.making_tax_digital"))
 
       hasLink(
         doc,
