@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ object AllFeatureFlags {
   val list: List[FeatureFlagName] = List(
     AddressTaxCreditsBrokerCallToggle,
     TaxcalcToggle,
-    ItsAdvertisementMessageToggle,
     TaxComponentsToggle,
     RlsInterruptToggle,
     PaperlessInterruptToggle,
@@ -47,11 +46,6 @@ case object AddressTaxCreditsBrokerCallToggle extends FeatureFlagName {
 case object TaxcalcToggle extends FeatureFlagName {
   override val name: String                = "taxcalc"
   override val description: Option[String] = Some("Enable/disable the tile for payments and repayments")
-}
-
-case object ItsAdvertisementMessageToggle extends FeatureFlagName {
-  override val name: String                = "itsa-advertisement-message"
-  override val description: Option[String] = Some("Enable/disable the advertisement message for ITSA")
 }
 
 case object TaxComponentsToggle extends FeatureFlagName {

@@ -1,5 +1,5 @@
 @*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
     link: Link
 )
 
-@(nextDeadlineTaxYear: String, isItsa: Boolean, isSa: Boolean, itsaToggle: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(nextDeadlineTaxYear: String, isItsa: Boolean, isSa: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @mainView(
     pageTitle = messages("label.your_self_assessment"),
@@ -97,23 +97,13 @@
         }
         case _ => {}
     }
-        @if(itsaToggle && !isItsa) {
-            @h2("label.making_tax_digital")
-            @p(Text(messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return")))
-            @p(Text(messages("label.some_businesses_agents_using_mtd_for_itsa")))
-            @link(configDecorator.makingTaxDigitalForIncomeTaxUrl(messages.lang),
-                    "label.find_out_about_making_tax_digital_for_income_tax_self_assessment",
-                    attrTarget = true,
-                    attrs = Map("data-ga-event-category"->"link - click", "data-ga-event-label"->"Find out about Making Tax Digital for Income Tax Self Assessment")
-            )
-        }
     }
 
-            @if(isSeiss) {
-                <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-                @h2("title.seiss")
-                @link(configDecorator.seissClaimsUrl, "body.seiss")
+    @if(isSeiss) {
+        <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+        @h2("title.seiss")
+        @link(configDecorator.seissClaimsUrl, "body.seiss")
 
-            }
+    }
 
 }
