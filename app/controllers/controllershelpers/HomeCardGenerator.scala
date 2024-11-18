@@ -128,9 +128,9 @@ class HomeCardGenerator @Inject() (
           Some(itsaMergeView((current.currentYear + 1).toString))
         } else {
           callAndContent match {
-            case Some(Tuple2(redirectUrl, paragraphMessageKey)) =>
+            case Some((redirectUrl, paragraphMessageKey)) =>
               Some(saMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey))
-            case _                                              => None
+            case _                                        => None
           }
         }
       } else if (configDecorator.pegaSaRegistrationEnabled) { // Temporary condition for Pega
