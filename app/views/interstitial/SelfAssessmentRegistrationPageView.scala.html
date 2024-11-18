@@ -25,7 +25,7 @@
         link: Link
 )
 
-@()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(url: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @mainView(
     pageTitle = messages("label.your_self_assessment"),
@@ -75,5 +75,5 @@
 
     @h2("selfAssessment.registerSelfAssessment")
 
-    <p class="govuk-body">@messages("selfAssessment.needToSendReturn.prefix") @link("https://www.gov.uk/register-for-self-assessment", "selfAssessment.needToSendReturn.linkText", inParagraph = true)</p>
+    <p class="govuk-body">@messages("selfAssessment.needToSendReturn.prefix") @link(url, "selfAssessment.needToSendReturn.linkText", inParagraph = true)</p>
 }

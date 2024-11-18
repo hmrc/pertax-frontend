@@ -222,6 +222,8 @@ class ConfigDecorator @Inject() (
   lazy val viewProofEntitlement: String =
     runModeConfiguration.get[String]("external-url.child-benefits.view-proof-entitlement-url")
 
+  lazy val pegaSaRegistrationUrl: String = runModeConfiguration.get[String]("external-url.pegaSaRegistration.url")
+
   lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
 
   lazy val childBenefitTaxChargeWelsh: String = "https://www.gov.uk/tal-treth-budd-dal-plant"
