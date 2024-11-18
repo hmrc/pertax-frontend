@@ -54,7 +54,7 @@ import scala.concurrent.Future
 class InterstitialControllerSpec extends BaseSpec {
 
   override lazy val app: Application = localGuiceApplicationBuilder().build()
-
+  private val dummyUrl               = "/dummy"
   trait LocalSetup {
 
     lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
@@ -679,6 +679,7 @@ class InterstitialControllerSpec extends BaseSpec {
       val mockConfigDecorator    = mock[ConfigDecorator]
 
       when(mockConfigDecorator.pegaSaRegistrationEnabled).thenReturn(pegaEnabled)
+      when(mockConfigDecorator.pegaSaRegistrationUrl).thenReturn(dummyUrl)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -755,6 +756,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
       status(result) mustBe OK
       contentAsString(result) must include("Self Assessment: who needs to register")
+      contentAsString(result) must include(dummyUrl)
     }
 
     "return UNAUTHORIZED when pegaEnabled is false" in {
