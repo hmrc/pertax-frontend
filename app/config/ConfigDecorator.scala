@@ -203,14 +203,12 @@ class ConfigDecorator @Inject() (
 
   lazy val reportChangesChildBenefitWelsh: String = "https://www.gov.uk/rhoi-gwybod-am-newidiadau-budd-dal-plant"
 
-  lazy val changeBankDetails: String =
-    s"$childBenefitViewFrontend${runModeConfiguration.get[String]("external-url.child-benefits.change-bank-account-location")}"
+  lazy val changeBankDetails: String = runModeConfiguration.get[String]("external-url.child-benefits.change-bank-account-location")
 
   lazy val viewPaymentHistory: String =
-    s"$childBenefitViewFrontend${runModeConfiguration.get[String]("external-url.child-benefits.view-payment-history-location")}"
+    runModeConfiguration.get[String]("external-url.child-benefits.view-payment-history-location")
 
-  lazy val viewProofEntitlement: String =
-    s"$childBenefitViewFrontend${runModeConfiguration.get[String]("external-url.child-benefits.view-proof-entitlement-location")}"
+  lazy val viewProofEntitlement: String = runModeConfiguration.get[String]("external-url.child-benefits.view-proof-entitlement-location")
 
   lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
 
@@ -294,8 +292,7 @@ class ConfigDecorator @Inject() (
 
   lazy val guidanceForWhenYourChildTurnsSixteenWelsh = "https://www.gov.uk/budd-dal-plant-16-19"
 
-  lazy val extendYourPaymentWhileYourChildStaysInEducation: String =
-    s"$childBenefitViewFrontend${runModeConfiguration.get[String]("external-url.child-benefits.extend-payments-location")}"
+  lazy val extendYourPaymentWhileYourChildStaysInEducation: String = runModeConfiguration.get[String]("external-url.child-benefits.extend-payments-location")
 
   lazy val addressLookupTimeoutInSec: Int =
     servicesConfig.getInt("feature.address-lookup.timeoutInSec")
