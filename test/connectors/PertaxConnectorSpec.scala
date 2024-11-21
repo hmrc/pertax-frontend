@@ -129,6 +129,26 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
       )
     }
 
+    "return a PertaxResponse with DECEASED_RECORD code and an errorView" in {
+      server.stubFor(
+        post(urlEqualTo(postAuthoriseUrl))
+          .willReturn(
+            ok(
+              "{\"code\": \"DECEASED_RECORD\", \"message\": \"The deceased indicator is set\", \"errorView\": {\"url\": \"/path/for/partial\", \"statusCode\": 403}}"
+            )
+          )
+      )
+
+      val result = pertaxConnector.pertaxPostAuthorise.value.futureValue
+        .getOrElse(PertaxResponse("INCORRECT RESPONSE", "INCORRECT", None, None))
+      result mustBe PertaxResponse(
+        "DECEASED_RECORD",
+        "The deceased indicator is set",
+        Some(ErrorView("/path/for/partial", FORBIDDEN)),
+        None
+      )
+    }
+
     "return a UpstreamErrorResponse with the correct error code" when {
 
       s"an 400 is returned from the backend" in {
