@@ -130,6 +130,101 @@ trait IntegrationSpec
         |}
         |""".stripMargin
 
+  val saUTRActivatedAuthResponse =
+    s"""
+       |{
+       |    "confidenceLevel": 200,
+       |    "nino": "$generatedNino",
+       |    "name": {
+       |        "name": "John",
+       |        "lastName": "Smith"
+       |    },
+       |    "loginTimes": {
+       |        "currentLogin": "2021-06-07T10:52:02.594Z",
+       |        "previousLogin": null
+       |    },
+       |    "optionalCredentials": {
+       |        "providerId": "4911434741952698",
+       |        "providerType": "GovernmentGateway"
+       |    },
+       |    "authProviderId": {
+       |        "ggCredId": "xyz"
+       |    },
+       |    "externalId": "testExternalId",
+       |    "allEnrolments": [
+       |       {
+       |          "key":"HMRC-PT",
+       |          "identifiers": [
+       |             {
+       |                "key":"NINO",
+       |                "value": "$generatedNino"
+       |             }
+       |          ]
+       |       },
+       |       {
+       |            "key":"IR-SA",
+       |            "identifiers": [
+       |                {
+       |                    "key":"UTR",
+       |                    "value": "$generatedUtr"
+       |                }
+       |            ],
+       |            "state": "Activated"
+       |        }
+       |    ],
+       |    "affinityGroup": "Individual",
+       |    "credentialStrength": "strong"
+       |}
+       |""".stripMargin
+
+  val seissClaimsResponse: String =
+    s"""
+       |[
+       |    {
+       |        "_id": 1135371,
+       |        "utr": "1234567890",
+       |        "paymentReference": "SESE1135371",
+       |        "barsRequestId": 1014,
+       |        "claimant": {
+       |            "name": "Foo Bar",
+       |            "phoneNumber": "0772344600",
+       |            "email": "foo1@example.com",
+       |            "address": {
+       |                "line1": "2 Other Place",
+       |                "line2": "Some District",
+       |                "town": "Anytown",
+       |                "postCode": "ZZ11ZZ"
+       |            }
+       |        },
+       |        "bankDetails": {
+       |            "accountName": "Alex Askew",
+       |            "sortCode": "206705",
+       |            "accountNumber": "44344611"
+       |        },
+       |        "claimAmount": 45000,
+       |        "status": "pendingBarsCheck",
+       |        "riskingResponse": {
+       |            "action": "ACCEPT"
+       |        },
+       |        "applicationSubmissionDate": "2021-10-26T15:07:40.439",
+       |        "claimPhase": 5,
+       |        "paymentEvents": [],
+       |        "financialImpactInfo": {
+       |            "subjectTurnover": 1200,
+       |            "comparisonTurnover": 1200,
+       |            "comparisonYear": 2020,
+       |            "multiplier": 0.3
+       |        }
+       |    }
+       |]
+            """.stripMargin
+
+  val seissClaimsEmptyResponse =
+    s"""
+       |[
+       |]
+    """.stripMargin
+
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
