@@ -130,7 +130,7 @@ trait IntegrationSpec
         |}
         |""".stripMargin
 
-  val saUTRActivatedAuthResponse =
+  val saUTRActivatedAuthResponse: String =
     s"""
        |{
        |    "confidenceLevel": 200,
@@ -219,7 +219,7 @@ trait IntegrationSpec
        |]
             """.stripMargin
 
-  val seissClaimsEmptyResponse =
+  val seissClaimsEmptyResponse: String =
     s"""
        |[
        |]
