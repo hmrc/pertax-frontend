@@ -291,6 +291,10 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
           .willReturn(ok(seissClaimsResponse))
       )
 
+      val result: Future[Result] = route(app, request).get
+      httpStatus(result) mustBe OK
+      contentAsString(result).contains(Messages("label.self_assessment")) mustBe true
+
       val urlSa                    = "/personal-account/self-assessment-home"
       val requestSa                = FakeRequest(GET, urlSa)
         .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
@@ -316,6 +320,10 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
           .withRequestBody(equalToJson(requestBody))
           .willReturn(ok(seissClaimsEmptyResponse))
       )
+
+      val result: Future[Result] = route(app, request).get
+      httpStatus(result) mustBe OK
+      contentAsString(result).contains(Messages("label.self_assessment")) mustBe true
 
       val urlSa                    = "/personal-account/self-assessment-home"
       val requestSa                = FakeRequest(GET, urlSa)
