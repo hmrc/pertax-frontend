@@ -17,7 +17,7 @@
 package controllers.auth
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, urlEqualTo, urlMatching, status => _}
-import models.PertaxResponse
+import models.{ErrorView, PertaxResponse}
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -155,6 +155,44 @@ class AuthJourneyItSpec extends IntegrationSpec {
         contentAsString(
           result
         ) must include("Sorry, the service is unavailable")
+      }
+    }
+
+    "return the deceased indicator page" when {
+      "Pertax returns an ErrorView with DECEASED_RECORD" in {
+        val deceasedPartialContent =
+          """
+            |<h1>You cannot access this information</h1>
+            |<p>You are trying to access the account of someone we have been told has died.</p>
+            |<p>Contact HMRC Bereavement Helpline:</p>
+          """.stripMargin
+
+        val pertaxResponse = Json
+          .toJson(
+            PertaxResponse(
+              "DECEASED_RECORD",
+              "The deceased indicator is set",
+              Some(ErrorView("/partials/deceased", FORBIDDEN)),
+              None
+            )
+          )
+          .toString
+
+        server.stubFor(
+          post(urlEqualTo("/pertax/authorise"))
+            .willReturn(aResponse().withBody(pertaxResponse))
+        )
+
+        server.stubFor(
+          get(urlEqualTo("/partials/deceased"))
+            .willReturn(aResponse().withBody(deceasedPartialContent))
+        )
+
+        val request = FakeRequest(GET, url).withSession(SessionKeys.authToken -> "Bearer 1")
+        val result  = route(app, request).get
+
+        status(result) mustBe FORBIDDEN
+        contentAsString(result) must include("Contact HMRC Bereavement Helpline")
       }
     }
   }
