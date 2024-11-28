@@ -37,9 +37,10 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "microservice.services.taxcalc-frontend.port"      -> server.port(),
-      "microservice.services.tai.port"                   -> server.port(),
-      "microservice.services.enrolment-store-proxy.port" -> server.port()
+      "microservice.services.taxcalc-frontend.port"             -> server.port(),
+      "microservice.services.tai.port"                          -> server.port(),
+      "microservice.services.enrolment-store-proxy.port"        -> server.port(),
+      "microservice.services.self-employed-income-support.port" -> server.port()
     )
     .build()
 
@@ -222,65 +223,9 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
     }
 
     "show SaUtr and Complete your tax return message when user has an SaUtr in the auth body which has the Activated state" in {
-      val authResponse =
-        s"""
-           |{
-           |    "confidenceLevel": 200,
-           |    "nino": "$generatedNino",
-           |    "name": {
-           |        "name": "John",
-           |        "lastName": "Smith"
-           |    },
-           |    "loginTimes": {
-           |        "currentLogin": "2021-06-07T10:52:02.594Z",
-           |        "previousLogin": null
-           |    },
-           |    "optionalCredentials": {
-           |        "providerId": "4911434741952698",
-           |        "providerType": "GovernmentGateway"
-           |    },
-           |    "authProviderId": {
-           |        "ggCredId": "xyz"
-           |    },
-           |    "externalId": "testExternalId",
-           |    "allEnrolments": [
-           |       {
-           |          "key":"HMRC-PT",
-           |          "identifiers": [
-           |             {
-           |                "key":"NINO",
-           |                "value": "$generatedNino"
-           |             }
-           |          ]
-           |       },
-           |       {
-           |            "key":"IR-SA",
-           |            "identifiers": [
-           |                {
-           |                    "key":"UTR",
-           |                    "value": "$generatedUtr"
-           |                }
-           |            ],
-           |            "state": "Activated"
-           |        },
-           |       {
-           |            "key":"HMRC-MTD-IT",
-           |            "identifiers": [
-           |                {
-           |                    "key":"MTDITID",
-           |                    "value": "$generatedUtr"
-           |                }
-           |            ],
-           |            "state": "Activated"
-           |        }
-           |    ],
-           |    "affinityGroup": "Individual",
-           |    "credentialStrength": "strong"
-           |}
-           |""".stripMargin
 
       server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
-      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(saUTRActivatedAuthResponse)))
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
@@ -344,6 +289,66 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
         .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
       val resultSa: Future[Result] = route(app, requestSa).get
       httpStatus(resultSa) mustBe UNAUTHORIZED
+    }
+
+    "show the SEISS card and links when the user has SEISS data and an SA UTR in the auth body that is in the Activated state" in {
+
+      val requestBody: String =
+        s"""
+           |{
+           |   "utr": "$generatedUtr"
+           |}
+      """.stripMargin
+
+      server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(saUTRActivatedAuthResponse)))
+      server.stubFor(
+        post(urlEqualTo("/self-employed-income-support/get-claims"))
+          .withRequestBody(equalToJson(requestBody))
+          .willReturn(ok(seissClaimsResponse))
+      )
+
+      val result: Future[Result] = route(app, request).get
+      httpStatus(result) mustBe OK
+      contentAsString(result).contains(Messages("label.self_assessment")) mustBe true
+
+      val urlSa                    = "/personal-account/self-assessment-home"
+      val requestSa                = FakeRequest(GET, urlSa)
+        .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
+      val resultSa: Future[Result] = route(app, requestSa).get
+      httpStatus(resultSa) mustBe OK
+      contentAsString(resultSa).contains(Messages("title.seiss")) mustBe true
+      contentAsString(resultSa).contains(Messages("title.seiss")) mustBe true
+    }
+
+    "not show the SEISS card and links when the user does not have SEISS data" in {
+
+      val requestBody: String =
+        s"""
+           |{
+           |   "utr": "$generatedUtr"
+           |}
+      """.stripMargin
+
+      server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+      server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(saUTRActivatedAuthResponse)))
+      server.stubFor(
+        post(urlEqualTo("/self-employed-income-support/get-claims"))
+          .withRequestBody(equalToJson(requestBody))
+          .willReturn(ok(seissClaimsEmptyResponse))
+      )
+
+      val result: Future[Result] = route(app, request).get
+      httpStatus(result) mustBe OK
+      contentAsString(result).contains(Messages("label.self_assessment")) mustBe true
+
+      val urlSa                    = "/personal-account/self-assessment-home"
+      val requestSa                = FakeRequest(GET, urlSa)
+        .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
+      val resultSa: Future[Result] = route(app, requestSa).get
+      httpStatus(resultSa) mustBe OK
+      contentAsString(resultSa).contains(Messages("title.seiss")) mustBe false
+      contentAsString(resultSa).contains(Messages("title.seiss")) mustBe false
     }
   }
 }
