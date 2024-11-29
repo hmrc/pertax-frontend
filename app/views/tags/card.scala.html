@@ -20,10 +20,11 @@
         gaLabel: Option[String] = None,
         heading: String,
         headingTag: String = "h2",
-        bodyContent: Option[Html] = None
+        bodyContent: Option[Html] = None,
+        divAttr: Option[String] = None
 )(actionContent: Html)
 
-<div class="card" @id.map { i => id="@i" }>
+<div class="card" @id.map { i => id="@i" } @divAttr.getOrElse("") >
 
     <div class="card-body @if(url) {active}" @if(url) {
         data-journey-click="link - click:@gaAction:@gaLabel"}>

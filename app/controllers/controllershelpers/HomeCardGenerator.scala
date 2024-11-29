@@ -89,10 +89,10 @@ class HomeCardGenerator @Inject() (
   def getPayAsYouEarnCard(
     taxComponentsState: TaxComponentsState
   )(implicit request: UserRequest[_], messages: Messages): Option[HtmlFormat.Appendable] =
-    request.nino.flatMap { _ =>
+    request.nino.flatMap { nino =>
       taxComponentsState match {
         case TaxComponentsNotAvailableState => None
-        case _                              => Some(payAsYouEarnView(configDecorator))
+        case _                              => Some(payAsYouEarnView(configDecorator, nino.withoutSuffix.takeRight(2)))
       }
     }
 
