@@ -78,7 +78,7 @@ class InterstitialControllerSpec extends BaseSpec {
         inject[SelfAssessmentSummaryView],
         inject[Sa302InterruptView],
         inject[ViewNewsAndUpdatesView],
-        inject[ViewSaAndItsaMergePageView],
+        inject[ViewItsaMergePageView],
         inject[ViewBreathingSpaceView],
         inject[ShutteringView],
         inject[TaxCreditsAddressInterstitialView],
@@ -163,7 +163,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
           inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
+          inject[ViewItsaMergePageView],
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
@@ -218,7 +218,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
           inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
+          inject[ViewItsaMergePageView],
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
@@ -445,7 +445,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
           inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
+          inject[ViewItsaMergePageView],
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
@@ -521,7 +521,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
           inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
+          inject[ViewItsaMergePageView],
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
@@ -565,7 +565,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
           inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
+          inject[ViewItsaMergePageView],
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
@@ -634,7 +634,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
           inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
+          inject[ViewItsaMergePageView],
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
@@ -651,7 +651,9 @@ class InterstitialControllerSpec extends BaseSpec {
           block(
             buildUserRequest(
               saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-              request = request
+              request = request,
+              enrolments =
+                Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated"))
             )
           )
       })
@@ -659,7 +661,7 @@ class InterstitialControllerSpec extends BaseSpec {
       when(mockFeatureFlagService.get(any()))
         .thenReturn(Future.successful(FeatureFlag(ItsAdvertisementMessageToggle, isEnabled = true)))
 
-      val result = controller.displaySaAndItsaMergePage()(fakeRequest)
+      val result = controller.displayItsaMergePage()(fakeRequest)
 
       status(result) mustBe OK
       contentAsString(result) must include("Your Self Assessment")
@@ -703,7 +705,7 @@ class InterstitialControllerSpec extends BaseSpec {
         inject[SelfAssessmentSummaryView],
         inject[Sa302InterruptView],
         inject[ViewNewsAndUpdatesView],
-        inject[ViewSaAndItsaMergePageView],
+        inject[ViewItsaMergePageView],
         inject[ViewBreathingSpaceView],
         inject[ShutteringView],
         inject[TaxCreditsAddressInterstitialView],
@@ -795,7 +797,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
           inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
+          inject[ViewItsaMergePageView],
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
@@ -852,7 +854,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
           inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
+          inject[ViewItsaMergePageView],
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
@@ -909,7 +911,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[SelfAssessmentSummaryView],
           inject[Sa302InterruptView],
           inject[ViewNewsAndUpdatesView],
-          inject[ViewSaAndItsaMergePageView],
+          inject[ViewItsaMergePageView],
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],

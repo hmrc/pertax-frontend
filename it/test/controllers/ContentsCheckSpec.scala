@@ -314,6 +314,16 @@ class ContentsCheckSpec extends IntegrationSpec {
        |                }
        |            ],
        |            "state": "Activated"
+       |        },
+       |       {
+       |            "key":"HMRC-MTD-IT",
+       |            "identifiers": [
+       |                {
+       |                    "key":"MTDITID",
+       |                    "value": "$generatedUtr"
+       |                }
+       |            ],
+       |            "state": "Activated"
        |        }
        |    ],
        |    "affinityGroup": "Individual",
