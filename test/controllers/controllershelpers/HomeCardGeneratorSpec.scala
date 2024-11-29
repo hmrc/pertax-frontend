@@ -140,7 +140,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         saUser = NonFilerSelfAssessmentUser,
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest()
+        request = FakeRequest(),
+        nino = Some(Nino("AA000000C"))
       )
 
       lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
@@ -169,7 +170,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         saUser = NonFilerSelfAssessmentUser,
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest()
+        request = FakeRequest(),
+        nino = Some(Nino("AA000000C"))
       )
 
       lazy val cardBody =
