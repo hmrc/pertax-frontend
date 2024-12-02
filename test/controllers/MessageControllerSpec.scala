@@ -16,14 +16,14 @@
 
 package controllers
 
-import org.apache.pekko.stream.Materializer
 import connectors.CitizenDetailsConnector
+import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.auth.WithBreadcrumbAction
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.inject.bind
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -31,32 +31,36 @@ import services.partials.MessageFrontendService
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.play.partials.HtmlPartial
-import views.html.message.{MessageDetailView, MessageInboxView}
 
 import scala.concurrent.Future
 
 class MessageControllerSpec extends BaseSpec {
+  val mockInterstitialController: InterstitialController = mock[InterstitialController]
+  val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(
+      bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[MessageFrontendService].toInstance(mockMessageFrontendService),
+      bind[AuthJourney].toInstance(mockAuthJourney)
+    )
+    .build()
+
+  def controller: MessageController = app.injector.instanceOf[MessageController]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockMessageFrontendService, mock[CitizenDetailsConnector])
+    reset(mockAuthJourney)
+    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+        block(
+          buildUserRequest(
+            request = request
+          )
+        )
+    })
   }
-
-  val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
-
-  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
-
-  implicit lazy val mat: Materializer = app.materializer
-
-  def controller: MessageController =
-    new MessageController(
-      mockMessageFrontendService,
-      mockAuthJourney,
-      inject[WithBreadcrumbAction],
-      inject[MessagesControllerComponents],
-      inject[MessageInboxView],
-      inject[MessageDetailView]
-    )(config, ec)
 
   "Calling MessageController.messageList" must {
     "call messages and return 200 when called by a high GG user" in {
