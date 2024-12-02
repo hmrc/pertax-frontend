@@ -16,17 +16,18 @@
 
 package controllers.address
 import cats.data.EitherT
+import controllers.InterstitialController
+import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, PersonDetails, SelfAssessmentUserType, UserAnswers}
 import models.admin.{AddressChangeAllowedToggle, AddressTaxCreditsBrokerCallToggle}
 import models.dto.AddressPageVisitedDto
+import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, PersonDetails, SelfAssessmentUserType, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -35,22 +36,19 @@ import repositories.JourneyCacheRepository
 import routePages.HasAddressAlreadyVisitedPage
 import services.TaxCreditsService
 import testUtils.Fixtures.buildPersonDetailsCorrespondenceAddress
-import testUtils.{ActionBuilderFixture, Fixtures, WireMockHelper}
 import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{ActionBuilderFixture, Fixtures, WireMockHelper}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.TaxCreditsChoiceView
 
 import scala.concurrent.Future
 
 class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper {
 
-  private val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
-  private val mockAddressJourneyCachingHelper          = mock[AddressJourneyCachingHelper]
-
-  override def fakeApplication(): Application = new GuiceApplicationBuilder()
+  private val mockTaxCreditsService: TaxCreditsService   = mock[TaxCreditsService]
+  private val mockAddressJourneyCachingHelper            = mock[AddressJourneyCachingHelper]
+  val mockInterstitialController: InterstitialController = mock[InterstitialController]
+  override def fakeApplication(): Application            = localGuiceApplicationBuilder()
     .configure(
       "microservice.services.auth.port"   -> server.port(),
       "microservice.services.pertax.port" -> server.port()
@@ -58,6 +56,8 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
     .overrides(
       bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
       bind[TaxCreditsService].toInstance(mockTaxCreditsService),
+      bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[AuthJourney].toInstance(mockAuthJourney),
       bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper)
     )
     .build()
@@ -70,19 +70,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
   private def currentRequest[A]: Request[A]                  = FakeRequest().asInstanceOf[Request[A]]
   private def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
   private def saUserType: SelfAssessmentUserType             = NonFilerSelfAssessmentUser
-
-  def controller: TaxCreditsChoiceController =
-    new TaxCreditsChoiceController(
-      mockAuthJourney,
-      mcc,
-      mockAddressJourneyCachingHelper,
-      mockEditAddressLockRepository,
-      inject[DisplayAddressInterstitialView],
-      mockTaxCreditsService,
-      mockFeatureFlagService,
-      inject[InternalServerErrorView],
-      inject[TaxCreditsChoiceView]
-    )(config, ec)
+  def controller: TaxCreditsChoiceController                 = fakeApplication.injector.instanceOf[TaxCreditsChoiceController]
 
   def userAnswers: UserAnswers =
     UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))

@@ -57,6 +57,7 @@ class TaxCreditsChoiceController @Inject() (
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { nino => _ =>
+      println("\nAAAA")
       featureFlagService
         .get(AddressTaxCreditsBrokerCallToggle)
         .flatMap { toggle =>
