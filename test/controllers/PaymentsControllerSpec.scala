@@ -18,14 +18,13 @@ package controllers
 
 import cats.data.EitherT
 import connectors._
+import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.auth.WithBreadcrumbAction
-import error.ErrorRenderer
 import models.PayApiModels
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
-import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
+import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.UserRequestFixture.buildUserRequest
@@ -46,18 +45,12 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
-      bind[PayApiConnector].toInstance(mockPayConnector)
+      bind[PayApiConnector].toInstance(mockPayConnector),
+      bind[AuthJourney].toInstance(mockAuthJourney)
     )
     .build()
 
-  def controller: PaymentsController =
-    new PaymentsController(
-      mockPayConnector,
-      mockAuthJourney,
-      inject[WithBreadcrumbAction],
-      inject[MessagesControllerComponents],
-      inject[ErrorRenderer]
-    )(config, ec)
+  private def controller: PaymentsController = app.injector.instanceOf[PaymentsController]
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

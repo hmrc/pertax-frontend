@@ -18,9 +18,8 @@ package controllers
 
 import cats.data.EitherT
 import connectors.PayApiConnector
-import controllers.auth.requests.UserRequest
 import controllers.auth._
-import error.ErrorRenderer
+import controllers.auth.requests.UserRequest
 import models._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -29,19 +28,17 @@ import org.scalatest.exceptions.TestFailedException
 import play.api.Application
 import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, REQUEST_TIMEOUT, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
 import play.api.inject.bind
-import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
+import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
 import services.SelfAssessmentService
-import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import testUtils.Fixtures.{buildFakeRequestWithAuth, buildPersonDetailsCorrespondenceAddress}
 import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.time.CurrentTaxYear
-import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
-import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -55,15 +52,18 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockPayApiConnector: PayApiConnector                       = mock[PayApiConnector]
   val mockSelfAssessmentService: SelfAssessmentService           = mock[SelfAssessmentService]
 
-  val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  val saUtr: SaUtr                                       = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  val mockInterstitialController: InterstitialController = mock[InterstitialController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
+      bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[AuthJourney].toInstance(mockAuthJourney),
       bind[AuditConnector].toInstance(mockAuditConnector),
-      bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction)
+      bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
+      bind[SelfAssessmentService].toInstance(mockSelfAssessmentService)
     )
     .build()
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockAuditConnector, mockAuthAction, mockSelfAssessmentStatusAction)
@@ -72,8 +72,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   private def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
 
   trait LocalSetup {
-
-    val mockAuthJourney: AuthJourney = mock[AuthJourney]
 
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -86,18 +84,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       FakeRequest("GET", "")
         .asInstanceOf[Request[A]]
 
-    def controller: SelfAssessmentController =
-      new SelfAssessmentController(
-        mockAuthJourney,
-        inject[WithBreadcrumbAction],
-        mockAuditConnector,
-        mockSelfAssessmentService,
-        inject[MessagesControllerComponents],
-        inject[ErrorRenderer],
-        inject[FailedIvContinueToActivateSaView],
-        inject[CannotConfirmIdentityView],
-        inject[RequestAccessToSelfAssessmentView]
-      )(config, ec)
+    def controller: SelfAssessmentController = app.injector.instanceOf[SelfAssessmentController]
 
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
       Future.successful(AuditResult.Success)

@@ -16,30 +16,30 @@
 
 package controllers
 
+import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.auth.WithBreadcrumbAction
 import play.api.Application
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.inject.bind
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
-import util._
 
 import scala.concurrent.Future
 
 class PaperlessPreferencesControllerSpec extends BaseSpec {
   import testUtils.BetterOptionValues._
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+  val mockInterstitialController: InterstitialController = mock[InterstitialController]
+  override implicit lazy val app: Application            = localGuiceApplicationBuilder()
+    .overrides(
+      bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[AuthJourney].toInstance(mockAuthJourney)
+    )
+    .build()
 
-  def controller: PaperlessPreferencesController =
-    new PaperlessPreferencesController(
-      mockAuthJourney,
-      inject[WithBreadcrumbAction],
-      inject[MessagesControllerComponents],
-      inject[Tools]
-    )(config) {}
+  private def controller: PaperlessPreferencesController = app.injector.instanceOf[PaperlessPreferencesController]
 
   "Calling PaperlessPreferencesController.managePreferences" must {
     "Redirect to  preferences-frontend manage paperless url when a user is logged in using GG" in {
