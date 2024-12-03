@@ -72,14 +72,14 @@ trait BaseSpec
 
   val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
-  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
+  protected def localGuiceApplicationBuilder(extraConfigValues: Map[String, Any] = Map.empty): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
         bind[EditAddressLockRepository].toInstance(mockEditAddressLockRepository),
         bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       )
-      .configure(configValues)
+      .configure(configValues ++ extraConfigValues)
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
   val mockAuthJourney: AuthJourney            = mock[AuthJourney]
