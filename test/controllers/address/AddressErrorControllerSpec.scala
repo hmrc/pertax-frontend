@@ -16,31 +16,22 @@
 
 package controllers.address
 
-import controllers.InterstitialController
-import controllers.auth.AuthJourney
 import controllers.bindable.ResidentialAddrType
 import models.UserAnswers
 import models.dto._
 import org.mockito.ArgumentMatchers.any
-import play.api.Application
-import play.api.inject.bind
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import routePages.HasAddressAlreadyVisitedPage
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import views.html.InternalServerErrorView
+import views.html.personaldetails._
 
 import scala.concurrent.Future
 
 class AddressErrorControllerSpec extends AddressBaseSpec {
-
-  val mockInterstitialController: InterstitialController = mock[InterstitialController]
-  override implicit lazy val app: Application            = localGuiceApplicationBuilder()
-    .overrides(
-      bind[InterstitialController].toInstance(mockInterstitialController),
-      bind[AuthJourney].toInstance(mockAuthJourney)
-    )
-    .build()
 
   trait LocalSetup extends AddressControllerSetup {
 
@@ -51,7 +42,15 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
 
     def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
-    def controller: AddressErrorController = app.injector.instanceOf[AddressErrorController]
+    def controller: AddressErrorController =
+      new AddressErrorController(
+        mockAuthJourney,
+        cc,
+        displayAddressInterstitialView,
+        inject[CannotUseServiceView],
+        inject[FeatureFlagService],
+        inject[InternalServerErrorView]
+      )
   }
 
   "cannotUseThisService" must {

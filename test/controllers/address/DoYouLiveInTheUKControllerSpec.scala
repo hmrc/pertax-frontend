@@ -17,56 +17,60 @@
 package controllers.address
 
 import config.ConfigDecorator
-import controllers.InterstitialController
-import controllers.auth.AuthJourney
-import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.UserAnswers
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.any
-import org.mockito.invocation.InvocationOnMock
-import play.api.Application
-import play.api.inject.bind
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import routePages.HasAddressAlreadyVisitedPage
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.personaldetails.InternationalAddressChoiceView
 
 import scala.concurrent.Future
 
 class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
-  val mockAddressJourneyCachingHelper: AddressJourneyCachingHelper = mock[AddressJourneyCachingHelper]
-  val mockInterstitialController: InterstitialController           = mock[InterstitialController]
-  override implicit lazy val app: Application                      = localGuiceApplicationBuilder()
-    .overrides(
-      bind[InterstitialController].toInstance(mockInterstitialController),
-      bind[AuthJourney].toInstance(mockAuthJourney),
-      bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper)
-    )
-    .build()
+
   trait LocalSetup extends AddressControllerSetup {
-    def controller: DoYouLiveInTheUKController = app.injector.instanceOf[DoYouLiveInTheUKController]
+
+    def controller: DoYouLiveInTheUKController =
+      new DoYouLiveInTheUKController(
+        addressJourneyCachingHelper,
+        mockAuthJourney,
+        cc,
+        inject[InternationalAddressChoiceView],
+        displayAddressInterstitialView,
+        mockFeatureFlagService,
+        internalServerErrorView
+      )
 
     def userAnswersToReturn: UserAnswers = UserAnswers
       .empty("id")
       .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-
-    when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-      .thenAnswer((invocation: InvocationOnMock) => Future.successful(invocation.getArgument(0)))
-
-    when(mockAddressJourneyCachingHelper.addToCache(any(), any())(any(), any()))
-      .thenAnswer((_: InvocationOnMock) => Future.successful(userAnswersToReturn))
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
 
   "onPageLoad" must {
+
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
 
       val result: Future[Result] = controller.onPageLoad(currentRequest)
 
       status(result) mustBe OK
-      verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(any())(any())
+      verify(mockJourneyCacheRepository, times(1)).get(any())
+    }
+
+    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
+
+      override def userAnswersToReturn: UserAnswers = UserAnswers.empty
+
+      val result: Future[Result] = controller.onPageLoad(FakeRequest())
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
+      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
   }
 

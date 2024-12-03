@@ -16,37 +16,42 @@
 
 package controllers.address
 
-import controllers.auth.AuthJourney
+import controllers.address
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import controllers.{InterstitialController, address}
+import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.UserAnswers
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import org.mockito.ArgumentMatchers.any
-import play.api.Application
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
-import play.api.inject.bind
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.JourneyCacheRepository
 import routePages.{AddressLookupServiceDownPage, SelectedRecordSetPage}
+import services.AddressSelectorService
 import testUtils.Fixtures.oneAndTwoOtherPlacePafRecordSet
 import uk.gov.hmrc.http.HeaderCarrier
+import views.html.interstitial.DisplayAddressInterstitialView
+import views.html.personaldetails.AddressSelectorView
 
 import scala.concurrent.Future
 
 class AddressSelectorControllerSpec extends AddressBaseSpec {
-  val mockInterstitialController: InterstitialController = mock[InterstitialController]
-  override implicit lazy val app: Application            = localGuiceApplicationBuilder()
-    .overrides(
-      bind[InterstitialController].toInstance(mockInterstitialController),
-      bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
-      bind[AuthJourney].toInstance(mockAuthJourney)
-    )
-    .build()
+
   trait LocalSetup extends AddressControllerSetup {
 
-    def controller: AddressSelectorController = app.injector.instanceOf[AddressSelectorController]
+    def controller: AddressSelectorController =
+      new AddressSelectorController(
+        new AddressJourneyCachingHelper(mockJourneyCacheRepository),
+        mockJourneyCacheRepository,
+        mockAuthJourney,
+        cc,
+        errorRenderer,
+        inject[AddressSelectorView],
+        inject[DisplayAddressInterstitialView],
+        inject[AddressSelectorService],
+        mockFeatureFlagService,
+        internalServerErrorView
+      )
   }
 
   "onPageLoad" should {

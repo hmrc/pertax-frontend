@@ -33,9 +33,9 @@ import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import repositories.JourneyCacheRepository
 import services.{AddressMovedService, AgentClientAuthorisationService, CitizenDetailsService}
-import testUtils.{ActionBuilderFixture, BaseSpec}
 import testUtils.Fixtures._
 import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
@@ -128,8 +128,6 @@ trait NewAddressBaseSpec extends BaseSpec {
       bind[AuditConnector].toInstance(mockAuditConnector)
     )
     .build()
-
-  protected def controller: AddressSubmissionController = app.injector.instanceOf[AddressSubmissionController]
 
   protected lazy val nino: Nino                       = fakeNino
   protected lazy val fakePersonDetails: PersonDetails = buildPersonDetails

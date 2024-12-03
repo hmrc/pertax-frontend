@@ -16,18 +16,17 @@
 
 package controllers.address
 import cats.data.EitherT
-import controllers.InterstitialController
-import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, PersonDetails, SelfAssessmentUserType, UserAnswers}
 import models.admin.{AddressChangeAllowedToggle, AddressTaxCreditsBrokerCallToggle}
 import models.dto.AddressPageVisitedDto
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, PersonDetails, SelfAssessmentUserType, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -36,19 +35,22 @@ import repositories.JourneyCacheRepository
 import routePages.HasAddressAlreadyVisitedPage
 import services.TaxCreditsService
 import testUtils.Fixtures.buildPersonDetailsCorrespondenceAddress
-import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, Fixtures, WireMockHelper}
+import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import views.html.InternalServerErrorView
+import views.html.interstitial.DisplayAddressInterstitialView
+import views.html.personaldetails.TaxCreditsChoiceView
 
 import scala.concurrent.Future
 
 class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper {
 
-  private val mockTaxCreditsService: TaxCreditsService   = mock[TaxCreditsService]
-  private val mockAddressJourneyCachingHelper            = mock[AddressJourneyCachingHelper]
-  val mockInterstitialController: InterstitialController = mock[InterstitialController]
-  override def fakeApplication(): Application            = localGuiceApplicationBuilder()
+  private val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
+  private val mockAddressJourneyCachingHelper          = mock[AddressJourneyCachingHelper]
+
+  override def fakeApplication(): Application = new GuiceApplicationBuilder()
     .configure(
       "microservice.services.auth.port"   -> server.port(),
       "microservice.services.pertax.port" -> server.port()
@@ -56,8 +58,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
     .overrides(
       bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
       bind[TaxCreditsService].toInstance(mockTaxCreditsService),
-      bind[InterstitialController].toInstance(mockInterstitialController),
-      bind[AuthJourney].toInstance(mockAuthJourney),
       bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper)
     )
     .build()
@@ -70,7 +70,19 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
   private def currentRequest[A]: Request[A]                  = FakeRequest().asInstanceOf[Request[A]]
   private def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
   private def saUserType: SelfAssessmentUserType             = NonFilerSelfAssessmentUser
-  def controller: TaxCreditsChoiceController                 = fakeApplication.injector.instanceOf[TaxCreditsChoiceController]
+
+  def controller: TaxCreditsChoiceController =
+    new TaxCreditsChoiceController(
+      mockAuthJourney,
+      mcc,
+      mockAddressJourneyCachingHelper,
+      mockEditAddressLockRepository,
+      inject[DisplayAddressInterstitialView],
+      mockTaxCreditsService,
+      mockFeatureFlagService,
+      inject[InternalServerErrorView],
+      inject[TaxCreditsChoiceView]
+    )(config, ec)
 
   def userAnswers: UserAnswers =
     UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
@@ -128,45 +140,45 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
 
       "display the 'do you get tax credits' page if the tax credits service returns None, " +
         "indicating that we don't know if the user needs to change its address on PTA or tax credits" in {
-          val arg = ArgumentCaptor.forClass(classOf[Result])
+        val arg = ArgumentCaptor.forClass(classOf[Result])
 
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-            .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
-          when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
-            .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-          when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
-            .thenReturn(
-              EitherT[Future, UpstreamErrorResponse, Option[Boolean]](Future.successful(Right(None)))
-            )
-          when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-            .thenReturn(Future.successful(Ok("Fake Page")))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
+          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+        when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, Option[Boolean]](Future.successful(Right(None)))
+          )
+        when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
+          .thenReturn(Future.successful(Ok("Fake Page")))
 
-          when(mockAuthJourney.authWithPersonalDetails)
-            .thenReturn(new ActionBuilderFixture {
-              override def invokeBlock[A](
-                request: Request[A],
-                block: UserRequest[A] => Future[Result]
-              ): Future[Result] =
-                block(
-                  buildUserRequest(
-                    request = currentRequest[A],
-                    personDetails = personDetailsForRequest,
-                    saUser = saUserType
-                  )
+        when(mockAuthJourney.authWithPersonalDetails)
+          .thenReturn(new ActionBuilderFixture {
+            override def invokeBlock[A](
+                                         request: Request[A],
+                                         block: UserRequest[A] => Future[Result]
+                                       ): Future[Result] =
+              block(
+                buildUserRequest(
+                  request = currentRequest[A],
+                  personDetails = personDetailsForRequest,
+                  saUser = saUserType
                 )
-            })
+              )
+          })
 
-          val result = controller.onPageLoad(currentRequest)
+        val result = controller.onPageLoad(currentRequest)
 
-          status(result) mustBe OK
-          verify(mockFeatureFlagService, times(2)).get(any())
-          verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
-          verify(mockTaxCreditsService, times(1)).isAddressChangeInPTA(any())(any())
-          val argCaptorValue: Result = arg.getValue
-          argCaptorValue.header.status mustBe OK
-          contentAsString(Future.successful(argCaptorValue)) must include("Do you get tax credits?")
+        status(result) mustBe OK
+        verify(mockFeatureFlagService, times(2)).get(any())
+        verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
+        verify(mockTaxCreditsService, times(1)).isAddressChangeInPTA(any())(any())
+        val argCaptorValue: Result = arg.getValue
+        argCaptorValue.header.status mustBe OK
+        contentAsString(Future.successful(argCaptorValue)) must include("Do you get tax credits?")
 
-        }
+      }
     }
 
     "Tax-credit-broker call is not used and the question ask to the user" must {
