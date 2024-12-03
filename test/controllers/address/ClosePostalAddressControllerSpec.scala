@@ -25,95 +25,32 @@ import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import routePages.AddressLookupServiceDownPage
 import testUtils.Fixtures
 import testUtils.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.model.DataEvent
-import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
 import java.time.Instant
 import scala.concurrent.Future
 
-class ClosePostalAddressControllerSpec extends AddressBaseSpec {
-
-  val addressExceptionMessage = "Address does not exist in the current context"
-
-  trait LocalSetup extends AddressControllerSetup {
-
-    val expectedAddressConfirmationView: String = updateAddressConfirmationView(
-      PostalAddrType,
-      closedPostalAddress = true,
-      Some(fakeAddress.fullAddress),
-      None,
-      false
-    )(
-      buildUserRequest(request = FakeRequest(), saUser = NonFilerSelfAssessmentUser),
-      messages
-    ).toString
-
-    def controller: ClosePostalAddressController =
-      new ClosePostalAddressController(
-        mockCitizenDetailsService,
-        mockEditAddressLockRepository,
-        mockAddressMovedService,
-        addressJourneyCachingHelper,
-        mockAuditConnector,
-        mockAuthJourney,
-        cc,
-        errorRenderer,
-        inject[CloseCorrespondenceAddressChoiceView],
-        inject[ConfirmCloseCorrespondenceAddressView],
-        inject[UpdateAddressConfirmationView],
-        displayAddressInterstitialView,
-        mockFeatureFlagService,
-        internalServerErrorView
-      )
-
-    def comparatorDataEvent(
-      dataEvent: DataEvent,
-      auditType: String,
-      uprn: Option[String],
-      includeOriginals: Boolean,
-      submittedLine1: Option[String] = Some("1 Fake Street"),
-      addressType: Option[String] = Some("Residential")
-    ): DataEvent = DataEvent(
-      "pertax-frontend",
-      auditType,
-      dataEvent.eventId,
-      Map("path" -> "/test", "transactionName" -> "change_of_address"),
-      Map(
-        "nino"              -> Some(Fixtures.fakeNino.nino),
-        "etag"              -> Some("115"),
-        "submittedLine1"    -> submittedLine1,
-        "submittedLine2"    -> Some("Fake Town"),
-        "submittedLine3"    -> Some("Fake City"),
-        "submittedLine4"    -> Some("Fake Region"),
-        "submittedPostcode" -> Some("AA1 1AA"),
-        "submittedCountry"  -> None,
-        "addressType"       -> addressType,
-        "submittedUPRN"     -> uprn,
-        "originalLine1"     -> Some("1 Fake Street").filter(_ => includeOriginals),
-        "originalLine2"     -> Some("Fake Town").filter(_ => includeOriginals),
-        "originalLine3"     -> Some("Fake City").filter(_ => includeOriginals),
-        "originalLine4"     -> Some("Fake Region").filter(_ => includeOriginals),
-        "originalPostcode"  -> Some("AA1 1AA").filter(_ => includeOriginals),
-        "originalCountry"   -> Some("Country(UK,United Kingdom)").filter(_ => includeOriginals),
-        "originalUPRN"      -> uprn.filter(_ => includeOriginals)
-      ).map(t => t._2.map((t._1, _))).flatten.toMap,
-      dataEvent.generatedAt
-    )
-
-    val userAnswers: UserAnswers = UserAnswers.empty("id").setOrException(AddressLookupServiceDownPage, true)
-    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-
-    def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-  }
+class ClosePostalAddressControllerSpec extends NewAddressBaseSpec {
+  private def controller: ClosePostalAddressController = app.injector.instanceOf[ClosePostalAddressController]
+  val addressExceptionMessage                          = "Address does not exist in the current context"
+  val expectedAddressConfirmationView: String          = updateAddressConfirmationView(
+    PostalAddrType,
+    closedPostalAddress = true,
+    Some(fakeAddress.fullAddress),
+    None,
+    false
+  )(
+    buildUserRequest(request = FakeRequest(), saUser = NonFilerSelfAssessmentUser),
+    messages
+  ).toString
 
   "onPageLoad" must {
 
-    "display the closeCorrespondenceAddressChoice form that contains the view address" in new LocalSetup {
+    "display the closeCorrespondenceAddressChoice form that contains the view address" in {
       val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
       contentAsString(result) must include(buildFakeAddress.line1.getOrElse("line6"))
@@ -121,10 +58,8 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
     }
 
-    "throw an Exception if person details does not contain an address" in new LocalSetup {
-
-      override def personDetailsForRequest: Option[PersonDetails] =
-        Some(buildPersonDetailsCorrespondenceAddress.copy(address = None))
+    "throw an Exception if person details does not contain an address" in {
+      setupAuth(personDetails = Some(buildPersonDetailsCorrespondenceAddress.copy(address = None)))
 
       the[Exception] thrownBy {
         await(controller.onPageLoad(FakeRequest()))
@@ -133,42 +68,38 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
   }
 
   "onSubmit" must {
-
-    "redirect to expected confirm close correspondence confirmation page when supplied with value = Yes (true)" in new LocalSetup {
-
-      override def currentRequest[A]: Request[A] =
+    "redirect to expected confirm close correspondence confirmation page when supplied with value = Yes (true)" in {
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("onPageLoad" -> "true")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/close-correspondence-address-confirm")
     }
 
-    "redirect to personal details page when supplied with value = No (false)" in new LocalSetup {
-      override def currentRequest[A]: Request[A] =
+    "redirect to personal details page when supplied with value = No (false)" in {
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("onPageLoad" -> "false")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
-    "return a bad request when supplied no value" in new LocalSetup {
+    "return a bad request when supplied no value" in {
       val result: Future[Result] = controller.onSubmit(FakeRequest())
 
       status(result) mustBe BAD_REQUEST
     }
 
-    "throw an Exception if person details does not contain an address" in new LocalSetup {
-
-      override def personDetailsForRequest: Option[PersonDetails] =
-        Some(buildPersonDetailsCorrespondenceAddress.copy(address = None))
+    "throw an Exception if person details does not contain an address" in {
+      setupAuth(personDetails = Some(buildPersonDetailsCorrespondenceAddress.copy(address = None)))
 
       the[Exception] thrownBy {
         await(controller.onSubmit(FakeRequest()))
@@ -178,16 +109,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
   "confirmPageLoad" should {
 
-    "return OK when confirmPageLoad is called" in new LocalSetup {
+    "return OK when confirmPageLoad is called" in {
       val result: Future[Result] = controller.confirmPageLoad(FakeRequest())
       status(result) mustBe OK
     }
 
-    "throw an Exception if person details does not contain an address" in new LocalSetup {
-
-      override def personDetailsForRequest: Option[PersonDetails] =
-        Some(buildPersonDetailsCorrespondenceAddress.copy(address = None))
-
+    "throw an Exception if person details does not contain an address" in {
+      setupAuth(personDetails = Some(buildPersonDetailsCorrespondenceAddress.copy(address = None)))
       the[Exception] thrownBy {
         await(controller.confirmPageLoad(FakeRequest()))
       } must have message addressExceptionMessage
@@ -215,11 +143,11 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       dataEvent.generatedAt
     )
 
-    "render the thank you page upon successful submission of closing the correspondence address and no locks present" in new LocalSetup {
+    "render the thank you page upon successful submission of closing the correspondence address and no locks present" in {
 
-      override def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+      def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.confirmSubmit(FakeRequest())
+      val result: Future[Result] = controller.confirmSubmit(currentRequest)
 
       status(result) mustBe OK
       contentAsString(result) mustBe expectedAddressConfirmationView
@@ -234,11 +162,16 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "redirect to personal details if there is a lock on the correspondence address for the user" in new LocalSetup {
+    "redirect to personal details if there is a lock on the correspondence address for the user" in {
 
-      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
+      def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditCorrespondenceAddress(Instant.now())))
-      val result: Future[Result]                                            = controller.confirmSubmit(FakeRequest())
+
+      when(mockEditAddressLockRepository.get(any())).thenReturn(
+        Future.successful(getEditedAddressIndicators)
+      )
+
+      val result: Future[Result] = controller.confirmSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad.url)
@@ -248,12 +181,14 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "render the thank you page upon successful submission of closing the correspondence address and only a lock on the residential address" in new LocalSetup {
-      override def currentRequest[A]: Request[A]                            = FakeRequest().asInstanceOf[Request[A]]
-      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
+    "render the thank you page upon successful submission of closing the correspondence address and only a lock on the residential address" in {
+      def currentRequest[A]: Request[A]                            = FakeRequest().asInstanceOf[Request[A]]
+      def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditResidentialAddress(Instant.now())))
-
-      val result: Future[Result] = controller.confirmSubmit(FakeRequest())
+      when(mockEditAddressLockRepository.get(any())).thenReturn(
+        Future.successful(getEditedAddressIndicators)
+      )
+      val result: Future[Result]                                   = controller.confirmSubmit(currentRequest)
 
       status(result) mustBe OK
       contentAsString(result) mustBe expectedAddressConfirmationView
@@ -268,11 +203,14 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "return 400 if a BAD_REQUEST is received from citizen-details" in new LocalSetup {
-      override def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    "return 400 if a BAD_REQUEST is received from citizen-details" in {
+      def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future.successful(Left(UpstreamErrorResponse("", BAD_REQUEST)))
         )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(
+        updateAddressResponse()
+      )
 
       val result: Future[Result] = controller.confirmSubmit()(FakeRequest())
 
@@ -282,13 +220,15 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "return 500 if an unexpected error (418) is received from citizen-details" in new LocalSetup {
-      override def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    "return 500 if an unexpected error (418) is received from citizen-details" in {
+      def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future.successful(Left(UpstreamErrorResponse("", IM_A_TEAPOT)))
         )
-
-      val result: Future[Result] = controller.confirmSubmit()(FakeRequest())
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(
+        updateAddressResponse()
+      )
+      val result: Future[Result]                                                        = controller.confirmSubmit()(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       verify(mockCitizenDetailsService, times(1))
@@ -296,25 +236,30 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "return 500 if a 5xx is received from citizen-details" in new LocalSetup {
-      override def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    "return 500 if a 5xx is received from citizen-details" in {
+      def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
         )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(
+        updateAddressResponse()
+      )
 
-      override def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+      def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.confirmSubmit()(FakeRequest())
+      val result: Future[Result] = controller.confirmSubmit()(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any(), any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "return 500 if insert address lock fails" in new LocalSetup {
-      override def isInsertCorrespondenceAddressLockSuccessful: Boolean = false
+    "return 500 if insert address lock fails" in {
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
+        Future.successful(false)
+      )
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/").asInstanceOf[Request[A]]
+      def currentRequest[A]: Request[A] = FakeRequest("POST", "/").asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.confirmSubmit(currentRequest)
 
@@ -329,20 +274,25 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "return 500 if fetching etag from citizen details fails" in new LocalSetup {
-      override def eTagResponse: Option[ETag] = None
+    "return 500 if fetching etag from citizen details fails" in {
+      def eTagResponse: Option[ETag] = None
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
+          Future.successful(Right(eTagResponse))
+        )
+      )
+
+      def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.confirmSubmit(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
     }
 
-    "throw an Exception when person details does not contain a correspondence address" in new LocalSetup {
-      override def personDetailsForRequest: Option[PersonDetails] =
-        Some(buildPersonDetailsCorrespondenceAddress.copy(correspondenceAddress = None))
-      override def currentRequest[A]: Request[A]                  = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+    "throw an Exception when person details does not contain a correspondence address" in {
+      setupAuth(personDetails = Some(buildPersonDetailsCorrespondenceAddress.copy(address = None)))
+      def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
       the[Exception] thrownBy {
         await(controller.confirmSubmit(currentRequest))

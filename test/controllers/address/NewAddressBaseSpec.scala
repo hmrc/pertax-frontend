@@ -17,7 +17,7 @@
 package controllers.address
 
 import cats.data.EitherT
-import config.ConfigDecorator
+import config.{ConfigDecorator, NewsAndTilesConfig}
 import connectors.AddressLookupConnector
 import controllers.InterstitialController
 import controllers.auth.AuthJourney
@@ -29,20 +29,23 @@ import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.http.Status.NO_CONTENT
 import play.api.i18n.{Lang, Messages, MessagesImpl}
-import play.api.inject.bind
+import play.api.inject.{Binding, bind}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import repositories.JourneyCacheRepository
+import services.partials.{FormPartialService, SaPartialService}
 import services.{AddressMovedService, AgentClientAuthorisationService, CitizenDetailsService}
 import testUtils.Fixtures._
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.hmrcfrontend.views.Aliases.PersonalDetails
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
+import views.html.personaldetails.UpdateAddressConfirmationView
 
 import scala.concurrent.Future
 
@@ -63,16 +66,18 @@ trait NewAddressBaseSpec extends BaseSpec {
   protected def displayAddressInterstitialView: DisplayAddressInterstitialView =
     app.injector.instanceOf[DisplayAddressInterstitialView]
   protected def internalServerErrorView: InternalServerErrorView               = app.injector.instanceOf[InternalServerErrorView]
+  protected def updateAddressConfirmationView: UpdateAddressConfirmationView   =
+    app.injector.instanceOf[UpdateAddressConfirmationView]
 
   implicit def configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  protected def setupAuth(): Unit =
+  protected def setupAuth(personDetails: Option[PersonDetails] = personDetailsForRequest): Unit =
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
         block(
           buildUserRequest(
             request = request,
-            personDetails = personDetailsForRequest,
+            personDetails = personDetails,
             saUser = saUserType
           )
         )
@@ -128,8 +133,8 @@ trait NewAddressBaseSpec extends BaseSpec {
     mockJourneyCacheRepository
   )(ec)
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(
+  protected def appn(bindings: Seq[Binding[_]] = Nil, extraConfigValues: Map[String, Any] = Map.empty): Application = {
+    val fullBindings = Seq(
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[AuthJourney].toInstance(mockAuthJourney),
       bind[AddressJourneyCachingHelper].toInstance(fakeAddressJourneyCachingHelper),
@@ -137,8 +142,13 @@ trait NewAddressBaseSpec extends BaseSpec {
       bind[AddressMovedService].toInstance(mockAddressMovedService),
       bind[AuditConnector].toInstance(mockAuditConnector),
       bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository)
-    )
-    .build()
+    ) ++ bindings
+    localGuiceApplicationBuilder(extraConfigValues)
+      .overrides(fullBindings)
+      .build()
+  }
+
+  override implicit lazy val app: Application = appn()
 
   protected lazy val nino: Nino                       = fakeNino
   protected lazy val fakePersonDetails: PersonDetails = buildPersonDetails

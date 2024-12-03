@@ -18,7 +18,6 @@ package controllers.address
 
 import controllers.address
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.UserAnswers
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import org.mockito.ArgumentMatchers.any
@@ -27,32 +26,13 @@ import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import routePages.{AddressLookupServiceDownPage, SelectedRecordSetPage}
-import services.AddressSelectorService
 import testUtils.Fixtures.oneAndTwoOtherPlacePafRecordSet
 import uk.gov.hmrc.http.HeaderCarrier
-import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.AddressSelectorView
 
 import scala.concurrent.Future
 
 class AddressSelectorControllerSpec extends NewAddressBaseSpec {
   private def controller: AddressSelectorController = app.injector.instanceOf[AddressSelectorController]
-//  trait LocalSetup extends AddressControllerSetup {
-//
-//    def controller: AddressSelectorController =
-//      new AddressSelectorController(
-//        new AddressJourneyCachingHelper(mockJourneyCacheRepository),
-//        mockJourneyCacheRepository,
-//        mockAuthJourney,
-//        cc,
-//        errorRenderer,
-//        inject[AddressSelectorView],
-//        inject[DisplayAddressInterstitialView],
-//        inject[AddressSelectorService],
-//        mockFeatureFlagService,
-//        internalServerErrorView
-//      )
-//  }
 
   "onPageLoad" should {
 
@@ -158,12 +138,6 @@ class AddressSelectorControllerSpec extends NewAddressBaseSpec {
     }
 
     "call the address lookup service and return a 500 when an invalid addressId is supplied in the form" in {
-
-      def currentRequest[A]: Request[A] =
-        FakeRequest("POST", "")
-          .withFormUrlEncodedBody("addressId" -> "GB000000000000", "postcode" -> "AA1 1AA")
-          .asInstanceOf[Request[A]]
-
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(AddressLookupServiceDownPage, false)
