@@ -48,6 +48,7 @@ import scala.concurrent.Future
 
 trait NewAddressBaseSpec extends BaseSpec {
   protected def fakePOSTRequest[A]: Request[A]                                       = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+  protected def currentRequest[A]: Request[A]                                        = FakeRequest("GET", "/test").asInstanceOf[Request[A]]
   protected val mockJourneyCacheRepository: JourneyCacheRepository                   = mock[JourneyCacheRepository]
   protected val mockAddressLookupConnector: AddressLookupConnector                   = mock[AddressLookupConnector]
   protected val mockCitizenDetailsService: CitizenDetailsService                     = mock[CitizenDetailsService]
@@ -134,7 +135,8 @@ trait NewAddressBaseSpec extends BaseSpec {
       bind[AddressJourneyCachingHelper].toInstance(fakeAddressJourneyCachingHelper),
       bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
       bind[AddressMovedService].toInstance(mockAddressMovedService),
-      bind[AuditConnector].toInstance(mockAuditConnector)
+      bind[AuditConnector].toInstance(mockAuditConnector),
+      bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository)
     )
     .build()
 

@@ -47,7 +47,7 @@ class AddressSubmissionControllerSpec extends NewAddressBaseSpec {
         )
       )
 
-      val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(PostalAddrType)(currentRequest)
 
       status(result) mustBe OK
       verify(mockJourneyCacheRepository, times(1)).get(any())
@@ -61,7 +61,7 @@ class AddressSubmissionControllerSpec extends NewAddressBaseSpec {
         )
       )
 
-      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
@@ -73,7 +73,7 @@ class AddressSubmissionControllerSpec extends NewAddressBaseSpec {
         Future.successful(UserAnswers.empty("id"))
       )
 
-      val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(PostalAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
@@ -91,7 +91,7 @@ class AddressSubmissionControllerSpec extends NewAddressBaseSpec {
         )
       )
 
-      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(currentRequest)
 
       contentAsString(result) must include(Messages("label.your_new_address"))
       contentAsString(result) must include(Messages("label.when_you_started_living_here"))
@@ -109,7 +109,7 @@ class AddressSubmissionControllerSpec extends NewAddressBaseSpec {
         )
       )
 
-      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(currentRequest)
 
       contentAsString(result) must include(Messages("label.your_address"))
       contentAsString(result) mustNot include(Messages("label.when_you_started_living_here"))

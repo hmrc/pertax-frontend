@@ -17,45 +17,18 @@
 package controllers.address
 
 import controllers.bindable.ResidentialAddrType
-import models.UserAnswers
-import models.dto._
-import org.mockito.ArgumentMatchers.any
 import play.api.mvc._
-import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import routePages.HasAddressAlreadyVisitedPage
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import views.html.InternalServerErrorView
-import views.html.personaldetails._
 
 import scala.concurrent.Future
 
-class AddressErrorControllerSpec extends AddressBaseSpec {
+class AddressErrorControllerSpec extends NewAddressBaseSpec {
 
-  trait LocalSetup extends AddressControllerSetup {
-
-    val userAnswers: UserAnswers = UserAnswers
-      .empty("id")
-      .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-
-    def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
-
-    def controller: AddressErrorController =
-      new AddressErrorController(
-        mockAuthJourney,
-        cc,
-        displayAddressInterstitialView,
-        inject[CannotUseServiceView],
-        inject[FeatureFlagService],
-        inject[InternalServerErrorView]
-      )
-  }
+  private def controller: AddressErrorController = app.injector.instanceOf[AddressErrorController]
 
   "cannotUseThisService" must {
 
-    "display the cannot use this service page" in new LocalSetup {
+    "display the cannot use this service page" in {
       val result: Future[Result] = controller.cannotUseThisService(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR

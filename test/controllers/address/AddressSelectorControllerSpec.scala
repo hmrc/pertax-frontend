@@ -35,30 +35,30 @@ import views.html.personaldetails.AddressSelectorView
 
 import scala.concurrent.Future
 
-class AddressSelectorControllerSpec extends AddressBaseSpec {
-
-  trait LocalSetup extends AddressControllerSetup {
-
-    def controller: AddressSelectorController =
-      new AddressSelectorController(
-        new AddressJourneyCachingHelper(mockJourneyCacheRepository),
-        mockJourneyCacheRepository,
-        mockAuthJourney,
-        cc,
-        errorRenderer,
-        inject[AddressSelectorView],
-        inject[DisplayAddressInterstitialView],
-        inject[AddressSelectorService],
-        mockFeatureFlagService,
-        internalServerErrorView
-      )
-  }
+class AddressSelectorControllerSpec extends NewAddressBaseSpec {
+  private def controller: AddressSelectorController = app.injector.instanceOf[AddressSelectorController]
+//  trait LocalSetup extends AddressControllerSetup {
+//
+//    def controller: AddressSelectorController =
+//      new AddressSelectorController(
+//        new AddressJourneyCachingHelper(mockJourneyCacheRepository),
+//        mockJourneyCacheRepository,
+//        mockAuthJourney,
+//        cc,
+//        errorRenderer,
+//        inject[AddressSelectorView],
+//        inject[DisplayAddressInterstitialView],
+//        inject[AddressSelectorService],
+//        mockFeatureFlagService,
+//        internalServerErrorView
+//      )
+//  }
 
   "onPageLoad" should {
 
     "render the page with the results of the address lookup" when {
-      "RecordSet can be retrieved from the cache" in new LocalSetup {
-        override def currentRequest[A]: Request[A] =
+      "RecordSet can be retrieved from the cache" in {
+        def currentRequest[A]: Request[A] =
           FakeRequest("POST", "")
             .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
             .asInstanceOf[Request[A]]
@@ -73,7 +73,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
         when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
-        val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+        val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(currentRequest)
 
         status(result) mustBe OK
         verify(mockJourneyCacheRepository, times(1)).get(any())
@@ -81,8 +81,8 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
     }
 
     "redirect to postcode lookup form" when {
-      "RecordSet can not be retrieved from the cache" in new LocalSetup {
-        override def currentRequest[A]: Request[A] =
+      "RecordSet can not be retrieved from the cache" in {
+        def currentRequest[A]: Request[A] =
           FakeRequest("POST", "")
             .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
             .asInstanceOf[Request[A]]
@@ -104,12 +104,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
   "onSubmit" should {
 
     "call the address lookup service and return 400" when {
-      "supplied no addressId in the form" in new LocalSetup {
-        override def currentRequest[A]: Request[A] =
-          FakeRequest("POST", "")
-            .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-            .asInstanceOf[Request[A]]
-
+      "supplied no addressId in the form" in {
         val userAnswers: UserAnswers = UserAnswers
           .empty("id")
           .setOrException(AddressLookupServiceDownPage, false)
@@ -124,13 +119,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
         verify(mockJourneyCacheRepository, times(1)).get(any())
       }
 
-      "supplied no addressId in the form with a filter" in new LocalSetup {
-
-        override def currentRequest[A]: Request[A] =
-          FakeRequest("POST", "")
-            .withFormUrlEncodedBody("postcode" -> "AA1 1AA", "filter" -> "7")
-            .asInstanceOf[Request[A]]
-
+      "supplied no addressId in the form with a filter" in {
         val userAnswers: UserAnswers = UserAnswers
           .empty("id")
           .setOrException(AddressLookupServiceDownPage, false)
@@ -147,9 +136,9 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
       }
     }
 
-    "call the address lookup service and redirect to the edit address form for a postal address type when supplied with an addressId" in new LocalSetup {
+    "call the address lookup service and redirect to the edit address form for a postal address type when supplied with an addressId" in {
 
-      override def currentRequest[A]: Request[A] =
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("addressId" -> "GB990091234514", "postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
@@ -162,15 +151,15 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
-      val result: Future[Result] = controller.onSubmit(PostalAddrType)(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(PostalAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/edit-address")
     }
 
-    "call the address lookup service and return a 500 when an invalid addressId is supplied in the form" in new LocalSetup {
+    "call the address lookup service and return a 500 when an invalid addressId is supplied in the form" in {
 
-      override def currentRequest[A]: Request[A] =
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("addressId" -> "GB000000000000", "postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
@@ -190,9 +179,9 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
       verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
-    "redirect to enter start date page if postcode is different to currently held postcode" in new LocalSetup {
+    "redirect to enter start date page if postcode is different to currently held postcode" in {
 
-      override def currentRequest[A]: Request[A] =
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 2AA")
           .asInstanceOf[Request[A]]
@@ -211,7 +200,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/enter-start-date")
     }
 
-    "redirect to check and submit page if postcode is not different to currently held postcode" in new LocalSetup {
+    "redirect to check and submit page if postcode is not different to currently held postcode" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -221,7 +210,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
-      override def currentRequest[A]: Request[A] =
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
