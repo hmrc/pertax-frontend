@@ -44,20 +44,10 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 class InterstitialControllerSpec extends BaseSpec {
-  private val mockFormPartialService = mock[FormPartialService]
-  private val mockSaPartialService   = mock[SaPartialService]
-  private val mockNewsAndTilesConfig = mock[NewsAndTilesConfig]
-
-  val actionBuilderFixture: ActionBuilderFixture                    = new ActionBuilderFixture {
-    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-      block(
-        buildUserRequest(
-          saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-          request = request
-        )
-      )
-  }
-  when(mockAuthJourney.authWithPersonalDetails).thenReturn(actionBuilderFixture)
+  private lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
+  private val mockFormPartialService                                = mock[FormPartialService]
+  private val mockSaPartialService                                  = mock[SaPartialService]
+  private val mockNewsAndTilesConfig                                = mock[NewsAndTilesConfig]
 
   private def setupAuth(
     saUserType: Option[SelfAssessmentUserType] = None,
@@ -89,7 +79,8 @@ class InterstitialControllerSpec extends BaseSpec {
     }
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(actionBuilderFixture)
   }
-  private lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
+
+  setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
 
   private def appn(bindings: Seq[Binding[_]] = Nil, extraConfigValues: Map[String, Any] = Map.empty): Application = {
     val fullBindings = Seq(
