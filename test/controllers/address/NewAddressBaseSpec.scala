@@ -17,6 +17,7 @@
 package controllers.address
 
 import cats.data.EitherT
+import config.ConfigDecorator
 import connectors.AddressLookupConnector
 import controllers.InterstitialController
 import controllers.auth.AuthJourney
@@ -29,7 +30,7 @@ import play.api.Application
 import play.api.http.Status.NO_CONTENT
 import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.inject.bind
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import repositories.JourneyCacheRepository
 import services.{AddressMovedService, AgentClientAuthorisationService, CitizenDetailsService}
@@ -40,6 +41,8 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
+import views.html.InternalServerErrorView
+import views.html.interstitial.DisplayAddressInterstitialView
 
 import scala.concurrent.Future
 
@@ -54,7 +57,13 @@ trait NewAddressBaseSpec extends BaseSpec {
   protected val mockAgentClientAuthorisationService: AgentClientAuthorisationService =
     mock[AgentClientAuthorisationService]
 
-  protected implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  protected implicit lazy val messages: Messages                               = MessagesImpl(Lang("en"), messagesApi)
+  protected def cc: MessagesControllerComponents                               = app.injector.instanceOf[MessagesControllerComponents]
+  protected def displayAddressInterstitialView: DisplayAddressInterstitialView =
+    app.injector.instanceOf[DisplayAddressInterstitialView]
+  protected def internalServerErrorView: InternalServerErrorView               = app.injector.instanceOf[InternalServerErrorView]
+
+  implicit def configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
   protected def setupAuth(): Unit =
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {

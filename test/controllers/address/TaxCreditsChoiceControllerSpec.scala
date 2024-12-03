@@ -140,45 +140,45 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
 
       "display the 'do you get tax credits' page if the tax credits service returns None, " +
         "indicating that we don't know if the user needs to change its address on PTA or tax credits" in {
-        val arg = ArgumentCaptor.forClass(classOf[Result])
+          val arg = ArgumentCaptor.forClass(classOf[Result])
 
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
-        when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
-          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-        when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
-          .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, Option[Boolean]](Future.successful(Right(None)))
-          )
-        when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-          .thenReturn(Future.successful(Ok("Fake Page")))
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
+            .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
+          when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+            .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+          when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
+            .thenReturn(
+              EitherT[Future, UpstreamErrorResponse, Option[Boolean]](Future.successful(Right(None)))
+            )
+          when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
+            .thenReturn(Future.successful(Ok("Fake Page")))
 
-        when(mockAuthJourney.authWithPersonalDetails)
-          .thenReturn(new ActionBuilderFixture {
-            override def invokeBlock[A](
-                                         request: Request[A],
-                                         block: UserRequest[A] => Future[Result]
-                                       ): Future[Result] =
-              block(
-                buildUserRequest(
-                  request = currentRequest[A],
-                  personDetails = personDetailsForRequest,
-                  saUser = saUserType
+          when(mockAuthJourney.authWithPersonalDetails)
+            .thenReturn(new ActionBuilderFixture {
+              override def invokeBlock[A](
+                request: Request[A],
+                block: UserRequest[A] => Future[Result]
+              ): Future[Result] =
+                block(
+                  buildUserRequest(
+                    request = currentRequest[A],
+                    personDetails = personDetailsForRequest,
+                    saUser = saUserType
+                  )
                 )
-              )
-          })
+            })
 
-        val result = controller.onPageLoad(currentRequest)
+          val result = controller.onPageLoad(currentRequest)
 
-        status(result) mustBe OK
-        verify(mockFeatureFlagService, times(2)).get(any())
-        verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
-        verify(mockTaxCreditsService, times(1)).isAddressChangeInPTA(any())(any())
-        val argCaptorValue: Result = arg.getValue
-        argCaptorValue.header.status mustBe OK
-        contentAsString(Future.successful(argCaptorValue)) must include("Do you get tax credits?")
+          status(result) mustBe OK
+          verify(mockFeatureFlagService, times(2)).get(any())
+          verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
+          verify(mockTaxCreditsService, times(1)).isAddressChangeInPTA(any())(any())
+          val argCaptorValue: Result = arg.getValue
+          argCaptorValue.header.status mustBe OK
+          contentAsString(Future.successful(argCaptorValue)) must include("Do you get tax credits?")
 
-      }
+        }
     }
 
     "Tax-credit-broker call is not used and the question ask to the user" must {
