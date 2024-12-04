@@ -70,7 +70,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
         val userAnswers: UserAnswers = UserAnswers.empty("id")
         when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
-        val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+        val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(currentRequest)
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(

@@ -132,7 +132,10 @@ trait AddressBaseSpec extends BaseSpec {
     mockJourneyCacheRepository
   )(ec)
 
-  protected def appn(bindings: Seq[Binding[_]] = Nil, extraConfigValues: Map[String, Any] = Map.empty): Application = {
+  protected def appn(
+    extraBindings: Seq[Binding[_]] = Nil,
+    extraConfigValues: Map[String, Any] = Map.empty
+  ): Application = {
     val fullBindings = Seq(
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[AuthJourney].toInstance(mockAuthJourney),
@@ -142,7 +145,7 @@ trait AddressBaseSpec extends BaseSpec {
       bind[AuditConnector].toInstance(mockAuditConnector),
       bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
       bind[AddressLookupConnector].toInstance(mockAddressLookupConnector)
-    ) ++ bindings
+    ) ++ extraBindings
     localGuiceApplicationBuilder(extraConfigValues)
       .overrides(fullBindings)
       .build()

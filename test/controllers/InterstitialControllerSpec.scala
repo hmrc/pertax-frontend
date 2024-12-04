@@ -186,9 +186,6 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in {
-
-      val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-
       def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(Some(NonFilerSelfAssessmentUser))

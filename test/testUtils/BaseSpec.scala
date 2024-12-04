@@ -85,7 +85,7 @@ trait BaseSpec
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
   val mockAuthJourney: AuthJourney            = mock[AuthJourney]
 
-  implicit lazy val ec: ExecutionContext     = injector.instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext     = injector().instanceOf[ExecutionContext]
   lazy val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
   implicit def messagesApi: MessagesApi      = inject[MessagesApi]
 
