@@ -16,11 +16,11 @@
 
 package controllers
 
-import controllers.auth.WithBreadcrumbAction
+import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import play.api.Application
 import play.api.inject.bind
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.UserRequestFixture.buildUserRequest
@@ -38,20 +38,12 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[HomeController].toInstance(mockHomeController),
-      bind[RlsController].toInstance(mockRlsConfirmAddressController)
+      bind[RlsController].toInstance(mockRlsConfirmAddressController),
+      bind[AuthJourney].toInstance(mockAuthJourney)
     )
     .configure(configValues)
     .build()
-
-  def controller: NiLetterController =
-    new NiLetterController(
-      mockAuthJourney,
-      inject[WithBreadcrumbAction],
-      inject[MessagesControllerComponents]
-    )(
-      config,
-      ec
-    )
+  lazy val controller: NiLetterController     = app.injector.instanceOf[NiLetterController]
 
   "Calling NiLetterController.saveNationalInsuranceNumberAsPdf" must {
     "redirect to nino service" in {

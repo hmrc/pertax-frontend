@@ -30,7 +30,7 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  override protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
+  override protected def localGuiceApplicationBuilder(extraConfigValues: Map[String, Any]): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .configure(
         Map(

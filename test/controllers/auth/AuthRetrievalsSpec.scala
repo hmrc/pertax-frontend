@@ -47,10 +47,10 @@ class AuthRetrievalsSpec extends BaseSpec {
     .configure(Map("metrics.enabled" -> false))
     .build()
 
-  val mockAuthConnector: AuthConnector           = mock[AuthConnector]
-  def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
-  val enrolmentsHelper: EnrolmentsHelper         = app.injector.instanceOf[EnrolmentsHelper]
-  val sessionAuditor                             =
+  val mockAuthConnector: AuthConnector                = mock[AuthConnector]
+  lazy val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
+  val enrolmentsHelper: EnrolmentsHelper              = app.injector.instanceOf[EnrolmentsHelper]
+  val sessionAuditor                                  =
     new SessionAuditorFake(app.injector.instanceOf[AuditConnector], enrolmentsHelper)
 
   val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]

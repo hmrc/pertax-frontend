@@ -16,6 +16,7 @@
 
 package controllers.address
 
+import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import models.admin.AddressChangeAllowedToggle
@@ -25,19 +26,21 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import views.html.InternalServerErrorView
 
 import scala.concurrent.Future
 
 class AddressControllerSpec extends AddressBaseSpec {
-
-  object SUT
+  private object Controller
       extends AddressController(
-        inject[AuthJourney],
+        app.injector.instanceOf[AuthJourney],
         cc,
         displayAddressInterstitialView,
         mockFeatureFlagService,
         internalServerErrorView
       )
+
+  private lazy val controller: AddressController = Controller
 
   "addressJourneyEnforcer" must {
 
@@ -53,7 +56,7 @@ class AddressControllerSpec extends AddressBaseSpec {
 
         val expectedContent = "Success"
 
-        val result = SUT.addressJourneyEnforcer { _ => _ =>
+        val result = controller.addressJourneyEnforcer { _ => _ =>
           Future(Ok(expectedContent))
         }(userRequest)
 
@@ -72,7 +75,7 @@ class AddressControllerSpec extends AddressBaseSpec {
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
 
-        val result = SUT.addressJourneyEnforcer { _ => _ =>
+        val result = controller.addressJourneyEnforcer { _ => _ =>
           Future(Ok("Success"))
         }(userRequest)
 
@@ -88,7 +91,7 @@ class AddressControllerSpec extends AddressBaseSpec {
         implicit def userRequest[A]: UserRequest[A] =
           buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
 
-        val result = SUT.addressJourneyEnforcer { _ => _ =>
+        val result = controller.addressJourneyEnforcer { _ => _ =>
           Future(Ok("Success"))
         }
 
@@ -101,7 +104,8 @@ class AddressControllerSpec extends AddressBaseSpec {
     "show the InternalServerErrorView" when {
 
       "the AddressChangeAllowedToggle is set to false" in {
-
+        val internalServerErrorView: InternalServerErrorView = app.injector.instanceOf[InternalServerErrorView]
+        val configDecorator: ConfigDecorator                 = app.injector.instanceOf[ConfigDecorator]
         when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
 
@@ -110,7 +114,7 @@ class AddressControllerSpec extends AddressBaseSpec {
 
         val expectedContent = "Success"
 
-        val result = SUT.addressJourneyEnforcer { _ => _ =>
+        val result = controller.addressJourneyEnforcer { _ => _ =>
           Future(Ok(expectedContent))
         }(userRequest)
 

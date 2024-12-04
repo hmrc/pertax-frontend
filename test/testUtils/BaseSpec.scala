@@ -31,6 +31,7 @@ import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.MessagesControllerComponents
+import play.api.test.Helpers.baseApplicationBuilder.injector
 import play.api.test.Injecting
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
@@ -72,19 +73,19 @@ trait BaseSpec
 
   val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
-  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
+  protected def localGuiceApplicationBuilder(extraConfigValues: Map[String, Any] = Map.empty): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
         bind[FormPartialRetriever].toInstance(mockPartialRetriever),
         bind[EditAddressLockRepository].toInstance(mockEditAddressLockRepository),
         bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       )
-      .configure(configValues)
+      .configure(configValues ++ extraConfigValues)
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
   val mockAuthJourney: AuthJourney            = mock[AuthJourney]
 
-  implicit lazy val ec: ExecutionContext     = app.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext     = injector().instanceOf[ExecutionContext]
   lazy val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
   implicit def messagesApi: MessagesApi      = inject[MessagesApi]
 

@@ -38,8 +38,6 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.time.CurrentTaxYear
-import views.html.iv.failure._
-import views.html.iv.success.SuccessView
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -90,17 +88,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       SaUtr(new SaUtrGenerator().nextSaUtr.utr)
     )
 
-    def controller: ApplicationController =
-      new ApplicationController(
-        mockIdentityVerificationFrontendService,
-        inject[MessagesControllerComponents],
-        inject[SuccessView],
-        inject[CannotConfirmIdentityView],
-        inject[FailedIvIncompleteView],
-        inject[LockedOutView],
-        inject[TimeOutView],
-        inject[TechnicalIssuesView]
-      )(config, ec)
+    lazy val controller: ApplicationController = app.injector.instanceOf[ApplicationController]
 
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any(), any())) thenReturn {
       getIVJourneyStatusResponse

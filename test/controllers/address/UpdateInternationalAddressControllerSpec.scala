@@ -17,7 +17,6 @@
 package controllers.address
 
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import controllers.controllershelpers.CountryHelper
 import models.UserAnswers
 import models.addresslookup.{Address, AddressRecord, Country}
 import models.dto.AddressPageVisitedDto
@@ -33,32 +32,16 @@ import routePages.{AddressLookupServiceDownPage, HasAddressAlreadyVisitedPage, S
 import testUtils.Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.model.DataEvent
-import views.html.personaldetails.UpdateInternationalAddressView
 
 import scala.concurrent.Future
 
 class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
-
-  trait LocalSetup extends AddressControllerSetup {
-
-    def controller: UpdateInternationalAddressController =
-      new UpdateInternationalAddressController(
-        inject[CountryHelper],
-        addressJourneyCachingHelper,
-        mockAuditConnector,
-        mockAuthJourney,
-        cc,
-        inject[UpdateInternationalAddressView],
-        displayAddressInterstitialView,
-        mockFeatureFlagService,
-        internalServerErrorView
-      )
-    def currentRequest[A]: Request[A]                    = FakeRequest().asInstanceOf[Request[A]]
-  }
+  private lazy val controller: UpdateInternationalAddressController =
+    app.injector.instanceOf[UpdateInternationalAddressController]
 
   "onPageLoad" must {
 
-    "find only the selected address from the session cache and no residency choice and return 303" in new LocalSetup {
+    "find only the selected address from the session cache and no residency choice and return 303" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -72,7 +55,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
-    "fetch the selected address and a residential residencyChoice has been selected from the session cache and return 200" in new LocalSetup {
+    "fetch the selected address and a residential residencyChoice has been selected from the session cache and return 200" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -86,7 +69,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
     }
 
-    "find no selected address with residential address type but residencyChoice in the session cache and still return 200" in new LocalSetup {
+    "find no selected address with residential address type but residencyChoice in the session cache and still return 200" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -99,7 +82,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
     }
 
-    "find no residency choice in the session cache and redirect to the beginning of the journey" in new LocalSetup {
+    "find no residency choice in the session cache and redirect to the beginning of the journey" in {
 
       val userAnswers: UserAnswers = UserAnswers.empty("id")
 
@@ -111,7 +94,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
-    "redirect user to beginning of journey and return 303 for postal addressType and no pagevisitedDto in cache" in new LocalSetup {
+    "redirect user to beginning of journey and return 303 for postal addressType and no pagevisitedDto in cache" in {
 
       val userAnswers: UserAnswers = UserAnswers.empty
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
@@ -122,7 +105,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
-    "display edit address page and return 200 for postal addressType with pagevisitedDto and addressRecord in cache" in new LocalSetup {
+    "display edit address page and return 200 for postal addressType with pagevisitedDto and addressRecord in cache" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -136,7 +119,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
     }
 
-    "display edit address page and return 200 for postal addressType with pagevisitedDto and no addressRecord in cache" in new LocalSetup {
+    "display edit address page and return 200 for postal addressType with pagevisitedDto and no addressRecord in cache" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -149,7 +132,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
     }
 
-    "find no addresses in the session cache and return 303" in new LocalSetup {
+    "find no addresses in the session cache and return 303" in {
 
       val userAnswers: UserAnswers = UserAnswers.empty("id")
 
@@ -161,7 +144,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
     }
 
-    "find residential selected and submitted addresses in the session cache and return 200" in new LocalSetup {
+    "find residential selected and submitted addresses in the session cache and return 200" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -179,7 +162,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
     }
 
-    "find no selected address but a submitted address in the session cache and return 200" in new LocalSetup {
+    "find no selected address but a submitted address in the session cache and return 200" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -196,7 +179,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
     }
 
-    "show 'Enter the address' when user amends correspondence address manually and address has not been selected" in new LocalSetup {
+    "show 'Enter the address' when user amends correspondence address manually and address has not been selected" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -211,7 +194,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       doc.getElementsByClass("govuk-fieldset__heading").toString.contains("Your postal address") mustBe true
     }
 
-    "show 'Enter your address' when user amends residential address manually and address has not been selected" in new LocalSetup {
+    "show 'Enter your address' when user amends residential address manually and address has not been selected" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -226,7 +209,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       doc.getElementsByClass("govuk-fieldset__heading").toString.contains("Your address") mustBe true
     }
 
-    "verify an audit event has been sent when user chooses to add/amend view address" in new LocalSetup {
+    "verify an audit event has been sent when user chooses to add/amend view address" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -242,7 +225,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
 
-    "verify an audit event has been sent when user chooses to add postal address" in new LocalSetup {
+    "verify an audit event has been sent when user chooses to add postal address" in {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -261,7 +244,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
   "onSubmit" must {
 
-    "return 400 when supplied invalid form input" in new LocalSetup {
+    "return 400 when supplied invalid form input" in {
 
       val emptyAddress: Address        = Address(List(""), None, None, "", None, Country("", ""))
       val addressRecord: AddressRecord = AddressRecord("", emptyAddress, "")
@@ -276,13 +259,13 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe BAD_REQUEST
     }
 
-    "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a postal journey and input default startDate into cache" in new LocalSetup {
+    "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a postal journey and input default startDate into cache" in {
 
       val userAnswers: UserAnswers = UserAnswers.empty("id").setOrException(AddressLookupServiceDownPage, true)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
-      override def currentRequest[A]: Request[A] =
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*)
           .asInstanceOf[Request[A]]
@@ -293,13 +276,13 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/changes")
     }
 
-    "return 303, caching addressDto and redirecting to enter start date page when supplied valid form input on a non postal journey" in new LocalSetup {
+    "return 303, caching addressDto and redirecting to enter start date page when supplied valid form input on a non postal journey" in {
 
       val userAnswers: UserAnswers = UserAnswers.empty("id").setOrException(AddressLookupServiceDownPage, true)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
-      override def currentRequest[A]: Request[A] =
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*)
           .asInstanceOf[Request[A]]
