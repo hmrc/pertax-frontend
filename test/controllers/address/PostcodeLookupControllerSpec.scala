@@ -36,7 +36,7 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import scala.concurrent.Future
 
 class PostcodeLookupControllerSpec extends AddressBaseSpec {
-  private def controller: PostcodeLookupController = app.injector.instanceOf[PostcodeLookupController]
+  private lazy val controller: PostcodeLookupController = app.injector.instanceOf[PostcodeLookupController]
 
   def comparatorDataEvent(dataEvent: DataEvent, auditType: String, postcode: String): DataEvent = DataEvent(
     "pertax-frontend",

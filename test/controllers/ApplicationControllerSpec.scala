@@ -88,7 +88,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       SaUtr(new SaUtrGenerator().nextSaUtr.utr)
     )
 
-    def controller: ApplicationController = app.injector.instanceOf[ApplicationController]
+    lazy val controller: ApplicationController = app.injector.instanceOf[ApplicationController]
 
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any(), any())) thenReturn {
       getIVJourneyStatusResponse

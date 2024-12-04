@@ -24,7 +24,7 @@ import testUtils.BaseSpec
 import testUtils.Fixtures._
 
 class PublicControllerSpec extends BaseSpec {
-  private def controller: PublicController = app.injector.instanceOf[PublicController]
+  private lazy val controller: PublicController = app.injector.instanceOf[PublicController]
 
   "Calling PublicController.sessionTimeout" must {
     "return 200" in {

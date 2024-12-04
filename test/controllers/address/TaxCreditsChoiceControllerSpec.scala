@@ -63,9 +63,9 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
       )
       .build()
 
-  private def controller: TaxCreditsChoiceController   = app.injector.instanceOf[TaxCreditsChoiceController]
-  private val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
-  private val mockAddressJourneyCachingHelper          = mock[AddressJourneyCachingHelper]
+  private lazy val controller: TaxCreditsChoiceController = app.injector.instanceOf[TaxCreditsChoiceController]
+  private val mockTaxCreditsService: TaxCreditsService    = mock[TaxCreditsService]
+  private val mockAddressJourneyCachingHelper             = mock[AddressJourneyCachingHelper]
 
   override def fakeApplication(): Application = new GuiceApplicationBuilder()
     .configure(

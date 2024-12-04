@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
 
 class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
-  private def controller: DoYouLiveInTheUKController = app.injector.instanceOf[DoYouLiveInTheUKController]
+  private lazy val controller: DoYouLiveInTheUKController = app.injector.instanceOf[DoYouLiveInTheUKController]
 
   "onPageLoad" must {
 
@@ -79,7 +79,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
 
-      def controller: DoYouLiveInTheUKController = appn(extraConfigValues =
+      lazy val controller: DoYouLiveInTheUKController = appn(extraConfigValues =
         Map("feature.update-international-address-form.enabled" -> false)
       ).injector.instanceOf[DoYouLiveInTheUKController]
 

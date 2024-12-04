@@ -38,7 +38,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
     )
     .build()
 
-  private def controller: SaWrongCredentialsController = app.injector.instanceOf[SaWrongCredentialsController]
+  private lazy val controller: SaWrongCredentialsController = app.injector.instanceOf[SaWrongCredentialsController]
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

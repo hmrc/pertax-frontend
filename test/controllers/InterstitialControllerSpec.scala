@@ -105,9 +105,9 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayNationalInsurance" must {
     "redirect to /your-national-insurance-state-pension when when call displayNationalInsurance" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
-      val result                             = controller.displayChildBenefits()(fakeRequest)
+      val result                                  = controller.displayChildBenefits()(fakeRequest)
 
       status(result) mustBe MOVED_PERMANENTLY
       redirectLocation(
@@ -118,9 +118,9 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayChildBenefits" must {
     "Return moved permanently to displayChildBenefitsSingleAccountView" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
-      val result                             = controller.displayChildBenefits()(fakeRequest)
+      val result                                  = controller.displayChildBenefits()(fakeRequest)
 
       status(result) mustBe MOVED_PERMANENTLY
       redirectLocation(
@@ -131,9 +131,9 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayChildBenefitsSingleAccountView" must {
     "return OK for new Child Benefits" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
-      val result                             = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
+      val result                                  = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
 
       status(result) mustBe OK
     }
@@ -141,7 +141,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling viewSelfAssessmentSummary" must {
     "call FormPartialService.getSelfAssessmentPartial and return 200 when called by a high GG user" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth()
 
       val formPartialServiceResponse = Future.successful {
@@ -164,9 +164,9 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "call FormPartialService.getSelfAssessmentPartial and return return 401 for a high GG user not enrolled in SA" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(NonFilerSelfAssessmentUser))
-      val result                             = controller.displaySelfAssessment()(fakeRequest)
+      val result                                  = controller.displaySelfAssessment()(fakeRequest)
       status(result) mustBe UNAUTHORIZED
     }
   }
@@ -175,7 +175,7 @@ class InterstitialControllerSpec extends BaseSpec {
     "return OK response when accessing with an SA user with a valid tax year" in {
       val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(saUtr)))
 
@@ -186,7 +186,7 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(Some(NonFilerSelfAssessmentUser))
 
@@ -198,7 +198,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayNewsAndUpdates" must {
     "call displayNewsAndUpdates and return 200 when called by authorised user using GG" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth()
       when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(
@@ -219,7 +219,7 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "redirect to home when toggled on but no news items" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth()
       when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
@@ -230,18 +230,18 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return UNAUTHORIZED when toggled off" in {
-      val app                                = appn(extraConfigValues = Map("feature.news.enabled" -> false))
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      val app                                     = appn(extraConfigValues = Map("feature.news.enabled" -> false))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth()
       when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
-      val result                             = controller.displayNewsAndUpdates("nicSection")(fakeRequest)
+      val result                                  = controller.displayNewsAndUpdates("nicSection")(fakeRequest)
       status(result) mustBe UNAUTHORIZED
     }
   }
 
   "Calling displayBreathingSpaceDetails" must {
     "call displayBreathingSpaceDetails and return 200 when called by authorised user using GG" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(Some(NonFilerSelfAssessmentUser))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
@@ -253,7 +253,7 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return UNAUTHORIZED when toggled off" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(Some(NonFilerSelfAssessmentUser))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
@@ -266,7 +266,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayItsa" must {
     "return OK" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
         saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
@@ -285,7 +285,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displaySaRegistrationPage" must {
     "return UNAUTHORIZED when trustedHelper is defined" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
         saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
@@ -301,7 +301,7 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return UNAUTHORIZED when the user is an SA user" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
         saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
@@ -316,8 +316,8 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return OK with selfAssessmentRegistrationPageView when no trustedHelper, no ITSA enrolment, and not an SA user and pegaEnabled is true" in {
-      val app                                = appn(extraConfigValues = Map("feature.pegaSaRegistration.enabled" -> true))
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      val app                                     = appn(extraConfigValues = Map("feature.pegaSaRegistration.enabled" -> true))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
         saUserType = Some(NonFilerSelfAssessmentUser)
@@ -333,8 +333,8 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return UNAUTHORIZED when pegaEnabled is false" in {
-      val app                                = appn(extraConfigValues = Map("feature.pegaSaRegistration.enabled" -> false))
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      val app                                     = appn(extraConfigValues = Map("feature.pegaSaRegistration.enabled" -> false))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
         saUserType = Some(NonFilerSelfAssessmentUser)
@@ -351,7 +351,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayNpsShutteringPage" must {
     "return OK when NpsShutteringToggle is true" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
         saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
@@ -368,7 +368,7 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return redirect back to the home page when NpsShutteringToggle is false" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
         saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
@@ -385,7 +385,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayTaxCreditsInterstitial" must {
     "return OK when NpsShutteringToggle is true" in {
-      def controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
         saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))

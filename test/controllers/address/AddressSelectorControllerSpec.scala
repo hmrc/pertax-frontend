@@ -32,7 +32,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
 
 class AddressSelectorControllerSpec extends AddressBaseSpec {
-  private def controller: AddressSelectorController = app.injector.instanceOf[AddressSelectorController]
+  private lazy val controller: AddressSelectorController = app.injector.instanceOf[AddressSelectorController]
 
   "onPageLoad" should {
 

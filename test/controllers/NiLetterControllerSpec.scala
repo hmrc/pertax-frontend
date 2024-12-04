@@ -43,7 +43,7 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
     )
     .configure(configValues)
     .build()
-  def controller: NiLetterController          = app.injector.instanceOf[NiLetterController]
+  lazy val controller: NiLetterController     = app.injector.instanceOf[NiLetterController]
 
   "Calling NiLetterController.saveNationalInsuranceNumberAsPdf" must {
     "redirect to nino service" in {

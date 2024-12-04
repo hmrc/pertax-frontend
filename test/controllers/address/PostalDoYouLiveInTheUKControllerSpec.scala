@@ -28,7 +28,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
 
 class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
-  private def controller: PostalDoYouLiveInTheUKController = app.injector.instanceOf[PostalDoYouLiveInTheUKController]
+  private lazy val controller: PostalDoYouLiveInTheUKController =
+    app.injector.instanceOf[PostalDoYouLiveInTheUKController]
 
   "onPageLoad" must {
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in {
@@ -80,7 +81,7 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
     }
 
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in {
-      def controller: PostalDoYouLiveInTheUKController = appn(extraConfigValues =
+      lazy val controller: PostalDoYouLiveInTheUKController = appn(extraConfigValues =
         Map("feature.update-international-address-form.enabled" -> false)
       ).injector.instanceOf[PostalDoYouLiveInTheUKController]
 

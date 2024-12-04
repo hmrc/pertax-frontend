@@ -34,12 +34,12 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import scala.concurrent.Future
 
 class PersonalDetailsControllerSpec extends AddressBaseSpec {
-  private def controller: PersonalDetailsController = app.injector.instanceOf[PersonalDetailsController]
-  val utr: String                                   = new SaUtrGenerator().nextSaUtr.utr
-  val fakeCredentials: Credentials                  = Credentials("foo", "bar")
-  val fakeConfidenceLevel: ConfidenceLevel          = ConfidenceLevel.L200
-  val saEnrolments: Set[Enrolment]                  = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
-  val userName: Option[UserName]                    = Some(UserName(Name(Some("Firstname"), Some("Lastname"))))
+  private lazy val controller: PersonalDetailsController = app.injector.instanceOf[PersonalDetailsController]
+  val utr: String                                        = new SaUtrGenerator().nextSaUtr.utr
+  val fakeCredentials: Credentials                       = Credentials("foo", "bar")
+  val fakeConfidenceLevel: ConfidenceLevel               = ConfidenceLevel.L200
+  val saEnrolments: Set[Enrolment]                       = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
+  val userName: Option[UserName]                         = Some(UserName(Name(Some("Firstname"), Some("Lastname"))))
 
   override def beforeEach(): Unit = {
     super.beforeEach()

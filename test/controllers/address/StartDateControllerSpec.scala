@@ -36,7 +36,7 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 class StartDateControllerSpec extends AddressBaseSpec {
-  private def controller: StartDateController = app.injector.instanceOf[StartDateController]
+  private lazy val controller: StartDateController = app.injector.instanceOf[StartDateController]
 
   "onPageLoad" must {
     "return 200 when passed ResidentialAddrType and submittedAddress is in cache" in {

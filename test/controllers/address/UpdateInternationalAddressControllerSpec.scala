@@ -36,7 +36,7 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import scala.concurrent.Future
 
 class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
-  private def controller: UpdateInternationalAddressController =
+  private lazy val controller: UpdateInternationalAddressController =
     app.injector.instanceOf[UpdateInternationalAddressController]
 
   "onPageLoad" must {

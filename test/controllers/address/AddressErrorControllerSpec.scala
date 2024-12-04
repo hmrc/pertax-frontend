@@ -24,7 +24,7 @@ import scala.concurrent.Future
 
 class AddressErrorControllerSpec extends AddressBaseSpec {
 
-  private def controller: AddressErrorController = app.injector.instanceOf[AddressErrorController]
+  private lazy val controller: AddressErrorController = app.injector.instanceOf[AddressErrorController]
 
   "cannotUseThisService" must {
 

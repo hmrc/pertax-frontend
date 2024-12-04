@@ -46,7 +46,7 @@ class MessageControllerSpec extends BaseSpec {
     )
     .build()
 
-  def controller: MessageController = app.injector.instanceOf[MessageController]
+  lazy val controller: MessageController = app.injector.instanceOf[MessageController]
 
   override def beforeEach(): Unit = {
     super.beforeEach()

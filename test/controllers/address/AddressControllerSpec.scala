@@ -40,7 +40,7 @@ class AddressControllerSpec extends AddressBaseSpec {
         internalServerErrorView
       )
 
-  private def controller: AddressController = Controller
+  private lazy val controller: AddressController = Controller
 
   "addressJourneyEnforcer" must {
 

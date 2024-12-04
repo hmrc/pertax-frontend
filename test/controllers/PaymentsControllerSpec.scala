@@ -50,7 +50,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
     )
     .build()
 
-  private def controller: PaymentsController = app.injector.instanceOf[PaymentsController]
+  private lazy val controller: PaymentsController = app.injector.instanceOf[PaymentsController]
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

@@ -34,7 +34,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
 
 class UpdateAddressControllerSpec extends AddressBaseSpec {
-  private def controller: UpdateAddressController = app.injector.instanceOf[UpdateAddressController]
+  private lazy val controller: UpdateAddressController = app.injector.instanceOf[UpdateAddressController]
 
   "onPageLoad" must {
 

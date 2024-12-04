@@ -39,7 +39,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
     )
     .build()
 
-  private def controller: PaperlessPreferencesController = app.injector.instanceOf[PaperlessPreferencesController]
+  private lazy val controller: PaperlessPreferencesController = app.injector.instanceOf[PaperlessPreferencesController]
 
   "Calling PaperlessPreferencesController.managePreferences" must {
     "Redirect to  preferences-frontend manage paperless url when a user is logged in using GG" in {

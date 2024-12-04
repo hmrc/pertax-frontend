@@ -84,7 +84,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       FakeRequest("GET", "")
         .asInstanceOf[Request[A]]
 
-    def controller: SelfAssessmentController = app.injector.instanceOf[SelfAssessmentController]
+    lazy val controller: SelfAssessmentController = app.injector.instanceOf[SelfAssessmentController]
 
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
       Future.successful(AuditResult.Success)
