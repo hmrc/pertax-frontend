@@ -34,7 +34,7 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import java.time.Instant
 import scala.concurrent.Future
 
-class ClosePostalAddressControllerSpec extends NewAddressBaseSpec {
+class ClosePostalAddressControllerSpec extends AddressBaseSpec {
   private def controller: ClosePostalAddressController = app.injector.instanceOf[ClosePostalAddressController]
   val addressExceptionMessage                          = "Address does not exist in the current context"
   val expectedAddressConfirmationView: String          = updateAddressConfirmationView(

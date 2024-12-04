@@ -30,7 +30,7 @@ import views.html.InternalServerErrorView
 
 import scala.concurrent.Future
 
-class AddressControllerSpec extends NewAddressBaseSpec {
+class AddressControllerSpec extends AddressBaseSpec {
   private object Controller
       extends AddressController(
         app.injector.instanceOf[AuthJourney],

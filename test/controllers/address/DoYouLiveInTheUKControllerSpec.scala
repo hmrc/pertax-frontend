@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-class DoYouLiveInTheUKControllerSpec extends NewAddressBaseSpec {
+class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
   private def controller: DoYouLiveInTheUKController = app.injector.instanceOf[DoYouLiveInTheUKController]
 
   "onPageLoad" must {

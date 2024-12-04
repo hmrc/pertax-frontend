@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,22 @@ package controllers.address
 import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.AddressLookupConnector
+import controllers.InterstitialController
+import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import error.ErrorRenderer
-import models._
 import models.addresslookup.RecordSet
 import models.dto.AddressDto
+import models.{Address, AddressChanged, AddressJourneyTTLModel, AddressesLock, ETag, MovedToScotland, NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType, UserAnswers}
 import org.mockito.ArgumentMatchers.any
+import play.api.Application
 import play.api.http.Status.NO_CONTENT
 import play.api.i18n.{Lang, Messages, MessagesImpl}
+import play.api.inject.{Binding, bind}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.test.FakeRequest
 import repositories.JourneyCacheRepository
-import services._
+import services.{AddressMovedService, AgentClientAuthorisationService, CitizenDetailsService}
 import testUtils.Fixtures._
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
@@ -45,25 +49,38 @@ import views.html.personaldetails.UpdateAddressConfirmationView
 import scala.concurrent.Future
 
 trait AddressBaseSpec extends BaseSpec {
+  protected def fakePOSTRequest[A]: Request[A]                                       = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+  protected def currentRequest[A]: Request[A]                                        = FakeRequest("GET", "/test").asInstanceOf[Request[A]]
+  protected val mockJourneyCacheRepository: JourneyCacheRepository                   = mock[JourneyCacheRepository]
+  protected val mockAddressLookupConnector: AddressLookupConnector                   = mock[AddressLookupConnector]
+  protected val mockCitizenDetailsService: CitizenDetailsService                     = mock[CitizenDetailsService]
+  protected val mockAddressMovedService: AddressMovedService                         = mock[AddressMovedService]
+  protected val mockAuditConnector: AuditConnector                                   = mock[AuditConnector]
+  protected val mockInterstitialController: InterstitialController                   = mock[InterstitialController]
+  protected val mockAgentClientAuthorisationService: AgentClientAuthorisationService =
+    mock[AgentClientAuthorisationService]
 
-  val mockJourneyCacheRepository: JourneyCacheRepository                   = mock[JourneyCacheRepository]
-  val mockAddressLookupConnector: AddressLookupConnector                   = mock[AddressLookupConnector]
-  val mockCitizenDetailsService: CitizenDetailsService                     = mock[CitizenDetailsService]
-  val mockAddressMovedService: AddressMovedService                         = mock[AddressMovedService]
-  val mockAuditConnector: AuditConnector                                   = mock[AuditConnector]
-  val mockAgentClientAuthorisationService: AgentClientAuthorisationService = mock[AgentClientAuthorisationService]
+  protected implicit lazy val messages: Messages                               = MessagesImpl(Lang("en"), messagesApi)
+  protected def cc: MessagesControllerComponents                               = app.injector.instanceOf[MessagesControllerComponents]
+  protected def displayAddressInterstitialView: DisplayAddressInterstitialView =
+    app.injector.instanceOf[DisplayAddressInterstitialView]
+  protected def internalServerErrorView: InternalServerErrorView               = app.injector.instanceOf[InternalServerErrorView]
+  protected def updateAddressConfirmationView: UpdateAddressConfirmationView   =
+    app.injector.instanceOf[UpdateAddressConfirmationView]
 
-  lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockJourneyCacheRepository)
+  implicit def configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  lazy val cc: MessagesControllerComponents                               = inject[MessagesControllerComponents]
-  lazy val errorRenderer: ErrorRenderer                                   = inject[ErrorRenderer]
-  lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = inject[DisplayAddressInterstitialView]
-  lazy val updateAddressConfirmationView: UpdateAddressConfirmationView   = inject[UpdateAddressConfirmationView]
-  lazy val internalServerErrorView: InternalServerErrorView               = inject[InternalServerErrorView]
-
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
-
-  implicit lazy val configDecorator: ConfigDecorator = inject[ConfigDecorator]
+  protected def setupAuth(personDetails: Option[PersonDetails] = personDetailsForRequest): Unit =
+    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+        block(
+          buildUserRequest(
+            request = request,
+            personDetails = personDetails,
+            saUser = saUserType
+          )
+        )
+    })
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -77,44 +94,13 @@ trait AddressBaseSpec extends BaseSpec {
       mockAuditConnector,
       mockAgentClientAuthorisationService
     )
-  }
-
-  val thisYearStr: String = "2019"
-
-  def pruneDataEvent(dataEvent: DataEvent): DataEvent =
-    dataEvent
-      .copy(tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token", detail = dataEvent.detail - "credId")
-
-  def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
-
-  trait AddressControllerSetup {
-
-    lazy val nino: Nino                       = fakeNino
-    lazy val fakePersonDetails: PersonDetails = buildPersonDetails
-    lazy val fakeAddress: Address             = buildFakeAddress
-
-    def controller: AddressController
-    def currentRequest[A]: Request[A]
-    def saUserType: SelfAssessmentUserType                                            = NonFilerSelfAssessmentUser
-    def personDetailsForRequest: Option[PersonDetails]                                = Some(buildPersonDetailsCorrespondenceAddress)
-    def personDetailsResponse: PersonDetails                                          = fakePersonDetails
-    def eTagResponse: Option[ETag]                                                    = Some(ETag("115"))
-    def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-      EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(NO_CONTENT, ""))))
-    def getAddressesLockResponse: AddressesLock                                       = AddressesLock(main = false, postal = false)
-    def addressLookupResponse: RecordSet                                              = oneAndTwoOtherPlacePafRecordSet
-    def isInsertCorrespondenceAddressLockSuccessful: Boolean                          = true
-    def getEditedAddressIndicators: List[AddressJourneyTTLModel]                      = List.empty
-
-    when(mockAgentClientAuthorisationService.getAgentClientStatus(any(), any(), any())).thenReturn(
-      Future.successful(true)
-    )
+    setupAuth()
+    when(mockAgentClientAuthorisationService.getAgentClientStatus(any(), any(), any()))
+      .thenReturn(Future.successful(true))
     when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
     when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
     when(mockJourneyCacheRepository.clear(any[HeaderCarrier])).thenReturn(Future.successful((): Unit))
-    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
-      Future.successful(AuditResult.Success)
-    )
+    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
     when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, PersonDetails](
         Future.successful(Right(personDetailsResponse))
@@ -125,35 +111,58 @@ trait AddressBaseSpec extends BaseSpec {
         Future.successful(Right(eTagResponse))
       )
     )
-    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(
-      updateAddressResponse()
-    )
-    when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
-      Future.successful(isInsertCorrespondenceAddressLockSuccessful)
-    )
-    when(mockEditAddressLockRepository.get(any())).thenReturn(
-      Future.successful(getEditedAddressIndicators)
-    )
-    when(mockEditAddressLockRepository.getAddressesLock(any())(any())).thenReturn(
-      Future.successful(getAddressesLockResponse)
-    )
-    when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())).thenReturn(
-      Future.successful(MovedToScotland)
-    )
-    when(mockAddressMovedService.toMessageKey(any[AddressChanged]())).thenReturn(
-      None
-    )
-
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(
-            request = currentRequest[A],
-            personDetails = personDetailsForRequest,
-            saUser = saUserType
-          )
-        )
-    })
-
+    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(updateAddressResponse())
+    when(mockEditAddressLockRepository.insert(any(), any()))
+      .thenReturn(Future.successful(isInsertCorrespondenceAddressLockSuccessful))
+    when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(getEditedAddressIndicators))
+    when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+      .thenReturn(Future.successful(getAddressesLockResponse))
+    when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any()))
+      .thenReturn(Future.successful(MovedToScotland))
+    when(mockAddressMovedService.toMessageKey(any[AddressChanged]())).thenReturn(None)
   }
+
+  protected def pruneDataEvent(dataEvent: DataEvent): DataEvent =
+    dataEvent
+      .copy(tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token", detail = dataEvent.detail - "credId")
+
+  protected def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
+
+  protected def fakeAddressJourneyCachingHelper: AddressJourneyCachingHelper = new AddressJourneyCachingHelper(
+    mockJourneyCacheRepository
+  )(ec)
+
+  protected def appn(bindings: Seq[Binding[_]] = Nil, extraConfigValues: Map[String, Any] = Map.empty): Application = {
+    val fullBindings = Seq(
+      bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[AuthJourney].toInstance(mockAuthJourney),
+      bind[AddressJourneyCachingHelper].toInstance(fakeAddressJourneyCachingHelper),
+      bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+      bind[AddressMovedService].toInstance(mockAddressMovedService),
+      bind[AuditConnector].toInstance(mockAuditConnector),
+      bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
+      bind[AddressLookupConnector].toInstance(mockAddressLookupConnector)
+    ) ++ bindings
+    localGuiceApplicationBuilder(extraConfigValues)
+      .overrides(fullBindings)
+      .build()
+  }
+
+  override implicit lazy val app: Application = appn()
+
+  protected lazy val nino: Nino                       = fakeNino
+  protected lazy val fakePersonDetails: PersonDetails = buildPersonDetails
+  protected lazy val fakeAddress: Address             = buildFakeAddress
+
+  protected def saUserType: SelfAssessmentUserType                                            = NonFilerSelfAssessmentUser
+  protected def personDetailsForRequest: Option[PersonDetails]                                = Some(buildPersonDetailsCorrespondenceAddress)
+  protected def personDetailsResponse: PersonDetails                                          = fakePersonDetails
+  protected def eTagResponse: Option[ETag]                                                    = Some(ETag("115"))
+  protected def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(NO_CONTENT, ""))))
+  protected def getAddressesLockResponse: AddressesLock                                       = AddressesLock(main = false, postal = false)
+  protected def isInsertCorrespondenceAddressLockSuccessful: Boolean                          = true
+  protected def getEditedAddressIndicators: List[AddressJourneyTTLModel]                      = List.empty
+  protected def addressLookupResponse: RecordSet                                              = oneAndTwoOtherPlacePafRecordSet
+  protected val thisYearStr: String                                                           = "2019"
 }

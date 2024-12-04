@@ -22,7 +22,7 @@ import play.api.test.Helpers._
 
 import scala.concurrent.Future
 
-class AddressErrorControllerSpec extends NewAddressBaseSpec {
+class AddressErrorControllerSpec extends AddressBaseSpec {
 
   private def controller: AddressErrorController = app.injector.instanceOf[AddressErrorController]
 

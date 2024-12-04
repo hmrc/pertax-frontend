@@ -36,7 +36,7 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class AddressSubmissionControllerSpec extends NewAddressBaseSpec {
+class AddressSubmissionControllerSpec extends AddressBaseSpec {
   private def controller: AddressSubmissionController = app.injector.instanceOf[AddressSubmissionController]
   "onPageLoad" must {
     "return 200 if only submittedAddress is present in cache for postal address type" in {

@@ -33,7 +33,7 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
 
-class PersonalDetailsControllerSpec extends NewAddressBaseSpec {
+class PersonalDetailsControllerSpec extends AddressBaseSpec {
   private def controller: PersonalDetailsController = app.injector.instanceOf[PersonalDetailsController]
   val utr: String                                   = new SaUtrGenerator().nextSaUtr.utr
   val fakeCredentials: Credentials                  = Credentials("foo", "bar")
