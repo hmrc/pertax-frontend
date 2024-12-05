@@ -18,46 +18,20 @@ package views.html.cards
 import config.ConfigDecorator
 import play.api.i18n.Messages
 import views.html.ViewSpec
-import views.html.cards.home.SaAndItsaMergeView
+import views.html.cards.home.ItsaMergeView
 
-class SaAndItsaMergeViewSpec extends ViewSpec {
+class ItsaMergeViewSpec extends ViewSpec {
 
-  val saAndItsaMergeView: SaAndItsaMergeView    = inject[SaAndItsaMergeView]
+  val saAndItsaMergeView: ItsaMergeView         = inject[ItsaMergeView]
   implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
   val nextDeadlineTaxYear = "2021"
 
-  "Sa and Itsa card when user is not enrolled in Itsa" must {
+  "Sa and Itsa card for Itsa" must {
 
     val doc =
       asDocument(
-        saAndItsaMergeView(nextDeadlineTaxYear, isItsa = false).toString
-      )
-
-    "render the given heading correctly" in {
-
-      doc.text() must include(
-        Messages("label.self_assessment")
-      )
-    }
-
-    "render the given content correctly" in {
-
-      doc.text() must include(
-        Messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_")
-      )
-
-      doc.text() must include(
-        Messages("label.online_returns_deadline", nextDeadlineTaxYear)
-      )
-    }
-  }
-
-  "Sa and Itsa card when user is enrolled in Itsa" must {
-
-    val doc =
-      asDocument(
-        saAndItsaMergeView(nextDeadlineTaxYear, isItsa = true).toString
+        saAndItsaMergeView(nextDeadlineTaxYear).toString
       )
 
     "render the given heading correctly" in {

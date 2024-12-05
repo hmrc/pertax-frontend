@@ -267,6 +267,16 @@ class testSpec extends A11ySpec {
        |                }
        |            ],
        |            "state": "Activated"
+       |        },
+       |       {
+       |            "key":"HMRC-MTD-IT",
+       |            "identifiers": [
+       |                {
+       |                    "key":"MTDITID",
+       |                    "value": "$generatedUtr"
+       |                }
+       |            ],
+       |            "state": "Activated"
        |        }
        |    ],
        |    "affinityGroup": "Individual",
