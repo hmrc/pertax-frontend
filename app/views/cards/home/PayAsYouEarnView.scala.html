@@ -27,6 +27,6 @@
     heading = messages("label.pay_as_you_earn_paye"),
     headingTag = "h3",
     bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.your_income_from_employers_and_private_pensions_") + "</p>")),
-    divAttr = Some("data-user-group=" + dataGroupValue)
+    divAttr = Map("data-user-group" -> dataGroupValue)
 ) {
 }

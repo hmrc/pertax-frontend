@@ -21,10 +21,10 @@
         heading: String,
         headingTag: String = "h2",
         bodyContent: Option[Html] = None,
-        divAttr: Option[String] = None
+        divAttr: Map[String, String] = Map.empty
 )(actionContent: Html)
 
-<div class="card" @id.map { i => id="@i" } @divAttr.getOrElse("") >
+<div class="card" @id.map { i => id="@i" } @divAttr.map{attr => @attr._1="@attr._2"} >
 
     <div class="card-body @if(url) {active}" @if(url) {
         data-journey-click="link - click:@gaAction:@gaLabel"}>
