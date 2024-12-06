@@ -33,7 +33,7 @@ import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
-import uk.gov.hmrc.domain.{Generator, SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.DateTimeTools.current
@@ -144,12 +144,13 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         saUser = NonFilerSelfAssessmentUser,
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest()
+        request = FakeRequest(),
+        nino = Some(Nino("AA000000C"))
       )
 
       lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
 
-      cardBody mustBe Some(payAsYouEarn(config))
+      cardBody mustBe Some(payAsYouEarn(config, "00"))
     }
 
     "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but the tax summary call is disabled" in {
@@ -158,12 +159,13 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         saUser = NonFilerSelfAssessmentUser,
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
+        nino = Some(Nino("AA000000C")),
         request = FakeRequest()
       )
 
       lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsDisabledState)
 
-      cardBody mustBe Some(payAsYouEarn(config))
+      cardBody mustBe Some(payAsYouEarn(config, "00"))
     }
 
     "return correct markup when called with with a Pertax user that is PAYE" in {
@@ -172,13 +174,14 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         saUser = NonFilerSelfAssessmentUser,
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest()
+        request = FakeRequest(),
+        nino = Some(Nino("AA000000C"))
       )
 
       lazy val cardBody =
         homeCardGenerator.getPayAsYouEarnCard(TaxComponentsAvailableState(Fixtures.buildTaxComponents))
 
-      cardBody mustBe Some(payAsYouEarn(config))
+      cardBody mustBe Some(payAsYouEarn(config, "00"))
     }
   }
 
