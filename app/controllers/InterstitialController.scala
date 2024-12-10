@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import config.{ConfigDecorator, NewsAndTilesConfig}
+import config.{BannerTcsServiceClosure, ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
@@ -54,6 +54,7 @@ class InterstitialController @Inject() (
   viewBreathingSpaceView: ViewBreathingSpaceView,
   shutteringView: ShutteringView,
   taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
+  taxCreditsTransitionInformationInterstitialView: TaxCreditsTransitionInformationInterstitialView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
@@ -219,6 +220,14 @@ class InterstitialController @Inject() (
       } else {
         Future.successful(Redirect(routes.HomeController.index))
       }
+    }
+  }
+
+  def displayTaxCreditsTransitionInformationInterstitialView: Action[AnyContent] = authenticate { implicit request =>
+    if (configDecorator.featureBannerTcsServiceClosure == BannerTcsServiceClosure.Enabled) {
+      Ok(taxCreditsTransitionInformationInterstitialView())
+    } else {
+      errorRenderer.error(UNAUTHORIZED)
     }
   }
 

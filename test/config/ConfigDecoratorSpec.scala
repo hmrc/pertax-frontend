@@ -103,4 +103,42 @@ class ConfigDecoratorSpec extends BaseSpec {
     }
 
   }
+
+  "featureBannerTcsServiceClosure" must {
+    "return Enabled when the configuration is set to 'enabled'" in {
+      val config = new ConfigDecorator(
+        runModeConfiguration = Configuration("feature.bannerTcsServiceClosure" -> "enabled"),
+        servicesConfig = inject[ServicesConfig]
+      )
+
+      config.featureBannerTcsServiceClosure mustBe BannerTcsServiceClosure.Enabled
+    }
+
+    "return Disabled when the configuration is set to 'disabled'" in {
+      val config = new ConfigDecorator(
+        runModeConfiguration = Configuration("feature.bannerTcsServiceClosure" -> "disabled"),
+        servicesConfig = inject[ServicesConfig]
+      )
+
+      config.featureBannerTcsServiceClosure mustBe BannerTcsServiceClosure.Disabled
+    }
+
+    "return DontCheck when the configuration is set to 'dont-check'" in {
+      val config = new ConfigDecorator(
+        runModeConfiguration = Configuration("feature.bannerTcsServiceClosure" -> "dont-check"),
+        servicesConfig = inject[ServicesConfig]
+      )
+
+      config.featureBannerTcsServiceClosure mustBe BannerTcsServiceClosure.DontCheck
+    }
+
+    "throw an exception for invalid configuration values" in {
+      val config = new ConfigDecorator(
+        runModeConfiguration = Configuration("feature.bannerTcsServiceClosure" -> "invalid"),
+        servicesConfig = inject[ServicesConfig]
+      )
+
+      an[IllegalArgumentException] must be thrownBy config.featureBannerTcsServiceClosure
+    }
+  }
 }

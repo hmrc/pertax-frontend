@@ -16,7 +16,7 @@
 
 package controllers
 
-import config.{ConfigDecorator, NewsAndTilesConfig}
+import config.{BannerTcsServiceClosure, ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
@@ -82,6 +82,7 @@ class InterstitialControllerSpec extends BaseSpec {
         inject[ViewBreathingSpaceView],
         inject[ShutteringView],
         inject[TaxCreditsAddressInterstitialView],
+        inject[TaxCreditsTransitionInformationInterstitialView],
         inject[EnrolmentsHelper],
         inject[SeissService],
         mockNewsAndTileConfig,
@@ -167,6 +168,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
+          inject[TaxCreditsTransitionInformationInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
@@ -222,6 +224,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
+          inject[TaxCreditsTransitionInformationInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
@@ -449,6 +452,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
+          inject[TaxCreditsTransitionInformationInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
@@ -525,6 +529,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
+          inject[TaxCreditsTransitionInformationInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
@@ -569,6 +574,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
+          inject[TaxCreditsTransitionInformationInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
           mockNewsAndTileConfig,
@@ -638,6 +644,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
+          inject[TaxCreditsTransitionInformationInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
@@ -707,6 +714,7 @@ class InterstitialControllerSpec extends BaseSpec {
         inject[ViewBreathingSpaceView],
         inject[ShutteringView],
         inject[TaxCreditsAddressInterstitialView],
+        inject[TaxCreditsTransitionInformationInterstitialView],
         inject[EnrolmentsHelper],
         inject[SeissService],
         mock[NewsAndTilesConfig],
@@ -799,6 +807,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
+          inject[TaxCreditsTransitionInformationInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
@@ -856,6 +865,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
+          inject[TaxCreditsTransitionInformationInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
@@ -913,6 +923,7 @@ class InterstitialControllerSpec extends BaseSpec {
           inject[ViewBreathingSpaceView],
           inject[ShutteringView],
           inject[TaxCreditsAddressInterstitialView],
+          inject[TaxCreditsTransitionInformationInterstitialView],
           inject[EnrolmentsHelper],
           inject[SeissService],
           mock[NewsAndTilesConfig],
@@ -942,6 +953,91 @@ class InterstitialControllerSpec extends BaseSpec {
       html
         .getElementById("proceed")
         .attr("href") mustBe "http://localhost:9362/tax-credits-service/personal/change-address"
+    }
+  }
+
+  "Calling displayTaxCreditsTransitionInformationInterstitialView" must {
+    "return OK when featureBannerTcsServiceClosure is Enabled" in {
+
+      lazy val fakeRequest    = FakeRequest("", "")
+      val mockConfigDecorator = mock[ConfigDecorator]
+
+      reset(mockConfigDecorator)
+      when(mockConfigDecorator.featureBannerTcsServiceClosure).thenReturn(BannerTcsServiceClosure.Enabled)
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mockAuthJourney,
+          inject[WithBreadcrumbAction],
+          inject[MessagesControllerComponents],
+          inject[ErrorRenderer],
+          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          inject[SelfAssessmentSummaryView],
+          inject[Sa302InterruptView],
+          inject[ViewNewsAndUpdatesView],
+          inject[ViewSaAndItsaMergePageView],
+          inject[ViewBreathingSpaceView],
+          inject[ShutteringView],
+          inject[TaxCreditsAddressInterstitialView],
+          inject[TaxCreditsTransitionInformationInterstitialView],
+          inject[EnrolmentsHelper],
+          inject[SeissService],
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService,
+          inject[ViewNISPView],
+          inject[SelfAssessmentRegistrationPageView]
+        )(mockConfigDecorator, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(buildUserRequest(request = request))
+      })
+
+      val result: Future[Result] = controller.displayTaxCreditsTransitionInformationInterstitialView(fakeRequest)
+      status(result) mustBe OK
+    }
+
+    "return UNAUTHORIZED when featureBannerTcsServiceClosure is Disabled" in {
+      lazy val fakeRequest    = FakeRequest("", "")
+      val mockConfigDecorator = mock[ConfigDecorator]
+
+      reset(mockConfigDecorator)
+      when(mockConfigDecorator.featureBannerTcsServiceClosure).thenReturn(BannerTcsServiceClosure.Disabled)
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mockAuthJourney,
+          inject[WithBreadcrumbAction],
+          inject[MessagesControllerComponents],
+          inject[ErrorRenderer],
+          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
+          inject[SelfAssessmentSummaryView],
+          inject[Sa302InterruptView],
+          inject[ViewNewsAndUpdatesView],
+          inject[ViewSaAndItsaMergePageView],
+          inject[ViewBreathingSpaceView],
+          inject[ShutteringView],
+          inject[TaxCreditsAddressInterstitialView],
+          inject[TaxCreditsTransitionInformationInterstitialView],
+          inject[EnrolmentsHelper],
+          inject[SeissService],
+          mock[NewsAndTilesConfig],
+          mockFeatureFlagService,
+          inject[ViewNISPView],
+          inject[SelfAssessmentRegistrationPageView]
+        )(mockConfigDecorator, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(buildUserRequest(request = request))
+      })
+
+      val result: Future[Result] = controller.displayTaxCreditsTransitionInformationInterstitialView(fakeRequest)
+      status(result) mustBe UNAUTHORIZED
     }
   }
 }
