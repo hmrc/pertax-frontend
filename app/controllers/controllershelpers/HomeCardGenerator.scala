@@ -20,14 +20,16 @@ import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
+import controllers.routes
 import models._
 import models.admin._
 import play.api.i18n.Messages
-import play.api.mvc.AnyContent
+import play.api.mvc.{AnyContent, Call}
 import play.twirl.api.{Html, HtmlFormat}
 import services.partials.TaxCalcPartialService
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.sca.logging.Logging
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import views.html.cards.home._
@@ -43,13 +45,15 @@ class HomeCardGenerator @Inject() (
   marriageAllowanceView: MarriageAllowanceView,
   taxSummariesView: TaxSummariesView,
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
-  saAndItsaMergeView: SaAndItsaMergeView,
+  itsaMergeView: ItsaMergeView,
+  saMergeView: SaMergeView,
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig,
   nispView: NISPView,
   selfAssessmentRegistrationView: SelfAssessmentRegistrationView,
   taxCalcPartialService: TaxCalcPartialService
-)(implicit configDecorator: ConfigDecorator, ex: ExecutionContext) {
+)(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
+    extends Logging {
 
   def getIncomeCards(
     taxComponentsState: TaxComponentsState
@@ -89,26 +93,47 @@ class HomeCardGenerator @Inject() (
   def getPayAsYouEarnCard(
     taxComponentsState: TaxComponentsState
   )(implicit request: UserRequest[_], messages: Messages): Option[HtmlFormat.Appendable] =
-    request.nino.flatMap { _ =>
+    request.nino.flatMap { nino =>
       taxComponentsState match {
         case TaxComponentsNotAvailableState => None
-        case _                              => Some(payAsYouEarnView(configDecorator))
+        case _                              => Some(payAsYouEarnView(configDecorator, nino.withoutSuffix.takeRight(2)))
       }
+    }
+
+  private def displaySACall: Call       = routes.InterstitialController.displaySelfAssessment
+  private def handleSACall: Call        = routes.SelfAssessmentController.handleSelfAssessment
+  private def redirectToEnrolCall: Call = routes.SelfAssessmentController.redirectToEnrolForSa
+
+  private def callAndContent(implicit request: UserRequest[_]) =
+    request.saUserType match {
+      case ActivatedOnlineFilerSelfAssessmentUser(_)       => Some(Tuple2(displaySACall, "label.viewAndManageSA"))
+      case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
+        Some(Tuple2(handleSACall, "label.activate_your_self_assessment"))
+      case WrongCredentialsSelfAssessmentUser(_)           =>
+        Some(Tuple2(handleSACall, "label.find_out_how_to_access_your_self_assessment"))
+      case NotEnrolledSelfAssessmentUser(_)                => Some(Tuple2(redirectToEnrolCall, "label.request_access_to_your_sa"))
+      case sut                                             =>
+        logger.warn(s"Unable to display self assessment card due to sa user type value of $sut")
+        None
     }
 
   def getSelfAssessmentCard()(implicit
     messages: Messages,
     request: UserRequest[_]
   ): Option[HtmlFormat.Appendable] = {
-
     val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
-    val saView         = saAndItsaMergeView((current.currentYear + 1).toString, isItsaEnrolled)
-
     request.trustedHelper.map(_ => None).getOrElse {
       if (isItsaEnrolled || request.isSa) {
-        Some(saView)
-      } else if (configDecorator.pegaSaRegistrationEnabled) {
-        // Temporary condition for Pega
+        if (isItsaEnrolled) {
+          Some(itsaMergeView((current.currentYear + 1).toString))
+        } else {
+          callAndContent match {
+            case Some((redirectUrl, paragraphMessageKey)) =>
+              Some(saMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey))
+            case _                                        => None
+          }
+        }
+      } else if (configDecorator.pegaSaRegistrationEnabled) { // Temporary condition for Pega
         Some(selfAssessmentRegistrationView())
       } else {
         None

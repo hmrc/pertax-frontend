@@ -14,15 +14,21 @@
  * limitations under the License.
  *@
 
-@this()
+@import tags._
+@import components.P
+@this(p: P)
+@(nextDeadlineTaxYear: String, redirectUrl: String, paragraphMessageKey: String)(implicit messages: play.api.i18n.Messages)
 
-@(href: String = "#", backLinkID: Boolean = true, attrs: Map[String, String] = Map.empty)(implicit messages: Messages)
-
-@attrValues = @{
-  attrs.map{
-    case(key, value) => key + "=" + value
-  }
+@cardContent = {
+    @p(Text(messages(paragraphMessageKey, nextDeadlineTaxYear)))
 }
-    <a href="@href" class="govuk-back-link print-hidden" @attrValues @if(backLinkID){id="back-link"} >@messages("label.back")</a>
-
-
+@card(
+    id = Some("sa-card"),
+    url = Some(redirectUrl),
+    gaAction = Some("Income"),
+    gaLabel = Some("Self Assessment"),
+    heading = messages("label.self_assessment"),
+    headingTag = "h3",
+    bodyContent = Some(cardContent)
+) {
+}

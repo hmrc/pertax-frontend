@@ -421,12 +421,12 @@ label.you_owe_hmrc_you_must_pay_by_=You owe HMRC £{0}. You must pay by {1}.
 label.you_have_no_payments_to_make_to_hmrc=You have no payments to make to HMRC.
 
 label.self_assessment=Self Assessment
-label.complete_your_tax_return=Complete your tax return
 label.make_a_payment=Make a payment
-label.view_your_payments=View your payments
 label.check_if_you_need_to_fill_in_a_tax_return=Check if you need to fill in a tax return
 label.find_out_how_to_access_self_assessment=Find out how to access Self Assessment
-label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=View and manage your Self Assessment tax return.
+label.request_access_to_your_sa=Request access to your Self Assessment.
+label.viewAndManageSA=View and manage your Self Assessment tax return. The deadline for online returns is 31 January {0}.
+
 label.national_insurance=National Insurance
 label.check_your_national_insurance_contributions_and_view_and_save_=Check your National Insurance contributions and view and save your National Insurance number.
 label.your_national_insurance_number_is_your_unique_identifier=Your National Insurance number is your unique identifier.
@@ -479,9 +479,6 @@ label.self_assessment_tax_returns=Self Assessment tax returns
 label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax Self Assessment or access your Self Assessment tax returns.
 label.online_deadline_final_declarations=The deadline for final declarations or online returns is 31 January {0}.
 label.making_tax_digital=Making Tax Digital
-label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return=From 6 April 2024 the Making Tax Digital service for Income Tax Self Assessment will replace the Self Assessment tax return.
-label.some_businesses_agents_using_mtd_for_itsa=Some businesses and agents are already using the Making Tax Digital service for Income Tax Self Assessment.
-label.find_out_about_making_tax_digital_for_income_tax_self_assessment=Find out about Making Tax Digital for Income Tax Self Assessment (opens in new tab)
 
 #
 # Breathing Space
