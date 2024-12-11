@@ -16,19 +16,15 @@
 
 package controllers
 
-import play.api.mvc.{MessagesControllerComponents, Session}
+import controllers.bindable.Origin
+import play.api.mvc.Session
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.BaseSpec
-import controllers.bindable.Origin
 import testUtils.Fixtures._
-import views.html.public.SessionTimeoutView
 
 class PublicControllerSpec extends BaseSpec {
-
-  private def controller = new PublicController(inject[MessagesControllerComponents], inject[SessionTimeoutView])(
-    config
-  )
+  private lazy val controller: PublicController = app.injector.instanceOf[PublicController]
 
   "Calling PublicController.sessionTimeout" must {
     "return 200" in {
