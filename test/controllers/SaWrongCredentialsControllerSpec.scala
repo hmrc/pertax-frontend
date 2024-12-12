@@ -16,29 +16,29 @@
 
 package controllers
 
+import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.Application
+import play.api.inject.bind
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import testUtils.{ActionBuilderFixture, BaseSpec}
 import testUtils.UserRequestFixture.buildUserRequest
-import views.html.selfassessment._
+import testUtils.{ActionBuilderFixture, BaseSpec}
 
 import scala.concurrent.Future
 
 class SaWrongCredentialsControllerSpec extends BaseSpec {
 
-  def controller: SaWrongCredentialsController =
-    new SaWrongCredentialsController(
-      mockAuthJourney,
-      inject[MessagesControllerComponents],
-      inject[SignedInWrongAccountView],
-      inject[DoYouKnowOtherCredentialsView],
-      inject[SignInAgainView],
-      inject[DoYouKnowUserIdView],
-      inject[NeedToResetPasswordView],
-      inject[FindYourUserIdView]
-    )(config)
+  val mockInterstitialController: InterstitialController = mock[InterstitialController]
+  override implicit lazy val app: Application            = localGuiceApplicationBuilder()
+    .overrides(
+      bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[AuthJourney].toInstance(mockAuthJourney)
+    )
+    .build()
+
+  private lazy val controller: SaWrongCredentialsController = app.injector.instanceOf[SaWrongCredentialsController]
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

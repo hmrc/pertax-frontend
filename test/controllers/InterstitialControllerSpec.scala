@@ -16,178 +16,98 @@
 
 package controllers
 
-import config.{BannerTcsServiceClosure, ConfigDecorator, NewsAndTilesConfig}
+import config.NewsAndTilesConfig
+import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import error.ErrorRenderer
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, ShowOutageBannerToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import play.api.i18n.Messages
-import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
+import org.mockito.stubbing.ScalaOngoingStubbing
+import play.api.Application
+import play.api.inject.{Binding, bind}
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Application, Configuration}
 import play.twirl.api.Html
-import services._
 import services.partials.{FormPartialService, SaPartialService}
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
-import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
+import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
-import util._
-import views.html.interstitial._
-import views.html.selfassessment.Sa302InterruptView
-import views.html.{SelfAssessmentSummaryView, ShutteringView}
 
 import java.time.LocalDate
 import scala.concurrent.Future
 
 class InterstitialControllerSpec extends BaseSpec {
+  private lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
+  private val mockFormPartialService                                = mock[FormPartialService]
+  private val mockSaPartialService                                  = mock[SaPartialService]
+  private val mockNewsAndTilesConfig                                = mock[NewsAndTilesConfig]
 
-  override lazy val app: Application = localGuiceApplicationBuilder().build()
-
-  trait LocalSetup {
-
-    lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
-    val mockAuthJourney: AuthJourney                          = mock[AuthJourney]
-    val mockNewsAndTileConfig: NewsAndTilesConfig             = mock[NewsAndTilesConfig]
-    val mockMessages: Messages                                = mock[Messages]
-
-    def simulateFormPartialServiceFailure: Boolean
-
-    def simulateSaPartialServiceFailure: Boolean
-
-    def controller: InterstitialController =
-      new InterstitialController(
-        mock[FormPartialService],
-        mock[SaPartialService],
-        mockAuthJourney,
-        inject[WithBreadcrumbAction],
-        inject[MessagesControllerComponents],
-        inject[ErrorRenderer],
-        inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-        inject[SelfAssessmentSummaryView],
-        inject[Sa302InterruptView],
-        inject[ViewNewsAndUpdatesView],
-        inject[ViewItsaMergePageView],
-        inject[ViewBreathingSpaceView],
-        inject[ShutteringView],
-        inject[TaxCreditsAddressInterstitialView],
-        inject[TaxCreditsTransitionInformationInterstitialView],
-        inject[EnrolmentsHelper],
-        inject[SeissService],
-        mockNewsAndTileConfig,
-        mockFeatureFlagService,
-        inject[ViewNISPView],
-        inject[SelfAssessmentRegistrationPageView]
-      )(config, ec) {
-        private def formPartialServiceResponse = Future.successful {
-          if (simulateFormPartialServiceFailure) {
-            HtmlPartial.Failure()
-          } else {
-            HtmlPartial.Success(Some("Success"), Html("any"))
-          }
+  private def setupAuth(
+    saUserType: Option[SelfAssessmentUserType] = None,
+    enrolments: Set[Enrolment] = Set.empty,
+    trustedHelper: Option[TrustedHelper] = None
+  ): ScalaOngoingStubbing[ActionBuilder[UserRequest, AnyContent]] = {
+    val actionBuilderFixture: ActionBuilderFixture = new ActionBuilderFixture {
+      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+        saUserType match {
+          case Some(sut) =>
+            block(
+              buildUserRequest(
+                saUser = sut,
+                request = request,
+                enrolments = enrolments,
+                trustedHelper = trustedHelper
+              )
+            )
+          case None      =>
+            block(
+              buildUserRequest(
+                request = request,
+                enrolments = enrolments,
+                trustedHelper = trustedHelper
+              )
+            )
         }
 
-        when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
-        when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
+    }
+    when(mockAuthJourney.authWithPersonalDetails).thenReturn(actionBuilderFixture)
+  }
 
-        when(saPartialService.getSaAccountSummary(any())) thenReturn {
-          Future.successful {
-            if (simulateSaPartialServiceFailure) {
-              HtmlPartial.Failure()
-            } else {
-              HtmlPartial.Success(Some("Success"), Html("any"))
-            }
-          }
-        }
-      }
+  setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
+
+  private def appn(bindings: Seq[Binding[_]] = Nil, extraConfigValues: Map[String, Any] = Map.empty): Application = {
+    val fullBindings = Seq(
+      bind[FormPartialService].toInstance(mockFormPartialService),
+      bind[SaPartialService].toInstance(mockSaPartialService),
+      bind[AuthJourney].toInstance(mockAuthJourney),
+      bind[NewsAndTilesConfig].toInstance(mockNewsAndTilesConfig)
+    ) ++ bindings
+    localGuiceApplicationBuilder(extraConfigValues)
+      .overrides(fullBindings)
+      .build()
+  }
+
+  override implicit lazy val app: Application = appn()
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockSaPartialService)
+    reset(mockFormPartialService)
+    reset(mockNewsAndTilesConfig)
   }
 
   "Calling displayNationalInsurance" must {
-
-    "redirect to /your-national-insurance-state-pension when when call displayNationalInsurance" in new LocalSetup {
-      override def simulateFormPartialServiceFailure: Boolean = false
-
-      override def simulateSaPartialServiceFailure: Boolean = false
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "GovernmentGateway"),
-              request = request
-            )
-          )
-      })
-
-      val result: Future[Result] = controller.displayNationalInsurance(fakeRequest)
-
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(controllers.routes.InterstitialController.displayNISP.url)
-
-    }
-  }
-
-  "Calling displayChildBenefits"                  must {
-    "return MOVED_PERMANENTLY to displayChildBenefitsSingleAccountView" in {
-      lazy val fakeRequest = FakeRequest("", "")
-
-      val mockAuthJourney = mock[AuthJourney]
-
-      val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
-      )
-
-      val mockFeatureFlagService = mock[FeatureFlagService]
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[ShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[TaxCreditsTransitionInformationInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
-          mock[NewsAndTilesConfig],
-          mockFeatureFlagService,
-          inject[ViewNISPView],
-          inject[SelfAssessmentRegistrationPageView]
-        )(stubConfigDecorator, ec)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-              request = request
-            )
-          )
-      })
-
-      val result = controller.displayChildBenefits()(fakeRequest)
+    "redirect to /your-national-insurance-state-pension when when call displayNationalInsurance" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
+      val result                                  = controller.displayChildBenefits()(fakeRequest)
 
       status(result) mustBe MOVED_PERMANENTLY
       redirectLocation(
@@ -195,190 +115,93 @@ class InterstitialControllerSpec extends BaseSpec {
       ) mustBe Some(controllers.routes.InterstitialController.displayChildBenefitsSingleAccountView.url)
     }
   }
+
+  "Calling displayChildBenefits" must {
+    "Return moved permanently to displayChildBenefitsSingleAccountView" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
+      val result                                  = controller.displayChildBenefits()(fakeRequest)
+
+      status(result) mustBe MOVED_PERMANENTLY
+      redirectLocation(
+        result
+      ) mustBe Some(controllers.routes.InterstitialController.displayChildBenefitsSingleAccountView.url)
+    }
+  }
+
   "Calling displayChildBenefitsSingleAccountView" must {
-    "return OK when tne feature toggled false for new Child Benefits" in {
-      lazy val fakeRequest = FakeRequest("", "")
-
-      val mockAuthJourney = mock[AuthJourney]
-
-      val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
-      )
-
-      val mockFeatureFlagService = mock[FeatureFlagService]
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[ShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[TaxCreditsTransitionInformationInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
-          mock[NewsAndTilesConfig],
-          mockFeatureFlagService,
-          inject[ViewNISPView],
-          inject[SelfAssessmentRegistrationPageView]
-        )(stubConfigDecorator, ec)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-              request = request
-            )
-          )
-      })
-
-      val result = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
+    "return OK for new Child Benefits" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
+      val result                                  = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
 
       status(result) mustBe OK
     }
   }
 
   "Calling viewSelfAssessmentSummary" must {
+    "call FormPartialService.getSelfAssessmentPartial and return 200 when called by a high GG user" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      setupAuth()
 
-    "call FormPartialService.getSelfAssessmentPartial and return 200 when called by a high GG user" in new LocalSetup {
-
-      lazy val simulateFormPartialServiceFailure = false
-      lazy val simulateSaPartialServiceFailure   = false
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
-
-      val testController: InterstitialController = controller
-      val r: Future[Result]                      = testController.displaySelfAssessment(fakeRequest)
-
-      status(r) mustBe OK
-
-      verify(testController.formPartialService, times(1))
-        .getSelfAssessmentPartial(any())
-    }
-
-    "call FormPartialService.getSelfAssessmentPartial and return return 401 for a high GG user not enrolled in SA" in new LocalSetup {
-
-      lazy val simulateFormPartialServiceFailure = true
-      lazy val simulateSaPartialServiceFailure   = true
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = request
-            )
-          )
-      })
-
-      val testController: InterstitialController = controller
-
-      val r: Future[Result] = testController.displaySelfAssessment(fakeRequest)
-      status(r) mustBe UNAUTHORIZED
-    }
-
-    "call FormPartialService.getSelfAssessmentPartial and return 401 for a user not logged in via GG" in new LocalSetup {
-
-      lazy val simulateFormPartialServiceFailure = true
-      lazy val simulateSaPartialServiceFailure   = true
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "GovernmentGateway"),
-              confidenceLevel = ConfidenceLevel.L200,
-              request = request
-            )
-          )
-      })
-
-      val testController: InterstitialController = controller
-
-      val r: Future[Result] = testController.displaySelfAssessment(fakeRequest)
-      status(r) mustBe UNAUTHORIZED
-    }
-
-    "Calling getSa302" must {
-
-      "return OK response when accessing with an SA user with a valid tax year" in new LocalSetup {
-
-        lazy val simulateFormPartialServiceFailure = false
-        lazy val simulateSaPartialServiceFailure   = false
-
-        val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-
-        def userRequest[A](request: Request[A]): UserRequest[A] = buildUserRequest(
-          saUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr),
-          request = request
-        )
-
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(
-              userRequest(request = request)
-            )
-        })
-
-        val testController: InterstitialController = controller
-
-        val r: Future[Result] = testController.displaySa302Interrupt(2018)(fakeRequest)
-
-        status(r) mustBe OK
-        contentAsString(r) must include(saUtr.utr)
+      val formPartialServiceResponse = Future.successful {
+        HtmlPartial.Success(Some("Success"), Html("any"))
       }
 
-      "return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
+      when(mockFormPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
+      when(mockFormPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
 
-        lazy val simulateFormPartialServiceFailure = false
-        lazy val simulateSaPartialServiceFailure   = false
-
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(
-              buildUserRequest(
-                saUser = NonFilerSelfAssessmentUser,
-                request = request
-              )
-            )
-        })
-
-        val testController: InterstitialController = controller
-        val r: Future[Result]                      = testController.displaySa302Interrupt(2018)(fakeRequest)
-
-        status(r) mustBe UNAUTHORIZED
+      when(mockSaPartialService.getSaAccountSummary(any())) thenReturn {
+        Future.successful {
+          HtmlPartial.Success(Some("Success"), Html("any"))
+        }
       }
+
+      val result = controller.displaySelfAssessment()(fakeRequest)
+
+      status(result) mustBe OK
+      verify(mockFormPartialService, times(1)).getSelfAssessmentPartial(any())
+    }
+
+    "call FormPartialService.getSelfAssessmentPartial and return return 401 for a high GG user not enrolled in SA" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      setupAuth(Some(NonFilerSelfAssessmentUser))
+      val result                                  = controller.displaySelfAssessment()(fakeRequest)
+      status(result) mustBe UNAUTHORIZED
+    }
+  }
+
+  "Calling getSa302" must {
+    "return OK response when accessing with an SA user with a valid tax year" in {
+      val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+
+      setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(saUtr)))
+
+      val result = controller.displaySa302Interrupt(2018)(fakeRequest)
+
+      status(result) mustBe OK
+      contentAsString(result) must include(saUtr.utr)
+    }
+
+    "return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+
+      setupAuth(Some(NonFilerSelfAssessmentUser))
+
+      val result = controller.displaySa302Interrupt(2018)(fakeRequest)
+
+      status(result) mustBe UNAUTHORIZED
     }
   }
 
   "Calling displayNewsAndUpdates" must {
-    "call displayNewsAndUpdates and return 200 when called by authorised user using GG" in new LocalSetup {
+    "call displayNewsAndUpdates and return 200 when called by authorised user using GG" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
-
-      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(
+      setupAuth()
+      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(
         List[NewsAndContentModel](
           NewsAndContentModel(
             "nicSection",
@@ -389,284 +212,69 @@ class InterstitialControllerSpec extends BaseSpec {
           )
         )
       )
-
-      lazy val simulateFormPartialServiceFailure = false
-      lazy val simulateSaPartialServiceFailure   = false
-
-      val testController: InterstitialController = controller
-
-      val result: Future[Result] = testController.displayNewsAndUpdates("nicSection")(fakeRequest)
+      val result = controller.displayNewsAndUpdates("nicSection")(fakeRequest)
 
       status(result) mustBe OK
-
       contentAsString(result) must include("News and Updates")
     }
 
-    "redirect to home when toggled on but no news items" in new LocalSetup {
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+    "redirect to home when toggled on but no news items" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
-      when(mockNewsAndTileConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
-
-      lazy val simulateFormPartialServiceFailure = false
-      lazy val simulateSaPartialServiceFailure   = false
-
-      val testController: InterstitialController = controller
-
-      val result: Future[Result] = testController.displayNewsAndUpdates("nicSection")(fakeRequest)
+      setupAuth()
+      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+      val result = controller.displayNewsAndUpdates("nicSection")(fakeRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(controllers.routes.HomeController.index.url)
-
     }
 
     "return UNAUTHORIZED when toggled off" in {
-      val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
-      ) {
-        override lazy val isNewsAndUpdatesTileEnabled: Boolean = false
-      }
-
-      lazy val fakeRequest = FakeRequest("", "")
-
-      val mockAuthJourney = mock[AuthJourney]
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[ShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[TaxCreditsTransitionInformationInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
-          mock[NewsAndTilesConfig],
-          inject[FeatureFlagService],
-          inject[ViewNISPView],
-          inject[SelfAssessmentRegistrationPageView]
-        )(stubConfigDecorator, ec) {
-          private def formPartialServiceResponse = Future.successful {
-            HtmlPartial.Success(Some("Success"), Html("any"))
-          }
-
-          when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
-          when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
-
-          when(saPartialService.getSaAccountSummary(any())) thenReturn {
-            Future.successful(HtmlPartial.Success(Some("Success"), Html("any")))
-          }
-        }
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = request
-            )
-          )
-      })
-
-      val result = controller.displayNewsAndUpdates("nicSection")(fakeRequest)
-
+      val app                                     = appn(extraConfigValues = Map("feature.news.enabled" -> false))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      setupAuth()
+      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+      val result                                  = controller.displayNewsAndUpdates("nicSection")(fakeRequest)
       status(result) mustBe UNAUTHORIZED
-
     }
   }
 
   "Calling displayBreathingSpaceDetails" must {
-
     "call displayBreathingSpaceDetails and return 200 when called by authorised user using GG" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
-      val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
-      val stubConfigDecorator                        = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
-      )
-      val mockAuthJourney: AuthJourney               = mock[AuthJourney]
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = request
-            )
-          )
-      })
-
+      setupAuth(Some(NonFilerSelfAssessmentUser))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
         .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
-
-      def testController: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[ShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[TaxCreditsTransitionInformationInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
-          mock[NewsAndTilesConfig],
-          mockFeatureFlagService,
-          inject[ViewNISPView],
-          inject[SelfAssessmentRegistrationPageView]
-        )(stubConfigDecorator, ec)
-
-      lazy val fakeRequest       = FakeRequest("", "")
-      val result: Future[Result] = testController.displayBreathingSpaceDetails(fakeRequest)
+      val result = controller.displayBreathingSpaceDetails()(fakeRequest)
 
       status(result) mustBe OK
-
       contentAsString(result) must include("You are in Breathing Space")
     }
 
     "return UNAUTHORIZED when toggled off" in {
-      val stubConfigDecorator: ConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
-      )
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
-      lazy val fakeRequest = FakeRequest("", "")
-
-      val mockFeatureFlagService                    = mock[FeatureFlagService]
-      val mockAuthJourney                           = mock[AuthJourney]
-      val mockNewsAndTileConfig: NewsAndTilesConfig = mock[NewsAndTilesConfig]
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[ShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[TaxCreditsTransitionInformationInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
-          mockNewsAndTileConfig,
-          mockFeatureFlagService,
-          inject[ViewNISPView],
-          inject[SelfAssessmentRegistrationPageView]
-        )(stubConfigDecorator, ec) {
-          private def formPartialServiceResponse = Future.successful {
-            HtmlPartial.Success(Some("Success"), Html("any"))
-          }
-
-          when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
-          when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
-
-          when(saPartialService.getSaAccountSummary(any())) thenReturn {
-            Future.successful(HtmlPartial.Success(Some("Success"), Html("any")))
-          }
-
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
-            .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = false)))
-        }
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = request
-            )
-          )
-      })
-
-      val result = controller.displayBreathingSpaceDetails(fakeRequest)
+      setupAuth(Some(NonFilerSelfAssessmentUser))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+        .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = false)))
+      val result = controller.displayBreathingSpaceDetails()(fakeRequest)
 
       status(result) mustBe UNAUTHORIZED
-
     }
   }
 
   "Calling displayItsa" must {
-
     "return OK" in {
-      lazy val fakeRequest = FakeRequest("", "")
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
-      val mockAuthJourney = mock[AuthJourney]
-
-      val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+      setupAuth(
+        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
+        enrolments = Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated"))
       )
 
-      val mockFeatureFlagService = mock[FeatureFlagService]
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[ShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[TaxCreditsTransitionInformationInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
-          mock[NewsAndTilesConfig],
-          mockFeatureFlagService,
-          inject[ViewNISPView],
-          inject[SelfAssessmentRegistrationPageView]
-        )(stubConfigDecorator, ec)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-              request = request,
-              enrolments =
-                Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated"))
-            )
-          )
-      })
-
-      when(mockFeatureFlagService.get(any()))
-        .thenReturn(Future.successful(FeatureFlag(ItsAdvertisementMessageToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+        .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
 
       val result = controller.displayItsaMergePage()(fakeRequest)
 
@@ -676,163 +284,83 @@ class InterstitialControllerSpec extends BaseSpec {
   }
 
   "Calling displaySaRegistrationPage" must {
-
-    def createController(
-      saUser: SelfAssessmentUserType,
-      enrolments: Set[Enrolment] = Set.empty,
-      trustedHelper: Option[TrustedHelper] = None,
-      pegaEnabled: Boolean = true
-    ): InterstitialController = {
-      val mockAuthJourney        = mock[AuthJourney]
-      val mockFeatureFlagService = mock[FeatureFlagService]
-      val mockConfigDecorator    = mock[ConfigDecorator]
-
-      when(mockConfigDecorator.pegaSaRegistrationEnabled).thenReturn(pegaEnabled)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = saUser,
-              enrolments = enrolments,
-              trustedHelper = trustedHelper,
-              request = request
-            )
-          )
-      })
-
-      new InterstitialController(
-        mock[FormPartialService],
-        mock[SaPartialService],
-        mockAuthJourney,
-        inject[WithBreadcrumbAction],
-        inject[MessagesControllerComponents],
-        inject[ErrorRenderer],
-        inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-        inject[SelfAssessmentSummaryView],
-        inject[Sa302InterruptView],
-        inject[ViewNewsAndUpdatesView],
-        inject[ViewItsaMergePageView],
-        inject[ViewBreathingSpaceView],
-        inject[ShutteringView],
-        inject[TaxCreditsAddressInterstitialView],
-        inject[TaxCreditsTransitionInformationInterstitialView],
-        inject[EnrolmentsHelper],
-        inject[SeissService],
-        mock[NewsAndTilesConfig],
-        mockFeatureFlagService,
-        inject[ViewNISPView],
-        inject[SelfAssessmentRegistrationPageView]
-      )(mockConfigDecorator, ec)
-    }
-
     "return UNAUTHORIZED when trustedHelper is defined" in {
-      val controller = createController(
-        saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+
+      setupAuth(
+        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
         trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "principalNino", Some("attorneyArn")))
       )
 
-      val result = controller.displaySaRegistrationPage()(FakeRequest())
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+        .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
 
-      status(result) mustBe UNAUTHORIZED
-    }
-
-    "return UNAUTHORIZED when the user has ITSA enrolments" in {
-      val controller = createController(
-        saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-        enrolments = Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated"))
-      )
-
-      val result = controller.displaySaRegistrationPage()(FakeRequest())
+      val result = controller.displaySaRegistrationPage()(fakeRequest)
 
       status(result) mustBe UNAUTHORIZED
     }
 
     "return UNAUTHORIZED when the user is an SA user" in {
-      val controller = createController(
-        saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+
+      setupAuth(
+        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
       )
 
-      val result = controller.displaySaRegistrationPage()(FakeRequest())
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+        .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
+
+      val result = controller.displaySaRegistrationPage()(fakeRequest)
 
       status(result) mustBe UNAUTHORIZED
     }
 
     "return OK with selfAssessmentRegistrationPageView when no trustedHelper, no ITSA enrolment, and not an SA user and pegaEnabled is true" in {
-      val controller = createController(saUser = NonFilerSelfAssessmentUser)
+      val app                                     = appn(extraConfigValues = Map("feature.pegaSaRegistration.enabled" -> true))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
-      val result = controller.displaySaRegistrationPage()(FakeRequest())
+      setupAuth(
+        saUserType = Some(NonFilerSelfAssessmentUser)
+      )
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+        .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
+
+      val result = controller.displaySaRegistrationPage()(fakeRequest)
 
       status(result) mustBe OK
       contentAsString(result) must include("Self Assessment: who needs to register")
     }
 
     "return UNAUTHORIZED when pegaEnabled is false" in {
-      val controller = createController(
-        saUser = NonFilerSelfAssessmentUser,
-        pegaEnabled = false
+      val app                                     = appn(extraConfigValues = Map("feature.pegaSaRegistration.enabled" -> false))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+
+      setupAuth(
+        saUserType = Some(NonFilerSelfAssessmentUser)
       )
 
-      val result = controller.displaySaRegistrationPage()(FakeRequest())
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
+        .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
+
+      val result = controller.displaySaRegistrationPage()(fakeRequest)
 
       status(result) mustBe UNAUTHORIZED
     }
   }
 
   "Calling displayNpsShutteringPage" must {
-
     "return OK when NpsShutteringToggle is true" in {
-      lazy val fakeRequest = FakeRequest("", "")
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
-      val mockAuthJourney = mock[AuthJourney]
-
-      val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+      setupAuth(
+        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
       )
-
-      val mockFeatureFlagService = mock[FeatureFlagService]
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[ShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[TaxCreditsTransitionInformationInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
-          mock[NewsAndTilesConfig],
-          mockFeatureFlagService,
-          inject[ViewNISPView],
-          inject[SelfAssessmentRegistrationPageView]
-        )(stubConfigDecorator, ec)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-              request = request
-            )
-          )
-      })
 
       when(mockFeatureFlagService.get(ShowOutageBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = true)))
 
       val result = controller.displayShutteringPage()(fakeRequest)
-
       status(result) mustBe OK
       contentAsString(result) must include(
         "The following services will be unavailable from 10pm on Friday 12 July to 7am on Monday 15 July."
@@ -840,113 +368,34 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return redirect back to the home page when NpsShutteringToggle is false" in {
-      lazy val fakeRequest = FakeRequest("", "")
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
-      val mockAuthJourney = mock[AuthJourney]
-
-      val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+      setupAuth(
+        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
       )
-
-      val mockFeatureFlagService = mock[FeatureFlagService]
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[ShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[TaxCreditsTransitionInformationInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
-          mock[NewsAndTilesConfig],
-          mockFeatureFlagService,
-          inject[ViewNISPView],
-          inject[SelfAssessmentRegistrationPageView]
-        )(stubConfigDecorator, ec)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-              request = request
-            )
-          )
-      })
 
       when(mockFeatureFlagService.get(ShowOutageBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = false)))
 
       val result = controller.displayShutteringPage()(fakeRequest)
-
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.HomeController.index.url)
     }
   }
 
   "Calling displayTaxCreditsInterstitial" must {
-    "return OK with correct view" in {
-      lazy val fakeRequest = FakeRequest("", "")
+    "return OK when NpsShutteringToggle is true" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
-      val mockAuthJourney = mock[AuthJourney]
-
-      val stubConfigDecorator = new ConfigDecorator(
-        inject[Configuration],
-        inject[ServicesConfig]
+      setupAuth(
+        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
       )
 
-      val mockFeatureFlagService = mock[FeatureFlagService]
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[ShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[TaxCreditsTransitionInformationInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
-          mock[NewsAndTilesConfig],
-          mockFeatureFlagService,
-          inject[ViewNISPView],
-          inject[SelfAssessmentRegistrationPageView]
-        )(stubConfigDecorator, ec)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-              request = request
-            )
-          )
-      })
+      when(mockFeatureFlagService.get(ShowOutageBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = true)))
 
       val result = controller.displayTaxCreditsInterstitial()(fakeRequest)
       val html   = Jsoup.parse(contentAsString(result))
-
       status(result) mustBe OK
       html.html() must include(
         "Because you receive tax credits, you will need to change your claim in the Tax Credits Service."
@@ -960,83 +409,20 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayTaxCreditsTransitionInformationInterstitialView" must {
     "return OK when featureBannerTcsServiceClosure is Enabled" in {
+      val app                                     = appn(extraConfigValues = Map("feature.bannerTcsServiceClosure" -> "enabled"))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
-      lazy val fakeRequest    = FakeRequest("", "")
-      val mockConfigDecorator = mock[ConfigDecorator]
-
-      reset(mockConfigDecorator)
-      when(mockConfigDecorator.featureBannerTcsServiceClosure).thenReturn(BannerTcsServiceClosure.Enabled)
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[ShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[TaxCreditsTransitionInformationInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
-          mock[NewsAndTilesConfig],
-          mockFeatureFlagService,
-          inject[ViewNISPView],
-          inject[SelfAssessmentRegistrationPageView]
-        )(mockConfigDecorator, ec)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(buildUserRequest(request = request))
-      })
+      setupAuth(
+        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
+      )
 
       val result: Future[Result] = controller.displayTaxCreditsTransitionInformationInterstitialView(fakeRequest)
       status(result) mustBe OK
     }
 
     "return UNAUTHORIZED when featureBannerTcsServiceClosure is Disabled" in {
-      lazy val fakeRequest    = FakeRequest("", "")
-      val mockConfigDecorator = mock[ConfigDecorator]
-
-      reset(mockConfigDecorator)
-      when(mockConfigDecorator.featureBannerTcsServiceClosure).thenReturn(BannerTcsServiceClosure.Disabled)
-
-      def controller: InterstitialController =
-        new InterstitialController(
-          mock[FormPartialService],
-          mock[SaPartialService],
-          mockAuthJourney,
-          inject[WithBreadcrumbAction],
-          inject[MessagesControllerComponents],
-          inject[ErrorRenderer],
-          inject[ViewChildBenefitsSummarySingleAccountInterstitialView],
-          inject[SelfAssessmentSummaryView],
-          inject[Sa302InterruptView],
-          inject[ViewNewsAndUpdatesView],
-          inject[ViewItsaMergePageView],
-          inject[ViewBreathingSpaceView],
-          inject[ShutteringView],
-          inject[TaxCreditsAddressInterstitialView],
-          inject[TaxCreditsTransitionInformationInterstitialView],
-          inject[EnrolmentsHelper],
-          inject[SeissService],
-          mock[NewsAndTilesConfig],
-          mockFeatureFlagService,
-          inject[ViewNISPView],
-          inject[SelfAssessmentRegistrationPageView]
-        )(mockConfigDecorator, ec)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(buildUserRequest(request = request))
-      })
+      val app                                     = appn(extraConfigValues = Map("feature.bannerTcsServiceClosure" -> "disabled"))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       val result: Future[Result] = controller.displayTaxCreditsTransitionInformationInterstitialView(fakeRequest)
       status(result) mustBe UNAUTHORIZED
