@@ -17,6 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
+import config.BannerTcsServiceClosure.BannerTcsServiceClosure
 import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
@@ -304,4 +305,16 @@ class ConfigDecorator @Inject() (
   lazy val pegaSaRegistrationEnabled: Boolean =
     servicesConfig.getBoolean("feature.pegaSaRegistration.enabled")
 
+  def featureBannerTcsServiceClosure: BannerTcsServiceClosure =
+    runModeConfiguration.get[String]("feature.bannerTcsServiceClosure").toLowerCase match {
+      case "enabled"    => BannerTcsServiceClosure.Enabled
+      case "disabled"   => BannerTcsServiceClosure.Disabled
+      case "dont-check" => BannerTcsServiceClosure.DontCheck
+      case other        => throw new IllegalArgumentException(s"Invalid value for feature.bannerTcsServiceClosure§: $other")
+    }
+}
+
+object BannerTcsServiceClosure extends Enumeration {
+  type BannerTcsServiceClosure = Value
+  val Enabled, Disabled, DontCheck = Value
 }

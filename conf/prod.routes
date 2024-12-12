@@ -86,6 +86,8 @@ GET         /personal-account/timeout                                           
 GET         /personal-account/preferences                                              controllers.PaperlessPreferencesController.managePreferences
 GET         /personal-account/self-assessment-who-needs-to-register                    controllers.InterstitialController.displaySaRegistrationPage
 
+GET         /personal-account/tax-credits-are-ending                                   controllers.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView
+
 GET         /personal-account/services-unavailable                                     controllers.InterstitialController.displayShutteringPage
 
 GET         /personal-account/assets/*file                                             controllers.AssetsController.versioned(path="/public", file: Asset)

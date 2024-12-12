@@ -413,4 +413,26 @@ class InterstitialControllerSpec extends BaseSpec {
         .attr("href") mustBe "http://localhost:9362/tax-credits-service/personal/change-address"
     }
   }
+
+  "Calling displayTaxCreditsTransitionInformationInterstitialView" must {
+    "return OK when featureBannerTcsServiceClosure is Enabled" in {
+      val app                                     = appn(extraConfigValues = Map("feature.bannerTcsServiceClosure" -> "enabled"))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+
+      setupAuth(
+        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
+      )
+
+      val result: Future[Result] = controller.displayTaxCreditsTransitionInformationInterstitialView(fakeRequest)
+      status(result) mustBe OK
+    }
+
+    "return UNAUTHORIZED when featureBannerTcsServiceClosure is Disabled" in {
+      val app                                     = appn(extraConfigValues = Map("feature.bannerTcsServiceClosure" -> "disabled"))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+
+      val result: Future[Result] = controller.displayTaxCreditsTransitionInformationInterstitialView(fakeRequest)
+      status(result) mustBe UNAUTHORIZED
+    }
+  }
 }
