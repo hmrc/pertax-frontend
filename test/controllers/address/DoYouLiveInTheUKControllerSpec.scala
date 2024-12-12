@@ -16,7 +16,6 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import models.UserAnswers
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.any
@@ -25,46 +24,28 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import routePages.HasAddressAlreadyVisitedPage
 import uk.gov.hmrc.http.HeaderCarrier
-import views.html.personaldetails.InternationalAddressChoiceView
 
 import scala.concurrent.Future
 
 class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
-
-  trait LocalSetup extends AddressControllerSetup {
-
-    def controller: DoYouLiveInTheUKController =
-      new DoYouLiveInTheUKController(
-        addressJourneyCachingHelper,
-        mockAuthJourney,
-        cc,
-        inject[InternationalAddressChoiceView],
-        displayAddressInterstitialView,
-        mockFeatureFlagService,
-        internalServerErrorView
-      )
-
-    def userAnswersToReturn: UserAnswers = UserAnswers
-      .empty("id")
-      .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
-
-    def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-  }
+  private lazy val controller: DoYouLiveInTheUKController = app.injector.instanceOf[DoYouLiveInTheUKController]
 
   "onPageLoad" must {
 
-    "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
+    "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in {
 
-      val result: Future[Result] = controller.onPageLoad(currentRequest)
-
+      val result: Future[Result]           = controller.onPageLoad(currentRequest)
+      def userAnswersToReturn: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
       status(result) mustBe OK
       verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
-    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
+    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in {
 
-      override def userAnswersToReturn: UserAnswers = UserAnswers.empty
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
 
       val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
@@ -75,51 +56,42 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
   }
 
   "onSubmit" must {
+    "redirect to postcode lookup page when supplied with value = Yes (true)" in {
 
-    "redirect to postcode lookup page when supplied with value = Yes (true)" in new LocalSetup {
-
-      override def currentRequest[A]: Request[A] =
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("internationalAddressChoice" -> "true")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/find-address")
     }
 
-    "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
-
-      lazy val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
-
-      when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
-
-      override def controller: DoYouLiveInTheUKController =
-        new DoYouLiveInTheUKController(
-          addressJourneyCachingHelper,
-          mockAuthJourney,
-          cc,
-          inject[InternationalAddressChoiceView],
-          displayAddressInterstitialView,
-          mockFeatureFlagService,
-          internalServerErrorView
-        )(mockConfigDecorator, ec)
-
-      override def currentRequest[A]: Request[A] =
+    "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in {
+      def currentRequest[A]: Request[A]    =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
           .asInstanceOf[Request[A]]
+      def userAnswersToReturn: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
 
-      val result: Future[Result] = controller.onSubmit(FakeRequest())
+      lazy val controller: DoYouLiveInTheUKController = appn(extraConfigValues =
+        Map("feature.update-international-address-form.enabled" -> false)
+      ).injector.instanceOf[DoYouLiveInTheUKController]
+
+      val result: Future[Result] = controller.onSubmit(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/cannot-use-the-service")
     }
 
-    "return a bad request when supplied no value" in new LocalSetup {
+    "return a bad request when supplied no value" in {
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
+      def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(currentRequest)
 

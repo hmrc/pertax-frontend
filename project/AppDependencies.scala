@@ -4,7 +4,7 @@ import play.sbt.PlayImport.*
 object AppDependencies {
 
   private val playVersion      = "play-30"
-  private val hmrcMongoVersion = "2.2.0"
+  private val hmrcMongoVersion = "2.3.0"
   private val bootstrapVersion = "9.5.0"
   private val cryptoVersion    = "8.1.0"
 
@@ -16,7 +16,7 @@ object AppDependencies {
     "org.typelevel"     %% "cats-core"                                  % "2.12.0",
     "org.apache.commons" % "commons-text"                               % "1.12.0",
     "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % "2.1.0",
-    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.7.0",
+    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.8.0",
     "uk.gov.hmrc"       %% s"crypto-json-$playVersion"                  % cryptoVersion
   )
 

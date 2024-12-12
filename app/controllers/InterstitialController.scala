@@ -50,7 +50,7 @@ class InterstitialController @Inject() (
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
-  viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
+  viewItsaMergePageView: ViewItsaMergePageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
   shutteringView: ShutteringView,
   taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
@@ -67,9 +67,10 @@ class InterstitialController @Inject() (
   private val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
-  private val authenticate: ActionBuilder[UserRequest, AnyContent]   =
+  private val authenticate: ActionBuilder[UserRequest, AnyContent] = {
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)
+  }
   private val authenticateSa: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(saBreadcrumb)
@@ -120,20 +121,19 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
+  def displayItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
-
     if (
-      request.trustedHelper.isEmpty &&
-      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
+      enrolmentsHelper
+        .itsaEnrolmentStatus(request.enrolments)
+        .isDefined && request.trustedHelper.isEmpty && request.isSa
     ) {
       for {
         hasSeissClaims    <- seissService.hasClaims(saUserType)
         itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
       } yield Ok(
-        viewSaAndItsaMergePageView(
+        viewItsaMergePageView(
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
-          enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           request.isSa,
           itsaMessageToggle.isEnabled,
           hasSeissClaims,

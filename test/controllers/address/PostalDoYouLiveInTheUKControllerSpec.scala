@@ -16,7 +16,6 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import models.UserAnswers
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.any
@@ -25,45 +24,26 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import routePages.HasAddressAlreadyVisitedPage
 import uk.gov.hmrc.http.HeaderCarrier
-import views.html.personaldetails.PostalInternationalAddressChoiceView
 
 import scala.concurrent.Future
 
 class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
-
-  trait LocalSetup extends AddressControllerSetup {
-
-    def controller: PostalDoYouLiveInTheUKController =
-      new PostalDoYouLiveInTheUKController(
-        addressJourneyCachingHelper,
-        mockAuthJourney,
-        cc,
-        inject[PostalInternationalAddressChoiceView],
-        displayAddressInterstitialView,
-        mockFeatureFlagService,
-        internalServerErrorView
-      )
-
-    def userAnswersToReturn: UserAnswers = UserAnswers
-      .empty("id")
-      .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
-
-    def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-  }
+  private lazy val controller: PostalDoYouLiveInTheUKController =
+    app.injector.instanceOf[PostalDoYouLiveInTheUKController]
 
   "onPageLoad" must {
-    "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
-
-      val result: Future[Result] = controller.onPageLoad(currentRequest)
+    "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in {
+      def userAnswersToReturn: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
+      val result: Future[Result]           = controller.onPageLoad(currentRequest)
 
       status(result) mustBe OK
       verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
-    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
-      override def userAnswersToReturn: UserAnswers = UserAnswers.empty
-
+    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in {
       val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
       status(result) mustBe SEE_OTHER
@@ -74,63 +54,51 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
 
   "onSubmit" must {
 
-    "redirect to postcode lookup page when supplied with value = Yes (true)" in new LocalSetup {
+    "redirect to postcode lookup page when supplied with value = Yes (true)" in {
 
-      override def currentRequest[A]: Request[A] =
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("internationalAddressChoice" -> "true")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/find-address")
     }
 
-    "redirect to enter international address page when supplied with value = No (false)" in new LocalSetup {
+    "redirect to enter international address page when supplied with value = No (false)" in {
 
-      override def currentRequest[A]: Request[A] =
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/enter-international-address")
     }
 
-    "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
+    "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in {
+      lazy val controller: PostalDoYouLiveInTheUKController = appn(extraConfigValues =
+        Map("feature.update-international-address-form.enabled" -> false)
+      ).injector.instanceOf[PostalDoYouLiveInTheUKController]
 
-      lazy val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
-
-      when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
-
-      override def controller: PostalDoYouLiveInTheUKController =
-        new PostalDoYouLiveInTheUKController(
-          addressJourneyCachingHelper,
-          mockAuthJourney,
-          cc,
-          inject[PostalInternationalAddressChoiceView],
-          displayAddressInterstitialView,
-          mockFeatureFlagService,
-          internalServerErrorView
-        )(mockConfigDecorator, ec)
-
-      override def currentRequest[A]: Request[A] =
+      def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(FakeRequest())
+      val result: Future[Result] = controller.onSubmit(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/cannot-use-the-service")
     }
 
-    "return a bad request when supplied no value" in new LocalSetup {
+    "return a bad request when supplied no value" in {
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
+      def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(currentRequest)
 

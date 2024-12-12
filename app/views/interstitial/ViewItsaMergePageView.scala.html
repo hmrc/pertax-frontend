@@ -1,0 +1,78 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import components.{H1, H2, P, Link}
+
+@this(
+    mainView: MainView,
+    h1: H1,
+    h2: H2,
+    p: P,
+    link: Link
+)
+
+@(nextDeadlineTaxYear: String, isSa: Boolean, itsaToggle: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@mainView(
+    pageTitle = messages("label.your_self_assessment"),
+    showBackLink = true
+) {
+    @h1("label.itsa_header")
+    @h2("label.mtd_for_sa")
+    @p(Text(messages("label.send_updates_hmrc_compatible_software")))
+    @link(configDecorator.itsaViewUrl, "label.view_manage_your_mtd_for_sa")
+    @if(isSa) {
+        @h2("label.self_assessment_tax_returns")
+        @saActionNeeded match {
+            case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
+                @p(Text(messages("label.old_way_sa_returns")))
+                @link(routes.InterstitialController.displaySelfAssessment.url, "label.access_your_sa_returns")
+            }
+            case NotYetActivatedOnlineFilerSelfAssessmentUser(_) => {
+                <ul class="govuk-list">
+                    <li>
+                        @link(controllers.routes.SelfAssessmentController.handleSelfAssessment.url, "label.activate_your_self_assessment", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Activate your Self Assessment"), inParagraph=true)
+                    </li>
+                </ul>
+            }
+            case WrongCredentialsSelfAssessmentUser(_) => {
+                <ul class="govuk-list">
+                    <li>
+                        @link(controllers.routes.SelfAssessmentController.handleSelfAssessment.url, "label.find_out_how_to_access_self_assessment", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Find out how to access Self Assessment"), inParagraph=true)
+                    </li>
+                </ul>
+            }
+            case NotEnrolledSelfAssessmentUser(_) => {
+                @p(Text(messages("label.not_enrolled.content")))
+                <ul class="govuk-list">
+                    <li>
+                        @link(controllers.routes.SelfAssessmentController.redirectToEnrolForSa.url, "label.not_enrolled.link.text", attrs=Map("data-ga-event-category"->"link - click", "data-ga-event-action"->"Income", "data-ga-event-label"->"Request access to your Self Assessment"), inParagraph=true)
+                    </li>
+                </ul>
+            }
+            case _ => {}
+        }
+    }
+
+    @if(isSeiss) {
+        <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+        @h2("title.seiss")
+        @link(configDecorator.seissClaimsUrl, "body.seiss")
+    
+    }
+}

@@ -16,6 +16,10 @@
 
 package controllers
 
+import com.github.tomakehurst.wiremock.client.WireMock.{get, notFound, urlEqualTo}
+import models.admin.TaxComponentsToggle
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
@@ -24,7 +28,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
+import java.time.LocalDateTime
 import java.util.UUID
 import scala.concurrent.Future
 
@@ -50,11 +56,30 @@ class HomeControllerPayeISpec extends IntegrationSpec {
   }
 
   "personal-account" must {
-    "show PAYE tile with the correct link for a user with a valid NINO" in {
+    "show PAYE tile when the tax-components toggle is disabled" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
+        .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
+
       val result: Future[Result] = route(app, request).get
+
       httpStatus(result) mustBe OK
       contentAsString(result).contains(Messages("label.pay_as_you_earn_paye")) mustBe true
       contentAsString(result).contains("/check-income-tax/what-do-you-want-to-do") mustBe true
+    }
+
+    "not show PAYE tile when the tax-components toggle is enabled and tax-component is empty" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
+        .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+
+      server.stubFor(
+        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
+          .willReturn(notFound())
+      )
+
+      val result: Future[Result] = route(app, request).get
+
+      httpStatus(result) mustBe OK
+      contentAsString(result).contains(Messages("label.pay_as_you_earn_paye")) mustBe false
     }
   }
 }

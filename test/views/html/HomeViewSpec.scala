@@ -27,14 +27,16 @@ import play.twirl.api.Html
 import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Name
-import uk.gov.hmrc.domain.SaUtrGenerator
+import uk.gov.hmrc.domain.{Nino, SaUtrGenerator}
 import viewmodels.HomeViewModel
+import views.html.cards.home.PayAsYouEarnView
 
 import scala.jdk.CollectionConverters._
 
 class HomeViewSpec extends ViewSpec {
 
-  lazy val home: HomeView = inject[HomeView]
+  lazy val home: HomeView             = inject[HomeView]
+  lazy val payeCard: PayAsYouEarnView = inject[PayAsYouEarnView]
 
   implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
@@ -128,6 +130,22 @@ class HomeViewSpec extends ViewSpec {
       val view                                                      = Jsoup.parse(home(homeViewModel, shutteringMessaging = true).toString)
 
       view.getElementById("alert-banner") mustBe null
+    }
+
+    "have the last 2 nino numbers be rendered as an attribute on PAYE tile" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest(), nino = Some(Nino("AA000000C")))
+      val view                                                      = Jsoup.parse(
+        home(
+          homeViewModel.copy(
+            incomeCards = Seq(payeCard(configDecorator, "00")),
+            alertBannerContent = List(Html("something to alert"))
+          ),
+          shutteringMessaging = true
+        ).toString
+      )
+
+      view.getElementById("paye-card").attr("data-user-group") mustBe "00"
     }
   }
 }

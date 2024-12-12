@@ -65,7 +65,7 @@ GET         /personal-account/your-address/thanks                               
 
 GET         /personal-account/self-assessment-summary                                  controllers.InterstitialController.displaySelfAssessment
 GET         /personal-account/self-assessment/sa302/:year                              controllers.InterstitialController.displaySa302Interrupt(year: Int)
-GET         /personal-account/self-assessment-home                                     controllers.InterstitialController.displaySaAndItsaMergePage
+GET         /personal-account/self-assessment-home                                     controllers.InterstitialController.displayItsaMergePage
 
 GET         /personal-account/sa-enrolment                                             controllers.SelfAssessmentController.redirectToEnrolForSa
 

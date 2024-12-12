@@ -15,18 +15,22 @@
  *@
 
 @import tags._
-@import config.ConfigDecorator
-@this()
-@(configDecorator: ConfigDecorator, dataGroupValue: String)(implicit messages: play.api.i18n.Messages)
+@import components.P
+@this(p: P)
+@(nextDeadlineTaxYear: String)(implicit messages: play.api.i18n.Messages)
+
+@cardContent = {
+    @p(Text(messages("label.view_manage_your_mtd_itsa")))
+    @p(Text(messages("label.online_deadline_final_declarations", nextDeadlineTaxYear)))
+}
 
 @card(
-    id = Some("paye-card"),
-    url = Some(s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do"),
+    id = Some("sa-card"),
+    url = Some(controllers.routes.InterstitialController.displayItsaMergePage.url),
     gaAction = Some("Income"),
-    gaLabel = Some("Pay As You Earn (PAYE)"),
-    heading = messages("label.pay_as_you_earn_paye"),
+    gaLabel = Some("Self Assessment"),
+    heading = messages("label.self_assessment"),
     headingTag = "h3",
-    bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.your_income_from_employers_and_private_pensions_") + "</p>")),
-    divAttr = Map("data-user-group" -> dataGroupValue)
+    bodyContent = Some(cardContent)
 ) {
 }
