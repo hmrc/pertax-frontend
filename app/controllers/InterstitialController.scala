@@ -117,7 +117,7 @@ class InterstitialController @Inject() (
       // Temporarily restricting access based on pegaEnabled, this condition can be removed in future
       errorRenderer.error(UNAUTHORIZED)
     } else {
-      Ok(selfAssessmentRegistrationPageView())
+      Ok(selfAssessmentRegistrationPageView(configDecorator.pegaSaRegistrationUrl))
     }
   }
 

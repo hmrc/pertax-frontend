@@ -316,7 +316,13 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return OK with selfAssessmentRegistrationPageView when no trustedHelper, no ITSA enrolment, and not an SA user and pegaEnabled is true" in {
-      val app                                     = appn(extraConfigValues = Map("feature.pegaSaRegistration.enabled" -> true))
+      val dummyUrl                                = "/dummy"
+      val app                                     = appn(extraConfigValues =
+        Map(
+          "feature.pegaSaRegistration.enabled"  -> true,
+          "external-url.pegaSaRegistration.url" -> dummyUrl
+        )
+      )
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
@@ -330,6 +336,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
       status(result) mustBe OK
       contentAsString(result) must include("Self Assessment: who needs to register")
+      contentAsString(result) must include(dummyUrl)
     }
 
     "return UNAUTHORIZED when pegaEnabled is false" in {
