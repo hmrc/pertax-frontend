@@ -1,5 +1,5 @@
-import sbt.*
 import play.sbt.PlayImport.*
+import sbt.*
 
 object AppDependencies {
 
@@ -7,6 +7,7 @@ object AppDependencies {
   private val hmrcMongoVersion = "2.3.0"
   private val bootstrapVersion = "9.5.0"
   private val cryptoVersion    = "8.1.0"
+  private val webChatVersion   = "1.6.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -17,7 +18,8 @@ object AppDependencies {
     "org.apache.commons" % "commons-text"                               % "1.12.0",
     "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % "2.1.0",
     "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.8.0",
-    "uk.gov.hmrc"       %% s"crypto-json-$playVersion"                  % cryptoVersion
+    "uk.gov.hmrc"       %% s"crypto-json-$playVersion"                  % cryptoVersion,
+    "uk.gov.hmrc"       %% "digital-engagement-platform-chat-30"        % webChatVersion
   )
 
   val test: Seq[ModuleID] = Seq(

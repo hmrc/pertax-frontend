@@ -91,7 +91,6 @@ class ConfigDecorator @Inject() (
   private lazy val agentClientManagementFrontendHost: String =
     getExternalUrl("agent-client-management-frontend.host").getOrElse("")
 
-  private lazy val saFrontendHost                               = getExternalUrl(s"sa-frontend.host").getOrElse("")
   private lazy val governmentGatewayLostCredentialsFrontendHost =
     getExternalUrl(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
 
@@ -118,22 +117,12 @@ class ConfigDecorator @Inject() (
   def displayNewsAndUpdatesUrl(newsSectionId: String): String =
     s"/personal-account/news/$newsSectionId"
 
-  def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang): String =
-    s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (
-      if (lang.code equals "en") { "eng" }
-      else { "cym" }
-    )
-  lazy val ssoToActivateSaEnrolmentPinUrl                                          =
+  lazy val ssoToActivateSaEnrolmentPinUrl                              =
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
-  lazy val ssoToRegisterForSaEnrolment: String                                     = transformUrlForSso(toPortalUrl("/home/services/enroll"))
-  lazy val ssoToRegistration: String                                               = transformUrlForSso(toPortalUrl("/registration"))
-  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String): String             =
+  lazy val ssoToRegisterForSaEnrolment: String                         = transformUrlForSso(toPortalUrl("/home/services/enroll"))
+  lazy val ssoToRegistration: String                                   = transformUrlForSso(toPortalUrl("/registration"))
+  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String): String =
     transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
-  def viewSaPaymentsUrl(saUtr: String, lang: Lang): String                         =
-    s"/self-assessment/ind/$saUtr/account/payments?lang=" + (
-      if (lang.code equals "en") { "eng" }
-      else { "cym" }
-    )
 
   lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
 
@@ -304,4 +293,6 @@ class ConfigDecorator @Inject() (
   lazy val pegaSaRegistrationEnabled: Boolean =
     servicesConfig.getBoolean("feature.pegaSaRegistration.enabled")
 
+  lazy val webChatIsEnabled: Boolean =
+    runModeConfiguration.getOptional[Boolean]("feature.web-chat.enabled").getOrElse(false)
 }
