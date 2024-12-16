@@ -14,13 +14,27 @@
  * limitations under the License.
  *@
 
+@import config.{BannerTcsServiceClosure, ConfigDecorator}
+@import controllers.routes
 @import tags._
+
 @this()
-@()(implicit messages: play.api.i18n.Messages)
+@()(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
+
+@cardUrl = @{
+    configDecorator.featureBannerTcsServiceClosure match {
+        case BannerTcsServiceClosure.Enabled =>
+            routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
+        case BannerTcsServiceClosure.DontCheck =>
+            "/tax-credits-service/renewals/service-router"
+        case _ =>
+            "/not-yet-implemented"
+    }
+}
 
 @card(
     id = Some("tax-credits-card"),
-    url = Some("/tax-credits-service/renewals/service-router"),
+    url = Some(cardUrl),
     gaAction = Some("Benefits"),
     gaLabel = Some("Tax credits"),
     heading = messages("label.tax_credits"),
