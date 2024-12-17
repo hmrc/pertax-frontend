@@ -70,16 +70,16 @@ class HomeControllerAlertBannerISpec extends IntegrationSpec {
       "paperless status is BOUNCED_EMAIL" in {
         val link = "http://some/link"
         server.stubFor(get(urlMatching("/paperless/status.*")).willReturn(ok(s"""{
-             |  "status": {
-             |    "name": "BOUNCED_EMAIL",
-             |    "category": "INFO",
-             |    "text": "Unused"
-             |  },
-             |  "url": {
-             |    "link": "$link",
-             |    "text": "Unused"
-             |  }
-             |}""".stripMargin)))
+                                                                                |  "status": {
+                                                                                |    "name": "BOUNCED_EMAIL",
+                                                                                |    "category": "INFO",
+                                                                                |    "text": "Unused"
+                                                                                |  },
+                                                                                |  "url": {
+                                                                                |    "link": "$link",
+                                                                                |    "text": "Unused"
+                                                                                |  }
+                                                                                |}""".stripMargin)))
 
         val result: Future[Result] = route(app, request).get
         val html                   = Jsoup.parse(contentAsString(result))
@@ -93,16 +93,16 @@ class HomeControllerAlertBannerISpec extends IntegrationSpec {
       "paperless status is EMAIL_NOT_VERIFIED" in {
         val link = "http://some/link"
         server.stubFor(get(urlMatching("/paperless/status.*")).willReturn(ok(s"""{
-                                                                               |  "status": {
-                                                                               |    "name": "EMAIL_NOT_VERIFIED",
-                                                                               |    "category": "INFO",
-                                                                               |    "text": "Unused"
-                                                                               |  },
-                                                                               |  "url": {
-                                                                               |    "link": "$link",
-                                                                               |    "text": "Unused"
-                                                                               |  }
-                                                                               |}""".stripMargin)))
+                                                                                |  "status": {
+                                                                                |    "name": "EMAIL_NOT_VERIFIED",
+                                                                                |    "category": "INFO",
+                                                                                |    "text": "Unused"
+                                                                                |  },
+                                                                                |  "url": {
+                                                                                |    "link": "$link",
+                                                                                |    "text": "Unused"
+                                                                                |  }
+                                                                                |}""".stripMargin)))
 
         val result: Future[Result] = route(app, request).get
         val html                   = Jsoup.parse(contentAsString(result))
