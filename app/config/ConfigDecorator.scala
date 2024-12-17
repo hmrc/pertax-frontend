@@ -17,6 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
+import config.BannerTcsServiceClosure.BannerTcsServiceClosure
 import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
@@ -28,9 +29,9 @@ import java.time.LocalDate
 
 @Singleton
 class ConfigDecorator @Inject() (
-  runModeConfiguration: Configuration,
-  servicesConfig: ServicesConfig
-) {
+                                  runModeConfiguration: Configuration,
+                                  servicesConfig: ServicesConfig
+                                ) {
 
   lazy val internalAuthResourceType: String =
     runModeConfiguration.getOptional[String]("internal-auth.resource-type").getOrElse("ddcn-live-admin-frontend")
@@ -117,11 +118,11 @@ class ConfigDecorator @Inject() (
   def displayNewsAndUpdatesUrl(newsSectionId: String): String =
     s"/personal-account/news/$newsSectionId"
 
-  lazy val ssoToActivateSaEnrolmentPinUrl                              =
+  lazy val ssoToActivateSaEnrolmentPinUrl                                          =
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
-  lazy val ssoToRegisterForSaEnrolment: String                         = transformUrlForSso(toPortalUrl("/home/services/enroll"))
-  lazy val ssoToRegistration: String                                   = transformUrlForSso(toPortalUrl("/registration"))
-  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String): String =
+  lazy val ssoToRegisterForSaEnrolment: String                                     = transformUrlForSso(toPortalUrl("/home/services/enroll"))
+  lazy val ssoToRegistration: String                                               = transformUrlForSso(toPortalUrl("/registration"))
+  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String): String             =
     transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
 
   lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
@@ -295,4 +296,18 @@ class ConfigDecorator @Inject() (
 
   lazy val webChatIsEnabled: Boolean =
     runModeConfiguration.getOptional[Boolean]("feature.web-chat.enabled").getOrElse(false)
+
+  def featureBannerTcsServiceClosure: BannerTcsServiceClosure =
+    runModeConfiguration.get[String]("feature.bannerTcsServiceClosure").toLowerCase match {
+      case "enabled"    => BannerTcsServiceClosure.Enabled
+      case "disabled"   => BannerTcsServiceClosure.Disabled
+      case "dont-check" => BannerTcsServiceClosure.DontCheck
+      case other        => throw new IllegalArgumentException(s"Invalid value for feature.bannerTcsServiceClosure§: $other")
+    }
+}
+
+object BannerTcsServiceClosure extends Enumeration {
+  type BannerTcsServiceClosure = Value
+  val Enabled, Disabled, DontCheck = Value
+
 }

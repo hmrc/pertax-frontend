@@ -58,7 +58,6 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
           viewItsaMergePageView(
             nextDeadlineTaxYear,
             isSa = false,
-            itsaToggle = true,
             isSeiss = false,
             previousAndCurrentTaxYear,
             userRequest.saUserType
@@ -68,7 +67,6 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
       doc.text() must include(Messages("label.itsa_header"))
       doc.text() must include(Messages("label.mtd_for_sa"))
       doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
-      doc.text() must not include Messages("label.from_date_mtd_service_for_itsa_will_replace_sa_tax_return")
 
       hasLink(
         doc,
@@ -83,7 +81,6 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
           viewItsaMergePageView(
             nextDeadlineTaxYear,
             isSa = true,
-            itsaToggle = true,
             isSeiss = true,
             previousAndCurrentTaxYear,
             ActivatedOnlineFilerSelfAssessmentUser(saUtr)
@@ -121,7 +118,6 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
           viewItsaMergePageView(
             nextDeadlineTaxYear,
             isSa = true,
-            itsaToggle = true,
             isSeiss = true,
             previousAndCurrentTaxYear,
             NotEnrolledSelfAssessmentUser(saUtr)

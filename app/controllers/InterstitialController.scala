@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@
 package controllers
 
 import com.google.inject.Inject
-import config.{ConfigDecorator, NewsAndTilesConfig}
+import config.{BannerTcsServiceClosure, ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ItsAdvertisementMessageToggle, ShowOutageBannerToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -54,6 +54,7 @@ class InterstitialController @Inject() (
   viewBreathingSpaceView: ViewBreathingSpaceView,
   shutteringView: ShutteringView,
   taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
+  taxCreditsTransitionInformationInterstitialView: TaxCreditsTransitionInformationInterstitialView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
@@ -128,19 +129,17 @@ class InterstitialController @Inject() (
         .itsaEnrolmentStatus(request.enrolments)
         .isDefined && request.trustedHelper.isEmpty && request.isSa
     ) {
-      for {
-        hasSeissClaims    <- seissService.hasClaims(saUserType)
-        itsaMessageToggle <- featureFlagService.get(ItsAdvertisementMessageToggle)
-      } yield Ok(
-        viewItsaMergePageView(
-          nextDeadlineTaxYear = (current.currentYear + 1).toString,
-          request.isSa,
-          itsaMessageToggle.isEnabled,
-          hasSeissClaims,
-          taxYear = previousAndCurrentTaxYear,
-          saUserType
+      seissService.hasClaims(saUserType).map { hasSeissClaims =>
+        Ok(
+          viewItsaMergePageView(
+            nextDeadlineTaxYear = (current.currentYear + 1).toString,
+            request.isSa,
+            hasSeissClaims,
+            taxYear = previousAndCurrentTaxYear,
+            saUserType
+          )
         )
-      )
+      }
     } else {
       errorRenderer.futureError(UNAUTHORIZED)
     }
@@ -219,6 +218,14 @@ class InterstitialController @Inject() (
       } else {
         Future.successful(Redirect(routes.HomeController.index))
       }
+    }
+  }
+
+  def displayTaxCreditsTransitionInformationInterstitialView: Action[AnyContent] = authenticate { implicit request =>
+    if (configDecorator.featureBannerTcsServiceClosure == BannerTcsServiceClosure.Enabled) {
+      Ok(taxCreditsTransitionInformationInterstitialView())
+    } else {
+      errorRenderer.error(UNAUTHORIZED)
     }
   }
 
