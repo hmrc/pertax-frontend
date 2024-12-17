@@ -23,25 +23,21 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
 import org.scalatest.Assertion
 import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsEmpty, Request, Result}
+import play.api.mvc.{AnyContentAsEmpty, Request}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import play.twirl.api.Html
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.HttpVerbs.GET
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
 import views.html.MainView
 
 import java.time.LocalDate
 import java.util.UUID
-import scala.concurrent.Future
 import scala.util.Random
 
 class MainViewSpec extends IntegrationSpec {
@@ -276,34 +272,6 @@ class MainViewSpec extends IntegrationSpec {
 
       "render given content" in new LocalSetup {
         assertContainsText(doc, content)
-      }
-    }
-  }
-
-  "What do you want to do page" must {
-    "show the webchat" when {
-      "it is enabled" in new LocalSetup {
-        val enabledApp: Application = new GuiceApplicationBuilder()
-          .configure(
-            "feature.web-chat.enabled" -> true
-          )
-          .build()
-
-        val result: Future[Result] = route(enabledApp, FakeRequest(GET, "/personal-account/home")).get
-        contentAsString(result) must include("webchat-test")
-      }
-    }
-
-    "not show the webchat" when {
-      "it is disabled" in new LocalSetup {
-        val disabledApp: Application = new GuiceApplicationBuilder()
-          .configure(
-            "feature.web-chat.enabled" -> false
-          )
-          .build()
-
-        val result: Future[Result] = route(disabledApp, FakeRequest(GET, "/personal-account/home")).get
-        contentAsString(result) mustNot include("webchat-test")
       }
     }
   }

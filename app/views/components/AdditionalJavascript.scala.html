@@ -33,5 +33,6 @@
 @scripts
 
 @if(appConfig.webChatIsEnabled) {
-
+    @{webChatClient.loadRequiredElements()(request)}
+    @{webChatClient.loadWebChatContainer("HMRC_Anchored_1")(request)}
 }
