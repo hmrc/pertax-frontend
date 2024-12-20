@@ -14,14 +14,25 @@
  * limitations under the License.
  *@
 
+@import config.ConfigDecorator
+@import uk.gov.hmrc.webchat.client.WebChatClient
 @import views.html.helper.CSPNonce
 
-@this(autocompleteJavascript: HmrcAccessibleAutocompleteJavascript)
+@this(
+        autocompleteJavascript: HmrcAccessibleAutocompleteJavascript,
+        appConfig: ConfigDecorator,
+        webChatClient: WebChatClient
+)
+
 @(scripts: Option[Html])(implicit request: Request[_])
 
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
-    <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
-    @autocompleteJavascript()
-    @scripts
+<script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
+<script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
+<script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
+@autocompleteJavascript()
+@scripts
 
+@if(appConfig.webChatIsEnabled) {
+    @{webChatClient.loadRequiredElements()(request)}
+    @{webChatClient.loadWebChatContainer("HMRC_Anchored_1")(request)}
+}

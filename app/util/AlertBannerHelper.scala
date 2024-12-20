@@ -18,15 +18,17 @@ package util
 
 import cats.implicits.catsStdInstancesForFuture
 import com.google.inject.Inject
+import config.{BannerTcsServiceClosure, ConfigDecorator}
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
+import controllers.routes
 import models._
 import models.admin.AlertBannerPaperlessStatusToggle
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.Html
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, unverifiedEmail}
+import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, taxCreditsEndBanner, unverifiedEmail}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,43 +36,57 @@ class AlertBannerHelper @Inject() (
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService,
   bouncedEmailView: bouncedEmail,
-  unverifiedEmailView: unverifiedEmail
+  unverifiedEmailView: unverifiedEmail,
+  taxCreditsEndBannerView: taxCreditsEndBanner,
+  configDecorator: ConfigDecorator
 ) {
 
   def getContent(implicit
     request: UserRequest[AnyContent],
     ec: ExecutionContext,
     messages: Messages
-  ): Future[List[Html]] =
-    for {
-      paperlessContent <- getPaperlessStatusBannerContent
-    } yield List(
-      paperlessContent
-    ).flatten
+  ): Future[List[Html]] = {
+    val contentFutures = List(
+      getPaperlessStatusBannerContent,
+      getTaxCreditsEndBannerContent
+    )
+    Future.sequence(contentFutures).map(_.flatten)
+  }
 
-  private[AlertBannerHelper] def getPaperlessStatusBannerContent(implicit
+  private def getPaperlessStatusBannerContent(implicit
     request: UserRequest[AnyContent],
     ec: ExecutionContext,
     messages: Messages
   ): Future[Option[Html]] =
-    featureFlagService.get(AlertBannerPaperlessStatusToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
+    featureFlagService.get(AlertBannerPaperlessStatusToggle).flatMap {
+      case toggle if toggle.isEnabled =>
         preferencesFrontendConnector
           .getPaperlessStatus(request.uri, "")
           .fold(
             _ => None,
             {
-              case paperlessStatus: PaperlessStatusBounced =>
-                Some(bouncedEmailView(paperlessStatus.link))
-
-              case paperlessStatus: PaperlessStatusUnverified =>
-                Some(unverifiedEmailView(paperlessStatus.link))
-              case _                                          =>
-                None
+              case PaperlessStatusBounced(link)    => Some(bouncedEmailView(link))
+              case PaperlessStatusUnverified(link) => Some(unverifiedEmailView(link))
+              case _                               => None
             }
           )
-      } else {
+      case _                          =>
         Future.successful(None)
-      }
+    }
+
+  private def getTaxCreditsEndBannerContent(implicit
+    messages: Messages
+  ): Future[Option[Html]] =
+    configDecorator.featureBannerTcsServiceClosure match {
+      case BannerTcsServiceClosure.Enabled =>
+        Future.successful(
+          Some(
+            taxCreditsEndBannerView(
+              routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
+            )
+          )
+        )
+      case _                               =>
+        Future.successful(None)
     }
 }
