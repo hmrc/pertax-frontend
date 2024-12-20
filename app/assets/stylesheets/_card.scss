@@ -2,6 +2,86 @@
   flex-basis: 100%;
   flex-grow: 0;
   margin-bottom: 2em;
+  border: 1px solid $panel-colour;
+  font-size: 16px;
+
+  &.inactive {
+      color: $secondary-text-colour;
+    }
+
+    .card-heading {
+      margin-top: 0;
+    }
+
+    .card-body {
+      border-bottom: 1px solid $panel-colour;
+      padding: 12px;
+
+      *:last-child {
+        margin-bottom: 0;
+      }
+
+      &.active {
+        background-color: $grey-4;
+        transition: 0.1s ease-in-out;
+
+        .card-heading a {
+          color: $link-colour;
+          margin-top: 0;
+
+          &:focus {
+            box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+            color: $black;
+            outline: 3px solid transparent;
+          }
+        }
+      }
+
+      .detail-large {
+        color: $secondary-text-colour;
+        font-size: 32px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .detail {
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+    }
+
+    .card-action {
+      border-top: 0;
+      padding: 12px;
+
+      a {
+        display: inline;
+        line-height: 1.5em;
+
+        &:link,
+        &:visited {
+          color: $link-colour;
+        }
+
+        &:focus {
+          color: $black;
+        }
+      }
+
+      ul {
+        margin: 0;
+
+        li {
+          margin: 0 0 1em;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+
 }
 
 @media screen and (min-width:600px) and (max-width:900px) {
@@ -31,107 +111,7 @@
   }
 }
 
-html[data-useragent*="MSIE 10.0"] .flex-container {
-  .card {
-    flex-basis: 31%;
-    margin: 3%;
-  }
-}
-
-.card {
-  border: 1px solid $panel-colour;
-  font-size: 16px;
-
-  &.inactive {
-    color: $secondary-text-colour;
-  }
-
-  .card-heading {
-    margin-top: 0;
-  }
-
-  .card-body {
-    border-bottom: 1px solid $panel-colour;
-    padding: 12px;
-
-    *:last-child {
-      margin-bottom: 0;
-    }
-
-    &.active {
-      background-color: $grey-4;
-      transition: 0.1s ease-in-out;
-
-      .card-heading a {
-        color: $link-colour;
-        margin-top: 0;
-
-        &:focus {
-          box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
-          color: $black;
-          outline: 3px solid transparent;
-        }
-      }
-    }
-
-    .detail-large {
-      color: $secondary-text-colour;
-      font-size: 32px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .detail {
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-  }
-
-  .card-action {
-    border-top: 0;
-    padding: 12px;
-
-    a {
-      border-bottom: 1px solid #c7dceb;
-      color: $link-colour;
-      display: inline;
-      line-height: 1.5em;
-
-      &:link,
-      &:visited {
-        color: $link-colour;
-      }
-
-      &:hover {
-        border-bottom: 1px solid $link-colour;
-        color: #2e8aca;
-        text-decoration: none;
-      }
-
-      &:focus {
-        box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
-        color: $black;
-        outline: 3px solid transparent;
-      }
-    }
-
-    ul {
-      margin: 0;
-
-      li {
-        margin: 0 0 1em;
-
-        &:last-child {
-          margin-bottom: 0;
-        }
-      }
-    }
-  }
-}
-
-
-  .card-body.active {
+.card-body.active {
     &:hover {
       background-color: $link-colour;
       color: $page-colour;
@@ -160,7 +140,7 @@ html[data-useragent*="MSIE 10.0"] .flex-container {
     a {
       text-decoration: none;
     }
-  }
+}
 
 .card-heading-news {
     color:#005ea5;
@@ -171,8 +151,4 @@ html[data-useragent*="MSIE 10.0"] .flex-container {
 .card-body-news {
    background-color: $grey-4;
    transition: 0.1s ease-in-out;
-}
-
-.sectionHeadingH2 {
-margin-top: 0.5em
 }

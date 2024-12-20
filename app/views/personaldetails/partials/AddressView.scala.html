@@ -18,7 +18,7 @@
 @(address: models.Address, countries: List[Country])
 
 @address.lines.map { line =>
-<span class="address-line">@upperCaseToTitleCase(line)</span>
+<div>@upperCaseToTitleCase(line)</div>
 }
-<span class="address-line">@address.postcode.map(_.toUpperCase)</span>
-<span class="address-line">@if(!countries.contains(Country(address.country.getOrElse("")))) {@address.country.getOrElse("")}</span>
+<div>@address.postcode.map(_.toUpperCase)</div>
+<div>@if(!countries.contains(Country(address.country.getOrElse("")))) {@address.country.getOrElse("")}</div>

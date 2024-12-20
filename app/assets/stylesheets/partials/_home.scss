@@ -1,54 +1,17 @@
-.page-header.home,
-.page-header.personal-details {
-  border-bottom: 0;
-  margin-bottom: 40px;
-
-  h1 {
-    font-weight: 600;
-  }
-
-  .page-info {
-    color: $grey-1;
-    font-size: 18px;
-  }
-}
-
 .pertax-home {
-  h2.section-header {
+
+  h2 {
     border-bottom: 1px solid $grey-2;
-    font-weight: 600;
-    margin: 40px 0 24px;
+  }
+
+  a, p {
+    font-size: 16px;
   }
 
   a {
-    display: inline-block;
-    font-size: 16px;
-    line-height: 20px;
-    text-decoration: none;
 
     &:hover {
       text-decoration: underline;
-    }
-  }
-
-  p {
-    color: $black;
-    font-size: 16px;
-  }
-}
-
-@include media(tablet) {
-  .page-header.home,
-  .page-header.personal-details {
-    .page-info {
-      font-size: 27px;
-      margin-bottom: 5px;
-    }
-  }
-
-  .pertax-home {
-    h2.section-header {
-      font-size: 30px;
     }
   }
 }
