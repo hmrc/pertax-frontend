@@ -32,7 +32,7 @@
 
 
         @for(newsAndContentModel <- newsAndContentModelList) {
-            <p class="govuk-body"><a class="ga-track-anchor-click govuk-link govuk-link--no-visited-state   " href="@configDecorator.displayNewsAndUpdatesUrl(newsAndContentModel.newsSectionName)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@newsAndContentModel.shortDescription">@newsAndContentModel.shortDescription</a></p>
+            <p class="govuk-body"><a class="ga-track-anchor-click govuk-link govuk-link--no-visited-state" href="@configDecorator.displayNewsAndUpdatesUrl(newsAndContentModel.newsSectionName)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@newsAndContentModel.shortDescription">@newsAndContentModel.shortDescription</a></p>
             }
     </div>
 
