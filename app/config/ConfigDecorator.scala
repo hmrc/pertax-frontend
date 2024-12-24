@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import config.BannerTcsServiceClosure.BannerTcsServiceClosure
 import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
-import play.api.i18n.Lang
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.{URL, URLEncoder}
@@ -129,13 +128,7 @@ class ConfigDecorator @Inject() (
 
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
 
-  private lazy val accessibilityBaseUrl: String = servicesConfig.getString("accessibility-statement.baseUrl")
-  lazy private val accessibilityRedirectUrl     =
-    servicesConfig.getString("accessibility-statement.redirectUrl")
-
-  private val enc: String => String                       = URLEncoder.encode(_: String, "UTF-8")
-  def accessibilityStatementUrl(referrer: String): String =
-    s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${enc(accessibilityBaseUrl + referrer)}"
+  private val enc: String => String = URLEncoder.encode(_: String, "UTF-8")
 
   lazy val notShownSaRecoverYourUserId =
     s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account-access?origin=${enc(defaultOrigin.toString)}"
@@ -156,10 +149,6 @@ class ConfigDecorator @Inject() (
 
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
   lazy val generalQueriesUrl     = "https://www.gov.uk/contact-hmrc"
-
-  def makingTaxDigitalForIncomeTaxUrl(lang: Lang): String =
-    if (lang.code equals "en") { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax" }
-    else { "https://www.gov.uk/guidance/using-making-tax-digital-for-income-tax.cy" }
 
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
