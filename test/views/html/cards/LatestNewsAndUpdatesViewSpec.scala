@@ -77,7 +77,7 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
           |    <h3 class="govuk-heading-s card-heading card-heading-news">
           |      Latest news and updates
           |    </h3>
-          |    <p class="govuk-body"><a class="ga-track-anchor-click govuk-link" href="/personal-account/news/nicSection" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="1.25 percentage points uplift in National Insurance contributions">1.25 percentage points uplift in National Insurance contributions</a></p>
+          |    <p class="govuk-body"><a class="ga-track-anchor-click govuk-link govuk-link--no-visited-state" href="/personal-account/news/nicSection" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="1.25 percentage points uplift in National Insurance contributions">1.25 percentage points uplift in National Insurance contributions</a></p>
           |  </div>
           |</div>
           |""".stripMargin.replaceAll("\\s", "")
