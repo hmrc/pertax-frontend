@@ -35,7 +35,6 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.EnrolmentsHelper
 
 import scala.concurrent.Future
@@ -50,8 +49,6 @@ class AuthRetrievalsSpec extends BaseSpec {
   val mockAuthConnector: AuthConnector                = mock[AuthConnector]
   lazy val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
   val enrolmentsHelper: EnrolmentsHelper              = app.injector.instanceOf[EnrolmentsHelper]
-  val sessionAuditor                                  =
-    new SessionAuditorFake(app.injector.instanceOf[AuditConnector], enrolmentsHelper)
 
   val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
   val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
