@@ -1,118 +1,18 @@
 $govuk-include-default-font-face: false;
 @import "modules/colors";
-@import "modules/conditionals";
 @import "card";
 @import "flexbox";
-@import "bta-partial";
-@import "partials/grid";
-@import "partials/panel";
 @import "partials/home";
-
-//Global
-.grid-row {
-  margin: 0 -15px;
-
-  &::after {
-    clear: both;
-    content: "";
-    display: block;
-  }
-}
-
-
-@media (max-width: 800px) {
-  span {
-    .nino {
-      display: block;
-    }
-  }
-}
-
-.form-group {
-  span {
-    display: block;
-  }
-}
 
 address {
   font-style: normal;
-}
-
-
-
-//Summary pages
-.summary-page {
-  width: 93%;
-}
-
-.service-info-p {
-  color: $grey-1;
-  font-family: nta, Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 300;
-  line-height: 1.25;
-  text-transform: none;
-}
-
-.alert-notification {
-  background-color: #fef1d5;
-  border-left: 4px solid $banner-text-colour;
 }
 
 .nino > span {
   margin-right: 5px;
 }
 
-.address-line {
-  display: block;
-}
-
-// Constrain the input (and drop-down) so they site with the other address inputs
-// important to do this on the wrapper rather than the input itself otherwise the down-arrow will be floating by itself
-@media (min-width: 40.0625em){
-  .autocomplete__wrapper {
-    width: 75%;
-  }
-}
-
-#utrNo {
-  span {
-    font-weight: 700;
-  }
-}
-
-
-.banner-panel a:focus,
-.banner-panel a:visited:focus {
-  color: #0b0c0c;
-}
-
-.banner-links {
-    color: #005ea5;
-}
-
 .yourProfileExtraLink {
     display: block;
     margin-top: 1em;
-}
-
-#news-card .card-body-news a {
-    border-bottom: 1px solid #c7dceb;
-    display: inline;
-    &:visited {
-       color: #005ea5;
-    }
-    &:focus {
-        outline: 3px solid transparent;
-        color: #0b0c0c;
-    }
-    &:hover {
-        border-bottom: 1px solid #005ea5;
-        color: #2e8aca;
-        text-decoration: none;
-    }
-}
-
-#newsHeading {
-margin-bottom: 1em;
 }
