@@ -25,12 +25,10 @@ object NameChangeHelper {
     } else {
       val newName = messages("label.mtd_for_sa")
       val oldName = messages.lang.language match {
-        case "cy" => newName + " WELSH FOR Self Assessment"
-        case _ => newName + " Self Assessment"
+        case "cy" => newName + " WELSH FOR Self Assessment" // TODO: Change to welsh content
+        case _    => newName + " Self Assessment"
       }
-      
-      println("\nOLD NAME = " + oldName)
-      
+
       content.replace(newName, oldName)
     }
 }
