@@ -108,7 +108,7 @@ class HomeCardGenerator @Inject() (
     request.saUserType match {
       case ActivatedOnlineFilerSelfAssessmentUser(_)       => Some(Tuple2(displaySACall, "label.viewAndManageSA"))
       case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-        Some(Tuple2(Call("GET", configDecorator.ssoToActivateSaEnrolmentPinUrl), "label.activate_your_self_assessment"))
+        Some(Tuple2(handleSACall, "label.activate_your_self_assessment"))
       case WrongCredentialsSelfAssessmentUser(_)           =>
         Some(Tuple2(handleSACall, "label.find_out_how_to_access_your_self_assessment"))
       case NotEnrolledSelfAssessmentUser(_)                => Some(Tuple2(redirectToEnrolCall, "label.request_access_to_your_sa"))

@@ -423,7 +423,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       cardBody mustBe Some(
         saMergeView(
           (current.currentYear + 1).toString,
-          stubConfigDecorator.ssoToActivateSaEnrolmentPinUrl,
+          routes.SelfAssessmentController.handleSelfAssessment.url,
           "label.activate_your_self_assessment"
         )
       )
