@@ -16,11 +16,15 @@
 
 @import tags._
 @import components.P
+@import config.ConfigDecorator
+@import util.NameChangeHelper
+
 @this(p: P)
-@(nextDeadlineTaxYear: String)(implicit messages: play.api.i18n.Messages)
+
+@(nextDeadlineTaxYear: String)(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
 
 @cardContent = {
-    @p(Text(messages("label.view_manage_your_mtd_itsa")))
+    @p(Text(NameChangeHelper.correctName(messages("label.view_manage_your_mtd_itsa"), configDecorator, messages )))
     @p(Text(messages("label.online_deadline_final_declarations", nextDeadlineTaxYear)))
 }
 
