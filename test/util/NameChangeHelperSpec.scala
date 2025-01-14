@@ -46,14 +46,24 @@ class NameChangeHelperSpec extends ViewSpec {
         messages
       ) mustBe "Bla Making Tax Digital for Income Tax Self Assessment Bla"
     }
-//    "make no change when feature switched on and language is Welsh" in {
-//      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
-//      NameChangeHelper.correctName(
-//        "Bla Making Tax Digital for Income Tax Bla",
-//        mockConfigDecorator,
-//        welshMessages
-//      ) mustBe "Bla Making Tax Digital for Income Tax Bla"
-//    }
+    "make no change when feature switched on and language is Welsh" in {
+      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
+      NameChangeHelper.correctName(
+        "Bla Troi Treth yn Ddigidol ar gyfer Treth Incwm Bla",
+        mockConfigDecorator,
+        welshMessages
+      ) mustBe "Bla Troi Treth yn Ddigidol ar gyfer Treth Incwm Bla"
+    }
+
+    "Add Welsh for Self Assessment to end of name when feature switched off and language is Welsh" in {
+      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
+
+      NameChangeHelper.correctName(
+        "Bla Troi Treth yn Ddigidol ar gyfer Treth Incwm Bla",
+        mockConfigDecorator,
+        welshMessages
+      ) mustBe "Bla Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm Bla"
+    }
   }
 
 }

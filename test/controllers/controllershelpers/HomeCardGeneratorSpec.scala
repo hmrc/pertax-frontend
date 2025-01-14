@@ -383,7 +383,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
     "return Itsa Card when the user has ITSA enrolments" in {
-
+      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -394,7 +394,23 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = createController().getSelfAssessmentCard()
 
-      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString))
+      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly, mockConfigDecorator))
+    }
+
+    "return Itsa Card with correct name when the user has ITSA enrolments when name change toggle set to false" in {
+      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+          enrolments =
+            Set(Enrolment("HMRC-MTD-IT", List(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
+          request = FakeRequest()
+        )
+
+      lazy val cardBody = createController().getSelfAssessmentCard()
+
+      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly, mockConfigDecorator))
+      cardBody.map(_.toString().contains("Making Tax Digital for Income Tax Self Assessment")) mustBe Some(true)
     }
 
     "return PTA Card with link to display self assessment when active user is an SA user but without ITSA enrolments" in {

@@ -25,10 +25,9 @@ object NameChangeHelper {
     } else {
       val newName = messages("label.mtd_for_sa")
       val oldName = messages.lang.language match {
-        case "cy" => newName + " WELSH FOR Self Assessment" // TODO: Change to welsh content
-        case _    => newName + " Self Assessment"
+        case "cy" => "Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm"
+        case _    => "Making Tax Digital for Income Tax Self Assessment"
       }
-
       content.replace(newName, oldName)
     }
 }

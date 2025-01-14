@@ -23,12 +23,12 @@ import views.html.cards.home.ItsaMergeView
 class ItsaMergeViewSpec extends ViewSpec {
 
   val saAndItsaMergeView: ItsaMergeView         = inject[ItsaMergeView]
-  implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
+  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator] // inject[ConfigDecorator]
 
   val nextDeadlineTaxYear = "2021"
 
-  "Sa and Itsa card for Itsa" must {
-
+  "Sa and Itsa card for Itsa with name change feature toggled on" must {
+    when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
     val doc =
       asDocument(
         saAndItsaMergeView(nextDeadlineTaxYear).toString
@@ -45,6 +45,32 @@ class ItsaMergeViewSpec extends ViewSpec {
 
       doc.text() must include(
         Messages("label.view_manage_your_mtd_itsa")
+      )
+
+      doc.text() must include(
+        Messages("label.online_deadline_final_declarations", nextDeadlineTaxYear)
+      )
+    }
+  }
+
+  "Sa and Itsa card for Itsa with name change feature toggled off" must {
+    when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
+    val doc =
+      asDocument(
+        saAndItsaMergeView(nextDeadlineTaxYear).toString
+      )
+
+    "render the given heading correctly" in {
+
+      doc.text() must include(
+        Messages("label.self_assessment")
+      )
+    }
+
+    "render the given content correctly" in {
+
+      doc.text() must include(
+        "View and manage your Making Tax Digital for Income Tax Self Assessment or access your Self Assessment tax returns."
       )
 
       doc.text() must include(
