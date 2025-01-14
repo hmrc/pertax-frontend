@@ -293,6 +293,9 @@ class ConfigDecorator @Inject() (
       case "dont-check" => BannerTcsServiceClosure.DontCheck
       case other        => throw new IllegalArgumentException(s"Invalid value for feature.bannerTcsServiceClosure§: $other")
     }
+
+  lazy val featureNameChangeMtdItSaToMtdIt: Boolean =
+    runModeConfiguration.get[Boolean]("feature.nameChangeMtdItSaToMtdIt")
 }
 
 object BannerTcsServiceClosure extends Enumeration {

@@ -468,15 +468,15 @@ label.the_increase_will_not_apply_if_you_are_over_the_state_pension_age=The incr
 #
 label.your_self_assessment=Your Self Assessment
 label.online_returns_deadline=The deadline for online returns is 31 January {0}.
-label.mtd_for_sa=Making Tax Digital for Income Tax Self Assessment
+label.mtd_for_sa=Making Tax Digital for Income Tax
 label.send_updates_hmrc_compatible_software=Send updates using HMRC compatible software.
-label.view_manage_your_mtd_for_sa=View and manage your Making Tax Digital for Income Tax Self Assessment
+label.view_manage_your_mtd_for_sa=View and manage your Making Tax Digital for Income Tax
 label.itsa_header=Income Tax Self Assessment
 label.view_manage_sa_return=More details about your Self Assessment returns and payments
 label.access_your_sa_returns=Access your Self Assessment tax returns
 label.old_way_sa_returns=The old way for filing your Self Assessment tax returns.
 label.self_assessment_tax_returns=Self Assessment tax returns
-label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax Self Assessment or access your Self Assessment tax returns.
+label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax or access your Self Assessment tax returns.
 label.online_deadline_final_declarations=The deadline for final declarations or online returns is 31 January {0}.
 label.making_tax_digital=Making Tax Digital
 

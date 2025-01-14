@@ -17,6 +17,7 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import components.{H1, H2, P, Link}
+@import util.NameChangeHelper
 
 @this(
     mainView: MainView,
@@ -33,9 +34,9 @@
     showBackLink = true
 ) {
     @h1("label.itsa_header")
-    @h2("label.mtd_for_sa")
+    @h2(NameChangeHelper.correctName(messages("label.mtd_for_sa"), configDecorator, messages))
     @p(Text(messages("label.send_updates_hmrc_compatible_software")))
-    @link(configDecorator.itsaViewUrl, "label.view_manage_your_mtd_for_sa")
+    @link(configDecorator.itsaViewUrl, NameChangeHelper.correctName(messages("label.view_manage_your_mtd_for_sa"), configDecorator, messages))
     @if(isSa) {
         @h2("label.self_assessment_tax_returns")
         @saActionNeeded match {
