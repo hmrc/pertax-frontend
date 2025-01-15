@@ -54,7 +54,7 @@ class PostalDoYouLiveInTheUKController @Inject() (
         cachingHelper.enforceDisplayAddressPageVisited(
           Ok(
             internationalAddressChoiceView(
-              InternationalAddressChoiceDto.form(Some("error.postal_address_uk_select")),
+              InternationalAddressChoiceDto.form("error.postal_address_uk_select"),
               PostalAddrType
             )
           )
@@ -66,7 +66,7 @@ class PostalDoYouLiveInTheUKController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         InternationalAddressChoiceDto
-          .form(Some("error.postal_address_uk_select"))
+          .form("error.postal_address_uk_select")
           .bindFromRequest()
           .fold(
             formWithErrors =>

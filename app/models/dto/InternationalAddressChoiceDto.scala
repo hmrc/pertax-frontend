@@ -16,10 +16,10 @@
 
 package models.dto
 
-import play.api.data.{FieldMapping, Form}
-import play.api.data.Forms.{of, _}
+import play.api.data.Form
+import play.api.data.Forms.of
 import play.api.libs.json.{JsString, Writes}
-import util.{Enumerable, Formatters}
+import util.{Enumerable, Formatters, WithName}
 
 sealed trait InternationalAddressChoiceDto
 
@@ -49,13 +49,12 @@ object InternationalAddressChoiceDto extends Enumerable.Implicits with Formatter
     case NorthernIreland => JsString(NorthernIreland.toString)
   }
 
-  def form(errorMessageKey: String = "error.international_address_select.required"): Form[InternationalAddressChoiceDto] =
+  def form(
+    errorMessageKey: String = "error.international_address_select.required"
+  ): Form[InternationalAddressChoiceDto] =
     Form(
-      "internationalAddressChoice" -> of(enumerableFormatter[InternationalAddressChoiceDto](errorMessageKey, errorMessageKey)
+      "internationalAddressChoice" -> of(
+        enumerableFormatter[InternationalAddressChoiceDto](errorMessageKey, errorMessageKey)
       )
     )
-}
-
-class WithName(string: String) {
-  override val toString: String = string
 }
