@@ -16,24 +16,46 @@
 
 package models.dto
 
-import play.api.data.Form
-import play.api.data.Forms._
-import play.api.libs.json.{Json, OFormat}
+import play.api.data.{FieldMapping, Form}
+import play.api.data.Forms.{of, _}
+import play.api.libs.json.{JsString, Writes}
+import util.{Enumerable, Formatters}
 
-case class InternationalAddressChoiceDto(value: String) extends Dto
+sealed trait InternationalAddressChoiceDto
 
-object InternationalAddressChoiceDto {
+object InternationalAddressChoiceDto extends Enumerable.Implicits with Formatters {
+  case object OutsideUK extends WithName("outsideUK") with InternationalAddressChoiceDto
+  case object England extends WithName("england") with InternationalAddressChoiceDto
+  case object Scotland extends WithName("scotland") with InternationalAddressChoiceDto
+  case object Wales extends WithName("wales") with InternationalAddressChoiceDto
+  case object NorthernIreland extends WithName("ni") with InternationalAddressChoiceDto
 
-  implicit val formats: OFormat[InternationalAddressChoiceDto] = Json.format[InternationalAddressChoiceDto]
+  def isUk(country: Option[InternationalAddressChoiceDto]) =
+    country match {
+      case Some(OutsideUK) => false
+      case _               => true
+    }
 
-  val ukOptions: List[String] = List("england", "ni", "scotland", "wales")
+  val values: Set[InternationalAddressChoiceDto] = Set(England, NorthernIreland, Scotland, Wales, OutsideUK)
 
-  def form(errorMessageKey: Option[String] = None): Form[InternationalAddressChoiceDto] =
+  implicit val enumerable: Enumerable[InternationalAddressChoiceDto] =
+    Enumerable(values.toSeq.map(v => v.toString -> v): _*)
+
+  implicit lazy val writes: Writes[InternationalAddressChoiceDto]    = Writes {
+    case OutsideUK       => JsString(OutsideUK.toString)
+    case England         => JsString(England.toString)
+    case Scotland        => JsString(Scotland.toString)
+    case Wales           => JsString(Wales.toString)
+    case NorthernIreland => JsString(NorthernIreland.toString)
+  }
+
+  def form(errorMessageKey: String = "error.international_address_select.required"): Form[InternationalAddressChoiceDto] =
     Form(
-      mapping(
-        "internationalAddressChoice" -> optional(text)
-          .verifying(errorMessageKey.getOrElse("error.international_address_select.required"), _.isDefined)
-          .transform[String](_.get, Some(_))
-      )(InternationalAddressChoiceDto.apply)(InternationalAddressChoiceDto.unapply)
+      "internationalAddressChoice" -> of(enumerableFormatter[InternationalAddressChoiceDto](errorMessageKey, errorMessageKey)
+      )
     )
+}
+
+class WithName(string: String) {
+  override val toString: String = string
 }

@@ -46,7 +46,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           UserAnswers
             .empty("id")
             .setOrException(SubmittedAddressPage(PostalAddrType), addressDto)
-            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto("england"))
+            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
         )
       )
 
@@ -91,7 +91,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .empty("id")
             .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDtoWithUpdatedPostcode)
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
-            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto("england"))
+            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
         )
       )
 
@@ -110,7 +110,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .empty("id")
             .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
-            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto("england"))
+            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
         )
       )
 
@@ -338,7 +338,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .setOrException(SelectedAddressRecordPage(ResidentialAddrType), fakeStreetPafAddressRecord)
             .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
-            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto("england"))
+            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
         )
       )
 
@@ -373,7 +373,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           UserAnswers
             .empty("id")
             .setOrException(SubmittedAddressPage(PostalAddrType), addressDto)
-            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto("england"))
+            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
         )
       )
 
@@ -392,7 +392,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .setOrException(SelectedAddressRecordPage(ResidentialAddrType), fakeStreetPafAddressRecordOutsideUk)
             .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
-            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto("outsideUK"))
+            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.OutsideUK)
         )
       )
 
@@ -412,7 +412,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .setOrException(SelectedAddressRecordPage(ResidentialAddrType), fakeStreetPafAddressRecordOutsideUk)
             .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
-            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto("england"))
+            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
         )
       )
 

@@ -74,7 +74,7 @@ class PostalDoYouLiveInTheUKController @Inject() (
             internationalAddressChoiceDto =>
               cachingHelper.addToCache(SubmittedInternationalAddressChoicePage, internationalAddressChoiceDto) map {
                 _ =>
-                  if (InternationalAddressChoiceDto.ukOptions.contains(internationalAddressChoiceDto.value)) {
+                  if (InternationalAddressChoiceDto.isUk(Some(internationalAddressChoiceDto))) {
                     Redirect(routes.PostcodeLookupController.onPageLoad(PostalAddrType))
                   } else {
                     if (configDecorator.updateInternationalAddressInPta) {

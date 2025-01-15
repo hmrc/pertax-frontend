@@ -24,6 +24,7 @@ import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
+import models.dto.InternationalAddressChoiceDto.isUk
 import models.dto.{AddressDto, InternationalAddressChoiceDto}
 import models.{AddressJourneyData, ETag}
 import play.api.Logging
@@ -71,8 +72,8 @@ class AddressSubmissionController @Inject() (
         cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
           (journeyData.submittedAddressDto, journeyData.submittedInternationalAddressChoiceDto) match {
             case (Some(address), Some(country)) =>
-              val isUkAddress              = InternationalAddressChoiceDto.ukOptions.contains(country.value)
-              val doYouLiveInTheUK: String = s"label.address_country.${country.value}"
+              val isUkAddress              = InternationalAddressChoiceDto.isUk(Some(country))
+              val doYouLiveInTheUK: String = s"label.address_country.${country.toString}"
 
               if (isUkAddress) {
                 val newPostcode: String = journeyData.submittedAddressDto.flatMap(_.postcode).getOrElse("")
@@ -157,7 +158,7 @@ class AddressSubmissionController @Inject() (
                                 addressType
                               )
                               val displayP85                      =
-                                journeyData.submittedInternationalAddressChoiceDto.exists(_.value.equals("outsideUK"))
+                                !isUk(journeyData.submittedInternationalAddressChoiceDto)
                               cachingHelper.clearCache()
 
                               Ok(
