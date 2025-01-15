@@ -87,6 +87,7 @@ label.address_country.wales=Cymru
 label.address_country.outsideUK=Y tu allan i’r DU
 label.where_is_main_address_country.change=ble yw’ch cyfeiriad newydd?
 label.where_is_postal_address_country = Ble yw’ch cyfeiriad post newydd?
+label.where_is_postal_address_country.change = ble yw’ch cyfeiriad post newydd?
 label.the_uk_is_england_=Y DU yw Cymru, Lloegr, Yr Alban a Gogledd Iwerddon.
 label.this_is_because_you_do_not_live_in_the_uk=Mae hyn am nad ydych yn byw yn y DU.
 label.if_you_do_live_in_the_uk_text_before_link=Os ydych yn byw yn y DU, gallwch

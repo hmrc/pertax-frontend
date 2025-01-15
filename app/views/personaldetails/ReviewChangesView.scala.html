@@ -44,7 +44,7 @@ displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], messages: 
                     @messages("label.where_is_postal_address_country")
                 </dt>
                 <dd class="govuk-summary-list__value">@messages(addressCountry)</dd>
-                <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="govuk-visually-hidden">@messages("label.is_your_postal_address_in_the_uk")</span></a></dd>
+                <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="govuk-visually-hidden">@messages("label.where_is_postal_address_country.change")</span></a></dd>
             }else{
                 <dt class="govuk-summary-list__key">
                     @messages("label.where_is_main_address_country")

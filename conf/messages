@@ -92,6 +92,7 @@ label.address_country.wales=Wales
 label.address_country.outsideUK=Outside of the UK
 label.where_is_main_address_country.change=where is your new address?
 label.where_is_postal_address_country=Where is your new postal address?
+label.where_is_postal_address_country.change=where is your new postal address?
 label.the_uk_is_england_=The UK is England, Northern Ireland, Scotland and Wales.
 label.this_is_because_you_do_not_live_in_the_uk=This is because you do not live in the UK.
 label.if_you_do_live_in_the_uk_text_before_link=If you do live in the UK, you can
