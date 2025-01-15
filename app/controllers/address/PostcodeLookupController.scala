@@ -24,11 +24,11 @@ import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.addresslookup.RecordSet
-import models.dto.{AddressFinderDto, InternationalAddressChoiceDto}
+import models.dto.AddressFinderDto
 import play.api.Logging
 import play.api.data.FormError
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import routePages.{AddressFinderPage, SelectedAddressRecordPage, SelectedRecordSetPage, SubmittedInternationalAddressChoicePage}
+import routePages.{AddressFinderPage, SelectedAddressRecordPage, SelectedRecordSetPage}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.{buildAddressChangeEvent, buildEvent}
@@ -63,7 +63,6 @@ class PostcodeLookupController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { _ =>
-          cachingHelper.addToCache(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto(true))
           typ match {
             case PostalAddrType =>
               auditConnector.sendEvent(

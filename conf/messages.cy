@@ -79,9 +79,14 @@ label.sign_in_details=Manylion mewngofnodi
 label.your_sign_in_details=Eich manylion mewngofnodi
 label.sign_in_details_content=Mewngofnodi i wasanaethau ar-lein CThEF
 label.your_gg_details=eich manylion ar gyfer mewngofnodi  i wasanaethau ar-lein CThEF
-label.is_your_main_address_in_the_uk=A yw’ch prif gyfeiriad yn y DU?
-label.is_your_main_address_in_the_uk.change=a yw’ch prif gyfeiriad yn y DU?
-label.is_your_postal_address_in_the_uk = A yw’ch cyfeiriad post yn y DU?
+label.where_is_main_address_country=Ble yw’ch cyfeiriad newydd?
+label.address_country.england=Lloegr
+label.address_country.ni=Gogledd Iwerddon
+label.address_country.scotland=Yr Alban
+label.address_country.wales=Cymru
+label.address_country.outsideUK=Y tu allan i’r DU
+label.where_is_main_address_country.change=ble yw’ch cyfeiriad newydd?
+label.where_is_postal_address_country = Ble yw’ch cyfeiriad post newydd?
 label.the_uk_is_england_=Y DU yw Cymru, Lloegr, Yr Alban a Gogledd Iwerddon.
 label.this_is_because_you_do_not_live_in_the_uk=Mae hyn am nad ydych yn byw yn y DU.
 label.if_you_do_live_in_the_uk_text_before_link=Os ydych yn byw yn y DU, gallwch
@@ -635,12 +640,12 @@ error.tax_credits_select = Dewiswch ‘Iawn’ os ydych yn cael credydau treth
 head.error.tax_credits_select = Dewiswch ‘Iawn’ os ydych yn cael credydau treth
 error.multiple_address_select = Dewiswch ‘Iawn’ os ydych yn byw mewn mwy nag un lle
 head.error.multiple_address_select = Dewiswch ‘Iawn’ os ydych yn byw mewn mwy nag un lle
-error.international_address_select.required = Dewiswch ‘Iawn’ os ydych yn byw yn y DU
-head.error.international_address_select.required = Dewiswch ‘Iawn’ os ydych yn byw yn y DU
+error.international_address_select.required = Dewiswch ble yw’ch cyfeiriad newydd
+head.error.international_address_select.required = Dewiswch ble yw’ch cyfeiriad newydd
 error.address_select = Dewiswch gyfeiriad
 head.error.address_select = Dewiswch gyfeiriad
-error.postal_address_uk_select = Dewiswch ‘Iawn’ os yw’ch cyfeiriad post yn y DU
-head.error.postal_address_uk_select = Dewiswch ‘Iawn’ os yw’ch cyfeiriad post yn y DU
+error.postal_address_uk_select = Dewiswch ble yw’ch cyfeiriad post newydd
+head.error.postal_address_uk_select = Dewiswch ble yw’ch cyfeiriad post newydd
 
 #*************************************************************
 # Form error date validation

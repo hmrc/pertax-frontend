@@ -20,17 +20,20 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.{Json, OFormat}
 
-case class InternationalAddressChoiceDto(value: Boolean) extends Dto
+case class InternationalAddressChoiceDto(value: String) extends Dto
 
 object InternationalAddressChoiceDto {
 
   implicit val formats: OFormat[InternationalAddressChoiceDto] = Json.format[InternationalAddressChoiceDto]
 
-  def form(errorMessageKey: Option[String] = None): Form[InternationalAddressChoiceDto] = Form(
-    mapping(
-      "internationalAddressChoice" -> optional(boolean)
-        .verifying(errorMessageKey.getOrElse("error.international_address_select.required"), _.isDefined)
-        .transform[Boolean](_.getOrElse(false), Some(_))
-    )(InternationalAddressChoiceDto.apply)(InternationalAddressChoiceDto.unapply)
-  )
+  val ukOptions: List[String] = List("england", "ni", "scotland", "wales")
+
+  def form(errorMessageKey: Option[String] = None): Form[InternationalAddressChoiceDto] =
+    Form(
+      mapping(
+        "internationalAddressChoice" -> optional(text)
+          .verifying(errorMessageKey.getOrElse("error.international_address_select.required"), _.isDefined)
+          .transform[String](_.get, Some(_))
+      )(InternationalAddressChoiceDto.apply)(InternationalAddressChoiceDto.unapply)
+    )
 }

@@ -84,17 +84,17 @@ class ContentsCheckSpec extends IntegrationSpec {
         )
       case "your-national-insurance-state-pension" =>
         ExpectedData("Your National Insurance and State Pension - Personal tax account - GOV.UK")
-      case "postal-address-uk"                     =>
+      case "where-new-postal-address"              =>
         ExpectedData(
-          "Is your postal address in the UK? - Personal tax account - GOV.UK"
+          "Where is your new postal address? - Personal tax account - GOV.UK"
         )
       case "change-address-tcs"                    =>
         ExpectedData(
           "Change of address - Personal tax account - GOV.UK"
         )
-      case "live-in-uk"                            =>
+      case "where-new-address"                     =>
         ExpectedData(
-          "Is your main address in the UK? - Personal tax account - GOV.UK"
+          "Where is your new address? - Personal tax account - GOV.UK"
         )
       case "profile-and-settings"                  =>
         ExpectedData(
@@ -111,9 +111,11 @@ class ContentsCheckSpec extends IntegrationSpec {
   val urls: Map[String, ExpectedData] = Map(
     "/personal-account"                                                      -> getExpectedData("/"),
     "/personal-account/profile-and-settings"                                 -> getExpectedData("profile-and-settings"),
-    "/personal-account/your-address/residential/do-you-live-in-the-uk"       -> getExpectedData("live-in-uk"),
+    "/personal-account/your-address/residential/where-is-your-new-address"   -> getExpectedData("where-new-address"),
     "/personal-account/your-address/change-address-tax-credits"              -> getExpectedData("change-address-tcs"),
-    "/personal-account/your-address/postal/is-your-postal-address-in-the-uk" -> getExpectedData("postal-address-uk"),
+    "/personal-account/your-address/postal/where-is-your-new-postal-address" -> getExpectedData(
+      "where-new-postal-address"
+    ),
     "/personal-account/your-national-insurance-state-pension"                -> getExpectedData(
       "your-national-insurance-state-pension"
     ),

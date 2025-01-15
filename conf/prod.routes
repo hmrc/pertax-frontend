@@ -37,10 +37,10 @@ GET         /personal-account/profile-and-settings                              
 GET         /personal-account/update-your-address                                      controllers.RlsController.rlsInterruptOnPageLoad
 GET         /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onPageLoad
 POST        /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onSubmit
-GET         /personal-account/your-address/residential/do-you-live-in-the-uk           controllers.address.DoYouLiveInTheUKController.onPageLoad
-POST        /personal-account/your-address/residential/do-you-live-in-the-uk           controllers.address.DoYouLiveInTheUKController.onSubmit
-GET         /personal-account/your-address/postal/is-your-postal-address-in-the-uk     controllers.address.PostalDoYouLiveInTheUKController.onPageLoad
-POST        /personal-account/your-address/postal/is-your-postal-address-in-the-uk     controllers.address.PostalDoYouLiveInTheUKController.onSubmit
+GET         /personal-account/your-address/residential/where-is-your-new-address       controllers.address.DoYouLiveInTheUKController.onPageLoad
+POST        /personal-account/your-address/residential/where-is-your-new-address       controllers.address.DoYouLiveInTheUKController.onSubmit
+GET         /personal-account/your-address/postal/where-is-your-new-postal-address     controllers.address.PostalDoYouLiveInTheUKController.onPageLoad
+POST        /personal-account/your-address/postal/where-is-your-new-postal-address     controllers.address.PostalDoYouLiveInTheUKController.onSubmit
 
 GET         /personal-account/your-address/change-address-tax-credits                  controllers.InterstitialController.displayTaxCreditsInterstitial
 

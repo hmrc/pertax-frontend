@@ -21,7 +21,7 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.dto.DateDto
+import models.dto.{DateDto, InternationalAddressChoiceDto}
 import models.Address
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -90,7 +90,8 @@ class StartDateController @Inject() (
               dateDto =>
                 cachingHelper.gettingCachedJourneyData(typ) { cache =>
                   val proposedStartDate = dateDto.startDate
-                  val p85Enabled        = cache.submittedInternationalAddressChoiceDto.exists(!_.value)
+                  val p85Enabled        = cache.submittedInternationalAddressChoiceDto
+                    .equals(Some(InternationalAddressChoiceDto("outsideUK")))
 
                   personDetails.address match {
                     case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>

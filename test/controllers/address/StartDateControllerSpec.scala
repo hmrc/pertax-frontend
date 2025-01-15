@@ -182,7 +182,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-        .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto(false))
+        .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto("outsideUK"))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
@@ -213,7 +213,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-        .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto(false))
+        .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto("outsideUK"))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
@@ -248,7 +248,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-        .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto(true))
+        .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto("england"))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 

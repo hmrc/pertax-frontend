@@ -54,11 +54,11 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
 
   "onSubmit" must {
 
-    "redirect to postcode lookup page when supplied with value = Yes (true)" in {
+    "redirect to postcode lookup page when supplied with value of a UK country" in {
 
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("internationalAddressChoice" -> "true")
+          .withFormUrlEncodedBody("internationalAddressChoice" -> "england")
           .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(currentRequest)
@@ -67,11 +67,11 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/find-address")
     }
 
-    "redirect to enter international address page when supplied with value = No (false)" in {
+    "redirect to enter international address page when supplied with value outsideUK" in {
 
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
+          .withFormUrlEncodedBody("internationalAddressChoice" -> "outsideUK")
           .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(currentRequest)
@@ -87,7 +87,7 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
 
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
+          .withFormUrlEncodedBody("internationalAddressChoice" -> "outsideUK")
           .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(currentRequest)

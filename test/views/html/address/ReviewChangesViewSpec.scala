@@ -47,8 +47,8 @@ class ReviewChangesViewSpec extends ViewSpec {
   "rendering ReviewChangesView" must {
     "when postal address has been changed display 'is your address in the uk'" in {
 
-      assertContainsText(result(PostalAddrType), messages("label.is_your_postal_address_in_the_uk"))
-      assertNotContainText(result(PostalAddrType), messages("label.is_your_main_address_in_the_uk"))
+      assertContainsText(result(PostalAddrType), messages("label.where_is_postal_address_country"))
+      assertNotContainText(result(PostalAddrType), messages("label.where_is_main_address_country"))
     }
 
     "when postal address has been changed display link to PostalInternationalAddressChoiceController" in {
@@ -68,8 +68,8 @@ class ReviewChangesViewSpec extends ViewSpec {
 
     "when residential address has been changed display 'do you live in the uk'" in {
 
-      assertContainsText(result(ResidentialAddrType), messages("label.is_your_main_address_in_the_uk"))
-      assertNotContainText(result(ResidentialAddrType), messages("label.is_your_postal_address_in_the_uk"))
+      assertContainsText(result(ResidentialAddrType), messages("label.where_is_main_address_country"))
+      assertNotContainText(result(ResidentialAddrType), messages("label.where_is_postal_address_country"))
 
     }
 

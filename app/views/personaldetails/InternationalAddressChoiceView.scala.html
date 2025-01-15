@@ -17,22 +17,39 @@
 @import tags._
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
-@import components.{ErrorSummary, InputYesNo, Button}
+@import components.{ErrorSummary, InputRadios, Button}
+@import controllers.bindable.AddrType
 
 @this(
     main: MainView,
     form: FormWithCSRF,
     errorSummary: ErrorSummary,
-    inputYesNo: InputYesNo,
+    inputRadios: InputRadios,
     button: Button
 )
 
 @(internationalAddressChoiceForm: Form[dto.InternationalAddressChoiceDto],
+addrType: AddrType
 )(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
-@title = {
-    @if(internationalAddressChoiceForm.hasErrors){@messages("error.message.error") }@messages("label.is_your_main_address_in_the_uk")
+@headingKey = @{
+    addrType match {
+        case ResidentialAddrType => "label.where_is_main_address_country"
+        case PostalAddrType      => "label.where_is_postal_address_country"
+    }
 }
+
+@title = {
+    @if(internationalAddressChoiceForm.hasErrors){@messages("error.message.error") }@messages(headingKey)
+}
+
+@formAction = @{
+    addrType match {
+        case ResidentialAddrType => controllers.address.routes.DoYouLiveInTheUKController.onSubmit
+        case PostalAddrType      => controllers.address.routes.PostalDoYouLiveInTheUKController.onSubmit
+    }
+}
+
 
 @main(
     pageTitle = title.toString,
@@ -40,14 +57,46 @@
     yourProfileActive = true
 ) {
 
-    @errorSummary(internationalAddressChoiceForm, Some("internationalAddressChoice-yes"))
+    @errorSummary(internationalAddressChoiceForm, Some("england"))
 
-    @form(action = controllers.address.routes.DoYouLiveInTheUKController.onSubmit) {
-        @inputYesNo(
+    @form(action = formAction) {
+        @inputRadios(
             form = internationalAddressChoiceForm,
-            legend = "label.is_your_main_address_in_the_uk",
+            legend = headingKey,
             name = "internationalAddressChoice",
-            hint = Some(Text(messages("label.the_uk_is_england_")))
+            hint = Some(Text(messages("label.the_uk_is_england_"))),
+            items = Seq(
+                RadioItem(
+                    content = Text(messages("label.address_country.england")),
+                    id = Some("england"),
+                    value = Some("england"),
+                    checked = internationalAddressChoiceForm("internationalAddressChoice").value.contains("england")
+                ),
+                RadioItem(
+                    content = Text(messages("label.address_country.ni")),
+                    id = Some("ni"),
+                    value = Some("ni"),
+                    checked = internationalAddressChoiceForm("internationalAddressChoice").value.contains("ni")
+                ),
+                RadioItem(
+                    content = Text(messages("label.address_country.scotland")),
+                    id = Some("scotland"),
+                    value = Some("scotland"),
+                    checked = internationalAddressChoiceForm("internationalAddressChoice").value.contains("scotland")
+                ),
+                RadioItem(
+                    content = Text(messages("label.address_country.wales")),
+                    id = Some("wales"),
+                    value = Some("wales"),
+                    checked = internationalAddressChoiceForm("internationalAddressChoice").value.contains("wales")
+                ),
+                RadioItem(
+                    content = Text(messages("label.address_country.outsideUK")),
+                    id = Some("outsideUK"),
+                    value = Some("outsideUK"),
+                    checked = internationalAddressChoiceForm("internationalAddressChoice").value.contains("outsideUK")
+                )
+            )
         )
 
         @button("global.label.continue_button")
