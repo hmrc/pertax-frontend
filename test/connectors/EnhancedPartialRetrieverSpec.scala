@@ -38,10 +38,9 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
   server.start()
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
-      "microservice.services.contact-frontend.port" -> server.port(),
-      "metrics.enabled"                             -> false,
-      "auditing.enabled"                            -> false,
-      "auditing.traceRequests"                      -> false
+      "metrics.enabled"        -> false,
+      "auditing.enabled"       -> false,
+      "auditing.traceRequests" -> false
     )
     .build()
 
