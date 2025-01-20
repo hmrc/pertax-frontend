@@ -639,8 +639,8 @@ error.international_address_select.required = Select where your new address is
 head.error.international_address_select.required = Select where your new address is
 error.address_select = Select an address
 head.error.address_select = Select an address
-error.postal_address_uk_select = Select yes if your postal address is in the UK
-head.error.postal_address_uk_select = Select yes if your postal address is in the UK
+error.postal_address_uk_select = Select where your new postal address is
+head.error.postal_address_uk_select = Select where your new postal address is
 
 #*************************************************************
 # Form error date validation
