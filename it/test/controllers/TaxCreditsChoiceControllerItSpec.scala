@@ -48,8 +48,6 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
       "microservice.services.citizen-details.port"             -> server.port(),
       "microservice.services.tcs-broker.port"                  -> server.port(),
       "microservice.services.tcs-broker.timeoutInMilliseconds" -> 1,
-      "microservice.services.cachable.session-cache.port"      -> server.port(),
-      "microservice.services.cachable.session-cache.host"      -> "127.0.0.1",
       "cookie.encryption.key"                                  -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "sso.encryption.key"                                     -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "queryParameter.encryption.key"                          -> "gvBoGdgzqG1AarzF1LY0zQ==",

@@ -247,7 +247,6 @@ trait IntegrationSpec
         "microservice.services.pertax.port"                     -> server.port(),
         "microservice.services.message-frontend.port"           -> server.port(),
         "microservice.services.agent-client-authorisation.port" -> server.port(),
-        "microservice.services.cachable.session-cache.port"     -> server.port(),
         "microservice.services.breathing-space-if-proxy.port"   -> server.port(),
         "microservice.services.taxcalc-frontend.port"           -> server.port()
       )

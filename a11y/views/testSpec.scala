@@ -221,9 +221,7 @@ class testSpec extends A11ySpec {
       "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 4000,
       "microservice.services.taxcalc-frontend.port"                          -> server.port(),
       "microservice.services.tai.port"                                       -> server.port(),
-      "sca-wrapper.services.single-customer-account-wrapper-data.url"        -> s"http://localhost:${server.port()}",
-      "microservice.services.cachable.session-cache.port"                    -> server.port(),
-      "microservice.services.cachable.session-cache.host"                    -> "127.0.0.1"
+      "sca-wrapper.services.single-customer-account-wrapper-data.url"        -> s"http://localhost:${server.port()}"
     )
     .build()
 
