@@ -27,7 +27,7 @@
     button: Button
 )
 
-@(typ: AddrType, addressDto: AddressDto, doYouLiveInTheUK: String, isUkAddress: Boolean,  startDateDto: Option[DateDto],
+@(typ: AddrType, addressDto: AddressDto, addressCountry: String, isUkAddress: Boolean,  startDateDto: Option[DateDto],
 displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
@@ -41,16 +41,16 @@ displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], messages: 
             <div class="govuk-summary-list__row">
             @if(typ==PostalAddrType){
                 <dt class="govuk-summary-list__key">
-                    @messages("label.is_your_postal_address_in_the_uk")
+                    @messages("label.where_is_postal_address_country")
                 </dt>
-                <dd class="govuk-summary-list__value">@messages(doYouLiveInTheUK)</dd>
-                <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="govuk-visually-hidden">@messages("label.is_your_postal_address_in_the_uk")</span></a></dd>
+                <dd class="govuk-summary-list__value">@messages(addressCountry)</dd>
+                <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="govuk-visually-hidden">@messages("label.where_is_postal_address_country.change")</span></a></dd>
             }else{
                 <dt class="govuk-summary-list__key">
-                    @messages("label.is_your_main_address_in_the_uk")
+                    @messages("label.where_is_main_address_country")
                 </dt>
-                <dd class="govuk-summary-list__value">@messages(doYouLiveInTheUK)</dd>
-                <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="govuk-visually-hidden"> @messages("label.is_your_main_address_in_the_uk.change")</span></a></dd>
+                <dd class="govuk-summary-list__value">@messages(addressCountry)</dd>
+                <dd class="govuk-summary-list__actions"><a href="@controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="govuk-visually-hidden"> @messages("label.where_is_main_address_country.change")</span></a></dd>
             }
         </div>
         <div class="govuk-summary-list__row">

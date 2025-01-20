@@ -27,7 +27,7 @@ import routePages.SubmittedInternationalAddressChoicePage
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.PostalInternationalAddressChoiceView
+import views.html.personaldetails.InternationalAddressChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,7 +35,7 @@ class PostalDoYouLiveInTheUKController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
-  postalInternationalAddressChoiceView: PostalInternationalAddressChoiceView,
+  internationalAddressChoiceView: InternationalAddressChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   featureFlagService: FeatureFlagService,
   internalServerErrorView: InternalServerErrorView
@@ -53,8 +53,9 @@ class PostalDoYouLiveInTheUKController @Inject() (
       addressJourneyEnforcer { _ => _ =>
         cachingHelper.enforceDisplayAddressPageVisited(
           Ok(
-            postalInternationalAddressChoiceView(
-              InternationalAddressChoiceDto.form(Some("error.postal_address_uk_select"))
+            internationalAddressChoiceView(
+              InternationalAddressChoiceDto.form("error.postal_address_uk_select"),
+              PostalAddrType
             )
           )
         )
@@ -65,14 +66,15 @@ class PostalDoYouLiveInTheUKController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         InternationalAddressChoiceDto
-          .form(Some("error.postal_address_uk_select"))
+          .form("error.postal_address_uk_select")
           .bindFromRequest()
           .fold(
-            formWithErrors => Future.successful(BadRequest(postalInternationalAddressChoiceView(formWithErrors))),
+            formWithErrors =>
+              Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors, PostalAddrType))),
             internationalAddressChoiceDto =>
               cachingHelper.addToCache(SubmittedInternationalAddressChoicePage, internationalAddressChoiceDto) map {
                 _ =>
-                  if (internationalAddressChoiceDto.value) {
+                  if (InternationalAddressChoiceDto.isUk(Some(internationalAddressChoiceDto))) {
                     Redirect(routes.PostcodeLookupController.onPageLoad(PostalAddrType))
                   } else {
                     if (configDecorator.updateInternationalAddressInPta) {

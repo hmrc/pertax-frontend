@@ -24,7 +24,8 @@ import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
-import models.dto.AddressDto
+import models.dto.InternationalAddressChoiceDto.isUk
+import models.dto.{AddressDto, InternationalAddressChoiceDto}
 import models.{AddressJourneyData, ETag}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -69,57 +70,48 @@ class AddressSubmissionController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-          val isUkAddress: Boolean     = journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
-          val doYouLiveInTheUK: String =
-            if (journeyData.submittedInternationalAddressChoiceDto.forall(_.value)) {
-              "label.yes"
-            } else {
-              "label.no"
-            }
+          (journeyData.submittedAddressDto, journeyData.submittedInternationalAddressChoiceDto) match {
+            case (Some(address), Some(country)) =>
+              val isUkAddress              = InternationalAddressChoiceDto.isUk(Some(country))
+              val doYouLiveInTheUK: String = s"label.address_country.${country.toString}"
 
-          if (isUkAddress) {
-            val newPostcode: String = journeyData.submittedAddressDto.flatMap(_.postcode).getOrElse("")
-            val oldPostcode: String = personDetails.address.flatMap(add => add.postcode).getOrElse("")
+              if (isUkAddress) {
+                val newPostcode: String = journeyData.submittedAddressDto.flatMap(_.postcode).getOrElse("")
+                val oldPostcode: String = personDetails.address.flatMap(add => add.postcode).getOrElse("")
 
-            val showAddressChangedDate: Boolean =
-              !newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))
-            ensuringSubmissionRequirements(typ, journeyData) {
-              journeyData.submittedAddressDto.fold(
-                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
-              ) { addressDto =>
-                Future.successful(
-                  Ok(
-                    reviewChangesView(
-                      typ,
-                      addressDto,
-                      doYouLiveInTheUK,
-                      isUkAddress,
-                      journeyData.submittedStartDateDto,
-                      showAddressChangedDate
+                val showAddressChangedDate: Boolean =
+                  !newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))
+                ensuringSubmissionRequirements(typ, journeyData) {
+                  Future.successful(
+                    Ok(
+                      reviewChangesView(
+                        typ,
+                        address,
+                        doYouLiveInTheUK,
+                        isUkAddress,
+                        journeyData.submittedStartDateDto,
+                        showAddressChangedDate
+                      )
                     )
                   )
-                )
-              }
-            }
-          } else {
-            ensuringSubmissionRequirements(typ, journeyData) {
-              journeyData.submittedAddressDto.fold(
-                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
-              ) { addressDto =>
-                Future.successful(
-                  Ok(
-                    reviewChangesView(
-                      typ,
-                      addressDto,
-                      doYouLiveInTheUK,
-                      isUkAddress,
-                      journeyData.submittedStartDateDto,
-                      displayDateAddressChanged = true
+                }
+              } else {
+                ensuringSubmissionRequirements(typ, journeyData) {
+                  Future.successful(
+                    Ok(
+                      reviewChangesView(
+                        typ,
+                        address,
+                        doYouLiveInTheUK,
+                        isUkAddress,
+                        journeyData.submittedStartDateDto,
+                        displayDateAddressChanged = true
+                      )
                     )
                   )
-                )
+                }
               }
-            }
+            case _                              => Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
           }
         }
       }
@@ -165,7 +157,8 @@ class AddressSubmissionController @Inject() (
                                 version,
                                 addressType
                               )
-                              val displayP85                      = journeyData.submittedInternationalAddressChoiceDto.exists(!_.value)
+                              val displayP85                      =
+                                !isUk(journeyData.submittedInternationalAddressChoiceDto)
                               cachingHelper.clearCache()
 
                               Ok(

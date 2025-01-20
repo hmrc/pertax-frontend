@@ -56,11 +56,11 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
   }
 
   "onSubmit" must {
-    "redirect to postcode lookup page when supplied with value = Yes (true)" in {
+    "redirect to postcode lookup page when supplied with value of a UK country" in {
 
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("internationalAddressChoice" -> "true")
+          .withFormUrlEncodedBody("internationalAddressChoice" -> "england")
           .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(currentRequest)
@@ -69,10 +69,30 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/find-address")
     }
 
+    "redirect to enter international address page when service configured to allows updating International Addresses" in {
+      def currentRequest[A]: Request[A]    =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("internationalAddressChoice" -> "outsideUK")
+          .asInstanceOf[Request[A]]
+      def userAnswersToReturn: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
+
+      lazy val controller: DoYouLiveInTheUKController = appn(extraConfigValues =
+        Map("feature.update-international-address-form.enabled" -> true)
+      ).injector.instanceOf[DoYouLiveInTheUKController]
+
+      val result: Future[Result] = controller.onSubmit(currentRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/enter-international-address")
+    }
+
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in {
       def currentRequest[A]: Request[A]    =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
+          .withFormUrlEncodedBody("internationalAddressChoice" -> "outsideUK")
           .asInstanceOf[Request[A]]
       def userAnswersToReturn: UserAnswers = UserAnswers
         .empty("id")
