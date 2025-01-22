@@ -79,6 +79,7 @@ class AlertBannerHelper @Inject() (
   ): Future[Option[Html]] =
     configDecorator.featureBannerTcsServiceClosure match {
       case BannerTcsServiceClosure.Enabled =>
+        println("\nCCC:" + configDecorator.tcsFrontendEndDateTime)
         Future.successful(
           Some(
             taxCreditsEndBannerView(

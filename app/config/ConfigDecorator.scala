@@ -24,7 +24,7 @@ import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.{URL, URLEncoder}
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 
 @Singleton
 class ConfigDecorator @Inject() (
@@ -85,6 +85,10 @@ class ConfigDecorator @Inject() (
   lazy val pertaxFrontendForAuthHost: String                 = getExternalUrl(s"pertax-frontend.auth-host").getOrElse("")
   private lazy val feedbackSurveyFrontendHost: String        = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
   private lazy val tcsFrontendHost: String                   = getExternalUrl(s"tcs-frontend.host").getOrElse("")
+  lazy val tcsFrontendEndDateTime: LocalDateTime = {
+    val s = runModeConfiguration.get[String](s"external-url.tcs-frontend.endDateTime")
+    LocalDateTime.parse(s)
+  }
   private lazy val nispFrontendHost: String                  = getExternalUrl(s"nisp-frontend.host").getOrElse("")
   private lazy val dfsFrontendHost: String                   = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
   private lazy val fandfFrontendHost: String                 = getExternalUrl(s"fandf-frontend.host").getOrElse("")
