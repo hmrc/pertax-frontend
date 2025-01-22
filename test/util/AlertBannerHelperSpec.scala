@@ -110,7 +110,9 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
 
       result mustBe List(
         taxCreditsEndBannerView(
-          routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
+          findOutTaxCreditsLink =
+            routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url,
+          isTCSDecommissioned = false
         )
       )
     }
@@ -137,7 +139,9 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
 
       result mustBe List(
         taxCreditsEndBannerView(
-          routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
+          findOutTaxCreditsLink =
+            routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url,
+          isTCSDecommissioned = true
         )
       )
     }
