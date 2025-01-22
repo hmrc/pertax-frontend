@@ -52,7 +52,12 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       .thenReturn(Future.successful(FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = true)))
   }
 
-  override lazy val app: Application = localGuiceApplicationBuilder()
+  private val extraConfigValues: Map[String, Any] = Map(
+    "external-url.tcs-frontend.endDateTime" -> LocalDateTime.now.plusMinutes(1).toString,
+    "feature.bannerTcsServiceClosure"       -> "dont-check"
+  )
+
+  override lazy val app: Application = localGuiceApplicationBuilder(extraConfigValues)
     .overrides(
       bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
     )
@@ -111,8 +116,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       result mustBe List(
         taxCreditsEndBannerView(
           findOutTaxCreditsLink =
-            routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url,
-          isTCSDecommissioned = false
+            routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
         )
       )
     }
@@ -137,13 +141,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
 
       val result = alertBannerHelper.getContent.futureValue
 
-      result mustBe List(
-        taxCreditsEndBannerView(
-          findOutTaxCreditsLink =
-            routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url,
-          isTCSDecommissioned = true
-        )
-      )
+      result mustBe List()
     }
   }
 

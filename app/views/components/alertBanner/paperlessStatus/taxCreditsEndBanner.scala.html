@@ -15,9 +15,8 @@
  *@
 
 @this()
-@(findOutTaxCreditsLink: String, isTCSDecommissioned: Boolean)(implicit messages: Messages)
+@(findOutTaxCreditsLink: String)(implicit messages: Messages)
 <p class="govuk-notification-banner__heading">
-    @println("\nHERE:"+isTCSDecommissioned)
     @messages("taxCredits.endAlert.prefix")
     <a href="@findOutTaxCreditsLink" class="govuk-notification-banner__link">
        @messages("taxCredits.endAlert.linkText")

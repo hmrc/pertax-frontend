@@ -80,18 +80,17 @@ class AlertBannerHelper @Inject() (
   ): Future[Option[Html]] =
     configDecorator.featureBannerTcsServiceClosure match {
       case BannerTcsServiceClosure.Enabled =>
-        println("\nconfigDecorator.tcsFrontendEndDateTime:" + configDecorator.tcsFrontendEndDateTime)
-
-        val isTCSDecommissioned: Boolean = LocalDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) > 0
-
-        Future.successful(
-          Some(
-            taxCreditsEndBannerView(
-              routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url,
-              isTCSDecommissioned
+        if (LocalDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0) {
+          Future.successful(
+            Some(
+              taxCreditsEndBannerView(
+                routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
+              )
             )
           )
-        )
+        } else {
+          Future.successful(None)
+        }
       case _                               =>
         Future.successful(None)
     }
