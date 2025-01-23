@@ -51,7 +51,6 @@ class TaxCreditsEndedInformationInterstitialViewSpec extends ViewSpec {
       doc.text() must include(Messages("tax_credits.ended.information.h2"))
     }
 
-
     "include the correct links" in {
       val doc                 = asDocument(taxCreditsEndedInformationInterstitialView().toString)
       val universalCreditLink = doc.select("a[href='https://www.gov.uk/universal-credit']")
