@@ -767,6 +767,7 @@ selfAssessment.needToSendReturn.prefix = If you need to send a tax return, you w
 selfAssessment.needToSendReturn.linkText = register for Self Assessment
 taxCredits.endAlert.prefix = Tax credits end on 5 April 2025.
 taxCredits.endAlert.linkText = Find out what to do if you claim tax credits.
+
 tax_credits.transition.information.title = What to do if you claim tax credits
 tax_credits.transition.information.end_date = All tax credits end on 5 April 2025.
 tax_credits.transition.information.letter_info = You will be sent a letter by the Department of Work and Pensions (DWP) telling you if you can claim Universal Credit or Pension Credit instead.
@@ -782,3 +783,17 @@ tax_credits.transition.information.support.universal_credit = visit Universal Cr
 tax_credits.transition.information.support.pension_credit = visit Pension Credit
 tax_credits.transition.information.support.contact = call the telephone number in your letter
 button.continueToTaxCredits = Continue to tax credits
+
+tax_credits.ended.information.title = Tax credits ended 5 April 2025
+tax_credits.ended.information.p1 = Universal Credit and Pensions Credit have replaced tax credits.
+tax_credits.ended.information.p2 = To find out how to apply visit:
+tax_credits.ended.information.how.apply.li1 = visit Universal Credit
+tax_credits.ended.information.how.apply.li2 = visit Pension Credit
+tax_credits.ended.information.h2 = Tax credit
+tax_credits.ended.information.p3 = If you received tax credits before 5 April 2025 you may still need to contact us about:
+tax_credits.ended.information.how.continue.li1 = overpayments
+tax_credits.ended.information.how.continue.li2 = if you think a decision is wrong
+tax_credits.ended.information.how.continue.li3 = responding to a check
+tax_credits.ended.information.how.continue.li4 = if the recovery of your tax credits overpayment is causing you significant financial difficulty
+
+

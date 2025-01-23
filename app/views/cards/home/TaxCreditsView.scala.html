@@ -27,8 +27,7 @@
         case BannerTcsServiceClosure.Enabled if LocalDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 => 
             routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
         case BannerTcsServiceClosure.Enabled =>
-            // TODO: Add new interstitial controller view here for after date 
-            routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
+            routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView.url
         case BannerTcsServiceClosure.DontCheck => "/tax-credits-service/renewals/service-router"
         case _ =>
             "/not-yet-implemented"
