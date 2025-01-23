@@ -504,7 +504,9 @@ label.you_can_still_make_payments_towards_your_debt_during_breathing_space=You c
 #
 title.benefits=Benefits
 label.tax_credits=Tax credits
+label.tax_credits_ended=Tax credits ended 5 April 2025
 label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=View your next payments and the people on your claim, and make changes to your claim.
+label.tax_credits_ended_content = Universal Credits and Pension Credit have replaced tax credits
 label.view_your_tax_credits_payments=View your tax credits payments
 title.marriage_allowance=Marriage Allowance
 label.transfer_part_of_your_personal_allowance_to_your_partner_=Transfer part of your Personal Allowance to your partner so they pay less tax.

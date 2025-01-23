@@ -17,28 +17,44 @@
 @import config.{BannerTcsServiceClosure, ConfigDecorator}
 @import controllers.routes
 @import tags._
+@import java.time.LocalDateTime
 
 @this()
 @()(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
 
 @cardUrl = @{
     configDecorator.featureBannerTcsServiceClosure match {
-        case BannerTcsServiceClosure.Enabled =>
+        case BannerTcsServiceClosure.Enabled if LocalDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 => 
             routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
-        case BannerTcsServiceClosure.DontCheck =>
-            "/tax-credits-service/renewals/service-router"
+        case BannerTcsServiceClosure.Enabled =>
+            // TODO: Add new interstitial controller view here for after date 
+            routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
+        case BannerTcsServiceClosure.DontCheck => "/tax-credits-service/renewals/service-router"
         case _ =>
             "/not-yet-implemented"
     }
 }
 
-@card(
-    id = Some("tax-credits-card"),
-    url = Some(cardUrl),
-    gaAction = Some("Benefits"),
-    gaLabel = Some("Tax credits"),
-    heading = messages("label.tax_credits"),
-    headingTag = "h3",
-    bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim") + "</p>"))
-) {
+@{
+    if(LocalDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0){
+       card(
+            id = Some("tax-credits-card"),
+            url = Some(cardUrl),
+            gaAction = Some("Benefits"),
+            gaLabel = Some("Tax credits"),
+            heading = messages("label.tax_credits"),
+            headingTag = "h3",
+            bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim") + "</p>"))
+        )(Html(""))
+    } else {
+       card(
+            id = Some("tax-credits-card"),
+            url = Some(cardUrl),
+            gaAction = Some("Benefits"),
+            gaLabel = Some("Tax credits"),
+            heading = messages("label.tax_credits_ended"),
+            headingTag = "h3",
+            bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.tax_credits_ended_content") + "</p>"))
+        )(Html(""))
+    }
 }
