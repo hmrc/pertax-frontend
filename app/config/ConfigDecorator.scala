@@ -85,10 +85,8 @@ class ConfigDecorator @Inject() (
   lazy val pertaxFrontendForAuthHost: String                 = getExternalUrl(s"pertax-frontend.auth-host").getOrElse("")
   private lazy val feedbackSurveyFrontendHost: String        = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
   private lazy val tcsFrontendHost: String                   = getExternalUrl(s"tcs-frontend.host").getOrElse("")
-  lazy val tcsFrontendEndDateTime: LocalDateTime = {
-    val s = runModeConfiguration.get[String](s"external-url.tcs-frontend.endDateTime")
-    LocalDateTime.parse(s)
-  }
+  lazy val tcsFrontendEndDateTime: LocalDateTime             =
+    LocalDateTime.parse(runModeConfiguration.get[String](s"external-url.tcs-frontend.endDateTime"))
   private lazy val nispFrontendHost: String                  = getExternalUrl(s"nisp-frontend.host").getOrElse("")
   private lazy val dfsFrontendHost: String                   = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
   private lazy val fandfFrontendHost: String                 = getExternalUrl(s"fandf-frontend.host").getOrElse("")

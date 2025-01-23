@@ -93,7 +93,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       result mustBe List(unverifiedEmailView(link))
     }
 
-    "return tcs status banner when switched on before TCS switch off date/time" in {
+    "return tcs status banner when switched on BEFORE TCS switch off date/time" in {
       val extraConfigValues: Map[String, Any]  = Map(
         "external-url.tcs-frontend.endDateTime" -> LocalDateTime.now.plusMinutes(1).toString,
         "feature.bannerTcsServiceClosure"       -> "enabled"
@@ -121,7 +121,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       )
     }
 
-    "return tcs status AFTER banner when switched on after TCS switch off date/time" in {
+    "return NO tcs status banner when switched on AFTER TCS switch off date/time" in {
       val extraConfigValues: Map[String, Any]  = Map(
         "external-url.tcs-frontend.endDateTime" -> LocalDateTime.now.minusMinutes(1).toString,
         "feature.bannerTcsServiceClosure"       -> "enabled"
