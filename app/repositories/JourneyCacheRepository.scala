@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,9 +44,10 @@ class JourneyCacheRepository @Inject() (
       domainFormat = UserAnswers.format,
       indexes = Seq(
         IndexModel(
-          Indexes.ascending("_id"),
+          Indexes.ascending("sessionId", "nino"),
           IndexOptions()
-            .name("_id")
+            .unique(true)
+            .name("sessionIdAndNino")
         ),
         IndexModel(
           Indexes.ascending("lastUpdated"),
@@ -62,28 +63,30 @@ class JourneyCacheRepository @Inject() (
 
   implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
 
-  private def byId(id: String): Bson = Filters.equal("_id", id)
+  private def byIdAndNino(sessionId: String, nino: String): Bson =
+    Filters.and(
+      Filters.equal("sessionId", sessionId),
+      Filters.equal("nino", nino)
+    )
 
-  def keepAlive(implicit hc: HeaderCarrier): Future[Unit] = {
-    val sessionId = hc.sessionId.fold(throw NoSessionException)(_.value)
+  def keepAlive(sessionId: String, nino: String): Future[Unit] =
     collection
       .updateOne(
-        filter = byId(sessionId),
+        filter = byIdAndNino(sessionId, nino),
         update = Updates.set("lastUpdated", Instant.now(clock))
       )
       .toFuture()
       .map(_ => (): Unit)
-  }
 
-  def get(implicit hc: HeaderCarrier): Future[UserAnswers] = {
+  def get(nino: String)(implicit hc: HeaderCarrier): Future[UserAnswers] = {
     val sessionId            = hc.sessionId.fold(throw NoSessionException)(_.value)
-    val retrievedUserAnswers = keepAlive.flatMap { _ =>
+    val retrievedUserAnswers = keepAlive(sessionId, nino).flatMap { _ =>
       collection
-        .find(byId(sessionId))
+        .find(byIdAndNino(sessionId, nino))
         .headOption()
     }
     retrievedUserAnswers.map {
-      case None     => UserAnswers(sessionId)
+      case None     => UserAnswers(sessionId, nino)
       case Some(ua) => ua
     }
   }
@@ -93,7 +96,7 @@ class JourneyCacheRepository @Inject() (
 
     collection
       .replaceOne(
-        filter = byId(updatedAnswers.id),
+        filter = byIdAndNino(updatedAnswers.sessionId, updatedAnswers.nino),
         replacement = updatedAnswers,
         options = ReplaceOptions().upsert(true)
       )
@@ -101,10 +104,10 @@ class JourneyCacheRepository @Inject() (
       .map(_ => (): Unit)
   }
 
-  def clear(implicit hc: HeaderCarrier): Future[Unit] = {
+  def clear(nino: String)(implicit hc: HeaderCarrier): Future[Unit] = {
     val sessionId = hc.sessionId.fold(throw NoSessionException)(_.value)
     collection
-      .deleteOne(byId(sessionId))
+      .deleteOne(byIdAndNino(sessionId, nino))
       .toFuture()
       .map(_ => (): Unit)
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import repositories.JourneyCacheRepository
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.{Retrievals, TrustedHelper}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
-import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -73,7 +72,9 @@ class AuthRetrievalsImpl @Inject() (
             name ~
             trustedHelper ~
             profile =>
-          journeyCacheRepository.get(hc).flatMap { userAnswers =>
+          val updatedNino = trustedHelper.fold(Nino(nino))(helper => Nino(helper.principalNino.getOrElse(nino)))
+
+          journeyCacheRepository.get(updatedNino.nino).flatMap { userAnswers =>
             val trimmedRequest: Request[A] = request
               .map {
                 case AnyContentAsFormUrlEncoded(data) =>
@@ -85,10 +86,8 @@ class AuthRetrievalsImpl @Inject() (
               .asInstanceOf[Request[A]]
 
             val authenticatedRequest = AuthenticatedRequest[A](
-              authNino = Nino(nino),
-              nino = Some(
-                trustedHelper.fold(domain.Nino(nino))(helper => domain.Nino(helper.principalNino.getOrElse(nino)))
-              ),
+              authNino = updatedNino,
+              nino = Some(updatedNino),
               credentials = credentials,
               confidenceLevel = confidenceLevel,
               name = Some(

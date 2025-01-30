@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ class AddressSelectorController @Inject() (
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-      journeyCacheRepository.get(hc).map { userAnswers =>
+      journeyCacheRepository.get(request.userAnswers.nino).map { userAnswers =>
         userAnswers.get(SelectedRecordSetPage(typ)) match {
           case Some(recordSet) =>
             val orderedSet = RecordSet(addressSelectorService.orderSet(recordSet.addresses))

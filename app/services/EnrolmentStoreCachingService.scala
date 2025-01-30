@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,10 +43,11 @@ class EnrolmentStoreCachingService @Inject() (
     journeyCacheRepository.set(updatedUserAnswers).map(_ => userType)
   }
 
-  def getSaUserTypeFromCache(
-    saUtr: SaUtr
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
-    journeyCacheRepository.get(hc).flatMap { userAnswers =>
+  def getSaUserTypeFromCache(saUtr: SaUtr, nino: String)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[SelfAssessmentUserType] =
+    journeyCacheRepository.get(nino).flatMap { userAnswers =>
       userAnswers.get[SelfAssessmentUserType](SelfAssessmentUserTypePage) match {
         case Some(userType) => Future.successful(userType)
         case None           =>

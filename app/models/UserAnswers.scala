@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ import java.time.Instant
 import scala.util.{Failure, Success, Try}
 
 final case class UserAnswers(
-  id: String,
+  sessionId: String,
+  nino: String,
   data: JsObject = Json.obj(),
   lastUpdated: Instant = Instant.now
 ) {
@@ -78,15 +79,16 @@ final case class UserAnswers(
 
 object UserAnswers {
 
-  val empty: UserAnswers             = empty("")
-  def empty(id: String): UserAnswers = new UserAnswers(id, Json.obj())
+  val empty: UserAnswers                                  = empty("", "")
+  def empty(sessionId: String, nino: String): UserAnswers = new UserAnswers(sessionId, nino, Json.obj())
 
   val reads: Reads[UserAnswers] = {
 
     import play.api.libs.functional.syntax._
 
     (
-      (__ \ "_id").read[String] and
+      (__ \ "sessionId").read[String] and
+        (__ \ "nino").read[String] and
         (__ \ "data").read[JsObject] and
         (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
     )(UserAnswers.apply _)
@@ -97,7 +99,8 @@ object UserAnswers {
     import play.api.libs.functional.syntax._
 
     (
-      (__ \ "_id").write[String] and
+      (__ \ "sessionId").write[String] and
+        (__ \ "nino").write[String] and
         (__ \ "data").write[JsObject] and
         (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
     )(unlift(UserAnswers.unapply))

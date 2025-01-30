@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
 
   def addToCache[A: Writes](page: QuestionPage[A], record: A)(implicit request: UserRequest[_]): Future[UserAnswers] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    journeyCacheRepository.get(hc).flatMap { userAnswers =>
+    journeyCacheRepository.get(request.userAnswers.nino).flatMap { userAnswers =>
       val updatedAnswers = userAnswers.setOrException(page, record)
       journeyCacheRepository.set(updatedAnswers).map(_ => updatedAnswers)
     }
@@ -50,7 +50,7 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
 
   def clearCache()(implicit request: UserRequest[_]): Future[Unit] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    journeyCacheRepository.clear(hc)
+    journeyCacheRepository.clear(request.userAnswers.nino)
   }
 
   def gettingCachedAddressLookupServiceDown[T](
@@ -58,7 +58,7 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
   )(implicit request: UserRequest[_]): Future[T] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     journeyCacheRepository
-      .get(hc)
+      .get(request.userAnswers.nino)
       .map { userAnswers =>
         block(userAnswers.get(AddressLookupServiceDownPage))
       }
@@ -75,7 +75,7 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
   )(block: AddressJourneyData => Future[T])(implicit request: UserRequest[_]): Future[T] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     journeyCacheRepository
-      .get(hc)
+      .get(request.userAnswers.nino)
       .flatMap { userAnswers =>
         block(
           AddressJourneyData(
@@ -105,7 +105,7 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
 
   def enforceDisplayAddressPageVisited(result: Result)(implicit request: UserRequest[_]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    journeyCacheRepository.get(hc).map { userAnswers =>
+    journeyCacheRepository.get(request.userAnswers.nino).map { userAnswers =>
       userAnswers.get(HasAddressAlreadyVisitedPage) match {
         case Some(_) => result
         case None    => Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad)
