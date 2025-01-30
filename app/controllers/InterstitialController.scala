@@ -55,6 +55,7 @@ class InterstitialController @Inject() (
   shutteringView: ShutteringView,
   taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
   taxCreditsTransitionInformationInterstitialView: TaxCreditsTransitionInformationInterstitialView,
+  taxCreditsEndedInformationInterstitialView: TaxCreditsEndedInformationInterstitialView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
@@ -224,6 +225,13 @@ class InterstitialController @Inject() (
   def displayTaxCreditsTransitionInformationInterstitialView: Action[AnyContent] = authenticate { implicit request =>
     if (configDecorator.featureBannerTcsServiceClosure == BannerTcsServiceClosure.Enabled) {
       Ok(taxCreditsTransitionInformationInterstitialView())
+    } else {
+      errorRenderer.error(UNAUTHORIZED)
+    }
+  }
+  def displayTaxCreditsEndedInformationInterstitialView: Action[AnyContent]      = authenticate { implicit request =>
+    if (configDecorator.featureBannerTcsServiceClosure == BannerTcsServiceClosure.Enabled) {
+      Ok(taxCreditsEndedInformationInterstitialView())
     } else {
       errorRenderer.error(UNAUTHORIZED)
     }

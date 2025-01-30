@@ -508,7 +508,9 @@ label.you_can_still_make_payments_towards_your_debt_during_breathing_space=Gallw
 #
 title.benefits=Budd-daliadau
 label.tax_credits=Credydau treth
+label.tax_credits_ended=Mae credydau treth wedi dod i ben ar 5 Ebrill 2025
 label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=Bwrw golwg ar eich taliadau nesaf a’r bobl ar eich cais, a gwneud newidiadau i’ch cais.
+label.tax_credits_ended_content = Mae Credyd Cynhwysol a Chredyd Pensiwn wedi disodli credydau treth.
 label.view_your_tax_credits_payments=Bwrw golwg ar eich taliadau credydau treth
 
 title.marriage_allowance=Lwfans Priodasol
@@ -786,3 +788,15 @@ tax_credits.transition.information.support.universal_credit = ewch i’r dudalen
 tax_credits.transition.information.support.pension_credit = ewch i’r dudalen ynghylch Credyd Pensiwn
 tax_credits.transition.information.support.contact = ffoniwch y rhif ffôn sydd ar eich llythyr
 button.continueToTaxCredits = Parhau i’r adran credydau treth
+
+tax_credits.ended.information.title = Mae credydau treth wedi dod i ben ar 5 Ebrill 2025
+tax_credits.ended.information.p1 = Mae Credyd Cynhwysol a Chredyd Pensiwn wedi disodli credydau treth.
+tax_credits.ended.information.p2 = I ddysgu sut i wneud cais:
+tax_credits.ended.information.how.apply.li1 = ewch i’r dudalen ynghylch Credyd Cynhwysol
+tax_credits.ended.information.how.apply.li2 = ewch i’r dudalen ynghylch Credyd Pensiwn
+tax_credits.ended.information.h2 = Credyd treth
+tax_credits.ended.information.p3 = Os cawsoch gredydau treth cyn 5 Ebrill 2025 mae’n bosibl bydd angen i chi cysylltu â ni ynglŷn:
+tax_credits.ended.information.how.continue.li1 = gordaliadau
+tax_credits.ended.information.how.continue.li2 = os rydych o’r farn bod penderfyniad yn anghywir
+tax_credits.ended.information.how.continue.li3 = ymateb i wiriad
+tax_credits.ended.information.how.continue.li4 = os yw adennill eich gordaliad credydau treth yn achosi anhawster ariannol sylweddol i chi
