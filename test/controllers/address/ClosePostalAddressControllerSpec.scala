@@ -26,7 +26,7 @@ import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.Fixtures
-import testUtils.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
+import testUtils.Fixtures.{buildFakeAddress}
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -58,13 +58,6 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
     }
 
-    "throw an Exception if person details does not contain an address" in {
-      setupAuth(personDetails = Some(buildPersonDetailsCorrespondenceAddress.copy(address = None)))
-
-      the[Exception] thrownBy {
-        await(controller.onPageLoad(FakeRequest()))
-      } must have message addressExceptionMessage
-    }
   }
 
   "onSubmit" must {
@@ -98,13 +91,6 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe BAD_REQUEST
     }
 
-    "throw an Exception if person details does not contain an address" in {
-      setupAuth(personDetails = Some(buildPersonDetailsCorrespondenceAddress.copy(address = None)))
-
-      the[Exception] thrownBy {
-        await(controller.onSubmit(FakeRequest()))
-      } must have message addressExceptionMessage
-    }
   }
 
   "confirmPageLoad" should {
@@ -114,12 +100,6 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
     }
 
-    "throw an Exception if person details does not contain an address" in {
-      setupAuth(personDetails = Some(buildPersonDetailsCorrespondenceAddress.copy(address = None)))
-      the[Exception] thrownBy {
-        await(controller.confirmPageLoad(FakeRequest()))
-      } must have message addressExceptionMessage
-    }
   }
 
   "confirmSubmit" should {
@@ -144,6 +124,12 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     )
 
     "render the thank you page upon successful submission of closing the correspondence address and no locks present" in {
+      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails = PersonDetails(person, address, None)
+      when(mockCitizenDetailsService.personDetails(any())).thenReturn(
+        EitherT.rightT(personDetails)
+      )
 
       def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
@@ -255,8 +241,14 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "return 500 if insert address lock fails" in {
+      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails = PersonDetails(person, address, None)
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
         Future.successful(false)
+      )
+      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        EitherT.rightT(personDetails)
       )
 
       def currentRequest[A]: Request[A] = FakeRequest("POST", "/").asInstanceOf[Request[A]]
@@ -275,6 +267,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "return 500 if fetching etag from citizen details fails" in {
+      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
+      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails = PersonDetails(person, address, None)
+      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        EitherT.rightT(personDetails)
+      )
+
       def eTagResponse: Option[ETag] = None
 
       when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
@@ -290,14 +289,5 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe INTERNAL_SERVER_ERROR
     }
 
-    "throw an Exception when person details does not contain a correspondence address" in {
-      setupAuth(personDetails = Some(buildPersonDetailsCorrespondenceAddress.copy(address = None)))
-      def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
-
-      the[Exception] thrownBy {
-        await(controller.confirmSubmit(currentRequest))
-      } must have message addressExceptionMessage
-
-    }
   }
 }

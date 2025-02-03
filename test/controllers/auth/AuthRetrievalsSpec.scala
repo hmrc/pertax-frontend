@@ -56,7 +56,7 @@ class AuthRetrievalsSpec extends BaseSpec {
   class Harness(authAction: AuthRetrievalsImpl) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
-        s"Nino: ${request.nino.getOrElse("fail").toString}, Enrolments: ${request.enrolments.toString}," +
+        s"Nino: ${request.authNino.nino}, Enrolments: ${request.enrolments.toString}," +
           s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}"
       )
     }

@@ -35,7 +35,6 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
 import java.time.LocalDate
@@ -53,15 +52,15 @@ class ClosePostalAddressController @Inject() (
   closeCorrespondenceAddressChoiceView: CloseCorrespondenceAddressChoiceView,
   confirmCloseCorrespondenceAddressView: ConfirmCloseCorrespondenceAddressView,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
   featureFlagService: FeatureFlagService,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
       cc,
-      displayAddressInterstitialView,
       featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
       internalServerErrorView
     )
     with Logging {

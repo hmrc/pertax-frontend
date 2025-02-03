@@ -66,11 +66,9 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   val userRequest: UserRequest[AnyContentAsEmpty.type] = UserRequest(
     testNino,
     None,
-    None,
     ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
     Credentials("", "GovernmentGateway"),
     ConfidenceLevel.L200,
-    None,
     None,
     Set(),
     None,
@@ -211,7 +209,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   "getPersonDetailsTable" must {
     "contain the ninoSaveUrl" when {
       "nino is defined in model" in {
-        val actual   = personalDetailsViewModel.getPersonDetailsTable(Some(testNino))(userRequest)
+        val actual   = personalDetailsViewModel.getPersonDetailsTable(Some(testNino), None)(userRequest)
         val expected = PersonalDetailsTableRowModel(
           "national_insurance",
           "label.national_insurance",
@@ -225,43 +223,9 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       }
     }
 
-    "contain name row" when {
-      "name is defined in userRequest" in {
-        val request  = userRequest.copy(personDetails = Some(exampleDetails))
-        val expected =
-          PersonalDetailsTableRowModel(
-            "name",
-            "label.name",
-            HtmlFormat.raw("Example User"),
-            "label.change",
-            "label.your_name",
-            Some(configDecorator.changeNameLinkUrl)
-          )
-        val actual   = personalDetailsViewModel.getPersonDetailsTable(None)(request)
-
-        actual.futureValue mustBe List(expected)
-      }
-    }
-
-    "not contain name row" when {
-      "personal details is not defined" in {
-        val request = userRequest.copy(personDetails = None)
-        val actual  = personalDetailsViewModel.getPersonDetailsTable(None)(request)
-        actual.futureValue.isEmpty mustBe true
-      }
-
-      "name is empty" in {
-        val request = userRequest.copy(personDetails =
-          Some(exampleDetails.copy(person = examplePerson.copy(firstName = None, lastName = None)))
-        )
-        val actual  = personalDetailsViewModel.getPersonDetailsTable(None)(request)
-        actual.futureValue.isEmpty mustBe true
-      }
-    }
-
     "contain nino row" when {
       "nino is defined" in {
-        val actual   = personalDetailsViewModel.getPersonDetailsTable(Some(testNino))(userRequest)
+        val actual   = personalDetailsViewModel.getPersonDetailsTable(Some(testNino), None)(userRequest)
         val expected = PersonalDetailsTableRowModel(
           "national_insurance",
           "label.national_insurance",
@@ -276,8 +240,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "not contain nino row" when {
       "nino is not defined" in {
-        val request = userRequest.copy(personDetails = None)
-        val actual  = personalDetailsViewModel.getPersonDetailsTable(None)(request)
+        val request = userRequest
+        val actual  = personalDetailsViewModel.getPersonDetailsTable(None, None)(request)
         actual.futureValue.isEmpty mustBe true
       }
     }
@@ -289,10 +253,9 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "AddressChangeAllowedToggle toggle switched off" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
-        val details = exampleDetails.copy(address = Some(testAddress))
-        val request = userRequest.copy(personDetails = Some(details))
+        val request = userRequest
 
-        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
         val expected =
           PersonalDetailsTableRowModel(
             id = "main_address",
@@ -309,10 +272,9 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "contain main address row" when {
       "main address is defined and it hasn't been changed" in {
-        val details = exampleDetails.copy(address = Some(testAddress))
-        val request = userRequest.copy(personDetails = Some(details))
+        val request = userRequest
 
-        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
         val expected = PersonalDetailsTableRowModel(
           "main_address",
           "label.main_address",
@@ -326,12 +288,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       }
 
       "main address is defined and it has been changed" in {
-        val details = exampleDetails.copy(address = Some(testAddress))
-        val request = userRequest.copy(personDetails = Some(details))
+        val request = userRequest
 
         val actual   = personalDetailsViewModel.getAddressRow(
           List(AddressJourneyTTLModel(testNino.nino, editedAddress()))
-        )(request, messages)
+        )(request, hc, messages)
         val expected = PersonalDetailsTableRowModel(
           "main_address",
           "label.main_address",
@@ -347,16 +308,14 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "not contain main address row" when {
       "person details is not defined" in {
-        val request = userRequest.copy(personDetails = None)
-        val actual  = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val request = userRequest
+        val actual  = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
         actual.futureValue.mainAddress.isEmpty mustBe true
       }
 
       "address is not defined" in {
-        val details =
-          exampleDetails.copy(address = None, person = examplePerson.copy(firstName = None, lastName = None))
-        val request = userRequest.copy(personDetails = Some(details))
-        val actual  = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val request = userRequest
+        val actual  = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
         actual.futureValue.mainAddress.isEmpty mustBe true
       }
     }
@@ -366,10 +325,9 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
 
-        val details = exampleDetails.copy(correspondenceAddress = Some(testAddress))
-        val request = userRequest.copy(personDetails = Some(details))
+        val request = userRequest
 
-        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
         val expected =
           PersonalDetailsTableRowModel(
             id = "postal_address",
@@ -386,10 +344,9 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "contain postal address row" when {
       "postal address is defined and it hasn't been changed" in {
-        val details = exampleDetails.copy(correspondenceAddress = Some(testAddress))
-        val request = userRequest.copy(personDetails = Some(details))
+        val request = userRequest
 
-        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
         val expected = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
@@ -403,12 +360,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       }
 
       "postal address is defined and it has been changed" in {
-        val details = exampleDetails.copy(correspondenceAddress = Some(testAddress))
-        val request = userRequest.copy(personDetails = Some(details))
+        val request = userRequest
 
         val actual   = personalDetailsViewModel.getAddressRow(
           List(AddressJourneyTTLModel(testNino.nino, editedOtherAddress()))
-        )(request, messages)
+        )(request, hc, messages)
         val expected = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
@@ -422,10 +378,9 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       }
 
       "postal address is not defined and main address is defined" in {
-        val details = exampleDetails.copy(correspondenceAddress = None, address = Some(testAddress))
-        val request = userRequest.copy(personDetails = Some(details))
+        val request = userRequest
 
-        val actual                = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val actual                = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
         val expectedPostalAddress = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
@@ -442,9 +397,9 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "not contain postal address" when {
       "personal details are not defined" in {
-        val request = userRequest.copy(personDetails = None)
+        val request = userRequest
 
-        val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
 
         actual.futureValue.postalAddress.isEmpty mustBe true
       }

@@ -24,7 +24,9 @@ import controllers.controllershelpers.CountryHelper
 import models._
 import models.admin.AddressChangeAllowedToggle
 import play.twirl.api.HtmlFormat
+import services.CitizenDetailsService
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressUnavailableView, AddressView, CorrespondenceAddressView}
@@ -40,6 +42,7 @@ class PersonalDetailsViewModel @Inject() (
   correspondenceAddressView: CorrespondenceAddressView,
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   addressUnavailableView: AddressUnavailableView
 )(implicit ec: ExecutionContext) {
 
@@ -165,27 +168,30 @@ class PersonalDetailsViewModel @Inject() (
 
   def getAddressRow(addressModel: List[AddressJourneyTTLModel])(implicit
     request: UserRequest[_],
+    hc: HeaderCarrier,
     messages: play.api.i18n.Messages
-  ): Future[AddressRowModel] = {
-    val optionalEditAddress                                            = addressModel.map(y => y.editedAddress)
-    val mainAddressRow: Future[Option[PersonalDetailsTableRowModel]]   =
-      getMainAddress(request.personDetails, optionalEditAddress)
-    val postalAddressRow: Future[Option[PersonalDetailsTableRowModel]] =
-      getPostalAddress(request.personDetails, optionalEditAddress)
-    for {
-      mainAddressVal   <- mainAddressRow
-      postalAddressVal <- postalAddressRow
-    } yield AddressRowModel(
-      mainAddressVal,
-      postalAddressVal
-    )
-  }
+  ): Future[AddressRowModel] =
+    citizenDetailsService.personDetails(request.authNino).toOption.value.flatMap { personDetails =>
+      val optionalEditAddress                                            = addressModel.map(y => y.editedAddress)
+      val mainAddressRow: Future[Option[PersonalDetailsTableRowModel]]   =
+        getMainAddress(personDetails, optionalEditAddress)
+      val postalAddressRow: Future[Option[PersonalDetailsTableRowModel]] =
+        getPostalAddress(personDetails, optionalEditAddress)
+      for {
+        mainAddressVal   <- mainAddressRow
+        postalAddressVal <- postalAddressRow
+      } yield AddressRowModel(
+        mainAddressVal,
+        postalAddressVal
+      )
+    }
 
   def getPersonDetailsTable(
-    ninoToDisplay: Option[Nino]
+    ninoToDisplay: Option[Nino],
+    name: Option[String]
   )(implicit request: UserRequest[_]): Future[Seq[PersonalDetailsTableRowModel]] = {
     val nameRow: Option[PersonalDetailsTableRowModel] =
-      request.name.map(name =>
+      name.map(name =>
         PersonalDetailsTableRowModel(
           "name",
           "label.name",

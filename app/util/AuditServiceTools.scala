@@ -37,7 +37,7 @@ object AuditServiceTools {
     )
 
     val standardAuditData: Map[String, String] = List(
-      Some(("nino", request.nino.getOrElse("N/A").toString)),
+      Some(("nino", request.authNino.nino)),
       request.saUserType match {
         case saUser: SelfAssessmentUser => Some(("saUtr", saUser.saUtr.utr))
         case _                          => None

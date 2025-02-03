@@ -21,6 +21,7 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.ErrorRenderer
 import models.admin.AddressTaxCreditsBrokerCallToggle
 import models.dto.TaxCreditsChoiceDto
 import play.api.Logging
@@ -28,9 +29,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
 import routePages.TaxCreditsChoicePage
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import services.TaxCreditsService
+import services.{CitizenDetailsService, TaxCreditsService}
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,17 +40,19 @@ class TaxCreditsChoiceController @Inject() (
   cc: MessagesControllerComponents,
   cachingHelper: AddressJourneyCachingHelper,
   editAddressLockRepository: EditAddressLockRepository,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  errorRenderer: ErrorRenderer,
   taxCreditsService: TaxCreditsService,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView,
   taxCreditsChoiceView: TaxCreditsChoiceView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
       cc,
-      displayAddressInterstitialView,
       featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
       internalServerErrorView
     )
     with Logging {
@@ -102,7 +104,7 @@ class TaxCreditsChoiceController @Inject() (
                 if (taxCreditsChoiceDto.hasTaxCredits) {
                   editAddressLockRepository
                     .insert(
-                      request.nino.get.withoutSuffix,
+                      request.authNino.withoutSuffix,
                       AddrType.apply("residential").get
                     )
                     .map {

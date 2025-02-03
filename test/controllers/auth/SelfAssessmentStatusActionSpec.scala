@@ -60,7 +60,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
       request,
       { userRequest: UserRequest[_] =>
         Future.successful(
-          Ok(s"Nino: ${userRequest.nino.getOrElse("fail").toString}, SaUtr: ${userRequest.saUserType.toString}")
+          Ok(s"Nino: ${userRequest.authNino.nino}, SaUtr: ${userRequest.saUserType.toString}")
         )
       }
     )
@@ -68,12 +68,10 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
   }
 
   def createAuthenticatedRequest(
-    enrolments: Set[Enrolment] = Set.empty,
-    nino: Option[Nino] = Some(Nino("AB123456C"))
+    enrolments: Set[Enrolment] = Set.empty
   ): AuthenticatedRequest[AnyContent] =
     AuthenticatedRequest(
       Nino("AB123456D"),
-      nino,
       Credentials("", "GovernmentGateway"),
       ConfidenceLevel.L200,
       None,
@@ -161,7 +159,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
   "when user has no Nino" must {
     "return NonFilerSelfAssessmentUser" in {
-      implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set.empty, None)
+      implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set.empty)
 
       val result = harness()(request)
       contentAsString(result) must include("NonFilerSelfAssessmentUser")

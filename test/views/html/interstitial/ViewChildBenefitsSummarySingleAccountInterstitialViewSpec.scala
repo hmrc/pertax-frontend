@@ -100,22 +100,5 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
         Messages("label.change_your_bank_details")
       )
     }
-
-    "show incomplete when there is no NINO" in {
-
-      implicit val userRequest: UserRequest[AnyContent] = buildUserRequest(
-        nino = None,
-        request = FakeRequest()
-      )
-
-      val doc =
-        asDocument(
-          viewChildBenefitsSummarySingleAccountInterstitialView(
-            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home"
-          ).toString
-        )
-      Option(doc.select(".nino").first).isDefined mustBe false
-      doc.body().toString must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
-    }
   }
 }

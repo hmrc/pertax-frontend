@@ -109,21 +109,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     )(stubConfigDecorator, ec)
 
   "Calling getPayAsYouEarnCard" must {
-    "return nothing when called with no Pertax user" in {
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        nino = None,
-        saUser = NonFilerSelfAssessmentUser,
-        confidenceLevel = ConfidenceLevel.L50,
-        personDetails = None,
-        request = FakeRequest()
-      )
-
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
-
-      cardBody mustBe None
-    }
-
     "return no content when called with with a Pertax user that is PAYE but has no tax summary" in {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
@@ -145,7 +130,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
         request = FakeRequest(),
-        nino = Some(Nino("AA000000C"))
+        authNino = Nino("AA000000C")
       )
 
       lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
@@ -159,7 +144,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         saUser = NonFilerSelfAssessmentUser,
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
-        nino = Some(Nino("AA000000C")),
+        authNino = Nino("AA000000C"),
         request = FakeRequest()
       )
 
@@ -175,7 +160,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
         request = FakeRequest(),
-        nino = Some(Nino("AA000000C"))
+        authNino = Nino("AA000000C")
       )
 
       lazy val cardBody =
@@ -586,7 +571,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        nino = None,
         saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
         personDetails = None,
@@ -595,11 +579,12 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cards =
         homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
-      cards.size mustBe 4
+      cards.size mustBe 5
       cards.head.toString().contains("news-card") mustBe true
-      cards(1).toString().contains("test1") mustBe true
-      cards(2).toString().contains("test2") mustBe true
-      cards(3).toString().contains("ni-and-sp-card") mustBe true
+      cards(1).toString().contains("paye-card") mustBe true
+      cards(2).toString().contains("test1") mustBe true
+      cards(3).toString().contains("test2") mustBe true
+      cards(4).toString().contains("ni-and-sp-card") mustBe true
     }
 
     "when taxcalc toggle off return no tax calc cards" in {
@@ -622,7 +607,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        nino = None,
         saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
         personDetails = None,
@@ -631,9 +615,10 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cards =
         homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
-      cards.size mustBe 2
+      cards.size mustBe 3
       cards.head.toString().contains("news-card") mustBe true
-      cards(1).toString().contains("ni-and-sp-card") mustBe true
+      cards(1).toString().contains("paye-card") mustBe true
+      cards(2).toString().contains("ni-and-sp-card") mustBe true
     }
 
     "when taxcalc toggle on but trusted helper present return no tax calc cards" in {
@@ -657,7 +642,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        nino = None,
         saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
         personDetails = None,
@@ -667,9 +651,10 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cards =
         homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
-      cards.size mustBe 2
+      cards.size mustBe 3
       cards.head.toString().contains("news-card") mustBe true
-      cards(1).toString().contains("ni-and-sp-card") mustBe true
+      cards(1).toString().contains("paye-card") mustBe true
+      cards(2).toString().contains("ni-and-sp-card") mustBe true
     }
   }
 }

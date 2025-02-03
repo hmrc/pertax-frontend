@@ -52,7 +52,7 @@
     @alertBanner(viewModel.alertBannerContent)
 
     <header class="hmrc-page-heading">
-        <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
         <p class="hmrc-caption govuk-caption-xl"><span class="govuk-visually-hidden">@messages("label.this.section.is") </span>@messages("label.account_home")</p>
     </header>
 

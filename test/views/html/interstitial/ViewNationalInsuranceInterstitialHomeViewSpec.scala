@@ -35,7 +35,7 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
   "Rendering ViewNationalInsuranceInterstitialHomeView.scala.html" must {
 
     "show NINO section when a nino is present" in {
-      val document = asDocument(view(Html(""), "asfa", userRequest.nino).toString)
+      val document = asDocument(view(Html(""), "asfa", Some(userRequest.authNino)).toString)
       Option(document.select(".nino").first).isDefined mustBe true
       document.body().toString must include(messages("label.check_your_national_insurance_contributions"))
       document.body().toString must include(
@@ -50,7 +50,7 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
     }
 
     "show with apple view and save nino" in {
-      val document = asDocument(view(Html(""), "asfa", userRequest.nino).toString)
+      val document = asDocument(view(Html(""), "asfa", Some(userRequest.authNino)).toString)
       document.body().toString must include(
         messages("label.save_your_number_to_the_wallet_app_on_your_apple_phone")
       )

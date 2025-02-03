@@ -36,14 +36,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class AddressSubmissionController @Inject() (
-  val citizenDetailsService: CitizenDetailsService,
   val addressMovedService: AddressMovedService,
   val editAddressLockRepository: EditAddressLockRepository,
   authJourney: AuthJourney,
@@ -53,15 +51,16 @@ class AddressSubmissionController @Inject() (
   errorRenderer: ErrorRenderer,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   reviewChangesView: ReviewChangesView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
       cc,
-      displayAddressInterstitialView,
       featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
       internalServerErrorView
     )
     with Logging {

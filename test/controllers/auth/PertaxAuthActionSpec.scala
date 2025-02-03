@@ -69,12 +69,10 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
   val expectedRequest: UserRequest[_] =
     UserRequest(
       Fixtures.fakeNino,
-      Some(Fixtures.fakeNino),
       None,
       WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
       Credentials("", "GovernmentGateway"),
       ConfidenceLevel.L50,
-      None,
       None,
       Set(),
       None,

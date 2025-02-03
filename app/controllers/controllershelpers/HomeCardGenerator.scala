@@ -93,11 +93,9 @@ class HomeCardGenerator @Inject() (
   def getPayAsYouEarnCard(
     taxComponentsState: TaxComponentsState
   )(implicit request: UserRequest[_], messages: Messages): Option[HtmlFormat.Appendable] =
-    request.nino.flatMap { nino =>
-      taxComponentsState match {
-        case TaxComponentsNotAvailableState => None
-        case _                              => Some(payAsYouEarnView(configDecorator, nino.withoutSuffix.takeRight(2)))
-      }
+    taxComponentsState match {
+      case TaxComponentsNotAvailableState => None
+      case _                              => Some(payAsYouEarnView(configDecorator, request.authNino.withoutSuffix.takeRight(2)))
     }
 
   private def displaySACall: Call       = routes.InterstitialController.displaySelfAssessment

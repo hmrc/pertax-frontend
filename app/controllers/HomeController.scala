@@ -39,6 +39,7 @@ class HomeController @Inject() (
   taiService: TaiService,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   homeCardGenerator: HomeCardGenerator,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
@@ -60,7 +61,7 @@ class HomeController @Inject() (
     rlsInterruptHelper.enforceByRlsStatus(
       paperlessInterruptHelper.enforcePaperlessPreference {
         for {
-          taxSummaryState         <- taiService.retrieveTaxComponentsState(request.nino, current.currentYear)
+          taxSummaryState         <- taiService.retrieveTaxComponentsState(Some(request.authNino), current.currentYear)
           breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino).map {
                                        case WithinPeriod => true
                                        case _            => false
@@ -68,7 +69,11 @@ class HomeController @Inject() (
           incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
           shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
           alertBannerContent      <- alertBannerHelper.getContent
+          personDetails           <- citizenDetailsService.personDetails(request.authNino).toOption.value
         } yield {
+          val name = personDetails.fold(request.retrievedName.map(_.toString)) { personDetails =>
+            personDetails.person.shortName
+          }
 
           val benefitCards: Seq[Html] =
             homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
@@ -80,7 +85,8 @@ class HomeController @Inject() (
                 showUserResearchBanner = false,
                 saUserType,
                 breathingSpaceIndicator = breathingSpaceIndicator,
-                alertBannerContent
+                alertBannerContent,
+                name
               ),
               shutteringMessaging.isEnabled
             )

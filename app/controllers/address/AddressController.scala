@@ -21,21 +21,23 @@ import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import error.ErrorRenderer
 import models.PersonDetails
 import models.admin.AddressChangeAllowedToggle
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
+import services.CitizenDetailsService
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 
 import scala.concurrent.{ExecutionContext, Future}
 
 abstract class AddressController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
   featureFlagService: FeatureFlagService,
+  errorRenderer: ErrorRenderer,
+  citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
@@ -50,14 +52,10 @@ abstract class AddressController @Inject() (
       if (!toggle.isEnabled) {
         Future.successful(InternalServerError(internalServerErrorView()))
       } else {
-        (for {
-          payeAccount   <- request.nino
-          personDetails <- request.personDetails
-        } yield block(payeAccount)(personDetails)).getOrElse {
-          Future.successful {
-            val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController.onPageLoad.url
-            Ok(displayAddressInterstitialView(continueUrl))
-          }
+        citizenDetailsService.personDetails(request.authNino).value.flatMap {
+          case Right(personDetails) =>
+            block(request.authNino)(personDetails)
+          case Left(_)              => Future.successful(errorRenderer.error(INTERNAL_SERVER_ERROR))
         }
       }
     }

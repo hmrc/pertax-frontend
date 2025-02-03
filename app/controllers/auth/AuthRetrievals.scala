@@ -27,7 +27,6 @@ import repositories.JourneyCacheRepository
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.{Retrievals, TrustedHelper}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
-import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -86,9 +85,6 @@ class AuthRetrievalsImpl @Inject() (
 
             val authenticatedRequest = AuthenticatedRequest[A](
               authNino = Nino(nino),
-              nino = Some(
-                trustedHelper.fold(domain.Nino(nino))(helper => domain.Nino(helper.principalNino.getOrElse(nino)))
-              ),
               credentials = credentials,
               confidenceLevel = confidenceLevel,
               name = Some(

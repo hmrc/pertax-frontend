@@ -41,7 +41,7 @@ class HomeViewSpec extends ViewSpec {
   implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
   val homeViewModel: HomeViewModel =
-    HomeViewModel(Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty)
+    HomeViewModel(Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty, None)
 
   "Rendering HomeView.scala.html" must {
 
@@ -134,7 +134,7 @@ class HomeViewSpec extends ViewSpec {
 
     "have the last 2 nino numbers be rendered as an attribute on PAYE tile" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest(), nino = Some(Nino("AA000000C")))
+        buildUserRequest(request = FakeRequest(), authNino = Nino("AA000000C"))
       val view                                                      = Jsoup.parse(
         home(
           homeViewModel.copy(

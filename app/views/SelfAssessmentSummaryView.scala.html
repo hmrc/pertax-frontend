@@ -28,9 +28,8 @@
     <div class="summary-page">
             @saPartial
     </div>
-    @if(request.nino.isDefined) {
-        <div class="govuk-form-group" id="self-assessment-forms">
-            @formPartial
-        </div>
-    }
+
+    <div class="govuk-form-group" id="self-assessment-forms">
+        @formPartial
+    </div>
 }
