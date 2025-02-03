@@ -6,6 +6,8 @@ object AppDependencies {
   private val playVersion      = "play-30"
   private val cryptoVersion    = "8.1.0"
   private val webChatVersion   = "1.6.0"
+  private val scaWrapperVersion = "2.3.0"
+  private val mongoFeatureClientVersion = "1.9.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -14,15 +16,15 @@ object AppDependencies {
     "org.jsoup"          % "jsoup"                                      % "1.18.3",
     "org.typelevel"     %% "cats-core"                                  % "2.13.0",
     "org.apache.commons" % "commons-text"                               % "1.12.0",
-    "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % "2.1.0",
-    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % "1.9.0",
+    "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % scaWrapperVersion,
+    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % mongoFeatureClientVersion,
     "uk.gov.hmrc"       %% s"crypto-json-$playVersion"                  % cryptoVersion,
     "uk.gov.hmrc"       %% "digital-engagement-platform-chat-30"        % webChatVersion
   )
 
   val test: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"         %% s"sca-wrapper-test-$playVersion" % "2.1.0",
-    "uk.gov.hmrc"         %% s"mongo-feature-toggles-client-test-$playVersion" % "1.9.0",
+    "uk.gov.hmrc"         %% s"sca-wrapper-test-$playVersion" % scaWrapperVersion,
+    "uk.gov.hmrc"         %% s"mongo-feature-toggles-client-test-$playVersion" % mongoFeatureClientVersion,
     "org.mockito"         %% "mockito-scala-scalatest"        % "1.17.37",
     "org.scalatestplus"   %% "scalacheck-1-17"                % "3.2.18.0",
   ).map(_ % "test")
