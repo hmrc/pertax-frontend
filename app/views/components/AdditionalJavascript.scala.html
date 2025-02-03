@@ -31,8 +31,3 @@
 <script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
 @autocompleteJavascript()
 @scripts
-
-@if(appConfig.webChatIsEnabled) {
-    @{webChatClient.loadRequiredElements()}
-    @{webChatClient.loadHMRCChatSkinElement("popup")}
-}

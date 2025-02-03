@@ -41,7 +41,8 @@
     pageTitle = messages("label.account_home"),
     fullWidth = true,
     showUserResearchBanner = viewModel.showUserResearchBanner,
-    accountHome = true
+    accountHome = true,
+    webChatIsEnabledHere = true
 ) {
     @if(shutteringMessaging) {
         @govukNotificationBanner(NotificationBanner(
