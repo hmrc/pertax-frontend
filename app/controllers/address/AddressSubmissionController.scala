@@ -183,7 +183,8 @@ class AddressSubmissionController @Inject() (
                                             {
                                               case error
                                                   if error.statusCode == 400 && error.message
-                                                    .contains("Start Date cannot be the same") =>
+                                                    .toLowerCase()
+                                                    .contains("start date") =>
                                                 Future.successful(
                                                   BadRequest(
                                                     cannotUpdateAddressEarlyDateView(

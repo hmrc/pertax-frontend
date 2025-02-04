@@ -35,7 +35,7 @@ class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Loggi
       logger.error(error.message)
     case Success(Left(error))
         if error.statusCode == BAD_REQUEST &&
-          error.message.contains("Start Date cannot be the same as, or prior to, the previous address start date") =>
+          error.message.toLowerCase().contains("start date") =>
       logger.warn(s"Specific 400 Error - Address Update: ${error.message}")
     case Failure(exception: HttpException)                                                        =>
       logger.error(exception.message)
