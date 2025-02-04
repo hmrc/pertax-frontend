@@ -71,8 +71,8 @@ class MessagesSpec extends BaseSpec {
 
     "not have the same messages" in {
       val same = defaultMessages.keys.collect({
-        case key if defaultMessages.get(key) == welshMessages.get(key) =>
-          (key, defaultMessages.get(key))
+        case messageKey if defaultMessages.get(messageKey) == welshMessages.get(messageKey) =>
+          (messageKey, defaultMessages.get(messageKey))
       })
 
       val percentageOfSameMessages = 0.04
@@ -93,8 +93,12 @@ class MessagesSpec extends BaseSpec {
       assertCorrectUseOfQuotes("Welsh", welshMessages)
     }
     "have a resolvable message for keys which take args" in {
-      val englishWithArgsMsgKeys = defaultMessages collect { case (key, value) if countArgs(value) > 0 => key }
-      val welshWithArgsMsgKeys   = welshMessages collect { case (key, value) if countArgs(value) > 0 => key }
+      val englishWithArgsMsgKeys = defaultMessages collect {
+        case (messageKey, messageValue) if countArgs(messageValue) > 0 => messageKey
+      }
+      val welshWithArgsMsgKeys   = welshMessages collect {
+        case (messageKey, messageValue) if countArgs(messageValue) > 0 => messageKey
+      }
       val missingFromEnglish     = englishWithArgsMsgKeys.toList diff welshWithArgsMsgKeys.toList
       val missingFromWelsh       = welshWithArgsMsgKeys.toList diff englishWithArgsMsgKeys.toList
       missingFromEnglish foreach { key =>
@@ -107,18 +111,18 @@ class MessagesSpec extends BaseSpec {
     }
     "have the same args in the same order for all keys which take args" in {
       val englishWithArgsMsgKeysAndArgList = defaultMessages collect {
-        case (key, value) if countArgs(value) > 0 => (key, listArgs(value))
+        case (messageKey, messageValue) if countArgs(messageValue) > 0 => (messageKey, listArgs(messageValue))
       }
       val welshWithArgsMsgKeysAndArgList   = welshMessages collect {
-        case (key, value) if countArgs(value) > 0 => (key, listArgs(value))
+        case (messageKey, messageValue) if countArgs(messageValue) > 0 => (messageKey, listArgs(messageValue))
       }
       val mismatchedArgSequences           = englishWithArgsMsgKeysAndArgList collect {
-        case (key, engArgSeq) if engArgSeq != welshWithArgsMsgKeysAndArgList(key) =>
-          (key, engArgSeq, welshWithArgsMsgKeysAndArgList(key))
+        case (messageKey, engArgSeq) if engArgSeq != welshWithArgsMsgKeysAndArgList(messageKey) =>
+          (messageKey, engArgSeq, welshWithArgsMsgKeysAndArgList(messageKey))
       }
-      mismatchedArgSequences foreach { case (key, engArgSeq, welshArgSeq) =>
+      mismatchedArgSequences foreach { case (messageKey, engArgSeq, welshArgSeq) =>
         println(
-          s"key which has different arguments or order of arguments between English and Welsh: $key -- English arg seq=$engArgSeq and Welsh arg seq=$welshArgSeq"
+          s"key which has different arguments or order of arguments between English and Welsh: $messageKey -- English arg seq=$engArgSeq and Welsh arg seq=$welshArgSeq"
         )
       }
       mismatchedArgSequences.size mustBe 0

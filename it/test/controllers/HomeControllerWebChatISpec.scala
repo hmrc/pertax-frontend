@@ -65,16 +65,17 @@ class HomeControllerWebChatISpec extends IntegrationSpec {
           ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino))
         )
     )
-    when(mockWebChatClient.loadWebChatContainer(any())(any())).thenReturn(Some(Html("webchat-test")))
-    when(mockWebChatClient.loadRequiredElements()(any())).thenReturn(Some(Html("webchat-test")))
+    when(mockWebChatClient.loadRequiredElements()(any())).thenReturn(Some(Html("loadRequiredElements")))
+    when(mockWebChatClient.loadHMRCChatSkinElement(any())(any())).thenReturn(Some(Html("loadHMRCChatSkinElement")))
   }
 
-  "What do you want to do page" must {
+  "personal account page" must {
     "show the webchat" when {
       "it is enabled" in {
         val result: Future[Result] = route(app, request).get
         httpStatus(result) mustBe OK
-        contentAsString(result) must include("webchat-test")
+        contentAsString(result) must include("loadRequiredElements")
+        contentAsString(result) must include("loadHMRCChatSkinElement")
       }
     }
 
@@ -91,8 +92,22 @@ class HomeControllerWebChatISpec extends IntegrationSpec {
 
         val result: Future[Result] = route(disabledApp, request).get
         httpStatus(result) mustBe OK
-        contentAsString(result) mustNot include("webchat-test")
+        contentAsString(result) mustNot include("loadRequiredElements")
+        contentAsString(result) mustNot include("loadHMRCChatSkinElement")
       }
+    }
+  }
+
+  "other page" must {
+    "not show the webchat always" in {
+      val result: Future[Result] = route(
+        app,
+        FakeRequest(GET, "/personal-account/profile-and-settings")
+          .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
+      ).get
+      httpStatus(result) mustBe OK
+      contentAsString(result) mustNot include("loadRequiredElements")
+      contentAsString(result) mustNot include("loadHMRCChatSkinElement")
     }
   }
 }
