@@ -17,6 +17,7 @@
 package controllers.address
 
 import cats.data.EitherT
+import cats.implicits._
 import controllers.bindable.PostalAddrType
 import models._
 import org.mockito.ArgumentCaptor
@@ -26,13 +27,13 @@ import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.Fixtures
-import testUtils.Fixtures.{buildFakeAddress}
+import testUtils.Fixtures.buildFakeAddress
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.model.DataEvent
 
 import java.time.Instant
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ClosePostalAddressControllerSpec extends AddressBaseSpec {
   private lazy val controller: ClosePostalAddressController = app.injector.instanceOf[ClosePostalAddressController]
@@ -126,8 +127,8 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     "render the thank you page upon successful submission of closing the correspondence address and no locks present" in {
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-      val personDetails = PersonDetails(person, address, None)
-      when(mockCitizenDetailsService.personDetails(any())).thenReturn(
+      val personDetails = PersonDetails(person, address, address)
+      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
 
@@ -149,6 +150,12 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "redirect to personal details if there is a lock on the correspondence address for the user" in {
+      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
+      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails = PersonDetails(person, None, address)
+      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        EitherT.rightT(personDetails)
+      )
 
       def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditCorrespondenceAddress(Instant.now())))
@@ -168,6 +175,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "render the thank you page upon successful submission of closing the correspondence address and only a lock on the residential address" in {
+      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
+      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails = PersonDetails(person, address, address)
+      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        EitherT.rightT(personDetails)
+      )
+
       def currentRequest[A]: Request[A]                            = FakeRequest().asInstanceOf[Request[A]]
       def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditResidentialAddress(Instant.now())))
@@ -190,6 +204,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "return 400 if a BAD_REQUEST is received from citizen-details" in {
+      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
+      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails = PersonDetails(person, None, address)
+      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        EitherT.rightT(personDetails)
+      )
+
       def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future.successful(Left(UpstreamErrorResponse("", BAD_REQUEST)))
@@ -207,6 +228,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "return 500 if an unexpected error (418) is received from citizen-details" in {
+      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
+      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails = PersonDetails(person, None, address)
+      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        EitherT.rightT(personDetails)
+      )
+
       def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future.successful(Left(UpstreamErrorResponse("", IM_A_TEAPOT)))
@@ -223,6 +251,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "return 500 if a 5xx is received from citizen-details" in {
+      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
+      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails = PersonDetails(person, None, address)
+      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        EitherT.rightT(personDetails)
+      )
+
       def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
         EitherT[Future, UpstreamErrorResponse, HttpResponse](
           Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
@@ -243,7 +278,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     "return 500 if insert address lock fails" in {
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-      val personDetails = PersonDetails(person, address, None)
+      val personDetails = PersonDetails(person, None, address)
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
         Future.successful(false)
       )
@@ -269,17 +304,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     "return 500 if fetching etag from citizen details fails" in {
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-      val personDetails = PersonDetails(person, address, None)
+      val personDetails = PersonDetails(person, None, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
 
-      def eTagResponse: Option[ETag] = None
-
       when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-          Future.successful(Right(eTagResponse))
-        )
+        EitherT.leftT(UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
       )
 
       def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]

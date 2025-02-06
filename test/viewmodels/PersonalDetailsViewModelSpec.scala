@@ -30,6 +30,8 @@ import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
+import services.CitizenDetailsService
+import testUtils.Fixtures
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
@@ -55,10 +57,12 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   lazy val mockPreferencesConnector: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
   lazy val personalDetailsViewModel: PersonalDetailsViewModel     = inject[PersonalDetailsViewModel]
   lazy val addressUnavailableView: AddressUnavailableView         = inject[AddressUnavailableView]
+  lazy val mockCitizenDetailsService: CitizenDetailsService       = mock[CitizenDetailsService]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
-      bind[PreferencesFrontendConnector].toInstance(mockPreferencesConnector)
+      bind[PreferencesFrontendConnector].toInstance(mockPreferencesConnector),
+      bind[CitizenDetailsService].toInstance(mockCitizenDetailsService)
     )
     .build()
 
@@ -251,6 +255,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "display address unavailable content" when {
       "AddressChangeAllowedToggle toggle switched off" in {
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, address, address)
+        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+          EitherT.rightT(personDetails)
+        )
+
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
         val request = userRequest
@@ -272,6 +283,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "contain main address row" when {
       "main address is defined and it hasn't been changed" in {
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, address, address)
+        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+          EitherT.rightT(personDetails)
+        )
+
         val request = userRequest
 
         val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
@@ -288,6 +306,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       }
 
       "main address is defined and it has been changed" in {
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, address, address)
+        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+          EitherT.rightT(personDetails)
+        )
+
         val request = userRequest
 
         val actual   = personalDetailsViewModel.getAddressRow(
@@ -308,12 +333,25 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "not contain main address row" when {
       "person details is not defined" in {
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, None, None)
+        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+          EitherT.rightT(personDetails)
+        )
+
         val request = userRequest
         val actual  = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
         actual.futureValue.mainAddress.isEmpty mustBe true
       }
 
       "address is not defined" in {
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, None, None)
+        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+          EitherT.rightT(personDetails)
+        )
+
         val request = userRequest
         val actual  = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
         actual.futureValue.mainAddress.isEmpty mustBe true
@@ -322,6 +360,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "display address unavailable content for postal address row" when {
       "AddressChangeAllowedToggle toggle switched off" in {
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, address, address)
+        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+          EitherT.rightT(personDetails)
+        )
+
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
 
@@ -344,6 +389,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "contain postal address row" when {
       "postal address is defined and it hasn't been changed" in {
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, None, address)
+        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+          EitherT.rightT(personDetails)
+        )
+
         val request = userRequest
 
         val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
@@ -360,6 +412,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       }
 
       "postal address is defined and it has been changed" in {
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, None, address)
+        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+          EitherT.rightT(personDetails)
+        )
+
         val request = userRequest
 
         val actual   = personalDetailsViewModel.getAddressRow(
@@ -378,6 +437,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       }
 
       "postal address is not defined and main address is defined" in {
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, address, None)
+        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+          EitherT.rightT(personDetails)
+        )
+
         val request = userRequest
 
         val actual                = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
@@ -397,6 +463,12 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "not contain postal address" when {
       "personal details are not defined" in {
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, None, None)
+        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+          EitherT.rightT(personDetails)
+        )
+
         val request = userRequest
 
         val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
