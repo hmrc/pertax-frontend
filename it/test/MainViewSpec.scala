@@ -137,7 +137,6 @@ class MainViewSpec extends IntegrationSpec {
     ): UserRequest[A] =
       UserRequest(
         authNino,
-        nino,
         userName,
         saUser,
         credentials,
@@ -166,7 +165,6 @@ class MainViewSpec extends IntegrationSpec {
     ): UserRequest[A] =
       UserRequest(
         authNino,
-        nino,
         userName,
         saUser,
         credentials,

@@ -25,7 +25,8 @@ final case class HomeViewModel(
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
-  alertBannerContent: List[Html]
+  alertBannerContent: List[Html],
+  name: Option[String]
 )
 
 object HomeViewModel {
@@ -35,7 +36,8 @@ object HomeViewModel {
     showUserResearchBanner: Boolean,
     selfAssessmentUserType: SelfAssessmentUserType,
     breathingSpaceIndicator: Boolean,
-    alertBannerContent: List[Html]
+    alertBannerContent: List[Html],
+    name: Option[String]
   ): HomeViewModel = {
 
     val utr: Option[String] = selfAssessmentUserType match {
@@ -49,7 +51,8 @@ object HomeViewModel {
       showUserResearchBanner,
       utr,
       breathingSpaceIndicator,
-      alertBannerContent
+      alertBannerContent,
+      name
     )
   }
 }

@@ -99,8 +99,7 @@ class EnrolmentsHelperSpec extends BaseSpec {
       "no sa enrolment is present" must {
         "returns None" in {
           val result = sut.selfAssessmentStatus(
-            Set(Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.nino)), "Activated")),
-            None
+            Set(Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.nino)), "Activated"))
           )
 
           result mustBe None
@@ -111,8 +110,7 @@ class EnrolmentsHelperSpec extends BaseSpec {
         s"sa enrolment is present and is $status" must {
           "returns SelfAssessment status" in {
             val result = sut.selfAssessmentStatus(
-              Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "utr")), status.toString)),
-              None
+              Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "utr")), status.toString))
             )
 
             result mustBe Some(SelfAssessmentEnrolment(SaUtr("utr"), status))
@@ -124,45 +122,11 @@ class EnrolmentsHelperSpec extends BaseSpec {
         "returns SelfAssessment status" in {
           val result = intercept[RuntimeException](
             sut.selfAssessmentStatus(
-              Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "utr")), "invalidState")),
-              None
+              Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "utr")), "invalidState"))
             )
           )
 
           result.getMessage mustBe "Unexpected enrolment status of invalidState was returned"
-        }
-      }
-    }
-
-    "TrustedHelper is set" must {
-      "returns None" when {
-        "no sa enrolment is present" in {
-          val result = sut.selfAssessmentStatus(
-            Set(Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.nino)), "Activated")),
-            Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some("principalNino")))
-          )
-
-          result mustBe None
-        }
-
-        List(Activated, NotYetActivated).foreach { status =>
-          s"sa enrolment is present and is $status" in {
-            val result = sut.selfAssessmentStatus(
-              Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "utr")), status.toString)),
-              Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some("principalNino")))
-            )
-
-            result mustBe None
-          }
-        }
-
-        "sa enrolment is present and is invalid" in {
-          val result = sut.selfAssessmentStatus(
-            Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "utr")), "invalidState")),
-            Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some("principalNino")))
-          )
-
-          result mustBe None
         }
       }
     }

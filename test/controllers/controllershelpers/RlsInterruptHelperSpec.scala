@@ -25,7 +25,6 @@ import org.mockito.ArgumentMatchers.any
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
-import testUtils.Fixtures.{buildFakeAddress, buildFakeCorrespondenceAddress, buildFakePersonDetails}
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
@@ -45,12 +44,10 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
   implicit val userRequest: UserRequest[AnyContent] = UserRequest(
     Fixtures.fakeNino,
-    Some(Fixtures.fakeNino),
     Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     NonFilerSelfAssessmentUser,
     Credentials("", "GovernmentGateway"),
     ConfidenceLevel.L200,
-    None,
     None,
     Set(),
     None,
@@ -78,12 +75,10 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
-          Some(buildFakePersonDetails.copy(address = Some(buildFakeAddress.copy(isRls = true)))),
           None,
           Set(),
           None,
@@ -104,14 +99,10 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
-          Some(
-            buildFakePersonDetails.copy(correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)))
-          ),
           None,
           Set(),
           None,
@@ -132,17 +123,10 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
-          Some(
-            buildFakePersonDetails.copy(
-              address = Some(buildFakeAddress.copy(isRls = true)),
-              correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true))
-            )
-          ),
           None,
           Set(),
           None,
@@ -163,12 +147,10 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
-          Some(buildFakePersonDetails.copy(address = Some(buildFakeAddress.copy(isRls = true)))),
           None,
           Set(),
           None,
@@ -189,14 +171,10 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
-          Some(
-            buildFakePersonDetails.copy(correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)))
-          ),
           None,
           Set(),
           None,
@@ -217,17 +195,10 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
-          Some(
-            buildFakePersonDetails.copy(
-              address = Some(buildFakeAddress.copy(isRls = true)),
-              correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true))
-            )
-          ),
           None,
           Set(),
           None,
@@ -248,17 +219,10 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
-          Some(
-            buildFakePersonDetails.copy(
-              address = Some(buildFakeAddress.copy(isRls = true)),
-              correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true))
-            )
-          ),
           None,
           Set(),
           None,
@@ -279,17 +243,10 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
-          Some(
-            buildFakePersonDetails.copy(
-              address = Some(buildFakeAddress.copy(isRls = true)),
-              correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true))
-            )
-          ),
           None,
           Set(),
           None,
@@ -313,17 +270,10 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(Fixtures.fakeNino),
           Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
-          Some(
-            buildFakePersonDetails.copy(
-              address = Some(buildFakeAddress.copy(isRls = true)),
-              correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true))
-            )
-          ),
           None,
           Set(),
           None,

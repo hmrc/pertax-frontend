@@ -25,12 +25,10 @@ import uk.gov.hmrc.domain.Nino
 
 final case class UserRequest[+A](
   authNino: Nino,
-  nino: Option[Nino],
   retrievedName: Option[UserName],
   saUserType: SelfAssessmentUserType,
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
-  personDetails: Option[PersonDetails],
   trustedHelper: Option[TrustedHelper],
   enrolments: Set[Enrolment],
   profile: Option[String],
@@ -38,11 +36,6 @@ final case class UserRequest[+A](
   request: Request[A],
   userAnswers: UserAnswers
 ) extends WrappedRequest[A](request) {
-
-  def name: Option[String] = personDetails match {
-    case Some(personDetails) => personDetails.person.shortName
-    case _                   => retrievedName.map(_.toString)
-  }
 
   def isSa: Boolean = saUserType match {
     case NonFilerSelfAssessmentUser => false
@@ -60,17 +53,14 @@ object UserRequest {
     authenticatedRequest: AuthenticatedRequest[A],
     retrievedName: Option[UserName],
     saUserType: SelfAssessmentUserType,
-    personDetails: Option[PersonDetails],
     breadcrumb: Option[Breadcrumb]
   ): UserRequest[A] =
     UserRequest(
       authenticatedRequest.authNino,
-      authenticatedRequest.nino,
       retrievedName,
       saUserType,
       authenticatedRequest.credentials,
       authenticatedRequest.confidenceLevel,
-      personDetails,
       authenticatedRequest.trustedHelper,
       authenticatedRequest.enrolments,
       authenticatedRequest.profile,

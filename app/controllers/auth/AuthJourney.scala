@@ -29,11 +29,10 @@ class AuthJourneyImpl @Inject() (
   authAction: AuthRetrievals,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
   pertaxAuthAction: PertaxAuthAction,
-  getPersonDetailsAction: GetPersonDetailsAction,
   defaultActionBuilder: DefaultActionBuilder
 ) extends AuthJourney {
 
   val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
-    defaultActionBuilder andThen pertaxAuthAction andThen authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
+    defaultActionBuilder andThen pertaxAuthAction andThen authAction andThen selfAssessmentStatusAction
 
 }

@@ -167,7 +167,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
   ): UserRequest[A] =
     UserRequest(
       authNino,
-      nino,
       userName,
       saUser,
       credentials,
