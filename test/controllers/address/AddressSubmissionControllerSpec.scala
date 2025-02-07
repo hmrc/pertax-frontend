@@ -422,5 +422,29 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       contentAsString(result) mustNot include("Complete a P85 form (opens in new tab)")
     }
 
+    "return a BadRequest response when start date cannot be the same" in {
+      val addressDto: AddressDto         = asAddressDto(fakeStreetTupleListAddressForUnmodified)
+      val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
+
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
+        Future.successful(
+          UserAnswers
+            .empty("id")
+            .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
+            .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
+        )
+      )
+
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(
+        EitherT.leftT(UpstreamErrorResponse("Start Date cannot be the same", 400))
+      )
+
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
+
+      status(result) mustBe BAD_REQUEST
+      contentAsString(result) must include(
+        Messages("label.the_date_you_entered_is_earlier_than_a_date_previously_held_")
+      )
+    }
   }
 }

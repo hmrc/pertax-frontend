@@ -30,14 +30,15 @@ import models.{AddressJourneyData, ETag}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.{AddressMovedService, CitizenDetailsService}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.language.LanguageUtils
 import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
+import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, ReviewChangesView, UpdateAddressConfirmationView}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -55,7 +56,9 @@ class AddressSubmissionController @Inject() (
   reviewChangesView: ReviewChangesView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   featureFlagService: FeatureFlagService,
-  internalServerErrorView: InternalServerErrorView
+  internalServerErrorView: InternalServerErrorView,
+  cannotUpdateAddressEarlyDateView: CannotUpdateAddressEarlyDateView,
+  languageUtils: LanguageUtils
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
@@ -130,6 +133,7 @@ class AddressSubmissionController @Inject() (
               version
                 .map { version =>
                   cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
+                    val p85Enabled = !isUk(journeyData.submittedInternationalAddressChoiceDto)
                     ensuringSubmissionRequirements(typ, journeyData) {
 
                       journeyData.submittedAddressDto.fold(
@@ -157,8 +161,7 @@ class AddressSubmissionController @Inject() (
                                 version,
                                 addressType
                               )
-                              val displayP85                      =
-                                !isUk(journeyData.submittedInternationalAddressChoiceDto)
+
                               cachingHelper.clearCache()
 
                               Ok(
@@ -167,7 +170,7 @@ class AddressSubmissionController @Inject() (
                                   closedPostalAddress = false,
                                   None,
                                   addressMovedService.toMessageKey(addressChanged),
-                                  displayP85Message = displayP85
+                                  displayP85Message = p85Enabled
                                 )
                               )
                             }
@@ -177,7 +180,28 @@ class AddressSubmissionController @Inject() (
                               result <- citizenDetailsService
                                           .updateAddress(nino, version.etag, address)
                                           .foldF(
-                                            _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
+                                            {
+                                              case error
+                                                  if error.statusCode == 400 && error.message
+                                                    .toLowerCase()
+                                                    .contains("start date") =>
+                                                Future.successful(
+                                                  BadRequest(
+                                                    cannotUpdateAddressEarlyDateView(
+                                                      typ,
+                                                      languageUtils.Dates.formatDate(
+                                                        journeyData.submittedStartDateDto
+                                                          .map(_.startDate)
+                                                          .getOrElse(LocalDate.now())
+                                                      ),
+                                                      p85Enabled
+                                                    )
+                                                  )
+                                                )
+
+                                              case _ =>
+                                                errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+                                            },
                                             _ => Future.successful(successResponseBlock())
                                           )
                             } yield result
