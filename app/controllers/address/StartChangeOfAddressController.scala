@@ -24,7 +24,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.StartChangeOfAddressView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -48,7 +47,7 @@ class StartChangeOfAddressController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         val startNowUrl = addrType match {
-          case PostalAddrType => controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url
+          case PostalAddrType => routes.PostalDoYouLiveInTheUKController.onPageLoad.url
           case _              => routes.DoYouLiveInTheUKController.onPageLoad.url
         }
 
