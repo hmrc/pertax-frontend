@@ -33,10 +33,16 @@ class StartChangeOfAddressControllerSpec extends AddressBaseSpec {
     "return 200 and correct content when passed ResidentialAddrType" in {
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(currentRequest)
       status(result) mustBe OK
-      val doc: Document = Jsoup.parse(contentAsString(result))
-      val bodyElements = doc.getElementsByClass("govuk-body")
-      doc.getElementsByClass("govuk-list").eachText().toString mustBe "[Child Benefit Income Tax National Insurance State Pension]"
-      bodyElements.first().toString.contains("Tell HMRC when your main address changes. This will update your details for:") mustBe true
+      val doc: Document          = Jsoup.parse(contentAsString(result))
+      val bodyElements           = doc.getElementsByClass("govuk-body")
+      doc
+        .getElementsByClass("govuk-list")
+        .eachText()
+        .toString mustBe "[Child Benefit Income Tax National Insurance State Pension]"
+      bodyElements
+        .first()
+        .toString
+        .contains("Tell HMRC when your main address changes. This will update your details for:") mustBe true
       bodyElements.next().next().toString.contains("Wait until you've moved before updating your address.") mustBe true
       doc.getElementsByClass("govuk-button").attr("href").contains(startNowUrl) mustBe true
     }
@@ -44,10 +50,16 @@ class StartChangeOfAddressControllerSpec extends AddressBaseSpec {
     "return 200 and correct content when passed PostalAddrType" in {
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(currentRequest)
       status(result) mustBe OK
-      val doc: Document = Jsoup.parse(contentAsString(result))
-      val bodyElements = doc.getElementsByClass("govuk-body")
-      doc.getElementsByClass("govuk-list").eachText().toString mustBe "[Child Benefit Income Tax National Insurance State Pension]"
-      bodyElements.first().toString.contains("Tell HMRC when your postal address changes. All letters will be sent to this address.") mustBe true
+      val doc: Document          = Jsoup.parse(contentAsString(result))
+      val bodyElements           = doc.getElementsByClass("govuk-body")
+      doc
+        .getElementsByClass("govuk-list")
+        .eachText()
+        .toString mustBe "[Child Benefit Income Tax National Insurance State Pension]"
+      bodyElements
+        .first()
+        .toString
+        .contains("Tell HMRC when your postal address changes. All letters will be sent to this address.") mustBe true
       bodyElements.next().toString.contains("This will update your details for:") mustBe true
       doc.getElementsByClass("govuk-button").attr("href").contains(startNowUrl) mustBe true
     }

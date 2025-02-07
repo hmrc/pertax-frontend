@@ -17,14 +17,15 @@
 @import controllers.auth.requests.UserRequest
 @import tags._
 @import scala.concurrent.ExecutionContext
-@import components.{ErrorSummary, InputDate, P, Link, Button}
+@import components.{ErrorSummary, InputDate, P, Link, Button, H1}
 
 @this(
     main: MainView,
     p: P,
     link: Link,
     button: Button,
-    govukDetails: GovukDetails
+    govukDetails: GovukDetails,
+    h1: H1
 )
 @(addrType: AddrType, startUrl: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
@@ -40,12 +41,12 @@
     showBackLink = true,
     yourProfileActive = true
 ) {
+    @h1(addrType.ifIs(residential = "changeMainAddress.h1", postal = "changePostalAddress.h1"))
     <p class="govuk-body">@addrType.ifIs(residential = messages("changeMainAddress.p1"), postal = messages("changePostalAddress.p1"))</p>
 
     @addrType.ifIs(residential = Html(""), postal = Html(s"""<p class="govuk-body">${messages("changePostalAddress.p2")}</p>"""))
 
-
-    <ul class="govuk-list">
+    <ul class="govuk-list govuk-list--bullet">
         <li>@messages("changeAddress.li1")</li>
         <li>@messages("changeAddress.li2")</li>
         <li>@messages("changeAddress.li3")</li>
