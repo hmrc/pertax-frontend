@@ -49,7 +49,8 @@ class HomeViewSpec extends ViewSpec {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(Fixtures.buildPersonDetails), userName = None, request = FakeRequest())
 
-      lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
+      lazy val document: Document =
+        asDocument(home(homeViewModel.copy(name = Some("Firstname Lastname")), shutteringMessaging = false).toString)
 
       document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
       document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false
@@ -62,7 +63,8 @@ class HomeViewSpec extends ViewSpec {
         request = FakeRequest()
       )
 
-      lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
+      lazy val document: Document =
+        asDocument(home(homeViewModel.copy(name = Some("Firstname Lastname")), shutteringMessaging = false).toString)
 
       document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
       document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false

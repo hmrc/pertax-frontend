@@ -50,7 +50,7 @@ class SelfAssessmentStatusAction @Inject() (
     hc: HeaderCarrier,
     request: AuthenticatedRequest[A]
   ): Future[SelfAssessmentUserType] =
-    if (request.trustedHelper.isDefined) {
+    if (request.trustedHelper.isEmpty) {
       enrolmentsHelper.selfAssessmentStatus(request.enrolments) match {
         case Some(SelfAssessmentEnrolment(saUtr, Activated))       =>
           Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr))

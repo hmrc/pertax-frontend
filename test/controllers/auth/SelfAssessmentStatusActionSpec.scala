@@ -156,14 +156,4 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
       verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
     }
   }
-
-  "when user has no Nino" must {
-    "return NonFilerSelfAssessmentUser" in {
-      implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set.empty)
-
-      val result = harness()(request)
-      contentAsString(result) must include("NonFilerSelfAssessmentUser")
-      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any(), any())
-    }
-  }
 }

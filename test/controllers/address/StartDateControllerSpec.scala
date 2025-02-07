@@ -16,6 +16,7 @@
 
 package controllers.address
 
+import cats.data.EitherT
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto.{AddressDto, AddressPageVisitedDto, InternationalAddressChoiceDto}
@@ -25,7 +26,7 @@ import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import routePages.{HasAddressAlreadyVisitedPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage}
-import testUtils.ActionBuilderFixture
+import testUtils.{ActionBuilderFixture, Fixtures}
 import testUtils.Fixtures.fakeStreetTupleListAddressForUnmodified
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fixtures.AddressFixture.{address => addressFixture}
@@ -178,6 +179,14 @@ class StartDateControllerSpec extends AddressBaseSpec {
     }
 
     "return 400 with P85 messaging when passed ResidentialAddrType and the updated start date is not after the start date on record (international address)" in {
+      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(
+        _.copy(startDate = Some(LocalDate.of(2016, 11, 22)))
+      )
+      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails = PersonDetails(person, address, None)
+      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        EitherT.rightT(personDetails)
+      )
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")

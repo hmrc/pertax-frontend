@@ -36,6 +36,7 @@ import play.api.test.Injecting
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.test.CleanMongoCollectionSupport
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.FormPartialRetriever
@@ -50,7 +51,8 @@ trait BaseSpec
     with MockitoSugar
     with ScalaFutures
     with IntegrationPatience
-    with Injecting {
+    with Injecting
+    with CleanMongoCollectionSupport {
   this: Suite =>
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
