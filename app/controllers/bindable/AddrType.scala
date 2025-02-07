@@ -17,7 +17,7 @@
 package controllers.bindable
 
 import models.{EditCorrespondenceAddress, EditResidentialAddress, EditedAddress}
-import play.api.mvc.QueryStringBindable
+import play.api.mvc.{JavascriptLiteral, QueryStringBindable}
 import util.Enumerable
 
 import java.time.Instant
@@ -50,6 +50,8 @@ object AddrType {
 
       def unbind(key: String, value: AddrType): String = stringBinder.unbind(key, value.toString)
     }
+
+  implicit val jsLiteral: JavascriptLiteral[AddrType] = (value: AddrType) => value.toString
 }
 sealed trait AddrType {
   override def toString: String = ifIs("residential", "postal")

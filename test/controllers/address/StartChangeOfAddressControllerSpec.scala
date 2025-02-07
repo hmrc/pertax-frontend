@@ -27,8 +27,6 @@ import scala.concurrent.Future
 class StartChangeOfAddressControllerSpec extends AddressBaseSpec {
   private lazy val controller: StartChangeOfAddressController = app.injector.instanceOf[StartChangeOfAddressController]
 
-  private val startNowUrl = routes.DoYouLiveInTheUKController.onPageLoad.url
-
   "onPageLoad" must {
     "return 200 and correct content when passed ResidentialAddrType" in {
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(currentRequest)
@@ -44,7 +42,10 @@ class StartChangeOfAddressControllerSpec extends AddressBaseSpec {
         .toString
         .contains("Tell HMRC when your main address changes. This will update your details for:") mustBe true
       bodyElements.next().next().toString.contains("Wait until you've moved before updating your address.") mustBe true
-      doc.getElementsByClass("govuk-button").attr("href").contains(startNowUrl) mustBe true
+      doc
+        .getElementsByClass("govuk-button")
+        .attr("href")
+        .contains(routes.DoYouLiveInTheUKController.onPageLoad.url) mustBe true
     }
 
     "return 200 and correct content when passed PostalAddrType" in {
@@ -61,7 +62,10 @@ class StartChangeOfAddressControllerSpec extends AddressBaseSpec {
         .toString
         .contains("Tell HMRC when your postal address changes. All letters will be sent to this address.") mustBe true
       bodyElements.next().toString.contains("This will update your details for:") mustBe true
-      doc.getElementsByClass("govuk-button").attr("href").contains(startNowUrl) mustBe true
+      doc
+        .getElementsByClass("govuk-button")
+        .attr("href")
+        .contains(routes.PostalDoYouLiveInTheUKController.onPageLoad.url) mustBe true
     }
 
   }

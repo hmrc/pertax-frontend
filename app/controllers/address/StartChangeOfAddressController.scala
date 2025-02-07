@@ -47,7 +47,11 @@ class StartChangeOfAddressController @Inject() (
   def onPageLoad(addrType: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        val startNowUrl = routes.DoYouLiveInTheUKController.onPageLoad.url
+        val startNowUrl = addrType match {
+          case PostalAddrType => controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url
+          case _              => routes.DoYouLiveInTheUKController.onPageLoad.url
+        }
+
         Future.successful(
           addrType match {
             case ResidentialAddrType => Ok(startChangeOfAddressView(addrType, startNowUrl))
