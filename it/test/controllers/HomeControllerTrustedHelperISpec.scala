@@ -116,7 +116,10 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
     )
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authTrustedHelperResponse)))
-    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedHelperNino")).willReturn(ok(citizenResponse)))
+    server.stubFor(
+      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        .willReturn(ok(personDetailsResponse(generatedNino.nino)))
+    )
   }
 
   "personal-account" must {
@@ -126,7 +129,7 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
       server.verify(1, postRequestedFor(urlEqualTo(pertaxUrl)))
-      server.verify(1, getRequestedFor(urlEqualTo(s"/citizen-details/nino/$generatedHelperNino")))
+      server.verify(1, getRequestedFor(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details")))
 
     }
   }
