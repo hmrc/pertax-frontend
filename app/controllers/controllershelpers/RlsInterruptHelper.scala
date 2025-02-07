@@ -26,6 +26,7 @@ import play.api.Logging
 import play.api.mvc.{MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
 import services.CitizenDetailsService
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -59,9 +60,9 @@ class RlsInterruptHelperImpl @Inject() (
       if (featureFlag.isEnabled) {
         logger.debug("Check for RLS interrupt")
         (for {
-          personDetails <- citizenDetailsService.personDetails(request.authNino).toOption
+          personDetails <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption
           addressesLock <-
-            OptionT.liftF(editAddressLockRepository.getAddressesLock(request.authNino.withoutSuffix))
+            OptionT.liftF(editAddressLockRepository.getAddressesLock(request.helpeeNinoOrElse.withoutSuffix))
         } yield {
           logger.info("Residential mongo lock: " + addressesLock.main.toString)
           logger.info("Correspondence mongo lock: " + addressesLock.postal.toString)

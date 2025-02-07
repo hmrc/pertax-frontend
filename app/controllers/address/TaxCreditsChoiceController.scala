@@ -92,7 +92,7 @@ class TaxCreditsChoiceController @Inject() (
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
+      addressJourneyEnforcer { nino => _ =>
         TaxCreditsChoiceDto.form
           .bindFromRequest()
           .fold(
@@ -104,7 +104,7 @@ class TaxCreditsChoiceController @Inject() (
                 if (taxCreditsChoiceDto.hasTaxCredits) {
                   editAddressLockRepository
                     .insert(
-                      request.authNino.withoutSuffix,
+                      nino.withoutSuffix,
                       AddrType.apply("residential").get
                     )
                     .map {

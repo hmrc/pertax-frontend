@@ -19,6 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{AddressJourneyCachingHelper, RlsInterruptHelper}
 import error.ErrorRenderer
 import models.admin.AddressChangeAllowedToggle
@@ -67,18 +68,16 @@ class PersonalDetailsController @Inject() (
   }
 
   def onPageLoad: Action[AnyContent] =
-    authenticate.async { implicit request =>
+    authenticate.async { implicit request: UserRequest[AnyContent] =>
       rlsInterruptHelper.enforceByRlsStatus(for {
         agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
-        addressModel      <- editAddressLockRepository.get(request.authNino.withoutSuffix)
+        addressModel      <- editAddressLockRepository.get(request.helpeeNinoOrElse.withoutSuffix)
         personDetails     <- citizenDetailsService
-                               .personDetails(request.authNino)
+                               .personDetails(request.helpeeNinoOrElse)
                                .toOption
                                .value
-        nino               = personDetails.flatMap(personDetails => personDetails.person.nino)
-        name               = personDetails.fold(request.retrievedName.map(_.toString)) { personDetails =>
-                               personDetails.person.shortName
-                             }
+        nameToDisplay      = personDetails.fold(request.helpeeNameOrElse.map(_.toString))(_.person.shortName)
+        ninoToDisplay      = personDetails.fold(request.helpeeNinoOrElse)(_.person.nino.getOrElse(request.helpeeNinoOrElse))
 
         _ <- personDetails
                .map { details =>
@@ -96,7 +95,7 @@ class PersonalDetailsController @Inject() (
         addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
         addressDetails             <- personalDetailsViewModel.getAddressRow(addressModel)
         paperLessPreference        <- personalDetailsViewModel.getPaperlessSettingsRow
-        personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(nino, name)
+        personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(Some(ninoToDisplay), nameToDisplay)
 
       } yield {
         val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow

@@ -117,8 +117,8 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authTrustedHelperResponse)))
     server.stubFor(
-      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-        .willReturn(ok(personDetailsResponse(generatedNino.nino)))
+      get(urlEqualTo(s"/citizen-details/$generatedHelperNino/designatory-details"))
+        .willReturn(ok(personDetailsResponse(generatedHelperNino.nino)))
     )
   }
 
@@ -130,7 +130,7 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
       httpStatus(result) mustBe OK
       contentAsString(result) must include("principal Name")
       server.verify(1, postRequestedFor(urlEqualTo(pertaxUrl)))
-      server.verify(1, getRequestedFor(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details")))
+      server.verify(1, getRequestedFor(urlEqualTo(s"/citizen-details/$generatedHelperNino/designatory-details")))
 
     }
   }

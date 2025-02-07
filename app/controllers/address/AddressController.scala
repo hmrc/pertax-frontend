@@ -52,9 +52,9 @@ abstract class AddressController @Inject() (
       if (!toggle.isEnabled) {
         Future.successful(InternalServerError(internalServerErrorView()))
       } else {
-        citizenDetailsService.personDetails(request.authNino).value.flatMap {
+        citizenDetailsService.personDetails(request.helpeeNinoOrElse).value.flatMap {
           case Right(personDetails) =>
-            block(request.authNino)(personDetails)
+            block(request.helpeeNinoOrElse)(personDetails)
           case Left(_)              => Future.successful(errorRenderer.error(INTERNAL_SERVER_ERROR))
         }
       }

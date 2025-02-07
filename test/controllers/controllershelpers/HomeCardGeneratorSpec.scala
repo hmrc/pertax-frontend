@@ -463,7 +463,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "return None when the trustedHelper is not empty" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
-          trustedHelper = Some(TrustedHelper("", "", "", Some(""))),
+          trustedHelper = Some(TrustedHelper("", "", "", Some(generatedTrustedHelperNino.nino))),
           request = FakeRequest()
         )
 
@@ -645,7 +645,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
         personDetails = None,
-        trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some("fakePrincipalNino"))),
+        trustedHelper =
+          Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))),
         request = FakeRequest()
       )
 

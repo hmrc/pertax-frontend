@@ -129,17 +129,15 @@ class AuthRetrievalsSpec extends BaseSpec {
   "A user with trustedHelper must" must {
     "create an authenticated request containing the trustedHelper" in {
 
-      val fakePrincipalNino = Fixtures.fakeNino.toString()
-
       val controller =
         retrievals(trustedHelper =
-          Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(fakePrincipalNino)))
+          Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino)))
         )
 
       val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(
-        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,Some($fakePrincipalNino)))"
+        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,Some($generatedTrustedHelperNino)))"
       )
     }
   }
