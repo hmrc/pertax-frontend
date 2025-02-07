@@ -19,7 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import controllers.bindable.AddrType
+import controllers.bindable.{AddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.admin.AddressTaxCreditsBrokerCallToggle
 import models.dto.TaxCreditsChoiceDto
@@ -27,8 +27,8 @@ import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
 import routePages.TaxCreditsChoicePage
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.TaxCreditsService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
@@ -71,7 +71,7 @@ class TaxCreditsChoiceController @Inject() (
                   } { isAddressChangeInPTA =>
                     if (isAddressChangeInPTA) {
                       cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(false))
-                      Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                      Redirect(routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType))
                     } else {
                       cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(true))
                       Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
@@ -112,7 +112,7 @@ class TaxCreditsChoiceController @Inject() (
                     }
                   Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
                 } else {
-                  Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                  Redirect(routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType))
                 }
               }
           )
