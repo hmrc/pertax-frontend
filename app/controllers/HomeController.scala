@@ -71,9 +71,10 @@ class HomeController @Inject() (
           alertBannerContent      <- alertBannerHelper.getContent
           personDetails           <- citizenDetailsService.personDetails(request.authNino).toOption.value
         } yield {
-          val name = personDetails.fold(request.retrievedName.map(_.toString)) { personDetails =>
+          val originalName = personDetails.fold(request.retrievedName.map(_.toString)) { personDetails =>
             personDetails.person.shortName
           }
+          val nameToShow   = request.trustedHelper.fold(originalName)(helpee => Some(helpee.principalName))
 
           val benefitCards: Seq[Html] =
             homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
@@ -86,7 +87,7 @@ class HomeController @Inject() (
                 saUserType,
                 breathingSpaceIndicator = breathingSpaceIndicator,
                 alertBannerContent,
-                name
+                nameToShow
               ),
               shutteringMessaging.isEnabled
             )

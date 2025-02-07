@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.Application
 import play.api.http.Status._
 import play.api.mvc.{AnyContentAsEmpty, Result}
-import play.api.test.Helpers.{GET, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import play.api.test.FakeRequest
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.domain.{Generator, Nino}
@@ -67,7 +67,7 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
        |        "lastName": "Smith"
        |    },
        |    "trustedHelper": {
-       |        "principalName": "principal",
+       |        "principalName": "principal Name",
        |        "attorneyName": "attorney",
        |        "returnLinkUrl": "returnLink",
        |        "principalNino": "$generatedHelperNino"
@@ -128,6 +128,7 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
 
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
+      contentAsString(result) must include("principal Name")
       server.verify(1, postRequestedFor(urlEqualTo(pertaxUrl)))
       server.verify(1, getRequestedFor(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details")))
 
