@@ -39,7 +39,9 @@ class HttpClientResponseSpec
     override protected val logger: Logger = mockLogger
   }
 
-  private val dummyContent = "error message"
+  private val dummyContent              = "error message"
+  private val specificBadRequestMessage =
+    "Start Date cannot be the same as, or prior to, the previous address start date"
 
   "read" must {
     behave like clientResponseLogger(
@@ -141,6 +143,17 @@ class HttpClientResponseSpec
         block(response).value
       }
       verifyCalls()
+    }
+
+    "log specific BAD_REQUEST with address update message as WARNING" in {
+      reset(mockLogger)
+      val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+        Future(Left(UpstreamErrorResponse(specificBadRequestMessage, BAD_REQUEST)))
+
+      whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
+        actual mustBe Left(UpstreamErrorResponse(specificBadRequestMessage, BAD_REQUEST))
+        verifyCalls(warn = Some(s"Specific 400 Error - Address Update: $specificBadRequestMessage"))
+      }
     }
   }
 
