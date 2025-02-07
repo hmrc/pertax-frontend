@@ -62,6 +62,8 @@ POST        /personal-account/your-address/close-correspondence-address         
 GET         /personal-account/your-address/close-correspondence-address-confirm        controllers.address.ClosePostalAddressController.confirmPageLoad
 POST        /personal-account/your-address/thanks                                      controllers.address.ClosePostalAddressController.confirmSubmit
 GET         /personal-account/your-address/thanks                                      controllers.address.PersonalDetailsController.onPageLoad
+GET         /personal-account/your-address/start-change-main-address              controllers.address.StartChangeOfAddressController.onPageLoad(typ: AddrType ?= ResidentialAddrType)
+GET         /personal-account/your-address/start-change-postal-address            controllers.address.StartChangeOfAddressController.onPageLoad(typ: AddrType ?= PostalAddrType)
 
 GET         /personal-account/self-assessment-summary                                  controllers.InterstitialController.displaySelfAssessment
 GET         /personal-account/self-assessment/sa302/:year                              controllers.InterstitialController.displaySa302Interrupt(year: Int)

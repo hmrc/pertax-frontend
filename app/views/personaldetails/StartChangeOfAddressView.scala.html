@@ -1,0 +1,58 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.auth.requests.UserRequest
+@import tags._
+@import scala.concurrent.ExecutionContext
+@import components.{ErrorSummary, InputDate, P, Link, Button}
+
+@this(
+    main: MainView,
+    p: P,
+    link: Link,
+    button: Button,
+    govukDetails: GovukDetails
+)
+@(addrType: AddrType, startUrl: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+
+@title = {
+    @addrType.ifIs(
+        residential = messages("changeMainAddress.title"),
+        postal = messages("changePostalAddress.title ")
+    )
+}
+
+@main(
+    pageTitle = title.toString,
+    showBackLink = true,
+    yourProfileActive = true
+) {
+    <p class="govuk-body">@addrType.ifIs(residential = messages("changeMainAddress.p1"), postal = messages("changePostalAddress.p1"))</p>
+
+    @addrType.ifIs(residential = Html(""), postal = Html(s"""<p class="govuk-body">${messages("changePostalAddress.p2")}</p>"""))
+
+
+    <ul class="govuk-list">
+        <li>@messages("changeAddress.li1")</li>
+        <li>@messages("changeAddress.li2")</li>
+        <li>@messages("changeAddress.li3")</li>
+        <li>@messages("changeAddress.li4")</li>
+    </ul>
+
+    @addrType.ifIs(residential = Html(s"""<p class="govuk-body">${messages("changeMainAddress.p2")}</p>"""), postal = Html(""))
+
+    @button("label.start_now", href = Some(startUrl),  id="start-now")
+}
