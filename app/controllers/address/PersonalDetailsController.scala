@@ -28,7 +28,7 @@ import services.AgentClientAuthorisationService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildPersonDetailsEvent
-import viewmodels.{AddressRowModel, PersonalDetailsViewModel}
+import viewmodels.PersonalDetailsViewModel
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PersonalDetailsView
@@ -68,15 +68,14 @@ class PersonalDetailsController @Inject() (
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
       rlsInterruptHelper.enforceByRlsStatus(for {
-        agentClientStatus                                                                          <- agentClientAuthorisationService.getAgentClientStatus
-        addressModel: _root_.scala.collection.immutable.List[_root_.models.AddressJourneyTTLModel] <-
-          request.nino
-            .map { nino =>
-              editAddressLockRepository.get(nino.withoutSuffix)
-            }
-            .getOrElse(
-              Future.successful(List[AddressJourneyTTLModel]())
-            )
+        agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
+        addressModel      <- request.nino
+                               .map { nino =>
+                                 editAddressLockRepository.get(nino.withoutSuffix)
+                               }
+                               .getOrElse(
+                                 Future.successful(List[AddressJourneyTTLModel]())
+                               )
 
         _ <- request.personDetails
                .map { details =>
@@ -91,10 +90,10 @@ class PersonalDetailsController @Inject() (
         _ <- cachingHelper
                .addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-        addressChangeAllowedToggle      <- featureFlagService.get(AddressChangeAllowedToggle)
-        addressDetails: AddressRowModel <- personalDetailsViewModel.getAddressRow(addressModel)
-        paperLessPreference             <- personalDetailsViewModel.getPaperlessSettingsRow
-        personalDetails                 <- personalDetailsViewModel.getPersonDetailsTable(request.nino)
+        addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
+        addressDetails             <- personalDetailsViewModel.getAddressRow(addressModel)
+        paperLessPreference        <- personalDetailsViewModel.getPaperlessSettingsRow
+        personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(request.nino)
 
       } yield {
         val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow
