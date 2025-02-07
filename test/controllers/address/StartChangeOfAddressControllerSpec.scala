@@ -32,6 +32,7 @@ class StartChangeOfAddressControllerSpec extends AddressBaseSpec {
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(currentRequest)
       status(result) mustBe OK
       val doc: Document          = Jsoup.parse(contentAsString(result))
+      doc.getElementsByTag("h1").toString.contains("Change your main address") mustBe true
       val bodyElements           = doc.getElementsByClass("govuk-body")
       doc
         .getElementsByClass("govuk-list")
@@ -52,6 +53,7 @@ class StartChangeOfAddressControllerSpec extends AddressBaseSpec {
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(currentRequest)
       status(result) mustBe OK
       val doc: Document          = Jsoup.parse(contentAsString(result))
+      doc.getElementsByTag("h1").toString.contains("Change your postal address") mustBe true
       val bodyElements           = doc.getElementsByClass("govuk-body")
       doc
         .getElementsByClass("govuk-list")

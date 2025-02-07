@@ -19,11 +19,12 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
+import controllers.bindable.{AddrType, PostalAddrType}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
+import views.html.personaldetails.StartChangeOfAddressView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -52,10 +53,7 @@ class StartChangeOfAddressController @Inject() (
         }
 
         Future.successful(
-          addrType match {
-            case ResidentialAddrType => Ok(startChangeOfAddressView(addrType, startNowUrl))
-            case PostalAddrType      => Ok(startChangeOfAddressView(addrType, startNowUrl))
-          }
+          Ok(startChangeOfAddressView(addrType, startNowUrl))
         )
       }
     }
