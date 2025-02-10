@@ -134,7 +134,9 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
         val argCaptorValue: Result = arg.getValue
         argCaptorValue.header.status mustBe SEE_OTHER
         redirectLocation(Future.successful(argCaptorValue)) mustBe Some(
-          "/personal-account/your-address/change-main-address"
+          "/personal-account/your-address/residential/where-is-your-new-address"
+          // TODO: If start change of address page experiment is successful replace above line with below
+          // "/personal-account/your-address/change-main-address"
         )
       }
 
@@ -298,7 +300,9 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
       val result: Future[Result] = controller.onSubmit(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/change-main-address")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/where-is-your-new-address")
+      // TODO: If start change of address page experiment is successful replace above line with below
+//      redirectLocation(result) mustBe Some("/personal-account/your-address/change-main-address")
     }
 
     "return a bad request when supplied no value" in {

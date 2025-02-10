@@ -64,7 +64,7 @@ class StartChangeOfAddressViewSpec extends ViewSpec {
     val doc: Document = Jsoup.parse(result)
     doc.getElementsByTag("title").toString.contains("Change your postal address")
     doc.getElementsByTag("h1").toString.contains("Change your postal address") mustBe true
-    val bodyElements = doc.getElementsByClass("govuk-body")
+    val bodyElements  = doc.getElementsByClass("govuk-body")
     doc
       .getElementsByClass("govuk-list")
       .eachText()

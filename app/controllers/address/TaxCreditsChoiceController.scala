@@ -19,7 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import controllers.bindable.{AddrType, ResidentialAddrType}
+import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.admin.AddressTaxCreditsBrokerCallToggle
 import models.dto.TaxCreditsChoiceDto
@@ -71,7 +71,9 @@ class TaxCreditsChoiceController @Inject() (
                   } { isAddressChangeInPTA =>
                     if (isAddressChangeInPTA) {
                       cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(false))
-                      Redirect(routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType))
+                      Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                      // TODO: If start change of address page experiment is successful replace above line with below
+                      //Redirect(routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType))
                     } else {
                       cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(true))
                       Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
@@ -112,7 +114,9 @@ class TaxCreditsChoiceController @Inject() (
                     }
                   Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
                 } else {
-                  Redirect(routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType))
+                  Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                  // TODO: If start change of address page experiment is successful replace above line with below
+                  //Redirect(routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType))
                 }
               }
           )

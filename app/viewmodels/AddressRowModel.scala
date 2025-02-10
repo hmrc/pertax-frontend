@@ -16,7 +16,6 @@
 
 package viewmodels
 
-import controllers.bindable.PostalAddrType
 import viewmodels.AddressRowModel.closePostalAddressUrl
 
 final case class ExtraLinks(linkTextMessage: String, linkUrl: String)
@@ -48,5 +47,9 @@ object AddressRowModel {
 
   val closePostalAddressUrl: String  = controllers.address.routes.ClosePostalAddressController.onPageLoad.url
   val changePostalAddressUrl: String =
-    controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url
+    controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url
+  // TODO: If start change of address page experiment is successful replace above line with below
+  
+  //  val changePostalAddressUrl: String =
+  //    controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url   
 }
