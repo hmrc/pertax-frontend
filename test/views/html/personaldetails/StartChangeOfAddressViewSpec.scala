@@ -37,11 +37,13 @@ class StartChangeOfAddressViewSpec extends ViewSpec {
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(request = FakeRequest())
 
-  "return 200 and correct content when passed ResidentialAddrType" in {
+  "render correct content when passed ResidentialAddrType" in {
     val result        = view(ResidentialAddrType).toString
     val doc: Document = Jsoup.parse(result)
+
+    doc.getElementsByTag("title").toString.contains("Change your main address")
     doc.getElementsByTag("h1").toString.contains("Change your main address") mustBe true
-    val bodyElements  = doc.getElementsByClass("govuk-body")
+    val bodyElements = doc.getElementsByClass("govuk-body")
     doc
       .getElementsByClass("govuk-list")
       .eachText()
@@ -57,11 +59,12 @@ class StartChangeOfAddressViewSpec extends ViewSpec {
       .contains(routes.DoYouLiveInTheUKController.onPageLoad.url) mustBe true
   }
 
-  "return 200 and correct content when passed PostalAddrType" in {
+  "render correct content when passed PostalAddrType" in {
     val result        = view(PostalAddrType).toString
     val doc: Document = Jsoup.parse(result)
+    doc.getElementsByTag("title").toString.contains("Change your postal address")
     doc.getElementsByTag("h1").toString.contains("Change your postal address") mustBe true
-    val bodyElements  = doc.getElementsByClass("govuk-body")
+    val bodyElements = doc.getElementsByClass("govuk-body")
     doc
       .getElementsByClass("govuk-list")
       .eachText()
