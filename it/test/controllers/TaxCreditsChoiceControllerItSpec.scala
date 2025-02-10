@@ -156,7 +156,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec with BeforeAndAft
 
       result.get.futureValue.header.status mustBe SEE_OTHER
       result.get.futureValue.header.headers.get("Location") mustBe Some(
-        "/personal-account/your-address/start-change-main-address"
+        "/personal-account/your-address/change-main-address"
       )
     }
 

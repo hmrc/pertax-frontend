@@ -19,7 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import controllers.bindable.{AddrType, PostalAddrType}
+import controllers.bindable.AddrType
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
@@ -47,13 +47,8 @@ class StartChangeOfAddressController @Inject() (
   def onPageLoad(addrType: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        val startNowUrl = addrType match {
-          case PostalAddrType => routes.PostalDoYouLiveInTheUKController.onPageLoad.url
-          case _              => routes.DoYouLiveInTheUKController.onPageLoad.url
-        }
-
         Future.successful(
-          Ok(startChangeOfAddressView(addrType, startNowUrl))
+          Ok(startChangeOfAddressView(addrType))
         )
       }
     }

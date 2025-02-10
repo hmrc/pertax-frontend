@@ -27,7 +27,7 @@
     govukDetails: GovukDetails,
     h1: H1
 )
-@(addrType: AddrType, startUrl: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(addrType: AddrType)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @title = {
     @addrType.ifIs(
@@ -55,5 +55,17 @@
 
     @addrType.ifIs(residential = Html(s"""<p class="govuk-body">${messages("changeMainAddress.p2")}</p>"""), postal = Html(""))
 
-    @button("label.start_now", href = Some(startUrl),  id="start-now")
+
+    @{
+        button(
+            "label.start_now", 
+            href = Some(
+                addrType match {
+                    case PostalAddrType => controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url
+                    case _              => controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url
+                }            
+            ),  
+            id="start-now"
+       )
+    }
 }

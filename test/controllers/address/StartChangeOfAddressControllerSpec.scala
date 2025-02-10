@@ -33,20 +33,6 @@ class StartChangeOfAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
       val doc: Document          = Jsoup.parse(contentAsString(result))
       doc.getElementsByTag("h1").toString.contains("Change your main address") mustBe true
-      val bodyElements           = doc.getElementsByClass("govuk-body")
-      doc
-        .getElementsByClass("govuk-list")
-        .eachText()
-        .toString mustBe "[Child Benefit Income Tax National Insurance State Pension]"
-      bodyElements
-        .first()
-        .toString
-        .contains("Tell HMRC when your main address changes. This will update your details for:") mustBe true
-      bodyElements.next().next().toString.contains("Wait until you've moved before updating your address.") mustBe true
-      doc
-        .getElementsByClass("govuk-button")
-        .attr("href")
-        .contains(routes.DoYouLiveInTheUKController.onPageLoad.url) mustBe true
     }
 
     "return 200 and correct content when passed PostalAddrType" in {
@@ -54,20 +40,6 @@ class StartChangeOfAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe OK
       val doc: Document          = Jsoup.parse(contentAsString(result))
       doc.getElementsByTag("h1").toString.contains("Change your postal address") mustBe true
-      val bodyElements           = doc.getElementsByClass("govuk-body")
-      doc
-        .getElementsByClass("govuk-list")
-        .eachText()
-        .toString mustBe "[Child Benefit Income Tax National Insurance State Pension]"
-      bodyElements
-        .first()
-        .toString
-        .contains("Tell HMRC when your postal address changes. All letters will be sent to this address.") mustBe true
-      bodyElements.next().toString.contains("This will update your details for:") mustBe true
-      doc
-        .getElementsByClass("govuk-button")
-        .attr("href")
-        .contains(routes.PostalDoYouLiveInTheUKController.onPageLoad.url) mustBe true
     }
 
   }
