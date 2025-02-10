@@ -49,7 +49,7 @@ object AddressRowModel {
   val changePostalAddressUrl: String =
     controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url
   // TODO: If start change of address page experiment is successful replace above line with below
-  
+
   //  val changePostalAddressUrl: String =
-  //    controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url   
+  //    controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url
 }

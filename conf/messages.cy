@@ -795,7 +795,7 @@ changeMainAddress.p2 = Arhoswch hyd nes eich bod wedi symud cyn diweddaru’ch c
 
 changePostalAddress.title = Newid eich cyfeiriad post
 changePostalAddress.h1 = Newid eich cyfeiriad post
-changePostalAddress.p1 = Tell HMRC when your postal address changes. Bydd pob llythyr yn cael ei anfon i’r cyfeiriad hwn.
+changePostalAddress.p1 = Rhowch wybod i CThEF pan fydd eich cyfeiriad post yn newid. Bydd pob llythyr yn cael ei anfon i’r cyfeiriad hwn.
 changePostalAddress.p2 = Bydd hyn yn diweddaru eich manylion ar gyfer:
 
 changeAddress.li1 = Budd-dal Plant
