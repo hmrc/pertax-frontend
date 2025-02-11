@@ -84,7 +84,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = None, request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -107,7 +107,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -130,7 +130,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -153,7 +153,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -177,7 +177,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -202,7 +202,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -227,7 +227,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -252,7 +252,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -277,7 +277,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -302,7 +302,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -327,7 +327,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -352,7 +352,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -379,7 +379,6 @@ class RlsControllerSpec extends BaseSpec {
             block(
               buildUserRequest(
                 saUser = NonFilerSelfAssessmentUser,
-                personDetails = Some(personDetails),
                 request = request
               )
             )
@@ -404,7 +403,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 
@@ -432,7 +431,7 @@ class RlsControllerSpec extends BaseSpec {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
+              buildUserRequest(request = request)
             )
         })
 

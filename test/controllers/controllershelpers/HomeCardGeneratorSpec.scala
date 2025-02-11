@@ -573,7 +573,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
-        personDetails = None,
         request = FakeRequest()
       )
 
@@ -609,7 +608,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
-        personDetails = None,
         request = FakeRequest()
       )
 
@@ -644,7 +642,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
-        personDetails = None,
         trustedHelper =
           Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))),
         request = FakeRequest()

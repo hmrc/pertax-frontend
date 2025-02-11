@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.model.DataEvent
 
 import java.time.Instant
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ClosePostalAddressControllerSpec extends AddressBaseSpec {
   private lazy val controller: ClosePostalAddressController = app.injector.instanceOf[ClosePostalAddressController]

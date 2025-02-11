@@ -37,7 +37,6 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.language.LanguageUtils
 import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, ReviewChangesView, UpdateAddressConfirmationView}
 
 import java.time.LocalDate

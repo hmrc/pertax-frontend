@@ -14,14 +14,10 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
-@import uk.gov.hmrc.webchat.client.WebChatClient
 @import views.html.helper.CSPNonce
 
 @this(
-        autocompleteJavascript: HmrcAccessibleAutocompleteJavascript,
-        appConfig: ConfigDecorator,
-        webChatClient: WebChatClient
+        autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
 )
 
 @(scripts: Option[Html])(implicit request: Request[_])

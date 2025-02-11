@@ -47,7 +47,7 @@ class HomeViewSpec extends ViewSpec {
 
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(Fixtures.buildPersonDetails), userName = None, request = FakeRequest())
+        buildUserRequest(userName = None, request = FakeRequest())
 
       lazy val document: Document =
         asDocument(home(homeViewModel.copy(name = Some("Firstname Lastname")), shutteringMessaging = false).toString)
@@ -58,7 +58,6 @@ class HomeViewSpec extends ViewSpec {
 
     "show the users name and not 'Your account' when the user has no details but is a GG user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        personDetails = None,
         userName = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         request = FakeRequest()
       )
@@ -72,7 +71,7 @@ class HomeViewSpec extends ViewSpec {
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
+        buildUserRequest(userName = None, request = FakeRequest())
 
       lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
 

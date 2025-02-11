@@ -23,12 +23,10 @@
         main: MainView,
         h1: H1,
         h2: H2,
-        p: P,
-        link: Link,
-        button: Button
+        link: Link
 )
 
-@(redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
     @reportChangesChildBenefitLink = @{
         if(messages.lang.code == "cy") {
             configDecorator.reportChangesChildBenefitWelsh

@@ -99,18 +99,13 @@ class InterstitialController @Inject() (
     )
   }
 
-  private def currentUrl(implicit request: Request[AnyContent]) =
-    configDecorator.pertaxFrontendHost + request.path
-
   def displayChildBenefits: Action[AnyContent] = authenticate {
     Redirect(routes.InterstitialController.displayChildBenefitsSingleAccountView, MOVED_PERMANENTLY)
   }
 
   def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate { implicit request =>
     Ok(
-      viewChildBenefitsSummarySingleAccountInterstitialView(
-        redirectUrl = currentUrl
-      )
+      viewChildBenefitsSummarySingleAccountInterstitialView()
     )
   }
 
@@ -136,10 +131,8 @@ class InterstitialController @Inject() (
       seissService.hasClaims(saUserType).map { hasSeissClaims =>
         Ok(
           viewItsaMergePageView(
-            nextDeadlineTaxYear = (current.currentYear + 1).toString,
             request.isSa,
             hasSeissClaims,
-            taxYear = previousAndCurrentTaxYear,
             saUserType
           )
         )

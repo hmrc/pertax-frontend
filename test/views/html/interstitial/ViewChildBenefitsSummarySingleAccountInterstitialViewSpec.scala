@@ -45,9 +45,7 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
     )
 
     def selfAssessmentDoc: Document = asDocument(
-      viewChildBenefitsSummarySingleAccountInterstitialView(
-        s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home"
-      ).toString
+      viewChildBenefitsSummarySingleAccountInterstitialView().toString
     )
   }
 
@@ -57,9 +55,7 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
 
       val doc =
         asDocument(
-          viewChildBenefitsSummarySingleAccountInterstitialView(
-            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home"
-          ).toString
+          viewChildBenefitsSummarySingleAccountInterstitialView().toString
         )
 
       doc.text() must include(Messages("label.child_benefit"))

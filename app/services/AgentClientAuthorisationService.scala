@@ -23,7 +23,6 @@ import controllers.auth.requests.UserRequest
 import models.AgentClientStatus
 import models.admin.AgentClientAuthorisationToggle
 import play.api.Logging
-import play.api.mvc.Request
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.{FutureEarlyTimeout, RateLimitedException}

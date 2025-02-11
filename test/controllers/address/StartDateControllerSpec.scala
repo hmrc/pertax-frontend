@@ -29,8 +29,6 @@ import routePages.{HasAddressAlreadyVisitedPage, SubmittedAddressPage, Submitted
 import testUtils.{ActionBuilderFixture, Fixtures}
 import testUtils.Fixtures.fakeStreetTupleListAddressForUnmodified
 import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.fixtures.AddressFixture.{address => addressFixture}
-import testUtils.fixtures.PersonFixture._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
@@ -204,10 +202,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              request = currentRequest,
-              personDetails = Some(
-                PersonDetails(emptyPerson, Some(addressFixture(startDate = Some(LocalDate.of(2016, 11, 22)))), None)
-              )
+              request = currentRequest
             ).asInstanceOf[UserRequest[A]]
           )
       })
@@ -239,10 +234,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              request = currentRequest,
-              personDetails = Some(
-                PersonDetails(emptyPerson, Some(addressFixture(startDate = Some(LocalDate.of(2016, 11, 22)))), None)
-              )
+              request = currentRequest
             ).asInstanceOf[UserRequest[A]]
           )
       })

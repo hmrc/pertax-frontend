@@ -26,7 +26,6 @@ import play.api.Logging
 import play.api.mvc.{MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
 import services.CitizenDetailsService
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}

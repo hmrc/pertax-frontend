@@ -16,8 +16,6 @@
 
 package controllers.address
 import cats.data.EitherT
-import connectors.AddressLookupConnector
-import controllers.InterstitialController
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
@@ -29,19 +27,17 @@ import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.JourneyCacheRepository
 import routePages.HasAddressAlreadyVisitedPage
-import services.{AddressMovedService, CitizenDetailsService, TaxCreditsService}
+import services.TaxCreditsService
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, Fixtures, WireMockHelper}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import scala.concurrent.Future
 
@@ -49,49 +45,29 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
   override implicit lazy val app: Application =
     localGuiceApplicationBuilder()
       .overrides(
-        Seq(
-          bind[InterstitialController].toInstance(mockInterstitialController),
-          bind[AuthJourney].toInstance(mockAuthJourney),
-          bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper),
-          bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
-          bind[AddressMovedService].toInstance(mockAddressMovedService),
-          bind[AuditConnector].toInstance(mockAuditConnector),
-          bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
-          bind[AddressLookupConnector].toInstance(mockAddressLookupConnector),
-          bind[TaxCreditsService].toInstance(mockTaxCreditsService)
-        )
+        bind[AuthJourney].toInstance(mockAuthJourney),
+        bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper),
+        bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
+        bind[TaxCreditsService].toInstance(mockTaxCreditsService)
       )
       .build()
 
-  private lazy val controller: TaxCreditsChoiceController = app.injector.instanceOf[TaxCreditsChoiceController]
-  private val mockTaxCreditsService: TaxCreditsService    = mock[TaxCreditsService]
-  private val mockAddressJourneyCachingHelper             = mock[AddressJourneyCachingHelper]
-
-  override def fakeApplication(): Application = new GuiceApplicationBuilder()
-    .configure(
-      "microservice.services.auth.port"   -> server.port(),
-      "microservice.services.pertax.port" -> server.port()
-    )
-    .overrides(
-      bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
-      bind[TaxCreditsService].toInstance(mockTaxCreditsService),
-      bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper)
-    )
-    .build()
+  private lazy val controller: TaxCreditsChoiceController   = app.injector.instanceOf[TaxCreditsChoiceController]
+  private lazy val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
+  private lazy val mockAddressJourneyCachingHelper          = mock[AddressJourneyCachingHelper]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockJourneyCacheRepository, mockTaxCreditsService, mockAddressJourneyCachingHelper)
+    reset(mockAuthJourney, mockJourneyCacheRepository, mockTaxCreditsService, mockAddressJourneyCachingHelper)
+
+    when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
+    when(mockJourneyCacheRepository.clear(any())).thenReturn(
+      Future.successful((): Unit)
+    )
   }
 
   def userAnswers: UserAnswers =
     UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-
-  when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-
-  when(mockJourneyCacheRepository.clear(any())).thenReturn(
-    Future.successful((): Unit)
-  )
 
   "onPageLoad" when {
     "Tax-credit-broker call is used" must {
@@ -119,7 +95,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
               block(
                 buildUserRequest(
                   request = currentRequest[A],
-                  personDetails = personDetailsForRequest,
                   saUser = saUserType
                 )
               )
@@ -162,7 +137,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
                 block(
                   buildUserRequest(
                     request = currentRequest[A],
-                    personDetails = personDetailsForRequest,
                     saUser = saUserType
                   )
                 )
@@ -205,7 +179,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
               block(
                 buildUserRequest(
                   request = currentRequest[A],
-                  personDetails = personDetailsForRequest,
                   saUser = saUserType
                 )
               )
@@ -248,7 +221,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
             block(
               buildUserRequest(
                 request = currentRequest[A],
-                personDetails = personDetailsForRequest,
                 saUser = saUserType
               )
             )
@@ -284,7 +256,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
             block(
               buildUserRequest(
                 request = currentRequest[A],
-                personDetails = personDetailsForRequest,
                 saUser = saUserType
               )
             )
@@ -314,7 +285,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
             block(
               buildUserRequest(
                 request = currentRequest[A],
-                personDetails = personDetailsForRequest,
                 saUser = saUserType
               )
             )

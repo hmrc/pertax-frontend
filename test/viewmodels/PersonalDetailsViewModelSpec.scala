@@ -333,7 +333,6 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "not contain main address row" when {
       "person details is not defined" in {
-        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, None)
         when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(

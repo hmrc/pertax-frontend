@@ -22,7 +22,7 @@ import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder}
 
 @ImplementedBy(classOf[AuthJourneyImpl])
 trait AuthJourney {
-  val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent]
+  def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent]
 }
 
 class AuthJourneyImpl @Inject() (
@@ -32,7 +32,7 @@ class AuthJourneyImpl @Inject() (
   defaultActionBuilder: DefaultActionBuilder
 ) extends AuthJourney {
 
-  val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+  def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
     defaultActionBuilder andThen pertaxAuthAction andThen authAction andThen selfAssessmentStatusAction
 
 }
