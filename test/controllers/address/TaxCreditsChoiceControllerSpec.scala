@@ -40,7 +40,6 @@ import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, Fixtures, WireMockHelper}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import views.html.InternalServerErrorView
 
 import scala.concurrent.Future
 
@@ -57,8 +56,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
       )
       .build()
 
-  val mockInternalServiceErrorView: InternalServerErrorView = mock[InternalServerErrorView]
-
   val mockErrorRenderer: ErrorRenderer                      = mock[ErrorRenderer]
   private lazy val controller: TaxCreditsChoiceController   = app.injector.instanceOf[TaxCreditsChoiceController]
   private lazy val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
@@ -67,10 +64,8 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
   override def beforeEach(): Unit = {
     super.beforeEach()
 
-    // Reset all mocks
     reset(mockAuthJourney, mockJourneyCacheRepository, mockTaxCreditsService, mockAddressJourneyCachingHelper)
 
-    // Stub the authWithPersonalDetails method
     when(mockAuthJourney.authWithPersonalDetails)
       .thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -82,7 +77,6 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
           )
       })
 
-    // Other stubs
     when(mockErrorRenderer.futureError(any())(any(), any())).thenReturn(Future.successful(Results.InternalServerError))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
       .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
