@@ -586,7 +586,7 @@ label.paperless_failed_hidden=PLACEHOLDER
 #
 # Tax Summaries tile
 #
-card.ats.heading=View your Annual Tax Summary
+card.ats.heading=Annual Tax Summary
 card.ats.text=View your tax and National Insurance contributions and find out how the government spends your taxes. This is for your information only.
 
 #
