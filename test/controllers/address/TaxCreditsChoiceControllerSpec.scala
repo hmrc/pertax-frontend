@@ -16,9 +16,11 @@
 
 package controllers.address
 import cats.data.EitherT
+import controllers.InterstitialController
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.ErrorRenderer
 import models.admin.{AddressChangeAllowedToggle, AddressTaxCreditsBrokerCallToggle}
 import models.dto.AddressPageVisitedDto
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUserType, UserAnswers}
@@ -33,11 +35,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.JourneyCacheRepository
 import routePages.HasAddressAlreadyVisitedPage
-import services.TaxCreditsService
+import services.{CitizenDetailsService, TaxCreditsService}
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, Fixtures, WireMockHelper}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import views.html.InternalServerErrorView
 
 import scala.concurrent.Future
 
@@ -48,22 +51,45 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
         bind[AuthJourney].toInstance(mockAuthJourney),
         bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper),
         bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
-        bind[TaxCreditsService].toInstance(mockTaxCreditsService)
+        bind[TaxCreditsService].toInstance(mockTaxCreditsService),
+        bind[InterstitialController].toInstance(mockInterstitialController),
+        bind[CitizenDetailsService].toInstance(mockCitizenDetailsService)
       )
       .build()
 
+  val mockInternalServiceErrorView: InternalServerErrorView = mock[InternalServerErrorView]
+
+  val mockErrorRenderer: ErrorRenderer                      = mock[ErrorRenderer]
   private lazy val controller: TaxCreditsChoiceController   = app.injector.instanceOf[TaxCreditsChoiceController]
   private lazy val mockTaxCreditsService: TaxCreditsService = mock[TaxCreditsService]
   private lazy val mockAddressJourneyCachingHelper          = mock[AddressJourneyCachingHelper]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+
+    // Reset all mocks
     reset(mockAuthJourney, mockJourneyCacheRepository, mockTaxCreditsService, mockAddressJourneyCachingHelper)
 
+    // Stub the authWithPersonalDetails method
+    when(mockAuthJourney.authWithPersonalDetails)
+      .thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              saUser = saUserType
+            )
+          )
+      })
+
+    // Other stubs
+    when(mockErrorRenderer.futureError(any())(any(), any())).thenReturn(Future.successful(Results.InternalServerError))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
+      .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
+    when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+      .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
     when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-    when(mockJourneyCacheRepository.clear(any())).thenReturn(
-      Future.successful((): Unit)
-    )
+    when(mockJourneyCacheRepository.clear(any())).thenReturn(Future.successful((): Unit))
   }
 
   def userAnswers: UserAnswers =
