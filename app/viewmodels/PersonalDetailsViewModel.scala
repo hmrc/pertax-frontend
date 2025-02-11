@@ -171,7 +171,7 @@ class PersonalDetailsViewModel @Inject() (
     hc: HeaderCarrier,
     messages: play.api.i18n.Messages
   ): Future[AddressRowModel] =
-    citizenDetailsService.personDetails(request.authNino).toOption.value.flatMap { personDetails =>
+    citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value.flatMap { personDetails =>
       val optionalEditAddress                                            = addressModel.map(y => y.editedAddress)
       val mainAddressRow: Future[Option[PersonalDetailsTableRowModel]]   =
         getMainAddress(personDetails, optionalEditAddress)
