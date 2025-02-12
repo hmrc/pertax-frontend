@@ -56,7 +56,7 @@ class StartChangeOfAddressViewSpec extends ViewSpec {
     doc
       .getElementsByClass("govuk-button")
       .attr("href")
-      .contains(routes.DoYouLiveInTheUKController.onPageLoad.url) mustBe true
+      .contains(routes.TaxCreditsChoiceController.onPageLoad.url) mustBe true
   }
 
   "render correct content when passed PostalAddrType" in {
