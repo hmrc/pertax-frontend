@@ -27,8 +27,8 @@ import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
 import routePages.TaxCreditsChoicePage
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.TaxCreditsService
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
@@ -72,6 +72,8 @@ class TaxCreditsChoiceController @Inject() (
                     if (isAddressChangeInPTA) {
                       cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(false))
                       Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                      // TODO: If start change of address page experiment is successful replace above line with below
+                      //Redirect(routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType))
                     } else {
                       cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(true))
                       Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
@@ -113,6 +115,8 @@ class TaxCreditsChoiceController @Inject() (
                   Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
                 } else {
                   Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                  // TODO: If start change of address page experiment is successful replace above line with below
+                  //Redirect(routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType))
                 }
               }
           )
