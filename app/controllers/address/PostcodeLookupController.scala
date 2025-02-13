@@ -23,18 +23,19 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.ErrorRenderer
 import models.addresslookup.RecordSet
 import models.dto.AddressFinderDto
 import play.api.Logging
 import play.api.data.FormError
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import routePages.{AddressFinderPage, SelectedAddressRecordPage, SelectedRecordSetPage}
+import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.{buildAddressChangeEvent, buildEvent}
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PostcodeLookupView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,16 +46,18 @@ class PostcodeLookupController @Inject() (
   auditConnector: AuditConnector,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   postcodeLookupView: PostcodeLookupView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
       cc,
-      displayAddressInterstitialView,
       featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
       internalServerErrorView
     )
     with Logging {

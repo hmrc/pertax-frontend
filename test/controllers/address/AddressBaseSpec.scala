@@ -65,18 +65,17 @@ trait AddressBaseSpec extends BaseSpec {
   protected def displayAddressInterstitialView: DisplayAddressInterstitialView =
     app.injector.instanceOf[DisplayAddressInterstitialView]
   protected def internalServerErrorView: InternalServerErrorView               = app.injector.instanceOf[InternalServerErrorView]
-  protected def updateAddressConfirmationView: UpdateAddressConfirmationView   =
+  protected val updateAddressConfirmationView: UpdateAddressConfirmationView   =
     app.injector.instanceOf[UpdateAddressConfirmationView]
 
   implicit def configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  protected def setupAuth(personDetails: Option[PersonDetails] = personDetailsForRequest): Unit =
+  protected def setupAuth(): Unit =
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
         block(
           buildUserRequest(
             request = request,
-            personDetails = personDetails,
             saUser = saUserType
           )
         )

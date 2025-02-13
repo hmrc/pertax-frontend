@@ -56,10 +56,8 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewItsaMergePageView(
-            nextDeadlineTaxYear,
             isSa = false,
             isSeiss = false,
-            previousAndCurrentTaxYear,
             userRequest.saUserType
           ).toString
         )
@@ -79,10 +77,8 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewItsaMergePageView(
-            nextDeadlineTaxYear,
             isSa = true,
             isSeiss = true,
-            previousAndCurrentTaxYear,
             ActivatedOnlineFilerSelfAssessmentUser(saUtr)
           ).toString
         )
@@ -116,10 +112,8 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewItsaMergePageView(
-            nextDeadlineTaxYear,
             isSa = true,
             isSeiss = true,
-            previousAndCurrentTaxYear,
             NotEnrolledSelfAssessmentUser(saUtr)
           ).toString
         )
@@ -156,10 +150,8 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewItsaMergePageView(
-            nextDeadlineTaxYear,
             isSa = false,
             isSeiss = false,
-            previousAndCurrentTaxYear,
             userRequest.saUserType
           ).toString
         )
@@ -178,10 +170,8 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewItsaMergePageView(
-            nextDeadlineTaxYear,
             isSa = true,
             isSeiss = true,
-            previousAndCurrentTaxYear,
             ActivatedOnlineFilerSelfAssessmentUser(saUtr)
           ).toString
         )
@@ -215,10 +205,8 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
       val doc =
         asDocument(
           viewItsaMergePageView(
-            nextDeadlineTaxYear,
             isSa = true,
             isSeiss = true,
-            previousAndCurrentTaxYear,
             NotEnrolledSelfAssessmentUser(saUtr)
           ).toString
         )

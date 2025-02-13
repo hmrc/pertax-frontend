@@ -21,14 +21,15 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper}
+import error.ErrorRenderer
 import models.dto.{AddressDto, DateDto}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import routePages.{SubmittedAddressPage, SubmittedStartDatePage}
+import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildAddressChangeEvent
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateInternationalAddressView
 
 import java.time.LocalDate
@@ -41,15 +42,17 @@ class UpdateInternationalAddressController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   updateInternationalAddressView: UpdateInternationalAddressView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  errorRenderer: ErrorRenderer,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
       cc,
-      displayAddressInterstitialView,
       featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
       internalServerErrorView
     ) {
 

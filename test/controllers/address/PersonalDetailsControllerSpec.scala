@@ -66,7 +66,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
             Future.successful(Right(fakePersonDetails.copy(address = Some(fakeAddress.copy(isRls = true)))))
           )
         )
-        setupAuth(personDetails = Some(fakePersonDetails.copy(address = Some(fakeAddress.copy(isRls = true)))))
+        setupAuth()
 
         val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
@@ -82,7 +82,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
             )
           )
         )
-        setupAuth(personDetails = Some(fakePersonDetails.copy(address = Some(fakeAddress.copy(isRls = true)))))
+        setupAuth()
 
         val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
@@ -98,7 +98,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
             )
           )
         )
-        setupAuth(personDetails = Some(fakePersonDetails.copy(address = Some(fakeAddress.copy(isRls = true)))))
+        setupAuth()
 
         val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
