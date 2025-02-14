@@ -28,12 +28,13 @@ class HomeViewModelSpec extends BaseSpec {
     val homeViewModel = HomeViewModel(
       Nil,
       Nil,
+      Nil,
       showUserResearchBanner = true,
       NonFilerSelfAssessmentUser,
       breathingSpaceIndicator = false,
       alertBannerContent = List.empty
     )
-    homeViewModel mustBe new HomeViewModel(Nil, Nil, true, None, false, List.empty)
+    homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, None, false, List.empty)
   }
 
   Seq(
@@ -48,8 +49,8 @@ class HomeViewModelSpec extends BaseSpec {
 //      homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true)
 //    }
     s"have a UTR for a ${saUserType.toString}" in {
-      val homeViewModel = HomeViewModel(Nil, Nil, true, saUserType, true, List.empty)
-      homeViewModel mustBe new HomeViewModel(Nil, Nil, true, Some(utr), true, List.empty)
+      val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, saUserType, true, List.empty)
+      homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true, List.empty)
     }
   }
 }
