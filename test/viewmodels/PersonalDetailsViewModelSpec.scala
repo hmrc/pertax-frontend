@@ -258,15 +258,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
-        )
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
-        val request = userRequest
 
-        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
+        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         val expected =
           PersonalDetailsTableRowModel(
             id = "main_address",
@@ -286,13 +282,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
-        )
 
-        val request = userRequest
-
-        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
+        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         val expected = PersonalDetailsTableRowModel(
           "main_address",
           "label.main_address",
@@ -309,15 +300,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
-        )
-
-        val request = userRequest
 
         val actual   = personalDetailsViewModel.getAddressRow(
+          Some(personDetails),
           List(AddressJourneyTTLModel(testNino.nino, editedAddress()))
-        )(request, hc, messages)
+        )(messages)
         val expected = PersonalDetailsTableRowModel(
           "main_address",
           "label.main_address",
@@ -335,24 +322,16 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "person details is not defined" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
-        )
 
-        val request = userRequest
-        val actual  = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
+        val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         actual.futureValue.mainAddress.isEmpty mustBe true
       }
 
       "address is not defined" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
-        )
 
-        val request = userRequest
-        val actual  = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
+        val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         actual.futureValue.mainAddress.isEmpty mustBe true
       }
     }
@@ -362,16 +341,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
-        )
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
 
-        val request = userRequest
-
-        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
+        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         val expected =
           PersonalDetailsTableRowModel(
             id = "postal_address",
@@ -391,13 +365,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
-        )
 
-        val request = userRequest
-
-        val actual   = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
+        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         val expected = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
@@ -416,15 +385,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
-        )
-
-        val request = userRequest
 
         val actual   = personalDetailsViewModel.getAddressRow(
+          Some(personDetails),
           List(AddressJourneyTTLModel(testNino.nino, editedOtherAddress()))
-        )(request, hc, messages)
+        )(messages)
         val expected = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
@@ -441,13 +406,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
-        )
 
-        val request = userRequest
-
-        val actual                = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
+        val actual                = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         val expectedPostalAddress = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
@@ -468,13 +428,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "personal details are not defined" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
-        )
 
-        val request = userRequest
-
-        val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, hc, messages)
+        val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
 
         actual.futureValue.postalAddress.isEmpty mustBe true
       }

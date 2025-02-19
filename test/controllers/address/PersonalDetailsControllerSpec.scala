@@ -61,7 +61,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
   "Calling onPageLoad" must {
     "redirect to the rls interrupt page" when {
       "main address has an rls status with true" in {
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, PersonDetails](
             Future.successful(Right(fakePersonDetails.copy(address = Some(fakeAddress.copy(isRls = true)))))
           )
@@ -75,7 +75,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
       }
 
       "postal address has an rls status with true" in {
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, PersonDetails](
             Future.successful(
               Right(fakePersonDetails.copy(correspondenceAddress = Some(fakeAddress.copy(isRls = true))))
@@ -91,7 +91,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
       }
 
       "main and postal address has an rls status with true" in {
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, PersonDetails](
             Future.successful(
               Right(fakePersonDetails.copy(correspondenceAddress = Some(fakeAddress.copy(isRls = true))))

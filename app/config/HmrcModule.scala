@@ -16,9 +16,10 @@
 
 package config
 
-import connectors.{AgentClientAuthorisationConnector, CachingAgentClientAuthorisationConnector, DefaultAgentClientAuthorisationConnector}
+import connectors.{AgentClientAuthorisationConnector, CachingAgentClientAuthorisationConnector, CachingCitizenDetailsConnector, CitizenDetailsConnector, DefaultAgentClientAuthorisationConnector, DefaultCitizenDetailsConnector}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 import java.time.{Clock, ZoneId}
 
@@ -26,7 +27,10 @@ class HmrcModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
     val defaultBindings: Seq[Binding[_]] = Seq(
       bind[Clock].toInstance(Clock.systemDefaultZone.withZone(ZoneId.of("Europe/London"))),
-      bind[ApplicationStartUp].toSelf.eagerly()
+      bind[ApplicationStartUp].toSelf.eagerly(),
+      bind[CitizenDetailsConnector].qualifiedWith("default").to[DefaultCitizenDetailsConnector],
+      bind[CitizenDetailsConnector].to[CachingCitizenDetailsConnector],
+      bind[Encrypter with Decrypter].toProvider[CryptoProvider]
     )
 
     val useAgentClientAuthorisationCache = configuration

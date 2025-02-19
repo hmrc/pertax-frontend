@@ -128,7 +128,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, address, address)
-      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
 
@@ -153,7 +153,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
-      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
 
@@ -178,7 +178,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, address, address)
-      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
 
@@ -207,7 +207,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
-      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
 
@@ -231,7 +231,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
-      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
 
@@ -254,7 +254,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
-      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
 
@@ -282,7 +282,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
         Future.successful(false)
       )
-      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
 
@@ -305,7 +305,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
-      when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
 

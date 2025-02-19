@@ -19,6 +19,7 @@ package testUtils
 import org.apache.pekko.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import connectors.CitizenDetailsConnector
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when

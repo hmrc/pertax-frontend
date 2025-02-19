@@ -85,7 +85,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress),
           Some(buildFakeCorrespondenceAddress)
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
 
@@ -105,7 +105,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress)
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
 
@@ -139,7 +139,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
 
@@ -173,7 +173,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
 
@@ -207,7 +207,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress)
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
 
@@ -241,7 +241,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
 
@@ -275,7 +275,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
 
@@ -309,7 +309,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
 
@@ -343,7 +343,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
 

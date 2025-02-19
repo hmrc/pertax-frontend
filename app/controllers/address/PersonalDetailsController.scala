@@ -93,7 +93,7 @@ class PersonalDetailsController @Inject() (
                .addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
         addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
-        addressDetails             <- personalDetailsViewModel.getAddressRow(addressModel)
+        addressDetails             <- personalDetailsViewModel.getAddressRow(personDetails, addressModel)
         paperLessPreference        <- personalDetailsViewModel.getPaperlessSettingsRow
         personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(Some(ninoToDisplay), nameToDisplay)
 

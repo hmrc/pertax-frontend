@@ -100,7 +100,7 @@ trait AddressBaseSpec extends BaseSpec {
     when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
     when(mockJourneyCacheRepository.clear(any[HeaderCarrier])).thenReturn(Future.successful((): Unit))
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-    when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, PersonDetails](
         Future.successful(Right(personDetailsResponse))
       )
