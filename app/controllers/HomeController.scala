@@ -66,6 +66,7 @@ class HomeController @Inject() (
                                        case _            => false
                                      }
           incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
+          atsCard                 <- homeCardGenerator.getATSCard()
           shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
           alertBannerContent      <- alertBannerHelper.getContent
         } yield {
@@ -77,6 +78,7 @@ class HomeController @Inject() (
               HomeViewModel(
                 incomeCards,
                 benefitCards,
+                atsCard,
                 showUserResearchBanner = false,
                 saUserType,
                 breathingSpaceIndicator = breathingSpaceIndicator,
