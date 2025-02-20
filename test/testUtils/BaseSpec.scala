@@ -95,6 +95,7 @@ trait BaseSpec
   lazy val config: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
   val generatedTrustedHelperNino: Nino = new Generator().nextNino
+  val generatedNino: Nino              = new Generator().nextNino
 
   override def beforeEach(): Unit = {
     super.beforeEach()

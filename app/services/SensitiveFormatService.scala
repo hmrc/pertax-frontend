@@ -62,14 +62,6 @@ class SensitiveFormatService @Inject() (
       }
     }
 
-  private def sensitiveReadsJsArray[A](reads: Reads[A]): Reads[A] =
-    sensitiveReadsJsValue[JsArray].map { sensitiveJsValue =>
-      reads.reads(sensitiveJsValue.decryptedValue) match {
-        case JsSuccess(value, _) => value
-        case JsError(e)          => throw JsResultException(e)
-      }
-    }
-
   private def sensitiveWritesJsValue[A](writes: Writes[A]): Writes[A] = { o: A =>
     writeJsValueWithEncryption(writes.writes(o))
   }
@@ -86,14 +78,6 @@ class SensitiveFormatService @Inject() (
       sensitiveWritesJsValue[A](writes)
     )
 
-  def sensitiveFormatFromReadsWritesJsArray[A](implicit
-    reads: Reads[A],
-    writes: Writes[A]
-  ): Format[A] =
-    Format[A](
-      sensitiveReadsJsArray[A](reads),
-      sensitiveWritesJsValue[A](writes)
-    )
 }
 
 object SensitiveFormatService {
