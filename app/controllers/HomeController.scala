@@ -93,6 +93,6 @@ class HomeController @Inject() (
           )
         }
       }
-    })
+    )
   }
 }
