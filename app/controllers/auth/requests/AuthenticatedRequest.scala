@@ -25,7 +25,6 @@ import uk.gov.hmrc.domain.Nino
 
 case class AuthenticatedRequest[A](
   authNino: Nino,
-  nino: Option[Nino],
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
   name: Option[UserName],

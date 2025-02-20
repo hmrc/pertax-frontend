@@ -163,15 +163,14 @@ class PersonalDetailsViewModel @Inject() (
       }
     })
 
-  def getAddressRow(addressModel: List[AddressJourneyTTLModel])(implicit
-    request: UserRequest[_],
+  def getAddressRow(personDetails: Option[PersonDetails], addressModel: List[AddressJourneyTTLModel])(implicit
     messages: play.api.i18n.Messages
   ): Future[AddressRowModel] = {
     val optionalEditAddress                                            = addressModel.map(y => y.editedAddress)
     val mainAddressRow: Future[Option[PersonalDetailsTableRowModel]]   =
-      getMainAddress(request.personDetails, optionalEditAddress)
+      getMainAddress(personDetails, optionalEditAddress)
     val postalAddressRow: Future[Option[PersonalDetailsTableRowModel]] =
-      getPostalAddress(request.personDetails, optionalEditAddress)
+      getPostalAddress(personDetails, optionalEditAddress)
     for {
       mainAddressVal   <- mainAddressRow
       postalAddressVal <- postalAddressRow
@@ -182,10 +181,11 @@ class PersonalDetailsViewModel @Inject() (
   }
 
   def getPersonDetailsTable(
-    ninoToDisplay: Option[Nino]
+    ninoToDisplay: Option[Nino],
+    name: Option[String]
   )(implicit request: UserRequest[_]): Future[Seq[PersonalDetailsTableRowModel]] = {
     val nameRow: Option[PersonalDetailsTableRowModel] =
-      request.name.map(name =>
+      name.map(name =>
         PersonalDetailsTableRowModel(
           "name",
           "label.name",

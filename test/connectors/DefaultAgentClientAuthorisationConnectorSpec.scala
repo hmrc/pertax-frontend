@@ -30,7 +30,7 @@ class DefaultAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Wi
   override implicit lazy val app: Application = app(
     Map(
       "microservice.services.agent-client-authorisation.port" -> server.port(),
-      "feature.agent-client-authorisation.maxTps"             -> 100,
+      "feature.agent-client-authorisation.maxTps"             -> 1000,
       "feature.agent-client-authorisation.cache"              -> true,
       "feature.agent-client-authorisation.timeoutInSec"       -> 1
     )

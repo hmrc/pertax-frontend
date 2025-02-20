@@ -167,12 +167,10 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
   ): UserRequest[A] =
     UserRequest(
       authNino,
-      nino,
       userName,
       saUser,
       credentials,
       confidenceLevel,
-      personDetails,
       trustedHelper,
       Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
       profile,

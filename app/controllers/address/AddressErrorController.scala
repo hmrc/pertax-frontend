@@ -20,10 +20,11 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
+import error.ErrorRenderer
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.CannotUseServiceView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,16 +32,18 @@ import scala.concurrent.{ExecutionContext, Future}
 class AddressErrorController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  errorRenderer: ErrorRenderer,
   cannotUseServiceView: CannotUseServiceView,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, executionContext: ExecutionContext)
     extends AddressController(
       authJourney,
       cc,
-      displayAddressInterstitialView,
       featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
       internalServerErrorView
     ) {
 
