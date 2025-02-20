@@ -57,36 +57,41 @@ class HomeController @Inject() (
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
-    rlsInterruptHelper.enforceByRlsStatus(paperlessInterruptHelper.enforcePaperlessPreference {
-      for {
-        taxSummaryState         <- taiService.retrieveTaxComponentsState(Some(request.helpeeNinoOrElse), current.currentYear)
-        breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse).map {
-                                     case WithinPeriod => true
-                                     case _            => false
-                                   }
-        incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
-        shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
-        alertBannerContent      <- alertBannerHelper.getContent
-        personDetails           <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value
-      } yield {
-        val nameToDisplay = personDetails.fold(request.helpeeNameOrElse.map(_.toString))(_.person.shortName)
 
-        val benefitCards: Seq[Html] =
-          homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
-        Ok(
-          homeView(
-            HomeViewModel(
-              incomeCards,
-              benefitCards,
-              showUserResearchBanner = false,
-              saUserType,
-              breathingSpaceIndicator = breathingSpaceIndicator,
-              alertBannerContent,
-              nameToDisplay
-            ),
-            shutteringMessaging.isEnabled
+    rlsInterruptHelper.enforceByRlsStatus(
+      paperlessInterruptHelper.enforcePaperlessPreference {
+        for {
+          taxSummaryState         <- taiService.retrieveTaxComponentsState(Some(request.helpeeNinoOrElse), current.currentYear)
+          breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse).map {
+                                       case WithinPeriod => true
+                                       case _            => false
+                                     }
+          incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
+          atsCard                 <- homeCardGenerator.getATSCard()
+          shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
+          alertBannerContent      <- alertBannerHelper.getContent
+          personDetails           <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value
+        } yield {
+          val nameToDisplay = personDetails.fold(request.helpeeNameOrElse.map(_.toString))(_.person.shortName)
+
+          val benefitCards: Seq[Html] =
+            homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
+          Ok(
+            homeView(
+              HomeViewModel(
+                incomeCards,
+                benefitCards,
+                atsCard,
+                showUserResearchBanner = false,
+                saUserType,
+                breathingSpaceIndicator = breathingSpaceIndicator,
+                alertBannerContent,
+                nameToDisplay
+              ),
+              shutteringMessaging.isEnabled
+            )
           )
-        )
+        }
       }
     })
   }

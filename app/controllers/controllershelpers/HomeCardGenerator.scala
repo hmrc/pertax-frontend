@@ -77,7 +77,17 @@ class HomeCardGenerator @Inject() (
 
     val cards3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
       Future.successful(getSelfAssessmentCard().toSeq),
-      Future.successful(getNationalInsuranceCard().toSeq),
+      Future.successful(getNationalInsuranceCard().toSeq)
+    )
+
+    Future
+      .sequence(cards1 ++ cards2 ++ cards3)
+      .map(_.flatten)
+  }
+
+  def getATSCard()(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
+
+    val card: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
       if (request.trustedHelper.isEmpty) {
         getAnnualTaxSummaryCard.value.map(_.toSeq)
       } else {
@@ -86,7 +96,7 @@ class HomeCardGenerator @Inject() (
     )
 
     Future
-      .sequence(cards1 ++ cards2 ++ cards3)
+      .sequence(card)
       .map(_.flatten)
   }
 
@@ -173,9 +183,9 @@ class HomeCardGenerator @Inject() (
   )(implicit messages: Messages): List[Html] =
     if (trustedHelper.isEmpty) {
       List(
-        getTaxCreditsCard(),
         getChildBenefitCard(),
-        getMarriageAllowanceCard(taxComponents)
+        getMarriageAllowanceCard(taxComponents),
+        getTaxCreditsCard()
       ).flatten
     } else {
       List.empty

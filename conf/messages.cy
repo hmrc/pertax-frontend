@@ -587,7 +587,7 @@ label.paperless_failed_hidden=PLACEHOLDER
 #
 # Tax Summaries tile
 #
-card.ats.heading=Bwrw golwg dros eich Crynodeb Treth Blynyddol
+card.ats.heading=Crynodeb Treth Blynyddol
 card.ats.text=Bwrw golwg dros eich treth a chyfraniadau Yswiriant Gwladol a gweld sut mae’r llywodraeth yn gwario’ch trethi. Mae hyn er eich gwybodaeth yn unig.
 
 label.your_national_insurance_number=Eich rhif Yswiriant Gwladol
