@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package controllers.controllershelpers
 
-import cats.data.OptionT
 import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
@@ -58,47 +57,30 @@ class HomeCardGenerator @Inject() (
   def getIncomeCards(
     taxComponentsState: TaxComponentsState
   )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
-    val cards1: Seq[Future[Seq[HtmlFormat.Appendable]]] =
-      List(
-        Future.successful(getLatestNewsAndUpdatesCard().toSeq),
-        Future.successful(getPayAsYouEarnCard(taxComponentsState).toSeq)
-      )
 
-    val cards2: Seq[Future[Seq[HtmlFormat.Appendable]]] = Seq(
-      featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
-        if (!toggle.isEnabled || request.trustedHelper.nonEmpty) {
-          Future.successful(Nil)
-        } else {
-          taxCalcPartialService.getTaxCalcPartial
-            .map(_.map(_.partialContent))
-        }
-      }
-    )
+    val cards1 = Seq(
+      getLatestNewsAndUpdatesCard(),
+      getPayAsYouEarnCard(taxComponentsState)
+    ).flatten
 
-    val cards3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
-      Future.successful(getSelfAssessmentCard().toSeq),
-      Future.successful(getNationalInsuranceCard().toSeq)
-    )
+    val cards2 = featureFlagService.get(TaxcalcToggle).flatMap { toggle =>
+      if (!toggle.isEnabled || request.trustedHelper.nonEmpty) Future.successful(Seq.empty)
+      else taxCalcPartialService.getTaxCalcPartial.map(_.map(_.partialContent))
+    }
 
-    Future
-      .sequence(cards1 ++ cards2 ++ cards3)
-      .map(_.flatten)
+    val cards3 = Seq(
+      getSelfAssessmentCard(),
+      Some(getNationalInsuranceCard())
+    ).flatten
+
+    cards2.map { cards2Cards =>
+      cards1 ++ cards2Cards ++ cards3
+    }
   }
 
-  def getATSCard()(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
-
-    val card: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
-      if (request.trustedHelper.isEmpty) {
-        getAnnualTaxSummaryCard.value.map(_.toSeq)
-      } else {
-        Future.successful(Nil)
-      }
-    )
-
-    Future
-      .sequence(card)
-      .map(_.flatten)
-  }
+  def getATSCard()(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] =
+    if (request.trustedHelper.isEmpty) getAnnualTaxSummaryCard.map(_.toSeq)
+    else Future.successful(Nil)
 
   def getPayAsYouEarnCard(
     taxComponentsState: TaxComponentsState
@@ -110,18 +92,20 @@ class HomeCardGenerator @Inject() (
       }
     }
 
-  private def displaySACall: Call       = routes.InterstitialController.displaySelfAssessment
-  private def handleSACall: Call        = routes.SelfAssessmentController.handleSelfAssessment
+  private def displaySACall: Call = routes.InterstitialController.displaySelfAssessment
+
+  private def handleSACall: Call = routes.SelfAssessmentController.handleSelfAssessment
+
   private def redirectToEnrolCall: Call = routes.SelfAssessmentController.redirectToEnrolForSa
 
-  private def callAndContent(implicit request: UserRequest[_]) =
+  private def callAndContent(implicit request: UserRequest[_]): Option[(Call, String)] =
     request.saUserType match {
-      case ActivatedOnlineFilerSelfAssessmentUser(_)       => Some(Tuple2(displaySACall, "label.viewAndManageSA"))
+      case ActivatedOnlineFilerSelfAssessmentUser(_)       => Some(displaySACall -> "label.viewAndManageSA")
       case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-        Some(Tuple2(handleSACall, "label.activate_your_self_assessment"))
+        Some(handleSACall -> "label.activate_your_self_assessment")
       case WrongCredentialsSelfAssessmentUser(_)           =>
-        Some(Tuple2(handleSACall, "label.find_out_how_to_access_your_self_assessment"))
-      case NotEnrolledSelfAssessmentUser(_)                => Some(Tuple2(redirectToEnrolCall, "label.request_access_to_your_sa"))
+        Some(handleSACall -> "label.find_out_how_to_access_your_self_assessment")
+      case NotEnrolledSelfAssessmentUser(_)                => Some(redirectToEnrolCall -> "label.request_access_to_your_sa")
       case sut                                             =>
         logger.warn(s"Unable to display self assessment card due to sa user type value of $sut")
         None
@@ -130,32 +114,30 @@ class HomeCardGenerator @Inject() (
   def getSelfAssessmentCard()(implicit
     messages: Messages,
     request: UserRequest[_]
-  ): Option[HtmlFormat.Appendable] = {
-    val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
-    request.trustedHelper.map(_ => None).getOrElse {
-      if (isItsaEnrolled || request.isSa) {
-        if (isItsaEnrolled) {
-          Some(itsaMergeView((current.currentYear + 1).toString))
-        } else {
-          callAndContent match {
-            case Some((redirectUrl, paragraphMessageKey)) =>
-              Some(saMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey))
-            case _                                        => None
-          }
+  ): Option[HtmlFormat.Appendable] =
+    if (request.trustedHelper.isDefined) {
+      None
+    } else {
+      val isItsaEnrolled = enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
+
+      if (isItsaEnrolled) {
+        Some(itsaMergeView((current.currentYear + 1).toString))
+      } else if (request.isSa) {
+        callAndContent.map { case (redirectUrl, paragraphMessageKey) =>
+          saMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey)
         }
-      } else if (configDecorator.pegaSaRegistrationEnabled) { // Temporary condition for Pega
+      } else if (configDecorator.pegaSaRegistrationEnabled) {
         Some(selfAssessmentRegistrationView())
       } else {
         None
       }
     }
-  }
 
   def getAnnualTaxSummaryCard(implicit
     request: UserRequest[AnyContent],
     messages: Messages
-  ): OptionT[Future, HtmlFormat.Appendable] =
-    OptionT(featureFlagService.get(TaxSummariesTileToggle).map { featureFlag =>
+  ): Future[Option[HtmlFormat.Appendable]] =
+    featureFlagService.get(TaxSummariesTileToggle).map { featureFlag =>
       if (featureFlag.isEnabled) {
         val url = if (request.isSaUserLoggedIntoCorrectAccount) {
           configDecorator.annualTaxSaSummariesTileLink
@@ -164,20 +146,16 @@ class HomeCardGenerator @Inject() (
         }
 
         Some(taxSummariesView(url))
-      } else {
-        None
-      }
-    })
-
-  def getLatestNewsAndUpdatesCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
-    if (configDecorator.isNewsAndUpdatesTileEnabled && newsAndTilesConfig.getNewsAndContentModelList().nonEmpty) {
-      Some(latestNewsAndUpdatesView())
-    } else {
-      None
+      } else None
     }
 
-  def getNationalInsuranceCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
-    Some(nispView())
+  def getLatestNewsAndUpdatesCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    if (configDecorator.isNewsAndUpdatesTileEnabled && newsAndTilesConfig.getNewsAndContentModelList().nonEmpty)
+      Some(latestNewsAndUpdatesView())
+    else None
+
+  def getNationalInsuranceCard()(implicit messages: Messages): HtmlFormat.Appendable =
+    nispView()
 
   def getBenefitCards(
     taxComponents: Option[TaxComponents],
@@ -188,20 +166,17 @@ class HomeCardGenerator @Inject() (
         getChildBenefitCard(),
         getMarriageAllowanceCard(taxComponents),
         getTaxCreditsCard()
-      ).flatten
-    } else {
-      List.empty
-    }
+      )
+    } else List.empty
 
-  def getTaxCreditsCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(taxCreditsView())
+  def getTaxCreditsCard()(implicit messages: Messages): HtmlFormat.Appendable =
+    taxCreditsView()
 
-  def getChildBenefitCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
-    Some(childBenefitSingleAccountView())
+  def getChildBenefitCard()(implicit messages: Messages): HtmlFormat.Appendable =
+    childBenefitSingleAccountView()
 
   def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit
     messages: Messages
-  ): Some[HtmlFormat.Appendable] =
-    Some(marriageAllowanceView(taxComponents))
-
+  ): HtmlFormat.Appendable =
+    marriageAllowanceView(taxComponents)
 }

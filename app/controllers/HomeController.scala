@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowOutageBannerToggle
-import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
-import play.twirl.api.Html
+import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents, Result}
 import services._
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -32,7 +31,7 @@ import viewmodels.HomeViewModel
 import views.html.HomeView
 
 import java.time.LocalDate
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
@@ -57,38 +56,37 @@ class HomeController @Inject() (
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
 
-    rlsInterruptHelper.enforceByRlsStatus(
-      paperlessInterruptHelper.enforcePaperlessPreference {
-        for {
-          taxSummaryState         <- taiService.retrieveTaxComponentsState(request.nino, current.currentYear)
-          breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino).map {
-                                       case WithinPeriod => true
-                                       case _            => false
-                                     }
-          incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
-          atsCard                 <- homeCardGenerator.getATSCard()
-          shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
-          alertBannerContent      <- alertBannerHelper.getContent
-        } yield {
+    enforceInterrupts {
+      for {
+        taxSummaryState         <- taiService.retrieveTaxComponentsState(request.nino, current.currentYear)
+        breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino)
+        incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
+        atsCard                 <- homeCardGenerator.getATSCard()
+        shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
+        alertBannerContent      <- alertBannerHelper.getContent
+      } yield {
+        val benefitCards = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
 
-          val benefitCards: Seq[Html] =
-            homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
-          Ok(
-            homeView(
-              HomeViewModel(
-                incomeCards,
-                benefitCards,
-                atsCard,
-                showUserResearchBanner = false,
-                saUserType,
-                breathingSpaceIndicator = breathingSpaceIndicator,
-                alertBannerContent
-              ),
-              shutteringMessaging.isEnabled
-            )
+        Ok(
+          homeView(
+            HomeViewModel(
+              incomeCards,
+              benefitCards,
+              atsCard,
+              showUserResearchBanner = false,
+              saUserType,
+              breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
+              alertBannerContent
+            ),
+            shutteringMessaging.isEnabled
           )
-        }
+        )
       }
-    )
+    }
   }
+
+  private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] =
+    rlsInterruptHelper.enforceByRlsStatus(
+      paperlessInterruptHelper.enforcePaperlessPreference(block)
+    )
 }
