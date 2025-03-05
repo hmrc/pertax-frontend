@@ -59,7 +59,7 @@ class HomeCardGenerator @Inject() (
     val cards1: Seq[Future[Seq[HtmlFormat.Appendable]]] =
       List(
         Future.successful(getLatestNewsAndUpdatesCard().toSeq),
-        Future.successful(getPayAsYouEarnCard.toSeq)
+        Future.successful(Some(getPayAsYouEarnCard).toSeq)
       )
 
     val cards2: Seq[Future[Seq[HtmlFormat.Appendable]]] = Seq(
@@ -98,13 +98,8 @@ class HomeCardGenerator @Inject() (
       .map(_.flatten)
   }
 
-  def getPayAsYouEarnCard(
-    taxComponentsState: TaxComponentsState
-  )(implicit request: UserRequest[_], messages: Messages): Option[HtmlFormat.Appendable] =
-    taxComponentsState match {
-      case TaxComponentsNotAvailableState => None
-      case _                              => Some(payAsYouEarnView(configDecorator, request.authNino.withoutSuffix.takeRight(2)))
-    }
+  def getPayAsYouEarnCard(implicit request: UserRequest[_], messages: Messages): HtmlFormat.Appendable =
+    payAsYouEarnView(configDecorator, request.authNino.withoutSuffix.takeRight(2))
 
   private def displaySACall: Call       = routes.InterstitialController.displaySelfAssessment
   private def handleSACall: Call        = routes.SelfAssessmentController.handleSelfAssessment

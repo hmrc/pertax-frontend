@@ -109,20 +109,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     )(stubConfigDecorator, ec)
 
   "Calling getPayAsYouEarnCard" must {
-    "return no content when called with with a Pertax user that is PAYE but has no tax summary" in {
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "GovernmentGateway"),
-        confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest()
-      )
-
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsNotAvailableState)
-
-      cardBody mustBe None
-    }
-
     "return correct markup when called with with a Pertax user that is PAYE" in {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
@@ -136,7 +122,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       lazy val cardBody =
         homeCardGenerator.getPayAsYouEarnCard
 
-      cardBody mustBe Some(payAsYouEarn(config, "00"))
+      cardBody mustBe payAsYouEarn(config, "00")
     }
   }
 
@@ -547,7 +533,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       lazy val cards =
-        homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
+        homeCardGenerator.getIncomeCards.futureValue
       cards.size mustBe 5
       cards.head.toString().contains("news-card") mustBe true
       cards(1).toString().contains("paye-card") mustBe true
@@ -582,7 +568,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       lazy val cards =
-        homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
+        homeCardGenerator.getIncomeCards.futureValue
       cards.size mustBe 3
       cards.head.toString().contains("news-card") mustBe true
       cards(1).toString().contains("paye-card") mustBe true
@@ -618,7 +604,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       lazy val cards =
-        homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
+        homeCardGenerator.getIncomeCards.futureValue
       cards.size mustBe 3
       cards.head.toString().contains("news-card") mustBe true
       cards(1).toString().contains("paye-card") mustBe true
