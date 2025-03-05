@@ -24,11 +24,11 @@ import org.mockito.Mockito.when
 import org.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import play.api.Application
-import play.api.libs.json.{JsNull, JsObject, JsString, Json}
+import play.api.libs.json.{JsNull, JsObject, JsString, JsValue, Json}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.Helpers.GET
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Injecting}
-import testUtils.{Fixtures, WireMockHelper}
+import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
@@ -67,7 +67,33 @@ class CitizenDetailsConnectorSpec
 
     def url: String
 
-    val personDetails: PersonDetails = Fixtures.buildPersonDetails
+    val personDetails: String =
+      """
+        |{
+        |  "person": {
+        |    "firstName": "Firstname",
+        |    "middleName": "Middlename",
+        |    "lastName": "Lastname",
+        |    "initials": "FML",
+        |    "title": "Dr",
+        |    "honours": "Phd.",
+        |    "sex": "M",
+        |    "dateOfBirth": "1945-03-18",
+        |    "nino": "RC367466B",
+        |    "status":1
+        |  },
+        |  "address": {
+        |    "line1": "1 Fake Street",
+        |    "line2": "Fake Town",
+        |    "line3": "Fake City",
+        |    "line4": "Fake Region",
+        |    "postcode": "AA1 1AA",
+        |    "startDate": "2015-03-15",
+        |    "type": "Residential",
+        |    "status":1
+        |  }
+        |}
+        |""".stripMargin
 
     val address: Address = Address(
       line1 = Some("1 Fake Street"),
@@ -97,13 +123,13 @@ class CitizenDetailsConnectorSpec
     }
 
     "return OK when called with an existing nino" in new LocalSetup {
-      stubGet(url, OK, Some(Json.toJson(personDetails).toString()))
+      stubGet(url, OK, Some(personDetails))
 
-      val result: Either[UpstreamErrorResponse, PersonDetails] =
+      val result: Either[UpstreamErrorResponse, JsValue] =
         connector.personDetails(nino).value.futureValue
 
       result mustBe a[Right[_, _]]
-      result.getOrElse(null) mustBe personDetails
+      result.getOrElse(null) mustBe Json.parse(personDetails)
     }
 
     "return NOT_FOUND when called with an unknown nino" in new LocalSetup {

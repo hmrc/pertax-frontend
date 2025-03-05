@@ -20,8 +20,8 @@ import cats.data.EitherT
 import cats.implicits._
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import models.{Address, PersonDetails}
-import play.api.libs.json.{Format, Json}
+import models.Address
+import play.api.libs.json.{Format, JsValue, Json}
 import play.api.mvc.Request
 import play.api.{Logger, Logging}
 import repositories.SessionCacheRepository
@@ -44,7 +44,7 @@ trait CitizenDetailsConnector {
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, PersonDetails]
+  ): EitherT[Future, UpstreamErrorResponse, JsValue]
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
@@ -101,10 +101,10 @@ class CachingCitizenDetailsConnector @Inject() (
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, PersonDetails] =
+  ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     cache(s"getPersonDetails-$nino") {
       underlying.personDetails(nino: Nino)
-    }(sensitiveFormatService.sensitiveFormatFromReadsWrites[PersonDetails], request)
+    }(sensitiveFormatService.sensitiveFormatFromReadsWrites[JsValue], request)
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
@@ -140,13 +140,13 @@ class DefaultCitizenDetailsConnector @Inject() (
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, PersonDetails] = {
+  ): EitherT[Future, UpstreamErrorResponse, JsValue] = {
     val url                                                              = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
     val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
       .get(url"$url")
       .transform(_.withRequestTimeout(configDecorator.citizenDetailsTimeoutInMilliseconds.milliseconds))
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-    httpClientResponse.read(apiResponse).map(_.json.as[PersonDetails])
+    httpClientResponse.read(apiResponse).map(_.json)
   }
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit

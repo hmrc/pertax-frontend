@@ -17,15 +17,12 @@
 package services
 
 import config.ConfigDecorator
-import models.{Address, Person, PersonDetails}
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json._
 import services.SensitiveFormatService.SensitiveJsValue
 import testUtils.BaseSpec
 import uk.gov.hmrc.crypto.{Crypted, Decrypter, Encrypter, PlainText}
-
-import java.time.LocalDate
 
 class SensitiveFormatServiceSpec extends BaseSpec with BeforeAndAfterEach {
   private trait EncrypterDecrypter extends Encrypter with Decrypter
@@ -45,35 +42,30 @@ class SensitiveFormatServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
   private val sensitiveFormatService = new SensitiveFormatService(mockEncrypterDecrypter, mockConfigDecorator)
 
-  val fakePersonDetails: PersonDetails = PersonDetails(
-    Person(
-      Some("John"),
-      None,
-      Some("Doe"),
-      Some("JD"),
-      Some("Mr"),
-      None,
-      Some("M"),
-      Some(LocalDate.parse("1975-12-03")),
-      Some(generatedNino)
-    ),
-    Some(
-      Address(
-        Some("1 Fake Street"),
-        Some("Fake Town"),
-        Some("Fake City"),
-        Some("Fake Region"),
-        None,
-        Some("AA1 1AA"),
-        None,
-        Some(LocalDate.of(2015, 3, 15)),
-        None,
-        Some("Residential"),
-        isRls = false
-      )
-    ),
-    None
-  )
+  val fakePersonDetails: String =
+    """
+      |{
+      |  "person": {
+      |    "firstName": "John",
+      |    "lastName": "Doe",
+      |    "initials": "JD",
+      |    "title": "Mr",
+      |    "sex": "M",
+      |    "dateOfBirth": "1975-12-03",
+      |    "nino": "AS664747B"
+      |  },
+      |  "address": {
+      |    "line1": "1 Fake Street",
+      |    "line2": "Fake Town",
+      |    "line3": "Fake City",
+      |    "line4": "Fake Region",
+      |    "postcode": "AA1 1AA",
+      |    "startDate": "2015-03-15",
+      |    "type": "Residential",
+      |    "status": 1
+      |  }
+      |}
+      |""".stripMargin
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -171,33 +163,32 @@ class SensitiveFormatServiceSpec extends BaseSpec with BeforeAndAfterEach {
     "write encrypted array, calling encrypt" in {
       when(mockEncrypterDecrypter.encrypt(any())).thenReturn(encryptedValue)
       val result: JsValue =
-        Json.toJson(fakePersonDetails)(
-          sensitiveFormatService.sensitiveFormatFromReadsWrites[PersonDetails]
-        )
+        Json
+          .toJson(Json.parse(fakePersonDetails))(sensitiveFormatService.sensitiveFormatFromReadsWrites[JsValue])
+
       result mustBe JsString(encryptedValueAsString)
 
       verify(mockEncrypterDecrypter, times(1)).encrypt(any())
     }
 
-    "read encrypted array, calling decrypt" in {
+    "read encrypted value, calling decrypt" in {
       when(mockEncrypterDecrypter.decrypt(any()))
-        .thenReturn(PlainText(Json.toJson(fakePersonDetails).toString))
+        .thenReturn(PlainText(fakePersonDetails))
 
-      val result = JsString(encryptedValueAsString).as[PersonDetails](
-        sensitiveFormatService.sensitiveFormatFromReadsWrites[PersonDetails]
+      val result = JsString(encryptedValueAsString).as[JsValue](
+        sensitiveFormatService.sensitiveFormatFromReadsWrites[JsValue]
       )
 
-      result mustBe fakePersonDetails
+      result mustBe Json.parse(fakePersonDetails)
 
       verify(mockEncrypterDecrypter, times(1)).decrypt(any())
     }
 
     "read unencrypted JsObject, not calling decrypt at all" in {
-      val result = Json
-        .toJson(fakePersonDetails)
-        .as[PersonDetails](sensitiveFormatService.sensitiveFormatFromReadsWrites[PersonDetails])
+      val result =
+        Json.parse(fakePersonDetails).as[JsValue](sensitiveFormatService.sensitiveFormatFromReadsWrites[JsValue])
 
-      result mustBe fakePersonDetails
+      result mustBe Json.parse(fakePersonDetails)
 
       verify(mockEncrypterDecrypter, times(0)).decrypt(any())
 

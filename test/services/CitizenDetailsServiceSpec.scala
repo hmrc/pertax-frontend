@@ -18,11 +18,11 @@ package services
 
 import cats.data.EitherT
 import connectors.CitizenDetailsConnector
-import models.{ETag, MatchingDetails, PersonDetails}
+import models.{ETag, MatchingDetails}
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.http.Status._
-import play.api.libs.json.{Json, OWrites}
+import play.api.libs.json.{JsValue, Json, OWrites}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.Helpers.GET
 import play.api.test.{FakeRequest, Injecting}
@@ -44,8 +44,8 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
 
       "return person details when connector returns and OK status with body" in {
         when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, PersonDetails](
-            Future.successful(Right(buildPersonDetails))
+          EitherT[Future, UpstreamErrorResponse, JsValue](
+            Future.successful(Right(Json.toJson(buildPersonDetails)))
           )
         )
 
@@ -67,7 +67,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
       ).foreach { errorResponse =>
         s"return an UpstreamErrorResponse containing $errorResponse when connector returns the same" in {
           when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
-            EitherT[Future, UpstreamErrorResponse, PersonDetails](
+            EitherT[Future, UpstreamErrorResponse, JsValue](
               Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
             )
           )
