@@ -55,13 +55,11 @@ class HomeCardGenerator @Inject() (
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
     extends Logging {
 
-  def getIncomeCards(
-    taxComponentsState: TaxComponentsState
-  )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
+  def getIncomeCards(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
     val cards1: Seq[Future[Seq[HtmlFormat.Appendable]]] =
       List(
         Future.successful(getLatestNewsAndUpdatesCard().toSeq),
-        Future.successful(getPayAsYouEarnCard(taxComponentsState).toSeq)
+        Future.successful(getPayAsYouEarnCard.toSeq)
       )
 
     val cards2: Seq[Future[Seq[HtmlFormat.Appendable]]] = Seq(

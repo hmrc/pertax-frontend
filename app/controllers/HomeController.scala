@@ -66,7 +66,7 @@ class HomeController @Inject() (
                                        case WithinPeriod => true
                                        case _            => false
                                      }
-          incomeCards             <- homeCardGenerator.getIncomeCards(taxSummaryState)
+          incomeCards             <- homeCardGenerator.getIncomeCards
           atsCard                 <- homeCardGenerator.getATSCard()
           shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
           alertBannerContent      <- alertBannerHelper.getContent
