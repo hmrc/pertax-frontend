@@ -46,12 +46,11 @@ class AuthRetrievalsImpl @Inject() (
   private def addRedirect(profileUrl: Option[String]): Option[String] =
     for {
       url <- profileUrl
-      res <- Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
+      res <- Url.parseOption(url)
     } yield res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
 
-  type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
-    String
-  ] ~ ConfidenceLevel ~ Option[Name] ~ Option[TrustedHelper] ~ Option[String]
+  private type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
+    Option[String] ~ ConfidenceLevel ~ Option[Name] ~ Option[TrustedHelper] ~ Option[String]
 
   //scalastyle:off cyclomatic.complexity
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
