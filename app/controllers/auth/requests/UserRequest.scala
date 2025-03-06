@@ -18,19 +18,17 @@ package controllers.auth.requests
 
 import models._
 import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.domain.Nino
 
 final case class UserRequest[+A](
   authNino: Nino,
-  nino: Option[Nino],
   retrievedName: Option[UserName],
   saUserType: SelfAssessmentUserType,
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
-  personDetails: Option[PersonDetails],
   trustedHelper: Option[TrustedHelper],
   enrolments: Set[Enrolment],
   profile: Option[String],
@@ -38,11 +36,6 @@ final case class UserRequest[+A](
   request: Request[A],
   userAnswers: UserAnswers
 ) extends WrappedRequest[A](request) {
-
-  def name: Option[String] = personDetails match {
-    case Some(personDetails) => personDetails.person.shortName
-    case _                   => retrievedName.map(_.toString)
-  }
 
   def isSa: Boolean = saUserType match {
     case NonFilerSelfAssessmentUser => false
@@ -53,6 +46,10 @@ final case class UserRequest[+A](
     case ActivatedOnlineFilerSelfAssessmentUser(_) => true
     case _                                         => false
   }
+
+  val helpeeNinoOrElse: Nino             = Nino(trustedHelper.fold(authNino.nino)(_.principalNino.getOrElse(authNino.nino)))
+  val helpeeNameOrElse: Option[UserName] =
+    trustedHelper.fold(retrievedName)(trustedHelper => Some(UserName(Name(Some(trustedHelper.principalName), None))))
 }
 
 object UserRequest {
@@ -60,17 +57,14 @@ object UserRequest {
     authenticatedRequest: AuthenticatedRequest[A],
     retrievedName: Option[UserName],
     saUserType: SelfAssessmentUserType,
-    personDetails: Option[PersonDetails],
     breadcrumb: Option[Breadcrumb]
   ): UserRequest[A] =
     UserRequest(
       authenticatedRequest.authNino,
-      authenticatedRequest.nino,
       retrievedName,
       saUserType,
       authenticatedRequest.credentials,
       authenticatedRequest.confidenceLevel,
-      personDetails,
       authenticatedRequest.trustedHelper,
       authenticatedRequest.enrolments,
       authenticatedRequest.profile,

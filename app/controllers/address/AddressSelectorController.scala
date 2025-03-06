@@ -31,12 +31,11 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.JourneyCacheRepository
 import routePages.{SelectedAddressRecordPage, SelectedRecordSetPage, SubmittedAddressPage, SubmittedStartDatePage}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import services.AddressSelectorService
+import services.{AddressSelectorService, CitizenDetailsService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.AddressSelectorView
 
 import java.time.LocalDate
@@ -49,16 +48,17 @@ class AddressSelectorController @Inject() (
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   addressSelectorView: AddressSelectorView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
   addressSelectorService: AddressSelectorService,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
       cc,
-      displayAddressInterstitialView,
       featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
       internalServerErrorView
     )
     with Logging {

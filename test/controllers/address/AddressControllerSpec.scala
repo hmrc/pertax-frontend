@@ -19,6 +19,7 @@ package controllers.address
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import error.ErrorRenderer
 import models.admin.AddressChangeAllowedToggle
 import play.api.mvc.Request
 import play.api.mvc.Results._
@@ -31,12 +32,15 @@ import views.html.InternalServerErrorView
 import scala.concurrent.Future
 
 class AddressControllerSpec extends AddressBaseSpec {
+  val mockErrorRenderer: ErrorRenderer = mock[ErrorRenderer]
+
   private object Controller
       extends AddressController(
         app.injector.instanceOf[AuthJourney],
         cc,
-        displayAddressInterstitialView,
         mockFeatureFlagService,
+        mockErrorRenderer,
+        mockCitizenDetailsService,
         internalServerErrorView
       )
 
@@ -62,42 +66,6 @@ class AddressControllerSpec extends AddressBaseSpec {
 
         status(result) mustBe OK
         contentAsString(result) mustBe expectedContent
-      }
-    }
-
-    "show the address interstitial view page" when {
-
-      "a nino cannot be found in the request" in {
-
-        when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
-          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-
-        def userRequest[A]: UserRequest[A] =
-          buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
-
-        val result = controller.addressJourneyEnforcer { _ => _ =>
-          Future(Ok("Success"))
-        }(userRequest)
-
-        status(result) mustBe OK
-        contentAsString(result) must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
-      }
-
-      "person details cannot be found in the request" in {
-
-        when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
-          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-
-        implicit def userRequest[A]: UserRequest[A] =
-          buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
-
-        val result = controller.addressJourneyEnforcer { _ => _ =>
-          Future(Ok("Success"))
-        }
-
-        status(result) mustBe OK
-        contentAsString(result) must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
-
       }
     }
 

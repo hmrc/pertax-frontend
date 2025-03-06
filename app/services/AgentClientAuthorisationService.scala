@@ -19,10 +19,10 @@ package services
 import cats.implicits._
 import com.google.inject.Inject
 import connectors.AgentClientAuthorisationConnector
+import controllers.auth.requests.UserRequest
 import models.AgentClientStatus
 import models.admin.AgentClientAuthorisationToggle
 import play.api.Logging
-import play.api.mvc.Request
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.{FutureEarlyTimeout, RateLimitedException}
@@ -34,9 +34,9 @@ class AgentClientAuthorisationService @Inject() (
   featureFlagService: FeatureFlagService
 ) extends Logging {
 
-  def getAgentClientStatus(implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_]): Future[Boolean] =
+  def getAgentClientStatus(implicit hc: HeaderCarrier, ec: ExecutionContext, request: UserRequest[_]): Future[Boolean] =
     featureFlagService.get(AgentClientAuthorisationToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
+      if (toggle.isEnabled && request.trustedHelper.isEmpty) {
         agentClientAuthorisationConnector.getAgentClientStatus
           .fold(
             _ => false,

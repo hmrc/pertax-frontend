@@ -94,7 +94,10 @@ class ConfigDecoratorSpec extends BaseSpec {
   "featureBannerTcsServiceClosure" must {
     "return Enabled when the configuration is set to 'enabled'" in {
       val config = new ConfigDecorator(
-        runModeConfiguration = Configuration("feature.bannerTcsServiceClosure" -> "enabled"),
+        runModeConfiguration = Configuration(
+          "feature.bannerTcsServiceClosure" -> "enabled",
+          "mongo.encryption.enabled"        -> false
+        ),
         servicesConfig = inject[ServicesConfig]
       )
 
@@ -103,7 +106,10 @@ class ConfigDecoratorSpec extends BaseSpec {
 
     "return Disabled when the configuration is set to 'disabled'" in {
       val config = new ConfigDecorator(
-        runModeConfiguration = Configuration("feature.bannerTcsServiceClosure" -> "disabled"),
+        runModeConfiguration = Configuration(
+          "feature.bannerTcsServiceClosure" -> "disabled",
+          "mongo.encryption.enabled"        -> false
+        ),
         servicesConfig = inject[ServicesConfig]
       )
 
@@ -112,7 +118,10 @@ class ConfigDecoratorSpec extends BaseSpec {
 
     "return DontCheck when the configuration is set to 'dont-check'" in {
       val config = new ConfigDecorator(
-        runModeConfiguration = Configuration("feature.bannerTcsServiceClosure" -> "dont-check"),
+        runModeConfiguration = Configuration(
+          "feature.bannerTcsServiceClosure" -> "dont-check",
+          "mongo.encryption.enabled"        -> false
+        ),
         servicesConfig = inject[ServicesConfig]
       )
 
@@ -121,7 +130,10 @@ class ConfigDecoratorSpec extends BaseSpec {
 
     "throw an exception for invalid configuration values" in {
       val config = new ConfigDecorator(
-        runModeConfiguration = Configuration("feature.bannerTcsServiceClosure" -> "invalid"),
+        runModeConfiguration = Configuration(
+          "feature.bannerTcsServiceClosure" -> "invalid",
+          "mongo.encryption.enabled"        -> false
+        ),
         servicesConfig = inject[ServicesConfig]
       )
 

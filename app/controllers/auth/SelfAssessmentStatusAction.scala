@@ -50,20 +50,20 @@ class SelfAssessmentStatusAction @Inject() (
     hc: HeaderCarrier,
     request: AuthenticatedRequest[A]
   ): Future[SelfAssessmentUserType] =
-    request.nino.fold[Future[SelfAssessmentUserType]](Future.successful(NonFilerSelfAssessmentUser)) { nino =>
-      enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper) match {
+    if (request.trustedHelper.isEmpty) {
+      enrolmentsHelper.selfAssessmentStatus(request.enrolments) match {
         case Some(SelfAssessmentEnrolment(saUtr, Activated))       =>
           Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
         case Some(SelfAssessmentEnrolment(saUtr, NotYetActivated)) =>
           Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
         case None                                                  =>
-          getSaUtrFromCitizenDetailsService(nino).flatMap {
+          getSaUtrFromCitizenDetailsService(request.authNino).flatMap {
             case Some(saUtr) =>
               enrolmentsCachingService.getSaUserTypeFromCache(saUtr)
             case None        => Future.successful(NonFilerSelfAssessmentUser)
           }
       }
-    }
+    } else { Future.successful(NonFilerSelfAssessmentUser) }
 
   override protected def refine[A](request: AuthenticatedRequest[A]): Future[Either[Result, UserRequest[A]]] = {
     implicit val hc: HeaderCarrier =
@@ -72,12 +72,10 @@ class SelfAssessmentStatusAction @Inject() (
       Right(
         UserRequest(
           request.authNino,
-          request.nino,
           request.name,
           saType,
           request.credentials,
           request.confidenceLevel,
-          None,
           request.trustedHelper,
           request.enrolments,
           request.profile,

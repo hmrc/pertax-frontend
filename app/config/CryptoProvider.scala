@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import views.html.helper.CSPNonce
+package config
 
-@this(
-        autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
-)
+import play.api.Configuration
+import uk.gov.hmrc.crypto.{ApplicationCrypto, Decrypter, Encrypter}
 
-@(scripts: Option[Html])(implicit request: Request[_])
+import javax.inject.{Inject, Provider, Singleton}
 
-<script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/webChat.js")'></script>
-<script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
-<script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js")'></script>
-@autocompleteJavascript()
-@scripts
+@Singleton
+class CryptoProvider @Inject() (
+  configuration: Configuration
+) extends Provider[Encrypter with Decrypter] {
+
+  override def get(): Encrypter with Decrypter =
+    new ApplicationCrypto(configuration.underlying).JsonCrypto
+}

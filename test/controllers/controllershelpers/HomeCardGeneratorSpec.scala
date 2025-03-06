@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,21 +109,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     )(stubConfigDecorator, ec)
 
   "Calling getPayAsYouEarnCard" must {
-    "return nothing when called with no Pertax user" in {
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        nino = None,
-        saUser = NonFilerSelfAssessmentUser,
-        confidenceLevel = ConfidenceLevel.L50,
-        personDetails = None,
-        request = FakeRequest()
-      )
-
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard
-
-      cardBody mustBe None
-    }
-
     "return correct markup when called with with a Pertax user that is PAYE" in {
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
@@ -131,13 +116,13 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         credentials = Credentials("", "GovernmentGateway"),
         confidenceLevel = ConfidenceLevel.L200,
         request = FakeRequest(),
-        nino = Some(Nino("AA000000C"))
+        authNino = Nino("AA000000C")
       )
 
       lazy val cardBody =
         homeCardGenerator.getPayAsYouEarnCard
 
-      cardBody mustBe Some(payAsYouEarn(config, "00"))
+      cardBody mustBe payAsYouEarn(config, "00")
     }
   }
 
@@ -174,7 +159,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getNationalInsuranceCard()
 
-      cardBody mustBe Some(nispView())
+      cardBody mustBe nispView()
     }
 
   }
@@ -184,14 +169,14 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
 
-      cardBody mustBe Some(taxCredits())
+      cardBody mustBe taxCredits()
     }
 
     "always return the same markup when taxCreditsPaymentLinkEnabled is disabled" in {
 
       lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
 
-      cardBody mustBe Some(taxCredits())
+      cardBody mustBe taxCredits()
     }
   }
 
@@ -199,7 +184,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "returns the child Benefit single sign on markup" in {
       lazy val cardBody = homeCardGenerator.getChildBenefitCard()
 
-      cardBody mustBe Some(childBenefitSingleAccount())
+      cardBody mustBe childBenefitSingleAccount()
     }
   }
 
@@ -213,7 +198,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
-      cardBody mustBe Some(marriageAllowance(tc))
+      cardBody mustBe marriageAllowance(tc)
     }
 
     "return nothing when called with a user who has tax summary and transfers Marriage Allowance" in {
@@ -225,7 +210,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
-      cardBody mustBe Some(marriageAllowance(tc))
+      cardBody mustBe marriageAllowance(tc)
     }
 
     "return correct markup when called with a user who has no tax summary" in {
@@ -237,7 +222,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
-      cardBody mustBe Some(marriageAllowance(tc))
+      cardBody mustBe marriageAllowance(tc)
     }
 
     "return correct markup when called with a user who has tax summary but no marriage allowance" in {
@@ -249,7 +234,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
-      cardBody mustBe Some(marriageAllowance(tc))
+      cardBody mustBe marriageAllowance(tc)
     }
   }
 
@@ -266,7 +251,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             request = FakeRequest()
           )
 
-        lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.value.futureValue
+        lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.futureValue
 
         cardBody mustBe Some(taxSummaries(configDecorator.annualTaxSaSummariesTileLink))
       }
@@ -287,7 +272,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           implicit val payeRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(saUser = saType, request = FakeRequest())
 
-          lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.value.futureValue
+          lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.futureValue
           cardBody mustBe Some(taxSummaries(configDecorator.annualTaxPayeSummariesTileLink))
         }
       }
@@ -302,7 +287,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(request = FakeRequest())
 
-        lazy val cardBody = sut.getAnnualTaxSummaryCard.value.futureValue
+        lazy val cardBody = sut.getAnnualTaxSummaryCard.futureValue
 
         cardBody mustBe None
       }
@@ -434,7 +419,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "return None when the trustedHelper is not empty" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
-          trustedHelper = Some(TrustedHelper("", "", "", Some(""))),
+          trustedHelper = Some(TrustedHelper("", "", "", Some(generatedTrustedHelperNino.nino))),
           request = FakeRequest()
         )
 
@@ -542,20 +527,19 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        nino = None,
         saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
-        personDetails = None,
         request = FakeRequest()
       )
 
       lazy val cards =
-        homeCardGenerator.getIncomeCards(userRequest, messages).futureValue
-      cards.size mustBe 4
+        homeCardGenerator.getIncomeCards.futureValue
+      cards.size mustBe 5
       cards.head.toString().contains("news-card") mustBe true
-      cards(1).toString().contains("test1") mustBe true
-      cards(2).toString().contains("test2") mustBe true
-      cards(3).toString().contains("ni-and-sp-card") mustBe true
+      cards(1).toString().contains("paye-card") mustBe true
+      cards(2).toString().contains("test1") mustBe true
+      cards(3).toString().contains("test2") mustBe true
+      cards(4).toString().contains("ni-and-sp-card") mustBe true
     }
 
     "when taxcalc toggle off return no tax calc cards" in {
@@ -578,18 +562,17 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        nino = None,
         saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
-        personDetails = None,
         request = FakeRequest()
       )
 
       lazy val cards =
-        homeCardGenerator.getIncomeCards(userRequest, messages).futureValue
-      cards.size mustBe 2
+        homeCardGenerator.getIncomeCards.futureValue
+      cards.size mustBe 3
       cards.head.toString().contains("news-card") mustBe true
-      cards(1).toString().contains("ni-and-sp-card") mustBe true
+      cards(1).toString().contains("paye-card") mustBe true
+      cards(2).toString().contains("ni-and-sp-card") mustBe true
     }
 
     "when taxcalc toggle on but trusted helper present return no tax calc cards" in {
@@ -613,19 +596,19 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        nino = None,
         saUser = NonFilerSelfAssessmentUser,
         confidenceLevel = ConfidenceLevel.L50,
-        personDetails = None,
-        trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some("fakePrincipalNino"))),
+        trustedHelper =
+          Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))),
         request = FakeRequest()
       )
 
       lazy val cards =
-        homeCardGenerator.getIncomeCards(userRequest, messages).futureValue
-      cards.size mustBe 2
+        homeCardGenerator.getIncomeCards.futureValue
+      cards.size mustBe 3
       cards.head.toString().contains("news-card") mustBe true
-      cards(1).toString().contains("ni-and-sp-card") mustBe true
+      cards(1).toString().contains("paye-card") mustBe true
+      cards(2).toString().contains("ni-and-sp-card") mustBe true
     }
   }
 }
