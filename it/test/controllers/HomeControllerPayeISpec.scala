@@ -56,30 +56,12 @@ class HomeControllerPayeISpec extends IntegrationSpec {
   }
 
   "personal-account" must {
-    "show PAYE tile when the tax-components toggle is disabled" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-        .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
-
+    "show PAYE tile" in {
       val result: Future[Result] = route(app, request).get
 
       httpStatus(result) mustBe OK
       contentAsString(result).contains(Messages("label.pay_as_you_earn_paye")) mustBe true
       contentAsString(result).contains("/check-income-tax/what-do-you-want-to-do") mustBe true
-    }
-
-    "not show PAYE tile when the tax-components toggle is enabled and tax-component is empty" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-        .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
-
-      server.stubFor(
-        get(urlEqualTo(s"/tai/$generatedNino/tax-account/${LocalDateTime.now().getYear}/tax-components"))
-          .willReturn(notFound())
-      )
-
-      val result: Future[Result] = route(app, request).get
-
-      httpStatus(result) mustBe OK
-      contentAsString(result).contains(Messages("label.pay_as_you_earn_paye")) mustBe false
     }
   }
 }
