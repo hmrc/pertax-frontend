@@ -33,19 +33,19 @@ import views.html.HomeView
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
-class HomeController @Inject()(
-                                paperlessInterruptHelper: PaperlessInterruptHelper,
-                                taiService: TaiService,
-                                breathingSpaceService: BreathingSpaceService,
-                                featureFlagService: FeatureFlagService,
-                                homeCardGenerator: HomeCardGenerator,
-                                authJourney: AuthJourney,
-                                cc: MessagesControllerComponents,
-                                homeView: HomeView,
-                                rlsInterruptHelper: RlsInterruptHelper,
-                                alertBannerHelper: AlertBannerHelper
-                              )(implicit ec: ExecutionContext)
-  extends PertaxBaseController(cc)
+class HomeController @Inject() (
+  paperlessInterruptHelper: PaperlessInterruptHelper,
+  taiService: TaiService,
+  breathingSpaceService: BreathingSpaceService,
+  featureFlagService: FeatureFlagService,
+  homeCardGenerator: HomeCardGenerator,
+  authJourney: AuthJourney,
+  cc: MessagesControllerComponents,
+  homeView: HomeView,
+  rlsInterruptHelper: RlsInterruptHelper,
+  alertBannerHelper: AlertBannerHelper
+)(implicit ec: ExecutionContext)
+    extends PertaxBaseController(cc)
     with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
@@ -58,12 +58,12 @@ class HomeController @Inject()(
 
     enforceInterrupts {
       for {
-        taxSummaryState <- taiService.retrieveTaxComponentsState(request.nino, current.currentYear)
+        taxSummaryState         <- taiService.retrieveTaxComponentsState(request.nino, current.currentYear)
         breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino)
-        incomeCards <- homeCardGenerator.getIncomeCards
-        atsCard <- homeCardGenerator.getATSCard()
-        shutteringMessaging <- featureFlagService.get(ShowOutageBannerToggle)
-        alertBannerContent <- alertBannerHelper.getContent
+        incomeCards             <- homeCardGenerator.getIncomeCards
+        atsCard                 <- homeCardGenerator.getATSCard()
+        shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
+        alertBannerContent      <- alertBannerHelper.getContent
       } yield {
         val benefitCards = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
 
