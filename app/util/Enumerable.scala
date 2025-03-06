@@ -45,6 +45,11 @@ object Enumerable {
           JsError("error.invalid")
       }
 
+    /* util.Enumerable[A] in method writes is never used however there is a
+      name clash between defined and inherited member:
+      - implicit def writes[A]: play.api.libs.json.Writes[A] in trait Implicits and
+      - implicit lazy val writes: play.api.libs.json.Writes[models.dto.InternationalAddressChoiceDto] at line 44
+     */
     implicit def writes[A: Enumerable]: Writes[A] =
       Writes(value => JsString(value.toString))
   }

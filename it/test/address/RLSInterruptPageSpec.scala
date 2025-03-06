@@ -17,16 +17,20 @@
 package address
 
 import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, status => _}
+import config.{ApplicationStartUp, CryptoProvider}
+import connectors.{AgentClientAuthorisationConnector, CachingCitizenDetailsConnector, CitizenDetailsConnector, DefaultAgentClientAuthorisationConnector, DefaultCitizenDetailsConnector}
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, status => getStatus, _}
-import play.api.Application
+import play.api.{Application, inject}
 import testUtils.IntegrationSpec
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
+import java.time.{Clock, ZoneId}
 import scala.concurrent.Future
 
 class RLSInterruptPageSpec extends IntegrationSpec {
@@ -36,6 +40,14 @@ class RLSInterruptPageSpec extends IntegrationSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
       "microservice.services.pertax.port" -> server.port()
+    )
+    .disable[config.HmrcModule]
+    .overrides(
+      inject.bind[Clock].toInstance(Clock.systemDefaultZone.withZone(ZoneId.of("Europe/London"))),
+      inject.bind[ApplicationStartUp].toSelf.eagerly(),
+      inject.bind[CitizenDetailsConnector].to[DefaultCitizenDetailsConnector],
+      inject.bind[AgentClientAuthorisationConnector].to[DefaultAgentClientAuthorisationConnector],
+      inject.bind[Encrypter with Decrypter].toProvider[CryptoProvider]
     )
     .build()
 
@@ -49,7 +61,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
     "show rls interrupt" when {
       "RLS indicator is set for main address for non tax credit user" in {
         val designatoryDetails =
-          """|
+          s"""|
              |{
              |  "etag" : "115",
              |  "person" : {
@@ -60,13 +72,13 @@ class RLSInterruptPageSpec extends IntegrationSpec {
              |    "honours": "BSC",
              |    "sex" : "M",
              |    "dateOfBirth" : "1952-04-01",
-             |    "nino" : "TW189213B",
+             |    "nino" : "$generatedNino",
              |    "deceased" : false
              |  },
              |  "address" : {
-             |    "line1" : "26 FARADAY DRIVE",
-             |    "line2" : "PO BOX 45",
-             |    "line3" : "LONDON",
+             |    "line1" : "26 fake address",
+             |    "line2" : "",
+             |    "line3" : "fake city",
              |    "postcode" : "CT1 1RQ",
              |    "startDate": "2009-08-29",
              |    "country" : "GREAT BRITAIN",
@@ -91,7 +103,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
 
       "RLS indicator is set for correspondence address for non tax credit user" in {
         val designatoryDetails =
-          """|
+          s"""|
              |{
              |  "etag" : "115",
              |  "person" : {
@@ -102,13 +114,13 @@ class RLSInterruptPageSpec extends IntegrationSpec {
              |    "honours": "BSC",
              |    "sex" : "M",
              |    "dateOfBirth" : "1952-04-01",
-             |    "nino" : "TW189213B",
+             |    "nino" : "$generatedNino",
              |    "deceased" : false
              |  },
              |  "correspondenceAddress" : {
-             |    "line1" : "26 FARADAY DRIVE",
-             |    "line2" : "PO BOX 45",
-             |    "line3" : "LONDON",
+             |    "line1" : "26 fake address",
+             |    "line2" : "",
+             |    "line3" : "fake city",
              |    "postcode" : "CT1 1RQ",
              |    "startDate": "2009-08-29",
              |    "country" : "GREAT BRITAIN",
@@ -132,7 +144,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
 
       "RLS indicator is set for both main address and correspondence address for non tax credit user" in {
         val designatoryDetails =
-          """|
+          s"""|
              |{
              |  "etag" : "115",
              |  "person" : {
@@ -143,13 +155,13 @@ class RLSInterruptPageSpec extends IntegrationSpec {
              |    "honours": "BSC",
              |    "sex" : "M",
              |    "dateOfBirth" : "1952-04-01",
-             |    "nino" : "TW189213B",
+             |    "nino" : "$generatedNino",
              |    "deceased" : false
              |  },
              |  "address" : {
-             |    "line1" : "26 FARADAY DRIVE",
-             |    "line2" : "PO BOX 45",
-             |    "line3" : "LONDON",
+             |    "line1" : "26 fake address",
+             |    "line2" : "",
+             |    "line3" : "fake city",
              |    "postcode" : "CT1 1RQ",
              |    "startDate": "2009-08-29",
              |    "country" : "GREAT BRITAIN",
@@ -157,9 +169,9 @@ class RLSInterruptPageSpec extends IntegrationSpec {
              |    "status": 1
              |  },
              |  "correspondenceAddress" : {
-             |    "line1" : "26 FARADAY DRIVE",
-             |    "line2" : "PO BOX 45",
-             |    "line3" : "LONDON",
+             |    "line1" : "26 fake address",
+             |    "line2" : "",
+             |    "line3" : "fake city",
              |    "postcode" : "CT1 1RQ",
              |    "startDate": "2009-08-29",
              |    "country" : "GREAT BRITAIN",
@@ -188,7 +200,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
   "not show rls interrupt" when {
     "no rls indicator for non tax credit user" in {
       val designatoryDetails =
-        """|
+        s"""|
              |{
            |  "etag" : "115",
            |  "person" : {
@@ -199,13 +211,13 @@ class RLSInterruptPageSpec extends IntegrationSpec {
            |    "honours": "BSC",
            |    "sex" : "M",
            |    "dateOfBirth" : "1952-04-01",
-           |    "nino" : "TW189213B",
+           |    "nino" : "$generatedNino",
            |    "deceased" : false
            |  },
            |  "address" : {
-           |    "line1" : "26 FARADAY DRIVE",
-           |    "line2" : "PO BOX 45",
-           |    "line3" : "LONDON",
+           |    "line1" : "26 fake address",
+           |    "line2" : "",
+           |    "line3" : "fake city",
            |    "postcode" : "CT1 1RQ",
            |    "startDate": "2009-08-29",
            |    "country" : "GREAT BRITAIN",
@@ -213,9 +225,9 @@ class RLSInterruptPageSpec extends IntegrationSpec {
            |    "status": 0
            |  },
            |  "correspondenceAddress" : {
-           |     "line1" : "26 FARADAY DRIVE",
-           |     "line2" : "PO BOX 45",
-           |     "line3" : "LONDON",
+           |     "line1" : "26 fake address",
+           |     "line2" : "",
+           |     "line3" : "fake city",
            |     "postcode" : "CT1 1RQ",
            |     "startDate": "2009-08-29",
            |     "country" : "GREAT BRITAIN",

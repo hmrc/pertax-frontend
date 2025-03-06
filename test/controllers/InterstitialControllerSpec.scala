@@ -289,7 +289,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
       setupAuth(
         saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))),
-        trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "principalNino", Some("attorneyArn")))
+        trustedHelper =
+          Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some(generatedTrustedHelperNino.nino)))
       )
 
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))

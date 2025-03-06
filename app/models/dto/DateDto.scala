@@ -22,6 +22,7 @@ import play.api.data.Forms._
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
+import scala.annotation.unused
 
 case class DateDto(
   startDate: LocalDate
@@ -33,7 +34,7 @@ object DateDto {
 
   def build(day: Int, month: Int, year: Int): DateDto = DateDto(LocalDate.of(year, month, day))
 
-  def form(today: LocalDate): Form[DateDto] = {
+  def form(@unused today: LocalDate): Form[DateDto] = {
     val yearValidation  = 1000
     val monthValidation = 1
     val dayValidation   = 1

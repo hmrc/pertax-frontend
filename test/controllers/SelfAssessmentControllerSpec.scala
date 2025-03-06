@@ -32,7 +32,7 @@ import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
 import services.SelfAssessmentService
-import testUtils.Fixtures.{buildFakeRequestWithAuth, buildPersonDetailsCorrespondenceAddress}
+import testUtils.Fixtures.buildFakeRequestWithAuth
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
@@ -68,8 +68,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     super.beforeEach()
     reset(mockAuditConnector, mockAuthAction, mockSelfAssessmentStatusAction)
   }
-
-  private def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
 
   trait LocalSetup {
 
@@ -107,7 +105,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
             block(
               buildUserRequest(
                 request = currentRequest[A],
-                personDetails = personDetailsForRequest,
                 saUser = saUserType
               )
             )
@@ -130,7 +127,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
             block(
               buildUserRequest(
                 request = currentRequest[A],
-                personDetails = personDetailsForRequest,
                 saUser = saUserType
               )
             )
@@ -150,7 +146,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
             block(
               buildUserRequest(
                 request = currentRequest[A],
-                personDetails = personDetailsForRequest,
                 saUser = saUserType
               )
             )
@@ -172,7 +167,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
             block(
               buildUserRequest(
                 request = currentRequest[A],
-                personDetails = personDetailsForRequest,
                 saUser = saUserType
               )
             )
@@ -191,7 +185,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
             block(
               buildUserRequest(
                 request = currentRequest[A],
-                personDetails = personDetailsForRequest,
                 saUser = saUserType
               )
             )
@@ -216,7 +209,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
             block(
               buildUserRequest(
                 request = currentRequest[A],
-                personDetails = personDetailsForRequest,
                 saUser = saUserType
               )
             )
@@ -236,7 +228,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
             block(
               buildUserRequest(
                 request = currentRequest[A],
-                personDetails = personDetailsForRequest,
                 saUser = saUserType
               )
             )
@@ -256,7 +247,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
             block(
               buildUserRequest(
                 request = currentRequest[A],
-                personDetails = personDetailsForRequest,
                 saUser = saUserType
               )
             )
