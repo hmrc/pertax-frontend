@@ -35,7 +35,9 @@ import play.api.test.Helpers.baseApplicationBuilder.injector
 import play.api.test.Injecting
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
+import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.test.CleanMongoCollectionSupport
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.FormPartialRetriever
@@ -50,7 +52,8 @@ trait BaseSpec
     with MockitoSugar
     with ScalaFutures
     with IntegrationPatience
-    with Injecting {
+    with Injecting
+    with CleanMongoCollectionSupport {
   this: Suite =>
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -90,6 +93,9 @@ trait BaseSpec
   implicit def messagesApi: MessagesApi      = inject[MessagesApi]
 
   lazy val config: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
+
+  val generatedTrustedHelperNino: Nino = new Generator().nextNino
+  val generatedNino: Nino              = new Generator().nextNino
 
   override def beforeEach(): Unit = {
     super.beforeEach()

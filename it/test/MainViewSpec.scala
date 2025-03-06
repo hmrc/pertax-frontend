@@ -137,12 +137,10 @@ class MainViewSpec extends IntegrationSpec {
     ): UserRequest[A] =
       UserRequest(
         authNino,
-        nino,
         userName,
         saUser,
         credentials,
         confidenceLevel,
-        personDetails,
         trustedHelper,
         Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
         profile,
@@ -166,12 +164,10 @@ class MainViewSpec extends IntegrationSpec {
     ): UserRequest[A] =
       UserRequest(
         authNino,
-        nino,
         userName,
         saUser,
         credentials,
         confidenceLevel,
-        personDetails,
         trustedHelper,
         Set(),
         profile,

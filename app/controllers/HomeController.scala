@@ -38,6 +38,7 @@ class HomeController @Inject() (
   taiService: TaiService,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   homeCardGenerator: HomeCardGenerator,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
@@ -58,14 +59,16 @@ class HomeController @Inject() (
 
     enforceInterrupts {
       for {
-        taxSummaryState         <- taiService.retrieveTaxComponentsState(request.nino, current.currentYear)
-        breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.authNino)
+        taxSummaryState         <- taiService.retrieveTaxComponentsState(Some(request.helpeeNinoOrElse), current.currentYear)
+        breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse)
         incomeCards             <- homeCardGenerator.getIncomeCards
         atsCard                 <- homeCardGenerator.getATSCard()
         shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
         alertBannerContent      <- alertBannerHelper.getContent
+        personDetails           <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value
       } yield {
-        val benefitCards = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
+        val nameToDisplay = personDetails.fold(request.helpeeNameOrElse.map(_.toString))(_.person.shortName)
+        val benefitCards  = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
 
         Ok(
           homeView(
@@ -76,7 +79,8 @@ class HomeController @Inject() (
               showUserResearchBanner = false,
               saUserType,
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
-              alertBannerContent
+              alertBannerContent,
+              nameToDisplay
             ),
             shutteringMessaging.isEnabled
           )

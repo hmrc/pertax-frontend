@@ -22,8 +22,10 @@ import models.{ETag, MatchingDetails}
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.http.Status._
-import play.api.libs.json.{Json, OWrites}
-import play.api.test.Injecting
+import play.api.libs.json.{JsValue, Json, OWrites}
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.Helpers.GET
+import play.api.test.{FakeRequest, Injecting}
 import testUtils.BaseSpec
 import testUtils.Fixtures._
 import uk.gov.hmrc.domain.SaUtr
@@ -33,17 +35,17 @@ import scala.concurrent.Future
 
 class CitizenDetailsServiceSpec extends BaseSpec with Injecting with IntegrationPatience {
 
-  val mockConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
-
-  val sut: CitizenDetailsService = new CitizenDetailsService(mockConnector)
+  val mockConnector: CitizenDetailsConnector                = mock[CitizenDetailsConnector]
+  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/")
+  val sut: CitizenDetailsService                            = new CitizenDetailsService(mockConnector)
 
   "CitizenDetailsService" when {
     "personDetails is called" must {
 
       "return person details when connector returns and OK status with body" in {
-        when(mockConnector.personDetails(any())(any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, HttpResponse](
-            Future.successful(Right(HttpResponse(OK, Json.toJson(buildPersonDetails).toString)))
+        when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, JsValue](
+            Future.successful(Right(Json.toJson(buildPersonDetails)))
           )
         )
 
@@ -64,8 +66,8 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         BAD_GATEWAY
       ).foreach { errorResponse =>
         s"return an UpstreamErrorResponse containing $errorResponse when connector returns the same" in {
-          when(mockConnector.personDetails(any())(any(), any())).thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
+          when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
+            EitherT[Future, UpstreamErrorResponse, JsValue](
               Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
             )
           )

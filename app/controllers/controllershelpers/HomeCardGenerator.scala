@@ -59,7 +59,7 @@ class HomeCardGenerator @Inject() (
 
     val staticCards = Seq(
       getLatestNewsAndUpdatesCard(),
-      getPayAsYouEarnCard
+      Some(getPayAsYouEarnCard)
     ).flatten
 
     val dynamicTaxCalcCards = featureFlagService.get(TaxcalcToggle).flatMap {
@@ -86,10 +86,8 @@ class HomeCardGenerator @Inject() (
       Future.successful(Nil)
     }
 
-  def getPayAsYouEarnCard(implicit request: UserRequest[_], messages: Messages): Option[HtmlFormat.Appendable] =
-    request.nino.flatMap { nino =>
-      Some(payAsYouEarnView(configDecorator, nino.withoutSuffix.takeRight(2)))
-    }
+  def getPayAsYouEarnCard(implicit request: UserRequest[_], messages: Messages): HtmlFormat.Appendable =
+    payAsYouEarnView(configDecorator, request.authNino.withoutSuffix.takeRight(2))
 
   private def displaySACall: Call = routes.InterstitialController.displaySelfAssessment
 

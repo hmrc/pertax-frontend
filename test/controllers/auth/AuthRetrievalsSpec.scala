@@ -56,7 +56,7 @@ class AuthRetrievalsSpec extends BaseSpec {
   class Harness(authAction: AuthRetrievalsImpl) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
-        s"Nino: ${request.nino.getOrElse("fail").toString}, Enrolments: ${request.enrolments.toString}," +
+        s"Nino: ${request.authNino.nino}, Enrolments: ${request.enrolments.toString}," +
           s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}"
       )
     }
@@ -129,17 +129,15 @@ class AuthRetrievalsSpec extends BaseSpec {
   "A user with trustedHelper must" must {
     "create an authenticated request containing the trustedHelper" in {
 
-      val fakePrincipalNino = Fixtures.fakeNino.toString()
-
       val controller =
         retrievals(trustedHelper =
-          Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(fakePrincipalNino)))
+          Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino)))
         )
 
       val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(
-        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,Some($fakePrincipalNino)))"
+        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,Some($generatedTrustedHelperNino)))"
       )
     }
   }

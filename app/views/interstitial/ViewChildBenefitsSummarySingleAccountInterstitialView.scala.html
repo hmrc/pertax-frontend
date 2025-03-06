@@ -23,12 +23,10 @@
         main: MainView,
         h1: H1,
         h2: H2,
-        p: P,
-        link: Link,
-        button: Button
+        link: Link
 )
 
-@(redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
     @reportChangesChildBenefitLink = @{
         if(messages.lang.code == "cy") {
             configDecorator.reportChangesChildBenefitWelsh
@@ -72,24 +70,20 @@
     @main(pageTitle = messages("label.child_benefit"), showBackLink = true) {
 
         @h1(messages("label.child_benefit"), classes = Some("govuk-heading-l govuk-!-padding-bottom-6"))
-        @if(request.nino.isDefined) {
-            @h2(messages("label.making_a_claim"))
-            <ul class="govuk-list govuk-list--spaced">
-                <li>@link(checkIfYouCanClaimLink, messageKey = "label.check_if_you_can_claim", inParagraph = true)</li>
-                <li>@link(claimChildBenefitLink, messageKey = "label.make_a_claim", inParagraph = true)</li>
-            </ul>
-            @h2(messages("label.manage_a_claim"))
-            <ul class="govuk-list govuk-list--spaced">
-                <li>@link(reportChangesChildBenefitLink, messageKey = "label.report_changes_that_affect_your_child_benefit", inParagraph = true)</li>
-                <li>@link(guidanceForWhenYourChildTurnsSixteenLink, messageKey = "label.guidance_for_when_your_child_turns_sixteen", inParagraph = true)</li>
-                <li>@link(configDecorator.extendYourPaymentWhileYourChildStaysInEducation, messageKey = "label.extend_your_payment_while_your_child_stays_in_education", inParagraph = true)</li>
-                <li>@link(configDecorator.viewPaymentHistory, messageKey = "label.view_your_child_benefit_payment_history", inParagraph = true)</li>
-                <li>@link(configDecorator.changeBankDetails, messageKey = "label.change_your_bank_details", inParagraph = true)</li>
-                <li>@link(configDecorator.viewProofEntitlement, messageKey = "label.view_your_proof_of_entitlement_to_child_benefit", inParagraph = true)</li>
-                <li>@link(childBenefitTaxChargeLink, messageKey = "label.high_income_child_benefit_charge", inParagraph = true)</li>
-            </ul>
-        } else {
-            @p(Text(messages("label.you_can_see_this_part_of_your_account_if_you_complete")), classes = Some("govuk-body-l"))
-            @button("global.label.continue_button", href = Some(routes.ApplicationController.uplift(Some(RedirectUrl(redirectUrl))).url), id = "continue")
-        }
+
+        @h2(messages("label.making_a_claim"))
+        <ul class="govuk-list govuk-list--spaced">
+            <li>@link(checkIfYouCanClaimLink, messageKey = "label.check_if_you_can_claim", inParagraph = true)</li>
+            <li>@link(claimChildBenefitLink, messageKey = "label.make_a_claim", inParagraph = true)</li>
+        </ul>
+        @h2(messages("label.manage_a_claim"))
+        <ul class="govuk-list govuk-list--spaced">
+            <li>@link(reportChangesChildBenefitLink, messageKey = "label.report_changes_that_affect_your_child_benefit", inParagraph = true)</li>
+            <li>@link(guidanceForWhenYourChildTurnsSixteenLink, messageKey = "label.guidance_for_when_your_child_turns_sixteen", inParagraph = true)</li>
+            <li>@link(configDecorator.extendYourPaymentWhileYourChildStaysInEducation, messageKey = "label.extend_your_payment_while_your_child_stays_in_education", inParagraph = true)</li>
+            <li>@link(configDecorator.viewPaymentHistory, messageKey = "label.view_your_child_benefit_payment_history", inParagraph = true)</li>
+            <li>@link(configDecorator.changeBankDetails, messageKey = "label.change_your_bank_details", inParagraph = true)</li>
+            <li>@link(configDecorator.viewProofEntitlement, messageKey = "label.view_your_proof_of_entitlement_to_child_benefit", inParagraph = true)</li>
+            <li>@link(childBenefitTaxChargeLink, messageKey = "label.high_income_child_benefit_charge", inParagraph = true)</li>
+        </ul>
     }

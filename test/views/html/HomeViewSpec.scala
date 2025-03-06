@@ -41,15 +41,16 @@ class HomeViewSpec extends ViewSpec {
   implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
 
   val homeViewModel: HomeViewModel =
-    HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty)
+    HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty, None)
 
   "Rendering HomeView.scala.html" must {
 
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(Fixtures.buildPersonDetails), userName = None, request = FakeRequest())
+        buildUserRequest(userName = None, request = FakeRequest())
 
-      lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
+      lazy val document: Document =
+        asDocument(home(homeViewModel.copy(name = Some("Firstname Lastname")), shutteringMessaging = false).toString)
 
       document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
       document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false
@@ -57,12 +58,12 @@ class HomeViewSpec extends ViewSpec {
 
     "show the users name and not 'Your account' when the user has no details but is a GG user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        personDetails = None,
         userName = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         request = FakeRequest()
       )
 
-      lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
+      lazy val document: Document =
+        asDocument(home(homeViewModel.copy(name = Some("Firstname Lastname")), shutteringMessaging = false).toString)
 
       document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
       document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false
@@ -70,7 +71,7 @@ class HomeViewSpec extends ViewSpec {
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
+        buildUserRequest(userName = None, request = FakeRequest())
 
       lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
 
@@ -134,7 +135,7 @@ class HomeViewSpec extends ViewSpec {
 
     "have the last 2 nino numbers be rendered as an attribute on PAYE tile" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest(), nino = Some(Nino("AA000000C")))
+        buildUserRequest(request = FakeRequest(), authNino = Nino("AA000000C"))
       val view                                                      = Jsoup.parse(
         home(
           homeViewModel.copy(

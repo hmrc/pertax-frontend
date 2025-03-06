@@ -24,9 +24,11 @@ import org.mockito.Mockito.when
 import org.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import play.api.Application
-import play.api.libs.json.{JsNull, JsObject, JsString, Json}
-import play.api.test.{DefaultAwaitTimeout, Injecting}
-import testUtils.{Fixtures, WireMockHelper}
+import play.api.libs.json.{JsNull, JsObject, JsString, JsValue, Json}
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.Helpers.GET
+import play.api.test.{DefaultAwaitTimeout, FakeRequest, Injecting}
+import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
@@ -59,11 +61,39 @@ class CitizenDetailsConnectorSpec
 
   val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
 
+  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/")
+
   trait SpecSetup {
 
     def url: String
 
-    val personDetails: PersonDetails = Fixtures.buildPersonDetails
+    val personDetails: String =
+      """
+        |{
+        |  "person": {
+        |    "firstName": "Firstname",
+        |    "middleName": "Middlename",
+        |    "lastName": "Lastname",
+        |    "initials": "FML",
+        |    "title": "Dr",
+        |    "honours": "Phd.",
+        |    "sex": "M",
+        |    "dateOfBirth": "1945-03-18",
+        |    "nino": "RC367466B",
+        |    "status":1
+        |  },
+        |  "address": {
+        |    "line1": "1 Fake Street",
+        |    "line2": "Fake Town",
+        |    "line3": "Fake City",
+        |    "line4": "Fake Region",
+        |    "postcode": "AA1 1AA",
+        |    "startDate": "2015-03-15",
+        |    "type": "Residential",
+        |    "status":1
+        |  }
+        |}
+        |""".stripMargin
 
     val address: Address = Address(
       line1 = Some("1 Fake Street"),
@@ -82,7 +112,7 @@ class CitizenDetailsConnectorSpec
     lazy val connector: CitizenDetailsConnector = {
       val httpClient    = app.injector.instanceOf[HttpClientV2]
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
-      new CitizenDetailsConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
+      new DefaultCitizenDetailsConnector(httpClient, inject[ConfigDecorator], serviceConfig, inject[HttpClientResponse])
     }
   }
 
@@ -93,13 +123,13 @@ class CitizenDetailsConnectorSpec
     }
 
     "return OK when called with an existing nino" in new LocalSetup {
-      stubGet(url, OK, Some(Json.toJson(personDetails).toString()))
+      stubGet(url, OK, Some(personDetails))
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
+      val result: Either[UpstreamErrorResponse, JsValue] =
         connector.personDetails(nino).value.futureValue
 
       result mustBe a[Right[_, _]]
-      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
+      result.getOrElse(null) mustBe Json.parse(personDetails)
     }
 
     "return NOT_FOUND when called with an unknown nino" in new LocalSetup {
@@ -325,11 +355,11 @@ class CitizenDetailsConnectorSpec
         when(mockRequestBuilder.transform(any()))
           .thenReturn(mockRequestBuilder)
 
-        def citizenDetailsConnectorWithMock: CitizenDetailsConnector = new CitizenDetailsConnector(
+        def citizenDetailsConnectorWithMock: CitizenDetailsConnector = new DefaultCitizenDetailsConnector(
           mockHttpClientV2,
+          mockConfigDecorator,
           inject[ServicesConfig],
-          mockHttpClientResponse,
-          mockConfigDecorator
+          mockHttpClientResponse
         )
 
         val result: Int = citizenDetailsConnectorWithMock
@@ -356,11 +386,11 @@ class CitizenDetailsConnectorSpec
       when(mockRequestBuilder.transform(any()))
         .thenReturn(mockRequestBuilder)
 
-      def citizenDetailsConnectorWithMock: CitizenDetailsConnector = new CitizenDetailsConnector(
+      def citizenDetailsConnectorWithMock: CitizenDetailsConnector = new DefaultCitizenDetailsConnector(
         mockHttpClientV2,
+        mockConfigDecorator,
         inject[ServicesConfig],
-        mockHttpClientResponse,
-        mockConfigDecorator
+        mockHttpClientResponse
       )
 
       val result: Int = citizenDetailsConnectorWithMock
@@ -391,14 +421,17 @@ class CitizenDetailsConnectorTimeoutSpec
 
   val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
 
+  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/")
+
   trait SpecSetup {
 
     def url: String
 
     lazy val connector: CitizenDetailsConnector = {
-      val httpClient    = app.injector.instanceOf[HttpClientV2]
-      val serviceConfig = app.injector.instanceOf[ServicesConfig]
-      new CitizenDetailsConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
+      val httpClient      = app.injector.instanceOf[HttpClientV2]
+      val serviceConfig   = app.injector.instanceOf[ServicesConfig]
+      val configDecorator = app.injector.instanceOf[ConfigDecorator]
+      new DefaultCitizenDetailsConnector(httpClient, configDecorator, serviceConfig, inject[HttpClientResponse])
     }
   }
 
