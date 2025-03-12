@@ -152,6 +152,14 @@ class AuthRetrievalsSpec extends BaseSpec {
     contentAsString(result) must include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
   }
 
+  "A user with a One login Profile relative Url must include a redirect uri back to the home controller" in {
+    val controller = retrievals(profileUrl = Some("/relative/url/"))
+
+    val result = controller.onPageLoad(FakeRequest("", ""))
+    status(result) mustBe OK
+    contentAsString(result) must include(s"/relative/url/?redirect_uri=${config.pertaxFrontendBackLink}")
+  }
+
   "A user without a SCP Profile Url must continue to not have one" in {
     val controller = retrievals(profileUrl = None)
 
@@ -161,7 +169,7 @@ class AuthRetrievalsSpec extends BaseSpec {
   }
 
   "A user with a SCP Profile Url that is not valid must strip out the SCP Profile Url" in {
-    val controller = retrievals(profileUrl = Some("notAUrl"))
+    val controller = retrievals(profileUrl = Some("://notAUrl"))
 
     val result = controller.onPageLoad(FakeRequest("", ""))
     status(result) mustBe OK

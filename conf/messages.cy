@@ -27,6 +27,7 @@ title.type=Math
 label.beta=BETA
 label.hm_revenue_customs=Cyllid a Thollau EM
 label.continue=Parhau
+label.start_now=Dechrau nawr
 label.your_personal_tax_account=Cyfrif treth personol
 label.your_personal_tax_account_gov_uk=Cyfrif treth personol - GOV.UK
 label.profile_and_settings=Proffil a gosodiadau
@@ -588,7 +589,7 @@ label.paperless_failed_hidden=PLACEHOLDER
 #
 # Tax Summaries tile
 #
-card.ats.heading=Bwrw golwg dros eich Crynodeb Treth Blynyddol
+card.ats.heading=Crynodeb Treth Blynyddol
 card.ats.text=Bwrw golwg dros eich treth a chyfraniadau Yswiriant Gwladol a gweld sut mae’r llywodraeth yn gwario’ch trethi. Mae hyn er eich gwybodaeth yn unig.
 
 label.your_national_insurance_number=Eich rhif Yswiriant Gwladol
@@ -788,6 +789,21 @@ tax_credits.transition.information.support.universal_credit = ewch i’r dudalen
 tax_credits.transition.information.support.pension_credit = ewch i’r dudalen ynghylch Credyd Pensiwn
 tax_credits.transition.information.support.contact = ffoniwch y rhif ffôn sydd ar eich llythyr
 button.continueToTaxCredits = Parhau i’r adran credydau treth
+
+changeMainAddress.title = Newid eich prif gyfeiriad
+changeMainAddress.h1 = Newid eich prif gyfeiriad
+changeMainAddress.p1 = Rhowch wybod i CThEF pan fydd eich prif gyfeiriad yn newid. Bydd hyn yn diweddaru eich manylion ar gyfer:
+changeMainAddress.p2 = Arhoswch hyd nes eich bod wedi symud cyn diweddaru’ch cyfeiriad.
+
+changePostalAddress.title = Newid eich cyfeiriad post
+changePostalAddress.h1 = Newid eich cyfeiriad post
+changePostalAddress.p1 = Rhowch wybod i CThEF pan fydd eich cyfeiriad post yn newid. Bydd pob llythyr yn cael ei anfon i’r cyfeiriad hwn.
+changePostalAddress.p2 = Bydd hyn yn diweddaru eich manylion ar gyfer:
+
+changeAddress.li1 = Budd-dal Plant
+changeAddress.li2 = Treth Incwm
+changeAddress.li3 = Yswiriant Gwladol
+changeAddress.li4 = Pensiwn y Wladwriaeth
 
 tax_credits.ended.information.title = Mae credydau treth wedi dod i ben ar 5 Ebrill 2025
 tax_credits.ended.information.p1 = Mae Credyd Cynhwysol a Chredyd Pensiwn wedi disodli credydau treth.

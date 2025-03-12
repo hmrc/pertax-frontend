@@ -74,7 +74,10 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
     when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
       .thenReturn(Future.successful(WithinPeriod))
-    when(mockHomeCardGenerator.getIncomeCards(any())(any(), any())).thenReturn(
+    when(mockHomeCardGenerator.getIncomeCards(any(), any())).thenReturn(
+      Future.successful(Seq.empty)
+    )
+    when(mockHomeCardGenerator.getATSCard()(any(), any())).thenReturn(
       Future.successful(Seq.empty)
     )
     when(mockHomeCardGenerator.getBenefitCards(any(), any())(any())).thenReturn(

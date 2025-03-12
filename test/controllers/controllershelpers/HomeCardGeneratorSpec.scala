@@ -103,53 +103,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         request = FakeRequest()
       )
 
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
+      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard
 
       cardBody mustBe None
-    }
-
-    "return no content when called with with a Pertax user that is PAYE but has no tax summary" in {
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "GovernmentGateway"),
-        confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest()
-      )
-
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsNotAvailableState)
-
-      cardBody mustBe None
-    }
-
-    "return the static version of the markup (no card actions) when called with with a user that is PAYE but there was an error calling the endpoint" in {
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "GovernmentGateway"),
-        confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest(),
-        nino = Some(Nino("AA000000C"))
-      )
-
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
-
-      cardBody mustBe Some(payAsYouEarn(config, "00"))
-    }
-
-    "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but the tax summary call is disabled" in {
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "GovernmentGateway"),
-        confidenceLevel = ConfidenceLevel.L200,
-        nino = Some(Nino("AA000000C")),
-        request = FakeRequest()
-      )
-
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsDisabledState)
-
-      cardBody mustBe Some(payAsYouEarn(config, "00"))
     }
 
     "return correct markup when called with with a Pertax user that is PAYE" in {
@@ -163,7 +119,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       lazy val cardBody =
-        homeCardGenerator.getPayAsYouEarnCard(TaxComponentsAvailableState(Fixtures.buildTaxComponents))
+        homeCardGenerator.getPayAsYouEarnCard
 
       cardBody mustBe Some(payAsYouEarn(config, "00"))
     }
@@ -608,7 +564,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       lazy val cards =
-        homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
+        homeCardGenerator.getIncomeCards(userRequest, messages).futureValue
       cards.size mustBe 4
       cards.head.toString().contains("news-card") mustBe true
       cards(1).toString().contains("test1") mustBe true
@@ -644,7 +600,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       lazy val cards =
-        homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
+        homeCardGenerator.getIncomeCards(userRequest, messages).futureValue
       cards.size mustBe 2
       cards.head.toString().contains("news-card") mustBe true
       cards(1).toString().contains("ni-and-sp-card") mustBe true
@@ -680,7 +636,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       lazy val cards =
-        homeCardGenerator.getIncomeCards(TaxComponentsAvailableState(Fixtures.buildTaxComponents)).futureValue
+        homeCardGenerator.getIncomeCards(userRequest, messages).futureValue
       cards.size mustBe 2
       cards.head.toString().contains("news-card") mustBe true
       cards(1).toString().contains("ni-and-sp-card") mustBe true

@@ -17,6 +17,8 @@
 package controllers.bindable
 
 import models.{EditCorrespondenceAddress, EditResidentialAddress, EditedAddress}
+import play.api.mvc.{JavascriptLiteral, QueryStringBindable}
+import util.Enumerable
 
 import java.time.Instant
 
@@ -31,6 +33,25 @@ object AddrType {
     case PostalAddrType      => EditCorrespondenceAddress(date)
     case ResidentialAddrType => EditResidentialAddress(date)
   }
+
+  val values: Seq[AddrType]                                                                                   = Seq(ResidentialAddrType, PostalAddrType)
+  implicit val enumerable: Enumerable[AddrType]                                                               = Enumerable(values.map(v => v.toString -> v): _*)
+  implicit def queryBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[AddrType] =
+    new QueryStringBindable[AddrType] {
+      def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, AddrType]] =
+        stringBinder.bind(key, params).flatMap {
+          case Right(s) =>
+            values.find(_.toString == s) match {
+              case Some(ot) => Some(Right(ot))
+              case _        => None
+            }
+          case _        => Some(Left(s"Unable to bind query parameter: $key"))
+        }
+
+      def unbind(key: String, value: AddrType): String = stringBinder.unbind(key, value.toString)
+    }
+
+  implicit val jsLiteral: JavascriptLiteral[AddrType] = (value: AddrType) => value.toString
 }
 sealed trait AddrType {
   override def toString: String = ifIs("residential", "postal")

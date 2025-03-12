@@ -28,6 +28,7 @@ title.type=Type
 label.beta=BETA
 label.hm_revenue_customs=HM Revenue & Customs
 label.continue=Continue
+label.start_now=Start now
 label.continue_to_your_sa302=Continue to your SA302
 label.we_are_processing_your-details=We are processing your details
 label.this_may_take_up_to_30_seconds=This may take up to 30 seconds.
@@ -588,7 +589,7 @@ label.paperless_failed_hidden=PLACEHOLDER
 #
 # Tax Summaries tile
 #
-card.ats.heading=View your Annual Tax Summary
+card.ats.heading=Annual Tax Summary
 card.ats.text=View your tax and National Insurance contributions and find out how the government spends your taxes. This is for your information only.
 
 #
@@ -783,6 +784,22 @@ tax_credits.transition.information.support.universal_credit = visit Universal Cr
 tax_credits.transition.information.support.pension_credit = visit Pension Credit
 tax_credits.transition.information.support.contact = call the telephone number in your letter
 button.continueToTaxCredits = Continue to tax credits
+
+changeMainAddress.title = Change your main address
+changeMainAddress.h1 = Change your main address
+changeMainAddress.p1 = Tell HMRC when your main address changes. This will update your details for:
+changeMainAddress.p2 = Wait until you''ve moved before updating your address.
+
+changePostalAddress.title = Change your postal address
+changePostalAddress.h1 = Change your postal address
+changePostalAddress.p1 = Tell HMRC when your postal address changes. All letters will be sent to this address.
+changePostalAddress.p2 = This will update your details for:
+
+changeAddress.li1 = Child Benefit
+changeAddress.li2 = Income Tax
+changeAddress.li3 = National Insurance
+changeAddress.li4 = State Pension
+
 
 tax_credits.ended.information.title = Tax credits ended 5 April 2025
 tax_credits.ended.information.p1 = Universal Credit and Pensions Credit have replaced tax credits.

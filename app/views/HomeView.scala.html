@@ -41,7 +41,8 @@
     pageTitle = messages("label.account_home"),
     fullWidth = true,
     showUserResearchBanner = viewModel.showUserResearchBanner,
-    accountHome = true
+    accountHome = true,
+    webChatIsEnabledHere = true
 ) {
     @if(shutteringMessaging) {
         @govukNotificationBanner(NotificationBanner(
@@ -81,16 +82,13 @@
 
     <div class="pertax-home">
 
-        <h2 class="govuk-visually-hidden" id="yourAccountHeading">@messages("label.your_account")</h2>
         <div class="flex-container">
         @viewModel.incomeCards
-        </div>
-        @if(viewModel.benefitCards.nonEmpty) {
-            @h2("title.benefits", classes = Some("govuk-heading-m govuk-!-margin-top-7 govuk-!-margin-bottom-5"))
-        }
-        <div class="flex-container grid-row" id="benefitsTiles">
         @viewModel.benefitCards
+        @viewModel.atsCard
         </div>
+
+
 
     </div>
 }

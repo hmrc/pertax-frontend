@@ -55,13 +55,11 @@ class HomeCardGenerator @Inject() (
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
     extends Logging {
 
-  def getIncomeCards(
-    taxComponentsState: TaxComponentsState
-  )(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
+  def getIncomeCards(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
     val cards1: Seq[Future[Seq[HtmlFormat.Appendable]]] =
       List(
         Future.successful(getLatestNewsAndUpdatesCard().toSeq),
-        Future.successful(getPayAsYouEarnCard(taxComponentsState).toSeq)
+        Future.successful(getPayAsYouEarnCard.toSeq)
       )
 
     val cards2: Seq[Future[Seq[HtmlFormat.Appendable]]] = Seq(
@@ -77,7 +75,17 @@ class HomeCardGenerator @Inject() (
 
     val cards3: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
       Future.successful(getSelfAssessmentCard().toSeq),
-      Future.successful(getNationalInsuranceCard().toSeq),
+      Future.successful(getNationalInsuranceCard().toSeq)
+    )
+
+    Future
+      .sequence(cards1 ++ cards2 ++ cards3)
+      .map(_.flatten)
+  }
+
+  def getATSCard()(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
+
+    val card: Seq[Future[Seq[HtmlFormat.Appendable]]] = List(
       if (request.trustedHelper.isEmpty) {
         getAnnualTaxSummaryCard.value.map(_.toSeq)
       } else {
@@ -86,18 +94,13 @@ class HomeCardGenerator @Inject() (
     )
 
     Future
-      .sequence(cards1 ++ cards2 ++ cards3)
+      .sequence(card)
       .map(_.flatten)
   }
 
-  def getPayAsYouEarnCard(
-    taxComponentsState: TaxComponentsState
-  )(implicit request: UserRequest[_], messages: Messages): Option[HtmlFormat.Appendable] =
+  def getPayAsYouEarnCard(implicit request: UserRequest[_], messages: Messages): Option[HtmlFormat.Appendable] =
     request.nino.flatMap { nino =>
-      taxComponentsState match {
-        case TaxComponentsNotAvailableState => None
-        case _                              => Some(payAsYouEarnView(configDecorator, nino.withoutSuffix.takeRight(2)))
-      }
+      Some(payAsYouEarnView(configDecorator, nino.withoutSuffix.takeRight(2)))
     }
 
   private def displaySACall: Call       = routes.InterstitialController.displaySelfAssessment
@@ -175,9 +178,9 @@ class HomeCardGenerator @Inject() (
   )(implicit messages: Messages): List[Html] =
     if (trustedHelper.isEmpty) {
       List(
-        getTaxCreditsCard(),
         getChildBenefitCard(),
-        getMarriageAllowanceCard(taxComponents)
+        getMarriageAllowanceCard(taxComponents),
+        getTaxCreditsCard()
       ).flatten
     } else {
       List.empty
