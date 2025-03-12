@@ -17,14 +17,14 @@
 @import config.{BannerTcsServiceClosure, ConfigDecorator}
 @import controllers.routes
 @import tags._
-@import java.time.LocalDateTime
+@import java.time.ZonedDateTime
 
 @this()
 @()(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
 
 @cardUrl = @{
     configDecorator.featureBannerTcsServiceClosure match {
-        case BannerTcsServiceClosure.Enabled if LocalDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 => 
+        case BannerTcsServiceClosure.Enabled if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 => 
             routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
         case BannerTcsServiceClosure.Enabled =>
             routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView.url
@@ -35,7 +35,7 @@
 }
 
 @{
-    if(LocalDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0){
+    if(ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0){
         card(
             id = Some("tax-credits-card"),
             url = Some(cardUrl),

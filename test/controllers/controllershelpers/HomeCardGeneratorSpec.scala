@@ -41,7 +41,7 @@ import util.EnrolmentsHelper
 import views.html.ViewSpec
 import views.html.cards.home._
 
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{LocalDate, ZonedDateTime}
 import scala.concurrent.Future
 import scala.util.Random
 
@@ -167,7 +167,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "return correct markup when taxCreditsPaymentLinkEnabled is enabled and current date time is before service closure" in {
       val mockConfigDecorator = mock[ConfigDecorator]
       when(mockConfigDecorator.featureBannerTcsServiceClosure).thenReturn(BannerTcsServiceClosure.Enabled)
-      when(mockConfigDecorator.tcsFrontendEndDateTime).thenReturn(LocalDateTime.now.plusMinutes(1))
+      when(mockConfigDecorator.tcsFrontendEndDateTime).thenReturn(ZonedDateTime.now.plusMinutes(1))
       val homeCardGenerator   = createHomeCardGenerator(mockConfigDecorator)
 
       lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
@@ -187,7 +187,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "return correct markup when taxCreditsPaymentLinkEnabled is enabled and current date time is after service closure" in {
       val mockConfigDecorator = mock[ConfigDecorator]
       when(mockConfigDecorator.featureBannerTcsServiceClosure).thenReturn(BannerTcsServiceClosure.Enabled)
-      when(mockConfigDecorator.tcsFrontendEndDateTime).thenReturn(LocalDateTime.now.minusMinutes(1))
+      when(mockConfigDecorator.tcsFrontendEndDateTime).thenReturn(ZonedDateTime.now.minusMinutes(1))
       val homeCardGenerator   = createHomeCardGenerator(mockConfigDecorator)
 
       lazy val cardBody = homeCardGenerator.getTaxCreditsCard()

@@ -419,7 +419,7 @@ class InterstitialControllerSpec extends BaseSpec {
       val app                                     = appn(extraConfigValues =
         Map(
           "feature.bannerTcsServiceClosure"       -> "enabled",
-          "external-url.tcs-frontend.endDateTime" -> "2999-04-06T11:00:00.000000"
+          "external-url.tcs-frontend.endDateTime" -> "2999-04-06T11:00:00.000000+01:00"
         )
       )
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
@@ -436,7 +436,7 @@ class InterstitialControllerSpec extends BaseSpec {
       val app                                     = appn(extraConfigValues =
         Map(
           "feature.bannerTcsServiceClosure"       -> "enabled",
-          "external-url.tcs-frontend.endDateTime" -> "2025-03-01T11:00:00.000000"
+          "external-url.tcs-frontend.endDateTime" -> "2025-03-01T11:00:00.000000+01:00"
         )
       )
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]

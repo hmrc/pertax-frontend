@@ -35,7 +35,7 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.components.alertBanner.paperlessStatus._
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.Future
 
 class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
@@ -95,7 +95,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
 
     "return tcs status banner when switched on BEFORE TCS switch off date/time" in {
       val extraConfigValues: Map[String, Any]  = Map(
-        "external-url.tcs-frontend.endDateTime" -> LocalDateTime.now.plusMinutes(1).toString,
+        "external-url.tcs-frontend.endDateTime" -> ZonedDateTime.now.plusMinutes(1).toString,
         "feature.bannerTcsServiceClosure"       -> "enabled"
       )
       val app: Application                     = localGuiceApplicationBuilder(extraConfigValues)
@@ -123,7 +123,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
 
     "return NO tcs status banner when switched on AFTER TCS switch off date/time" in {
       val extraConfigValues: Map[String, Any]  = Map(
-        "external-url.tcs-frontend.endDateTime" -> LocalDateTime.now.minusMinutes(1).toString,
+        "external-url.tcs-frontend.endDateTime" -> ZonedDateTime.now.minusMinutes(1).toString,
         "feature.bannerTcsServiceClosure"       -> "enabled"
       )
       val app: Application                     = localGuiceApplicationBuilder(extraConfigValues)
