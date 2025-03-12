@@ -55,9 +55,17 @@ class TaxCreditsEndedInformationInterstitialViewSpec extends ViewSpec {
       val doc                 = asDocument(taxCreditsEndedInformationInterstitialView().toString)
       val universalCreditLink = doc.select("a[href='https://www.gov.uk/universal-credit']")
       val pensionCreditLink   = doc.select("a[href='https://www.gov.uk/pension-credit']")
+      val formsNotesLink      = doc.select(
+        "a[href='https://www.gov.uk/government/collections/tax-credits-forms-notes-worksheets-and-checklists']"
+      )
+      val enqLink             = doc.select(
+        "a[href='https://www.gov.uk/government/organisations/hm-revenue-customs/contact/tax-credits-enquiries']"
+      )
 
       universalCreditLink.text() mustBe Messages("tax_credits.ended.information.how.apply.li1")
       pensionCreditLink.text() mustBe Messages("tax_credits.ended.information.how.apply.li2")
+      formsNotesLink.text() mustBe Messages("tax_credits.ended.information.how.continue.li1")
+      enqLink.text() mustBe Messages("tax_credits.ended.information.how.continue.li2")
     }
   }
 }
