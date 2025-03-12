@@ -36,6 +36,7 @@ import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 import views.html.{SelfAssessmentSummaryView, ShutteringView}
 
+import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
@@ -223,10 +224,14 @@ class InterstitialController @Inject() (
   }
 
   def displayTaxCreditsTransitionInformationInterstitialView: Action[AnyContent] = authenticate { implicit request =>
-    if (configDecorator.featureBannerTcsServiceClosure == BannerTcsServiceClosure.Enabled) {
-      Ok(taxCreditsTransitionInformationInterstitialView())
-    } else {
-      errorRenderer.error(UNAUTHORIZED)
+    configDecorator.featureBannerTcsServiceClosure match {
+      case BannerTcsServiceClosure.Enabled
+          if LocalDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 =>
+        Ok(taxCreditsTransitionInformationInterstitialView())
+      case BannerTcsServiceClosure.Enabled =>
+        Redirect(controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
+      case _                               => errorRenderer.error(UNAUTHORIZED)
+
     }
   }
   def displayTaxCreditsEndedInformationInterstitialView: Action[AnyContent]      = authenticate { implicit request =>
