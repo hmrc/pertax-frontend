@@ -223,18 +223,19 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displayTaxCreditsTransitionInformationInterstitialView: Action[AnyContent] = authenticate { implicit request =>
-    configDecorator.featureBannerTcsServiceClosure match {
-      case BannerTcsServiceClosure.Enabled
-          if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 =>
-        Ok(taxCreditsTransitionInformationInterstitialView())
-      case BannerTcsServiceClosure.Enabled =>
-        Redirect(controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
-      case _                               => errorRenderer.error(UNAUTHORIZED)
+  def displayTaxCreditsTransitionInformationInterstitialView: Action[AnyContent] = Action {
+    implicit request: MessagesRequest[AnyContent] =>
+      configDecorator.featureBannerTcsServiceClosure match {
+        case BannerTcsServiceClosure.Enabled
+            if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 =>
+          Ok(taxCreditsTransitionInformationInterstitialView())
+        case BannerTcsServiceClosure.Enabled =>
+          Redirect(controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
+        case _                               => errorRenderer.error(UNAUTHORIZED)
 
-    }
+      }
   }
-  def displayTaxCreditsEndedInformationInterstitialView: Action[AnyContent]      = authenticate { implicit request =>
+  def displayTaxCreditsEndedInformationInterstitialView: Action[AnyContent]      = Action { implicit request =>
     if (configDecorator.featureBannerTcsServiceClosure == BannerTcsServiceClosure.Enabled) {
       Ok(taxCreditsEndedInformationInterstitialView())
     } else {

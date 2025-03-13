@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import controllers.auth.requests.UserRequest
 @import views.html.components.{Button, H1, H2, Link, P}
 
 @this(
@@ -25,7 +24,7 @@
         link: Link,
         button: Button)
 
-@()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@()(implicit request: WrappedRequest[_], messages: play.api.i18n.Messages)
 
 @mainView(
     pageTitle = messages("tax_credits.ended.information.title"),

@@ -32,7 +32,7 @@ class ErrorRenderer @Inject() (
   def futureError(statusCode: Int)(implicit request: UserRequest[_], messages: Messages): Future[Result] =
     Future.successful(error(statusCode))
 
-  def error(statusCode: Int)(implicit request: UserRequest[_], messages: Messages): Result = {
+  def error(statusCode: Int)(implicit request: WrappedRequest[_], messages: Messages): Result = {
 
     val errorKey = statusCode match {
       case BAD_REQUEST => "badRequest400"

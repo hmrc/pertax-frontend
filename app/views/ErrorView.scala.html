@@ -14,12 +14,11 @@
  * limitations under the License.
  *@
 
-@import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 @import components.{H1, P}
 
 @this(main: MainView, h1: H1, p: P)
-@(title: String, heading: Option[String] = None, body: List[String] = Nil)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(title: String, heading: Option[String] = None, body: List[String] = Nil)(implicit request: WrappedRequest[_], messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages(title),
