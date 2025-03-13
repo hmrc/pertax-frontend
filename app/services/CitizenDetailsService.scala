@@ -42,7 +42,8 @@ class CitizenDetailsService @Inject() (
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     hc: HeaderCarrier,
-    ec: ExecutionContext
+    ec: ExecutionContext,
+    request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     citizenDetailsConnector.updateAddress(nino: Nino, etag: String, address: Address)
 

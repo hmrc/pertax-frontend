@@ -81,7 +81,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
 
     "updateAddress is called" must {
       "return HttpResponse with an OK status when connector returns and OK status with body" in {
-        when(mockConnector.updateAddress(any(), any(), any())(any(), any())).thenReturn(
+        when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
             Future.successful(Right(HttpResponse(OK, "")))
           )
@@ -107,7 +107,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         BAD_GATEWAY
       ).foreach { errorResponse =>
         s"return an UpstreamErrorResponse containing $errorResponse when connector returns the same" in {
-          when(mockConnector.updateAddress(any(), any(), any())(any(), any())).thenReturn(
+          when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
             )

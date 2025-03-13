@@ -48,7 +48,8 @@ trait CitizenDetailsConnector {
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
-    ec: ExecutionContext
+    ec: ExecutionContext,
+    request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
 
   def getMatchingDetails(
@@ -108,9 +109,13 @@ class CachingCitizenDetailsConnector @Inject() (
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
-    ec: ExecutionContext
+    ec: ExecutionContext,
+    request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    underlying.updateAddress(nino, etag, address)
+    for {
+      update <- underlying.updateAddress(nino, etag, address)
+      _      <- sessionCacheRepository.deleteFromSessionEitherT(DataKey[JsValue](s"getPersonDetails-$nino"))
+    } yield update
 
   def getMatchingDetails(
     nino: Nino
@@ -151,7 +156,8 @@ class DefaultCitizenDetailsConnector @Inject() (
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
-    ec: ExecutionContext
+    ec: ExecutionContext,
+    request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
     val url  = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address"

@@ -16,7 +16,7 @@
 
 package repositories
 
-import cats.data.OptionT
+import cats.data.{EitherT, OptionT}
 import config.{ConfigDecorator, SensitiveT}
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json, Reads, Writes}
@@ -86,4 +86,7 @@ class SessionCacheRepository @Inject() (
     val encryptedDataKey = DataKey[JsValue](dataKey.unwrap)
     cacheRepo.delete(request)(encryptedDataKey)
   }
+
+  def deleteFromSessionEitherT[L, T](dataKey: DataKey[T])(implicit request: Request[Any]): EitherT[Future, L, Unit] =
+    EitherT[Future, L, Unit](deleteFromSession(dataKey).map(Right(_)))
 }
