@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package views.html
+package views
 
 import com.google.inject.ImplementedBy
 import config.ConfigDecorator

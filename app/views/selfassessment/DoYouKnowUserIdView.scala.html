@@ -17,7 +17,7 @@
 @import controllers.auth.requests.UserRequest
 @import views.html.selfassessment.selfAssessmentForm
 @import scala.concurrent.ExecutionContext
-
+@import views.MainView
 @this(main: MainView, saForm: selfAssessmentForm)
 @(wrongCredentialsUserForm: Form[dto.SAWrongCredentialsDto])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 

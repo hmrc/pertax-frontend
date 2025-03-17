@@ -18,7 +18,7 @@
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
 @import components.{H1, P, Link}
-
+@import views.MainView
 @this(
     main: MainView,
     h1: H1,
@@ -26,7 +26,7 @@
     link: Link
 )
 
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@()(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.your_address_has_already_been_updated"),
