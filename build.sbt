@@ -28,8 +28,8 @@ ThisBuild / scalafmtOnCompile := true
 lazy val scoverageSettings =
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;models/.data/..*;view.*;.*(AuthService|BuildInfo|Routes).*",
-    ScoverageKeys.coverageMinimumStmtTotal := 80,
-    ScoverageKeys.coverageFailOnMinimum := false,
+    ScoverageKeys.coverageMinimumStmtTotal := 84,
+    ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )
 
@@ -45,6 +45,7 @@ lazy val microservice = Project(appName, file("."))
       "-unchecked",
       "-feature",
       "-Werror",
+      "-Wunused",
       "-Xlint:_",
       "-Wdead-code",
       "-Wextra-implicit",
@@ -54,7 +55,8 @@ lazy val microservice = Project(appName, file("."))
       "-Wconf:cat=unused&src=.*Routes\\.scala:s",
       "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
       "-Wconf:cat=unused&src=.*JavaScriptReverseRoutes\\.scala:s",
-      "-Wconf:cat=deprecation&msg=value name in trait Retrievals is deprecated:s"
+      "-Wconf:cat=deprecation&msg=value name in trait Retrievals is deprecated:i",
+      "-Wconf:msg=evidence parameter evidence\\$1 of type util\\.Enumerable\\[A\\] in method writes is never used:i"
     ),
     routesImport ++= Seq("uk.gov.hmrc.play.bootstrap.binders._", "controllers.bindable._", "models.admin._"),
     TwirlKeys.templateImports ++= Seq(

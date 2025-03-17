@@ -65,18 +65,17 @@ trait AddressBaseSpec extends BaseSpec {
   protected def displayAddressInterstitialView: DisplayAddressInterstitialView =
     app.injector.instanceOf[DisplayAddressInterstitialView]
   protected def internalServerErrorView: InternalServerErrorView               = app.injector.instanceOf[InternalServerErrorView]
-  protected def updateAddressConfirmationView: UpdateAddressConfirmationView   =
+  protected val updateAddressConfirmationView: UpdateAddressConfirmationView   =
     app.injector.instanceOf[UpdateAddressConfirmationView]
 
   implicit def configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  protected def setupAuth(personDetails: Option[PersonDetails] = personDetailsForRequest): Unit =
+  protected def setupAuth(): Unit =
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
         block(
           buildUserRequest(
             request = request,
-            personDetails = personDetails,
             saUser = saUserType
           )
         )
@@ -101,7 +100,7 @@ trait AddressBaseSpec extends BaseSpec {
     when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
     when(mockJourneyCacheRepository.clear(any[HeaderCarrier])).thenReturn(Future.successful((): Unit))
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-    when(mockCitizenDetailsService.personDetails(any())(any(), any())).thenReturn(
+    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, PersonDetails](
         Future.successful(Right(personDetailsResponse))
       )
@@ -111,7 +110,8 @@ trait AddressBaseSpec extends BaseSpec {
         Future.successful(Right(eTagResponse))
       )
     )
-    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(updateAddressResponse())
+    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any()))
+      .thenReturn(updateAddressResponse())
     when(mockEditAddressLockRepository.insert(any(), any()))
       .thenReturn(Future.successful(isInsertCorrespondenceAddressLockSuccessful))
     when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(getEditedAddressIndicators))

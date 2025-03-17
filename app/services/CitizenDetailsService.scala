@@ -21,6 +21,7 @@ import com.google.inject.Inject
 import connectors.CitizenDetailsConnector
 import models.{Address, ETag, MatchingDetails, PersonDetails}
 import play.api.Logging
+import play.api.mvc.Request
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
@@ -32,12 +33,17 @@ class CitizenDetailsService @Inject() (
 
   def personDetails(
     nino: Nino
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, PersonDetails] =
-    citizenDetailsConnector.personDetails(nino).map(_.json.as[PersonDetails])
+  )(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, PersonDetails] =
+    citizenDetailsConnector.personDetails(nino).map(_.as[PersonDetails])
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     hc: HeaderCarrier,
-    ec: ExecutionContext
+    ec: ExecutionContext,
+    request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     citizenDetailsConnector.updateAddress(nino: Nino, etag: String, address: Address)
 

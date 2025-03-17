@@ -32,12 +32,10 @@ class WithBreadcrumbAction @Inject() (implicit ec: ExecutionContext) {
           Right(
             UserRequest(
               request.authNino,
-              request.nino,
               request.retrievedName,
               request.saUserType,
               request.credentials,
               request.confidenceLevel,
-              request.personDetails,
               request.trustedHelper,
               request.enrolments,
               request.profile,

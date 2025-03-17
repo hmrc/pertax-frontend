@@ -21,16 +21,17 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.ErrorRenderer
 import models.dto.DateDto
 import models.Address
 import models.dto.InternationalAddressChoiceDto.OutsideUK
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import routePages.SubmittedStartDatePage
+import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.language.LanguageUtils
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, CannotUpdateAddressFutureDateView, EnterStartDateView}
 
 import java.time.LocalDate
@@ -44,15 +45,17 @@ class StartDateController @Inject() (
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressEarlyDateView: CannotUpdateAddressEarlyDateView,
   cannotUpdateAddressFutureDateView: CannotUpdateAddressFutureDateView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
+  errorRenderer: ErrorRenderer,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
       cc,
-      displayAddressInterstitialView,
       featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
       internalServerErrorView
     ) {
 

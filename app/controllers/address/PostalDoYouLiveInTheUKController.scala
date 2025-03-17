@@ -21,12 +21,13 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.ErrorRenderer
 import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import routePages.SubmittedInternationalAddressChoicePage
+import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.InternationalAddressChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,16 +36,18 @@ class PostalDoYouLiveInTheUKController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   internationalAddressChoiceView: InternationalAddressChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
       cc,
-      displayAddressInterstitialView,
       featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
       internalServerErrorView
     ) {
 

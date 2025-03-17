@@ -19,6 +19,7 @@ package testUtils
 import org.apache.pekko.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import connectors.CitizenDetailsConnector
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -129,6 +130,33 @@ trait IntegrationSpec
         |  "dateOfBirth": "11121971"
         |}
         |""".stripMargin
+
+  def personDetailsResponse(nino: String): String =
+    s"""
+       |{
+       |  "etag" : "115",
+       |  "person" : {
+       |    "firstName" : "HIPPY",
+       |    "middleName" : "T",
+       |    "lastName" : "NEWYEAR",
+       |    "title" : "Mr",
+       |    "honours": "BSC",
+       |    "sex" : "M",
+       |    "dateOfBirth" : "1952-04-01",
+       |    "nino" : "$nino",
+       |    "deceased" : false
+       |  },
+       |  "address" : {
+       |    "line1" : "Fake address",
+       |    "line2" : "PO BOX 00",
+       |    "line3" : "City",
+       |    "postcode" : "post code",
+       |    "startDate": "2009-08-29",
+       |    "country" : "GREAT BRITAIN",
+       |    "type" : "Residential"
+       |  }
+       |}
+       |""".stripMargin
 
   val saUTRActivatedAuthResponse: String =
     s"""

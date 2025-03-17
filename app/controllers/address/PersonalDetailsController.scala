@@ -19,18 +19,18 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{AddressJourneyCachingHelper, RlsInterruptHelper}
+import error.ErrorRenderer
 import models.admin.AddressChangeAllowedToggle
-import models.AddressJourneyTTLModel
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
-import services.AgentClientAuthorisationService
+import services.{AgentClientAuthorisationService, CitizenDetailsService}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildPersonDetailsEvent
 import viewmodels.PersonalDetailsViewModel
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PersonalDetailsView
 import models.dto.AddressPageVisitedDto
 import routePages.HasAddressAlreadyVisitedPage
@@ -45,10 +45,11 @@ class PersonalDetailsController @Inject() (
   auditConnector: AuditConnector,
   rlsInterruptHelper: RlsInterruptHelper,
   agentClientAuthorisationService: AgentClientAuthorisationService,
-  cc: MessagesControllerComponents,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
-  personalDetailsView: PersonalDetailsView,
+  citizenDetailsService: CitizenDetailsService,
   featureFlagService: FeatureFlagService,
+  cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
+  personalDetailsView: PersonalDetailsView,
   internalServerErrorView: InternalServerErrorView
 )(implicit
   configDecorator: ConfigDecorator,
@@ -56,8 +57,9 @@ class PersonalDetailsController @Inject() (
 ) extends AddressController(
       authJourney,
       cc,
-      displayAddressInterstitialView,
       featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
       internalServerErrorView
     ) {
 
@@ -66,18 +68,18 @@ class PersonalDetailsController @Inject() (
   }
 
   def onPageLoad: Action[AnyContent] =
-    authenticate.async { implicit request =>
+    authenticate.async { implicit request: UserRequest[AnyContent] =>
       rlsInterruptHelper.enforceByRlsStatus(for {
         agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
-        addressModel      <- request.nino
-                               .map { nino =>
-                                 editAddressLockRepository.get(nino.withoutSuffix)
-                               }
-                               .getOrElse(
-                                 Future.successful(List[AddressJourneyTTLModel]())
-                               )
+        addressModel      <- editAddressLockRepository.get(request.helpeeNinoOrElse.withoutSuffix)
+        personDetails     <- citizenDetailsService
+                               .personDetails(request.helpeeNinoOrElse)
+                               .toOption
+                               .value
+        nameToDisplay      = personDetails.fold(request.helpeeNameOrElse.map(_.toString))(_.person.shortName)
+        ninoToDisplay      = personDetails.fold(request.helpeeNinoOrElse)(_.person.nino.getOrElse(request.helpeeNinoOrElse))
 
-        _ <- request.personDetails
+        _ <- personDetails
                .map { details =>
                  auditConnector.sendEvent(
                    buildPersonDetailsEvent(
@@ -91,9 +93,9 @@ class PersonalDetailsController @Inject() (
                .addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
         addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
-        addressDetails             <- personalDetailsViewModel.getAddressRow(addressModel)
+        addressDetails             <- personalDetailsViewModel.getAddressRow(personDetails, addressModel)
         paperLessPreference        <- personalDetailsViewModel.getPaperlessSettingsRow
-        personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(request.nino)
+        personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(Some(ninoToDisplay), nameToDisplay)
 
       } yield {
         val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow

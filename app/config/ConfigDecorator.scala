@@ -296,6 +296,9 @@ class ConfigDecorator @Inject() (
 
   lazy val featureNameChangeMtdItSaToMtdIt: Boolean =
     runModeConfiguration.get[Boolean]("feature.nameChangeMtdItSaToMtdIt")
+
+  val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongo.encryption.enabled")
+
 }
 
 object BannerTcsServiceClosure extends Enumeration {
