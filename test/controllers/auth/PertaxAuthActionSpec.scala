@@ -38,7 +38,8 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.partials.HtmlPartial
-import views.html.{InternalServerErrorView, MainView}
+import views.html.InternalServerErrorView
+import views.MainView
 
 import scala.concurrent.Future
 
