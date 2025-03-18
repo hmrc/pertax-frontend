@@ -16,7 +16,8 @@
 
 package controllers
 
-import models.Breadcrumb
+import controllers.auth.requests.UserRequest
+import models.{Breadcrumb, PersonDetails}
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -25,5 +26,14 @@ abstract class PertaxBaseController(cc: MessagesControllerComponents) extends Fr
 
   val baseBreadcrumb: Breadcrumb =
     List("label.account_home" -> routes.HomeController.index.url)
+
+  def displayName(optPersonDetails: Option[PersonDetails])(implicit request: UserRequest[AnyContent]): String = {
+    def defaultName = "Personal tax account"
+    (request.trustedHelper, optPersonDetails) match {
+      case (Some(th), _) => th.principalName
+      case (_, None)     => defaultName
+      case (_, Some(pd)) => pd.person.shortName.getOrElse(defaultName)
+    }
+  }
 
 }

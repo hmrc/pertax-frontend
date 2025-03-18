@@ -20,13 +20,12 @@ import com.google.inject.{ImplementedBy, Inject}
 import config.ConfigDecorator
 import controllers.auth.requests.AuthenticatedRequest
 import io.lemonlabs.uri.Url
-import models.UserName
 import play.api.Logging
 import play.api.mvc._
 import repositories.JourneyCacheRepository
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.{Retrievals, TrustedHelper}
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -49,7 +48,7 @@ class AuthRetrievalsImpl @Inject() (
     } yield res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
 
   private type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
-    Option[String] ~ ConfidenceLevel ~ Option[Name] ~ Option[TrustedHelper] ~ Option[String]
+    Option[String] ~ ConfidenceLevel ~ Option[TrustedHelper] ~ Option[String]
 
   //scalastyle:off cyclomatic.complexity
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
@@ -58,7 +57,7 @@ class AuthRetrievalsImpl @Inject() (
 
     val retrievals: Retrieval[RetrievalsType] =
       Retrievals.nino and Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.credentials and Retrievals.credentialStrength and
-        Retrievals.confidenceLevel and Retrievals.name and Retrievals.trustedHelper and Retrievals.profile
+        Retrievals.confidenceLevel and Retrievals.trustedHelper and Retrievals.profile
 
     authorised()
       .retrieve(retrievals) {
@@ -68,7 +67,6 @@ class AuthRetrievalsImpl @Inject() (
             Some(credentials) ~
             Some(CredentialStrength.strong) ~
             confidenceLevel ~
-            name ~
             trustedHelper ~
             profile =>
           journeyCacheRepository.get(hc).flatMap { userAnswers =>
@@ -86,11 +84,11 @@ class AuthRetrievalsImpl @Inject() (
               authNino = Nino(nino),
               credentials = credentials,
               confidenceLevel = confidenceLevel,
-              name = Some(
-                UserName(
-                  trustedHelper.fold(name.getOrElse(Name(None, None)))(helper => Name(Some(helper.principalName), None))
-                )
-              ),
+//              name = Some(
+//                UserName(
+//                  trustedHelper.fold(name.getOrElse(Name(None, None)))(helper => Name(Some(helper.principalName), None))
+//                )
+//              ),
               trustedHelper = trustedHelper,
               profile = addRedirect(profile),
               enrolments = enrolments,

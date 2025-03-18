@@ -23,8 +23,10 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{AddressJourneyCachingHelper, RlsInterruptHelper}
 import error.ErrorRenderer
 import models.admin.AddressChangeAllowedToggle
+import models.dto.AddressPageVisitedDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
+import routePages.HasAddressAlreadyVisitedPage
 import services.{AgentClientAuthorisationService, CitizenDetailsService}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -32,8 +34,6 @@ import util.AuditServiceTools.buildPersonDetailsEvent
 import viewmodels.PersonalDetailsViewModel
 import views.html.InternalServerErrorView
 import views.html.personaldetails.PersonalDetailsView
-import models.dto.AddressPageVisitedDto
-import routePages.HasAddressAlreadyVisitedPage
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -76,21 +76,20 @@ class PersonalDetailsController @Inject() (
                                .personDetails(request.helpeeNinoOrElse)
                                .toOption
                                .value
-        nameToDisplay      = personDetails.fold(request.helpeeNameOrElse.map(_.toString))(_.person.shortName)
+        nameToDisplay      = Some(displayName(personDetails))
         ninoToDisplay      = personDetails.fold(request.helpeeNinoOrElse)(_.person.nino.getOrElse(request.helpeeNinoOrElse))
-
-        _ <- personDetails
-               .map { details =>
-                 auditConnector.sendEvent(
-                   buildPersonDetailsEvent(
-                     "personalDetailsPageLinkClicked",
-                     details
-                   )
-                 )
-               }
-               .getOrElse(Future.successful(()))
-        _ <- cachingHelper
-               .addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+        _                 <- personDetails
+                               .map { details =>
+                                 auditConnector.sendEvent(
+                                   buildPersonDetailsEvent(
+                                     "personalDetailsPageLinkClicked",
+                                     details
+                                   )
+                                 )
+                               }
+                               .getOrElse(Future.successful(()))
+        _                 <- cachingHelper
+                               .addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
         addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
         addressDetails             <- personalDetailsViewModel.getAddressRow(personDetails, addressModel)

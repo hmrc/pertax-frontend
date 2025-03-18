@@ -72,7 +72,7 @@ class HomeController @Inject() (
           alertBannerContent      <- alertBannerHelper.getContent
           personDetails           <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value
         } yield {
-          val nameToDisplay = personDetails.fold(request.helpeeNameOrElse.map(_.toString))(_.person.shortName)
+          val nameToDisplay: Option[String] = Some(displayName(personDetails))
 
           val benefitCards: Seq[Html] =
             homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
