@@ -84,11 +84,6 @@ class AuthRetrievalsImpl @Inject() (
               authNino = Nino(nino),
               credentials = credentials,
               confidenceLevel = confidenceLevel,
-//              name = Some(
-//                UserName(
-//                  trustedHelper.fold(name.getOrElse(Name(None, None)))(helper => Name(Some(helper.principalName), None))
-//                )
-//              ),
               trustedHelper = trustedHelper,
               profile = addRedirect(profile),
               enrolments = enrolments,
