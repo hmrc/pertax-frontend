@@ -57,7 +57,7 @@ class HomeController @Inject() (
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
-
+    println("\nrequest authnino=" + request.authNino)
     rlsInterruptHelper.enforceByRlsStatus(
       paperlessInterruptHelper.enforcePaperlessPreference {
         for {
@@ -72,7 +72,12 @@ class HomeController @Inject() (
           alertBannerContent      <- alertBannerHelper.getContent
           personDetails           <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value
         } yield {
+<<<<<<< Updated upstream
           val nameToDisplay = personDetails.fold(request.helpeeNameOrElse.map(_.toString))(_.person.shortName)
+=======
+          println("\nHERE:" + personDetails)
+          val nameToDisplay: Option[String] = Some(displayName(personDetails))
+>>>>>>> Stashed changes
 
           val benefitCards: Seq[Html] =
             homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)

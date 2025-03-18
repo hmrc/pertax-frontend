@@ -34,8 +34,8 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.Named
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.{Duration, DurationInt}
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 trait CitizenDetailsConnector {
   def personDetails(
@@ -151,6 +151,7 @@ class DefaultCitizenDetailsConnector @Inject() (
       .get(url"$url")
       .transform(_.withRequestTimeout(configDecorator.citizenDetailsTimeoutInMilliseconds.milliseconds))
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+    println("\nurl=" + url)
     httpClientResponse.read(apiResponse).map(_.json)
   }
 
