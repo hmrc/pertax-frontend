@@ -57,7 +57,6 @@ class HomeController @Inject() (
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
-
     rlsInterruptHelper.enforceByRlsStatus(
       paperlessInterruptHelper.enforcePaperlessPreference {
         for {

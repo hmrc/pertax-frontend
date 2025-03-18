@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import controllers.auth.requests.UserRequest
 import models.admin._
-import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserAnswers, UserDetails, UserName}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserAnswers, UserDetails}
 import org.jsoup.Jsoup
 import org.mockito.{ArgumentMatchers, MockitoSugar}
 import play.api.Application
@@ -29,8 +29,8 @@ import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import testUtils.IntegrationSpec
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.SessionKeys
@@ -148,11 +148,10 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     ),
     None
   )
-
+  // scalastyle:off parameter.number
   def buildUserRequest[A](
     authNino: Nino = testNino,
     nino: Option[Nino] = Some(testNino),
-    userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr(new SaUtrGenerator().nextSaUtr.utr)
     ),
@@ -164,10 +163,9 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     messageCount: Option[Int] = None,
     request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
     userAnswers: UserAnswers = UserAnswers.empty
-  ): UserRequest[A] =
+  ): UserRequest[A]                    =
     UserRequest(
       authNino,
-      userName,
       saUser,
       credentials,
       confidenceLevel,

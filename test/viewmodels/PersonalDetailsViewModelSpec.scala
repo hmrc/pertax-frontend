@@ -69,7 +69,6 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
   val userRequest: UserRequest[AnyContentAsEmpty.type] = UserRequest(
     testNino,
-    None,
     ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
     Credentials("", "GovernmentGateway"),
     ConfidenceLevel.L200,
