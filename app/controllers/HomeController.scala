@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowOutageBannerToggle
-import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc._
 import services._
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -56,21 +56,18 @@ class HomeController @Inject() (
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
-    rlsInterruptHelper.enforceByRlsStatus(
-      paperlessInterruptHelper.enforcePaperlessPreference {
-        for {
-          taxSummaryState         <- taiService.retrieveTaxComponentsState(Some(request.helpeeNinoOrElse), current.currentYear)
-          breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse).map {
-                                       case WithinPeriod => true
-                                       case _            => false
-                                     }
-          incomeCards             <- homeCardGenerator.getIncomeCards
-          atsCard                 <- homeCardGenerator.getATSCard()
-          shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
-          alertBannerContent      <- alertBannerHelper.getContent
-          personDetails           <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value
-        } yield {
-          val nameToDisplay: Option[String] = Some(personalDetailsNameOrDefault(personDetails))
+    enforceInterrupts {
+      for {
+        taxSummaryState         <- taiService.retrieveTaxComponentsState(Some(request.helpeeNinoOrElse), current.currentYear)
+        breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse)
+        incomeCards             <- homeCardGenerator.getIncomeCards
+        atsCard                 <- homeCardGenerator.getATSCard()
+        shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
+        alertBannerContent      <- alertBannerHelper.getContent
+        personDetails           <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value
+      } yield {
+        val nameToDisplay: Option[String] = Some(personalDetailsNameOrDefault(personDetails))
+        val benefitCards                  = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
 
         Ok(
           homeView(
