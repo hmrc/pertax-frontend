@@ -24,15 +24,22 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 abstract class PertaxBaseController(cc: MessagesControllerComponents) extends FrontendController(cc) with I18nSupport {
 
-  protected val baseBreadcrumb: Breadcrumb =
+  protected val baseBreadcrumb: Breadcrumb                =
     List("label.account_home" -> routes.HomeController.index.url)
+
+  private val emptyStringToNone: String => Option[String] = s =>
+    if (s.isEmpty) {
+      None
+    } else {
+      Some(s)
+    }
 
   final protected def personalDetailsNameOrDefault(
     optPersonDetails: Option[PersonDetails]
   )(implicit request: UserRequest[AnyContent]): String = {
     def defaultName = Messages("label.your_account")
     (request.trustedHelper, optPersonDetails) match {
-      case (_, Some(pd)) => pd.person.shortName.getOrElse(defaultName)
+      case (_, Some(pd)) => pd.person.shortName.flatMap(emptyStringToNone).getOrElse(defaultName)
       case (Some(th), _) => th.principalName
       case _             => defaultName
 
