@@ -26,42 +26,86 @@ import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 
 class PertaxBaseControllerSpec extends BaseSpec with I18nSupport {
-
   private val cc = app.injector.instanceOf[MessagesControllerComponents]
 
-  private class Sut extends PertaxBaseController(cc) {
-    def executeDisplayName(
+  private class Harness extends PertaxBaseController(cc) {
+    def executePersonalDetailsNameOrTrustedHelperName(
+      optPersonDetails: Option[PersonDetails]
+    )(implicit request: UserRequest[AnyContent]): Option[String] =
+      this.personalDetailsNameOrTrustedHelperName(optPersonDetails)(request)
+
+    def executePersonalDetailsNameOrDefault(
       optPersonDetails: Option[PersonDetails]
     )(implicit request: UserRequest[AnyContent]): String =
-      this.displayName(optPersonDetails)(request)
+      this.personalDetailsNameOrDefault(optPersonDetails)(request)
   }
 
-  private val sut = new Sut()
+  private val sut = new Harness()
 
-  "displayName" must {
-    "display correct default content when no personal details passed in" in {
+  private val th = TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))
+
+  "personalDetailsNameOrDefault" must {
+    "return correct default content when no personal details passed in" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executeDisplayName(None)(userRequest) mustBe Messages("label.your_personal_tax_account")
+      sut.executePersonalDetailsNameOrDefault(None)(userRequest) mustBe Messages("label.your_account")
     }
-    "display principal (helpee) name when trusted helper retrieval on request" in {
+    "return principal (helpee) name when trusted helper retrieval on request" in {
       val th                                                        = TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         request = FakeRequest(),
         trustedHelper = Some(th)
       )
-      sut.executeDisplayName(None)(userRequest) mustBe th.principalName
+      sut.executePersonalDetailsNameOrDefault(None)(userRequest) mustBe th.principalName
     }
-    "display correct name when personal details passed in with values" in {
+    "return correct name when personal details passed in with values" in {
       val person                                                    = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails                                             = PersonDetails(person, None, None)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executeDisplayName(Some(personDetails))(userRequest) mustBe personDetails.person.shortName.getOrElse("")
+      sut.executePersonalDetailsNameOrDefault(Some(personDetails))(userRequest) mustBe personDetails.person.shortName
+        .getOrElse("")
     }
-    "display correct default content when empty personal details passed in" in {
+    "return correct default content when empty personal details passed in" in {
       val person                                                    = Person(None, None, None, None, None, None, None, None, None)
       val personDetails                                             = PersonDetails(person, None, None)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executeDisplayName(Some(personDetails))(userRequest) mustBe Messages("label.your_personal_tax_account")
+      sut.executePersonalDetailsNameOrDefault(Some(personDetails))(userRequest) mustBe Messages("label.your_account")
+    }
+  }
+
+  "personalDetailsNameOrTrustedHelperName" must {
+    "return None when no personal details or trusted helper passed in" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      sut.executePersonalDetailsNameOrTrustedHelperName(None)(userRequest) mustBe None
+    }
+    "return principal (helpee) name when no personal details and trusted helper retrieval on request" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        request = FakeRequest(),
+        trustedHelper = Some(th)
+      )
+      sut.executePersonalDetailsNameOrTrustedHelperName(None)(userRequest) mustBe Some(th.principalName)
+    }
+    "return correct name when personal details passed in with values and no trusted helper on request" in {
+      val person                                                    = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails                                             = PersonDetails(person, None, None)
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(
+        userRequest
+      ) mustBe personDetails.person.shortName
+    }
+    "return correct name when personal details passed in with values and trusted helper on request" in {
+      val person                                                    = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails                                             = PersonDetails(person, None, None)
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest(), trustedHelper = Some(th))
+      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(
+        userRequest
+      ) mustBe personDetails.person.shortName
+    }
+    "return empty name when empty personal details passed in" in {
+      val person                                                    = Person(None, None, None, None, None, None, None, None, None)
+      val personDetails                                             = PersonDetails(person, None, None)
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(userRequest) mustBe None
     }
   }
 

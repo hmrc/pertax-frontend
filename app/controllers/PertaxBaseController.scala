@@ -27,15 +27,24 @@ abstract class PertaxBaseController(cc: MessagesControllerComponents) extends Fr
   protected val baseBreadcrumb: Breadcrumb =
     List("label.account_home" -> routes.HomeController.index.url)
 
-  protected def displayName(
+  final protected def personalDetailsNameOrDefault(
     optPersonDetails: Option[PersonDetails]
   )(implicit request: UserRequest[AnyContent]): String = {
-    def defaultName = Messages("label.your_personal_tax_account")
+    def defaultName = Messages("label.your_account")
     (request.trustedHelper, optPersonDetails) match {
-      case (Some(th), _) => th.principalName
-      case (_, None)     => defaultName
       case (_, Some(pd)) => pd.person.shortName.getOrElse(defaultName)
+      case (Some(th), _) => th.principalName
+      case _             => defaultName
+
     }
   }
+
+  final protected def personalDetailsNameOrTrustedHelperName(
+    optPersonDetails: Option[PersonDetails]
+  )(implicit request: UserRequest[AnyContent]): Option[String] =
+    optPersonDetails match {
+      case pd @ Some(_) => pd.flatMap(_.person.shortName)
+      case _            => request.trustedHelper.map(_.principalName)
+    }
 
 }

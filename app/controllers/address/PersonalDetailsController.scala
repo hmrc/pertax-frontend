@@ -66,8 +66,7 @@ class PersonalDetailsController @Inject() (
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>
     Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad, MOVED_PERMANENTLY))
   }
-
-  def onPageLoad: Action[AnyContent] =
+  def onPageLoad: Action[AnyContent]            =
     authenticate.async { implicit request: UserRequest[AnyContent] =>
       rlsInterruptHelper.enforceByRlsStatus(for {
         agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
@@ -76,7 +75,7 @@ class PersonalDetailsController @Inject() (
                                .personDetails(request.helpeeNinoOrElse)
                                .toOption
                                .value
-        nameToDisplay      = Some(displayName(personDetails))
+        nameToDisplay      = personalDetailsNameOrTrustedHelperName(personDetails)
         ninoToDisplay      = personDetails.fold(request.helpeeNinoOrElse)(_.person.nino.getOrElse(request.helpeeNinoOrElse))
         _                 <- personDetails
                                .map { details =>
