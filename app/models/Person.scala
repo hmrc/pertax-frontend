@@ -32,10 +32,16 @@ case class Person(
   dateOfBirth: Option[LocalDate],
   nino: Option[Nino]
 ) {
-  lazy val shortName: Option[String] = (for {
+  private val emptyStringToNone: String => Option[String] = s =>
+    if (s.isEmpty) {
+      None
+    } else {
+      Some(s)
+    }
+  lazy val shortName: Option[String]                      = (for {
     f <- firstName
     l <- lastName
-  } yield List(f, l).mkString(" ")).map(_.trim)
+  } yield List(f, l).mkString(" ")).map(_.trim).flatMap(emptyStringToNone)
 }
 
 object Person {

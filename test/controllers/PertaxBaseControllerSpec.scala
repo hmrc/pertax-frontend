@@ -122,11 +122,11 @@ class PertaxBaseControllerSpec extends BaseSpec with I18nSupport {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(userRequest) mustBe None
     }
-    "return empty name when empty personal details passed in" in {
+    "return None when personal details passed in with only empty strings" in {
       val person                                                    = Person(Some(""), None, Some(""), None, None, None, None, None, None)
       val personDetails                                             = PersonDetails(person, None, None)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(userRequest) mustBe Some("")
+      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(userRequest) mustBe None
     }
   }
 
