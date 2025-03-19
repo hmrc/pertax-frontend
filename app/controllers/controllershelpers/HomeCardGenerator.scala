@@ -38,22 +38,22 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class HomeCardGenerator @Inject() (
-  featureFlagService: FeatureFlagService,
-  payAsYouEarnView: PayAsYouEarnView,
-  taxCreditsView: TaxCreditsView,
-  childBenefitSingleAccountView: ChildBenefitSingleAccountView,
-  marriageAllowanceView: MarriageAllowanceView,
-  taxSummariesView: TaxSummariesView,
-  latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
-  itsaMergeView: ItsaMergeView,
-  saMergeView: SaMergeView,
-  enrolmentsHelper: EnrolmentsHelper,
-  newsAndTilesConfig: NewsAndTilesConfig,
-  nispView: NISPView,
-  selfAssessmentRegistrationView: SelfAssessmentRegistrationView,
-  taxCalcPartialService: TaxCalcPartialService
-)(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
-    extends Logging {
+                                    featureFlagService: FeatureFlagService,
+                                    payAsYouEarnView: PayAsYouEarnView,
+                                    taxCreditsView: TaxCreditsView,
+                                    childBenefitSingleAccountView: ChildBenefitSingleAccountView,
+                                    marriageAllowanceView: MarriageAllowanceView,
+                                    taxSummariesView: TaxSummariesView,
+                                    latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
+                                    itsaMergeView: ItsaMergeView,
+                                    saMergeView: SaMergeView,
+                                    enrolmentsHelper: EnrolmentsHelper,
+                                    newsAndTilesConfig: NewsAndTilesConfig,
+                                    nispView: NISPView,
+                                    selfAssessmentRegistrationView: SelfAssessmentRegistrationView,
+                                    taxCalcPartialService: TaxCalcPartialService
+                                  )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
+  extends Logging {
 
   def getIncomeCards(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
 
@@ -109,8 +109,8 @@ class HomeCardGenerator @Inject() (
     }
 
   def getSelfAssessmentCard()(implicit
-    messages: Messages,
-    request: UserRequest[_]
+                              messages: Messages,
+                              request: UserRequest[_]
   ): Option[HtmlFormat.Appendable] = request.trustedHelper match {
     case Some(_) => None
     case None    =>
@@ -130,9 +130,9 @@ class HomeCardGenerator @Inject() (
   }
 
   def getAnnualTaxSummaryCard(implicit
-    request: UserRequest[AnyContent],
-    messages: Messages
-  ): Future[Option[HtmlFormat.Appendable]] =
+                              request: UserRequest[AnyContent],
+                              messages: Messages
+                             ): Future[Option[HtmlFormat.Appendable]] =
     featureFlagService.get(TaxSummariesTileToggle).map {
       case FeatureFlag(_, true) =>
         val url = if (request.isSaUserLoggedIntoCorrectAccount) {
@@ -155,9 +155,9 @@ class HomeCardGenerator @Inject() (
   def getNationalInsuranceCard()(implicit messages: Messages): HtmlFormat.Appendable = nispView()
 
   def getBenefitCards(
-    taxComponents: Option[TaxComponents],
-    trustedHelper: Option[TrustedHelper]
-  )(implicit messages: Messages): List[Html] =
+                       taxComponents: Option[TaxComponents],
+                       trustedHelper: Option[TrustedHelper]
+                     )(implicit messages: Messages): List[Html] =
     if (trustedHelper.isEmpty) {
       List(getChildBenefitCard(), getMarriageAllowanceCard(taxComponents), getTaxCreditsCard())
     } else {
@@ -169,7 +169,7 @@ class HomeCardGenerator @Inject() (
   def getChildBenefitCard()(implicit messages: Messages): HtmlFormat.Appendable = childBenefitSingleAccountView()
 
   def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit
-    messages: Messages
+                                                                     messages: Messages
   ): HtmlFormat.Appendable =
     marriageAllowanceView(taxComponents)
 }

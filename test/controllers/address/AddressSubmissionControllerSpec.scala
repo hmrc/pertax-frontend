@@ -213,7 +213,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe OK
       verify(mockJourneyCacheRepository, times(1)).get(any())
-      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
+      verify(mockCitizenDetailsService, times(1))
+        .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
     }
 
     "redirect to start of journey if residentialSubmittedAddress is missing from the cache" in {
@@ -260,7 +261,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         includeOriginals = false
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
-      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
+      verify(mockCitizenDetailsService, times(1))
+        .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
     }
 
     "render the thank you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address, this time using postal type and having no postalSubmittedStartDate in the cache " in {
@@ -296,7 +298,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         addressType = Some("Correspondence")
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
-      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
+      verify(mockCitizenDetailsService, times(1))
+        .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
     }
 
     "render the thank you page and log a manualAddressSubmitted audit event upon successful submission of a manually entered address" in {
@@ -324,7 +327,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         includeOriginals = false
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
-      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
+      verify(mockCitizenDetailsService, times(1))
+        .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
     }
 
     "render the thank you page and log a postcodeAddressModifiedSubmitted audit event upon successful of a modified address" in {
@@ -356,7 +360,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         Some("11 Fake Street")
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
-      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any())
+      verify(mockCitizenDetailsService, times(1))
+        .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
     }
 
     "return 500 when fetching etag from citizen details fails" in {
@@ -435,7 +440,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         )
       )
 
-      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any())).thenReturn(
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.leftT(UpstreamErrorResponse("Start Date cannot be the same", 400))
       )
 

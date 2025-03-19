@@ -16,7 +16,7 @@
 
 @import controllers.auth.requests.UserRequest
 @import scala.concurrent.ExecutionContext
-
+@import views.MainView
 @this(main: MainView)
 
 @(message: Html, title: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
