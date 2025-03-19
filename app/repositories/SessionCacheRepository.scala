@@ -33,25 +33,25 @@ import scala.concurrent.duration._
 
 @Singleton
 class SessionCacheRepository @Inject() (
-                                         appConfig: ConfigDecorator,
-                                         mongoComponent: MongoComponent,
-                                         configuration: Configuration
-                                       )(implicit ec: ExecutionContext)
-  extends CacheRepository(
-    mongoComponent = mongoComponent,
-    collectionName = "sessions",
-    ttl = appConfig.sessionCacheTtl.minutes,
-    timestampSupport = new CurrentTimestampSupport(),
-    sessionIdKey = SessionKeys.sessionId
-  ) {
+  appConfig: ConfigDecorator,
+  mongoComponent: MongoComponent,
+  configuration: Configuration
+)(implicit ec: ExecutionContext)
+    extends CacheRepository(
+      mongoComponent = mongoComponent,
+      collectionName = "sessions",
+      ttl = appConfig.sessionCacheTtl.minutes,
+      timestampSupport = new CurrentTimestampSupport(),
+      sessionIdKey = SessionKeys.sessionId
+    ) {
 
   implicit lazy val symmetricCryptoFactory: Encrypter with Decrypter =
     new ApplicationCrypto(configuration.underlying).JsonCrypto
 
   override def putSession[T: Writes](
-                                      dataKey: DataKey[T],
-                                      data: T
-                                    )(implicit request: Request[Any]): Future[(String, String)] = {
+    dataKey: DataKey[T],
+    data: T
+  )(implicit request: Request[Any]): Future[(String, String)] = {
 
     val jsonData         = if (appConfig.mongoEncryptionEnabled) {
       val encrypter = JsonEncryption.sensitiveEncrypter[T, SensitiveT[T]]

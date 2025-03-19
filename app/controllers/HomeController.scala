@@ -34,19 +34,19 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
-                                 paperlessInterruptHelper: PaperlessInterruptHelper,
-                                 taiService: TaiService,
-                                 breathingSpaceService: BreathingSpaceService,
-                                 featureFlagService: FeatureFlagService,
-                                 citizenDetailsService: CitizenDetailsService,
-                                 homeCardGenerator: HomeCardGenerator,
-                                 authJourney: AuthJourney,
-                                 cc: MessagesControllerComponents,
-                                 homeView: HomeView,
-                                 rlsInterruptHelper: RlsInterruptHelper,
-                                 alertBannerHelper: AlertBannerHelper
-                               )(implicit ec: ExecutionContext)
-  extends PertaxBaseController(cc)
+  paperlessInterruptHelper: PaperlessInterruptHelper,
+  taiService: TaiService,
+  breathingSpaceService: BreathingSpaceService,
+  featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
+  homeCardGenerator: HomeCardGenerator,
+  authJourney: AuthJourney,
+  cc: MessagesControllerComponents,
+  homeView: HomeView,
+  rlsInterruptHelper: RlsInterruptHelper,
+  alertBannerHelper: AlertBannerHelper
+)(implicit ec: ExecutionContext)
+    extends PertaxBaseController(cc)
     with CurrentTaxYear {
 
   override def now: () => LocalDate = () => LocalDate.now()
