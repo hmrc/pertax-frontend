@@ -30,6 +30,8 @@ import uk.gov.hmrc.mongo.{CurrentTimestampSupport, MongoComponent}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 class SessionCacheRepository @Inject() (
@@ -74,7 +76,11 @@ class SessionCacheRepository @Inject() (
     encryptedData.map { cache =>
       if (appConfig.mongoEncryptionEnabled) {
         val decrypter = JsonEncryption.sensitiveDecrypter[T, SensitiveT[T]](SensitiveT.apply)
-        cache.as[SensitiveT[T]](decrypter).decryptedValue
+        Try(cache.as[SensitiveT[T]](decrypter).decryptedValue) match {
+          case Success(decrypted)                        => decrypted
+          case Failure(exception) if NonFatal(exception) => cache.as[T]
+          case Failure(exception)                        => throw exception
+        }
       } else {
         cache.as[T]
       }
