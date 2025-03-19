@@ -148,19 +148,15 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     ),
     None
   )
-  // scalastyle:off parameter.number
   def buildUserRequest[A](
     authNino: Nino = testNino,
-    nino: Option[Nino] = Some(testNino),
     saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr(new SaUtrGenerator().nextSaUtr.utr)
     ),
     credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-    personDetails: Option[PersonDetails] = Some(fakePersonDetails),
     trustedHelper: Option[TrustedHelper] = None,
     profile: Option[String] = None,
-    messageCount: Option[Int] = None,
     request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
     userAnswers: UserAnswers = UserAnswers.empty
   ): UserRequest[A]                    =

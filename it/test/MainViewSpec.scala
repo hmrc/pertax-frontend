@@ -119,16 +119,13 @@ class MainViewSpec extends IntegrationSpec {
         .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
         .willReturn(ok(wrapperDataResponse))
     )
-    // scalastyle:off parameter.number
     def buildUserRequest[A](
       authNino: Nino = testNino,
-      nino: Option[Nino] = Some(testNino),
       saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
         SaUtr(new SaUtrGenerator().nextSaUtr.utr)
       ),
       credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
       confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-      personDetails: Option[PersonDetails] = Some(fakePersonDetails),
       trustedHelper: Option[TrustedHelper] = None,
       profile: Option[String] = None,
       request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
@@ -146,14 +143,12 @@ class MainViewSpec extends IntegrationSpec {
         request,
         userAnswers
       )
-    // scalastyle:off parameter.number
+
     def buildUserRequestNoSA[A](
       authNino: Nino = testNino,
-      nino: Option[Nino] = Some(testNino),
       saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
       credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
       confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-      personDetails: Option[PersonDetails] = Some(fakePersonDetails),
       trustedHelper: Option[TrustedHelper] = None,
       profile: Option[String] = None,
       request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
