@@ -38,7 +38,8 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.partials.HtmlPartial
-import views.html.{InternalServerErrorView, MainView}
+import views.html.InternalServerErrorView
+import views.MainView
 
 import scala.concurrent.Future
 
@@ -69,12 +70,10 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
   val expectedRequest: UserRequest[_] =
     UserRequest(
       Fixtures.fakeNino,
-      Some(Fixtures.fakeNino),
       None,
       WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
       Credentials("", "GovernmentGateway"),
       ConfidenceLevel.L50,
-      None,
       None,
       Set(),
       None,

@@ -4,9 +4,9 @@ import sbt.*
 object AppDependencies {
 
   private val playVersion      = "play-30"
-  private val cryptoVersion    = "8.1.0"
+  private val cryptoVersion    = "8.2.0"
   private val webChatVersion   = "1.6.0"
-  private val scaWrapperVersion = "2.3.0"
+  private val scaWrapperVersion = "2.4.0"
   private val mongoFeatureClientVersion = "1.9.0"
 
   val compile: Seq[ModuleID] = Seq(
@@ -15,6 +15,7 @@ object AppDependencies {
     "io.lemonlabs"      %% "scala-uri"                                  % "4.0.3",
     "org.jsoup"          % "jsoup"                                      % "1.18.3",
     "org.typelevel"     %% "cats-core"                                  % "2.13.0",
+    "org.typelevel"     %% "cats-effect"                                % "3.5.4",
     "org.apache.commons" % "commons-text"                               % "1.12.0",
     "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % scaWrapperVersion,
     "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % mongoFeatureClientVersion,

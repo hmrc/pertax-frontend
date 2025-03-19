@@ -19,7 +19,7 @@ package controllers.auth
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import connectors.PertaxConnector
-import views.html.MainView
+import views.MainView
 import models.PertaxResponse
 import views.html.InternalServerErrorView
 import play.api.Logging

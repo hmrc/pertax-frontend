@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,27 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import controllers.auth.requests.UserRequest
-@import scala.concurrent.ExecutionContext
-@import components.H1
-@import views.MainView
-@this(
-    main: MainView,
-    h1: H1,
-    govukInsetText: GovukInsetText
-)
-@(managePrefsPartial: Html)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+package config
 
-@main(
-    pageTitle = messages("label.manage_your_paperless_settings")
-) {
+import play.api.Configuration
+import uk.gov.hmrc.crypto.{ApplicationCrypto, Decrypter, Encrypter}
 
-    @h1("label.manage_your_paperless_settings")
+import javax.inject.{Inject, Provider, Singleton}
 
-    @govukInsetText(InsetText(content = Text(messages("label.any_updates_to_your_contact_details"))))
+@Singleton
+class CryptoProvider @Inject() (
+  configuration: Configuration
+) extends Provider[Encrypter with Decrypter] {
 
-    @managePrefsPartial
-
+  override def get(): Encrypter with Decrypter =
+    new ApplicationCrypto(configuration.underlying).JsonCrypto
 }

@@ -34,7 +34,7 @@ import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
-import views.html.MainView
+import views.MainView
 
 import java.time.LocalDate
 import java.util.UUID
@@ -137,12 +137,10 @@ class MainViewSpec extends IntegrationSpec {
     ): UserRequest[A] =
       UserRequest(
         authNino,
-        nino,
         userName,
         saUser,
         credentials,
         confidenceLevel,
-        personDetails,
         trustedHelper,
         Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
         profile,
@@ -166,12 +164,10 @@ class MainViewSpec extends IntegrationSpec {
     ): UserRequest[A] =
       UserRequest(
         authNino,
-        nino,
         userName,
         saUser,
         credentials,
         confidenceLevel,
-        personDetails,
         trustedHelper,
         Set(),
         profile,

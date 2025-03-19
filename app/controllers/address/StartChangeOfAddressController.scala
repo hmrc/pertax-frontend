@@ -20,10 +20,11 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
+import error.ErrorRenderer
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.StartChangeOfAddressView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,16 +33,18 @@ class StartChangeOfAddressController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   startChangeOfAddressView: StartChangeOfAddressView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  errorRenderer: ErrorRenderer,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
       cc,
-      displayAddressInterstitialView: DisplayAddressInterstitialView,
-      featureFlagService,
-      internalServerErrorView
+      featureFlagService: FeatureFlagService,
+      errorRenderer: ErrorRenderer,
+      citizenDetailsService: CitizenDetailsService,
+      internalServerErrorView: InternalServerErrorView
     ) {
 
   def onPageLoad(addrType: AddrType): Action[AnyContent] =

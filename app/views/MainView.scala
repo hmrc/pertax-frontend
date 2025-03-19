@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package views.html
+package views
 
 import com.google.inject.ImplementedBy
 import config.ConfigDecorator
@@ -37,6 +37,7 @@ import uk.gov.hmrc.webchat.client.WebChatClient
 
 @ImplementedBy(classOf[MainViewImpl])
 trait MainView {
+  // scalastyle:off parameter.number
   def apply(
     pageTitle: String,
     serviceName: String = "label.your_personal_tax_account",
@@ -70,6 +71,7 @@ class MainViewImpl @Inject() (
 ) extends MainView
     with Logging {
 
+// scalastyle:off parameter.number
   override def apply(
     pageTitle: String,
     serviceName: String = "label.your_personal_tax_account",

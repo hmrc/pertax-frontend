@@ -26,7 +26,7 @@ import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
-import services.SeissService
+import services.{CitizenDetailsService, SeissService}
 import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -61,6 +61,7 @@ class InterstitialController @Inject() (
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
   featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
   viewNISPView: ViewNISPView,
   selfAssessmentRegistrationPageView: SelfAssessmentRegistrationPageView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
@@ -85,6 +86,9 @@ class InterstitialController @Inject() (
   def displayNISP: Action[AnyContent] = authenticate.async { implicit request =>
     for {
       nispPartial <- formPartialService.getNISPPartial
+      nino        <- citizenDetailsService
+                       .personDetails(request.authNino)
+                       .fold(_ => Some(request.authNino), personDetails => personDetails.person.nino)
     } yield Ok(
       viewNISPView(
         formPartial = if (configDecorator.partialUpgradeEnabled) {
@@ -92,13 +96,10 @@ class InterstitialController @Inject() (
         } else {
           nispPartial successfulContentOrEmpty
         },
-        request.nino
+        nino
       )
     )
   }
-
-  private def currentUrl(implicit request: Request[AnyContent]) =
-    configDecorator.pertaxFrontendHost + request.path
 
   def displayChildBenefits: Action[AnyContent] = authenticate {
     Redirect(routes.InterstitialController.displayChildBenefitsSingleAccountView, MOVED_PERMANENTLY)
@@ -106,9 +107,7 @@ class InterstitialController @Inject() (
 
   def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate { implicit request =>
     Ok(
-      viewChildBenefitsSummarySingleAccountInterstitialView(
-        redirectUrl = currentUrl
-      )
+      viewChildBenefitsSummarySingleAccountInterstitialView()
     )
   }
 
@@ -134,10 +133,8 @@ class InterstitialController @Inject() (
       seissService.hasClaims(saUserType).map { hasSeissClaims =>
         Ok(
           viewItsaMergePageView(
-            nextDeadlineTaxYear = (current.currentYear + 1).toString,
             request.isSa,
             hasSeissClaims,
-            taxYear = previousAndCurrentTaxYear,
             saUserType
           )
         )

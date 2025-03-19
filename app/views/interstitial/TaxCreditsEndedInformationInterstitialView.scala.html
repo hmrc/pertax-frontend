@@ -14,15 +14,15 @@
  * limitations under the License.
  *@
 
-@import views.html.components.{Button, H1, H2, Link, P}
+@import views.html.components.{H1, H2, Link, P}
+@import views.MainView
 
 @this(
         mainView: MainView,
         h1: H1,
         h2: H2,
         p: P,
-        link: Link,
-        button: Button)
+        link: Link)
 
 @()(implicit request: WrappedRequest[_], messages: play.api.i18n.Messages)
 

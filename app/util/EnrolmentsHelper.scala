@@ -24,7 +24,6 @@ import play.api.i18n.Messages
 import play.api.mvc.{Request, Result}
 import play.api.mvc.Results.InternalServerError
 import uk.gov.hmrc.auth.core.Enrolment
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import views.html.InternalServerErrorView
 
@@ -46,11 +45,10 @@ class EnrolmentsHelper @Inject() (internalServerErrorView: InternalServerErrorVi
       }
 
   def selfAssessmentStatus(
-    enrolments: Set[Enrolment],
-    trustedHelper: Option[TrustedHelper]
+    enrolments: Set[Enrolment]
   ): Option[SelfAssessmentEnrolment] =
     enrolments
-      .find(_.key == "IR-SA" && trustedHelper.isEmpty)
+      .find(_.key == "IR-SA")
       .flatMap { enrolment =>
         enrolment.identifiers
           .find(id => id.key == "UTR")

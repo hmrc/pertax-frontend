@@ -30,7 +30,7 @@ object InternationalAddressChoiceDto extends Enumerable.Implicits with Formatter
   case object Wales extends WithName("wales") with InternationalAddressChoiceDto
   case object NorthernIreland extends WithName("ni") with InternationalAddressChoiceDto
 
-  def isUk(country: Option[InternationalAddressChoiceDto]) =
+  def isUk(country: Option[InternationalAddressChoiceDto]): Boolean =
     country match {
       case Some(OutsideUK) => false
       case _               => true

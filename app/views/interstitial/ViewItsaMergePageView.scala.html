@@ -18,7 +18,7 @@
 @import controllers.auth.requests.UserRequest
 @import components.{H1, H2, P, Link}
 @import util.NameChangeHelper
-
+@import views.MainView
 @this(
     mainView: MainView,
     h1: H1,
@@ -27,7 +27,7 @@
     link: Link
 )
 
-@(nextDeadlineTaxYear: String, isSa: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(isSa: Boolean, isSeiss: Boolean, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @mainView(
     pageTitle = messages("label.your_self_assessment"),

@@ -64,12 +64,12 @@ class EnrolmentStoreCachingService @Inject() (
       }
     }
 
-  def retrieveMTDEnrolment(nino: Nino)(implicit hc: HeaderCarrier, ec: ExecutionContext) =
+  def retrieveMTDEnrolment(nino: Nino)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] =
     enrolmentsConnector
       .getKnownFacts(nino)
       .fold(
         _ => None,
-        _ match {
+        {
           case Some(response) => response.getHMRCMTDIT
           case _              => None
         }
@@ -94,27 +94,29 @@ class EnrolmentStoreCachingService @Inject() (
       .getUserDetails(id)
       .foldF(
         _ => Future.successful(EnrolmentError()),
-        groupDetails =>
-          groupDetails match {
-            case Some(userDetails) =>
-              Future.successful(
-                UsersAssignedEnrolment(
-                  AccountDetails(
-                    userDetails.identityProviderType,
-                    id,
-                    userDetails.obfuscatedUserId.getOrElse(""),
-                    userDetails.email.map(SensitiveString),
-                    userDetails.lastAccessedTimestamp,
-                    AccountDetails.additionalFactorsToMFADetails(userDetails.additionalFactors),
-                    None
-                  )
+        {
+          case Some(userDetails) =>
+            Future.successful(
+              UsersAssignedEnrolment(
+                AccountDetails(
+                  userDetails.identityProviderType,
+                  id,
+                  userDetails.obfuscatedUserId.getOrElse(""),
+                  userDetails.email.map(SensitiveString),
+                  userDetails.lastAccessedTimestamp,
+                  AccountDetails.additionalFactorsToMFADetails(userDetails.additionalFactors),
+                  None
                 )
               )
-            case None              => Future.successful(EnrolmentDoesNotExist())
-          }
+            )
+          case None              => Future.successful(EnrolmentDoesNotExist())
+        }
       )
 
-  def checkEnrolmentStatus(key: String, value: String)(implicit hc: HeaderCarrier, executionContext: ExecutionContext) =
+  def checkEnrolmentStatus(key: String, value: String)(implicit
+    hc: HeaderCarrier,
+    executionContext: ExecutionContext
+  ): Future[EnrolmentResult] =
     for {
       userIds     <- checkEnrolmentId(key, value)
       accountInfo <- checkEnrolmentExists(userIds.head)

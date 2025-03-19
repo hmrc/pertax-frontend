@@ -28,12 +28,10 @@ object UserRequestFixture {
 
   def buildUserRequest[A](
     authNino: Nino = Fixtures.fakeNino,
-    nino: Option[Nino] = Some(Fixtures.fakeNino),
     userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
     credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-    personDetails: Option[PersonDetails] = Some(Fixtures.buildPersonDetails),
     trustedHelper: Option[TrustedHelper] = None,
     profile: Option[String] = None,
     enrolments: Set[Enrolment] = Set(
@@ -44,12 +42,10 @@ object UserRequestFixture {
   ): UserRequest[A] =
     UserRequest(
       authNino,
-      nino,
       userName,
       saUser,
       credentials,
       confidenceLevel,
-      personDetails,
       trustedHelper,
       enrolments,
       profile,
