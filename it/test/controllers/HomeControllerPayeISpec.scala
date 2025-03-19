@@ -16,10 +16,6 @@
 
 package controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock.{get, notFound, urlEqualTo}
-import models.admin.TaxComponentsToggle
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
@@ -28,9 +24,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
-import java.time.LocalDateTime
 import java.util.UUID
 import scala.concurrent.Future
 

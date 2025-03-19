@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -159,7 +159,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getNationalInsuranceCard()
 
-      cardBody mustBe Some(nispView())
+      cardBody mustBe nispView()
     }
 
   }
@@ -169,14 +169,14 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
 
-      cardBody mustBe Some(taxCredits())
+      cardBody mustBe taxCredits()
     }
 
     "always return the same markup when taxCreditsPaymentLinkEnabled is disabled" in {
 
       lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
 
-      cardBody mustBe Some(taxCredits())
+      cardBody mustBe taxCredits()
     }
   }
 
@@ -184,7 +184,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "returns the child Benefit single sign on markup" in {
       lazy val cardBody = homeCardGenerator.getChildBenefitCard()
 
-      cardBody mustBe Some(childBenefitSingleAccount())
+      cardBody mustBe childBenefitSingleAccount()
     }
   }
 
@@ -198,7 +198,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
-      cardBody mustBe Some(marriageAllowance(tc))
+      cardBody mustBe marriageAllowance(tc)
     }
 
     "return nothing when called with a user who has tax summary and transfers Marriage Allowance" in {
@@ -210,7 +210,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
-      cardBody mustBe Some(marriageAllowance(tc))
+      cardBody mustBe marriageAllowance(tc)
     }
 
     "return correct markup when called with a user who has no tax summary" in {
@@ -222,7 +222,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
-      cardBody mustBe Some(marriageAllowance(tc))
+      cardBody mustBe marriageAllowance(tc)
     }
 
     "return correct markup when called with a user who has tax summary but no marriage allowance" in {
@@ -234,7 +234,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
-      cardBody mustBe Some(marriageAllowance(tc))
+      cardBody mustBe marriageAllowance(tc)
     }
   }
 
@@ -251,7 +251,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             request = FakeRequest()
           )
 
-        lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.value.futureValue
+        lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.futureValue
 
         cardBody mustBe Some(taxSummaries(configDecorator.annualTaxSaSummariesTileLink))
       }
@@ -272,7 +272,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           implicit val payeRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(saUser = saType, request = FakeRequest())
 
-          lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.value.futureValue
+          lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.futureValue
           cardBody mustBe Some(taxSummaries(configDecorator.annualTaxPayeSummariesTileLink))
         }
       }
@@ -287,7 +287,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(request = FakeRequest())
 
-        lazy val cardBody = sut.getAnnualTaxSummaryCard.value.futureValue
+        lazy val cardBody = sut.getAnnualTaxSummaryCard.futureValue
 
         cardBody mustBe None
       }

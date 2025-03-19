@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowOutageBannerToggle
-import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
-import play.twirl.api.Html
+import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents, Result}
 import services._
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -32,7 +31,7 @@ import viewmodels.HomeViewModel
 import views.html.HomeView
 
 import java.time.LocalDate
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
@@ -73,25 +72,27 @@ class HomeController @Inject() (
         } yield {
           val nameToDisplay: Option[String] = Some(personalDetailsNameOrDefault(personDetails))
 
-          val benefitCards: Seq[Html] =
-            homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
-          Ok(
-            homeView(
-              HomeViewModel(
-                incomeCards,
-                benefitCards,
-                atsCard,
-                showUserResearchBanner = false,
-                saUserType,
-                breathingSpaceIndicator = breathingSpaceIndicator,
-                alertBannerContent,
-                nameToDisplay
-              ),
-              shutteringMessaging.isEnabled
-            )
+        Ok(
+          homeView(
+            HomeViewModel(
+              incomeCards,
+              benefitCards,
+              atsCard,
+              showUserResearchBanner = false,
+              saUserType,
+              breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
+              alertBannerContent,
+              nameToDisplay
+            ),
+            shutteringMessaging.isEnabled
           )
-        }
+        )
       }
-    )
+    }
   }
+
+  private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] =
+    rlsInterruptHelper.enforceByRlsStatus(
+      paperlessInterruptHelper.enforcePaperlessPreference(block)
+    )
 }
