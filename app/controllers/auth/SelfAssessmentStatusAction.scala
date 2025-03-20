@@ -17,11 +17,10 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import services.CitizenDetailsService
 import controllers.auth.requests._
 import models._
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
-import services.EnrolmentStoreCachingService
+import services.{CitizenDetailsService, EnrolmentStoreCachingService}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -72,7 +71,6 @@ class SelfAssessmentStatusAction @Inject() (
       Right(
         UserRequest(
           request.authNino,
-          request.name,
           saType,
           request.credentials,
           request.confidenceLevel,

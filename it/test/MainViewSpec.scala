@@ -28,8 +28,8 @@ import play.api.mvc.{AnyContentAsEmpty, Request}
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import testUtils.IntegrationSpec
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
@@ -119,17 +119,13 @@ class MainViewSpec extends IntegrationSpec {
         .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
         .willReturn(ok(wrapperDataResponse))
     )
-
     def buildUserRequest[A](
       authNino: Nino = testNino,
-      nino: Option[Nino] = Some(testNino),
-      userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
       saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
         SaUtr(new SaUtrGenerator().nextSaUtr.utr)
       ),
       credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
       confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-      personDetails: Option[PersonDetails] = Some(fakePersonDetails),
       trustedHelper: Option[TrustedHelper] = None,
       profile: Option[String] = None,
       request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
@@ -137,7 +133,6 @@ class MainViewSpec extends IntegrationSpec {
     ): UserRequest[A] =
       UserRequest(
         authNino,
-        userName,
         saUser,
         credentials,
         confidenceLevel,
@@ -151,12 +146,9 @@ class MainViewSpec extends IntegrationSpec {
 
     def buildUserRequestNoSA[A](
       authNino: Nino = testNino,
-      nino: Option[Nino] = Some(testNino),
-      userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
       saUser: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
       credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
       confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-      personDetails: Option[PersonDetails] = Some(fakePersonDetails),
       trustedHelper: Option[TrustedHelper] = None,
       profile: Option[String] = None,
       request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
@@ -164,7 +156,6 @@ class MainViewSpec extends IntegrationSpec {
     ): UserRequest[A] =
       UserRequest(
         authNino,
-        userName,
         saUser,
         credentials,
         confidenceLevel,

@@ -38,6 +38,13 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
 
       pd.shortName mustBe Some("Firstname Lastname")
     }
+    "Produce empty string when someone has both but both empty" in new LocalSetup {
+
+      val firstName: Option[String] = Some("")
+      val lastName: Option[String]  = Some("")
+
+      pd.shortName mustBe Some("")
+    }
 
     "Produce nothing when only lastname is present" in new LocalSetup {
 

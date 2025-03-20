@@ -18,14 +18,13 @@ package controllers.auth.requests
 
 import models._
 import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.domain.Nino
 
 final case class UserRequest[+A](
   authNino: Nino,
-  retrievedName: Option[UserName],
   saUserType: SelfAssessmentUserType,
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
@@ -47,21 +46,17 @@ final case class UserRequest[+A](
     case _                                         => false
   }
 
-  val helpeeNinoOrElse: Nino             = Nino(trustedHelper.fold(authNino.nino)(_.principalNino.getOrElse(authNino.nino)))
-  val helpeeNameOrElse: Option[UserName] =
-    trustedHelper.fold(retrievedName)(trustedHelper => Some(UserName(Name(Some(trustedHelper.principalName), None))))
+  val helpeeNinoOrElse: Nino = Nino(trustedHelper.fold(authNino.nino)(_.principalNino.getOrElse(authNino.nino)))
 }
 
 object UserRequest {
   def apply[A](
     authenticatedRequest: AuthenticatedRequest[A],
-    retrievedName: Option[UserName],
     saUserType: SelfAssessmentUserType,
     breadcrumb: Option[Breadcrumb]
   ): UserRequest[A] =
     UserRequest(
       authenticatedRequest.authNino,
-      retrievedName,
       saUserType,
       authenticatedRequest.credentials,
       authenticatedRequest.confidenceLevel,

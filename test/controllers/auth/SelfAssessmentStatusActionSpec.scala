@@ -76,7 +76,6 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
       ConfidenceLevel.L200,
       None,
       None,
-      None,
       enrolments,
       FakeRequest(),
       Some(AffinityGroup.Agent),

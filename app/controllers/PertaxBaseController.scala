@@ -16,14 +16,42 @@
 
 package controllers
 
-import models.Breadcrumb
-import play.api.i18n.I18nSupport
+import controllers.auth.requests.UserRequest
+import models.{Breadcrumb, PersonDetails}
+import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 abstract class PertaxBaseController(cc: MessagesControllerComponents) extends FrontendController(cc) with I18nSupport {
 
-  val baseBreadcrumb: Breadcrumb =
+  protected val baseBreadcrumb: Breadcrumb                =
     List("label.account_home" -> routes.HomeController.index.url)
+
+  private val emptyStringToNone: String => Option[String] = s =>
+    if (s.isEmpty) {
+      None
+    } else {
+      Some(s)
+    }
+
+  final protected def personalDetailsNameOrDefault(
+    optPersonDetails: Option[PersonDetails]
+  )(implicit request: UserRequest[AnyContent]): String = {
+    def defaultName = Messages("label.your_account")
+    (request.trustedHelper, optPersonDetails) match {
+      case (_, Some(pd)) => pd.person.shortName.flatMap(emptyStringToNone).getOrElse(defaultName)
+      case (Some(th), _) => th.principalName
+      case _             => defaultName
+
+    }
+  }
+
+  final protected def personalDetailsNameOrTrustedHelperName(
+    optPersonDetails: Option[PersonDetails]
+  )(implicit request: UserRequest[AnyContent]): Option[String] =
+    optPersonDetails match {
+      case pd @ Some(_) => pd.flatMap(_.person.shortName)
+      case _            => request.trustedHelper.map(_.principalName)
+    }
 
 }

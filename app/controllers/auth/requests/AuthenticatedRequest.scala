@@ -16,7 +16,7 @@
 
 package controllers.auth.requests
 
-import models.{UserAnswers, UserName}
+import models.UserAnswers
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
@@ -27,7 +27,6 @@ case class AuthenticatedRequest[A](
   authNino: Nino,
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
-  name: Option[UserName],
   trustedHelper: Option[TrustedHelper],
   profile: Option[String],
   enrolments: Set[Enrolment],

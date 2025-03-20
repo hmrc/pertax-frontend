@@ -17,7 +17,7 @@
 package controllers.auth
 
 import controllers.auth.requests.AuthenticatedRequest
-import models.{UserAnswers, UserName}
+import models.UserAnswers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
@@ -26,7 +26,6 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.JourneyCacheRepository
-import services.partials.MessageFrontendService
 import testUtils.RetrievalOps._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
@@ -35,7 +34,6 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.http.HeaderCarrier
-import util.EnrolmentsHelper
 
 import scala.concurrent.Future
 
@@ -46,14 +44,10 @@ class AuthRetrievalsSpec extends BaseSpec {
     .configure(Map("metrics.enabled" -> false))
     .build()
 
-  val mockAuthConnector: AuthConnector                = mock[AuthConnector]
-  lazy val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
-  val enrolmentsHelper: EnrolmentsHelper              = app.injector.instanceOf[EnrolmentsHelper]
+  private val mockAuthConnector: AuthConnector                   = mock[AuthConnector]
+  private val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
 
-  val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
-  val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
-
-  class Harness(authAction: AuthRetrievalsImpl) extends InjectedController {
+  private class Harness(authAction: AuthRetrievalsImpl) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.authNino.nino}, Enrolments: ${request.enrolments.toString}," +
@@ -62,24 +56,22 @@ class AuthRetrievalsSpec extends BaseSpec {
     }
   }
 
-  type AuthRetrievals =
+  private type AuthRetrievals =
     Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
-      Option[String] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~
+      Option[String] ~ ConfidenceLevel ~ Option[TrustedHelper] ~
       Option[String]
 
-  val nino: String                                               = Fixtures.fakeNino.nino
-  val fakeCredentials: Credentials                               = Credentials("foo", "bar")
-  val fakeCredentialStrength: String                             = CredentialStrength.strong
-  val fakeConfidenceLevel: ConfidenceLevel                       = ConfidenceLevel.L200
-  val enrolmentHelper: EnrolmentsHelper                          = inject[EnrolmentsHelper]
-  def messagesControllerComponents: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  private val nino: String                                               = Fixtures.fakeNino.nino
+  private val fakeCredentials: Credentials                               = Credentials("foo", "bar")
+  private def messagesControllerComponents: MessagesControllerComponents =
+    app.injector.instanceOf[MessagesControllerComponents]
 
-  def fakeEnrolments(utr: String): Set[Enrolment] = Set(
+  private def fakeEnrolments(utr: String): Set[Enrolment] = Set(
     Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
     Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino)), "None", None)
   )
 
-  def retrievals(
+  private def retrievals(
     nino: Option[String] = Some(nino.toString),
     affinityGroup: Option[AffinityGroup] = Some(Individual),
     saEnrolments: Enrolments = Enrolments(
@@ -94,7 +86,7 @@ class AuthRetrievalsSpec extends BaseSpec {
     when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
       nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(
         credentialStrength
-      ) ~ confidenceLevel ~ None ~ trustedHelper ~ profileUrl
+      ) ~ confidenceLevel ~ trustedHelper ~ profileUrl
     )
 
     when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty("id")))
@@ -108,9 +100,6 @@ class AuthRetrievalsSpec extends BaseSpec {
 
     new Harness(authAction)
   }
-
-  val ivRedirectUrl =
-    "http://localhost:9948/iv-stub/uplift?origin=PERTAX&confidenceLevel=200&completionURL=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account"
 
   "A user with a nino and an SA enrolment must" must {
     "create an authenticated request" in {

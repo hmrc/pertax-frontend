@@ -18,15 +18,12 @@ package views.html
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.{Nino, SaUtrGenerator}
 import viewmodels.HomeViewModel
 import views.html.cards.home.PayAsYouEarnView
@@ -47,7 +44,7 @@ class HomeViewSpec extends ViewSpec {
 
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(userName = None, request = FakeRequest())
+        buildUserRequest(request = FakeRequest())
 
       lazy val document: Document =
         asDocument(home(homeViewModel.copy(name = Some("Firstname Lastname")), shutteringMessaging = false).toString)
@@ -58,7 +55,6 @@ class HomeViewSpec extends ViewSpec {
 
     "show the users name and not 'Your account' when the user has no details but is a GG user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        userName = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         request = FakeRequest()
       )
 
@@ -71,7 +67,7 @@ class HomeViewSpec extends ViewSpec {
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(userName = None, request = FakeRequest())
+        buildUserRequest(request = FakeRequest())
 
       lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
 

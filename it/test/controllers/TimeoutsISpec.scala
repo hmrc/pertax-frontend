@@ -22,9 +22,9 @@ import models.dto.AddressPageVisitedDto
 import models.{Person, PersonDetails, UserAnswers}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.mockito.{ArgumentMatchers, Mockito}
-import org.mockito.ArgumentMatchers.any
 import play.api
 import play.api.Application
 import play.api.http.Status.OK
@@ -32,7 +32,7 @@ import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import repositories.JourneyCacheRepository
 import routePages.HasAddressAlreadyVisitedPage
 import testUtils.{FileHelper, IntegrationSpec}
@@ -216,13 +216,13 @@ class TimeoutsISpec extends IntegrationSpec {
       server.verify(1, getRequestedFor(urlEqualTo(taxCalcUrl)))
     }
 
-    "show no person name for citizen details when citizen details connector times out" in {
+    "show default name content for citizen details when citizen details connector times out" in {
       val result            = getHomePageWithAllTimeouts
+      httpStatus(result) mustBe OK
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
         "This section is Account home"
-
-      content.getElementsByClass("govuk-heading-xl").get(0).text().isEmpty mustBe true
+      content.getElementsByClass("govuk-heading-xl").get(0).text() mustBe Messages("label.your_account")
       server.verify(1, getRequestedFor(urlEqualTo(citizenDetailsUrl)))
     }
 
