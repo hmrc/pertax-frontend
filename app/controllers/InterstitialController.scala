@@ -208,12 +208,10 @@ class InterstitialController @Inject() (
 
   def displayTaxCreditsInterstitial: Action[AnyContent] = authenticate { implicit request =>
     configDecorator.featureBannerTcsServiceClosure match {
-      case BannerTcsServiceClosure.Enabled
-          if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 =>
-        Ok(taxCreditsAddressInterstitialView())
-      case BannerTcsServiceClosure.Enabled =>
+      case BannerTcsServiceClosure.Enabled if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) > 0 =>
         Redirect(controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
-      case _                               => errorRenderer.error(UNAUTHORIZED)
+      case _                                                                                                          =>
+        Ok(taxCreditsAddressInterstitialView())
     }
   }
 

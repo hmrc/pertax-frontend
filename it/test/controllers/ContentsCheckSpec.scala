@@ -17,7 +17,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo, urlMatching}
 import models.admin.BreathingSpaceIndicatorToggle
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -222,7 +222,6 @@ class ContentsCheckSpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.bannerTcsServiceClosure"                                      -> "enabled",
       "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 4000,
       "microservice.services.taxcalc-frontend.port"                          -> server.port(),
       "microservice.services.tai.port"                                       -> server.port(),
