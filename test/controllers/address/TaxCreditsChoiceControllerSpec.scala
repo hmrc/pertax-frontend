@@ -92,7 +92,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
   "onPageLoad" when {
     "Tax-credit-broker call is used" must {
       "redirect to `do-you-live-in-the-uk` if the date is after TCS has been decommissioned" in {
-        val app: Application =
+        val app: Application                       =
           localGuiceApplicationBuilder(extraConfigValues =
             Map(
               "feature.bannerTcsServiceClosure"       -> "enabled",
@@ -100,9 +100,12 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
             )
           ).overrides(
             bind[AuthJourney].toInstance(mockAuthJourney),
-            bind[CitizenDetailsService].toInstance(mockCitizenDetailsService)
+            bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+            bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper)
           ).build()
-
+        when(mockAddressJourneyCachingHelper.addToCache(any(), any())(any(), any())) thenReturn {
+          Future.successful(UserAnswers.empty("id"))
+        }
         when(mockAuthJourney.authWithPersonalDetails)
           .thenReturn(new ActionBuilderFixture {
             override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -116,6 +119,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
         redirectLocation(result) mustBe Some(
           controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url
         )
+        verify(mockAddressJourneyCachingHelper, times(1)).addToCache(any(), any())(any(), any())
       }
 
       "redirect to `do-you-live-in-the-uk` if the user does not receives tax credits" in {

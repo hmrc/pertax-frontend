@@ -94,7 +94,9 @@ class TaxCreditsChoiceController @Inject() (
       configDecorator.featureBannerTcsServiceClosure match {
         case BannerTcsServiceClosure.Enabled
             if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) > 0 =>
-          Future.successful(Redirect(controllers.address.routes.DoYouLiveInTheUKController.onPageLoad))
+          cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(false)).map { _ =>
+            Redirect(controllers.address.routes.DoYouLiveInTheUKController.onPageLoad)
+          }
         case _ => taxCreditsChecks
       }
     }
