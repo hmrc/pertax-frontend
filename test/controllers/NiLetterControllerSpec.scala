@@ -57,7 +57,7 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
       lazy val r = controller.saveNationalInsuranceNumberAsPdf()(FakeRequest())
 
       status(r) mustBe MOVED_PERMANENTLY
-      redirectLocation(r) mustBe Some("http://localhost:9019/save-your-national-insurance-number")
+      redirectLocation(r) mustBe Some("http://localhost:14006/save-your-national-insurance-number")
     }
   }
 
@@ -75,7 +75,7 @@ class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
       lazy val r = controller.printNationalInsuranceNumber()(FakeRequest())
 
       status(r) mustBe MOVED_PERMANENTLY
-      redirectLocation(r) mustBe Some("http://localhost:9019/save-your-national-insurance-number")
+      redirectLocation(r) mustBe Some("http://localhost:14006/save-your-national-insurance-number")
     }
 
   }
