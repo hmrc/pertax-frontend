@@ -217,6 +217,7 @@ class testSpec extends A11ySpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
+      "feature.bannerTcsServiceClosure"                                      -> "enabled",
       "microservice.services.auth.port"                                      -> server.port(),
       "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 4000,
       "microservice.services.taxcalc-frontend.port"                          -> server.port(),
