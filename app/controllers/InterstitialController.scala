@@ -26,8 +26,8 @@ import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
-import services.{CitizenDetailsService, SeissService}
 import services.partials.{FormPartialService, SaPartialService}
+import services.{CitizenDetailsService, SeissService}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
@@ -206,9 +206,15 @@ class InterstitialController @Inject() (
     }
   }
 
-// TODO: 9736 - THIS IS THE CHANGE OF ADDRESS PAGE
   def displayTaxCreditsInterstitial: Action[AnyContent] = authenticate { implicit request =>
-    Ok(taxCreditsAddressInterstitialView())
+    configDecorator.featureBannerTcsServiceClosure match {
+      case BannerTcsServiceClosure.Enabled
+          if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 =>
+        Ok(taxCreditsAddressInterstitialView())
+      case BannerTcsServiceClosure.Enabled =>
+        Redirect(controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
+      case _                               => errorRenderer.error(UNAUTHORIZED)
+    }
   }
 
   def displayShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>

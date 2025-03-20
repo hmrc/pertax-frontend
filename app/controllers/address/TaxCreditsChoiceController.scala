@@ -57,7 +57,6 @@ class TaxCreditsChoiceController @Inject() (
       internalServerErrorView
     )
     with Logging {
-  // TODO: 9736 - THIS IS THE DO YOU GET TAX CREDITS? PAGE
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { nino => _ =>
       def taxCreditsChecks: Future[Result] =
@@ -80,7 +79,6 @@ class TaxCreditsChoiceController @Inject() (
                         //Redirect(routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType))
                       } else {
                         cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(true))
-                        // TODO: 9736 - GOING TO THE CHANGE OF ADDRESS PAGE:-
                         Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
                       }
                     }
@@ -95,14 +93,10 @@ class TaxCreditsChoiceController @Inject() (
 
       configDecorator.featureBannerTcsServiceClosure match {
         case BannerTcsServiceClosure.Enabled
-            if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 =>
-          taxCreditsChecks
-        case BannerTcsServiceClosure.Enabled =>
+            if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) > 0 =>
           Future.successful(Redirect(controllers.address.routes.DoYouLiveInTheUKController.onPageLoad))
-        case _                               =>
-          taxCreditsChecks
+        case _ => taxCreditsChecks
       }
-
     }
   }
 
@@ -128,7 +122,6 @@ class TaxCreditsChoiceController @Inject() (
                       case _    =>
                         logger.error(s"Could not insert address lock for user $request.nino.get.withoutSuffix")
                     }
-                  // TODO: 9736 - GOING TO THE CHANGE OF ADDRESS PAGE:-
                   Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
                 } else {
                   Redirect(routes.DoYouLiveInTheUKController.onPageLoad)

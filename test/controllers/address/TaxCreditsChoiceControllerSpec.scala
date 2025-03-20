@@ -98,21 +98,11 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
               "feature.bannerTcsServiceClosure"       -> "enabled",
               "external-url.tcs-frontend.endDateTime" -> "2025-03-01T11:00:00.000000+01:00"
             )
-          )
-            .overrides(
-              bind[AuthJourney].toInstance(mockAuthJourney),
-              bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper),
-              bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
-              bind[TaxCreditsService].toInstance(mockTaxCreditsService),
-              bind[InterstitialController].toInstance(mockInterstitialController),
-              bind[CitizenDetailsService].toInstance(mockCitizenDetailsService)
-            )
-            .build()
+          ).overrides(
+            bind[AuthJourney].toInstance(mockAuthJourney),
+            bind[CitizenDetailsService].toInstance(mockCitizenDetailsService)
+          ).build()
 
-        when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
-          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-        when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-          .thenReturn(Future.successful(Ok("Fake Page")))
         when(mockAuthJourney.authWithPersonalDetails)
           .thenReturn(new ActionBuilderFixture {
             override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

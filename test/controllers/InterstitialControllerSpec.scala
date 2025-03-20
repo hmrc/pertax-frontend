@@ -392,7 +392,13 @@ class InterstitialControllerSpec extends BaseSpec {
   }
 
   "Calling displayTaxCreditsInterstitial" must {
-    "return OK when NpsShutteringToggle is true" in {
+    "return OK when NpsShutteringToggle is true and TCS has not been decommissioned yet" in {
+      val app                                     = appn(extraConfigValues =
+        Map(
+          "feature.bannerTcsServiceClosure"       -> "enabled",
+          "external-url.tcs-frontend.endDateTime" -> "2025-04-06T11:00:00.000000+01:00"
+        )
+      )
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
@@ -412,6 +418,27 @@ class InterstitialControllerSpec extends BaseSpec {
       html
         .getElementById("proceed")
         .attr("href") mustBe "http://localhost:9362/tax-credits-service/personal/change-address"
+    }
+
+    "return REDIRECT after TCS has been decommissioned" in {
+      val app = appn(extraConfigValues =
+        Map(
+          "feature.bannerTcsServiceClosure"       -> "enabled",
+          "external-url.tcs-frontend.endDateTime" -> "2025-03-01T11:00:00.000000+01:00"
+        )
+      )
+
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+
+      setupAuth(
+        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
+      )
+
+      val result = controller.displayTaxCreditsInterstitial()(fakeRequest)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(
+        controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView.url
+      )
     }
   }
 
