@@ -89,6 +89,7 @@ GET         /personal-account/preferences                                       
 GET         /personal-account/self-assessment-who-needs-to-register                    controllers.InterstitialController.displaySaRegistrationPage
 
 GET         /personal-account/tax-credits-are-ending                                   controllers.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView
+GET         /personal-account/tax-credits-have-ended                                   controllers.InterstitialController.displayTaxCreditsEndedInformationInterstitialView
 
 GET         /personal-account/services-unavailable                                     controllers.InterstitialController.displayShutteringPage
 

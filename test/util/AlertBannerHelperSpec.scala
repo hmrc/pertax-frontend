@@ -19,8 +19,9 @@ package util
 import cats.data.EitherT
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import models.{PaperlessMessagesStatus, PaperlessStatusBounced, PaperlessStatusNewCustomer, PaperlessStatusNoEmail, PaperlessStatusOptIn, PaperlessStatusOptOut, PaperlessStatusReopt, PaperlessStatusReoptModified, PaperlessStatusUnverified}
+import controllers.routes
 import models.admin.AlertBannerPaperlessStatusToggle
+import models.{PaperlessMessagesStatus, PaperlessStatusBounced, PaperlessStatusNewCustomer, PaperlessStatusNoEmail, PaperlessStatusOptIn, PaperlessStatusOptOut, PaperlessStatusReopt, PaperlessStatusReoptModified, PaperlessStatusUnverified}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.concurrent.IntegrationPatience
@@ -34,6 +35,8 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.components.alertBanner.paperlessStatus._
 
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.Future
 
 class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
@@ -50,17 +53,23 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       .thenReturn(Future.successful(FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = true)))
   }
 
-  override lazy val app: Application = localGuiceApplicationBuilder()
+  private val extraConfigValues: Map[String, Any] = Map(
+    "external-url.tcs-frontend.endDateTime" -> LocalDateTime.now.plusMinutes(1).toString,
+    "feature.bannerTcsServiceClosure"       -> "dont-check"
+  )
+
+  override lazy val app: Application = localGuiceApplicationBuilder(extraConfigValues)
     .overrides(
       bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
     )
     .build()
 
-  override lazy val messagesApi: MessagesApi    = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages          = MessagesImpl(Lang("en"), messagesApi)
-  lazy val alertBannerHelper: AlertBannerHelper = app.injector.instanceOf[AlertBannerHelper]
-  lazy val bouncedEmailView: bouncedEmail       = app.injector.instanceOf[bouncedEmail]
-  lazy val unverifiedEmailView: unverifiedEmail = app.injector.instanceOf[unverifiedEmail]
+  override lazy val messagesApi: MessagesApi            = app.injector.instanceOf[MessagesApi]
+  implicit lazy val messages: Messages                  = MessagesImpl(Lang("en"), messagesApi)
+  lazy val alertBannerHelper: AlertBannerHelper         = app.injector.instanceOf[AlertBannerHelper]
+  lazy val bouncedEmailView: bouncedEmail               = app.injector.instanceOf[bouncedEmail]
+  lazy val unverifiedEmailView: unverifiedEmail         = app.injector.instanceOf[unverifiedEmail]
+  lazy val taxCreditsEndBannerView: taxCreditsEndBanner = app.injector.instanceOf[taxCreditsEndBanner]
 
   "AlertBannerHelper.getContent" must {
     "return bounce email content " in {
@@ -83,6 +92,61 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       val result = alertBannerHelper.getContent.futureValue
 
       result mustBe List(unverifiedEmailView(link))
+    }
+
+    "return tcs status banner when switched on BEFORE TCS switch off date/time" in {
+      val extraConfigValues: Map[String, Any]  = Map(
+        "external-url.tcs-frontend.endDateTime" -> ZonedDateTime.now
+          .plusMinutes(1)
+          .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+        "feature.bannerTcsServiceClosure"       -> "enabled"
+      )
+      val app: Application                     = localGuiceApplicationBuilder(extraConfigValues)
+        .overrides(
+          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
+        )
+        .build()
+      val alertBannerHelper: AlertBannerHelper = app.injector.instanceOf[AlertBannerHelper]
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle)))
+        .thenReturn(Future.successful(FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = false)))
+      val link                                 = "/link"
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusUnverified(link): PaperlessMessagesStatus)
+      )
+
+      val result = alertBannerHelper.getContent.futureValue
+
+      result mustBe List(
+        taxCreditsEndBannerView(
+          findOutTaxCreditsLink =
+            routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
+        )
+      )
+    }
+
+    "return NO tcs status banner when switched on AFTER TCS switch off date/time" in {
+      val extraConfigValues: Map[String, Any]  = Map(
+        "external-url.tcs-frontend.endDateTime" -> ZonedDateTime.now
+          .minusMinutes(1)
+          .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+        "feature.bannerTcsServiceClosure"       -> "enabled"
+      )
+      val app: Application                     = localGuiceApplicationBuilder(extraConfigValues)
+        .overrides(
+          bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
+        )
+        .build()
+      val alertBannerHelper: AlertBannerHelper = app.injector.instanceOf[AlertBannerHelper]
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle)))
+        .thenReturn(Future.successful(FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = false)))
+      val link                                 = "/link"
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusUnverified(link): PaperlessMessagesStatus)
+      )
+
+      val result = alertBannerHelper.getContent.futureValue
+
+      result mustBe List()
     }
   }
 

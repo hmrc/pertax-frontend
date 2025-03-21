@@ -26,8 +26,8 @@ import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
-import services.{CitizenDetailsService, SeissService}
 import services.partials.{FormPartialService, SaPartialService}
+import services.{CitizenDetailsService, SeissService}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
@@ -36,6 +36,7 @@ import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 import views.html.{SelfAssessmentSummaryView, ShutteringView}
 
+import java.time.ZonedDateTime
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
@@ -55,6 +56,7 @@ class InterstitialController @Inject() (
   shutteringView: ShutteringView,
   taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
   taxCreditsTransitionInformationInterstitialView: TaxCreditsTransitionInformationInterstitialView,
+  taxCreditsEndedInformationInterstitialView: TaxCreditsEndedInformationInterstitialView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService,
   newsAndTilesConfig: NewsAndTilesConfig,
@@ -205,7 +207,12 @@ class InterstitialController @Inject() (
   }
 
   def displayTaxCreditsInterstitial: Action[AnyContent] = authenticate { implicit request =>
-    Ok(taxCreditsAddressInterstitialView())
+    configDecorator.featureBannerTcsServiceClosure match {
+      case BannerTcsServiceClosure.Enabled if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) > 0 =>
+        Redirect(controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
+      case _                                                                                                          =>
+        Ok(taxCreditsAddressInterstitialView())
+    }
   }
 
   def displayShutteringPage: Action[AnyContent] = authenticate.async { implicit request =>
@@ -218,9 +225,21 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displayTaxCreditsTransitionInformationInterstitialView: Action[AnyContent] = authenticate { implicit request =>
+  def displayTaxCreditsTransitionInformationInterstitialView: Action[AnyContent] = Action {
+    implicit request: MessagesRequest[AnyContent] =>
+      configDecorator.featureBannerTcsServiceClosure match {
+        case BannerTcsServiceClosure.Enabled
+            if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 =>
+          Ok(taxCreditsTransitionInformationInterstitialView())
+        case BannerTcsServiceClosure.Enabled =>
+          Redirect(controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
+        case _                               => errorRenderer.error(UNAUTHORIZED)
+
+      }
+  }
+  def displayTaxCreditsEndedInformationInterstitialView: Action[AnyContent]      = Action { implicit request =>
     if (configDecorator.featureBannerTcsServiceClosure == BannerTcsServiceClosure.Enabled) {
-      Ok(taxCreditsTransitionInformationInterstitialView())
+      Ok(taxCreditsEndedInformationInterstitialView())
     } else {
       errorRenderer.error(UNAUTHORIZED)
     }

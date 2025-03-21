@@ -505,7 +505,9 @@ label.you_can_still_make_payments_towards_your_debt_during_breathing_space=You c
 #
 title.benefits=Benefits
 label.tax_credits=Tax credits
+label.tax_credits_ended=Tax credits ended 5 April 2025
 label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=View your next payments and the people on your claim, and make changes to your claim.
+label.tax_credits_ended_content = Universal Credits and Pension Credit have replaced tax credits.
 label.view_your_tax_credits_payments=View your tax credits payments
 title.marriage_allowance=Marriage Allowance
 label.transfer_part_of_your_personal_allowance_to_your_partner_=Transfer part of your Personal Allowance to your partner so they pay less tax.
@@ -766,6 +768,7 @@ selfAssessment.needToSendReturn.prefix = If you need to send a tax return, you w
 selfAssessment.needToSendReturn.linkText = register for Self Assessment
 taxCredits.endAlert.prefix = Tax credits end on 5 April 2025.
 taxCredits.endAlert.linkText = Find out what to do if you claim tax credits.
+
 tax_credits.transition.information.title = What to do if you claim tax credits
 tax_credits.transition.information.end_date = All tax credits end on 5 April 2025.
 tax_credits.transition.information.letter_info = You will be sent a letter by the Department of Work and Pensions (DWP) telling you if you can claim Universal Credit or Pension Credit instead.
@@ -796,3 +799,16 @@ changeAddress.li1 = Child Benefit
 changeAddress.li2 = Income Tax
 changeAddress.li3 = National Insurance
 changeAddress.li4 = State Pension
+
+tax_credits.ended.information.title = Sorry, this service is unavailable
+tax_credits.ended.information.p1 = Universal Credit and Pensions Credit have replaced tax credits.
+tax_credits.ended.information.p2 = Find out more, including how to claim:
+tax_credits.ended.information.how.apply.li1 = Universal Credit
+tax_credits.ended.information.how.apply.li2 = Pension Credit
+tax_credits.ended.information.h2 = Help with previous tax credits claims
+tax_credits.ended.information.p3 = For help with tax credits claims made before 5 April 2025:
+tax_credits.ended.information.how.continue.li1 = view tax credits forms, notes, worksheets and checklists
+tax_credits.ended.information.how.continue.li2 = contact tax credits general enquiries
+
+
+

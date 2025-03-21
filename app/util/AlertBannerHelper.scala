@@ -30,6 +30,7 @@ import play.twirl.api.Html
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, taxCreditsEndBanner, unverifiedEmail}
 
+import java.time.ZonedDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class AlertBannerHelper @Inject() (
@@ -79,13 +80,17 @@ class AlertBannerHelper @Inject() (
   ): Future[Option[Html]] =
     configDecorator.featureBannerTcsServiceClosure match {
       case BannerTcsServiceClosure.Enabled =>
-        Future.successful(
-          Some(
-            taxCreditsEndBannerView(
-              routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
+        if (ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0) {
+          Future.successful(
+            Some(
+              taxCreditsEndBannerView(
+                routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
+              )
             )
           )
-        )
+        } else {
+          Future.successful(None)
+        }
       case _                               =>
         Future.successful(None)
     }

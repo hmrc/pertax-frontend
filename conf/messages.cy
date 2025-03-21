@@ -509,7 +509,9 @@ label.you_can_still_make_payments_towards_your_debt_during_breathing_space=Gallw
 #
 title.benefits=Budd-daliadau
 label.tax_credits=Credydau treth
+label.tax_credits_ended=Mae credydau treth wedi dod i ben ar 5 Ebrill 2025
 label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=Bwrw golwg ar eich taliadau nesaf a’r bobl ar eich cais, a gwneud newidiadau i’ch cais.
+label.tax_credits_ended_content = Mae Credyd Cynhwysol a Chredyd Pensiwn wedi disodli credydau treth.
 label.view_your_tax_credits_payments=Bwrw golwg ar eich taliadau credydau treth
 
 title.marriage_allowance=Lwfans Priodasol
@@ -802,3 +804,13 @@ changeAddress.li1 = Budd-dal Plant
 changeAddress.li2 = Treth Incwm
 changeAddress.li3 = Yswiriant Gwladol
 changeAddress.li4 = Pensiwn y Wladwriaeth
+
+tax_credits.ended.information.title = Mae’n ddrwg gennym, nid yw’r gwasanaeth hwn ar gael
+tax_credits.ended.information.p1 = Mae Credyd Cynhwysol a Chredyd Pensiwn wedi disodli credydau treth.
+tax_credits.ended.information.p2 = Darganfod rhagor o wybodaeth, gan gynnwys sut i hawlio:
+tax_credits.ended.information.how.apply.li1 = Credyd Cynhwysol
+tax_credits.ended.information.how.apply.li2 = Credyd Pensiwn
+tax_credits.ended.information.h2 = Help gyda hawliadau credydau treth blaenorol
+tax_credits.ended.information.p3 = I gael help gyda hawliadau credydau treth a wnaed cyn 5 Ebrill 2025:
+tax_credits.ended.information.how.continue.li1 = bwrw golwg dros ffurflenni credydau treth, taflenni gwaith a rhestrau gwirio
+tax_credits.ended.information.how.continue.li2 = cysylltu â Gwasanaeth Cwsmeriaid Cymraeg CThEF ynghylch credydau treth

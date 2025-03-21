@@ -91,6 +91,37 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
 
   "onPageLoad" when {
     "Tax-credit-broker call is used" must {
+      "redirect to `do-you-live-in-the-uk` if the date is after TCS has been decommissioned" in {
+        val app: Application                       =
+          localGuiceApplicationBuilder(extraConfigValues =
+            Map(
+              "feature.bannerTcsServiceClosure"       -> "enabled",
+              "external-url.tcs-frontend.endDateTime" -> "2025-03-01T11:00:00.000000+01:00"
+            )
+          ).overrides(
+            bind[AuthJourney].toInstance(mockAuthJourney),
+            bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+            bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper)
+          ).build()
+        when(mockAddressJourneyCachingHelper.addToCache(any(), any())(any(), any())) thenReturn {
+          Future.successful(UserAnswers.empty("id"))
+        }
+        when(mockAuthJourney.authWithPersonalDetails)
+          .thenReturn(new ActionBuilderFixture {
+            override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+              block(buildUserRequest(request = currentRequest[A], saUser = saUserType))
+          })
+        val controller: TaxCreditsChoiceController = app.injector.instanceOf[TaxCreditsChoiceController]
+        val result                                 = controller.onPageLoad(currentRequest)
+
+        status(result) mustBe SEE_OTHER
+
+        redirectLocation(result) mustBe Some(
+          controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url
+        )
+        verify(mockAddressJourneyCachingHelper, times(1)).addToCache(any(), any())(any(), any())
+      }
+
       "redirect to `do-you-live-in-the-uk` if the user does not receives tax credits" in {
         def saUserType: SelfAssessmentUserType = NotEnrolledSelfAssessmentUser(Fixtures.saUtr)
 

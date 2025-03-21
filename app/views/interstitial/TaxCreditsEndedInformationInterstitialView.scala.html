@@ -1,0 +1,57 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.components.{H1, H2, Link, P}
+@import views.MainView
+
+@this(
+        mainView: MainView,
+        h1: H1,
+        h2: H2,
+        p: P,
+        link: Link)
+
+@()(implicit request: WrappedRequest[_], messages: play.api.i18n.Messages)
+
+@mainView(
+    pageTitle = messages("tax_credits.ended.information.title"),
+    showBackLink = true
+) {
+    @h1(messages("tax_credits.ended.information.title"))
+    @p(Text(messages("tax_credits.ended.information.p1")))
+    @p(Text(messages("tax_credits.ended.information.p2")))
+    
+    <ul class="govuk-list govuk-list--bullet">
+        <li>
+        @link("https://www.gov.uk/universal-credit", messages("tax_credits.ended.information.how.apply.li1"), inParagraph = true)
+        </li>
+        <li>
+        @link("https://www.gov.uk/pension-credit", messages("tax_credits.ended.information.how.apply.li2"), inParagraph = true)
+        </li>
+    </ul>
+
+    @h2(messages("tax_credits.ended.information.h2"), classes = Some("govuk-heading-s"))
+    @p(Text(messages("tax_credits.ended.information.p3")))
+    
+    <ul class="govuk-list govuk-list--bullet">
+        <li>
+        @link("https://www.gov.uk/government/collections/tax-credits-forms-notes-worksheets-and-checklists", messages("tax_credits.ended.information.how.continue.li1"), inParagraph = true)
+        </li>
+        <li>
+        @link("https://www.gov.uk/government/organisations/hm-revenue-customs/contact/tax-credits-enquiries", messages("tax_credits.ended.information.how.continue.li2"), inParagraph = true)
+        </li>
+    </ul>
+}

@@ -16,7 +16,7 @@
 
 package controllers.controllershelpers
 
-import config.{ConfigDecorator, NewsAndTilesConfig}
+import config.{BannerTcsServiceClosure, ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.routes
 import models._
@@ -41,7 +41,7 @@ import util.EnrolmentsHelper
 import views.html.ViewSpec
 import views.html.cards.home._
 
-import java.time.LocalDate
+import java.time.{LocalDate, ZonedDateTime}
 import scala.concurrent.Future
 import scala.util.Random
 
@@ -72,7 +72,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   private val mockTaxCalcPartialService = mock[TaxCalcPartialService]
 
-  private val homeCardGenerator =
+  private def createHomeCardGenerator(configDecorator: ConfigDecorator): HomeCardGenerator =
     new HomeCardGenerator(
       mockFeatureFlagService,
       payAsYouEarn,
@@ -88,25 +88,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       nispView,
       selfAssessmentRegistrationView,
       mockTaxCalcPartialService
-    )(stubConfigDecorator, ec)
+    )(configDecorator, ec)
 
-  def sut: HomeCardGenerator =
-    new HomeCardGenerator(
-      mockFeatureFlagService,
-      payAsYouEarn,
-      taxCredits,
-      childBenefitSingleAccount,
-      marriageAllowance,
-      taxSummaries,
-      latestNewsAndUpdatesView,
-      itsaMergeView,
-      saMergeView,
-      enrolmentsHelper,
-      newsAndTilesConfig,
-      nispView,
-      selfAssessmentRegistrationView,
-      mockTaxCalcPartialService
-    )(stubConfigDecorator, ec)
+  private val homeCardGenerator = createHomeCardGenerator(stubConfigDecorator)
 
   "Calling getPayAsYouEarnCard" must {
     "return correct markup when called with with a Pertax user that is PAYE" in {
@@ -165,11 +149,41 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "Calling getTaxCreditsCard" must {
-    "always return the same markup when taxCreditsPaymentLinkEnabled is enabled" in {
+    "return correct markup when taxCreditsPaymentLinkEnabled is enabled and current date time is before service closure" in {
+      val mockConfigDecorator = mock[ConfigDecorator]
+      when(mockConfigDecorator.featureBannerTcsServiceClosure).thenReturn(BannerTcsServiceClosure.Enabled)
+      when(mockConfigDecorator.tcsFrontendEndDateTime).thenReturn(ZonedDateTime.now.plusMinutes(1))
+      val homeCardGenerator   = createHomeCardGenerator(mockConfigDecorator)
 
       lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
 
-      cardBody mustBe taxCredits()
+      val expTaxCredits = new TaxCreditsView()()(implicitly, mockConfigDecorator)
+      cardBody mustBe expTaxCredits
+      val renderedHtml  = cardBody.toString
+
+      renderedHtml.contains(
+        messages("label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim")
+      ) mustBe true
+      renderedHtml.contains(
+        routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
+      ) mustBe true
+    }
+
+    "return correct markup when taxCreditsPaymentLinkEnabled is enabled and current date time is after service closure" in {
+      val mockConfigDecorator = mock[ConfigDecorator]
+      when(mockConfigDecorator.featureBannerTcsServiceClosure).thenReturn(BannerTcsServiceClosure.Enabled)
+      when(mockConfigDecorator.tcsFrontendEndDateTime).thenReturn(ZonedDateTime.now.minusMinutes(1))
+      val homeCardGenerator   = createHomeCardGenerator(mockConfigDecorator)
+
+      lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
+
+      val expTaxCredits = new TaxCreditsView()()(implicitly, mockConfigDecorator)
+      cardBody mustBe expTaxCredits
+      val renderedHtml  = cardBody.toString
+      renderedHtml.contains(messages("label.tax_credits_ended_content")) mustBe true
+      renderedHtml.contains(
+        routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView.url
+      ) mustBe true
     }
 
     "always return the same markup when taxCreditsPaymentLinkEnabled is disabled" in {
@@ -287,7 +301,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(request = FakeRequest())
 
-        lazy val cardBody = sut.getAnnualTaxSummaryCard.futureValue
+        lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.futureValue
 
         cardBody mustBe None
       }
@@ -356,7 +370,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return PTA Card with link to display self assessment when active user is an SA user but without ITSA enrolments" in {
 
-      lazy val cardBody = sut.getSelfAssessmentCard()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard()
 
       cardBody mustBe Some(
         saMergeView(
@@ -375,7 +389,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = sut.getSelfAssessmentCard()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard()
 
       cardBody mustBe Some(
         saMergeView(
@@ -393,7 +407,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = sut.getSelfAssessmentCard()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard()
 
       cardBody mustBe Some(
         saMergeView(
@@ -411,7 +425,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = sut.getSelfAssessmentCard()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard()
 
       cardBody mustBe None
     }
@@ -501,7 +515,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return nothing when toggled off" in {
 
-      sut.getLatestNewsAndUpdatesCard() mustBe None
+      homeCardGenerator.getLatestNewsAndUpdatesCard() mustBe None
     }
   }
 

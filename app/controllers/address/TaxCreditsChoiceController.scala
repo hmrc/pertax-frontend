@@ -17,7 +17,7 @@
 package controllers.address
 
 import com.google.inject.Inject
-import config.ConfigDecorator
+import config.{BannerTcsServiceClosure, ConfigDecorator}
 import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
@@ -25,14 +25,15 @@ import error.ErrorRenderer
 import models.admin.AddressTaxCreditsBrokerCallToggle
 import models.dto.TaxCreditsChoiceDto
 import play.api.Logging
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
 import routePages.TaxCreditsChoicePage
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.{CitizenDetailsService, TaxCreditsService}
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.personaldetails.TaxCreditsChoiceView
 
+import java.time.ZonedDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class TaxCreditsChoiceController @Inject() (
@@ -56,39 +57,48 @@ class TaxCreditsChoiceController @Inject() (
       internalServerErrorView
     )
     with Logging {
-
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { nino => _ =>
-      featureFlagService
-        .get(AddressTaxCreditsBrokerCallToggle)
-        .flatMap { toggle =>
-          if (toggle.isEnabled) {
-            taxCreditsService
-              .isAddressChangeInPTA(nino)
-              .fold(
-                _ => Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form)),
-                maybeChangeInPTA =>
-                  maybeChangeInPTA.fold {
-                    Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form))
-                  } { isAddressChangeInPTA =>
-                    if (isAddressChangeInPTA) {
-                      cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(false))
-                      Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
-                      // TODO: If start change of address page experiment is successful replace above line with below
-                      //Redirect(routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType))
-                    } else {
-                      cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(true))
-                      Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
+      def taxCreditsChecks: Future[Result] =
+        featureFlagService
+          .get(AddressTaxCreditsBrokerCallToggle)
+          .flatMap { toggle =>
+            if (toggle.isEnabled) {
+              taxCreditsService
+                .isAddressChangeInPTA(nino)
+                .fold(
+                  _ => Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form)),
+                  maybeChangeInPTA =>
+                    maybeChangeInPTA.fold {
+                      Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form))
+                    } { isAddressChangeInPTA =>
+                      if (isAddressChangeInPTA) {
+                        cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(false))
+                        Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
+                        // TODO: If start change of address page experiment is successful replace above line with below
+                        //Redirect(routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType))
+                      } else {
+                        cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(true))
+                        Redirect(controllers.routes.InterstitialController.displayTaxCreditsInterstitial)
+                      }
                     }
-                  }
+                )
+            } else {
+              Future.successful(
+                Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form))
               )
-          } else {
-            Future.successful(
-              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form))
-            )
+            }
           }
-        }
-        .flatMap(cachingHelper.enforceDisplayAddressPageVisited)
+          .flatMap(cachingHelper.enforceDisplayAddressPageVisited)
+
+      configDecorator.featureBannerTcsServiceClosure match {
+        case BannerTcsServiceClosure.Enabled
+            if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) > 0 =>
+          cachingHelper.addToCache(TaxCreditsChoicePage, TaxCreditsChoiceDto(false)).map { _ =>
+            Redirect(controllers.address.routes.DoYouLiveInTheUKController.onPageLoad)
+          }
+        case _ => taxCreditsChecks
+      }
     }
   }
 
