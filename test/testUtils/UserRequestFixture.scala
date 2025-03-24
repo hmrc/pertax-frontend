@@ -19,16 +19,16 @@ package testUtils
 import controllers.auth.requests.UserRequest
 import models._
 import play.api.mvc.Request
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 
 object UserRequestFixture {
 
+  // scalastyle:off parameter.number
   def buildUserRequest[A](
     authNino: Nino = Fixtures.fakeNino,
-    userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
     credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
@@ -42,7 +42,6 @@ object UserRequestFixture {
   ): UserRequest[A] =
     UserRequest(
       authNino,
-      userName,
       saUser,
       credentials,
       confidenceLevel,

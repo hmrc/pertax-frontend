@@ -20,7 +20,7 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.admin.RlsInterruptToggle
-import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers, UserName}
+import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
@@ -33,7 +33,7 @@ import services.CitizenDetailsService
 import testUtils.Fixtures.{buildFakeAddress, buildFakeCorrespondenceAddress}
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
@@ -63,7 +63,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
   implicit val userRequest: UserRequest[AnyContent] = UserRequest(
     Fixtures.fakeNino,
-    Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     NonFilerSelfAssessmentUser,
     Credentials("", "GovernmentGateway"),
     ConfidenceLevel.L200,
@@ -116,7 +115,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
@@ -150,7 +148,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
@@ -184,7 +181,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
@@ -218,7 +214,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
@@ -252,7 +247,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
@@ -286,7 +280,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
@@ -320,7 +313,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
@@ -354,7 +346,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
@@ -381,7 +372,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Fixtures.fakeNino,
-          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,

@@ -23,8 +23,10 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{AddressJourneyCachingHelper, RlsInterruptHelper}
 import error.ErrorRenderer
 import models.admin.AddressChangeAllowedToggle
+import models.dto.AddressPageVisitedDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
+import routePages.HasAddressAlreadyVisitedPage
 import services.{AgentClientAuthorisationService, CitizenDetailsService}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -32,8 +34,6 @@ import util.AuditServiceTools.buildPersonDetailsEvent
 import viewmodels.PersonalDetailsViewModel
 import views.html.InternalServerErrorView
 import views.html.personaldetails.PersonalDetailsView
-import models.dto.AddressPageVisitedDto
-import routePages.HasAddressAlreadyVisitedPage
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -66,8 +66,7 @@ class PersonalDetailsController @Inject() (
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>
     Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad, MOVED_PERMANENTLY))
   }
-
-  def onPageLoad: Action[AnyContent] =
+  def onPageLoad: Action[AnyContent]            =
     authenticate.async { implicit request: UserRequest[AnyContent] =>
       rlsInterruptHelper.enforceByRlsStatus(for {
         agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
@@ -76,21 +75,20 @@ class PersonalDetailsController @Inject() (
                                .personDetails(request.helpeeNinoOrElse)
                                .toOption
                                .value
-        nameToDisplay      = personDetails.fold(request.helpeeNameOrElse.map(_.toString))(_.person.shortName)
+        nameToDisplay      = personalDetailsNameOrTrustedHelperName(personDetails)
         ninoToDisplay      = personDetails.fold(request.helpeeNinoOrElse)(_.person.nino.getOrElse(request.helpeeNinoOrElse))
-
-        _ <- personDetails
-               .map { details =>
-                 auditConnector.sendEvent(
-                   buildPersonDetailsEvent(
-                     "personalDetailsPageLinkClicked",
-                     details
-                   )
-                 )
-               }
-               .getOrElse(Future.successful(()))
-        _ <- cachingHelper
-               .addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+        _                 <- personDetails
+                               .map { details =>
+                                 auditConnector.sendEvent(
+                                   buildPersonDetailsEvent(
+                                     "personalDetailsPageLinkClicked",
+                                     details
+                                   )
+                                 )
+                               }
+                               .getOrElse(Future.successful(()))
+        _                 <- cachingHelper
+                               .addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
         addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
         addressDetails             <- personalDetailsViewModel.getAddressRow(personDetails, addressModel)
