@@ -429,7 +429,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       )
     }
 
-    "render the address already updated page when updateAddress returns a 409 Conflict" in {
+    "render the error page when updateAddress returns a 409 Conflict" in {
       val addressDto: AddressDto         = asAddressDto(fakeStreetTupleListAddressForUnmodified)
       val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
 
@@ -447,10 +447,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
-      status(result) mustBe OK
-      contentAsString(result) must include(
-        Messages("label.your_address_has_already_been_updated")
-      )
+      status(result) mustBe INTERNAL_SERVER_ERROR
 
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))

@@ -35,7 +35,7 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
-import views.html.personaldetails.{AddressAlreadyUpdatedView, CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
+import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -52,7 +52,6 @@ class ClosePostalAddressController @Inject() (
   closeCorrespondenceAddressChoiceView: CloseCorrespondenceAddressChoiceView,
   confirmCloseCorrespondenceAddressView: ConfirmCloseCorrespondenceAddressView,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
-  addressAlreadyUpdatedView: AddressAlreadyUpdatedView,
   featureFlagService: FeatureFlagService,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
@@ -138,7 +137,7 @@ class ClosePostalAddressController @Inject() (
               errorRenderer.futureError(BAD_REQUEST)
             case CONFLICT    =>
               citizenDetailsService.clearCachedPersonDetails(nino)
-              Future.successful(Ok(addressAlreadyUpdatedView()))
+              errorRenderer.futureError(INTERNAL_SERVER_ERROR)
             case _           =>
               errorRenderer.futureError(INTERNAL_SERVER_ERROR)
           },

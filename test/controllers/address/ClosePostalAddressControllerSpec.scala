@@ -23,7 +23,6 @@ import models._
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
-import play.api.i18n.Messages
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -302,7 +301,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "render the address already updated view when citizen-details returns CONFLICT" in {
+    "render the error view when citizen-details returns CONFLICT" in {
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails("115", person, None, address)
@@ -314,10 +313,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       val result: Future[Result] = controller.confirmSubmit(FakeRequest())
 
-      status(result) mustBe OK
-      contentAsString(result) must include(
-        Messages("label.your_address_has_already_been_updated")
-      )
+      status(result) mustBe INTERNAL_SERVER_ERROR
 
       verify(mockCitizenDetailsService, times(1))
         .clearCachedPersonDetails(meq(nino))(any())

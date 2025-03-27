@@ -37,7 +37,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.language.LanguageUtils
 import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
-import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUpdateAddressEarlyDateView, ReviewChangesView, UpdateAddressConfirmationView}
+import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, ReviewChangesView, UpdateAddressConfirmationView}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -56,7 +56,6 @@ class AddressSubmissionController @Inject() (
   citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView,
   cannotUpdateAddressEarlyDateView: CannotUpdateAddressEarlyDateView,
-  addressAlreadyUpdatedView: AddressAlreadyUpdatedView,
   languageUtils: LanguageUtils
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
@@ -193,7 +192,7 @@ class AddressSubmissionController @Inject() (
                                       )
                                     case error if error.statusCode == CONFLICT =>
                                       citizenDetailsService.clearCachedPersonDetails(nino)
-                                      Future.successful(Ok(addressAlreadyUpdatedView()))
+                                      errorRenderer.futureError(INTERNAL_SERVER_ERROR)
                                     case _                                     =>
                                       errorRenderer.futureError(INTERNAL_SERVER_ERROR)
                                   },
