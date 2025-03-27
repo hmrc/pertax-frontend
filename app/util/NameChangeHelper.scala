@@ -19,15 +19,15 @@ package util
 import config.ConfigDecorator
 
 object NameChangeHelper {
-  def correctName(content: String, configDecorator: ConfigDecorator, messages: play.api.i18n.Messages): String =
-    if (configDecorator.featureNameChangeMtdItSaToMtdIt) {
-      content
-    } else {
-      val newName = messages("label.mtd_for_sa")
-      val oldName = messages.lang.language match {
-        case "cy" => "Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm"
-        case _    => "Making Tax Digital for Income Tax Self Assessment"
-      }
-      content.replace(newName, oldName)
+  def conditionalMessage(falseMessageKey: => String, trueMessageKey: => String)(implicit
+    configDecorator: ConfigDecorator,
+    messages: play.api.i18n.Messages
+  ): String =
+    configDecorator.featureNameChangeMtdItSaToMtdIt match {
+      case true if trueMessageKey.nonEmpty   => messages(trueMessageKey)
+      case true                              => ""
+      case false if falseMessageKey.nonEmpty => messages(falseMessageKey)
+      case false                             => ""
     }
+
 }

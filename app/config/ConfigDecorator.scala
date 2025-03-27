@@ -301,7 +301,7 @@ class ConfigDecorator @Inject() (
       case other        => throw new IllegalArgumentException(s"Invalid value for feature.bannerTcsServiceClosure§: $other")
     }
 
-  lazy val featureNameChangeMtdItSaToMtdIt: Boolean =
+  def featureNameChangeMtdItSaToMtdIt: Boolean =
     runModeConfiguration.get[Boolean]("feature.nameChangeMtdItSaToMtdIt")
 
   val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongo.encryption.enabled")
