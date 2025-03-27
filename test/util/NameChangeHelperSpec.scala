@@ -29,16 +29,48 @@ class NameChangeHelperSpec extends ViewSpec {
 
   }
 
-//  "conditionalMessage" must {
-  //    "make no change when feature switched on and language is English" in {
-  //      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
-  //      NameChangeHelper.correctName(
-  //        "Bla Making Tax Digital for Income Tax Bla",
-  //        mockConfigDecorator,
-  //        messages
-  //      ) mustBe "Bla Making Tax Digital for Income Tax Bla"
-  //    }
-  //
-  //  }
+  "conditionalMessage" must {
+    "return false content when feature switched off" in {
+      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
+      NameChangeHelper.conditionalMessage(
+        "first",
+        "second"
+      )(
+        mockConfigDecorator,
+        messages
+      ) mustBe "first"
+    }
+    "return empty string when feature switched off and string empty" in {
+      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
+      NameChangeHelper.conditionalMessage(
+        "",
+        "second"
+      )(
+        mockConfigDecorator,
+        messages
+      ) mustBe ""
+    }
+    "return true content when feature switched on" in {
+      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
+      NameChangeHelper.conditionalMessage(
+        "first",
+        "second"
+      )(
+        mockConfigDecorator,
+        messages
+      ) mustBe "second"
+    }
+    "return empty string when feature switched on and string empty" in {
+      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
+      NameChangeHelper.conditionalMessage(
+        "first",
+        ""
+      )(
+        mockConfigDecorator,
+        messages
+      ) mustBe ""
+    }
+
+  }
 
 }
