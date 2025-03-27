@@ -37,7 +37,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.language.LanguageUtils
 import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
-import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, ReviewChangesView, UpdateAddressConfirmationView}
+import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUpdateAddressEarlyDateView, ReviewChangesView, UpdateAddressConfirmationView}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -56,6 +56,7 @@ class AddressSubmissionController @Inject() (
   citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView,
   cannotUpdateAddressEarlyDateView: CannotUpdateAddressEarlyDateView,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView,
   languageUtils: LanguageUtils
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
@@ -124,93 +125,88 @@ class AddressSubmissionController @Inject() (
       val addressType = mapAddressType(typ)
 
       addressJourneyEnforcer { nino => personDetails =>
-        citizenDetailsService
-          .getEtag(nino.nino)
-          .foldF(
-            _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
-            version =>
-              version
-                .map { version =>
-                  cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-                    val p85Enabled = !isUk(journeyData.submittedInternationalAddressChoiceDto)
-                    ensuringSubmissionRequirements(typ, journeyData) {
+        val etagValue = personDetails.etag
+        val etag      = ETag(etagValue)
 
-                      journeyData.submittedAddressDto.fold(
-                        Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
-                      ) { addressDto =>
-                        val address =
-                          addressDto
-                            .toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
+        cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
+          val p85Enabled = !isUk(journeyData.submittedInternationalAddressChoiceDto)
+          ensuringSubmissionRequirements(typ, journeyData) {
 
-                        val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
+            journeyData.submittedAddressDto.fold(
+              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
+            ) { addressDto =>
+              val address =
+                addressDto.toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
 
-                        addressMovedService
-                          .moved(originalPostcode, address.postcode.getOrElse(""))
-                          .flatMap { addressChanged =>
-                            def successResponseBlock(): Result = {
-                              val originalAddressDto: Option[AddressDto] =
-                                journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
+              val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
 
-                              val addressDtowithFormattedPostCode =
-                                addressDto
-                                  .copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode))
-                              handleAddressChangeAuditing(
-                                originalAddressDto,
-                                addressDtowithFormattedPostCode,
-                                version,
-                                addressType
-                              )
+              addressMovedService
+                .moved(originalPostcode, address.postcode.getOrElse(""))
+                .flatMap { addressChanged =>
+                  def successResponseBlock(): Result = {
+                    val originalAddressDto: Option[AddressDto] =
+                      journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
 
-                              cachingHelper.clearCache()
+                    val addressDtoWithFormattedPostCode =
+                      addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode))
+                    handleAddressChangeAuditing(
+                      originalAddressDto,
+                      addressDtoWithFormattedPostCode,
+                      etag,
+                      addressType
+                    )
 
-                              Ok(
-                                updateAddressConfirmationView(
-                                  typ,
-                                  closedPostalAddress = false,
-                                  None,
-                                  addressMovedService.toMessageKey(addressChanged),
-                                  displayP85Message = p85Enabled
-                                )
-                              )
-                            }
+                    cachingHelper.clearCache()
 
-                            for {
-                              _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
-                              result <- citizenDetailsService
-                                          .updateAddress(nino, version.etag, address)
-                                          .foldF(
-                                            {
-                                              case error
-                                                  if error.statusCode == 400 && error.message
-                                                    .toLowerCase()
-                                                    .contains("start date") =>
-                                                Future.successful(
-                                                  BadRequest(
-                                                    cannotUpdateAddressEarlyDateView(
-                                                      typ,
-                                                      languageUtils.Dates.formatDate(
-                                                        journeyData.submittedStartDateDto
-                                                          .map(_.startDate)
-                                                          .getOrElse(LocalDate.now())
-                                                      ),
-                                                      p85Enabled
-                                                    )
-                                                  )
-                                                )
-
-                                              case _ =>
-                                                errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-                                            },
-                                            _ => Future.successful(successResponseBlock())
-                                          )
-                            } yield result
-                          }
-                      }
-                    }
+                    Ok(
+                      updateAddressConfirmationView(
+                        typ,
+                        closedPostalAddress = false,
+                        None,
+                        addressMovedService.toMessageKey(addressChanged),
+                        displayP85Message = p85Enabled
+                      )
+                    )
                   }
+
+                  for {
+                    _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
+                    result <- citizenDetailsService
+                                .updateAddress(nino, etagValue, address)
+                                .foldF(
+                                  {
+                                    case error
+                                        if error.statusCode == BAD_REQUEST && error.message.toLowerCase
+                                          .contains("start date") =>
+                                      Future.successful(
+                                        BadRequest(
+                                          cannotUpdateAddressEarlyDateView(
+                                            typ,
+                                            languageUtils.Dates.formatDate(
+                                              journeyData.submittedStartDateDto
+                                                .map(_.startDate)
+                                                .getOrElse(LocalDate.now())
+                                            ),
+                                            p85Enabled
+                                          )
+                                        )
+                                      )
+                                    case error if error.statusCode == CONFLICT =>
+                                      citizenDetailsService.clearCachedPersonDetails(nino)
+                                      Future.successful(Ok(addressAlreadyUpdatedView()))
+                                    case _                                     =>
+                                      errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+                                  },
+                                  _ => Future.successful(successResponseBlock())
+                                )
+                  } yield result
                 }
-                .getOrElse(errorRenderer.futureError(INTERNAL_SERVER_ERROR))
-          )
+                .recoverWith { case _: Exception =>
+                  errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+                }
+            }
+          }
+        }
       }
     }
 
@@ -222,9 +218,11 @@ class AddressSubmissionController @Inject() (
   private def ensuringSubmissionRequirements(typ: AddrType, journeyData: AddressJourneyData)(
     block: => Future[Result]
   ): Future[Result] =
-    if (journeyData.submittedStartDateDto.isEmpty && typ == ResidentialAddrType)
+    if (journeyData.submittedStartDateDto.isEmpty && typ == ResidentialAddrType) {
       Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
-    else block
+    } else {
+      block
+    }
 
   private def handleAddressChangeAuditing(
     originalAddressDto: Option[AddressDto],
