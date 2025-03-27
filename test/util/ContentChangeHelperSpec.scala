@@ -19,7 +19,7 @@ package util
 import config.ConfigDecorator
 import views.html.ViewSpec
 
-class NameChangeHelperSpec extends ViewSpec {
+class ContentChangeHelperSpec extends ViewSpec {
 
   private val mockConfigDecorator = mock[ConfigDecorator]
 
@@ -32,7 +32,7 @@ class NameChangeHelperSpec extends ViewSpec {
   "conditionalMessage" must {
     "return false content when feature switched off" in {
       when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
-      NameChangeHelper.conditionalMessage(
+      ContentChangeHelper.conditionalMessage(
         "first",
         "second"
       )(
@@ -42,7 +42,7 @@ class NameChangeHelperSpec extends ViewSpec {
     }
     "return empty string when feature switched off and string empty" in {
       when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
-      NameChangeHelper.conditionalMessage(
+      ContentChangeHelper.conditionalMessage(
         "",
         "second"
       )(
@@ -52,7 +52,7 @@ class NameChangeHelperSpec extends ViewSpec {
     }
     "return true content when feature switched on" in {
       when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
-      NameChangeHelper.conditionalMessage(
+      ContentChangeHelper.conditionalMessage(
         "first",
         "second"
       )(
@@ -62,7 +62,7 @@ class NameChangeHelperSpec extends ViewSpec {
     }
     "return empty string when feature switched on and string empty" in {
       when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
-      NameChangeHelper.conditionalMessage(
+      ContentChangeHelper.conditionalMessage(
         "first",
         ""
       )(

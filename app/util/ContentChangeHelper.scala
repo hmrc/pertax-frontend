@@ -18,7 +18,7 @@ package util
 
 import config.ConfigDecorator
 
-object NameChangeHelper {
+object ContentChangeHelper {
   def conditionalMessage(falseMessageKey: => String, trueMessageKey: => String)(implicit
     configDecorator: ConfigDecorator,
     messages: play.api.i18n.Messages
