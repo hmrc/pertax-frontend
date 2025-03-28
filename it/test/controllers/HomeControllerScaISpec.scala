@@ -120,6 +120,7 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
   private val testNino: Nino = generator.nextNino
 
   val fakePersonDetails: PersonDetails = PersonDetails(
+    "115",
     Person(
       Some("John"),
       None,

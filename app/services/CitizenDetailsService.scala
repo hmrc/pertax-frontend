@@ -18,8 +18,8 @@ package services
 
 import cats.data.EitherT
 import com.google.inject.Inject
-import connectors.CitizenDetailsConnector
-import models.{Address, ETag, MatchingDetails, PersonDetails}
+import connectors.{CachingCitizenDetailsConnector, CitizenDetailsConnector}
+import models.{Address, MatchingDetails, PersonDetails}
 import play.api.Logging
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Nino
@@ -56,8 +56,11 @@ class CitizenDetailsService @Inject() (
         MatchingDetails.fromJsonMatchingDetails(response.json)
       }
 
-  def getEtag(
-    nino: String
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Option[ETag]] =
-    citizenDetailsConnector.getEtag(nino).map(_.json.asOpt[ETag])
+  def clearCachedPersonDetails(nino: Nino)(implicit request: Request[_]): Future[Unit] =
+    citizenDetailsConnector match {
+      case cachingConnector: CachingCitizenDetailsConnector =>
+        cachingConnector.clearPersonDetailsCache(nino)
+      case _                                                =>
+        Future.successful(())
+    }
 }

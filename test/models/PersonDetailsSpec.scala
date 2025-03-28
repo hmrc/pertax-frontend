@@ -114,6 +114,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
 
       json mustBe Json.parse(s"""
                                 |{
+                                |  "etag":"115",
                                 |  "person" : {
                                 |    "firstName" : "Firstname",
                                 |    "middleName" : "Middlename",

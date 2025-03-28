@@ -105,11 +105,6 @@ trait AddressBaseSpec extends BaseSpec {
         Future.successful(Right(personDetailsResponse))
       )
     )
-    when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-      EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-        Future.successful(Right(eTagResponse))
-      )
-    )
     when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any()))
       .thenReturn(updateAddressResponse())
     when(mockEditAddressLockRepository.insert(any(), any()))
