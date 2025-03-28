@@ -44,11 +44,11 @@ class ItsaMergeViewSpec extends ViewSpec {
     "render the given content correctly" in {
 
       doc.text() must include(
-        Messages("label.view_manage_your_mtd_itsa")
+        Messages("label.view_manage_your_mtd_it")
       )
 
       doc.text() must include(
-        Messages("label.online_deadline_final_declarations", nextDeadlineTaxYear)
+        Messages("label.online_deadline_tax_returns", nextDeadlineTaxYear)
       )
     }
   }
