@@ -159,11 +159,11 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
         )
 
       doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include("Making Tax Digital for Income Tax Self Assessment")
+      doc.text() must include("Making Tax Digital for Income Tax")
       doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
       hasLink(
         doc,
-        "View and manage your Making Tax Digital for Income Tax Self Assessment"
+        "View and manage your Making Tax Digital for Income Tax"
       )
     }
 

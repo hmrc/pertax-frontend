@@ -365,7 +365,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       lazy val cardBody = createController().getSelfAssessmentCard()
 
       cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly, mockConfigDecorator))
-      cardBody.map(_.toString().contains("Making Tax Digital for Income Tax Self Assessment")) mustBe Some(true)
+      cardBody.map(_.toString().contains("Making Tax Digital for Income Tax")) mustBe Some(true)
     }
 
     "return PTA Card with link to display self assessment when active user is an SA user but without ITSA enrolments" in {

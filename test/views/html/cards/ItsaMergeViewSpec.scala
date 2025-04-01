@@ -70,7 +70,7 @@ class ItsaMergeViewSpec extends ViewSpec {
     "render the given content correctly" in {
 
       doc.text() must include(
-        "View and manage your Making Tax Digital for Income Tax Self Assessment or access your Self Assessment tax returns."
+        "View and manage your Making Tax Digital for Income Tax or access your Self Assessment tax returns."
       )
 
       doc.text() must include(
