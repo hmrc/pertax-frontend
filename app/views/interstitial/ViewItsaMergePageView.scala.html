@@ -37,7 +37,7 @@
     @h2(conditionalMessage("label.mtd_for_it_sa", "label.mtd_for_it"))
 
     @p(Text(conditionalMessage("label.send_updates_hmrc_compatible_software", "label.send_updates_sole_traders")))
-    @link(configDecorator.itsaViewUrl, conditionalMessage("label.view_manage_your_mtd_for_itsa", "label.view_manage_your_mtd_for_it"))
+    @link(configDecorator.itsaViewUrl, messages("label.view_manage_your_mtd_for_it"))
     @if(isSa) {
         @h2("label.self_assessment_tax_returns")
         @saActionNeeded match {

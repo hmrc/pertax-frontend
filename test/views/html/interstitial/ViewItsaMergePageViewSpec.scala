@@ -188,7 +188,7 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
 
       hasLink(
         doc,
-        Messages("label.view_manage_your_mtd_for_itsa")
+        Messages("label.view_manage_your_mtd_for_it")
       )
 
       hasLink(
@@ -223,7 +223,7 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
 
       hasLink(
         doc,
-        Messages("label.view_manage_your_mtd_for_itsa")
+        Messages("label.view_manage_your_mtd_for_it")
       )
 
       hasLink(

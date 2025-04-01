@@ -816,11 +816,10 @@ tax_credits.ended.information.how.continue.li2 = cysylltu â Gwasanaeth Cwsmeria
 
 label.mtd_for_it=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtd_for_itsa=Troi Treth yn Ddigidol ar gyfer Treth Incwm a Hunanasesiad
-label.mtd_for_it_sa=Making Tax Digital for Income Tax Self Assessment
+label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
 label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
-label.view_manage_your_mtd_for_itsa=View and manage your Making Tax Digital for Income Tax Self Assessment
 label.it_header=Treth Incwm
-label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax Self Assessment or cael at eich Ffurflenni Treth Hunanasesiad.
+label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
 label.view_manage_your_mtd_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, a chael mynediad at Hunanasesiad.
 label.online_deadline_tax_returns=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth yw 31 Ionawr {0}.
