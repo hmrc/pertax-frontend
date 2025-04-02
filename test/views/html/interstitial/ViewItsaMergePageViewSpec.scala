@@ -163,7 +163,7 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
       doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
       hasLink(
         doc,
-        "View and manage your Making Tax Digital for Income Tax"
+        "View and manage Making Tax Digital for Income Tax"
       )
     }
 
