@@ -17,7 +17,7 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import components.{H1, H2, P, Link}
-@import util.NameChangeHelper
+@import util.ContentChangeHelper._
 @import views.MainView
 @this(
     mainView: MainView,
@@ -33,15 +33,16 @@
     pageTitle = messages("label.your_self_assessment"),
     showBackLink = true
 ) {
-    @h1("label.itsa_header")
-    @h2(NameChangeHelper.correctName(messages("label.mtd_for_sa"), configDecorator, messages))
-    @p(Text(messages("label.send_updates_hmrc_compatible_software")))
-    @link(configDecorator.itsaViewUrl, NameChangeHelper.correctName(messages("label.view_manage_your_mtd_for_sa"), configDecorator, messages))
+    @h1(conditionalMessage("label.itsa_header", "label.it_header"))
+    @h2(conditionalMessage("label.mtd_for_it_sa", "label.mtd_for_it"))
+
+    @p(Text(conditionalMessage("label.send_updates_hmrc_compatible_software", "label.send_updates_sole_traders")))
+    @link(configDecorator.itsaViewUrl, messages("label.view_manage_your_mtd_for_it"))
     @if(isSa) {
         @h2("label.self_assessment_tax_returns")
         @saActionNeeded match {
             case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-                @p(Text(messages("label.old_way_sa_returns")))
+                @p(Text(conditionalMessage("label.old_way_sa_returns", "")))
                 @link(routes.InterstitialController.displaySelfAssessment.url, "label.access_your_sa_returns")
             }
             case NotYetActivatedOnlineFilerSelfAssessmentUser(_) => {

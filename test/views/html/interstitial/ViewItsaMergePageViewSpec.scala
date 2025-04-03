@@ -24,7 +24,7 @@ import play.api.mvc.{AnyContent, AnyContentAsEmpty}
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import util.DateTimeTools.{current, previousAndCurrentTaxYear}
+import util.DateTimeTools.current
 import views.html.ViewSpec
 
 class ViewItsaMergePageViewSpec extends ViewSpec {
@@ -49,10 +49,15 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
 
   }
 
-  "Rendering ViewItsaMergePageView.scala.html" must {
-    when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
-    "show content for Itsa" in {
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(configDecorator)
+  }
 
+  "Rendering ViewItsaMergePageView.scala.html" must {
+
+    "show content for Itsa" in {
+      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
       val doc =
         asDocument(
           viewItsaMergePageView(
@@ -62,18 +67,18 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
           ).toString
         )
 
-      doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include(Messages("label.mtd_for_sa"))
-      doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
+      doc.text() must include(Messages("label.it_header"))
+      doc.text() must include(Messages("label.mtd_for_it"))
+      doc.text() must include(Messages("label.send_updates_sole_traders"))
 
       hasLink(
         doc,
-        Messages("label.view_manage_your_mtd_for_sa")
+        Messages("label.view_manage_your_mtd_for_it")
       )
     }
 
     "show content for Itsa , SA , Seiss when all the conditions are true with SA Enrolled" in {
-
+      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
       val doc =
         asDocument(
           viewItsaMergePageView(
@@ -83,17 +88,15 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
           ).toString
         )
 
-      doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include(Messages("label.mtd_for_sa"))
-      doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
+      doc.text() must include(Messages("label.it_header"))
+      doc.text() must include(Messages("label.mtd_for_it"))
+      doc.text() must include(Messages("label.send_updates_sole_traders"))
       doc.text() must include(Messages("label.self_assessment_tax_returns"))
-      doc.text() must include(Messages("label.old_way_sa_returns"))
-
+      doc.text() must not include (Messages("label.old_way_sa_returns"))
       doc.text() must include(Messages("title.seiss"))
-
       hasLink(
         doc,
-        Messages("label.view_manage_your_mtd_for_sa")
+        Messages("label.view_manage_your_mtd_for_it")
       )
 
       hasLink(
@@ -108,7 +111,7 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
     }
 
     "show content for Itsa , SA , Seiss when all the conditions are true with SA not Enrolled" in {
-
+      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
       val doc =
         asDocument(
           viewItsaMergePageView(
@@ -118,17 +121,17 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
           ).toString
         )
 
-      doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include(Messages("label.mtd_for_sa"))
-      doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
+      doc.text() must include(Messages("label.it_header"))
+      doc.text() must include(Messages("label.mtd_for_it"))
+      doc.text() must include(Messages("label.send_updates_sole_traders"))
       doc.text() must include(Messages("label.self_assessment_tax_returns"))
-      doc.text() must include(Messages("label.not_enrolled.content"))
+      doc.text() must not include (Messages("label.old_way_sa_returns"))
       doc.text() must include(Messages("title.seiss"))
       doc.text() must include(Messages("label.making_tax_digital"))
 
       hasLink(
         doc,
-        Messages("label.view_manage_your_mtd_for_sa")
+        Messages("label.view_manage_your_mtd_for_it")
       )
 
       hasLink(
@@ -144,9 +147,8 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
   }
 
   "Rendering ViewItsaMergePageView.scala.html with name change toggle off" must {
-    when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
     "show content for Itsa" in {
-
+      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
       val doc =
         asDocument(
           viewItsaMergePageView(
@@ -157,16 +159,16 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
         )
 
       doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include("Making Tax Digital for Income Tax Self Assessment")
+      doc.text() must include("Making Tax Digital for Income Tax")
       doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
       hasLink(
         doc,
-        "View and manage your Making Tax Digital for Income Tax Self Assessment"
+        "View and manage Making Tax Digital for Income Tax"
       )
     }
 
     "show content for Itsa , SA , Seiss when all the conditions are true with SA Enrolled" in {
-
+      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
       val doc =
         asDocument(
           viewItsaMergePageView(
@@ -186,7 +188,7 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
 
       hasLink(
         doc,
-        Messages("label.view_manage_your_mtd_for_sa")
+        Messages("label.view_manage_your_mtd_for_it")
       )
 
       hasLink(
@@ -201,7 +203,7 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
     }
 
     "show content for Itsa , SA , Seiss when all the conditions are true with SA not Enrolled" in {
-
+      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
       val doc =
         asDocument(
           viewItsaMergePageView(
@@ -212,7 +214,7 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
         )
 
       doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include(Messages("label.mtd_for_sa"))
+      doc.text() must include(Messages("label.mtd_for_it_sa"))
       doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
       doc.text() must include(Messages("label.self_assessment_tax_returns"))
       doc.text() must include(Messages("label.not_enrolled.content"))
@@ -221,7 +223,7 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
 
       hasLink(
         doc,
-        Messages("label.view_manage_your_mtd_for_sa")
+        Messages("label.view_manage_your_mtd_for_it")
       )
 
       hasLink(

@@ -478,9 +478,7 @@ body.seiss=Bwrw golwg dros eich grantiau SEISS
 #
 label.your_self_assessment=Eich Hunanasesiad
 label.online_returns_deadline=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
-label.mtd_for_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_hmrc_compatible_software=Anfon diweddariadau gan ddefnyddio meddalwedd sy’n cydweddu â CThEM.
-label.view_manage_your_mtd_for_sa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
 label.itsa_header=Hunanasesiad Treth Incwm
 label.view_manage_sa_return=Rhagor o fanylion am eich Ffurflenni Treth a’ch taliadau Hunanasesiad
 label.access_your_sa_returns=Cael at eich Ffurflenni Treth Hunanasesiad
@@ -811,3 +809,17 @@ tax_credits.ended.information.h2 = Help gyda hawliadau credydau treth blaenorol
 tax_credits.ended.information.p3 = I gael help gyda hawliadau credydau treth a wnaed cyn 5 Ebrill 2025:
 tax_credits.ended.information.how.continue.li1 = bwrw golwg dros ffurflenni credydau treth, taflenni gwaith a rhestrau gwirio
 tax_credits.ended.information.how.continue.li2 = cysylltu â Gwasanaeth Cwsmeriaid Cymraeg CThEF ynghylch credydau treth
+
+
+
+
+
+label.mtd_for_it=Troi Treth yn Ddigidol ar gyfer Treth Incwm
+label.mtd_for_itsa=Troi Treth yn Ddigidol ar gyfer Treth Incwm a Hunanasesiad
+label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
+label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
+label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
+label.it_header=Treth Incwm
+label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
+label.view_manage_your_mtd_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, a chael mynediad at Hunanasesiad.
+label.online_deadline_tax_returns=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth yw 31 Ionawr {0}.

@@ -44,11 +44,11 @@ class ItsaMergeViewSpec extends ViewSpec {
     "render the given content correctly" in {
 
       doc.text() must include(
-        Messages("label.view_manage_your_mtd_itsa")
+        Messages("label.view_manage_your_mtd_it")
       )
 
       doc.text() must include(
-        Messages("label.online_deadline_final_declarations", nextDeadlineTaxYear)
+        Messages("label.online_deadline_tax_returns", nextDeadlineTaxYear)
       )
     }
   }
@@ -70,7 +70,7 @@ class ItsaMergeViewSpec extends ViewSpec {
     "render the given content correctly" in {
 
       doc.text() must include(
-        "View and manage your Making Tax Digital for Income Tax Self Assessment or access your Self Assessment tax returns."
+        "View and manage your Making Tax Digital for Income Tax or access your Self Assessment tax returns."
       )
 
       doc.text() must include(
