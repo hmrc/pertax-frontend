@@ -92,7 +92,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     None
   )
 
-  val exampleDetails: PersonDetails = PersonDetails("115", examplePerson, None, None)
+  val exampleDetails: PersonDetails = PersonDetails(
+    examplePerson,
+    None,
+    None
+  )
 
   val testAddress: Address = Address(
     Some("1 Fake Street"),
@@ -252,7 +256,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "AddressChangeAllowedToggle toggle switched off" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails("1", person, address, address)
+        val personDetails = PersonDetails(person, address, address)
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
@@ -276,7 +280,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "main address is defined and it hasn't been changed" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails("1", person, address, address)
+        val personDetails = PersonDetails(person, address, address)
 
         val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         val expected = PersonalDetailsTableRowModel(
@@ -294,7 +298,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "main address is defined and it has been changed" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails("1", person, address, address)
+        val personDetails = PersonDetails(person, address, address)
 
         val actual   = personalDetailsViewModel.getAddressRow(
           Some(personDetails),
@@ -316,7 +320,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     "not contain main address row" when {
       "person details is not defined" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails("1", person, None, None)
+        val personDetails = PersonDetails(person, None, None)
 
         val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         actual.futureValue.mainAddress.isEmpty mustBe true
@@ -324,7 +328,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
       "address is not defined" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails("1", person, None, None)
+        val personDetails = PersonDetails(person, None, None)
 
         val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         actual.futureValue.mainAddress.isEmpty mustBe true
@@ -335,7 +339,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "AddressChangeAllowedToggle toggle switched off" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails("1", person, address, address)
+        val personDetails = PersonDetails(person, address, address)
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
@@ -359,7 +363,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "postal address is defined and it hasn't been changed" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails("1", person, None, address)
+        val personDetails = PersonDetails(person, None, address)
 
         val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         val expected = PersonalDetailsTableRowModel(
@@ -379,7 +383,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "postal address is defined and it has been changed" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails("1", person, None, address)
+        val personDetails = PersonDetails(person, None, address)
 
         val actual   = personalDetailsViewModel.getAddressRow(
           Some(personDetails),
@@ -400,7 +404,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "postal address is not defined and main address is defined" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails("1", person, address, None)
+        val personDetails = PersonDetails(person, address, None)
 
         val actual                = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         val expectedPostalAddress = PersonalDetailsTableRowModel(
@@ -422,7 +426,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     "not contain postal address" when {
       "personal details are not defined" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails("1", person, None, None)
+        val personDetails = PersonDetails(person, None, None)
 
         val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
 

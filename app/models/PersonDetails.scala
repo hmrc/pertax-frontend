@@ -19,7 +19,6 @@ package models
 import play.api.libs.json._
 
 case class PersonDetails(
-  etag: String,
   person: Person,
   address: Option[Address],
   correspondenceAddress: Option[Address]

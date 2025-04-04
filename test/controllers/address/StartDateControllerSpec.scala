@@ -26,9 +26,9 @@ import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import routePages.{HasAddressAlreadyVisitedPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage}
+import testUtils.{ActionBuilderFixture, Fixtures}
 import testUtils.Fixtures.fakeStreetTupleListAddressForUnmodified
 import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.{ActionBuilderFixture, Fixtures}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
@@ -181,7 +181,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
         _.copy(startDate = Some(LocalDate.of(2016, 11, 22)))
       )
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-      val personDetails = PersonDetails("115", person, address, None)
+      val personDetails = PersonDetails(person, address, None)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )

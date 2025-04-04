@@ -16,21 +16,26 @@
 
 package connectors
 
+import cats.data.EitherT
 import config.ConfigDecorator
 import models._
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import play.api.Application
-import play.api.libs.json.{JsNull, JsValue, Json}
+import play.api.libs.json.{JsNull, JsObject, JsString, JsValue, Json}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.Helpers.GET
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Injecting}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
-import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.time.LocalDate
+import scala.concurrent.Future
 import scala.util.Random
 
 class CitizenDetailsConnectorSpec
@@ -39,6 +44,16 @@ class CitizenDetailsConnectorSpec
     with DefaultAwaitTimeout
     with Injecting
     with BeforeAndAfterEach {
+
+  private val mockHttpClientResponse: HttpClientResponse = mock[HttpClientResponse]
+
+  private val mockHttpClientV2: HttpClientV2 = mock[HttpClientV2]
+
+  private val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
+
+  private val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+
+  private val dummyContent = "error message"
 
   override implicit lazy val app: Application = app(
     Map("microservice.services.citizen-details.port" -> server.port())
@@ -289,6 +304,102 @@ class CitizenDetailsConnectorSpec
 
       val result: Int =
         connector.getMatchingDetails(nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
+      result mustBe BAD_GATEWAY
+    }
+  }
+
+  "Calling getEtag" must {
+
+    trait LocalSetup extends SpecSetup {
+      def url: String = s"/citizen-details/$nino/etag"
+    }
+
+    "return an etag when citizen-details returns 200" in new LocalSetup {
+      stubGet(url, OK, Some(JsObject(Seq(("etag", JsString("115")))).toString()))
+
+      val result: Either[UpstreamErrorResponse, HttpResponse] =
+        connector.getEtag(nino.nino).value.futureValue
+
+      result mustBe a[Right[_, _]]
+      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
+
+    }
+
+    "return None" when {
+      "citizen-details returns 404" in new LocalSetup {
+        stubGet(url, NOT_FOUND, None)
+
+        val result: Int =
+          connector.getEtag(nino.nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
+        result mustBe NOT_FOUND
+      }
+
+      "citizen-details returns 423" in new LocalSetup {
+        stubGet(url, LOCKED, None)
+
+        val result: Int =
+          connector.getEtag(nino.nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
+        result mustBe LOCKED
+      }
+
+      "citizen-details HttpClientResponse returns 500" in new LocalSetup {
+
+        when(mockHttpClientResponse.read(any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            Future(Left(UpstreamErrorResponse(dummyContent, INTERNAL_SERVER_ERROR)))
+          )
+        )
+
+        when(mockHttpClientV2.get(any())(any())).thenReturn(mockRequestBuilder)
+
+        when(mockRequestBuilder.transform(any()))
+          .thenReturn(mockRequestBuilder)
+
+        def citizenDetailsConnectorWithMock: CitizenDetailsConnector = new DefaultCitizenDetailsConnector(
+          mockHttpClientV2,
+          mockConfigDecorator,
+          inject[ServicesConfig],
+          mockHttpClientResponse
+        )
+
+        val result: Int = citizenDetailsConnectorWithMock
+          .getEtag(nino.nino)
+          .value
+          .futureValue
+          .left
+          .getOrElse(UpstreamErrorResponse("", OK))
+          .statusCode
+        result mustBe INTERNAL_SERVER_ERROR
+      }
+    }
+
+    "return BAD_GATEWAY when the call to citizen-details throws an exception" in new LocalSetup {
+
+      when(mockHttpClientResponse.read(any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, HttpResponse](
+          Future(Left(UpstreamErrorResponse(dummyContent, BAD_GATEWAY)))
+        )
+      )
+
+      when(mockHttpClientV2.get(any())(any())).thenReturn(mockRequestBuilder)
+
+      when(mockRequestBuilder.transform(any()))
+        .thenReturn(mockRequestBuilder)
+
+      def citizenDetailsConnectorWithMock: CitizenDetailsConnector = new DefaultCitizenDetailsConnector(
+        mockHttpClientV2,
+        mockConfigDecorator,
+        inject[ServicesConfig],
+        mockHttpClientResponse
+      )
+
+      val result: Int = citizenDetailsConnectorWithMock
+        .getEtag(nino.nino)
+        .value
+        .futureValue
+        .left
+        .getOrElse(UpstreamErrorResponse("", OK))
+        .statusCode
       result mustBe BAD_GATEWAY
     }
   }
