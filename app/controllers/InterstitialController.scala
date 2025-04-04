@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
@@ -31,7 +31,8 @@ import services.{CitizenDetailsService, SeissService}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools._
-import util.{EnrolmentsHelper, FormPartialUpgrade}
+import util.{AlertBannerHelper, EnrolmentsHelper, FormPartialUpgrade}
+import viewmodels.AlertBannerViewModel
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 import views.html.{SelfAssessmentSummaryView, ShutteringView}
@@ -63,7 +64,9 @@ class InterstitialController @Inject() (
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
   viewNISPView: ViewNISPView,
-  selfAssessmentRegistrationPageView: SelfAssessmentRegistrationPageView
+  selfAssessmentRegistrationPageView: SelfAssessmentRegistrationPageView,
+  checkYourStatePensionCallBackView: CheckYourStatePensionCallBackView,
+  alertBannerHelper: AlertBannerHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with Logging {
@@ -84,21 +87,37 @@ class InterstitialController @Inject() (
   }
 
   def displayNISP: Action[AnyContent] = authenticate.async { implicit request =>
-    for {
-      nispPartial <- formPartialService.getNISPPartial
-      nino        <- citizenDetailsService
-                       .personDetails(request.authNino)
-                       .fold(_ => Some(request.authNino), personDetails => personDetails.person.nino)
-    } yield Ok(
-      viewNISPView(
-        formPartial = if (configDecorator.partialUpgradeEnabled) {
-          FormPartialUpgrade.upgrade(nispPartial successfulContentOrEmpty)
-        } else {
-          nispPartial successfulContentOrEmpty
-        },
-        nino
+    val nispPartialFuture = formPartialService.getNISPPartial
+    val ninoFuture        = citizenDetailsService
+      .personDetails(request.authNino)
+      .fold(
+        _ => Some(request.authNino),
+        personDetails => personDetails.person.nino
       )
-    )
+
+    val alertBannerFuture = alertBannerHelper.getVoluntaryContributionsAlertBannerContent
+
+    for {
+      nispPartial <- nispPartialFuture
+      maybeNino   <- ninoFuture
+      bannerOpt   <- alertBannerFuture
+    } yield {
+      val upgradedPartial = if (configDecorator.partialUpgradeEnabled) {
+        FormPartialUpgrade.upgrade(nispPartial.successfulContentOrEmpty)
+      } else {
+        nispPartial.successfulContentOrEmpty
+      }
+
+      val bannerList = bannerOpt.toList
+
+      Ok(
+        viewNISPView(
+          formPartial = upgradedPartial,
+          nino = maybeNino,
+          alertBannerViewModel = AlertBannerViewModel(alertBannerContent = bannerList)
+        )
+      )
+    }
   }
 
   def displayChildBenefits: Action[AnyContent] = authenticate {
@@ -237,11 +256,22 @@ class InterstitialController @Inject() (
 
       }
   }
-  def displayTaxCreditsEndedInformationInterstitialView: Action[AnyContent]      = Action { implicit request =>
+
+  def displayTaxCreditsEndedInformationInterstitialView: Action[AnyContent] = Action { implicit request =>
     if (configDecorator.featureBannerTcsServiceClosure == BannerTcsServiceClosure.Enabled) {
       Ok(taxCreditsEndedInformationInterstitialView())
     } else {
       errorRenderer.error(UNAUTHORIZED)
+    }
+  }
+
+  def displayCheckYourStatePensionCallBackView: Action[AnyContent] = authenticate.async { implicit request =>
+    featureFlagService.get(VoluntaryContributionsAlertToggle).flatMap { featureFlag =>
+      if (featureFlag.isEnabled) {
+        Future.successful(Ok(checkYourStatePensionCallBackView()))
+      } else {
+        Future.successful(errorRenderer.error(UNAUTHORIZED))
+      }
     }
   }
 

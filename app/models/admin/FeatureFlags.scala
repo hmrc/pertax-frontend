@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,8 @@ object AllFeatureFlags {
     AlertBannerPaperlessStatusToggle,
     GetPersonFromCitizenDetailsToggle,
     DfsDigitalFormFrontendAvailableToggle,
-    AddressChangeAllowedToggle
+    AddressChangeAllowedToggle,
+    VoluntaryContributionsAlertToggle
   )
 }
 
@@ -112,5 +113,12 @@ case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
   override val name: String                = "alert-banner-paperless-status-toggle"
   override val description: Option[String] = Some(
     "Enable/disable paperless alerts in alert banner on the home page"
+  )
+}
+
+case object VoluntaryContributionsAlertToggle extends FeatureFlagName {
+  override val name: String                = "voluntary-contributions-alert-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable the alert banner for voluntary National Insurance contributions information"
   )
 }
