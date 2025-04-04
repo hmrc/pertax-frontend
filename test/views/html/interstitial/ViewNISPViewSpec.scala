@@ -23,6 +23,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import views.html.ViewSpec
 
@@ -96,6 +97,47 @@ class ViewNISPViewSpec extends ViewSpec {
       val ninoElement = document.select(".nino")
       ninoElement.text().trim shouldBe nino.value
       document.body().toString    must include("Your National Insurance number is")
+    }
+
+    "display the National Insurance number from trustedHelper when available" in {
+      val trustedHelperNino            = new Nino("CS700100A")
+      val trustedHelper                =
+        Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some(trustedHelperNino.nino)))
+      val userRequestWithTrustedHelper = buildUserRequest(trustedHelper = trustedHelper, request = FakeRequest())
+      val document                     = asDocument(view(Html(""), None)(userRequestWithTrustedHelper, configDecorator, messages).toString)
+
+      document.body().toString must include("Your National Insurance number is")
+      val ninoElement = document.select(".nino")
+      ninoElement.text().trim() shouldBe trustedHelperNino.formatted
+    }
+
+    "display the National Insurance number from nino when trustedHelper is absent" in {
+      val nino                            = new Nino("CS700100A")
+      val userRequestWithoutTrustedHelper = buildUserRequest(trustedHelper = None, request = FakeRequest())
+      val document                        =
+        asDocument(view(Html(""), Some(nino))(userRequestWithoutTrustedHelper, configDecorator, messages).toString)
+
+      document.body().toString must include("Your National Insurance number is")
+      document.body().toString must include(nino.formatted)
+    }
+
+    "display the National Insurance number from nino when trustedHelper has no principalNino" in {
+      val nino                               = new Nino("CS700100A")
+      val trustedHelper                      = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", None))
+      val userRequestWithTrustedHelperNoNino = buildUserRequest(trustedHelper = trustedHelper, request = FakeRequest())
+      val document                           =
+        asDocument(view(Html(""), Some(nino))(userRequestWithTrustedHelperNoNino, configDecorator, messages).toString)
+
+      document.body().toString must include("Your National Insurance number is")
+      document.body().toString must include(nino.formatted)
+    }
+
+    "not display the National Insurance number when both trustedHelper and nino are absent" in {
+      val userRequestWithoutTrustedHelper = buildUserRequest(trustedHelper = None, request = FakeRequest())
+      val document                        =
+        asDocument(view(Html(""), None)(userRequestWithoutTrustedHelper, configDecorator, messages).toString)
+
+      document.body().toString must not include "Your National Insurance number is"
     }
 
     "display the expected National Insurance Number use cases" in {
