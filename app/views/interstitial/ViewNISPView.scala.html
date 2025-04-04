@@ -1,5 +1,5 @@
 @*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,27 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukInsetText
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
-@import views.html.components.{H1, H2, Link, P}
+@import viewmodels.AlertBannerViewModel
 @import views.MainView
+@import views.html.components.alertBanner.AlertBanner
+@import views.html.components.{H1, H2, Link, P}
+
 @this(
-    main: MainView,
-    h1: H1,
-    h2: H2,
-    p: P,
-    link: Link,
-    govukInsetText: GovukInsetText
+        main: MainView,
+        h1: H1,
+        h2: H2,
+        p: P,
+        link: Link,
+        govukInsetText: GovukInsetText,
+        alertBanner: AlertBanner
 )
 
-@(formPartial: Html, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(formPartial: Html, nino: Option[Nino], alertBannerViewModel: AlertBannerViewModel)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.your_national_insurance_and_state_pension")
 ) {
+    @alertBanner(alertBannerViewModel.alertBannerContent)
 
     @h1("label.your_national_insurance_and_state_pension")
 

@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import config.NewsAndTilesConfig
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
@@ -31,14 +32,16 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import services.CitizenDetailsService
 import services.partials.{FormPartialService, SaPartialService}
 import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.{ActionBuilderFixture, BaseSpec}
+import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.partials.HtmlPartial
+import util.AlertBannerHelper
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -48,6 +51,8 @@ class InterstitialControllerSpec extends BaseSpec {
   private val mockFormPartialService                                = mock[FormPartialService]
   private val mockSaPartialService                                  = mock[SaPartialService]
   private val mockNewsAndTilesConfig                                = mock[NewsAndTilesConfig]
+  val mockCitizenDetailsService: CitizenDetailsService              = mock[CitizenDetailsService]
+  val mockAlertBannerHelper: AlertBannerHelper                      = mock[util.AlertBannerHelper]
 
   private def setupAuth(
     saUserType: Option[SelfAssessmentUserType] = None,
@@ -87,8 +92,11 @@ class InterstitialControllerSpec extends BaseSpec {
       bind[FormPartialService].toInstance(mockFormPartialService),
       bind[SaPartialService].toInstance(mockSaPartialService),
       bind[AuthJourney].toInstance(mockAuthJourney),
-      bind[NewsAndTilesConfig].toInstance(mockNewsAndTilesConfig)
+      bind[NewsAndTilesConfig].toInstance(mockNewsAndTilesConfig),
+      bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+      bind[util.AlertBannerHelper].toInstance(mockAlertBannerHelper)
     ) ++ bindings
+
     localGuiceApplicationBuilder(extraConfigValues)
       .overrides(fullBindings)
       .build()
@@ -98,9 +106,13 @@ class InterstitialControllerSpec extends BaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockSaPartialService)
-    reset(mockFormPartialService)
-    reset(mockNewsAndTilesConfig)
+    reset(
+      mockSaPartialService,
+      mockFormPartialService,
+      mockNewsAndTilesConfig,
+      mockCitizenDetailsService,
+      mockAlertBannerHelper
+    )
   }
 
   "Calling displayNationalInsurance" must {
@@ -486,6 +498,30 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val result: Future[Result] = controller.displayTaxCreditsTransitionInformationInterstitialView(fakeRequest)
       status(result) mustBe UNAUTHORIZED
+    }
+  }
+
+  "Calling displayNISP" must {
+    "return OK and include banner content when voluntary contributions alert toggle is on" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      setupAuth()
+
+      when(mockFormPartialService.getNISPPartial(any()))
+        .thenReturn(Future.successful(HtmlPartial.Success(Some("title"), Html("nisp partial"))))
+
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
+        .thenReturn(EitherT.rightT(Fixtures.buildPersonDetails))
+
+      val bannerHtml = Html("<div class='voluntary-banner'>Banner Content</div>")
+      when(mockAlertBannerHelper.getVoluntaryContributionsAlertBannerContent(any(), any()))
+        .thenReturn(Future.successful(Some(bannerHtml)))
+
+      val result = controller.displayNISP()(fakeRequest)
+
+      status(result) mustBe OK
+      val content = contentAsString(result)
+      content must include("nisp partial")
+      content must include("voluntary-banner")
     }
   }
 }

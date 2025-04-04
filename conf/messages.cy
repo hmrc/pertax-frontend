@@ -823,3 +823,17 @@ label.it_header=Treth Incwm
 label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
 label.view_manage_your_mtd_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, a chael mynediad at Hunanasesiad.
 label.online_deadline_tax_returns=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth yw 31 Ionawr {0}.
+
+waiting_for_callback=Os ydych yn aros i gael galwad ffôn yn ôl
+no_need_to_contact=does dim angen i chi gysylltu â ni eto.
+voluntary_contributions_deadline=Gallwch dalu am fylchau sy’n dyddio yn ôl at 2006 pan fyddwn yn eich ffonio, hyd yn oed os yw hyn ar ôl y dyddiad cau ar 5 Ebrill.
+
+callback_registration_info=Os gwnaethoch gofrestru i gael galwad ffôn yn ôl cyn 5 Ebrill 2025, does dim angen i chi wneud unrhyw beth.
+callback_registration_assurance=Byddwn yn rhoi galwad i chi i drafod llenwi eich bylchau o ran Yswiriant Gwladol.
+what_happens_next=Yr hyn sy’n digwydd nesaf
+callback_queue_info=Rydych mewn ciw i gael galwad ffôn yn ôl.
+callback_contact_details=Byddwn ni’n:
+callback_contact_timing=cysylltu â chi cyn pen 8 wythnos
+callback_contact_notification=anfon neges destun atoch 1 diwrnod cyn i ni ffonio
+callback_preparation=Sicrhewch fod gennych eich rhif Yswiriant Gwladol wrth law pan fyddwn yn eich ffonio.
+return_to_national_insurance=Yn ôl i’ch Yswiriant Gwladol a’ch Pensiwn y Wladwriaeth
