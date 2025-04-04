@@ -285,7 +285,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           addressView(testAddress, countryHelper.excludedCountries),
           "label.change",
           "label.your_main_home",
-          Some(controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url)
+          Some(controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url)
         )
 
         actual.futureValue.mainAddress mustBe Some(expected)

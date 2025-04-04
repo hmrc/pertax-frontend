@@ -241,33 +241,6 @@ class TimeoutsISpec extends IntegrationSpec {
     }
   }
 
-  "/personal-account/your-address/tax-credits-choice" must {
-    "render the do you get tax credits page when tax credits broker connector times out" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-        .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
-
-      server.stubFor(
-        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
-          .willReturn(
-            ok(
-              FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino)
-            )
-          )
-      )
-      server.stubFor(
-        get(urlPathEqualTo(s"/tcs/$generatedNino/exclusion"))
-          .willReturn(aResponse.withFixedDelay(delayInMilliseconds))
-      )
-
-      val request = FakeRequest(GET, "/personal-account/your-address/tax-credits-choice")
-        .withSession(SessionKeys.sessionId -> "1", SessionKeys.authToken -> "1")
-      val result  = route(app, request)
-
-      result.get.futureValue.header.status mustBe OK
-      contentAsString(result.get).contains("Do you get tax credits?") mustBe true
-    }
-  }
-
   "/personal-account/national-insurance-summary" must {
     "display no NI content when partial connector times out" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))

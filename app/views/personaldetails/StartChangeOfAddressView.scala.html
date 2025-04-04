@@ -59,7 +59,7 @@
             href = Some(
                 addrType match {
                     case PostalAddrType => controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url
-                    case _              => controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url
+                    case _              => controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url
                 }            
             ),  
             classes = Some("govuk-button govuk-button--start govuk-!-margin-top-2"),

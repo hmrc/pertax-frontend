@@ -35,8 +35,6 @@ GET         /personal-account/your-profile                                      
 GET         /personal-account/profile-and-settings                                     controllers.address.PersonalDetailsController.onPageLoad
 
 GET         /personal-account/update-your-address                                      controllers.RlsController.rlsInterruptOnPageLoad
-GET         /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onPageLoad
-POST        /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onSubmit
 GET         /personal-account/your-address/residential/where-is-your-new-address       controllers.address.DoYouLiveInTheUKController.onPageLoad
 POST        /personal-account/your-address/residential/where-is-your-new-address       controllers.address.DoYouLiveInTheUKController.onSubmit
 GET         /personal-account/your-address/postal/where-is-your-new-postal-address     controllers.address.PostalDoYouLiveInTheUKController.onPageLoad

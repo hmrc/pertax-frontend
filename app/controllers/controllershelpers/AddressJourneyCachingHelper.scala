@@ -80,7 +80,6 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
         block(
           AddressJourneyData(
             userAnswers.get(HasAddressAlreadyVisitedPage),
-            userAnswers.get(TaxCreditsChoicePage),
             userAnswers.get(SubmittedResidencyChoicePage(typ)),
             userAnswers.get(SelectedRecordSetPage(typ)),
             userAnswers.get(AddressFinderPage(typ)),
@@ -96,7 +95,7 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
         case _: JsResultException =>
           logger.error(s"Failed to read cached address")
           block(
-            AddressJourneyData(None, None, None, None, None, None, None, None, None, addressLookupServiceDown = false)
+            AddressJourneyData(None, None, None, None, None, None, None, None, addressLookupServiceDown = false)
           )
         case NonFatal(e)          =>
           throw e
