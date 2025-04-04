@@ -149,26 +149,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "Calling getTaxCreditsCard" must {
-    "return correct markup when taxCreditsPaymentLinkEnabled is enabled and current date time is before service closure" in {
-      val mockConfigDecorator = mock[ConfigDecorator]
-      when(mockConfigDecorator.featureBannerTcsServiceClosure).thenReturn(BannerTcsServiceClosure.Enabled)
-      when(mockConfigDecorator.tcsFrontendEndDateTime).thenReturn(ZonedDateTime.now.plusMinutes(1))
-      val homeCardGenerator   = createHomeCardGenerator(mockConfigDecorator)
-
-      lazy val cardBody = homeCardGenerator.getTaxCreditsCard()
-
-      val expTaxCredits = new TaxCreditsView()()(implicitly, mockConfigDecorator)
-      cardBody mustBe expTaxCredits
-      val renderedHtml  = cardBody.toString
-
-      renderedHtml.contains(
-        messages("label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim")
-      ) mustBe true
-      renderedHtml.contains(
-        routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
-      ) mustBe true
-    }
-
     "return correct markup when taxCreditsPaymentLinkEnabled is enabled and current date time is after service closure" in {
       val mockConfigDecorator = mock[ConfigDecorator]
       when(mockConfigDecorator.featureBannerTcsServiceClosure).thenReturn(BannerTcsServiceClosure.Enabled)

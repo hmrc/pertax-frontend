@@ -23,15 +23,7 @@
 @()(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
 
 @cardUrl = @{
-    configDecorator.featureBannerTcsServiceClosure match {
-        case BannerTcsServiceClosure.Enabled if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0 => 
-            routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
-        case BannerTcsServiceClosure.Enabled =>
-            routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView.url
-        case BannerTcsServiceClosure.DontCheck => "/tax-credits-service/renewals/service-router"
-        case _ =>
-            "/not-yet-implemented"
-    }
+    routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView.url
 }
 
 @{
