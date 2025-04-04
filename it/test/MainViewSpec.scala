@@ -62,7 +62,6 @@ class MainViewSpec extends IntegrationSpec {
   private val testNino: Nino = generator.nextNino
 
   val fakePersonDetails: PersonDetails = PersonDetails(
-    "115",
     Person(
       Some("John"),
       None,

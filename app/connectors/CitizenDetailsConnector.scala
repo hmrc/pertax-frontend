@@ -55,6 +55,9 @@ trait CitizenDetailsConnector {
   def getMatchingDetails(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse]
+  def getEtag(
+    nino: String
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse]
 }
 
 @Singleton
@@ -119,10 +122,10 @@ class CachingCitizenDetailsConnector @Inject() (
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     underlying.getMatchingDetails(nino)
 
-  def clearPersonDetailsCache(nino: Nino)(implicit request: Request[_]): Future[Unit] = {
-    val cacheKey = s"getPersonDetails-$nino"
-    sessionCacheRepository.deleteFromSession(DataKey[JsValue](cacheKey)).map(_ => ())
-  }
+  def getEtag(
+    nino: String
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    underlying.getEtag(nino)
 }
 
 @Singleton
@@ -176,4 +179,17 @@ class DefaultCitizenDetailsConnector @Inject() (
         .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
     )
   }
+
+  def getEtag(
+    nino: String
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+
+    val url = s"$citizenDetailsUrl/citizen-details/$nino/etag"
+    httpClientResponse.read(
+      httpClientV2
+        .get(url"$url")
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+    )
+  }
+
 }
