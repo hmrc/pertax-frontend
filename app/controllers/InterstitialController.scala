@@ -213,10 +213,7 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displayTaxCreditsTransitionInformationInterstitialView: Action[AnyContent] = Action {
-    Redirect(controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
-  }
-  def displayTaxCreditsEndedInformationInterstitialView: Action[AnyContent]      = Action { implicit request =>
+  def displayTaxCreditsEndedInformationInterstitialView: Action[AnyContent] = Action { implicit request =>
     if (configDecorator.featureBannerTcsServiceClosure == BannerTcsServiceClosure.Enabled) {
       Ok(taxCreditsEndedInformationInterstitialView())
     } else {
