@@ -761,7 +761,6 @@ selfAssessment.notSureCheckReturn.suffix = if you’re not sure.
 selfAssessment.registerSelfAssessment = Register for Self Assessment
 selfAssessment.needToSendReturn.prefix = If you need to send a tax return, you will first need to
 selfAssessment.needToSendReturn.linkText = register for Self Assessment
-taxCredits.endAlert.prefix = Tax credits end on 5 April 2025.
 taxCredits.endAlert.linkText = Find out what to do if you claim tax credits.
 
 tax_credits.transition.information.title = What to do if you claim tax credits
