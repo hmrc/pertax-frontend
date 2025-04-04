@@ -40,8 +40,6 @@ POST        /personal-account/your-address/residential/where-is-your-new-address
 GET         /personal-account/your-address/postal/where-is-your-new-postal-address     controllers.address.PostalDoYouLiveInTheUKController.onPageLoad
 POST        /personal-account/your-address/postal/where-is-your-new-postal-address     controllers.address.PostalDoYouLiveInTheUKController.onSubmit
 
-GET         /personal-account/your-address/change-address-tax-credits                  controllers.InterstitialController.displayTaxCreditsInterstitial
-
 GET         /personal-account/your-address/:typ/cannot-use-the-service                 controllers.address.AddressErrorController.cannotUseThisService(typ: AddrType)
 GET         /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onPageLoad(typ: AddrType)
 POST        /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onSubmit(typ: AddrType)

@@ -218,7 +218,6 @@ label.we_need_to_ask_you_some_questions_=We need to ask you some questions befor
 label.do_your_tax_return_before_the_deadline=Do your tax return before the deadline
 label.the_deadline_to_do_your_tax_return_online_is_=The deadline to do your tax return online is 11:59pm on 31 January {0}.
 
-label.do_you_get_tax_credits=Do you get tax credits?
 label.view_your_national_insurance_record=View your National Insurance record
 label.self_assessment_summary=Self Assessment summary
 label.back_to_account_home=Back to account home
@@ -710,14 +709,6 @@ alertBannerShuttering.taxcalc = Tax Calculation
 alertBannerShuttering.fandf = Trusted Helpers
 alertBannerShuttering.childBenefit = Child Benefit
 alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Employee Expenses, including working from home, uniform, work clothes, tools and professional subscriptions
-
-#*************************************************************
-# Tax Credits CoA Interstitial Page
-#*************************************************************
-tax_credits.interstitial.title = Change of address
-tax_credits.interstitial.p1 = Because you receive tax credits, you will need to change your claim in the Tax Credits Service.
-tax_credits.interstitial.p2 = It usually takes up to 48 hours for your change of address to be updated in your personal tax account. There are times when it may take up to 2 weeks.
-tax_credits.interstitial.link_text = Continue to the Tax Credits Service
 
 #*************************************************************
 # Alert Banner

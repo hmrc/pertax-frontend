@@ -179,7 +179,6 @@ label.you_cannot_view_your_self_assessment_information_here_=Ni allwch fwrw golw
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text=cyflwyno’ch Ffurflen Dreth ar-lein
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth papur yw canol nos ar 31 Hydref.
 
-label.do_you_get_tax_credits=A ydych yn cael credydau treth?
 label.national_insurance=Yswiriant Gwladol
 label.view_your_national_insurance_record=Bwrw golwg ar eich cofnod Yswiriant Gwladol
 label.how_to_contact_us=Gallwch ein ffonio er mwyn
@@ -707,14 +706,6 @@ alertBannerShuttering.taxcalc = Cyfrifiad Treth
 alertBannerShuttering.fandf = Cynorthwywyr Dibynadwy
 alertBannerShuttering.childBenefit = Budd-dal Plant
 alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau’r Cyflogai, gan gynnwys gweithio gartref, gwisg, dillad gwaith, offer a thanysgrifiadau proffesiynol
-
-#*************************************************************
-# Tax Credits CoA Interstitial Page
-#*************************************************************
-tax_credits.interstitial.title = Newid cyfeiriad
-tax_credits.interstitial.p1 = Gan eich bod yn cael credydau treth, bydd angen i chi newid eich hawliad yn y Gwasanaeth Credydau Treth
-tax_credits.interstitial.p2 = Fel arfer, mae’n cymryd hyd at 48 awr i’ch cyfeiriad gael ei ddiweddaru ar eich Cyfrif Treth Personol. Gall gymryd hyd at bythefnos ar rai adegau.
-tax_credits.interstitial.link_text = Yn eich blaen i’r Gwasanaeth Credydau Treth
 
 #*************************************************************
 # Alert Banner

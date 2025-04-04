@@ -17,7 +17,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.BreathingSpaceIndicatorToggle
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -112,7 +112,6 @@ class ContentsCheckSpec extends IntegrationSpec {
     "/personal-account"                                                      -> getExpectedData("/"),
     "/personal-account/profile-and-settings"                                 -> getExpectedData("profile-and-settings"),
     "/personal-account/your-address/residential/where-is-your-new-address"   -> getExpectedData("where-new-address"),
-    "/personal-account/your-address/change-address-tax-credits"              -> getExpectedData("change-address-tcs"),
     "/personal-account/your-address/postal/where-is-your-new-postal-address" -> getExpectedData(
       "where-new-postal-address"
     ),

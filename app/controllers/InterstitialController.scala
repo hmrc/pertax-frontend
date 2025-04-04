@@ -54,7 +54,6 @@ class InterstitialController @Inject() (
   viewItsaMergePageView: ViewItsaMergePageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
   shutteringView: ShutteringView,
-  taxCreditsAddressInterstitialView: TaxCreditsAddressInterstitialView,
   taxCreditsTransitionInformationInterstitialView: TaxCreditsTransitionInformationInterstitialView,
   taxCreditsEndedInformationInterstitialView: TaxCreditsEndedInformationInterstitialView,
   enrolmentsHelper: EnrolmentsHelper,
@@ -203,15 +202,6 @@ class InterstitialController @Inject() (
       } else {
         Future.successful(errorRenderer.error(UNAUTHORIZED))
       }
-    }
-  }
-
-  def displayTaxCreditsInterstitial: Action[AnyContent] = authenticate { implicit request =>
-    configDecorator.featureBannerTcsServiceClosure match {
-      case BannerTcsServiceClosure.Enabled if ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) > 0 =>
-        Redirect(controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
-      case _                                                                                                          =>
-        Ok(taxCreditsAddressInterstitialView())
     }
   }
 
