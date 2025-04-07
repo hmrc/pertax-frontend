@@ -22,7 +22,6 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import models._
 import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle}
-import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.stubbing.ScalaOngoingStubbing
@@ -404,33 +403,6 @@ class InterstitialControllerSpec extends BaseSpec {
   }
 
   "Calling displayTaxCreditsInterstitial" must {
-    "return OK when NpsShutteringToggle is true and TCS has not been decommissioned yet" in {
-      val app                                     = appn(extraConfigValues =
-        Map(
-          "feature.bannerTcsServiceClosure"       -> "enabled",
-          "external-url.tcs-frontend.endDateTime" -> "2025-04-06T11:00:00.000000+01:00"
-        )
-      )
-      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
-
-      setupAuth(
-        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
-      )
-
-      when(mockFeatureFlagService.get(ShowOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = true)))
-
-      val result = controller.displayTaxCreditsInterstitial()(fakeRequest)
-      val html   = Jsoup.parse(contentAsString(result))
-      status(result) mustBe OK
-      html.html() must include(
-        "Because you receive tax credits, you will need to change your claim in the Tax Credits Service."
-      )
-      html.title() mustBe "Change of address - Personal tax account - GOV.UK"
-      html
-        .getElementById("proceed")
-        .attr("href") mustBe "http://localhost:9362/tax-credits-service/personal/change-address"
-    }
 
     "return REDIRECT after TCS has been decommissioned" in {
       val app = appn(extraConfigValues =
