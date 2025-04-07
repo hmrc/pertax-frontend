@@ -79,7 +79,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "return the result of the block when residential and correspondence are not 1" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails("115", person, Some(buildFakeAddress), Some(buildFakeCorrespondenceAddress))
+        val personDetails = PersonDetails(
+          person,
+          Some(buildFakeAddress),
+          Some(buildFakeCorrespondenceAddress)
+        )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
@@ -95,8 +99,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "redirect to /personal-account/check-your-address when residential address status is 1" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails =
-          PersonDetails("115", person, Some(buildFakeAddress.copy(isRls = true)), Some(buildFakeCorrespondenceAddress))
+        val personDetails = PersonDetails(
+          person,
+          Some(buildFakeAddress.copy(isRls = true)),
+          Some(buildFakeCorrespondenceAddress)
+        )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
@@ -125,8 +132,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "redirect to /personal-account/check-your-address when correspondence address status is 1" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails =
-          PersonDetails("115", person, Some(buildFakeAddress), Some(buildFakeCorrespondenceAddress.copy(isRls = true)))
+        val personDetails = PersonDetails(
+          person,
+          Some(buildFakeAddress),
+          Some(buildFakeCorrespondenceAddress.copy(isRls = true))
+        )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
@@ -156,7 +166,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
       "redirect to /personal-account/check-your-address when both residential and correspondence address status is 1" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(
-          "115",
           person,
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
@@ -189,8 +198,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "return the result as s block when residential address status is 1 and residential address has been updated" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails =
-          PersonDetails("115", person, Some(buildFakeAddress.copy(isRls = true)), Some(buildFakeCorrespondenceAddress))
+        val personDetails = PersonDetails(
+          person,
+          Some(buildFakeAddress.copy(isRls = true)),
+          Some(buildFakeCorrespondenceAddress)
+        )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
@@ -219,8 +231,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
       "return the result as a block when postal address status is 1 and postal address has been updated" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails =
-          PersonDetails("115", person, Some(buildFakeAddress), Some(buildFakeCorrespondenceAddress.copy(isRls = true)))
+        val personDetails = PersonDetails(
+          person,
+          Some(buildFakeAddress),
+          Some(buildFakeCorrespondenceAddress.copy(isRls = true))
+        )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT(personDetails)
         )
@@ -250,7 +265,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
       "return result as a block when both residential and correspondence address status is 1 and both addresses have been updated" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(
-          "115",
           person,
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
@@ -284,7 +298,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
       "redirect to /personal-account/check-your-address when both residential and correspondence address status is 1 and residential address has been updated" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(
-          "115",
           person,
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
@@ -318,7 +331,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
       "redirect to /personal-account/check-your-address when both residential and correspondence address status is 1 and correspondence address has been updated" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(
-          "115",
           person,
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
