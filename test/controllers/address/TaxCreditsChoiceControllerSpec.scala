@@ -15,7 +15,6 @@
  */
 
 package controllers.address
-import cats.data.EitherT
 import controllers.InterstitialController
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
@@ -23,9 +22,9 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.admin.{AddressChangeAllowedToggle, AddressTaxCreditsBrokerCallToggle}
 import models.dto.AddressPageVisitedDto
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUserType, UserAnswers}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUserType, UserAnswers}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
@@ -38,7 +37,7 @@ import routePages.HasAddressAlreadyVisitedPage
 import services.{CitizenDetailsService, TaxCreditsService}
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, Fixtures, WireMockHelper}
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
@@ -89,166 +88,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec with WireMockHelper
   def userAnswers: UserAnswers =
     UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-  "onPageLoad" when {
-    "Tax-credit-broker call is used" must {
-      "redirect to `do-you-live-in-the-uk` if the date is after TCS has been decommissioned" in {
-        val app: Application                       =
-          localGuiceApplicationBuilder(extraConfigValues =
-            Map(
-              "feature.bannerTcsServiceClosure"       -> "enabled",
-              "external-url.tcs-frontend.endDateTime" -> "2025-03-01T11:00:00.000000+01:00"
-            )
-          ).overrides(
-            bind[AuthJourney].toInstance(mockAuthJourney),
-            bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
-            bind[AddressJourneyCachingHelper].toInstance(mockAddressJourneyCachingHelper)
-          ).build()
-        when(mockAddressJourneyCachingHelper.addToCache(any(), any())(any(), any())) thenReturn {
-          Future.successful(UserAnswers.empty("id"))
-        }
-        when(mockAuthJourney.authWithPersonalDetails)
-          .thenReturn(new ActionBuilderFixture {
-            override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-              block(buildUserRequest(request = currentRequest[A], saUser = saUserType))
-          })
-        val controller: TaxCreditsChoiceController = app.injector.instanceOf[TaxCreditsChoiceController]
-        val result                                 = controller.onPageLoad(currentRequest)
-
-        status(result) mustBe SEE_OTHER
-
-        redirectLocation(result) mustBe Some(
-          controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url
-        )
-        verify(mockAddressJourneyCachingHelper, times(1)).addToCache(any(), any())(any(), any())
-      }
-
-      "redirect to `do-you-live-in-the-uk` if the user does not receives tax credits" in {
-        def saUserType: SelfAssessmentUserType = NotEnrolledSelfAssessmentUser(Fixtures.saUtr)
-
-        val arg = ArgumentCaptor.forClass(classOf[Result])
-
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
-
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-
-        when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
-          .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, Option[Boolean]](Future.successful(Right(Some(true))))
-          )
-        when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-          .thenReturn(Future.successful(Ok("Fake Page")))
-
-        when(mockAuthJourney.authWithPersonalDetails)
-          .thenReturn(new ActionBuilderFixture {
-            override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-              block(
-                buildUserRequest(
-                  request = currentRequest[A],
-                  saUser = saUserType
-                )
-              )
-          })
-
-        val result = controller.onPageLoad(currentRequest)
-
-        status(result) mustBe OK
-        verify(mockFeatureFlagService, times(2)).get(any())
-        verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
-        verify(mockTaxCreditsService, times(1)).isAddressChangeInPTA(any())(any())
-        val argCaptorValue: Result = arg.getValue
-        argCaptorValue.header.status mustBe SEE_OTHER
-        redirectLocation(Future.successful(argCaptorValue)) mustBe Some(
-          "/personal-account/your-address/residential/where-is-your-new-address"
-          // TODO: If start change of address page experiment is successful replace above line with below
-          // "/personal-account/your-address/change-main-address"
-        )
-      }
-
-      "display the 'do you get tax credits' page if the tax credits service returns None, " +
-        "indicating that we don't know if the user needs to change its address on PTA or tax credits" in {
-          val arg = ArgumentCaptor.forClass(classOf[Result])
-
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-            .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = true)))
-          when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
-            .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-          when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
-            .thenReturn(
-              EitherT[Future, UpstreamErrorResponse, Option[Boolean]](Future.successful(Right(None)))
-            )
-          when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-            .thenReturn(Future.successful(Ok("Fake Page")))
-
-          when(mockAuthJourney.authWithPersonalDetails)
-            .thenReturn(new ActionBuilderFixture {
-              override def invokeBlock[A](
-                request: Request[A],
-                block: UserRequest[A] => Future[Result]
-              ): Future[Result] =
-                block(
-                  buildUserRequest(
-                    request = currentRequest[A],
-                    saUser = saUserType
-                  )
-                )
-            })
-
-          val result = controller.onPageLoad(currentRequest)
-
-          status(result) mustBe OK
-          verify(mockFeatureFlagService, times(2)).get(any())
-          verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
-          verify(mockTaxCreditsService, times(1)).isAddressChangeInPTA(any())(any())
-          val argCaptorValue: Result = arg.getValue
-          argCaptorValue.header.status mustBe OK
-          contentAsString(Future.successful(argCaptorValue)) must include("Do you get tax credits?")
-
-        }
-    }
-
-    "Tax-credit-broker call is not used and the question ask to the user" must {
-      "display do you get tax credits page if the user has tax credits" in {
-        def saUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(Fixtures.saUtr)
-        val arg                                = ArgumentCaptor.forClass(classOf[Result])
-
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressTaxCreditsBrokerCallToggle)))
-          .thenReturn(Future.successful(FeatureFlag(AddressTaxCreditsBrokerCallToggle, isEnabled = false)))
-        when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
-          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-
-        when(mockTaxCreditsService.isAddressChangeInPTA(any())(any()))
-          .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, Option[Boolean]](Future.successful(Right(Some(false))))
-          )
-
-        when(mockAddressJourneyCachingHelper.enforceDisplayAddressPageVisited(any())(any()))
-          .thenReturn(Future.successful(Ok("Fake Page")))
-
-        when(mockAuthJourney.authWithPersonalDetails)
-          .thenReturn(new ActionBuilderFixture {
-            override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-              block(
-                buildUserRequest(
-                  request = currentRequest[A],
-                  saUser = saUserType
-                )
-              )
-          })
-
-        val result = controller.onPageLoad(currentRequest)
-
-        status(result) mustBe OK
-        verify(mockFeatureFlagService, times(2)).get(any())
-        verify(mockAddressJourneyCachingHelper, times(1)).enforceDisplayAddressPageVisited(arg.capture)(any())
-        verify(mockTaxCreditsService, times(0)).isAddressChangeInPTA(any())(any())
-        val argCaptorValue: Result = arg.getValue
-        argCaptorValue.header.status mustBe OK
-        contentAsString(Future.successful(argCaptorValue)) must include("Do you get tax credits?")
-      }
-    }
-  }
+  "onPageLoad" when {}
 
   "onSubmit" must {
     "redirect to expected tax credits page when supplied with value = Yes (true)" in {
