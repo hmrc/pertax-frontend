@@ -111,7 +111,6 @@ class testSpec extends A11ySpec {
     "/personal-account"                                                      -> getExpectedData("/"),
     "/personal-account/profile-and-settings"                                 -> getExpectedData("profile-and-settings"),
     "/personal-account/your-address/residential/where-is-your-new-address"   -> getExpectedData("where-is-address"),
-    "/personal-account/your-address/change-address-tax-credits"              -> getExpectedData("change-address-tcs"),
     "/personal-account/your-address/postal/where-is-your-new-postal-address" -> getExpectedData(
       "where-is-postal-address"
     ),
