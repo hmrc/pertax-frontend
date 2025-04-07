@@ -236,6 +236,10 @@ class InterstitialController @Inject() (
     Ok(taxCreditsEndedInformationInterstitialView())
   }
 
+  def displayTaxCreditsTransitionInformationInterstitialView: Action[AnyContent] = Action {
+    Redirect(controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
+  }
+
   def displayCheckYourStatePensionCallBackView: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(VoluntaryContributionsAlertToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {

@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import config.NewsAndTilesConfig
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
@@ -33,7 +34,7 @@ import play.twirl.api.Html
 import services.CitizenDetailsService
 import services.partials.{FormPartialService, SaPartialService}
 import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.{ActionBuilderFixture, BaseSpec}
+import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
@@ -398,6 +399,49 @@ class InterstitialControllerSpec extends BaseSpec {
       val result = controller.displayShutteringPage()(fakeRequest)
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.HomeController.index.url)
+    }
+  }
+
+  "Calling displayTaxCreditsTransitionInformationInterstitialView" must {
+
+    "return REDIRECT to decommissioned page" in {
+
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+
+      setupAuth(
+        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
+      )
+
+      val result: Future[Result] = controller.displayTaxCreditsTransitionInformationInterstitialView(fakeRequest)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(
+        controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView.url
+      )
+    }
+
+  }
+
+  "Calling displayNISP" must {
+    "return OK and include banner content when voluntary contributions alert toggle is on" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      setupAuth()
+
+      when(mockFormPartialService.getNISPPartial(any()))
+        .thenReturn(Future.successful(HtmlPartial.Success(Some("title"), Html("nisp partial"))))
+
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
+        .thenReturn(EitherT.rightT(Fixtures.buildPersonDetails))
+
+      val bannerHtml = Html("<div class='voluntary-banner'>Banner Content</div>")
+      when(mockAlertBannerHelper.getVoluntaryContributionsAlertBannerContent(any(), any()))
+        .thenReturn(Future.successful(Some(bannerHtml)))
+
+      val result = controller.displayNISP()(fakeRequest)
+
+      status(result) mustBe OK
+      val content = contentAsString(result)
+      content must include("nisp partial")
+      content must include("voluntary-banner")
     }
   }
 }
