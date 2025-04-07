@@ -825,7 +825,7 @@ label.view_manage_your_mtd_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol a
 label.online_deadline_tax_returns=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth yw 31 Ionawr {0}.
 
 waiting_for_callback=Os ydych yn aros i gael galwad ffôn yn ôl
-no_need_to_contact=does dim angen i chi gysylltu â ni eto.
+no_need_to_contact=, does dim angen i chi gysylltu â ni eto.
 voluntary_contributions_deadline=Gallwch dalu am fylchau sy’n dyddio yn ôl at 2006 pan fyddwn yn eich ffonio, hyd yn oed os yw hyn ar ôl y dyddiad cau ar 5 Ebrill.
 
 callback_registration_info=Os gwnaethoch gofrestru i gael galwad ffôn yn ôl cyn 5 Ebrill 2025, does dim angen i chi wneud unrhyw beth.
