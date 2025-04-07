@@ -108,7 +108,7 @@ class ViewNISPViewSpec extends ViewSpec {
 
       document.body().toString must include("Your National Insurance number is")
       val ninoElement = document.select(".nino")
-      ninoElement.text().trim() shouldBe trustedHelperNino.formatted
+      ninoElement.text().trim() shouldBe trustedHelperNino.value
     }
 
     "display the National Insurance number from nino when trustedHelper is absent" in {
@@ -118,7 +118,8 @@ class ViewNISPViewSpec extends ViewSpec {
         asDocument(view(Html(""), Some(nino))(userRequestWithoutTrustedHelper, configDecorator, messages).toString)
 
       document.body().toString must include("Your National Insurance number is")
-      document.body().toString must include(nino.formatted)
+      val ninoElement = document.select(".nino")
+      ninoElement.text().trim shouldBe nino.value
     }
 
     "display the National Insurance number from nino when trustedHelper has no principalNino" in {
@@ -129,7 +130,8 @@ class ViewNISPViewSpec extends ViewSpec {
         asDocument(view(Html(""), Some(nino))(userRequestWithTrustedHelperNoNino, configDecorator, messages).toString)
 
       document.body().toString must include("Your National Insurance number is")
-      document.body().toString must include(nino.formatted)
+      val ninoElement = document.select(".nino")
+      ninoElement.text().trim shouldBe nino.value
     }
 
     "not display the National Insurance number when both trustedHelper and nino are absent" in {
