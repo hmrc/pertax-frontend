@@ -18,7 +18,7 @@ package address
 
 import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, status => _}
 import config.{ApplicationStartUp, CryptoProvider}
-import connectors.{AgentClientAuthorisationConnector, CachingCitizenDetailsConnector, CitizenDetailsConnector, DefaultAgentClientAuthorisationConnector, DefaultCitizenDetailsConnector}
+import connectors.{AgentClientAuthorisationConnector, CitizenDetailsConnector, DefaultAgentClientAuthorisationConnector, DefaultCitizenDetailsConnector}
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -59,7 +59,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
 
   "personal-account" must {
     "show rls interrupt" when {
-      "RLS indicator is set for main address for non tax credit user" in {
+      "RLS indicator is set for main address" in {
         val designatoryDetails =
           s"""|
              |{
@@ -101,7 +101,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
         result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
       }
 
-      "RLS indicator is set for correspondence address for non tax credit user" in {
+      "RLS indicator is set for correspondence address" in {
         val designatoryDetails =
           s"""|
              |{
@@ -142,7 +142,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
         result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
       }
 
-      "RLS indicator is set for both main address and correspondence address for non tax credit user" in {
+      "RLS indicator is set for both main address and correspondence address" in {
         val designatoryDetails =
           s"""|
              |{
@@ -198,7 +198,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
   }
 
   "not show rls interrupt" when {
-    "no rls indicator for non tax credit user" in {
+    "no rls indicator" in {
       val designatoryDetails =
         s"""|
              |{

@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import config.{BannerTcsServiceClosure, ConfigDecorator, NewsAndTilesConfig}
+import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
@@ -214,11 +214,7 @@ class InterstitialController @Inject() (
   }
 
   def displayTaxCreditsEndedInformationInterstitialView: Action[AnyContent] = Action { implicit request =>
-    if (configDecorator.featureBannerTcsServiceClosure == BannerTcsServiceClosure.Enabled) {
-      Ok(taxCreditsEndedInformationInterstitialView())
-    } else {
-      errorRenderer.error(UNAUTHORIZED)
-    }
+    Ok(taxCreditsEndedInformationInterstitialView())
   }
 
 }

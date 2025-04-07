@@ -88,10 +88,6 @@ class ContentsCheckSpec extends IntegrationSpec {
         ExpectedData(
           "Where is your new postal address? - Personal tax account - GOV.UK"
         )
-      case "change-address-tcs"                    =>
-        ExpectedData(
-          "Change of address - Personal tax account - GOV.UK"
-        )
       case "where-new-address"                     =>
         ExpectedData(
           "Where is your new address? - Personal tax account - GOV.UK"
@@ -190,7 +186,6 @@ class ContentsCheckSpec extends IntegrationSpec {
     .toString
 
   val personDetailsUrl: String = s"/citizen-details/$generatedNino/designatory-details"
-  val tcsBrokerUrl             = s"/tcs/$generatedNino/dashboard-data"
 
   override def beforeEach(): Unit = {
     super.beforeEach()

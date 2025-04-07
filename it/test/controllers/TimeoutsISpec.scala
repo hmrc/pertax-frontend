@@ -56,8 +56,6 @@ class TimeoutsISpec extends IntegrationSpec {
       "microservice.services.taxcalc-frontend.timeoutInMilliseconds"           -> timeoutThresholdInMilliseconds,
       "microservice.services.citizen-details.port"                             -> server.port(),
       "microservice.services.citizen-details.timeoutInMilliseconds"            -> timeoutThresholdInMilliseconds,
-      "microservice.services.tcs-broker.port"                                  -> server.port(),
-      "microservice.services.tcs-broker.timeoutInMilliseconds"                 -> timeoutThresholdInMilliseconds,
       "microservice.services.dfs-digital-forms-frontend.port"                  -> server.port(),
       "microservice.services.dfs-digital-forms-frontend.timeoutInMilliseconds" -> timeoutThresholdInMilliseconds
     )

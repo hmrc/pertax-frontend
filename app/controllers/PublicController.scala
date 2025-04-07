@@ -48,12 +48,6 @@ class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeo
     }
   }
 
-  def redirectToTaxCreditsService(): Action[AnyContent] = Action.async { _ =>
-    Future.successful {
-      Redirect(configDecorator.tcsServiceRouterUrl, MOVED_PERMANENTLY)
-    }
-  }
-
   def redirectToYourProfile(): Action[AnyContent] = Action.async { _ =>
     Future.successful {
       Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad)

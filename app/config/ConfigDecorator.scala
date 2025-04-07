@@ -17,15 +17,13 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
-import config.BannerTcsServiceClosure.BannerTcsServiceClosure
 import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.{URL, URLEncoder}
-import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, ZonedDateTime}
+import java.time.LocalDate
 
 @Singleton
 class ConfigDecorator @Inject() (
@@ -56,7 +54,6 @@ class ConfigDecorator @Inject() (
   private lazy val formFrontendService       = servicesConfig.baseUrl("dfs-digital-forms-frontend")
   private lazy val taxCalcFrontendService    = servicesConfig.baseUrl("taxcalc-frontend")
   lazy val businessTaxAccountService: String = servicesConfig.baseUrl("business-tax-account")
-  lazy val tcsBrokerHost: String             = servicesConfig.baseUrl("tcs-broker")
 
   private lazy val payApiUrl = servicesConfig.baseUrl("pay-api")
 
@@ -85,12 +82,6 @@ class ConfigDecorator @Inject() (
   lazy val pertaxFrontendHost: String                 = getExternalUrl(s"pertax-frontend.host").getOrElse("")
   lazy val pertaxFrontendForAuthHost: String          = getExternalUrl(s"pertax-frontend.auth-host").getOrElse("")
   private lazy val feedbackSurveyFrontendHost: String = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
-  private lazy val tcsFrontendHost: String            = getExternalUrl(s"tcs-frontend.host").getOrElse("")
-  lazy val tcsFrontendEndDateTime: ZonedDateTime      =
-    ZonedDateTime.parse(
-      runModeConfiguration.get[String](s"external-url.tcs-frontend.endDateTime"),
-      DateTimeFormatter.ISO_OFFSET_DATE_TIME
-    )
 
   private lazy val nispFrontendHost: String                  = getExternalUrl(s"nisp-frontend.host").getOrElse("")
   private lazy val dfsFrontendHost: String                   = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
@@ -163,8 +154,6 @@ class ConfigDecorator @Inject() (
     s"$formFrontendService/digital-forms/forms/personal-tax/self-assessment/catalogue"
   lazy val taxCalcPartialLinkUrl               = s"$taxCalcFrontendService/tax-you-paid/summary-card-partials"
 
-  lazy val tcsChangeAddressUrl       = s"$tcsFrontendHost/tax-credits-service/personal/change-address"
-  lazy val tcsServiceRouterUrl       = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
   lazy val updateAddressShortFormUrl = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
   lazy val changeNameLinkUrl         =
     s"$dfsFrontendHost/digital-forms/form/notification-of-a-change-in-personal-details/draft/guide"
@@ -264,8 +253,6 @@ class ConfigDecorator @Inject() (
     servicesConfig.getInt("microservice.services.breathing-space-if-proxy.timeoutInMilliseconds")
   lazy val citizenDetailsTimeoutInMilliseconds: Int      =
     servicesConfig.getInt("microservice.services.citizen-details.timeoutInMilliseconds")
-  lazy val tcsBrokerTimeoutInMilliseconds: Int           =
-    servicesConfig.getInt("microservice.services.tcs-broker.timeoutInMilliseconds")
   lazy val taiTimeoutInMilliseconds: Int                 =
     servicesConfig.getInt("microservice.services.tai.timeoutInMilliseconds")
   lazy val dfsPartialTimeoutInMilliseconds: Int          =
@@ -293,23 +280,9 @@ class ConfigDecorator @Inject() (
   lazy val webChatIsEnabled: Boolean =
     runModeConfiguration.getOptional[Boolean]("feature.web-chat.enabled").getOrElse(false)
 
-  def featureBannerTcsServiceClosure: BannerTcsServiceClosure =
-    runModeConfiguration.get[String]("feature.bannerTcsServiceClosure").toLowerCase match {
-      case "enabled"    => BannerTcsServiceClosure.Enabled
-      case "disabled"   => BannerTcsServiceClosure.Disabled
-      case "dont-check" => BannerTcsServiceClosure.DontCheck
-      case other        => throw new IllegalArgumentException(s"Invalid value for feature.bannerTcsServiceClosure§: $other")
-    }
-
   lazy val featureNameChangeMtdItSaToMtdIt: Boolean =
     runModeConfiguration.get[Boolean]("feature.nameChangeMtdItSaToMtdIt")
 
   val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongo.encryption.enabled")
-
-}
-
-object BannerTcsServiceClosure extends Enumeration {
-  type BannerTcsServiceClosure = Value
-  val Enabled, Disabled, DontCheck = Value
 
 }
