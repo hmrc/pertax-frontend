@@ -14,14 +14,16 @@
  * limitations under the License.
  *@
 
-@import components.{H1, Link, P}
 @import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import scala.concurrent.ExecutionContext
+@import components.{H1, P, Link}
 @import views.MainView
 @this(
-        main: MainView,
-        h1: H1,
-        p: P,
-        link: Link
+    main: MainView,
+    h1: H1,
+    p: P,
+    link: Link
 )
 
 @()(implicit request: Request[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
@@ -35,9 +37,9 @@
 
     @p(Text(messages("label.to_continue_you_can")))
 
-    <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("label.see_your_current_address_text_before_link") @link(configDecorator.personalAccountYourAddress, "label.see_your_current_address_link_text", inParagraph = true)</li>
-        <li>@messages("label.go_to_your_personal_tax_account_home_text_before_link") @link(configDecorator.personalAccount, "label.go_to_your_personal_tax_account_home_link_text", inParagraph = true)</li>
-    </ul>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("label.see_your_current_address_text_before_link") @link(configDecorator.personalAccountYourAddress, "label.see_your_current_address_link_text", inParagraph=true)</li>
+        <li>@messages("label.go_to_your_personal_tax_account_home_text_before_link") @link(configDecorator.personalAccount, "label.go_to_your_personal_tax_account_home_link_text", inParagraph=true)</li>
+      </ul>
 
 }
