@@ -783,5 +783,16 @@ tax_credits.ended.information.p3 = For help with tax credits claims made before 
 tax_credits.ended.information.how.continue.li1 = view tax credits forms, notes, worksheets and checklists
 tax_credits.ended.information.how.continue.li2 = contact tax credits general enquiries
 
+waiting_for_callback=If you''re waiting for a call back
+no_need_to_contact=, you do not need to contact us again.
+voluntary_contributions_deadline=You can pay for gaps dating back to 2006 when we call you, even if it is after the 5 April deadline.
 
-
+callback_registration_info=If you registered for a call back before 5 April 2025, you do not need to do anything.
+callback_registration_assurance=We will call you to discuss filling your National Insurance gaps.
+what_happens_next=What happens next
+callback_queue_info=You are in a queue for a call back.
+callback_contact_details=We will:
+callback_contact_timing=contact you within 8 weeks
+callback_contact_notification=text you 1 day before we call
+callback_preparation=Have your National Insurance number ready when we call.
+return_to_national_insurance=Return to your National Insurance and State Pension

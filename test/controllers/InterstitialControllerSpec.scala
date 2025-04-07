@@ -30,6 +30,7 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import services.CitizenDetailsService
 import services.partials.{FormPartialService, SaPartialService}
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
@@ -38,6 +39,7 @@ import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.partials.HtmlPartial
+import util.AlertBannerHelper
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -47,6 +49,8 @@ class InterstitialControllerSpec extends BaseSpec {
   private val mockFormPartialService                                = mock[FormPartialService]
   private val mockSaPartialService                                  = mock[SaPartialService]
   private val mockNewsAndTilesConfig                                = mock[NewsAndTilesConfig]
+  val mockCitizenDetailsService: CitizenDetailsService              = mock[CitizenDetailsService]
+  val mockAlertBannerHelper: AlertBannerHelper                      = mock[util.AlertBannerHelper]
 
   private def setupAuth(
     saUserType: Option[SelfAssessmentUserType] = None,
@@ -86,8 +90,11 @@ class InterstitialControllerSpec extends BaseSpec {
       bind[FormPartialService].toInstance(mockFormPartialService),
       bind[SaPartialService].toInstance(mockSaPartialService),
       bind[AuthJourney].toInstance(mockAuthJourney),
-      bind[NewsAndTilesConfig].toInstance(mockNewsAndTilesConfig)
+      bind[NewsAndTilesConfig].toInstance(mockNewsAndTilesConfig),
+      bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+      bind[util.AlertBannerHelper].toInstance(mockAlertBannerHelper)
     ) ++ bindings
+
     localGuiceApplicationBuilder(extraConfigValues)
       .overrides(fullBindings)
       .build()
@@ -97,9 +104,13 @@ class InterstitialControllerSpec extends BaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockSaPartialService)
-    reset(mockFormPartialService)
-    reset(mockNewsAndTilesConfig)
+    reset(
+      mockSaPartialService,
+      mockFormPartialService,
+      mockNewsAndTilesConfig,
+      mockCitizenDetailsService,
+      mockAlertBannerHelper
+    )
   }
 
   "Calling displayNationalInsurance" must {

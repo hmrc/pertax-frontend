@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import com.google.inject.Inject
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.AlertBannerPaperlessStatusToggle
+import models.admin.{AlertBannerPaperlessStatusToggle, VoluntaryContributionsAlertToggle}
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.Html
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, unverifiedEmail}
+import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, unverifiedEmail, voluntaryContributionsAlertView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,7 +34,8 @@ class AlertBannerHelper @Inject() (
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService,
   bouncedEmailView: bouncedEmail,
-  unverifiedEmailView: unverifiedEmail
+  unverifiedEmailView: unverifiedEmail,
+  voluntaryContributionsAlertView: voluntaryContributionsAlertView
 ) {
 
   def getContent(implicit
@@ -68,4 +69,17 @@ class AlertBannerHelper @Inject() (
       case _                          =>
         Future.successful(None)
     }
+
+  def getVoluntaryContributionsAlertBannerContent(implicit
+    ec: ExecutionContext,
+    messages: Messages
+  ): Future[Option[Html]] =
+    featureFlagService.get(VoluntaryContributionsAlertToggle).map { toggle =>
+      if (toggle.isEnabled) {
+        Some(voluntaryContributionsAlertView())
+      } else {
+        None
+      }
+    }
+
 }
