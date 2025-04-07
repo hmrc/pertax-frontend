@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package viewmodels
 
-import play.api.libs.json._
+import play.twirl.api.Html
 
-case class PersonDetails(
-  person: Person,
-  address: Option[Address],
-  correspondenceAddress: Option[Address]
+final case class AlertBannerViewModel(
+  alertBannerContent: List[Html]
 )
 
-object PersonDetails {
-  implicit val formats: OFormat[PersonDetails] = Json.format[PersonDetails]
+object AlertBannerViewModel {
+  def apply(): AlertBannerViewModel = new AlertBannerViewModel(List.empty)
 }

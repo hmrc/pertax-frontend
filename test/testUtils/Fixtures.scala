@@ -125,7 +125,6 @@ trait TaiFixtures {
 trait CitizenDetailsFixtures {
   def buildPersonDetails: PersonDetails =
     PersonDetails(
-      "115",
       Person(
         Some("Firstname"),
         Some("Middlename"),
@@ -143,7 +142,6 @@ trait CitizenDetailsFixtures {
 
   def buildPersonDetailsCorrespondenceAddress: PersonDetails =
     PersonDetails(
-      "115",
       Person(
         Some("Firstname"),
         Some("Middlename"),
@@ -296,7 +294,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   def buildUnusedAllowance: UnusedAllowance = UnusedAllowance(BigDecimal(4000.00))
 
-  def buildFakePersonDetails: PersonDetails = PersonDetails("115", buildFakePerson, None, None)
+  def buildFakePersonDetails: PersonDetails = PersonDetails(buildFakePerson, None, None)
 
   def buildFakePerson: Person =
     Person(

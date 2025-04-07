@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import cats.data.EitherT
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.routes
-import models.admin.AlertBannerPaperlessStatusToggle
+import models.admin.{AlertBannerPaperlessStatusToggle, VoluntaryContributionsAlertToggle}
 import models.{PaperlessMessagesStatus, PaperlessStatusBounced, PaperlessStatusNewCustomer, PaperlessStatusNoEmail, PaperlessStatusOptIn, PaperlessStatusOptOut, PaperlessStatusReopt, PaperlessStatusReoptModified, PaperlessStatusUnverified}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -70,6 +70,9 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
   lazy val bouncedEmailView: bouncedEmail               = app.injector.instanceOf[bouncedEmail]
   lazy val unverifiedEmailView: unverifiedEmail         = app.injector.instanceOf[unverifiedEmail]
   lazy val taxCreditsEndBannerView: taxCreditsEndBanner = app.injector.instanceOf[taxCreditsEndBanner]
+
+  lazy val voluntaryContributionsAlertView: voluntaryContributionsAlertView =
+    app.injector.instanceOf[voluntaryContributionsAlertView]
 
   "AlertBannerHelper.getContent" must {
     "return bounce email content " in {
@@ -178,6 +181,26 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       val result = alertBannerHelper.getContent.futureValue
 
       result mustBe List.empty
+    }
+  }
+
+  "AlertBannerHelper.getVoluntaryContributionsAlertBannerContent" must {
+    "return the voluntary contributions alert banner when the feature flag is enabled" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(VoluntaryContributionsAlertToggle)))
+        .thenReturn(Future.successful(FeatureFlag(VoluntaryContributionsAlertToggle, isEnabled = true)))
+
+      val result = alertBannerHelper.getVoluntaryContributionsAlertBannerContent.futureValue
+
+      result mustBe Some(voluntaryContributionsAlertView())
+    }
+
+    "return None when the voluntary contributions alert feature flag is disabled" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(VoluntaryContributionsAlertToggle)))
+        .thenReturn(Future.successful(FeatureFlag(VoluntaryContributionsAlertToggle, isEnabled = false)))
+
+      val result = alertBannerHelper.getVoluntaryContributionsAlertBannerContent.futureValue
+
+      result mustBe None
     }
   }
 }

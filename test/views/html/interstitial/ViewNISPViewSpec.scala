@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import play.twirl.api.Html
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
+import viewmodels.AlertBannerViewModel
 import views.html.ViewSpec
 
 class ViewNISPViewSpec extends ViewSpec {
@@ -35,27 +36,37 @@ class ViewNISPViewSpec extends ViewSpec {
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(request = FakeRequest())
 
+  val emptyBannerViewModel: AlertBannerViewModel = AlertBannerViewModel(Nil)
+
   "Rendering ViewNISPView.scala.html" must {
 
+    "render alert banner content if present" in {
+      val bannerHtml      = Html("<div class='govuk-notification-banner'>Voluntary Contributions Banner</div>")
+      val bannerViewModel = AlertBannerViewModel(List(bannerHtml))
+
+      val document = asDocument(view(Html(""), None, bannerViewModel).toString)
+      document.body().toString must include("Voluntary Contributions Banner")
+    }
+
     "display the expected page header" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
       document.body().toString must include("Your National Insurance and State Pension")
     }
 
     "display the expected reason for paying National Insurance contributions" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
       document.body().toString must include(
         "You pay National Insurance contributions to qualify for certain benefits and your State Pension."
       )
     }
 
     "display the expected State Pension/National Insurance header" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
       document.body().toString must include("Your State Pension summary and National Insurance record")
     }
 
     "display the expected benefits of viewing the State Pension Summary" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
       document.body().toString must include("View your State Pension summary to find out:")
       document.body().toString must include("when you can get your State Pension")
       document.body().toString must include("how much you can get")
@@ -63,7 +74,7 @@ class ViewNISPViewSpec extends ViewSpec {
     }
 
     "display the expected benefits of viewing the National Insurance Record" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
       document.body().toString must include("View your National Insurance record to find out:")
       document.body().toString must include("what you’ve paid up to the current tax year")
       document.body().toString must include("if you’ve received any National Insurance credits")
@@ -71,7 +82,7 @@ class ViewNISPViewSpec extends ViewSpec {
     }
 
     "display the expected way of accessing the State pension summary" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
 
       val hyperLinkElement = document.select("#viewStatePensionSummary")
       hyperLinkElement.text()       shouldBe "View your State Pension summary"
@@ -79,7 +90,7 @@ class ViewNISPViewSpec extends ViewSpec {
     }
 
     "display the expected way of accessing the National Insurance Record" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
 
       val hyperLinkElement = document.select("#viewNationalInsuranceSummary")
       hyperLinkElement.text()       shouldBe "View your National Insurance record"
@@ -87,13 +98,13 @@ class ViewNISPViewSpec extends ViewSpec {
     }
 
     "display the expected National Insurance Number header" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
       document.body().toString must include("View and save your National Insurance number")
     }
 
     "display the expected National Insurance Number value" in {
       val nino        = new Nino("CS700100A")
-      val document    = asDocument(view(Html(""), Some(nino)).toString)
+      val document    = asDocument(view(Html(""), Some(nino), emptyBannerViewModel).toString)
       val ninoElement = document.select(".nino")
       ninoElement.text().trim shouldBe nino.value
       document.body().toString    must include("Your National Insurance number is")
@@ -143,19 +154,19 @@ class ViewNISPViewSpec extends ViewSpec {
     }
 
     "display the expected National Insurance Number use cases" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
       document.body().toString must include(
         "You will need your National Insurance number for employment, applying for a student loan and to claim certain benefits."
       )
     }
 
     "display the expected reason for saving the National Insurance Number" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
       document.body().toString must include("So that you have your number when you need it, you can:")
     }
 
     "display the expected ways of saving the National Insurance Number" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
       document.body().toString must include("view and get a copy of your National Insurance number confirmation letter")
       document.body().toString must include(
         "save your National Insurance number to the wallet on your smartphone, or smartwatch"
@@ -163,7 +174,7 @@ class ViewNISPViewSpec extends ViewSpec {
     }
 
     "display the expected National Insurance Number information links" in {
-      val document = asDocument(view(Html(""), None).toString)
+      val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
 
       val viewNinoHyperLinkElement = document.select("#viewNationalInsuranceNumber")
       viewNinoHyperLinkElement.text()       shouldBe "View and save your National Insurance number"
