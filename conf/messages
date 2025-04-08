@@ -218,7 +218,6 @@ label.we_need_to_ask_you_some_questions_=We need to ask you some questions befor
 label.do_your_tax_return_before_the_deadline=Do your tax return before the deadline
 label.the_deadline_to_do_your_tax_return_online_is_=The deadline to do your tax return online is 11:59pm on 31 January {0}.
 
-label.do_you_get_tax_credits=Do you get tax credits?
 label.view_your_national_insurance_record=View your National Insurance record
 label.self_assessment_summary=Self Assessment summary
 label.back_to_account_home=Back to account home
@@ -511,9 +510,7 @@ label.you_can_still_make_payments_towards_your_debt_during_breathing_space=You c
 # Benefits
 #
 title.benefits=Benefits
-label.tax_credits=Tax credits
 label.tax_credits_ended=Tax credits ended 5 April 2025
-label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=View your next payments and the people on your claim, and make changes to your claim.
 label.tax_credits_ended_content = Universal Credits and Pension Credit have replaced tax credits.
 label.view_your_tax_credits_payments=View your tax credits payments
 title.marriage_allowance=Marriage Allowance
@@ -641,8 +638,6 @@ label.home_page.utr=Your Self Assessment Unique Taxpayer Reference (UTR) is
 # Form error messages radio
 #*************************************************************
 
-error.tax_credits_select = Select yes if you get tax credits
-head.error.tax_credits_select = Select yes if you get tax credits
 error.multiple_address_select = Select yes if you live in more than one place
 head.error.multiple_address_select = Select yes if you live in more than one place
 error.international_address_select.required = Select where your new address is
@@ -712,14 +707,6 @@ alertBannerShuttering.childBenefit = Child Benefit
 alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Employee Expenses, including working from home, uniform, work clothes, tools and professional subscriptions
 
 #*************************************************************
-# Tax Credits CoA Interstitial Page
-#*************************************************************
-tax_credits.interstitial.title = Change of address
-tax_credits.interstitial.p1 = Because you receive tax credits, you will need to change your claim in the Tax Credits Service.
-tax_credits.interstitial.p2 = It usually takes up to 48 hours for your change of address to be updated in your personal tax account. There are times when it may take up to 2 weeks.
-tax_credits.interstitial.link_text = Continue to the Tax Credits Service
-
-#*************************************************************
 # Alert Banner
 #*************************************************************
 alert_banner.paperlessStatus.unverified_email.p1 = You need to
@@ -770,24 +757,6 @@ selfAssessment.notSureCheckReturn.suffix = if you’re not sure.
 selfAssessment.registerSelfAssessment = Register for Self Assessment
 selfAssessment.needToSendReturn.prefix = If you need to send a tax return, you will first need to
 selfAssessment.needToSendReturn.linkText = register for Self Assessment
-taxCredits.endAlert.prefix = Tax credits end on 5 April 2025.
-taxCredits.endAlert.linkText = Find out what to do if you claim tax credits.
-
-tax_credits.transition.information.title = What to do if you claim tax credits
-tax_credits.transition.information.end_date = All tax credits end on 5 April 2025.
-tax_credits.transition.information.letter_info = You will be sent a letter by the Department of Work and Pensions (DWP) telling you if you can claim Universal Credit or Pension Credit instead.
-tax_credits.transition.information.end_date_notification = Your letter will tell you when your tax credits end.
-tax_credits.transition.information.early_end_date_warning = This may be earlier than 5 April 2025.
-tax_credits.transition.information.overpayment.title = If you have a tax credit overpayment
-tax_credits.transition.information.overpayment.details = If you’re still claiming tax credits, HMRC will reduce your future tax credits until you’ve paid the money back you owe.
-tax_credits.transition.information.dwp_contact_details_primary_information = If you move to Universal Credit or Pension Credit, DWP will contact you about how to repay your tax credit overpayment.
-tax_credits.transition.information.dwp_contact_details_advisory_note = HMRC cannot advise on this.
-tax_credits.transition.information.support.title = Support with Universal Credit and Pension Credit
-tax_credits.transition.information.support.details = HMRC cannot answer questions about Universal Credit or Pension Credit. For support:
-tax_credits.transition.information.support.universal_credit = visit Universal Credit
-tax_credits.transition.information.support.pension_credit = visit Pension Credit
-tax_credits.transition.information.support.contact = call the telephone number in your letter
-button.continueToTaxCredits = Continue to tax credits
 
 changeMainAddress.title = Change your main address
 changeMainAddress.h1 = Change your main address

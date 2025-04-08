@@ -17,7 +17,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.BreathingSpaceIndicatorToggle
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -87,10 +87,6 @@ class ContentsCheckSpec extends IntegrationSpec {
       case "where-new-postal-address"              =>
         ExpectedData(
           "Where is your new postal address? - Personal tax account - GOV.UK"
-        )
-      case "change-address-tcs"                    =>
-        ExpectedData(
-          "Change of address - Personal tax account - GOV.UK"
         )
       case "where-new-address"                     =>
         ExpectedData(
@@ -190,7 +186,6 @@ class ContentsCheckSpec extends IntegrationSpec {
     .toString
 
   val personDetailsUrl: String = s"/citizen-details/$generatedNino/designatory-details"
-  val tcsBrokerUrl             = s"/tcs/$generatedNino/dashboard-data"
 
   override def beforeEach(): Unit = {
     super.beforeEach()

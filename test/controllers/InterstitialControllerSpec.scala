@@ -402,55 +402,10 @@ class InterstitialControllerSpec extends BaseSpec {
     }
   }
 
-  "Calling displayTaxCreditsInterstitial" must {
-
-    "return REDIRECT after TCS has been decommissioned" in {
-      val app = appn(extraConfigValues =
-        Map(
-          "feature.bannerTcsServiceClosure"       -> "enabled",
-          "external-url.tcs-frontend.endDateTime" -> "2025-03-01T11:00:00.000000+01:00"
-        )
-      )
-
-      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
-
-      setupAuth(
-        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
-      )
-
-      val result = controller.displayTaxCreditsInterstitial()(fakeRequest)
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(
-        controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView.url
-      )
-    }
-  }
-
   "Calling displayTaxCreditsTransitionInformationInterstitialView" must {
-    "return OK when featureBannerTcsServiceClosure is Enabled and TCS has not been decommissioned yet" in {
-      val app                                     = appn(extraConfigValues =
-        Map(
-          "feature.bannerTcsServiceClosure"       -> "enabled",
-          "external-url.tcs-frontend.endDateTime" -> "2999-04-06T11:00:00.000000+01:00"
-        )
-      )
-      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
-      setupAuth(
-        saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
-      )
+    "return REDIRECT to decommissioned page" in {
 
-      val result: Future[Result] = controller.displayTaxCreditsTransitionInformationInterstitialView(fakeRequest)
-      status(result) mustBe OK
-    }
-
-    "return REDIRECT to decommissioned page when featureBannerTcsServiceClosure is Enabled and TCS has been decommissioned" in {
-      val app                                     = appn(extraConfigValues =
-        Map(
-          "feature.bannerTcsServiceClosure"       -> "enabled",
-          "external-url.tcs-frontend.endDateTime" -> "2025-03-01T11:00:00.000000+01:00"
-        )
-      )
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
@@ -464,13 +419,6 @@ class InterstitialControllerSpec extends BaseSpec {
       )
     }
 
-    "return UNAUTHORIZED when featureBannerTcsServiceClosure is Disabled" in {
-      val app                                     = appn(extraConfigValues = Map("feature.bannerTcsServiceClosure" -> "disabled"))
-      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
-
-      val result: Future[Result] = controller.displayTaxCreditsTransitionInformationInterstitialView(fakeRequest)
-      status(result) mustBe UNAUTHORIZED
-    }
   }
 
   "Calling displayNISP" must {

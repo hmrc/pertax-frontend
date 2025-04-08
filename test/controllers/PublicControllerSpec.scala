@@ -41,14 +41,6 @@ class PublicControllerSpec extends BaseSpec {
     }
   }
 
-  "Calling PublicController.redirectToTaxCreditsService" must {
-    "redirect to tax-credits-service/renewals/service-router" in {
-      val r = controller.redirectToTaxCreditsService()(buildFakeRequestWithAuth("GET"))
-      status(r) mustBe MOVED_PERMANENTLY
-      redirectLocation(r) mustBe Some("http://localhost:9362/tax-credits-service/renewals/service-router")
-    }
-  }
-
   "Calling PublicController.redirectToPersonalDetails" must {
     "redirect to /profile-and-settings page" in {
       val r = controller.redirectToYourProfile()(buildFakeRequestWithAuth("GET"))

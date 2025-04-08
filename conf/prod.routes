@@ -1,7 +1,6 @@
 GET         /personal-account/start-government-gateway                                 controllers.PublicController.governmentGatewayEntryPoint
 GET         /personal-account/signin                                                   controllers.PublicController.sessionTimeout
 GET         /personal-account/signed-out                                               controllers.PublicController.redirectToExitSurvey(origin: Origin)
-GET         /personal-account/tax-credits-summary                                      controllers.PublicController.redirectToTaxCreditsService()
 GET         /personal-account/your-address                                             controllers.PublicController.redirectToYourProfile()
 
 GET         /personal-account/do-uplift                                                controllers.ApplicationController.uplift(redirectUrl: Option[RedirectUrl])
@@ -35,14 +34,10 @@ GET         /personal-account/your-profile                                      
 GET         /personal-account/profile-and-settings                                     controllers.address.PersonalDetailsController.onPageLoad
 
 GET         /personal-account/update-your-address                                      controllers.RlsController.rlsInterruptOnPageLoad
-GET         /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onPageLoad
-POST        /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onSubmit
 GET         /personal-account/your-address/residential/where-is-your-new-address       controllers.address.DoYouLiveInTheUKController.onPageLoad
 POST        /personal-account/your-address/residential/where-is-your-new-address       controllers.address.DoYouLiveInTheUKController.onSubmit
 GET         /personal-account/your-address/postal/where-is-your-new-postal-address     controllers.address.PostalDoYouLiveInTheUKController.onPageLoad
 POST        /personal-account/your-address/postal/where-is-your-new-postal-address     controllers.address.PostalDoYouLiveInTheUKController.onSubmit
-
-GET         /personal-account/your-address/change-address-tax-credits                  controllers.InterstitialController.displayTaxCreditsInterstitial
 
 GET         /personal-account/your-address/:typ/cannot-use-the-service                 controllers.address.AddressErrorController.cannotUseThisService(typ: AddrType)
 GET         /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onPageLoad(typ: AddrType)
@@ -88,8 +83,8 @@ GET         /personal-account/timeout                                           
 GET         /personal-account/preferences                                              controllers.PaperlessPreferencesController.managePreferences
 GET         /personal-account/self-assessment-who-needs-to-register                    controllers.InterstitialController.displaySaRegistrationPage
 
-GET         /personal-account/tax-credits-are-ending                                   controllers.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView
 GET         /personal-account/tax-credits-have-ended                                   controllers.InterstitialController.displayTaxCreditsEndedInformationInterstitialView
+GET         /personal-account/tax-credits-are-ending                                   controllers.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView
 
 GET         /personal-account/services-unavailable                                     controllers.InterstitialController.displayShutteringPage
 

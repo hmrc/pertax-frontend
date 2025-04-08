@@ -179,7 +179,6 @@ label.you_cannot_view_your_self_assessment_information_here_=Ni allwch fwrw golw
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text=cyflwyno’ch Ffurflen Dreth ar-lein
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth papur yw canol nos ar 31 Hydref.
 
-label.do_you_get_tax_credits=A ydych yn cael credydau treth?
 label.national_insurance=Yswiriant Gwladol
 label.view_your_national_insurance_record=Bwrw golwg ar eich cofnod Yswiriant Gwladol
 label.how_to_contact_us=Gallwch ein ffonio er mwyn
@@ -506,9 +505,7 @@ label.you_can_still_make_payments_towards_your_debt_during_breathing_space=Gallw
 # Benefits
 #
 title.benefits=Budd-daliadau
-label.tax_credits=Credydau treth
 label.tax_credits_ended=Mae credydau treth wedi dod i ben ar 5 Ebrill 2025
-label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=Bwrw golwg ar eich taliadau nesaf a’r bobl ar eich cais, a gwneud newidiadau i’ch cais.
 label.tax_credits_ended_content = Mae Credyd Cynhwysol a Chredyd Pensiwn wedi disodli credydau treth.
 label.view_your_tax_credits_payments=Bwrw golwg ar eich taliadau credydau treth
 
@@ -638,8 +635,6 @@ label.home_page.utr=Eich Cyfeirnod Unigryw y Trethdalwr (UTR) ar gyfer Hunanases
 # Form error messages radio
 #*************************************************************
 
-error.tax_credits_select = Dewiswch ‘Iawn’ os ydych yn cael credydau treth
-head.error.tax_credits_select = Dewiswch ‘Iawn’ os ydych yn cael credydau treth
 error.multiple_address_select = Dewiswch ‘Iawn’ os ydych yn byw mewn mwy nag un lle
 head.error.multiple_address_select = Dewiswch ‘Iawn’ os ydych yn byw mewn mwy nag un lle
 error.international_address_select.required = Dewiswch ble yw’ch cyfeiriad newydd
@@ -709,14 +704,6 @@ alertBannerShuttering.childBenefit = Budd-dal Plant
 alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau’r Cyflogai, gan gynnwys gweithio gartref, gwisg, dillad gwaith, offer a thanysgrifiadau proffesiynol
 
 #*************************************************************
-# Tax Credits CoA Interstitial Page
-#*************************************************************
-tax_credits.interstitial.title = Newid cyfeiriad
-tax_credits.interstitial.p1 = Gan eich bod yn cael credydau treth, bydd angen i chi newid eich hawliad yn y Gwasanaeth Credydau Treth
-tax_credits.interstitial.p2 = Fel arfer, mae’n cymryd hyd at 48 awr i’ch cyfeiriad gael ei ddiweddaru ar eich Cyfrif Treth Personol. Gall gymryd hyd at bythefnos ar rai adegau.
-tax_credits.interstitial.link_text = Yn eich blaen i’r Gwasanaeth Credydau Treth
-
-#*************************************************************
 # Alert Banner
 #*************************************************************
 alert_banner.paperlessStatus.bounced_email.link = eich cyfeiriad e-bost
@@ -767,23 +754,6 @@ selfAssessment.notSureCheckReturn.suffix = .
 selfAssessment.registerSelfAssessment = Cofrestru ar gyfer Hunanasesiad
 selfAssessment.needToSendReturn.prefix = Os bydd angen i chi anfon Ffurflen Dreth, bydd angen i chi
 selfAssessment.needToSendReturn.linkText = gofrestru ar gyfer Hunanasesiad
-taxCredits.endAlert.prefix = Mae credydau treth yn dod i ben ar 5 Ebrill 2025.
-taxCredits.endAlert.linkText = Dysgwch beth i’w wneud os ydych yn hawlio credydau treth.
-tax_credits.transition.information.title = Beth i’w wneud os ydych yn hawlio credydau treth
-tax_credits.transition.information.end_date = Mae pob credyd treth yn dod i ben ar 5 Ebrill 2025.
-tax_credits.transition.information.letter_info = Bydd yr Adran Gwaith a Phensiynau (DWP) yn anfon llythyr atoch, yn rhoi gwybod i chi a allwch hawlio Credyd Cynhwysol neu Gredyd Pensiwn yn lle hynny.
-tax_credits.transition.information.end_date_notification = Bydd eich llythyr yn rhoi gwybod i chi pryd bydd eich credydau treth yn dod i ben.
-tax_credits.transition.information.early_end_date_warning = Efallai y bydd hyn yn digwydd cyn 5 Ebrill 2025.
-tax_credits.transition.information.overpayment.title = Os oes gennych ordaliad credydau treth
-tax_credits.transition.information.overpayment.details = Os ydych yn dal i hawlio credydau treth, bydd CThEF yn gostwng eich credydau treth yn y dyfodol, hyd nes eich bod wedi talu’r arian sydd arnoch yn ôl.
-tax_credits.transition.information.dwp_contact_details_primary_information = Os byddwch yn symud i Gredyd Cynhwysol neu Gredyd Pensiwn, bydd DWP yn cysylltu â chi ynghylch sut i ad-dalu’ch gordaliad credydau treth.
-tax_credits.transition.information.dwp_contact_details_advisory_note = Nid yw CThEF yn gallu rhoi cyngor ynglŷn â hyn.
-tax_credits.transition.information.support.title = Cymorth gyda Chredyd Cynhwysol a Chredyd Pensiwn
-tax_credits.transition.information.support.details = Nid yw CThEF yn gallu ateb cwestiynau ynghylch Credyd Cynhwysol na Chredyd Pensiwn. I gael cymorth:
-tax_credits.transition.information.support.universal_credit = ewch i’r dudalen ynghylch Credyd Cynhwysol
-tax_credits.transition.information.support.pension_credit = ewch i’r dudalen ynghylch Credyd Pensiwn
-tax_credits.transition.information.support.contact = ffoniwch y rhif ffôn sydd ar eich llythyr
-button.continueToTaxCredits = Parhau i’r adran credydau treth
 
 changeMainAddress.title = Newid eich prif gyfeiriad
 changeMainAddress.h1 = Newid eich prif gyfeiriad
