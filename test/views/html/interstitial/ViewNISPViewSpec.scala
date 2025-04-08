@@ -115,7 +115,9 @@ class ViewNISPViewSpec extends ViewSpec {
       val trustedHelper                =
         Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some(trustedHelperNino.nino)))
       val userRequestWithTrustedHelper = buildUserRequest(trustedHelper = trustedHelper, request = FakeRequest())
-      val document                     = asDocument(view(Html(""), None)(userRequestWithTrustedHelper, configDecorator, messages).toString)
+      val document                     = asDocument(
+        view(Html(""), None, emptyBannerViewModel)(userRequestWithTrustedHelper, configDecorator, messages).toString
+      )
 
       document.body().toString must include("Your National Insurance number is")
       val ninoElement = document.select(".nino")
@@ -126,7 +128,13 @@ class ViewNISPViewSpec extends ViewSpec {
       val nino                            = new Nino("CS700100A")
       val userRequestWithoutTrustedHelper = buildUserRequest(trustedHelper = None, request = FakeRequest())
       val document                        =
-        asDocument(view(Html(""), Some(nino), emptyBannerViewModel)(userRequestWithoutTrustedHelper, configDecorator, messages).toString)
+        asDocument(
+          view(Html(""), Some(nino), emptyBannerViewModel)(
+            userRequestWithoutTrustedHelper,
+            configDecorator,
+            messages
+          ).toString
+        )
 
       document.body().toString must include("Your National Insurance number is")
       val ninoElement = document.select(".nino")
@@ -138,7 +146,13 @@ class ViewNISPViewSpec extends ViewSpec {
       val trustedHelper                      = Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", None))
       val userRequestWithTrustedHelperNoNino = buildUserRequest(trustedHelper = trustedHelper, request = FakeRequest())
       val document                           =
-        asDocument(view(Html(""), Some(nino), emptyBannerViewModel)(userRequestWithTrustedHelperNoNino, configDecorator, messages).toString)
+        asDocument(
+          view(Html(""), Some(nino), emptyBannerViewModel)(
+            userRequestWithTrustedHelperNoNino,
+            configDecorator,
+            messages
+          ).toString
+        )
 
       document.body().toString must include("Your National Insurance number is")
       val ninoElement = document.select(".nino")
@@ -148,7 +162,13 @@ class ViewNISPViewSpec extends ViewSpec {
     "not display the National Insurance number when both trustedHelper and nino are absent" in {
       val userRequestWithoutTrustedHelper = buildUserRequest(trustedHelper = None, request = FakeRequest())
       val document                        =
-        asDocument(view(Html(""), None)(userRequestWithoutTrustedHelper, configDecorator, messages).toString)
+        asDocument(
+          view(Html(""), None, emptyBannerViewModel)(
+            userRequestWithoutTrustedHelper,
+            configDecorator,
+            messages
+          ).toString
+        )
 
       document.body().toString must not include "Your National Insurance number is"
     }
