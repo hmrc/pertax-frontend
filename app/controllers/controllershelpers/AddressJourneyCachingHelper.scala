@@ -106,8 +106,12 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     journeyCacheRepository.get(hc).map { userAnswers =>
       userAnswers.get(HasAddressAlreadyVisitedPage) match {
-        case Some(_) => result
-        case None    => Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad)
+        case Some(_) =>
+          logger.info("Has address already visited present")
+          result
+        case None    =>
+          logger.info("Has address already visited NOT present")
+          Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad)
       }
     }
   }
