@@ -65,10 +65,11 @@
     @link(configDecorator.nationalInsuranceRecordUrl, messageKey = "label.view_your_national_insurance_summary", id = Some("viewNationalInsuranceSummary"))
 
     @h2("label.view_and_save_your_national_insurance_number")
-    @if(nino.isDefined) {
-        @nino.map { nino =>
+    @defining(request.trustedHelper.flatMap(_.principalNino.map(Nino)).orElse(nino)) { userNino =>
+        @userNino.map { ninoValue =>
             @govukInsetText(InsetText(
-            content = HtmlContent(messages("label.your_national_insurance_number_is") + " " +s"<strong>${formattedNino(nino)}</strong>")))
+                content = HtmlContent(messages("label.your_national_insurance_number_is") + " <strong>" + formattedNino(ninoValue) + "</strong>")
+            ))
         }
     }
 
@@ -85,7 +86,7 @@
     <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
 
     <div id="national_insurance">
-        @formPartial
+    @formPartial
     </div>
 
 }
