@@ -87,10 +87,6 @@ class testSpec extends A11ySpec {
         ExpectedData(
           "Where is your new postal address? - Personal tax account - GOV.UK"
         )
-      case "change-address-tcs"                    =>
-        ExpectedData(
-          "Change of address - Personal tax account - GOV.UK"
-        )
       case "where-is-address"                      =>
         ExpectedData(
           "Where is your new address? - Personal tax account - GOV.UK"
@@ -189,7 +185,6 @@ class testSpec extends A11ySpec {
     .toString
 
   val personDetailsUrl: String = s"/citizen-details/$generatedNino/designatory-details"
-  val tcsBrokerUrl             = s"/tcs/$generatedNino/dashboard-data"
 
   override def beforeEach(): Unit = {
     super.beforeEach()

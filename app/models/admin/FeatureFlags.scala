@@ -20,7 +20,6 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagName
 
 object AllFeatureFlags {
   val list: List[FeatureFlagName] = List(
-    AddressTaxCreditsBrokerCallToggle,
     TaxcalcToggle,
     TaxComponentsToggle,
     RlsInterruptToggle,
@@ -34,13 +33,6 @@ object AllFeatureFlags {
     DfsDigitalFormFrontendAvailableToggle,
     AddressChangeAllowedToggle,
     VoluntaryContributionsAlertToggle
-  )
-}
-
-case object AddressTaxCreditsBrokerCallToggle extends FeatureFlagName {
-  override val name: String                = "address-tax-credits-broker-call"
-  override val description: Option[String] = Some(
-    "If enabled do not ask tax credits question but call tax-credits-broker instead"
   )
 }
 

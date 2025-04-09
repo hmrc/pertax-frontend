@@ -18,19 +18,16 @@ package util
 
 import cats.implicits.catsStdInstancesForFuture
 import com.google.inject.Inject
-import config.{BannerTcsServiceClosure, ConfigDecorator}
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import controllers.routes
 import models._
 import models.admin.{AlertBannerPaperlessStatusToggle, VoluntaryContributionsAlertToggle}
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.Html
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, taxCreditsEndBanner, unverifiedEmail, voluntaryContributionsAlertView}
+import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, unverifiedEmail, voluntaryContributionsAlertView}
 
-import java.time.ZonedDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class AlertBannerHelper @Inject() (
@@ -38,9 +35,7 @@ class AlertBannerHelper @Inject() (
   featureFlagService: FeatureFlagService,
   bouncedEmailView: bouncedEmail,
   unverifiedEmailView: unverifiedEmail,
-  taxCreditsEndBannerView: taxCreditsEndBanner,
-  voluntaryContributionsAlertView: voluntaryContributionsAlertView,
-  configDecorator: ConfigDecorator
+  voluntaryContributionsAlertView: voluntaryContributionsAlertView
 ) {
 
   def getContent(implicit
@@ -49,8 +44,7 @@ class AlertBannerHelper @Inject() (
     messages: Messages
   ): Future[List[Html]] = {
     val contentFutures = List(
-      getPaperlessStatusBannerContent,
-      getTaxCreditsEndBannerContent
+      getPaperlessStatusBannerContent
     )
     Future.sequence(contentFutures).map(_.flatten)
   }
@@ -76,26 +70,6 @@ class AlertBannerHelper @Inject() (
         Future.successful(None)
     }
 
-  private def getTaxCreditsEndBannerContent(implicit
-    messages: Messages
-  ): Future[Option[Html]] =
-    configDecorator.featureBannerTcsServiceClosure match {
-      case BannerTcsServiceClosure.Enabled =>
-        if (ZonedDateTime.now.compareTo(configDecorator.tcsFrontendEndDateTime) <= 0) {
-          Future.successful(
-            Some(
-              taxCreditsEndBannerView(
-                routes.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView.url
-              )
-            )
-          )
-        } else {
-          Future.successful(None)
-        }
-      case _                               =>
-        Future.successful(None)
-    }
-
   def getVoluntaryContributionsAlertBannerContent(implicit
     ec: ExecutionContext,
     messages: Messages
@@ -107,4 +81,5 @@ class AlertBannerHelper @Inject() (
         None
       }
     }
+
 }

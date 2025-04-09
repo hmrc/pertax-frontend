@@ -35,7 +35,6 @@ class FeatureFlagsController @Inject() (
     featureFlagService
       .setAll(
         Map(
-          AddressTaxCreditsBrokerCallToggle     -> false,
           TaxcalcToggle                         -> true,
           TaxComponentsToggle                   -> true,
           RlsInterruptToggle                    -> true,
