@@ -72,7 +72,8 @@ class FandFConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
     List(
       SERVICE_UNAVAILABLE,
       IM_A_TEAPOT,
-      BAD_REQUEST
+      BAD_REQUEST,
+      NOT_FOUND
     ).foreach { statusCode =>
       s"return Left when a $statusCode is retrieved" in new SpecSetup {
         stubGet("/delegation/get", statusCode, None)

@@ -31,7 +31,7 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.{A11ySpec, FileHelper}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import uk.gov.hmrc.scalatestaccessibilitylinter.domain.OutputFormat
 
 import java.util.UUID
@@ -180,7 +180,12 @@ class testSpec extends A11ySpec {
   )
   val wrapperDataResponse: String          = Json
     .toJson(
-      WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"), List.empty[UrBanner])
+      WrapperDataResponse(
+        menuWrapperData,
+        PtaMinMenuConfig("MenuName", "BackName"),
+        List.empty[UrBanner],
+        List.empty[Webchat]
+      )
     )
     .toString
 
