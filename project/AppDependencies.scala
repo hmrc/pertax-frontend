@@ -3,10 +3,10 @@ import sbt.*
 
 object AppDependencies {
 
-  private val playVersion      = "play-30"
-  private val cryptoVersion    = "8.2.0"
-  private val webChatVersion   = "1.6.0"
-  private val scaWrapperVersion = "2.7.0"
+  private val playVersion               = "play-30"
+  private val cryptoVersion             = "8.2.0"
+  private val webChatVersion            = "1.6.0"
+  private val scaWrapperVersion         = "2.7.0"
   private val mongoFeatureClientVersion = "1.10.0"
 
   val compile: Seq[ModuleID] = Seq(
@@ -24,10 +24,10 @@ object AppDependencies {
   )
 
   val test: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"         %% s"sca-wrapper-test-$playVersion" % scaWrapperVersion,
-    "uk.gov.hmrc"         %% s"mongo-feature-toggles-client-test-$playVersion" % mongoFeatureClientVersion,
-    "org.mockito"         %% "mockito-scala-scalatest"        % "1.17.37",
-    "org.scalatestplus"   %% "scalacheck-1-17"                % "3.2.18.0",
+    "uk.gov.hmrc"       %% s"sca-wrapper-test-$playVersion"                  % scaWrapperVersion,
+    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-test-$playVersion" % mongoFeatureClientVersion,
+    "org.mockito"       %% "mockito-scala-scalatest"                         % "1.17.37",
+    "org.scalatestplus" %% "scalacheck-1-17"                                 % "3.2.18.0"
   ).map(_ % "test")
 
   val all: Seq[ModuleID]  = compile ++ test

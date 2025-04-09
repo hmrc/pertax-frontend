@@ -42,7 +42,7 @@ class FandfServiceSpec extends BaseSpec with Injecting with IntegrationPatience 
   "FandfService" when {
     "calling getTrustedHelper" must {
       "return Some(trustedHelper)" in {
-        when(mockConnector.getDelegation()(any())).thenReturn(
+        when(mockConnector.getTrustedHelper()(any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[TrustedHelper]](Future.successful(Right(Some(trustedHelper))))
         )
 
@@ -55,7 +55,7 @@ class FandfServiceSpec extends BaseSpec with Injecting with IntegrationPatience 
       }
 
       "return None when call fails" in {
-        when(mockConnector.getDelegation()(any())).thenReturn(
+        when(mockConnector.getTrustedHelper()(any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[TrustedHelper]](
             Future.successful(Left(UpstreamErrorResponse("failure", INTERNAL_SERVER_ERROR)))
           )

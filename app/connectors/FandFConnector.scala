@@ -34,7 +34,7 @@ class FandFConnector @Inject() (
 )(implicit val ec: ExecutionContext)
     extends Logging {
 
-  def getDelegation()(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, Option[TrustedHelper]] =
+  def getTrustedHelper()(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, Option[TrustedHelper]] =
     httpClientResponse
       .read(
         httpClient

@@ -58,13 +58,13 @@ class FandFConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
     }
   }
 
-  "Calling FandFConnector.getDelegation" must {
+  "Calling FandFConnector.getTrustedHelper" must {
 
     "return as Some(trustedHelper) when trustedHelper json returned" in new SpecSetup {
       stubGet("/delegation/get", OK, Some(fandfTrustedHelperResponse))
 
       val result: Option[TrustedHelper] =
-        connector.getDelegation().value.futureValue.getOrElse(None)
+        connector.getTrustedHelper().value.futureValue.getOrElse(None)
 
       result mustBe Some(trustedHelper)
     }
@@ -78,7 +78,7 @@ class FandFConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
         stubGet("/delegation/get", statusCode, None)
 
         val result: UpstreamErrorResponse =
-          connector.getDelegation().value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
+          connector.getTrustedHelper().value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
 
         result.statusCode mustBe statusCode
       }

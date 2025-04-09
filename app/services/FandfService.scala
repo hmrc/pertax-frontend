@@ -32,6 +32,6 @@ class FandfService @Inject() (
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Option[TrustedHelper]] =
-    fandFConnector.getDelegation().foldF(_ => Future.successful(None), helper => Future.successful(helper))
+    fandFConnector.getTrustedHelper().foldF(_ => Future.successful(None), helper => Future.successful(helper))
 
 }
