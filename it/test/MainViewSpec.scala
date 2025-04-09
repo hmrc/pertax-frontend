@@ -33,7 +33,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import views.MainView
 
 import java.time.LocalDate
@@ -101,7 +101,8 @@ class MainViewSpec extends IntegrationSpec {
           MenuItemConfig("signout", "Sign out", "link", leftAligned = false, 0, None, None)
         ),
         PtaMinMenuConfig("MenuName", "BackName"),
-        List.empty[UrBanner]
+        List.empty[UrBanner],
+        List.empty[Webchat]
       )
     )
     .toString
@@ -253,7 +254,11 @@ class MainViewSpec extends IntegrationSpec {
           doc.getElementById("attorneyBanner") mustBe an[Element]
 
           assertContainsText(doc, principalName)
-          assertContainsLink(doc, "Return to your account", "/return-url")
+          assertContainsLink(
+            doc,
+            "Return to your account",
+            "http://localhost:9231/trusted-helpers/redirect-to-trusted-helpers"
+          )
         }
       }
 

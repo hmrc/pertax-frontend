@@ -32,7 +32,7 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -181,7 +181,12 @@ class ContentsCheckSpec extends IntegrationSpec {
   )
   val wrapperDataResponse: String          = Json
     .toJson(
-      WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"), List.empty[UrBanner])
+      WrapperDataResponse(
+        menuWrapperData,
+        PtaMinMenuConfig("MenuName", "BackName"),
+        List.empty[UrBanner],
+        List.empty[Webchat]
+      )
     )
     .toString
 
