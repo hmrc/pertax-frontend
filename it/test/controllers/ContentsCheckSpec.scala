@@ -17,7 +17,7 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock.{get, notFound, ok, post, urlEqualTo, urlMatching}
 import models.admin.BreathingSpaceIndicatorToggle
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -217,6 +217,8 @@ class ContentsCheckSpec extends IntegrationSpec {
         .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
         .willReturn(ok(s"$messageCount"))
     )
+
+    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
   }
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -224,54 +226,12 @@ class ContentsCheckSpec extends IntegrationSpec {
       "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 4000,
       "microservice.services.taxcalc-frontend.port"                          -> server.port(),
       "microservice.services.tai.port"                                       -> server.port(),
+      "microservice.services.fandf.port"                                     -> server.port(),
       "sca-wrapper.services.single-customer-account-wrapper-data.url"        -> s"http://localhost:${server.port()}"
     )
     .build()
 
   val uuid: String = UUID.randomUUID().toString
-
-  val authResponseAttorney: String =
-    s"""
-       |{
-       |    "confidenceLevel": 200,
-       |    "nino": "$generatedNino",
-       |    "name": {
-       |        "name": "John",
-       |        "lastName": "Smith"
-       |    },
-       |    "loginTimes": {
-       |        "currentLogin": "2021-06-07T10:52:02.594Z",
-       |        "previousLogin": null
-       |    },
-       |    "optionalCredentials": {
-       |        "providerId": "4911434741952698",
-       |        "providerType": "GovernmentGateway"
-       |    },
-       |    "authProviderId": {
-       |        "ggCredId": "xyz"
-       |    },
-       |    "externalId": "testExternalId",
-       |    "allEnrolments": [
-       |       {
-       |          "key":"HMRC-PT",
-       |          "identifiers": [
-       |             {
-       |                "key":"NINO",
-       |                "value": "$generatedNino"
-       |             }
-       |          ]
-       |       }
-       |    ],
-       |    "affinityGroup": "Individual",
-       |    "credentialStrength": "strong",
-       |    "trustedHelper": {
-       |      "principalName": "principalName",
-       |      "attorneyName": "attorneyName",
-       |      "returnLinkUrl": "returnLink",
-       |      "principalNino": "$generatedNino"
-       |    }
-       |}
-       |""".stripMargin
 
   val authResponseSA: String =
     s"""
@@ -338,9 +298,9 @@ class ContentsCheckSpec extends IntegrationSpec {
       urls.foreach { case (url, expectedData: ExpectedData) =>
         s"pass content checks at url $url" in {
           if (expectedData.attorneyBannerPresent) {
-            server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseAttorney)))
+            server.stubFor(get(urlEqualTo("/delegation/get")).willReturn(ok(fandfTrustedHelperResponse)))
           } else {
-            server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
+            server.stubFor(get(urlEqualTo("/delegation/get")).willReturn(notFound()))
           }
           val result: Future[Result] = route(app, request(url)).get
           val content                = Jsoup.parse(contentAsString(result))

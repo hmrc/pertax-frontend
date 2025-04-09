@@ -212,6 +212,8 @@ class testSpec extends A11ySpec {
         .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
         .willReturn(ok(s"$messageCount"))
     )
+
+    server.stubFor(get(urlEqualTo("/delegation/get")).willReturn(notFound()))
   }
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -220,6 +222,7 @@ class testSpec extends A11ySpec {
       "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 4000,
       "microservice.services.taxcalc-frontend.port"                          -> server.port(),
       "microservice.services.tai.port"                                       -> server.port(),
+      "microservice.services.fandf.port"                                     -> server.port(),
       "sca-wrapper.services.single-customer-account-wrapper-data.url"        -> s"http://localhost:${server.port()}"
     )
     .build()

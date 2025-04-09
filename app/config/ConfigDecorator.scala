@@ -95,6 +95,7 @@ class ConfigDecorator @Inject() (
   private lazy val nispFrontendHost: String                  = getExternalUrl(s"nisp-frontend.host").getOrElse("")
   private lazy val dfsFrontendHost: String                   = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
   private lazy val fandfFrontendHost: String                 = getExternalUrl(s"fandf-frontend.host").getOrElse("")
+  lazy val fandfHost: String                                 = servicesConfig.baseUrl("fandf")
   private lazy val agentClientManagementFrontendHost: String =
     getExternalUrl("agent-client-management-frontend.host").getOrElse("")
 

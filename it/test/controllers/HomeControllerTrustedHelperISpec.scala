@@ -100,6 +100,16 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
        |}
        |""".stripMargin
 
+  override val fandfTrustedHelperResponse: String =
+    s"""
+       |{
+       |   "principalName": "principal Name",
+       |   "attorneyName": "attorneyName",
+       |   "returnLinkUrl": "returnLink",
+       |   "principalNino": "$generatedHelperNino"
+       |}
+       |""".stripMargin
+
   def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
 
@@ -116,6 +126,9 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
     )
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authTrustedHelperResponse)))
+
+    server.stubFor(get(urlEqualTo("/delegation/get")).willReturn(ok(fandfTrustedHelperResponse)))
+
     server.stubFor(
       get(urlEqualTo(s"/citizen-details/$generatedHelperNino/designatory-details"))
         .willReturn(ok(personDetailsResponse(generatedHelperNino.nino)))
