@@ -19,6 +19,7 @@ package services
 import com.google.inject.Inject
 import connectors.FandFConnector
 import play.api.Logging
+import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -32,6 +33,16 @@ class FandfService @Inject() (
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Option[TrustedHelper]] =
-    fandFConnector.getTrustedHelper().foldF(_ => Future.successful(None), helper => Future.successful(helper))
+    fandFConnector
+      .getTrustedHelper()
+      .foldF(
+        { ex =>
+          if (ex.statusCode != NOT_FOUND) {
+            logger.warn(s"Call to fandf failed with status ${ex.statusCode} and message ${ex.message}")
+          }
+          Future.successful(None)
+        },
+        helper => Future.successful(helper)
+      )
 
 }
