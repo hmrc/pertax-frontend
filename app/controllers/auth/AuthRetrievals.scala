@@ -23,6 +23,7 @@ import io.lemonlabs.uri.Url
 import play.api.Logging
 import play.api.mvc._
 import repositories.JourneyCacheRepository
+import services.FandfService
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.{Retrievals, TrustedHelper}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
@@ -35,7 +36,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthRetrievalsImpl @Inject() (
   val authConnector: AuthConnector,
   mcc: MessagesControllerComponents,
-  journeyCacheRepository: JourneyCacheRepository
+  journeyCacheRepository: JourneyCacheRepository,
+  fandfService: FandfService
 )(implicit ec: ExecutionContext, configDecorator: ConfigDecorator)
     extends AuthRetrievals
     with AuthorisedFunctions
@@ -48,7 +50,10 @@ class AuthRetrievalsImpl @Inject() (
     } yield res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
 
   private type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
-    Option[String] ~ ConfidenceLevel ~ Option[TrustedHelper] ~ Option[String]
+    Option[String] ~ ConfidenceLevel ~ Option[String]
+
+  private def getTrustedHelper(implicit headerCarrier: HeaderCarrier): Future[Option[TrustedHelper]] =
+    fandfService.getTrustedHelper()
 
   //scalastyle:off cyclomatic.complexity
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
@@ -57,44 +62,45 @@ class AuthRetrievalsImpl @Inject() (
 
     val retrievals: Retrieval[RetrievalsType] =
       Retrievals.nino and Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.credentials and Retrievals.credentialStrength and
-        Retrievals.confidenceLevel and Retrievals.trustedHelper and Retrievals.profile
+        Retrievals.confidenceLevel and Retrievals.profile
 
-    authorised()
-      .retrieve(retrievals) {
-        case Some(nino) ~
-            affinityGroup ~
-            Enrolments(enrolments) ~
-            Some(credentials) ~
-            Some(CredentialStrength.strong) ~
-            confidenceLevel ~
-            trustedHelper ~
-            profile =>
-          journeyCacheRepository.get(hc).flatMap { userAnswers =>
-            val trimmedRequest: Request[A] = request
-              .map {
-                case AnyContentAsFormUrlEncoded(data) =>
-                  AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
-                    (key, vals.map(_.trim))
-                  })
-                case b                                => b
-              }
-              .asInstanceOf[Request[A]]
+    authorised().retrieve(retrievals) {
+      case Some(nino) ~
+          affinityGroup ~
+          Enrolments(enrolments) ~
+          Some(credentials) ~
+          Some(CredentialStrength.strong) ~
+          confidenceLevel ~
+          profile =>
+        val finalRequest = for {
+          userAnswers   <- journeyCacheRepository.get(hc)
+          trustedHelper <- getTrustedHelper
+        } yield {
+          val trimmedRequest: Request[A] = request
+            .map {
+              case AnyContentAsFormUrlEncoded(data) =>
+                AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
+                  (key, vals.map(_.trim))
+                })
+              case b                                => b
+            }
+            .asInstanceOf[Request[A]]
 
-            val authenticatedRequest = AuthenticatedRequest[A](
-              authNino = Nino(nino),
-              credentials = credentials,
-              confidenceLevel = confidenceLevel,
-              trustedHelper = trustedHelper,
-              profile = addRedirect(profile),
-              enrolments = enrolments,
-              request = trimmedRequest,
-              affinityGroup = affinityGroup,
-              userAnswers = userAnswers
-            )
-            block(authenticatedRequest)
-          }
-        case _ => throw new RuntimeException("Can't authenticate user")
-      }
+          AuthenticatedRequest[A](
+            authNino = Nino(nino),
+            credentials = credentials,
+            confidenceLevel = confidenceLevel,
+            trustedHelper = trustedHelper,
+            profile = addRedirect(profile),
+            enrolments = enrolments,
+            request = trimmedRequest,
+            affinityGroup = affinityGroup,
+            userAnswers = userAnswers
+          )
+        }
+        finalRequest.flatMap(block(_))
+      case _ => throw new RuntimeException("Can't authenticate user")
+    }
   }
 
   override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser

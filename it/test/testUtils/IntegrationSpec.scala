@@ -16,6 +16,7 @@
 
 package testUtils
 
+import com.github.tomakehurst.wiremock.client.WireMock
 import org.apache.pekko.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
@@ -263,6 +264,16 @@ trait IntegrationSpec
        |]
     """.stripMargin
 
+  val fandfTrustedHelperResponse: String =
+    s"""
+      |{
+      |   "principalName": "principal Name",
+      |   "attorneyName": "attorneyName",
+      |   "returnLinkUrl": "returnLink",
+      |   "principalNino": "$generatedNino"
+      |}
+      |""".stripMargin
+
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
@@ -276,7 +287,8 @@ trait IntegrationSpec
         "microservice.services.message-frontend.port"           -> server.port(),
         "microservice.services.agent-client-authorisation.port" -> server.port(),
         "microservice.services.breathing-space-if-proxy.port"   -> server.port(),
-        "microservice.services.taxcalc-frontend.port"           -> server.port()
+        "microservice.services.taxcalc-frontend.port"           -> server.port(),
+        "microservice.services.fandf.port"                      -> server.port()
       )
 
   override def beforeEach(): Unit = {
@@ -317,6 +329,11 @@ trait IntegrationSpec
           aResponse()
             .withBody("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}")
         )
+    )
+    server.stubFor(
+      WireMock
+        .get(urlMatching("/delegation/get"))
+        .willReturn(notFound())
     )
   }
 

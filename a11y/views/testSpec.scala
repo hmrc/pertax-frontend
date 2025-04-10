@@ -31,7 +31,7 @@ import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, 
 import testUtils.{A11ySpec, FileHelper}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, WrapperDataResponse}
+import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
 import uk.gov.hmrc.scalatestaccessibilitylinter.domain.OutputFormat
 
 import java.util.UUID
@@ -180,7 +180,12 @@ class testSpec extends A11ySpec {
   )
   val wrapperDataResponse: String          = Json
     .toJson(
-      WrapperDataResponse(menuWrapperData, PtaMinMenuConfig("MenuName", "BackName"), List.empty[UrBanner])
+      WrapperDataResponse(
+        menuWrapperData,
+        PtaMinMenuConfig("MenuName", "BackName"),
+        List.empty[UrBanner],
+        List.empty[Webchat]
+      )
     )
     .toString
 
@@ -207,6 +212,8 @@ class testSpec extends A11ySpec {
         .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
         .willReturn(ok(s"$messageCount"))
     )
+
+    server.stubFor(get(urlEqualTo("/delegation/get")).willReturn(notFound()))
   }
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -215,6 +222,7 @@ class testSpec extends A11ySpec {
       "microservice.services.breathing-space-if-proxy.timeoutInMilliseconds" -> 4000,
       "microservice.services.taxcalc-frontend.port"                          -> server.port(),
       "microservice.services.tai.port"                                       -> server.port(),
+      "microservice.services.fandf.port"                                     -> server.port(),
       "sca-wrapper.services.single-customer-account-wrapper-data.url"        -> s"http://localhost:${server.port()}"
     )
     .build()
