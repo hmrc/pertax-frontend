@@ -280,9 +280,6 @@ class ConfigDecorator @Inject() (
   lazy val webChatIsEnabled: Boolean =
     runModeConfiguration.getOptional[Boolean]("feature.web-chat.enabled").getOrElse(false)
 
-  lazy val featureNameChangeMtdItSaToMtdIt: Boolean =
-    runModeConfiguration.get[Boolean]("feature.nameChangeMtdItSaToMtdIt")
-
   val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongo.encryption.enabled")
 
 }
