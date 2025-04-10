@@ -57,7 +57,6 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
   "Rendering ViewItsaMergePageView.scala.html" must {
 
     "show content for Itsa" in {
-      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
       val doc =
         asDocument(
           viewItsaMergePageView(
@@ -78,7 +77,6 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
     }
 
     "show content for Itsa , SA , Seiss when all the conditions are true with SA Enrolled" in {
-      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
       val doc =
         asDocument(
           viewItsaMergePageView(
@@ -111,7 +109,6 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
     }
 
     "show content for Itsa , SA , Seiss when all the conditions are true with SA not Enrolled" in {
-      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
       val doc =
         asDocument(
           viewItsaMergePageView(
@@ -145,97 +142,4 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
       )
     }
   }
-
-  "Rendering ViewItsaMergePageView.scala.html with name change toggle off" must {
-    "show content for Itsa" in {
-      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
-      val doc =
-        asDocument(
-          viewItsaMergePageView(
-            isSa = false,
-            isSeiss = false,
-            userRequest.saUserType
-          ).toString
-        )
-
-      doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include("Making Tax Digital for Income Tax")
-      doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
-      hasLink(
-        doc,
-        "View and manage Making Tax Digital for Income Tax"
-      )
-    }
-
-    "show content for Itsa , SA , Seiss when all the conditions are true with SA Enrolled" in {
-      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
-      val doc =
-        asDocument(
-          viewItsaMergePageView(
-            isSa = true,
-            isSeiss = true,
-            ActivatedOnlineFilerSelfAssessmentUser(saUtr)
-          ).toString
-        )
-
-      doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include("Making Tax Digital for Income Tax Self Assessment")
-      doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
-      doc.text() must include(Messages("label.self_assessment_tax_returns"))
-      doc.text() must include(Messages("label.old_way_sa_returns"))
-
-      doc.text() must include(Messages("title.seiss"))
-
-      hasLink(
-        doc,
-        Messages("label.view_manage_your_mtd_for_it")
-      )
-
-      hasLink(
-        doc,
-        Messages("label.access_your_sa_returns")
-      )
-
-      hasLink(
-        doc,
-        Messages("body.seiss")
-      )
-    }
-
-    "show content for Itsa , SA , Seiss when all the conditions are true with SA not Enrolled" in {
-      when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
-      val doc =
-        asDocument(
-          viewItsaMergePageView(
-            isSa = true,
-            isSeiss = true,
-            NotEnrolledSelfAssessmentUser(saUtr)
-          ).toString
-        )
-
-      doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include(Messages("label.mtd_for_it_sa"))
-      doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
-      doc.text() must include(Messages("label.self_assessment_tax_returns"))
-      doc.text() must include(Messages("label.not_enrolled.content"))
-      doc.text() must include(Messages("title.seiss"))
-      doc.text() must include(Messages("label.making_tax_digital"))
-
-      hasLink(
-        doc,
-        Messages("label.view_manage_your_mtd_for_it")
-      )
-
-      hasLink(
-        doc,
-        messages("label.not_enrolled.link.text")
-      )
-
-      hasLink(
-        doc,
-        Messages("body.seiss")
-      )
-    }
-  }
-
 }

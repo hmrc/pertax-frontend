@@ -16,16 +16,14 @@
 
 @import tags._
 @import components.P
-@import config.ConfigDecorator
-@import util.ContentChangeHelper._
 
 @this(p: P)
 
-@(nextDeadlineTaxYear: String)(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
+@(nextDeadlineTaxYear: String)(implicit messages: play.api.i18n.Messages)
 
 @cardContent = {
-    @p(Text(conditionalMessage("label.view_manage_your_mtd_itsa", "label.view_manage_your_mtd_it")))
-    @p(Text(conditionalMessage(messages("label.online_deadline_final_declarations", nextDeadlineTaxYear), messages("label.online_deadline_tax_returns", nextDeadlineTaxYear))))
+    @p(Text(messages("label.view_manage_your_mtd_it")))
+    @p(Text(messages("label.online_deadline_tax_returns", nextDeadlineTaxYear)))
 }
 
 @card(
@@ -33,7 +31,7 @@
     url = Some(controllers.routes.InterstitialController.displayItsaMergePage.url),
     gaAction = Some("Income"),
     gaLabel = Some("Self Assessment"),
-    heading = conditionalMessage("label.self_assessment", "label.mtd_for_itsa"),
+    heading = messages("label.mtd_for_itsa"),
     headingTag = "h2",
     bodyContent = Some(cardContent)
 ) {

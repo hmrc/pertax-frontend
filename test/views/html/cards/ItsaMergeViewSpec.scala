@@ -27,8 +27,7 @@ class ItsaMergeViewSpec extends ViewSpec {
 
   val nextDeadlineTaxYear = "2021"
 
-  "Sa and Itsa card for Itsa with name change feature toggled on" must {
-    when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
+  "Sa and Itsa card for Itsa" must {
     val doc =
       asDocument(
         saAndItsaMergeView(nextDeadlineTaxYear).toString
@@ -49,32 +48,6 @@ class ItsaMergeViewSpec extends ViewSpec {
 
       doc.text() must include(
         Messages("label.online_deadline_tax_returns", nextDeadlineTaxYear)
-      )
-    }
-  }
-
-  "Sa and Itsa card for Itsa with name change feature toggled off" must {
-    when(configDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
-    val doc =
-      asDocument(
-        saAndItsaMergeView(nextDeadlineTaxYear).toString
-      )
-
-    "render the given heading correctly" in {
-
-      doc.text() must include(
-        Messages("label.self_assessment")
-      )
-    }
-
-    "render the given content correctly" in {
-
-      doc.text() must include(
-        "View and manage your Making Tax Digital for Income Tax or access your Self Assessment tax returns."
-      )
-
-      doc.text() must include(
-        Messages("label.online_deadline_final_declarations", nextDeadlineTaxYear)
       )
     }
   }

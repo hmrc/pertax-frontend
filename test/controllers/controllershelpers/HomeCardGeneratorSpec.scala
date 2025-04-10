@@ -308,7 +308,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
     "return Itsa Card when the user has ITSA enrolments" in {
-      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(true)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -319,11 +318,10 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = createController().getSelfAssessmentCard()
 
-      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly, mockConfigDecorator))
+      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly))
     }
 
     "return Itsa Card with correct name when the user has ITSA enrolments when name change toggle set to false" in {
-      when(mockConfigDecorator.featureNameChangeMtdItSaToMtdIt).thenReturn(false)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -334,7 +332,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = createController().getSelfAssessmentCard()
 
-      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly, mockConfigDecorator))
+      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly))
       cardBody.map(_.toString().contains("Making Tax Digital for Income Tax")) mustBe Some(true)
     }
 
