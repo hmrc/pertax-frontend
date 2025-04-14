@@ -26,6 +26,7 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.JourneyCacheRepository
+import services.FandfService
 import testUtils.RetrievalOps._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
@@ -46,6 +47,7 @@ class AuthRetrievalsSpec extends BaseSpec {
 
   private val mockAuthConnector: AuthConnector                   = mock[AuthConnector]
   private val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
+  private val mockFandfService: FandfService                     = mock[FandfService]
 
   private class Harness(authAction: AuthRetrievalsImpl) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -58,8 +60,7 @@ class AuthRetrievalsSpec extends BaseSpec {
 
   private type AuthRetrievals =
     Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
-      Option[String] ~ ConfidenceLevel ~ Option[TrustedHelper] ~
-      Option[String]
+      Option[String] ~ ConfidenceLevel ~ Option[String]
 
   private val nino: String                                               = Fixtures.fakeNino.nino
   private val fakeCredentials: Credentials                               = Credentials("foo", "bar")
@@ -79,14 +80,13 @@ class AuthRetrievalsSpec extends BaseSpec {
     ),
     credentialStrength: String = CredentialStrength.strong,
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-    trustedHelper: Option[TrustedHelper] = None,
     profileUrl: Option[String] = None
   ): Harness = {
 
     when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
       nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(
         credentialStrength
-      ) ~ confidenceLevel ~ trustedHelper ~ profileUrl
+      ) ~ confidenceLevel ~ profileUrl
     )
 
     when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty("id")))
@@ -95,7 +95,8 @@ class AuthRetrievalsSpec extends BaseSpec {
       new AuthRetrievalsImpl(
         mockAuthConnector,
         messagesControllerComponents,
-        mockJourneyCacheRepository
+        mockJourneyCacheRepository,
+        mockFandfService
       )(implicitly, config)
 
     new Harness(authAction)
@@ -103,6 +104,12 @@ class AuthRetrievalsSpec extends BaseSpec {
 
   "A user with a nino and an SA enrolment must" must {
     "create an authenticated request" in {
+
+      when(mockFandfService.getTrustedHelper()(any(), any())).thenReturn(
+        Future.successful(
+          None
+        )
+      )
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
@@ -118,10 +125,14 @@ class AuthRetrievalsSpec extends BaseSpec {
   "A user with trustedHelper must" must {
     "create an authenticated request containing the trustedHelper" in {
 
-      val controller =
-        retrievals(trustedHelper =
+      when(mockFandfService.getTrustedHelper()(any(), any())).thenReturn(
+        Future.successful(
           Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino)))
         )
+      )
+
+      val controller =
+        retrievals()
 
       val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
