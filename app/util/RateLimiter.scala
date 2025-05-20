@@ -25,7 +25,7 @@ import scala.concurrent.Future
 @Singleton
 class Limiters @Inject() (configuration: Configuration) {
   private lazy val maxTpsForGetClientStatus      = configuration
-    .getOptional[Double]("feature.agent-client-authorisation.maxTps")
+    .getOptional[Double]("feature.agent-client-relationships.maxTps")
     .getOrElse(100.0)
   val rateLimiterForGetClientStatus: RateLimiter = RateLimiter.create(maxTpsForGetClientStatus)
 }

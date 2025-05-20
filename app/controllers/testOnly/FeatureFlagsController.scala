@@ -40,7 +40,7 @@ class FeatureFlagsController @Inject() (
           RlsInterruptToggle                    -> true,
           PaperlessInterruptToggle              -> false,
           TaxSummariesTileToggle                -> true,
-          AgentClientAuthorisationToggle        -> true,
+          AgentClientRelationshipsToggle        -> true,
           BreathingSpaceIndicatorToggle         -> true,
           ShowOutageBannerToggle                -> false,
           AlertBannerPaperlessStatusToggle      -> true,

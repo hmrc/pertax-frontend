@@ -83,12 +83,12 @@ class ConfigDecorator @Inject() (
   lazy val pertaxFrontendForAuthHost: String          = getExternalUrl(s"pertax-frontend.auth-host").getOrElse("")
   private lazy val feedbackSurveyFrontendHost: String = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
 
-  private lazy val nispFrontendHost: String                  = getExternalUrl(s"nisp-frontend.host").getOrElse("")
-  private lazy val dfsFrontendHost: String                   = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
-  private lazy val fandfFrontendHost: String                 = getExternalUrl(s"fandf-frontend.host").getOrElse("")
-  lazy val fandfHost: String                                 = servicesConfig.baseUrl("fandf")
-  private lazy val agentClientManagementFrontendHost: String =
-    getExternalUrl("agent-client-management-frontend.host").getOrElse("")
+  private lazy val nispFrontendHost: String                     = getExternalUrl(s"nisp-frontend.host").getOrElse("")
+  private lazy val dfsFrontendHost: String                      = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
+  private lazy val fandfFrontendHost: String                    = getExternalUrl(s"fandf-frontend.host").getOrElse("")
+  lazy val fandfHost: String                                    = servicesConfig.baseUrl("fandf")
+  private lazy val agentClientRelationshipsFrontendHost: String =
+    getExternalUrl("agent-client-relationships-frontend.host").getOrElse("")
 
   private lazy val governmentGatewayLostCredentialsFrontendHost =
     getExternalUrl(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
@@ -230,10 +230,10 @@ class ConfigDecorator @Inject() (
 
   lazy val saPartialReturnLinkText = "Back to account home"
 
-  lazy val manageTrustedHelpersUrl                  = s"$fandfFrontendHost/trusted-helpers/select-a-service"
-  lazy val seissClaimsUrl                           = s"$seissFrontendHost/self-employment-support/claim/your-claims"
-  def manageTaxAgentsUrl(returnUrl: String): String =
-    s"$agentClientManagementFrontendHost/manage-your-tax-agents?source=PTA&returnUrl=$returnUrl"
+  lazy val manageTrustedHelpersUrl    = s"$fandfFrontendHost/trusted-helpers/select-a-service"
+  lazy val seissClaimsUrl             = s"$seissFrontendHost/self-employment-support/claim/your-claims"
+  lazy val manageTaxAgentsUrl: String =
+    s"$agentClientRelationshipsFrontendHost/agent-client-relationships/manage-your-tax-agents"
 
   lazy val shutterBannerParagraphEn: String =
     runModeConfiguration.getOptional[String]("feature.alert-shuttering.banner.paragraph.en").getOrElse("")

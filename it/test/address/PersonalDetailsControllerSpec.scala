@@ -18,7 +18,7 @@ package address
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
-import models.admin.AgentClientAuthorisationToggle
+import models.admin.AgentClientRelationshipsToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -65,9 +65,9 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      "feature.agent-client-authorisation.maxTps"       -> 100,
-      "feature.agent-client-authorisation.cache"        -> true,
-      "feature.agent-client-authorisation.timeoutInSec" -> 1
+      "feature.agent-client-relationships.maxTps"       -> 100,
+      "feature.agent-client-relationships.cache"        -> true,
+      "feature.agent-client-relationships.timeoutInSec" -> 1
     )
     .build()
 
@@ -78,8 +78,8 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientAuthorisationToggle)))
-      .thenReturn(Future.successful(FeatureFlag(AgentClientAuthorisationToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AgentClientRelationshipsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(AgentClientRelationshipsToggle, isEnabled = true)))
   }
 
   val url       = s"/personal-account/profile-and-settings"
@@ -93,7 +93,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
           .willReturn(ok(designatoryDetails))
       )
       server.stubFor(
-        get(urlEqualTo(s"/agent-client-authorisation/status"))
+        get(urlEqualTo(s"/agent-client-relationships/customer-status"))
           .willReturn(
             ok(
               Json
@@ -111,7 +111,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
 
       val result: Future[Result] = route(app, request).get
       contentAsString(result).contains(agentLink)
-      server.verify(1, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))
+      server.verify(1, getRequestedFor(urlEqualTo("/agent-client-relationships/customer-status")))
     }
 
     "show manage your agent link in 2 request but only one request to backend due to cache" in {
@@ -121,7 +121,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
           .willReturn(ok(designatoryDetails))
       )
       server.stubFor(
-        get(urlEqualTo(s"/agent-client-authorisation/status"))
+        get(urlEqualTo(s"/agent-client-relationships/customer-status"))
           .willReturn(
             ok(
               Json
@@ -147,7 +147,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       contentAsString(Future.successful(result._1)).contains(agentLink)
       contentAsString(Future.successful(result._2)).contains(agentLink)
 
-      server.verify(1, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))
+      server.verify(1, getRequestedFor(urlEqualTo("/agent-client-relationships/customer-status")))
     }
 
     "loads between 1sec and 4sec due to early timeout on agent link" in {
@@ -157,7 +157,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
           .willReturn(ok(designatoryDetails))
       )
       server.stubFor(
-        get(urlEqualTo(s"/agent-client-authorisation/status"))
+        get(urlEqualTo(s"/agent-client-relationships/customer-status"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -186,7 +186,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       duration mustBe <=[Long](4000)
       duration mustBe >=[Long](1000)
       getStatus(result.map(_._1)) mustBe OK
-      server.verify(1, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))
+      server.verify(1, getRequestedFor(urlEqualTo("/agent-client-relationships/customer-status")))
     }
   }
 

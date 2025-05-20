@@ -40,7 +40,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
   override implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   override implicit lazy val app: Application = app(
-    Map("microservice.services.agent-client-authorisation.port" -> server.port()),
+    Map("microservice.services.agent-client-relationships.port" -> server.port()),
     bind(classOf[AgentClientAuthorisationConnector])
       .qualifiedWith("default")
       .toInstance(mockAgentClientAuthorisationConnector),
@@ -53,7 +53,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
   }
 
   def connector: CachingAgentClientAuthorisationConnector = inject[CachingAgentClientAuthorisationConnector]
-  val url                                                 = "/agent-client-authorisation/status"
+  val url                                                 = "/agent-client-relationships/customer-status"
 
   implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
