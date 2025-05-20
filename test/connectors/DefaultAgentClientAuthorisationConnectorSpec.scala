@@ -29,17 +29,17 @@ class DefaultAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Wi
 
   override implicit lazy val app: Application = app(
     Map(
-      "microservice.services.agent-client-authorisation.port" -> server.port(),
-      "feature.agent-client-authorisation.maxTps"             -> 1000,
-      "feature.agent-client-authorisation.cache"              -> true,
-      "feature.agent-client-authorisation.timeoutInSec"       -> 1
+      "microservice.services.agent-client-relationships.port" -> server.port(),
+      "feature.agent-client-relationships.maxTps"             -> 1000,
+      "feature.agent-client-relationships.cache"              -> true,
+      "feature.agent-client-relationships.timeoutInSec"       -> 1
     )
   )
 
   def connector: DefaultAgentClientAuthorisationConnector =
     app.injector.instanceOf[DefaultAgentClientAuthorisationConnector]
 
-  val url = "/agent-client-authorisation/status"
+  val url = "/agent-client-relationships/customer-status"
 
   implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
