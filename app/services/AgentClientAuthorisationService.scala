@@ -59,7 +59,7 @@ class AgentClientAuthorisationService @Inject() (
   def addAgentClientStatus(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext, request: UserRequest[_]) =
     featureFlagService.get(AgentClientRelationshipsToggle).flatMap { toggle =>
       if (toggle.isEnabled && request.trustedHelper.isEmpty) {
-        agentClientAuthorisationConnector.addAgentClientStatus.value
+        agentClientAuthorisationConnector.addAgentClientStatus(nino).value
       } else {
         Future.successful(false)
       }

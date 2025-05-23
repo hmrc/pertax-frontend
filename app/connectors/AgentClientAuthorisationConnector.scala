@@ -47,7 +47,7 @@ trait AgentClientAuthorisationConnector {
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus]
 
-  def addAgentClientStatus(nino:String)(implicit
+  def addAgentClientStatus(nino: String)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
@@ -97,12 +97,12 @@ class CachingAgentClientAuthorisationConnector @Inject() (
       underlying.getAgentClientStatus
     }
 
-  override def addAgentClientStatus(nino:String)(implicit
+  override def addAgentClientStatus(nino: String)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    underlying.addAgentClientStatus
+    underlying.addAgentClientStatus(nino)
 
 }
 
@@ -142,7 +142,7 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
     }
   }
 
-  override def addAgentClientStatus(nino:String)(implicit
+  override def addAgentClientStatus(nino: String)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
