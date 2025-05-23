@@ -31,7 +31,6 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.partials.HtmlPartial
-import play.api.mvc.{ControllerComponents, Request, Results}
 
 import scala.concurrent.{ExecutionContext, Future}
 

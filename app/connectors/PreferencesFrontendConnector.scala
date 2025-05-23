@@ -34,6 +34,7 @@ import util.Tools
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 
 @Singleton
 class PreferencesFrontendConnector @Inject() (
