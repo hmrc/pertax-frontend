@@ -28,6 +28,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.libs.ws.WSBodyWritables.writeableOf_JsValue
 
 @Singleton
 class AddressLookupConnector @Inject() (

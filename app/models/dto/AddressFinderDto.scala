@@ -24,6 +24,8 @@ case class AddressFinderDto(postcode: String, filter: Option[String]) extends Dt
 
 object AddressFinderDto {
 
+  def unapply(obj: AddressFinderDto): Some[(String, Option[String])] = Some((obj.postcode, obj.filter))
+
   implicit val formats: OFormat[AddressFinderDto] = Json.format[AddressFinderDto]
 
   val form: Form[AddressFinderDto] = Form(

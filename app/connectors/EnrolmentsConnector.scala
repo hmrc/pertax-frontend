@@ -32,6 +32,7 @@ import uk.gov.hmrc.http._
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 
 class EnrolmentsConnector @Inject() (
   httpv2: HttpClientV2,

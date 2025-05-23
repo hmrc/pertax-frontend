@@ -22,6 +22,8 @@ import play.api.data.Forms._
 case class AddressSelectorDto(addressId: Option[String]) extends Dto
 
 object AddressSelectorDto {
+  def unapply(obj: AddressSelectorDto): Some[(Option[String])] = Some(obj.addressId)
+
   val form: Form[AddressSelectorDto] = Form(
     mapping(
       "addressId" -> optional(text)

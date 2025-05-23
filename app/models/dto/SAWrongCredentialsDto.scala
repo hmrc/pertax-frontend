@@ -24,6 +24,10 @@ final case class SAWrongCredentialsDto(value: Boolean) extends Dto
 
 object SAWrongCredentialsDto {
 
+  def unapply(obj: SAWrongCredentialsDto): Some[Boolean] = Some(
+    (obj.value)
+  )
+
   implicit val formats: OFormat[SAWrongCredentialsDto] = Json.format[SAWrongCredentialsDto]
 
   val form: Form[SAWrongCredentialsDto] = Form(

@@ -25,6 +25,8 @@ case class ResidencyChoiceDto(residencyChoice: AddrType) extends Dto
 
 object ResidencyChoiceDto {
 
+  def unapply(obj: ResidencyChoiceDto): Some[(AddrType)] = Some((obj.residencyChoice))
+
   implicit val formats: OFormat[ResidencyChoiceDto] = {
     implicit val addrTypeReads: Reads[AddrType] = {
       case JsString("residential") => JsSuccess(ResidentialAddrType)
