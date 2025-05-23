@@ -69,6 +69,7 @@ class PersonalDetailsController @Inject() (
   def onPageLoad: Action[AnyContent]            =
     authenticate.async { implicit request: UserRequest[AnyContent] =>
       rlsInterruptHelper.enforceByRlsStatus(for {
+        _                 <- agentClientAuthorisationService.addAgentClientStatus(request.authNino.nino)
         agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
         addressModel      <- editAddressLockRepository.get(request.helpeeNinoOrElse.withoutSuffix)
         personDetails     <- citizenDetailsService

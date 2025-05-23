@@ -23,7 +23,7 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import models.AgentClientStatus
 import play.api.Logging
-import play.api.libs.json.Format
+import play.api.libs.json.{Format, Json}
 import play.api.libs.json.Format.GenericFormat
 import play.api.mvc.Request
 import repositories.SessionCacheRepository
@@ -35,6 +35,7 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.{FutureEarlyTimeout, Limiters, Throttle}
 
+import java.time.LocalDateTime
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -45,6 +46,12 @@ trait AgentClientAuthorisationConnector {
     ec: ExecutionContext,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus]
+
+  def addAgentClientStatus(nino:String)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
 }
 
 class CachingAgentClientAuthorisationConnector @Inject() (
@@ -90,6 +97,13 @@ class CachingAgentClientAuthorisationConnector @Inject() (
       underlying.getAgentClientStatus
     }
 
+  override def addAgentClientStatus(nino:String)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    underlying.addAgentClientStatus
+
 }
 
 @Singleton
@@ -126,5 +140,27 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
     httpClientResponse.read(result).map { response =>
       response.json.as[AgentClientStatus]
     }
+  }
+
+  override def addAgentClientStatus(nino:String)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    val url    =
+      s"http://localhost:9427/agent-fi-relationship/relationships/agent/AARN123/service/PERSONAL-INCOME-RECORD/client/$nino"
+    val result =
+      withThrottle {
+        httpClientV2
+          .put(url"$url")
+          .transform(_.withRequestTimeout(timeoutInSec.seconds))
+          .withBody(Json.obj("startDate" -> LocalDateTime.now()))
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
+          .recoverWith { case exception: GatewayTimeoutException =>
+            logger.error(exception.message)
+            Future.failed(FutureEarlyTimeout)
+          }
+      }
+    httpClientResponse.read(result)
   }
 }
