@@ -21,7 +21,7 @@ import com.google.inject.Inject
 import connectors.AgentClientAuthorisationConnector
 import controllers.auth.requests.UserRequest
 import models.AgentClientStatus
-import models.admin.AgentClientAuthorisationToggle
+import models.admin.AgentClientRelationshipsToggle
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -35,7 +35,7 @@ class AgentClientAuthorisationService @Inject() (
 ) extends Logging {
 
   def getAgentClientStatus(implicit hc: HeaderCarrier, ec: ExecutionContext, request: UserRequest[_]): Future[Boolean] =
-    featureFlagService.get(AgentClientAuthorisationToggle).flatMap { toggle =>
+    featureFlagService.get(AgentClientRelationshipsToggle).flatMap { toggle =>
       if (toggle.isEnabled && request.trustedHelper.isEmpty) {
         agentClientAuthorisationConnector.getAgentClientStatus
           .fold(

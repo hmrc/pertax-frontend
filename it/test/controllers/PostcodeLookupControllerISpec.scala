@@ -136,7 +136,7 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
     )
 
     server.stubFor(
-      get(urlEqualTo(s"/agent-client-authorisation/status"))
+      get(urlEqualTo(s"/agent-client-relationships/customer-status"))
         .willReturn(
           ok(
             Json
