@@ -40,7 +40,8 @@ class WithBreadcrumbAction @Inject() (implicit ec: ExecutionContext) {
               request.profile,
               Some(breadcrumb),
               request.request,
-              request.userAnswers
+              request.userAnswers,
+              request.cookies.get("trustedHelper").isDefined
             )
           )
         )

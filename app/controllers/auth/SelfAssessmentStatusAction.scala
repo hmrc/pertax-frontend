@@ -79,7 +79,8 @@ class SelfAssessmentStatusAction @Inject() (
           request.profile,
           None,
           request.request,
-          request.userAnswers
+          request.userAnswers,
+          request.cookies.get("trustedHelper").isDefined
         )
       )
     }

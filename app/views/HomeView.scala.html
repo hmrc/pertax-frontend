@@ -50,6 +50,9 @@
     }
 
     @alertBanner(viewModel.alertBannerContent)
+    @if(request.trustedHelperFromSession && request.trustedHelper.isEmpty) {
+        <div>error in fandf</div>
+    }
 
     <header class="hmrc-page-heading">
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>

@@ -32,5 +32,6 @@ case class AuthenticatedRequest[A](
   enrolments: Set[Enrolment],
   request: Request[A],
   affinityGroup: Option[AffinityGroup],
-  userAnswers: UserAnswers
+  userAnswers: UserAnswers,
+  trustedHelperFromSession: Boolean
 ) extends WrappedRequest[A](request)

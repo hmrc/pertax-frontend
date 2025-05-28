@@ -18,6 +18,7 @@ package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
 import config.ConfigDecorator
+import controllers.auth.TrustedHelperResult.{Error, Found, NotFound}
 import controllers.auth.requests.AuthenticatedRequest
 import io.lemonlabs.uri.Url
 import play.api.Logging
@@ -43,69 +44,96 @@ class AuthRetrievalsImpl @Inject() (
     with AuthorisedFunctions
     with Logging {
 
-  private def addRedirect(profileUrl: Option[String]): Option[String] =
-    for {
-      url <- profileUrl
-      res <- Url.parseOption(url)
-    } yield res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
-
   private type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
     Option[String] ~ ConfidenceLevel ~ Option[String]
 
-  private def getTrustedHelper(implicit headerCarrier: HeaderCarrier): Future[Option[TrustedHelper]] =
-    fandfService.getTrustedHelper()
+  override def parser: BodyParser[AnyContent]               = mcc.parsers.defaultBodyParser
+  override protected def executionContext: ExecutionContext = mcc.executionContext
 
-  //scalastyle:off cyclomatic.complexity
-  override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
-    implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+  private def addRedirect(profileUrl: Option[String]): Option[String] =
+    for {
+      url    <- profileUrl
+      parsed <- Url.parseOption(url)
+    } yield parsed.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
 
-    val retrievals: Retrieval[RetrievalsType] =
-      Retrievals.nino and Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.credentials and Retrievals.credentialStrength and
-        Retrievals.confidenceLevel and Retrievals.profile
-
-    authorised().retrieve(retrievals) {
-      case Some(nino) ~
-          affinityGroup ~
-          Enrolments(enrolments) ~
-          Some(credentials) ~
-          Some(CredentialStrength.strong) ~
-          confidenceLevel ~
-          profile =>
-        val finalRequest = for {
-          userAnswers   <- journeyCacheRepository.get(hc)
-          trustedHelper <- getTrustedHelper
-        } yield {
-          val trimmedRequest: Request[A] = request
-            .map {
-              case AnyContentAsFormUrlEncoded(data) =>
-                AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
-                  (key, vals.map(_.trim))
-                })
-              case b                                => b
-            }
-            .asInstanceOf[Request[A]]
-
-          AuthenticatedRequest[A](
-            authNino = Nino(nino),
-            credentials = credentials,
-            confidenceLevel = confidenceLevel,
-            trustedHelper = trustedHelper,
-            profile = addRedirect(profile),
-            enrolments = enrolments,
-            request = trimmedRequest,
-            affinityGroup = affinityGroup,
-            userAnswers = userAnswers
-          )
-        }
-        finalRequest.flatMap(block(_))
-      case _ => throw new RuntimeException("Can't authenticate user")
+  private def trimRequest[A](request: Request[A]): Request[A] = request
+    .map {
+      case AnyContentAsFormUrlEncoded(data) =>
+        AnyContentAsFormUrlEncoded(data.map { case (k, v) => (k, v.map(_.trim)) })
+      case other                            => other
     }
+    .asInstanceOf[Request[A]]
+
+  private def applyCookie(result: Result, helperResult: TrustedHelperResult): Result = helperResult match {
+    case Found(_) =>
+      result.withCookies(
+        Cookie(
+          name = "trustedHelper",
+          value = "true",
+          httpOnly = true,
+          path = "/"
+        )
+      )
+    case NotFound =>
+      result.discardingCookies(
+        DiscardingCookie(name = "trustedHelper", path = "/")
+      )
+    case Error(_) =>
+      result
   }
 
-  override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
+  override def invokeBlock[A](
+    request: Request[A],
+    block: AuthenticatedRequest[A] => Future[Result]
+  ): Future[Result] = {
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-  override protected def executionContext: ExecutionContext = mcc.executionContext
+    val retrievals: Retrieval[RetrievalsType] =
+      Retrievals.nino and
+        Retrievals.affinityGroup and
+        Retrievals.allEnrolments and
+        Retrievals.credentials and
+        Retrievals.credentialStrength and
+        Retrievals.confidenceLevel and
+        Retrievals.profile
+
+    authorised().retrieve(retrievals) {
+      case Some(nino) ~ affinityGroup ~ Enrolments(enrolments) ~ Some(credentials) ~
+          Some(CredentialStrength.strong) ~ confidenceLevel ~ profile =>
+        for {
+          userAnswers                         <- journeyCacheRepository.get(hc)
+          trustedHelperResult                 <- fandfService.getTrustedHelper()
+          trustedHelper: Option[TrustedHelper] = trustedHelperResult match {
+                                                   case Found(helper) => Some(helper)
+                                                   case NotFound      => None
+                                                   case Error(ex)     =>
+                                                     logger.warn(
+                                                       "TrustedHelper service call failed, continuing without it",
+                                                       ex
+                                                     )
+                                                     None
+                                                 }
+
+          authRequest = AuthenticatedRequest[A](
+                          authNino = Nino(nino),
+                          credentials = credentials,
+                          confidenceLevel = confidenceLevel,
+                          trustedHelper = trustedHelper,
+                          profile = addRedirect(profile),
+                          enrolments = enrolments,
+                          request = trimRequest(request),
+                          affinityGroup = affinityGroup,
+                          userAnswers = userAnswers,
+                          trustedHelperFromSession = request.cookies.get("trustedHelper").isDefined
+                        )
+
+          result <- block(authRequest)
+        } yield applyCookie(result, trustedHelperResult)
+
+      case _ =>
+        Future.failed(new RuntimeException("Can't authenticate user"))
+    }
+  }
 }
 
 @ImplementedBy(classOf[AuthRetrievalsImpl])

@@ -18,9 +18,10 @@ package services
 
 import com.google.inject.Inject
 import connectors.FandFConnector
+import controllers.auth.TrustedHelperResult
+import controllers.auth.TrustedHelperResult.{Error, Found, NotFound}
 import play.api.Logging
 import play.api.http.Status.NOT_FOUND
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,20 +30,16 @@ class FandfService @Inject() (
   fandFConnector: FandFConnector
 ) extends Logging {
 
-  def getTrustedHelper()(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): Future[Option[TrustedHelper]] =
-    fandFConnector
-      .getTrustedHelper()
-      .foldF(
-        { ex =>
-          if (ex.statusCode != NOT_FOUND) {
-            logger.warn(s"Call to fandf failed with status ${ex.statusCode} and message ${ex.message}")
-          }
-          Future.successful(None)
-        },
-        helper => Future.successful(helper)
-      )
-
+  def getTrustedHelper()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TrustedHelperResult] =
+    fandFConnector.getTrustedHelper().value.map {
+      case Right(Some(helper)) => Found(helper)
+      case Right(None)         => NotFound
+      case Left(ex)            =>
+        if (ex.statusCode == NOT_FOUND) {
+          NotFound
+        } else {
+          logger.warn(s"Fandf call failed with ${ex.statusCode}: ${ex.message}")
+          Error(ex)
+        }
+    }
 }

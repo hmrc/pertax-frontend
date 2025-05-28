@@ -33,7 +33,8 @@ final case class UserRequest[+A](
   profile: Option[String],
   breadcrumb: Option[Breadcrumb] = None,
   request: Request[A],
-  userAnswers: UserAnswers
+  userAnswers: UserAnswers,
+  trustedHelperFromSession: Boolean
 ) extends WrappedRequest[A](request) {
 
   def isSa: Boolean = saUserType match {
@@ -65,6 +66,7 @@ object UserRequest {
       authenticatedRequest.profile,
       breadcrumb,
       authenticatedRequest.request,
-      authenticatedRequest.userAnswers
+      authenticatedRequest.userAnswers,
+      authenticatedRequest.trustedHelperFromSession
     )
 }
