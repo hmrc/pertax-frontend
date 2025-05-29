@@ -713,6 +713,8 @@ alert_banner.paperlessStatus.bounced_email.p2.end = nawr.
 alert_banner.paperlessStatus.unverified_email.link = ddilysu’ch cyfeiriad e-bost
 alert_banner.paperlessStatus.unverified_email.p1 = Mae angen i chi
 
+alert_banner.peak_demand.message = Mae ambell wasanaeth yn brysurach nag arfer. Mae’n bosibl y bydd yn rhaid i chi aros yn hirach i gael mynediad atynt, neu gallwch roi cynnig arall arni yn nes ymlaen.
+
 #*************************************************************
 # P85
 #*************************************************************

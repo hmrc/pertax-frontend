@@ -21,12 +21,13 @@ import com.google.inject.Inject
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.{AlertBannerPaperlessStatusToggle, VoluntaryContributionsAlertToggle}
+import models.admin.{AlertBannerPaperlessStatusToggle, PeakDemandBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.Html
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, unverifiedEmail, voluntaryContributionsAlertView}
+import views.html.components.alertBanner.peakDemandBanner
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,7 +36,8 @@ class AlertBannerHelper @Inject() (
   featureFlagService: FeatureFlagService,
   bouncedEmailView: bouncedEmail,
   unverifiedEmailView: unverifiedEmail,
-  voluntaryContributionsAlertView: voluntaryContributionsAlertView
+  voluntaryContributionsAlertView: voluntaryContributionsAlertView,
+  peakDemandBannerView: peakDemandBanner
 ) {
 
   def getContent(implicit
@@ -44,7 +46,8 @@ class AlertBannerHelper @Inject() (
     messages: Messages
   ): Future[List[Html]] = {
     val contentFutures = List(
-      getPaperlessStatusBannerContent
+      getPaperlessStatusBannerContent,
+      getPeakDemandBannerContent
     )
     Future.sequence(contentFutures).map(_.flatten)
   }
@@ -70,6 +73,12 @@ class AlertBannerHelper @Inject() (
         Future.successful(None)
     }
 
+  private def getPeakDemandBannerContent(implicit ec: ExecutionContext, messages: Messages): Future[Option[Html]] =
+    featureFlagService.get(PeakDemandBannerToggle).map {
+      case toggle if toggle.isEnabled => Some(peakDemandBannerView())
+      case _                          => None
+    }
+
   def getVoluntaryContributionsAlertBannerContent(implicit
     ec: ExecutionContext,
     messages: Messages
@@ -81,5 +90,4 @@ class AlertBannerHelper @Inject() (
         None
       }
     }
-
 }

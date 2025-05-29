@@ -715,6 +715,7 @@ alert_banner.paperlessStatus.bounced_email.p1 = We are having trouble sending yo
 alert_banner.paperlessStatus.bounced_email.p2.start = Please
 alert_banner.paperlessStatus.bounced_email.link = check your email address
 alert_banner.paperlessStatus.bounced_email.p2.end = now.
+alert_banner.peak_demand.message = Some services are busier than usual. You might wait longer to access them, or try again later.
 
 #*************************************************************
 # P85

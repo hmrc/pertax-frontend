@@ -32,7 +32,8 @@ object AllFeatureFlags {
     GetPersonFromCitizenDetailsToggle,
     DfsDigitalFormFrontendAvailableToggle,
     AddressChangeAllowedToggle,
-    VoluntaryContributionsAlertToggle
+    VoluntaryContributionsAlertToggle,
+    PeakDemandBannerToggle
   )
 }
 
@@ -112,5 +113,12 @@ case object VoluntaryContributionsAlertToggle extends FeatureFlagName {
   override val name: String                = "voluntary-contributions-alert-toggle"
   override val description: Option[String] = Some(
     "Enable/disable the alert banner for voluntary National Insurance contributions information"
+  )
+}
+
+case object PeakDemandBannerToggle extends FeatureFlagName {
+  override val name: String                = "peak-demand-banner-toggle"
+  override val description: Option[String] = Some(
+    "Enable/Disable the temporary peak demand banner on the home page"
   )
 }
