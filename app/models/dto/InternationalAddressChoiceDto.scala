@@ -41,7 +41,7 @@ object InternationalAddressChoiceDto extends Enumerable.Implicits with Formatter
   implicit val enumerable: Enumerable[InternationalAddressChoiceDto] =
     Enumerable(values.toSeq.map(v => v.toString -> v): _*)
 
-  implicit lazy val writes: Writes[InternationalAddressChoiceDto]    = Writes {
+  implicit lazy val writes: Writes[InternationalAddressChoiceDto] = Writes {
     case OutsideUK       => JsString(OutsideUK.toString)
     case England         => JsString(England.toString)
     case Scotland        => JsString(Scotland.toString)

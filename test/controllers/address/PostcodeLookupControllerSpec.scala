@@ -34,6 +34,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.model.DataEvent
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class PostcodeLookupControllerSpec extends AddressBaseSpec {
   private lazy val controller: PostcodeLookupController = app.injector.instanceOf[PostcodeLookupController]

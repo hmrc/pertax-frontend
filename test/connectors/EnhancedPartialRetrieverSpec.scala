@@ -16,8 +16,8 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
 import models._
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, notFound, ok, serverError, urlEqualTo}
 import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito}
 import org.scalatest.RecoverMethods
 import org.scalatest.concurrent.IntegrationPatience
@@ -30,6 +30,7 @@ import play.twirl.api.Html
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
+import org.mockito.Mockito.{reset, times}
 
 class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with IntegrationPatience with RecoverMethods {
 
@@ -185,7 +186,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
       sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url).futureValue mustBe Nil
       val captor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
       Mockito
-        .verify(mockLogger, atLeast(1))
+        .verify(mockLogger, times(1))
         .error(captor.capture())(ArgumentMatchers.any())
       captor.getValue.contains("Failed to load partial")
     }

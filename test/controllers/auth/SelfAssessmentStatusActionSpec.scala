@@ -35,6 +35,7 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{reset, times, verify, when}
 
 class SelfAssessmentStatusActionSpec extends BaseSpec {
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
@@ -58,11 +59,10 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
     actionProvider.invokeBlock(
       request,
-      { userRequest: UserRequest[_] =>
+      (userRequest: UserRequest[_]) =>
         Future.successful(
           Ok(s"Nino: ${userRequest.authNino.nino}, SaUtr: ${userRequest.saUserType.toString}")
         )
-      }
     )
 
   }

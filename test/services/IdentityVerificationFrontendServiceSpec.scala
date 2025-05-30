@@ -25,6 +25,7 @@ import testUtils.BaseSpec
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class IdentityVerificationFrontendServiceSpec extends BaseSpec {
 

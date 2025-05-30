@@ -17,7 +17,7 @@
 package connectors
 
 import cats.data.EitherT
-import cats.implicits._
+import cats.implicits.*
 import models.{Address, AgentClientStatus}
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
@@ -27,8 +27,10 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import repositories.SessionCacheRepository
 import testUtils.{BaseSpec, WireMockHelper}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
+import org.mockito.Mockito.{reset, times, verify, when}
+import scala.concurrent.Future
 
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext
@@ -81,10 +83,10 @@ class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec wit
         when(
           mockSessionCacheRepository.deleteFromSessionEitherT[AgentClientStatus, JsValue](DataKey(any[String]()))(any())
         )
-          .thenReturn(EitherT.rightT(()))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](()))
 
         when(mockCitizenDetailsConnector.updateAddress(any(), any(), any())(any(), any(), any()))
-          .thenReturn(EitherT.rightT(HttpResponse(OK, Json.toJson(address), Map.empty)))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, Json.toJson(address), Map.empty)))
 
         val _ = connector.updateAddress(generatedNino, "0", address).value.futureValue
 

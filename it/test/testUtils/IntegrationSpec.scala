@@ -24,7 +24,7 @@ import connectors.CitizenDetailsConnector
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec

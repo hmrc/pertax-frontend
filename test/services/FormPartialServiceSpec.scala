@@ -29,6 +29,7 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.partials.HtmlPartial
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{reset, times, verify, when}
 
 class FormPartialServiceSpec extends BaseSpec {
   private val mockEnhancedPartialRetriever: EnhancedPartialRetriever = mock[EnhancedPartialRetriever]

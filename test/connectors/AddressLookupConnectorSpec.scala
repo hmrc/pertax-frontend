@@ -31,6 +31,7 @@ import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import org.mockito.Mockito.when
 
 import scala.concurrent.Future
 import scala.io.Source

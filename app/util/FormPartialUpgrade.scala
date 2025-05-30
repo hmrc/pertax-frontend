@@ -21,7 +21,7 @@ import play.twirl.api.Html
 
 object FormPartialUpgrade {
 
-  //TODO: To be deleted. See DDCNL-6008
+  // TODO: To be deleted. See DDCNL-6008
   def upgrade(partial: Html): Html = {
     val doc = Jsoup.parse(partial.toString)
     doc.getElementsByTag("a").addClass("govuk-link")

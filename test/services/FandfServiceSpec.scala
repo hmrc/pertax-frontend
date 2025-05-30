@@ -29,6 +29,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class FandfServiceSpec extends BaseSpec with Injecting with IntegrationPatience {
 

@@ -17,19 +17,21 @@
 package connectors
 
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import config.ConfigDecorator
 import org.mockito.ArgumentMatchers.any
-import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito, MockitoSugar}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito}
 import play.api.{Application, Logger}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.{mock, reset, times, when}
 
 import scala.concurrent.Future
 import scala.util.Random
+import com.github.tomakehurst.wiremock.client.WireMock.{getRequestedFor, matching, reset as resetWireMock, urlEqualTo}
 
 class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with MockitoSugar {
 

@@ -18,7 +18,8 @@ package views.html.interstitial
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.should.Matchers.shouldBe
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
@@ -27,6 +28,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import viewmodels.AlertBannerViewModel
 import views.html.ViewSpec
+import org.mockito.Mockito.{times, verify, when}
 
 class ViewNISPViewSpec extends ViewSpec {
 

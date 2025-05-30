@@ -42,7 +42,7 @@ class testSpec extends A11ySpec {
 
   case class ExpectedData(title: String)
 
-  //scalastyle:off cyclomatic.complexity
+  // scalastyle:off cyclomatic.complexity
   def getExpectedData(key: String): ExpectedData =
     key match {
       case "id-check-complete"                     =>

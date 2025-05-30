@@ -31,6 +31,8 @@ import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.time.CurrentTaxYear
+import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.ArgumentMatchers.{any, eq}
 
 import java.time.LocalDate
 import scala.concurrent.Future

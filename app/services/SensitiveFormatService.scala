@@ -62,7 +62,7 @@ class SensitiveFormatService @Inject() (
       }
     }
 
-  private def sensitiveWritesJsValue[A](writes: Writes[A]): Writes[A] = { o: A =>
+  private def sensitiveWritesJsValue[A](writes: Writes[A]): Writes[A] = { (o: A) =>
     writeJsValueWithEncryption(writes.writes(o))
   }
 

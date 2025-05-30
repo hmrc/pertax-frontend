@@ -22,7 +22,6 @@ import config.ConfigDecorator
 import models.{ErrorView, PertaxResponse}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -31,6 +30,7 @@ import testUtils.WireMockHelper
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
+import org.scalatestplus.mockito.MockitoSugar.mock
 
 import java.net.URL
 import scala.concurrent.Future

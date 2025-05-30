@@ -84,6 +84,12 @@ case class AddressDto(
 
 object AddressDto extends CountryHelper {
 
+  def unapply(obj: AddressDto): Some[
+    (String, String, Option[String], Option[String], Option[String], Option[String], Option[String], Option[String])
+  ] = Some(
+    (obj.line1, obj.line2, obj.line3, obj.line4, obj.line5, obj.postcode, obj.country, obj.propertyRefNo)
+  )
+
   @nowarn("msg=match may not be exhaustive.")
   def apply(
     line1: String,

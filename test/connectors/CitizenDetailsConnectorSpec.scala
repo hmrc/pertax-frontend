@@ -21,7 +21,6 @@ import config.ConfigDecorator
 import models._
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import play.api.Application
 import play.api.libs.json.{JsNull, JsObject, JsString, JsValue, Json}
@@ -33,6 +32,7 @@ import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import org.scalatestplus.mockito.MockitoSugar.mock
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -262,7 +262,7 @@ class CitizenDetailsConnectorSpec
     }
 
     "return OK containing an SAUTR when the service returns an SAUTR" in new LocalSetup {
-      val saUtr: String                                       = new SaUtrGenerator().nextSaUtr.utr
+      val saUtr: String = new SaUtrGenerator().nextSaUtr.utr
       stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr)).toString()))
 
       val result: Either[UpstreamErrorResponse, HttpResponse] =

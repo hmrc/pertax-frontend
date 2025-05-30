@@ -32,6 +32,7 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class CitizenDetailsServiceSpec extends BaseSpec with Injecting with IntegrationPatience {
 
