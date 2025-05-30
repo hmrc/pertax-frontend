@@ -19,8 +19,6 @@ package testUtils
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import models.admin.{AddressChangeAllowedToggle, AllFeatureFlags, DfsDigitalFormFrontendAvailableToggle, GetPersonFromCitizenDetailsToggle}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -31,7 +29,6 @@ import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.MessagesControllerComponents
-import play.api.test.Helpers.baseApplicationBuilder.injector
 import play.api.test.Injecting
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
@@ -41,6 +38,9 @@ import uk.gov.hmrc.mongo.test.CleanMongoCollectionSupport
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.FormPartialRetriever
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.{reset, when}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -88,7 +88,7 @@ trait BaseSpec
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
   val mockAuthJourney: AuthJourney            = mock[AuthJourney]
 
-  implicit lazy val ec: ExecutionContext     = injector().instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext     = app.injector.instanceOf[ExecutionContext]
   lazy val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
   implicit def messagesApi: MessagesApi      = inject[MessagesApi]
 
@@ -99,19 +99,19 @@ trait BaseSpec
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    org.mockito.MockitoSugar.reset(mockFeatureFlagService)
+    reset(mockFeatureFlagService)
     AllFeatureFlags.list.foreach { flag =>
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
+      when(mockFeatureFlagService.get(eqTo(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
     }
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+    when(mockFeatureFlagService.get(eqTo(GetPersonFromCitizenDetailsToggle)))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
+    when(mockFeatureFlagService.get(eqTo(AddressChangeAllowedToggle)))
       .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
+    when(mockFeatureFlagService.get(eqTo(DfsDigitalFormFrontendAvailableToggle)))
       .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
   }
 }

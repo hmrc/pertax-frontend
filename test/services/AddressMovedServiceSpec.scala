@@ -25,6 +25,7 @@ import testUtils.BaseSpec
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.{ExecutionContext, Future}
+import org.mockito.Mockito.{times, verify, when}
 
 class AddressMovedServiceSpec extends BaseSpec {
 

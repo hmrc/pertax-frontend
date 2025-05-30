@@ -30,6 +30,7 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.InternalServerErrorView
 
 import scala.concurrent.Future
+import org.mockito.Mockito.when
 
 class AddressControllerSpec extends AddressBaseSpec {
   val mockErrorRenderer: ErrorRenderer = mock[ErrorRenderer]

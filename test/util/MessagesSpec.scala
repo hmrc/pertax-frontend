@@ -70,10 +70,10 @@ class MessagesSpec extends BaseSpec {
     }
 
     "not have the same messages" in {
-      val same = defaultMessages.keys.collect({
+      val same = defaultMessages.keys.collect {
         case messageKey if defaultMessages.get(messageKey) == welshMessages.get(messageKey) =>
           (messageKey, defaultMessages.get(messageKey))
-      })
+      }
 
       val percentageOfSameMessages = 0.04
 

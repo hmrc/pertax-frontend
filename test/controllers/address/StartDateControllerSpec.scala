@@ -24,15 +24,16 @@ import models.{PersonDetails, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{redirectLocation, _}
+import play.api.test.Helpers.{redirectLocation, *}
 import routePages.{HasAddressAlreadyVisitedPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage}
 import testUtils.{ActionBuilderFixture, Fixtures}
 import testUtils.Fixtures.fakeStreetTupleListAddressForUnmodified
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import java.time.LocalDate
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class StartDateControllerSpec extends AddressBaseSpec {
   private lazy val controller: StartDateController = app.injector.instanceOf[StartDateController]
@@ -183,7 +184,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, address, None)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(personDetails)
+        EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
       )
 
       val userAnswers: UserAnswers = UserAnswers

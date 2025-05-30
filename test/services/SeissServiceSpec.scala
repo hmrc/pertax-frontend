@@ -27,6 +27,7 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class SeissServiceSpec extends BaseSpec {
 

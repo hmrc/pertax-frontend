@@ -38,6 +38,7 @@ import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class PaperlessInterruptHelperSpec extends BaseSpec {
 

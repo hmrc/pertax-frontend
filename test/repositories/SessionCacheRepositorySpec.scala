@@ -17,6 +17,7 @@
 package repositories
 
 import config.{ConfigDecorator, SensitiveT}
+import org.mockito.Mockito.when
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc.AnyContentAsEmpty

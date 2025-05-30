@@ -27,6 +27,7 @@ import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class PaperlessPreferencesControllerSpec extends BaseSpec {
   import testUtils.BetterOptionValues._

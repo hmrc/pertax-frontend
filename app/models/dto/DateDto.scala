@@ -32,8 +32,8 @@ object DateDto {
 
   implicit val formats: OFormat[DateDto] = Json.format[DateDto]
 
-  def unapply(obj: DateDto): Some[(LocalDate)] = Some(
-    (obj.startDate)
+  def unapply(obj: DateDto): Some[LocalDate] = Some(
+    obj.startDate
   )
 
   def build(day: Int, month: Int, year: Int): DateDto = DateDto(LocalDate.of(year, month, day))

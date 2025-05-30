@@ -27,6 +27,7 @@ import testUtils.BaseSpec
 import testUtils.Fixtures._
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{reset, times, verify, when}
 
 class TaxCalcPartialServiceSpec extends BaseSpec {
   private val mockEnhancedPartialRetriever: EnhancedPartialRetriever = mock[EnhancedPartialRetriever]

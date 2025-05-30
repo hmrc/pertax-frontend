@@ -31,6 +31,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.domain.{Generator, Nino}
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{reset, times, verify, when}
 
 class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
@@ -391,7 +392,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
             usersGroupSearchResponse.identityProviderType,
             "ID 1",
             usersGroupSearchResponse.obfuscatedUserId.getOrElse(""),
-            usersGroupSearchResponse.email.map(SensitiveString),
+            usersGroupSearchResponse.email.map(email => SensitiveString(email)),
             usersGroupSearchResponse.lastAccessedTimestamp,
             AccountDetails.additionalFactorsToMFADetails(usersGroupSearchResponse.additionalFactors),
             None

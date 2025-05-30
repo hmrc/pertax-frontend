@@ -42,6 +42,7 @@ import views.MainView
 import views.html.InternalServerErrorView
 
 import scala.concurrent.Future
+import org.mockito.Mockito.when
 
 class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 

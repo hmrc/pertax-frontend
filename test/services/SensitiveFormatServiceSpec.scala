@@ -23,6 +23,7 @@ import play.api.libs.json._
 import services.SensitiveFormatService.SensitiveJsValue
 import testUtils.BaseSpec
 import uk.gov.hmrc.crypto.{Crypted, Decrypter, Encrypter, PlainText}
+import org.mockito.Mockito.{reset, times, verify, when}
 
 class SensitiveFormatServiceSpec extends BaseSpec with BeforeAndAfterEach {
   private trait EncrypterDecrypter extends Encrypter with Decrypter

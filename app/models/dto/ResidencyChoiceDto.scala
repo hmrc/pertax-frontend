@@ -25,7 +25,7 @@ case class ResidencyChoiceDto(residencyChoice: AddrType) extends Dto
 
 object ResidencyChoiceDto {
 
-  def unapply(obj: ResidencyChoiceDto): Some[(AddrType)] = Some((obj.residencyChoice))
+  def unapply(obj: ResidencyChoiceDto): Some[AddrType] = Some(obj.residencyChoice)
 
   implicit val formats: OFormat[ResidencyChoiceDto] = {
     implicit val addrTypeReads: Reads[AddrType] = {
@@ -48,7 +48,7 @@ object ResidencyChoiceDto {
         .transform[AddrType](
           x => AddrType(x.fold("")(_.toString)).getOrElse(ResidentialAddrType),
           ad => Some(ad.toString)
-        ) //getOrElse here will never fall back to default because of isDefined above
+        ) // getOrElse here will never fall back to default because of isDefined above
     )(ResidencyChoiceDto.apply)(ResidencyChoiceDto.unapply)
   )
 }

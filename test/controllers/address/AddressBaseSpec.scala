@@ -35,7 +35,7 @@ import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import repositories.JourneyCacheRepository
 import services.{AddressMovedService, AgentClientAuthorisationService, CitizenDetailsService}
-import testUtils.Fixtures._
+import testUtils.Fixtures.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 import uk.gov.hmrc.domain.Nino
@@ -45,6 +45,7 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateAddressConfirmationView
+import org.mockito.Mockito.{reset, when}
 
 import scala.concurrent.Future
 

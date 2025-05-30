@@ -19,22 +19,23 @@ package controllers.address
 import cats.data.EitherT
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto.{AddressDto, DateDto, InternationalAddressChoiceDto}
-import models.{Address, ETag, UserAnswers}
+import models.{Address, ETag, PersonDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.{any, eq => meq}
+import org.mockito.ArgumentMatchers.{any, eq as meq}
 import play.api.http.Status.OK
 import play.api.i18n.Messages
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import routePages.{SelectedAddressRecordPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage, SubmittedStartDatePage}
 import testUtils.Fixtures
-import testUtils.Fixtures._
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import testUtils.Fixtures.*
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.model.DataEvent
 
 import java.time.LocalDate
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class AddressSubmissionControllerSpec extends AddressBaseSpec {
   private lazy val controller: AddressSubmissionController = app.injector.instanceOf[AddressSubmissionController]
@@ -441,7 +442,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       )
 
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.leftT(UpstreamErrorResponse("Start Date cannot be the same", 400))
+        EitherT.leftT[Future, HttpResponse](UpstreamErrorResponse("Start Date cannot be the same", 400))
       )
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)

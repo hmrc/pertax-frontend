@@ -19,7 +19,6 @@ package connectors
 import cats.data.EitherT
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
@@ -27,6 +26,7 @@ import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import org.scalatestplus.mockito.MockitoSugar.mock
 
 import java.net.URL
 import scala.concurrent.Future

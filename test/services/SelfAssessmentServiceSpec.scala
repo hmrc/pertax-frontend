@@ -33,6 +33,7 @@ import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import java.util.UUID
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class SelfAssessmentServiceSpec extends BaseSpec {
 

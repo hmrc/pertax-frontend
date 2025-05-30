@@ -50,7 +50,7 @@ trait ConnectorSpec
 
   implicit val hc: HeaderCarrier         = HeaderCarrier()
   implicit lazy val ec: ExecutionContext =
-    scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
+    scala.concurrent.ExecutionContext.global // TODO: remove lazy keyword when Caching spec is done.
 
   val server: WireMockServer
 

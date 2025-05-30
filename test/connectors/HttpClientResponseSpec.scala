@@ -18,6 +18,7 @@ package connectors
 
 import cats.data.EitherT
 import org.mockito.{ArgumentMatchers, Mockito}
+import org.mockito.Mockito.{reset, times}
 import org.scalatest.RecoverMethods
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Logger

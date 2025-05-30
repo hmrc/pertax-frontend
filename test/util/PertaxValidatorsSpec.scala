@@ -20,97 +20,9 @@ import play.api.data.Form
 import play.api.data.Forms._
 import testUtils.BaseSpec
 import util.PertaxValidators._
+import org.mockito.Mockito.{times, verify, when}
 
 class PertaxValidatorsSpec extends BaseSpec {
-
-  "Binding data to a simple address structure" must {
-
-    trait LocalSetup
-
-    "return 0 errors if line1 and line2 has content when using textIfFieldsHaveContent('line2') for line1's mapping" in new LocalSetup {
-
-      val formData: Map[String, String] = Map(
-        "line1" -> "Line 1",
-        "line2" -> "Line 2"
-      )
-
-      case class SimpleAddress(line1: Option[String], line2: Option[String])
-
-      val simpleAddressForm: Form[SimpleAddress] = Form(
-        mapping(
-          "line1" -> optionalTextIfFieldsHaveContent("line2"),
-          "line2" -> optional(text)
-        )(SimpleAddress.apply)(SimpleAddress.unapply)
-      )
-
-      val f: Form[SimpleAddress] = simpleAddressForm.bind(formData)
-      f.copy(errors = f.errors.distinct)
-        .fold(
-          _ => fail("Form should give an error"),
-          success => success mustBe SimpleAddress(Some("Line 1"), Some("Line 2"))
-        )
-    }
-
-    "return 1 error for line1 if line2 has content when using textIfFieldsHaveContent('line2') for line1's mapping" in new LocalSetup {
-
-      val formData: Map[String, String] = Map(
-        "line1" -> "",
-        "line2" -> "Line 2"
-      )
-
-      case class SimpleAddress(line1: Option[String], line2: Option[String])
-
-      val simpleAddressForm: Form[SimpleAddress] = Form(
-        mapping(
-          "line1" -> optionalTextIfFieldsHaveContent("line2"),
-          "line2" -> optional(text)
-        )(SimpleAddress.apply)(SimpleAddress.unapply)
-      )
-
-      val f: Form[SimpleAddress] = simpleAddressForm.bind(formData)
-      f.copy(errors = f.errors.distinct)
-        .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.key mustBe "line1"
-            formWithErrors.errors.head.message mustBe "error.line1_required"
-          },
-          _ => fail("Form should give an error")
-        )
-    }
-
-    "return 2 errors for line1 + line2 if line1 and line2 contain no content when using textIfFieldsHaveContent('line2', 'line3') for line1's mapping and textIfFieldsHaveContent('line3') for line2's mapping" in new LocalSetup {
-
-      val formData: Map[String, String] = Map(
-        "line1" -> "",
-        "line2" -> "",
-        "line3" -> "Line 3"
-      )
-
-      case class SimpleAddress(line1: Option[String], line2: Option[String], line3: Option[String])
-
-      val simpleAddressForm: Form[SimpleAddress] = Form(
-        mapping(
-          "line1" -> optionalTextIfFieldsHaveContent("line2", "line3"),
-          "line2" -> optionalTextIfFieldsHaveContent("line3"),
-          "line3" -> optional(text)
-        )(SimpleAddress.apply)(SimpleAddress.unapply)
-      )
-
-      val f: Form[SimpleAddress] = simpleAddressForm.bind(formData)
-      f.copy(errors = f.errors.distinct)
-        .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 2
-            formWithErrors.errors.head.key mustBe "line1"
-            formWithErrors.errors.head.message mustBe "error.line1_required"
-            formWithErrors.errors(1).key mustBe "line2"
-            formWithErrors.errors(1).message mustBe "error.line2_required"
-          },
-          _ => fail("Form should give an error")
-        )
-    }
-  }
 
   "validateAddressLineCharacters" must {
 

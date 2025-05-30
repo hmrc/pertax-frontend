@@ -24,7 +24,7 @@ case class ClosePostalAddressChoiceDto(value: Boolean) extends Dto
 
 object ClosePostalAddressChoiceDto {
 
-  def unapply(obj: ClosePostalAddressChoiceDto): Some[(Boolean)] = Some(obj.value)
+  def unapply(obj: ClosePostalAddressChoiceDto): Some[Boolean] = Some(obj.value)
 
   implicit val formats: OFormat[ClosePostalAddressChoiceDto] = Json.format[ClosePostalAddressChoiceDto]
 

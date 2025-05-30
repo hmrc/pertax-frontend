@@ -25,6 +25,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
+import org.mockito.Mockito.{reset, times, verify, when}
 
 import scala.concurrent.Future
 
