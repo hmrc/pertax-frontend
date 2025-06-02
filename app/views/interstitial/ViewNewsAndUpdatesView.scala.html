@@ -18,6 +18,7 @@
 @import views.html.components.{H1, H2, Link, P}
 @import views.MainView
 @import scala.concurrent.ExecutionContext
+@import java.time.format.DateTimeFormatter
 
 @this(
     mainView: MainView,
@@ -28,6 +29,10 @@
 
 @(newsAndContentModelList: List[NewsAndContentModel], selectedNewsSectionId: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
+@startDateFormatted(newsAndContentModel:NewsAndContentModel)={
+    @newsAndContentModel.startDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy", messages.lang.locale))
+}
+
 @mainView(
     pageTitle = messages("label.news_and_updates"),
     showBackLink = false
@@ -35,6 +40,7 @@
     @defining(newsAndContentModelList.find(_.newsSectionName == selectedNewsSectionId).getOrElse(newsAndContentModelList.head)) { selectedNewsSection =>
 
         @h1(selectedNewsSection.shortDescription, elmId = Some("newsHeading"))
+        @p(content = HtmlContent(messages("label.news_and_updates.published") + " " + startDateFormatted(selectedNewsSection)), classes = Some("govuk-body-m govuk-hint"))
         @p(HtmlContent(messages(selectedNewsSection.content)))
 
         @if(newsAndContentModelList.filter(_ != selectedNewsSection).nonEmpty) {
