@@ -19,9 +19,8 @@ package services
 import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.TaiConnector
+import models.TaxComponents
 import models.admin.TaxComponentsToggle
-import models.{TaxComponents, TaxComponentsAvailableState, TaxComponentsNotAvailableState, TaxComponentsState, TaxComponentsUnreachableState}
-import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -34,14 +33,10 @@ class TaiService @Inject() (taiConnector: TaiConnector, featureFlagService: Feat
 
   def retrieveTaxComponentsState(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier
-  ): Future[TaxComponentsState] = get(nino, year)
+  ): Future[List[String]] = get(nino, year)
     .fold(
-      {
-        case UpstreamErrorResponse(_, BAD_REQUEST, _, _) => TaxComponentsNotAvailableState
-        case UpstreamErrorResponse(_, NOT_FOUND, _, _)   => TaxComponentsNotAvailableState
-        case _                                           => TaxComponentsUnreachableState
-      },
-      taxComponents => TaxComponentsAvailableState(TaxComponents(taxComponents))
+      _ => List.empty,
+      taxComponents => taxComponents
     )
 
   def get(nino: Nino, year: Int)(implicit
@@ -52,7 +47,7 @@ class TaiService @Inject() (taiConnector: TaiConnector, featureFlagService: Feat
         if (toggle.isEnabled) {
           taiConnector
             .taxComponents(nino, year)
-            .map(result => TaxComponents.fromJsonTaxComponents(result.json).taxComponents)
+            .map(result => TaxComponents.fromJsonTaxComponents(result.json))
             .value
         } else {
           Future.successful(Right(List.empty))
@@ -60,5 +55,4 @@ class TaiService @Inject() (taiConnector: TaiConnector, featureFlagService: Feat
       }
     EitherT(result)
   }
-
 }

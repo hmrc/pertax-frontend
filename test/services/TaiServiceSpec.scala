@@ -19,7 +19,6 @@ package services
 import cats.data.EitherT
 import connectors.TaiConnector
 import models.admin.TaxComponentsToggle
-import models.{TaxComponentsAvailableState, TaxComponentsDisabledState, TaxComponentsNotAvailableState, TaxComponentsUnreachableState}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
@@ -63,7 +62,7 @@ class TaiServiceSpec extends BaseSpec {
         val result = sut.retrieveTaxComponentsState(fakeNino, invalidTaxYear)
 
         result.map { state =>
-          state mustBe TaxComponentsNotAvailableState
+          state mustBe List.empty
         }
       }
     }
@@ -88,11 +87,11 @@ class TaiServiceSpec extends BaseSpec {
         val result = sut.retrieveTaxComponentsState(fakeNino, fakeTaxYear)
 
         result.map { state =>
-          state mustBe TaxComponentsAvailableState
+          state.nonEmpty mustBe true
         }
       }
 
-      "return TaxComponentsNotAvailableState if bad request" in {
+      "return List.empty if bad request" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
 
@@ -108,11 +107,11 @@ class TaiServiceSpec extends BaseSpec {
         val result = sut.retrieveTaxComponentsState(fakeNino, fakeTaxYear)
 
         result.map { state =>
-          state mustBe TaxComponentsNotAvailableState
+          state mustBe List.empty
         }
       }
 
-      "return TaxComponentsNotAvailableState if not found" in {
+      "return List.empty if not found" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
 
@@ -128,11 +127,11 @@ class TaiServiceSpec extends BaseSpec {
         val result = sut.retrieveTaxComponentsState(fakeNino, fakeTaxYear)
 
         result.map { state =>
-          state mustBe TaxComponentsNotAvailableState
+          state mustBe List.empty
         }
       }
 
-      "return TaxComponentsUnreachableState if does not return either handled error" in {
+      "return List.empty if does not return either handled error" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
 
@@ -148,21 +147,21 @@ class TaiServiceSpec extends BaseSpec {
         val result = sut.retrieveTaxComponentsState(fakeNino, fakeTaxYear)
 
         result.map { state =>
-          state mustBe TaxComponentsUnreachableState
+          state mustBe List.empty
         }
       }
 
     }
 
     "Toggle isDisabled" must {
-      "return success if TaxComponentsDisabledState when TaxComponents are not present" in {
+      "return empty list if TaxComponentsDisabledState when TaxComponents are not present" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
 
         val result = sut.retrieveTaxComponentsState(fakeNino, fakeTaxYear)
 
         result.map { state =>
-          state mustBe TaxComponentsDisabledState
+          state mustBe List.empty
         }
       }
 

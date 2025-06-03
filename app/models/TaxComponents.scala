@@ -18,23 +18,19 @@ package models
 
 import play.api.libs.json.JsValue
 
-case class TaxComponents(taxComponents: List[String]) {
-
-  def isMarriageAllowanceRecipient: Boolean = true// taxComponents.contains("MarriageAllowanceReceived")
-
-  def isMarriageAllowanceTransferor: Boolean = taxComponents.contains("MarriageAllowanceTransferred")
-
-  def notMarriageAllowanceCustomer: Boolean = !(isMarriageAllowanceRecipient || isMarriageAllowanceTransferor)
-
-  def isCompanyBenefitRecipient: Boolean =
-    taxComponents.exists(componentType => componentType == "CarBenefit" || componentType == "MedicalInsurance")
-}
-
 object TaxComponents {
-  def fromJsonTaxComponents(taxComponents: JsValue): TaxComponents = {
+  def fromJsonTaxComponents(taxComponents: JsValue): List[String] =
+    (taxComponents \\ "componentType").map(_.as[String]).toList
 
-    val componentTypes = (taxComponents \\ "componentType").map(_.as[String]).toList
+  def isMarriageAllowanceRecipient(taxComponents: List[String]): Boolean =
+    taxComponents.contains("MarriageAllowanceReceived")
 
-    TaxComponents(componentTypes)
-  }
+  def isMarriageAllowanceTransferor(taxComponents: List[String]): Boolean =
+    taxComponents.contains("MarriageAllowanceTransferred")
+
+  def notMarriageAllowanceCustomer(taxComponents: List[String]): Boolean =
+    !(isMarriageAllowanceRecipient(taxComponents) || isMarriageAllowanceTransferor(taxComponents))
+
+  def isCompanyBenefitRecipient(taxComponents: List[String]): Boolean =
+    taxComponents.exists(componentType => componentType == "CarBenefit" || componentType == "MedicalInsurance")
 }

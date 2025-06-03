@@ -18,9 +18,9 @@ package controllers
 
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
+import models.BreathingSpaceIndicatorResponse
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowOutageBannerToggle
-import models.{BreathingSpaceIndicatorResponse, TaxComponents, TaxComponentsAvailableState}
 import org.mockito.ArgumentMatchers.any
 import play.api.Application
 import play.api.inject.bind
@@ -88,7 +88,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     )
     when(mockTaiService.retrieveTaxComponentsState(any(), any())(any())).thenReturn(
       Future.successful(
-        TaxComponentsAvailableState(TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments")))
+        List("EmployerProvidedServices", "PersonalPensionPayments")
       )
     )
 

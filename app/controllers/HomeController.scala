@@ -67,7 +67,7 @@ class HomeController @Inject() (
         personDetails           <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value
       } yield {
         val nameToDisplay: Option[String] = Some(personalDetailsNameOrDefault(personDetails))
-        val benefitCards                  = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
+        val benefitCards                  = homeCardGenerator.getBenefitCards(taxSummaryState, request.trustedHelper)
 
         Ok(
           homeView(
