@@ -17,6 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
+import connectors.TaiConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
@@ -37,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
-  taxComponentService: TaiService,
+  taiConnector: TaiConnector,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
@@ -58,8 +59,8 @@ class HomeController @Inject() (
 
   private def getTaxComponentsOrEmptyList(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier
-  ): Future[List[String]] = taxComponentService
-    .get(nino, year)
+  ): Future[List[String]] = taiConnector
+    .taxComponents(nino, year)
     .fold(
       _ => List.empty,
       taxComponents => taxComponents
@@ -69,7 +70,7 @@ class HomeController @Inject() (
     val saUserType = request.saUserType
     enforceInterrupts {
       for {
-        taxSummaryState         <- getTaxComponentsOrEmptyList(request.helpeeNinoOrElse, current.currentYear)
+        taxComponents           <- getTaxComponentsOrEmptyList(request.helpeeNinoOrElse, current.currentYear)
         breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse)
         incomeCards             <- homeCardGenerator.getIncomeCards
         atsCard                 <- homeCardGenerator.getATSCard()
@@ -78,7 +79,7 @@ class HomeController @Inject() (
         personDetails           <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value
       } yield {
         val nameToDisplay: Option[String] = Some(personalDetailsNameOrDefault(personDetails))
-        val benefitCards                  = homeCardGenerator.getBenefitCards(taxSummaryState, request.trustedHelper)
+        val benefitCards                  = homeCardGenerator.getBenefitCards(taxComponents, request.trustedHelper)
 
         Ok(
           homeView(
