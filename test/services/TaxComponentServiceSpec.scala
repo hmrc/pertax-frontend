@@ -21,11 +21,11 @@ import connectors.TaiConnector
 import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.libs.json.Json
 import testUtils.BaseSpec
 import testUtils.Fixtures.fakeNino
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.time.TaxYear
 
@@ -52,7 +52,7 @@ class TaxComponentServiceSpec extends BaseSpec {
 
         when(connector.taxComponents(any(), any())(any(), any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            EitherT[Future, UpstreamErrorResponse, List[String]](
               Future.successful(
                 Left(UpstreamErrorResponse("TaxComponentsNotAvailableState", BAD_REQUEST))
               )
@@ -77,9 +77,9 @@ class TaxComponentServiceSpec extends BaseSpec {
 
         when(connector.taxComponents(any(), any())(any(), any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            EitherT[Future, UpstreamErrorResponse, List[String]](
               Future.successful(
-                Right(HttpResponse(OK, taxComponentsJson.toString()))
+                Right(taxComponentsList)
               )
             )
           )
@@ -97,7 +97,7 @@ class TaxComponentServiceSpec extends BaseSpec {
 
         when(connector.taxComponents(any(), any())(any(), any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            EitherT[Future, UpstreamErrorResponse, List[String]](
               Future.successful(
                 Left(UpstreamErrorResponse("TaxComponentsNotAvailableState", BAD_REQUEST))
               )
@@ -117,7 +117,7 @@ class TaxComponentServiceSpec extends BaseSpec {
 
         when(connector.taxComponents(any(), any())(any(), any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            EitherT[Future, UpstreamErrorResponse, List[String]](
               Future.successful(
                 Left(UpstreamErrorResponse("TaxComponentsNotAvailableState", NOT_FOUND))
               )
@@ -137,7 +137,7 @@ class TaxComponentServiceSpec extends BaseSpec {
 
         when(connector.taxComponents(any(), any())(any(), any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
+            EitherT[Future, UpstreamErrorResponse, List[String]](
               Future.successful(
                 Left(UpstreamErrorResponse("TaxComponentsUnreachableState", INTERNAL_SERVER_ERROR))
               )

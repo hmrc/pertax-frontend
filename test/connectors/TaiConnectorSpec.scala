@@ -22,8 +22,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.time.TaxYear
 
@@ -53,6 +53,8 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
         |   "links" : [ ]
         |}""".stripMargin)
 
+    val taxComponentsList: List[String] = List("EmployerProvidedServices", "PersonalPensionPayments")
+
     lazy val connector: TaiConnector = {
 
       val serviceConfig = inject[ServicesConfig]
@@ -74,19 +76,8 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
     "return OK on success" in new LocalSetup {
       stubGet(url, OK, Some(taxComponentsJson.toString))
 
-      val result: HttpResponse =
-        connector.taxComponents(nino, taxYear).value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
-      result.status mustBe OK
-      result.json mustBe taxComponentsJson
-    }
-
-    "return __ on success" in new LocalSetup {
-      stubGet(url, OK, Some(taxComponentsJson.toString))
-
-      val result: HttpResponse =
-        connector.taxComponents(nino, taxYear).value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
-      result.status mustBe OK
-      result.json mustBe taxComponentsJson
+      val result: List[String] = connector.taxComponents(nino, taxYear).value.futureValue.getOrElse(List.empty)
+      result mustBe taxComponentsList
     }
 
     List(

@@ -19,7 +19,6 @@ package services
 import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.TaiConnector
-import models.TaxComponents
 import models.admin.TaxComponentsToggle
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
@@ -37,10 +36,7 @@ class TaxComponentService @Inject() (taiConnector: TaiConnector, featureFlagServ
     val result: Future[Either[UpstreamErrorResponse, List[String]]] =
       featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
         if (toggle.isEnabled) {
-          taiConnector
-            .taxComponents(nino, year)
-            .map(result => TaxComponents.fromJsonTaxComponents(result.json))
-            .value
+          taiConnector.taxComponents(nino, year).value
         } else {
           Future.successful(Right(List.empty))
         }
