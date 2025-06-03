@@ -31,14 +31,6 @@ class TaxComponentService @Inject() (taiConnector: TaiConnector, featureFlagServ
   ec: ExecutionContext
 ) {
 
-  def getOrEmptyList(nino: Nino, year: Int)(implicit
-    hc: HeaderCarrier
-  ): Future[List[String]] = get(nino, year)
-    .fold(
-      _ => List.empty,
-      taxComponents => taxComponents
-    )
-
   def get(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, UpstreamErrorResponse, List[String]] = {

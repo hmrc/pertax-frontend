@@ -24,6 +24,8 @@ import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowOutageBannerToggle
 import play.api.mvc._
 import services._
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
@@ -54,11 +56,20 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
+  private def getTaxComponentsOrEmptyList(nino: Nino, year: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[List[String]] = taxComponentService
+    .get(nino, year)
+    .fold(
+      _ => List.empty,
+      taxComponents => taxComponents
+    )
+
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
     enforceInterrupts {
       for {
-        taxSummaryState         <- taxComponentService.getOrEmptyList(request.helpeeNinoOrElse, current.currentYear)
+        taxSummaryState         <- getTaxComponentsOrEmptyList(request.helpeeNinoOrElse, current.currentYear)
         breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse)
         incomeCards             <- homeCardGenerator.getIncomeCards
         atsCard                 <- homeCardGenerator.getATSCard()

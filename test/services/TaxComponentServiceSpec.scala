@@ -59,7 +59,7 @@ class TaxComponentServiceSpec extends BaseSpec {
             )
           )
 
-        val result = sut.getOrEmptyList(fakeNino, invalidTaxYear)
+        val result = sut.get(fakeNino, invalidTaxYear)
 
         result.map { state =>
           state mustBe List.empty
@@ -84,7 +84,7 @@ class TaxComponentServiceSpec extends BaseSpec {
             )
           )
 
-        val result = sut.getOrEmptyList(fakeNino, fakeTaxYear)
+        val result = sut.get(fakeNino, fakeTaxYear)
 
         result.map { state =>
           state.nonEmpty mustBe true
@@ -104,7 +104,7 @@ class TaxComponentServiceSpec extends BaseSpec {
             )
           )
 
-        val result = sut.getOrEmptyList(fakeNino, fakeTaxYear)
+        val result = sut.get(fakeNino, fakeTaxYear)
 
         result.map { state =>
           state mustBe List.empty
@@ -124,7 +124,7 @@ class TaxComponentServiceSpec extends BaseSpec {
             )
           )
 
-        val result = sut.getOrEmptyList(fakeNino, fakeTaxYear)
+        val result = sut.get(fakeNino, fakeTaxYear)
 
         result.map { state =>
           state mustBe List.empty
@@ -144,7 +144,7 @@ class TaxComponentServiceSpec extends BaseSpec {
             )
           )
 
-        val result = sut.getOrEmptyList(fakeNino, fakeTaxYear)
+        val result = sut.get(fakeNino, fakeTaxYear)
 
         result.map { state =>
           state mustBe List.empty
@@ -158,7 +158,7 @@ class TaxComponentServiceSpec extends BaseSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
 
-        val result = sut.getOrEmptyList(fakeNino, fakeTaxYear)
+        val result = sut.get(fakeNino, fakeTaxYear)
 
         result.map { state =>
           state mustBe List.empty

@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse
@@ -32,7 +33,7 @@ import play.twirl.api.Html
 import services._
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
 import testUtils.{BaseSpec, WireMockHelper}
-import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import util.AlertBannerHelper
 
@@ -43,7 +44,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
   val fakePaperlessInterruptHelper = new FakePaperlessInterruptHelper
 
-  val mockTaiService: TaxComponentService                       = mock[TaxComponentService]
+  val mockTaiService: TaxComponentService              = mock[TaxComponentService]
   val mockBreathingSpaceService: BreathingSpaceService = mock[BreathingSpaceService]
   val mockHomeCardGenerator: HomeCardGenerator         = mock[HomeCardGenerator]
   val mockAlertBannerHelper: AlertBannerHelper         = mock[AlertBannerHelper]
@@ -86,9 +87,11 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     when(mockAlertBannerHelper.getContent(any(), any(), any())).thenReturn(
       Future.successful(List.empty)
     )
-    when(mockTaiService.getOrEmptyList(any(), any())(any())).thenReturn(
-      Future.successful(
-        List("EmployerProvidedServices", "PersonalPensionPayments")
+    when(mockTaiService.get(any(), any())(any())).thenReturn(
+      EitherT(
+        Future.successful[Either[UpstreamErrorResponse, List[String]]](
+          Right[UpstreamErrorResponse, List[String]](List("EmployerProvidedServices", "PersonalPensionPayments"))
+        )
       )
     )
 
