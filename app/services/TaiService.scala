@@ -19,24 +19,16 @@ package services
 import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.TaiConnector
-import models.admin.TaxComponentsToggle
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TaiService @Inject() (taiConnector: TaiConnector, featureFlagService: FeatureFlagService)(implicit
+class TaiService @Inject() (taiConnector: TaiConnector)(implicit
   ec: ExecutionContext
 ) {
   def get(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, UpstreamErrorResponse, List[String]] =
-    featureFlagService.getAsEitherT(TaxComponentsToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
-        taiConnector.taxComponents(nino, year)
-      } else {
-        EitherT.right[UpstreamErrorResponse](Future.successful(List.empty[String]))
-      }
-    }
+    taiConnector.taxComponents(nino, year)
 }

@@ -25,21 +25,18 @@ import controllers.auth.requests.UserRequest
 import models.{SelfAssessmentUserType, UserDetails}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.{HeaderNames, MimeTypes, Status}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import testUtils.BaseSpec
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.http.HeaderCarrier
-
-import scala.concurrent.ExecutionContext
 
 trait ConnectorSpec
-    extends AnyWordSpec
+    extends BaseSpec
     with GuiceOneAppPerSuite
     with Status
     with HeaderNames
@@ -48,9 +45,9 @@ trait ConnectorSpec
     with ScalaFutures
     with IntegrationPatience {
 
-  implicit val hc: HeaderCarrier         = HeaderCarrier()
-  implicit lazy val ec: ExecutionContext =
-    scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
+//  implicit val hc: HeaderCarrier         = HeaderCarrier()
+//  implicit lazy val ec: ExecutionContext =
+  scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
 
   val server: WireMockServer
 

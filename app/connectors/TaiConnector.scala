@@ -20,10 +20,12 @@ import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import models.TaxComponents
+import models.admin.TaxComponentsToggle
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.duration.DurationInt
@@ -34,22 +36,29 @@ class TaiConnector @Inject() (
   val httpClientV2: HttpClientV2,
   servicesConfig: ServicesConfig,
   httpClientResponse: HttpClientResponse,
-  configDecorator: ConfigDecorator
+  configDecorator: ConfigDecorator,
+  featureFlagService: FeatureFlagService
 ) {
 
-  private lazy val taiUrl = servicesConfig.baseUrl("tai")
+  private lazy val taiUrl                                 = servicesConfig.baseUrl("tai")
   def taxComponents(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
-  ): EitherT[Future, UpstreamErrorResponse, List[String]] = {
-    val url = s"$taiUrl/tai/$nino/tax-account/$year/tax-components"
-    httpClientResponse
-      .read(
-        httpClientV2
-          .get(url"$url")
-          .transform(_.withRequestTimeout(configDecorator.taiTimeoutInMilliseconds.milliseconds))
-          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-      )
-      .map(result => TaxComponents.fromJsonTaxComponents(result.json))
-  }
+  ): EitherT[Future, UpstreamErrorResponse, List[String]] =
+    featureFlagService.getAsEitherT(TaxComponentsToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        val url = s"$taiUrl/tai/$nino/tax-account/$year/tax-components"
+        httpClientResponse
+          .read(
+            httpClientV2
+              .get(url"$url")
+              .transform(_.withRequestTimeout(configDecorator.taiTimeoutInMilliseconds.milliseconds))
+              .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+          )
+          .map(result => TaxComponents.fromJsonTaxComponents(result.json))
+      } else {
+        EitherT.right[UpstreamErrorResponse](Future.successful(List.empty[String]))
+      }
+    }
+
 }

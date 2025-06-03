@@ -16,7 +16,10 @@
 
 package connectors
 
+import cats.data.EitherT
 import config.ConfigDecorator
+import models.admin.TaxComponentsToggle
+import org.mockito.ArgumentMatchers
 import play.api.Application
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
@@ -24,6 +27,7 @@ import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.time.TaxYear
 
@@ -60,8 +64,20 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
       val serviceConfig = inject[ServicesConfig]
       val httpClient    = inject[HttpClientV2]
 
-      new TaiConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
+      new TaiConnector(
+        httpClient,
+        serviceConfig,
+        inject[HttpClientResponse],
+        inject[ConfigDecorator],
+        mockFeatureFlagService
+      )
     }
+  }
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
   }
 
   "Calling TaiService.taxSummary" must {
@@ -78,6 +94,14 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
 
       val result: List[String] = connector.taxComponents(nino, taxYear).value.futureValue.getOrElse(List.empty)
       result mustBe taxComponentsList
+    }
+
+    "return empty list when tax components feature toggle switched off" in new LocalSetup {
+      when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
+        .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
+
+      val result: List[String] = connector.taxComponents(nino, taxYear).value.futureValue.getOrElse(List.empty)
+      result mustBe List.empty
     }
 
     List(
@@ -115,8 +139,20 @@ class TaiConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper with Def
       val serviceConfig = inject[ServicesConfig]
       val httpClient    = inject[HttpClientV2]
 
-      new TaiConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
+      new TaiConnector(
+        httpClient,
+        serviceConfig,
+        inject[HttpClientResponse],
+        inject[ConfigDecorator],
+        mockFeatureFlagService
+      )
     }
+  }
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
   }
 
   "Calling TaiService.taxSummary" must {
