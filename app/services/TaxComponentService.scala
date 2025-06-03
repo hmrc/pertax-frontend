@@ -29,18 +29,14 @@ import scala.concurrent.{ExecutionContext, Future}
 class TaxComponentService @Inject() (taiConnector: TaiConnector, featureFlagService: FeatureFlagService)(implicit
   ec: ExecutionContext
 ) {
-
   def get(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier
-  ): EitherT[Future, UpstreamErrorResponse, List[String]] = {
-    val result: Future[Either[UpstreamErrorResponse, List[String]]] =
-      featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
-        if (toggle.isEnabled) {
-          taiConnector.taxComponents(nino, year).value
-        } else {
-          Future.successful(Right(List.empty))
-        }
+  ): EitherT[Future, UpstreamErrorResponse, List[String]] =
+    featureFlagService.getAsEitherT(TaxComponentsToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        taiConnector.taxComponents(nino, year)
+      } else {
+        EitherT.right[UpstreamErrorResponse](Future.successful(List.empty[String]))
       }
-    EitherT(result)
-  }
+    }
 }

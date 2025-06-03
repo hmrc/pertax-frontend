@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import controllers.auth.requests.UserRequest
@@ -35,7 +36,7 @@ import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
+import uk.gov.hmrc.sca.models._
 
 import java.time.LocalDate
 import java.util.UUID
@@ -178,8 +179,8 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
