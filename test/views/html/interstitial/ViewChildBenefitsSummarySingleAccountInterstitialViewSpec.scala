@@ -45,7 +45,7 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
     )
 
     def selfAssessmentDoc: Document = asDocument(
-      viewChildBenefitsSummarySingleAccountInterstitialView().toString
+      viewChildBenefitsSummarySingleAccountInterstitialView(false).toString
     )
   }
 
@@ -55,7 +55,7 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
 
       val doc =
         asDocument(
-          viewChildBenefitsSummarySingleAccountInterstitialView().toString
+          viewChildBenefitsSummarySingleAccountInterstitialView(false).toString
         )
 
       doc.text() must include(Messages("label.child_benefit"))

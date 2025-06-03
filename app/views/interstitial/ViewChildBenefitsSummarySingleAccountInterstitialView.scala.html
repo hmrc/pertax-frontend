@@ -26,7 +26,7 @@
         link: Link
 )
 
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(isRegisteredForHICBCWithCharge: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
     @reportChangesChildBenefitLink = @{
         if(messages.lang.code == "cy") {
             configDecorator.reportChangesChildBenefitWelsh
@@ -84,6 +84,11 @@
             <li>@link(configDecorator.viewPaymentHistory, messageKey = "label.view_your_child_benefit_payment_history", inParagraph = true)</li>
             <li>@link(configDecorator.changeBankDetails, messageKey = "label.change_your_bank_details", inParagraph = true)</li>
             <li>@link(configDecorator.viewProofEntitlement, messageKey = "label.view_your_proof_of_entitlement_to_child_benefit", inParagraph = true)</li>
-            <li>@link(childBenefitTaxChargeLink, messageKey = "label.high_income_child_benefit_charge", inParagraph = true)</li>
+            @if(isRegisteredForHICBCWithCharge){
+                <li>@link(childBenefitTaxChargeLink, messageKey = "label.visit_high_income_child_benefit_charge", inParagraph = true)</li>
+            }else{
+                <li>@link(childBenefitTaxChargeLink, messageKey = "label.visit_high_income_child_benefit_charge", inParagraph = true)</li>
+                <li>@messages("label.hicbc_li1")</li>
+            }
         </ul>
     }

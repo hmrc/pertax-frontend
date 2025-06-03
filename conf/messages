@@ -529,6 +529,8 @@ label.manage_a_claim=Manage a claim
 label.view_your_child_benefit_payment_history=View your Child Benefit payment history
 label.view_your_proof_of_entitlement_to_child_benefit=View your proof of entitlement to Child Benefit
 label.high_income_child_benefit_charge=High Income Child Benefit Charge
+label.visit_high_income_child_benefit_charge=Visit High Income Child Benefit Charge
+label.hicbc_li1=Find out if you need to pay the charge
 label.change_your_bank_details=Change your bank details
 label.check_if_you_can_claim=Check if you can claim
 
