@@ -58,7 +58,7 @@ class HomeController @Inject() (
     val saUserType = request.saUserType
     enforceInterrupts {
       for {
-        taxSummaryState         <- taiService.retrieveTaxComponentsState(Some(request.helpeeNinoOrElse), current.currentYear)
+        taxSummaryState         <- taiService.retrieveTaxComponentsState(request.helpeeNinoOrElse, current.currentYear)
         breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse)
         incomeCards             <- homeCardGenerator.getIncomeCards
         atsCard                 <- homeCardGenerator.getATSCard()

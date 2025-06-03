@@ -16,13 +16,14 @@
 
 package services
 
+import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.TaiConnector
 import models.admin.TaxComponentsToggle
-import models.{TaxComponents, TaxComponentsAvailableState, TaxComponentsDisabledState, TaxComponentsNotAvailableState, TaxComponentsState, TaxComponentsUnreachableState}
+import models.{TaxComponents, TaxComponentsAvailableState, TaxComponentsNotAvailableState, TaxComponentsState, TaxComponentsUnreachableState}
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,29 +31,34 @@ import scala.concurrent.{ExecutionContext, Future}
 class TaiService @Inject() (taiConnector: TaiConnector, featureFlagService: FeatureFlagService)(implicit
   ec: ExecutionContext
 ) {
-  def retrieveTaxComponentsState(ninoOpt: Option[Nino], year: Int)(implicit
+
+  def retrieveTaxComponentsState(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier
-  ): Future[TaxComponentsState] =
-    ninoOpt.fold[Future[TaxComponentsState]](
-      Future.successful(TaxComponentsDisabledState)
-    ) { nino =>
+  ): Future[TaxComponentsState] = get(nino, year)
+    .fold(
+      {
+        case UpstreamErrorResponse(_, BAD_REQUEST, _, _) => TaxComponentsNotAvailableState
+        case UpstreamErrorResponse(_, NOT_FOUND, _, _)   => TaxComponentsNotAvailableState
+        case _                                           => TaxComponentsUnreachableState
+      },
+      taxComponents => TaxComponentsAvailableState(TaxComponents(taxComponents))
+    )
+
+  def get(nino: Nino, year: Int)(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, UpstreamErrorResponse, List[String]] = {
+    val result: Future[Either[UpstreamErrorResponse, List[String]]] =
       featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
         if (toggle.isEnabled) {
           taiConnector
             .taxComponents(nino, year)
-            .fold(
-              error =>
-                if (error.statusCode == BAD_REQUEST || error.statusCode == NOT_FOUND) {
-                  TaxComponentsNotAvailableState
-                } else {
-                  TaxComponentsUnreachableState
-                },
-              result => TaxComponentsAvailableState(TaxComponents.fromJsonTaxComponents(result.json))
-            )
+            .map(result => TaxComponents.fromJsonTaxComponents(result.json).taxComponents)
+            .value
         } else {
-          Future.successful(TaxComponentsDisabledState)
+          Future.successful(Right(List.empty))
         }
       }
-    }
+    EitherT(result)
+  }
 
 }

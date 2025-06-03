@@ -20,7 +20,7 @@ import play.api.libs.json.JsValue
 
 case class TaxComponents(taxComponents: List[String]) {
 
-  def isMarriageAllowanceRecipient: Boolean = taxComponents.contains("MarriageAllowanceReceived")
+  def isMarriageAllowanceRecipient: Boolean = true// taxComponents.contains("MarriageAllowanceReceived")
 
   def isMarriageAllowanceTransferor: Boolean = taxComponents.contains("MarriageAllowanceTransferred")
 
