@@ -27,11 +27,11 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TaiService @Inject() (taiConnector: TaiConnector, featureFlagService: FeatureFlagService)(implicit
+class TaxComponentService @Inject() (taiConnector: TaiConnector, featureFlagService: FeatureFlagService)(implicit
   ec: ExecutionContext
 ) {
 
-  def retrieveTaxComponentsState(nino: Nino, year: Int)(implicit
+  def getOrEmptyList(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier
   ): Future[List[String]] = get(nino, year)
     .fold(

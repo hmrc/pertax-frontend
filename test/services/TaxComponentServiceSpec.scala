@@ -31,13 +31,13 @@ import uk.gov.hmrc.time.TaxYear
 
 import scala.concurrent.Future
 
-class TaiServiceSpec extends BaseSpec {
+class TaxComponentServiceSpec extends BaseSpec {
 
   lazy val connector: TaiConnector = mock[TaiConnector]
 
   val fakeTaxYear: Int = TaxYear.now().getYear
 
-  def sut: TaiService = new TaiService(connector, mockFeatureFlagService)(ec)
+  def sut: TaxComponentService = new TaxComponentService(connector, mockFeatureFlagService)(ec)
 
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
     .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
@@ -59,7 +59,7 @@ class TaiServiceSpec extends BaseSpec {
             )
           )
 
-        val result = sut.retrieveTaxComponentsState(fakeNino, invalidTaxYear)
+        val result = sut.getOrEmptyList(fakeNino, invalidTaxYear)
 
         result.map { state =>
           state mustBe List.empty
@@ -84,7 +84,7 @@ class TaiServiceSpec extends BaseSpec {
             )
           )
 
-        val result = sut.retrieveTaxComponentsState(fakeNino, fakeTaxYear)
+        val result = sut.getOrEmptyList(fakeNino, fakeTaxYear)
 
         result.map { state =>
           state.nonEmpty mustBe true
@@ -104,7 +104,7 @@ class TaiServiceSpec extends BaseSpec {
             )
           )
 
-        val result = sut.retrieveTaxComponentsState(fakeNino, fakeTaxYear)
+        val result = sut.getOrEmptyList(fakeNino, fakeTaxYear)
 
         result.map { state =>
           state mustBe List.empty
@@ -124,7 +124,7 @@ class TaiServiceSpec extends BaseSpec {
             )
           )
 
-        val result = sut.retrieveTaxComponentsState(fakeNino, fakeTaxYear)
+        val result = sut.getOrEmptyList(fakeNino, fakeTaxYear)
 
         result.map { state =>
           state mustBe List.empty
@@ -144,7 +144,7 @@ class TaiServiceSpec extends BaseSpec {
             )
           )
 
-        val result = sut.retrieveTaxComponentsState(fakeNino, fakeTaxYear)
+        val result = sut.getOrEmptyList(fakeNino, fakeTaxYear)
 
         result.map { state =>
           state mustBe List.empty
@@ -158,7 +158,7 @@ class TaiServiceSpec extends BaseSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
 
-        val result = sut.retrieveTaxComponentsState(fakeNino, fakeTaxYear)
+        val result = sut.getOrEmptyList(fakeNino, fakeTaxYear)
 
         result.map { state =>
           state mustBe List.empty

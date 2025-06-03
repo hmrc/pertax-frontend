@@ -43,7 +43,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
   val fakePaperlessInterruptHelper = new FakePaperlessInterruptHelper
 
-  val mockTaiService: TaiService                       = mock[TaiService]
+  val mockTaiService: TaxComponentService                       = mock[TaxComponentService]
   val mockBreathingSpaceService: BreathingSpaceService = mock[BreathingSpaceService]
   val mockHomeCardGenerator: HomeCardGenerator         = mock[HomeCardGenerator]
   val mockAlertBannerHelper: AlertBannerHelper         = mock[AlertBannerHelper]
@@ -53,7 +53,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       bind[AuthJourney].toInstance(fakeAuthJourney),
       bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
       bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-      bind[TaiService].toInstance(mockTaiService),
+      bind[TaxComponentService].toInstance(mockTaiService),
       bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
       bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
       bind[AlertBannerHelper].toInstance(mockAlertBannerHelper)
@@ -86,7 +86,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     when(mockAlertBannerHelper.getContent(any(), any(), any())).thenReturn(
       Future.successful(List.empty)
     )
-    when(mockTaiService.retrieveTaxComponentsState(any(), any())(any())).thenReturn(
+    when(mockTaiService.getOrEmptyList(any(), any())(any())).thenReturn(
       Future.successful(
         List("EmployerProvidedServices", "PersonalPensionPayments")
       )

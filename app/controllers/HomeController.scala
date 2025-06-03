@@ -35,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
-  taiService: TaiService,
+  taxComponentService: TaxComponentService,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
@@ -58,7 +58,7 @@ class HomeController @Inject() (
     val saUserType = request.saUserType
     enforceInterrupts {
       for {
-        taxSummaryState         <- taiService.retrieveTaxComponentsState(request.helpeeNinoOrElse, current.currentYear)
+        taxSummaryState         <- taxComponentService.getOrEmptyList(request.helpeeNinoOrElse, current.currentYear)
         breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse)
         incomeCards             <- homeCardGenerator.getIncomeCards
         atsCard                 <- homeCardGenerator.getATSCard()
