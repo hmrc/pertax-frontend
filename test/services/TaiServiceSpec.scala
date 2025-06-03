@@ -31,13 +31,13 @@ import uk.gov.hmrc.time.TaxYear
 
 import scala.concurrent.Future
 
-class TaxComponentServiceSpec extends BaseSpec {
+class TaiServiceSpec extends BaseSpec {
 
   lazy val connector: TaiConnector = mock[TaiConnector]
 
   val fakeTaxYear: Int = TaxYear.now().getYear
 
-  def sut: TaxComponentService = new TaxComponentService(connector, mockFeatureFlagService)(ec)
+  def sut: TaiService = new TaiService(connector, mockFeatureFlagService)(ec)
 
   when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
     .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = true)))

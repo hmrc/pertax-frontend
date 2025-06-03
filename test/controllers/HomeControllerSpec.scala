@@ -44,7 +44,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
   val fakePaperlessInterruptHelper = new FakePaperlessInterruptHelper
 
-  val mockTaiService: TaxComponentService              = mock[TaxComponentService]
+  val mockTaiService: TaiService                       = mock[TaiService]
   val mockBreathingSpaceService: BreathingSpaceService = mock[BreathingSpaceService]
   val mockHomeCardGenerator: HomeCardGenerator         = mock[HomeCardGenerator]
   val mockAlertBannerHelper: AlertBannerHelper         = mock[AlertBannerHelper]
@@ -54,7 +54,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       bind[AuthJourney].toInstance(fakeAuthJourney),
       bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
       bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-      bind[TaxComponentService].toInstance(mockTaiService),
+      bind[TaiService].toInstance(mockTaiService),
       bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
       bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
       bind[AlertBannerHelper].toInstance(mockAlertBannerHelper)

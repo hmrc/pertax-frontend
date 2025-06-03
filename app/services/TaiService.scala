@@ -26,7 +26,7 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TaxComponentService @Inject() (taiConnector: TaiConnector, featureFlagService: FeatureFlagService)(implicit
+class TaiService @Inject() (taiConnector: TaiConnector, featureFlagService: FeatureFlagService)(implicit
   ec: ExecutionContext
 ) {
   def get(nino: Nino, year: Int)(implicit
