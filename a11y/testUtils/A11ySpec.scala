@@ -50,7 +50,7 @@ trait A11ySpec
     with IntegrationPatience
     with AccessibilityMatchers {
 
-  val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
+  protected val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
     override def set(key: String, value: Any, expiration: Duration): Future[Done] = Future.successful(Done)
 
     override def remove(key: String): Future[Done] = Future.successful(Done)
@@ -64,17 +64,17 @@ trait A11ySpec
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
 
-  lazy val mockFeatureFlagService: FeatureFlagService  = mock[FeatureFlagService]
-  implicit lazy val ec: ExecutionContext               = app.injector.instanceOf[ExecutionContext]
-  implicit override val patienceConfig: PatienceConfig =
+  protected lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+  protected implicit lazy val ec: ExecutionContext              = app.injector.instanceOf[ExecutionContext]
+  implicit override val patienceConfig: PatienceConfig          =
     PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
 
-  val configTaxYear        = 2021
-  val testTaxYear: Int     = configTaxYear - 1
-  val generatedNino: Nino  = new Generator().nextNino
-  val generatedUtr: String = new Generator().nextAtedUtr.utr
+  protected val configTaxYear        = 2021
+  protected val testTaxYear: Int     = configTaxYear - 1
+  protected val generatedNino: Nino  = new Generator().nextNino
+  protected val generatedUtr: String = new Generator().nextAtedUtr.utr
 
-  val authResponse: String =
+  protected val authResponse: String =
     s"""
        |{
        |    "confidenceLevel": 200,
@@ -111,7 +111,7 @@ trait A11ySpec
        |}
        |""".stripMargin
 
-  val citizenResponse: String =
+  protected val citizenResponse: String =
     s"""|
        |{
         |  "name": {
@@ -128,7 +128,7 @@ trait A11ySpec
         |}
         |""".stripMargin
 
-  val designatoryDetailsResponse: String =
+  protected val designatoryDetailsResponse: String =
     s"""{
        |"person":{
        |  "firstName":"John",

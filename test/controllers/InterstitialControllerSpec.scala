@@ -43,6 +43,7 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.AlertBannerHelper
+
 import java.time.LocalDate
 import scala.concurrent.Future
 
@@ -118,11 +119,9 @@ class InterstitialControllerSpec extends BaseSpec {
     )
   }
 
-  private val taxComponentsSuccessResponse: EitherT[Future, UpstreamErrorResponse, Option[List[String]]] =
-    EitherT.right[UpstreamErrorResponse](Future.successful(Some(List("ONE"))))
   private def taxComponentsHICBCSuccessResponse(
     value: Boolean
-  ): EitherT[Future, UpstreamErrorResponse, Option[Boolean]]                                             =
+  ): EitherT[Future, UpstreamErrorResponse, Option[Boolean]] =
     EitherT.right[UpstreamErrorResponse](Future.successful(Some(value)))
 
   "displayChildBenefits" must {

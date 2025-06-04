@@ -23,9 +23,6 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.auth.requests.UserRequest
 import models.{SelfAssessmentUserType, UserDetails}
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.{HeaderNames, MimeTypes, Status}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}

@@ -20,11 +20,9 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import models._
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import play.api.Application
-import play.api.libs.json.{JsNull, JsObject, JsString, JsValue, Json}
+import play.api.libs.json._
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.Helpers.GET
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, Injecting}

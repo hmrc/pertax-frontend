@@ -17,14 +17,13 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-@import views.html.components.{Button, H1, H2, H3, Link, P}
+@import views.html.components.{Button, H1, H2, H3, Link}
 @import views.MainView
 @this(
         main: MainView,
         h1: H1,
         h2: H2,
-        link: Link,
-        p: P
+        link: Link
 )
 
 @(isRegisteredForHICBCWithCharge: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
@@ -94,10 +93,15 @@
                 </ul>
             }else{
                 
-                @p(HtmlContent(
-                    link(childBenefitTaxChargeLink, messageKey = "label.visit_high_income_child_benefit_charge", classes = Some("govuk-link govuk-link--no-visited-state"), inParagraph = true) + " " + messages("label.hicbc_to") + ":"
-                ))
-                
+                <p class="govuk-body">
+                    @{link(
+                            link = childBenefitTaxChargeLink, 
+                            messageKey = "label.visit_high_income_child_benefit_charge", 
+                            classes = Some("govuk-link govuk-link--no-visited-state"), 
+                            inParagraph = true
+                        )}
+                    @messages("label.hicbc_to"):
+                </p>
                 
                 <ul class="govuk-list govuk-list--spaced govuk-list--bullet">  
                     <li>@messages("label.hicbc_li1")</li>
