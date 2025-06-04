@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
 import org.jsoup.nodes.Document
+import org.scalatest.Assertion
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, AnyContentAsEmpty}
 import play.api.test.FakeRequest
@@ -51,13 +52,7 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
 
   "Rendering ViewChildBenefitsSummarySingleAccountInterstitialView.scala.html" must {
 
-    "show content for Child Benefit Feature for Single Sign On" in {
-
-      val doc =
-        asDocument(
-          viewChildBenefitsSummarySingleAccountInterstitialView(false).toString
-        )
-
+    def childBenefitSingleAccountInterstitialView(doc: Document): Assertion = {
       doc.text() must include(Messages("label.child_benefit"))
       doc.text() must include(Messages("label.making_a_claim"))
 
@@ -88,13 +83,48 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
 
       hasLink(
         doc,
-        Messages("label.high_income_child_benefit_charge")
+        Messages("label.change_your_bank_details")
       )
+    }
+
+    "show content for Child Benefit Feature for Single Sign On when not registered for HICBC charge" in {
+      val doc = asDocument(
+        viewChildBenefitsSummarySingleAccountInterstitialView(isRegisteredForHICBCWithCharge = false).toString
+      )
+      behave like childBenefitSingleAccountInterstitialView(doc)
+
+      doc.getElementById("hicbc").text() mustBe Messages("label.high_income_child_benefit_charge")
 
       hasLink(
         doc,
-        Messages("label.change_your_bank_details")
+        Messages("label.visit_high_income_child_benefit_charge")
       )
+
+      notHasLink(
+        doc,
+        Messages("label.view_hicbc_taxfree")
+      )
+
+      val text = doc.text()
+      text must include(Messages("label.hicbc_li1"))
+      text must include(Messages("label.hicbc_li2"))
+      text must include(Messages("label.hicbc_li3"))
+    }
+    "show content for Child Benefit Feature for Single Sign On when registered for HICBC charge" in {
+      val doc = asDocument(
+        viewChildBenefitsSummarySingleAccountInterstitialView(isRegisteredForHICBCWithCharge = true).toString
+      )
+      behave like childBenefitSingleAccountInterstitialView(doc)
+
+      hasLink(
+        doc,
+        Messages("label.view_hicbc_taxfree")
+      )
+
+      val text = doc.text()
+      text mustNot include(Messages("label.hicbc_li1"))
+      text mustNot include(Messages("label.hicbc_li2"))
+      text mustNot include(Messages("label.hicbc_li3"))
     }
   }
 }

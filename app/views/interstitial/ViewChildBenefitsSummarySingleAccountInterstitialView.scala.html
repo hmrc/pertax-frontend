@@ -84,11 +84,14 @@
             <li>@link(configDecorator.viewPaymentHistory, messageKey = "label.view_your_child_benefit_payment_history", inParagraph = true)</li>
             <li>@link(configDecorator.changeBankDetails, messageKey = "label.change_your_bank_details", inParagraph = true)</li>
             <li>@link(configDecorator.viewProofEntitlement, messageKey = "label.view_your_proof_of_entitlement_to_child_benefit", inParagraph = true)</li>
+            @h2(messages("label.high_income_child_benefit_charge"), elmId=Some("hicbc"))
             @if(isRegisteredForHICBCWithCharge){
-                <li>@link(childBenefitTaxChargeLink, messageKey = "label.visit_high_income_child_benefit_charge", inParagraph = true)</li>
+                <li>@link(childBenefitTaxChargeLink, messageKey = "label.view_hicbc_taxfree", inParagraph = true)</li>
             }else{
-                <li>@link(childBenefitTaxChargeLink, messageKey = "label.visit_high_income_child_benefit_charge", inParagraph = true)</li>
+                <li>@link(childBenefitTaxChargeLink, messageKey = "label.visit_high_income_child_benefit_charge", inParagraph = true) @messages("label.hicbc_to")</li>
                 <li>@messages("label.hicbc_li1")</li>
+                <li>@messages("label.hicbc_li2")</li>
+                <li>@messages("label.hicbc_li3")</li>
             }
         </ul>
     }

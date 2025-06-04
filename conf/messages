@@ -530,9 +530,13 @@ label.view_your_child_benefit_payment_history=View your Child Benefit payment hi
 label.view_your_proof_of_entitlement_to_child_benefit=View your proof of entitlement to Child Benefit
 label.high_income_child_benefit_charge=High Income Child Benefit Charge
 label.visit_high_income_child_benefit_charge=Visit High Income Child Benefit Charge
-label.hicbc_li1=Find out if you need to pay the charge
+label.hicbc_to = to
+label.hicbc_li1=find out if you need to pay the charge
+label.hicbc_li2=register for the charge
+label.hicbc_li3=or opt out of Child Benefit
 label.change_your_bank_details=Change your bank details
 label.check_if_you_can_claim=Check if you can claim
+label.view_hicbc_taxfree = View the High Income Child Benefit charge in your tax-free amount
 
 #
 # Pensions
