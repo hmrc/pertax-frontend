@@ -28,8 +28,11 @@
 
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
-@h1("label.view_hicbc_taxfree")
-@p(Text(messages("label.hicbc_paye")))
-@p(Text(messages("label.hicbc_deduction_tax_free")))
+@main(pageTitle = messages("label.view_hicbc_taxfree"), showBackLink = true) {
 
-@button(href = Some(s"${configDecorator.taiHost}/check-income-tax/tax-free-allowance"), id="continue", msg = "label.continue_hicbc_taxfree")
+    @h1("label.view_hicbc_taxfree")
+    @p(Text(messages("label.hicbc_paye")))
+    @p(Text(messages("label.hicbc_deduction_tax_free")))
+    
+    @button(href = Some(s"${configDecorator.taiHost}/check-income-tax/tax-free-allowance"), id="continue", msg = "label.continue_hicbc_taxfree")
+}

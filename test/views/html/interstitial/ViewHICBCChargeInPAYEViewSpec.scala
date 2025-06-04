@@ -28,8 +28,7 @@ import views.html.ViewSpec
 
 class ViewHICBCChargeInPAYEViewSpec extends ViewSpec {
 
-  lazy val viewHICBCChargeInPAYEView
-    : ViewHICBCChargeInPAYEView =
+  lazy val viewHICBCChargeInPAYEView: ViewHICBCChargeInPAYEView =
     inject[ViewHICBCChargeInPAYEView]
 
   lazy implicit val configDecorator: ConfigDecorator            = inject[ConfigDecorator]

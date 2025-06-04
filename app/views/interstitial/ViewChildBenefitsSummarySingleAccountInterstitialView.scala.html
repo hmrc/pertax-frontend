@@ -23,7 +23,8 @@
         main: MainView,
         h1: H1,
         h2: H2,
-        link: Link
+        link: Link,
+        p: P
 )
 
 @(isRegisteredForHICBCWithCharge: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
@@ -84,17 +85,24 @@
             <li>@link(configDecorator.viewPaymentHistory, messageKey = "label.view_your_child_benefit_payment_history", inParagraph = true)</li>
             <li>@link(configDecorator.changeBankDetails, messageKey = "label.change_your_bank_details", inParagraph = true)</li>
             <li>@link(configDecorator.viewProofEntitlement, messageKey = "label.view_your_proof_of_entitlement_to_child_benefit", inParagraph = true)</li>
-            @h2(messages("label.high_income_child_benefit_charge"), elmId=Some("hicbc"))
-            @if(isRegisteredForHICBCWithCharge){
-
-            @link(controllers.routes.InterstitialController.displayNISP.url, messageKey = messages("return_to_national_insurance"), id = Some("national-insurance-state-pension") )
-            
-                <li>@link(controllers.routes.InterstitialController.displayHICBCChildBenefitsSingleAccountView.url, messageKey = "label.view_hicbc_taxfree", inParagraph = true)</li>
-            }else{
-                <li>@link(childBenefitTaxChargeLink, messageKey = "label.visit_high_income_child_benefit_charge", inParagraph = true) @messages("label.hicbc_to")</li>
-                <li>@messages("label.hicbc_li1")</li>
-                <li>@messages("label.hicbc_li2")</li>
-                <li>@messages("label.hicbc_li3")</li>
-            }
         </ul>
+        @h2(messages("label.high_income_child_benefit_charge"), elmId=Some("hicbc"))
+            
+            @if(isRegisteredForHICBCWithCharge){
+                <ul class="govuk-list govuk-list--spaced">
+                    <li>@link(controllers.routes.InterstitialController.displayHICBCChildBenefitsSingleAccountView.url, messageKey = "label.view_hicbc_taxfree", inParagraph = true)</li>
+                </ul>
+            }else{
+                
+                @p(HtmlContent(
+                    link(childBenefitTaxChargeLink, messageKey = "label.visit_high_income_child_benefit_charge", classes = Some("govuk-link govuk-link--no-visited-state"), inParagraph = true) + ":"
+                ))
+                
+                
+                <ul class="govuk-list govuk-list--spaced govuk-list--bullet">  
+                    <li>@messages("label.hicbc_li1")</li>
+                    <li>@messages("label.hicbc_li2")</li>
+                    <li>@messages("label.hicbc_li3")</li>
+                </ul>
+            }
     }
