@@ -44,6 +44,8 @@ object TaxComponents {
       (__ \ "componentType").read[String] and
         (__ \ "amount").read[Int]
     )((componentType, amount) => componentType == "HICBCPaye" && amount > 0)
-    JsSuccess((json \ "data").as[JsArray].value.toSeq.map(_.as[Boolean](readsItem)).filter(identity).contains(true))
+    JsSuccess(
+      (json \ "data").as[JsArray].value.toSeq.exists(_.as[Boolean](readsItem))
+    )
   }
 }

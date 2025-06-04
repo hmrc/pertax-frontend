@@ -35,18 +35,8 @@ import testUtils.BaseSpec
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 
-trait ConnectorSpec
-    extends BaseSpec
-    with GuiceOneAppPerSuite
-    with Status
-    with HeaderNames
-    with MimeTypes
-    with Matchers
-    with ScalaFutures
-    with IntegrationPatience {
+trait ConnectorSpec extends BaseSpec with Status with HeaderNames with MimeTypes {
 
-//  implicit val hc: HeaderCarrier         = HeaderCarrier()
-//  implicit lazy val ec: ExecutionContext =
   scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
 
   val server: WireMockServer
