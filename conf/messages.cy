@@ -534,6 +534,9 @@ label.hicbc_li1=find out if you need to pay the charge
 label.hicbc_li2=register for the charge
 label.hicbc_li3=or opt out of Child Benefit
 label.view_hicbc_taxfree = View the High Income Child Benefit charge in your tax-free amount
+label.continue_hicbc_taxfree = Continue to your tax-free amount
+label.hicbc_paye=You pay the High Income Child Benefit Charge through Pay As You Earn (PAYE).
+label.hicbc_deduction_tax_free=It will show as a deduction from your tax-free amount.
 
 # Pensions
 title.pensions=Pensiynau

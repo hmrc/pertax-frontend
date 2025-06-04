@@ -151,6 +151,19 @@ class InterstitialControllerSpec extends BaseSpec {
       contentString must include("Visit High Income Child Benefit Charge")
       contentString must include("find out if you need to pay the charge")
     }
+    "return OK & correct view for new Child Benefits where HICBC components returned from API" in {
+      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any(), any(), any()))
+        .thenReturn(taxComponentsHICBCSuccessResponse(true))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
+      val result                                  = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
+      status(result) mustBe OK
+
+      val contentString = contentAsString(result)
+      contentString mustNot include("Visit High Income Child Benefit Charge")
+      contentString mustNot include("find out if you need to pay the charge")
+      contentString must include("View the High Income Child Benefit charge in your tax-free amount")
+    }
   }
 
   "Calling viewSelfAssessmentSummary" must {

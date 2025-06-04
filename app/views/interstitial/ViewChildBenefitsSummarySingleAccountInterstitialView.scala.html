@@ -86,7 +86,10 @@
             <li>@link(configDecorator.viewProofEntitlement, messageKey = "label.view_your_proof_of_entitlement_to_child_benefit", inParagraph = true)</li>
             @h2(messages("label.high_income_child_benefit_charge"), elmId=Some("hicbc"))
             @if(isRegisteredForHICBCWithCharge){
-                <li>@link(childBenefitTaxChargeLink, messageKey = "label.view_hicbc_taxfree", inParagraph = true)</li>
+
+            @link(controllers.routes.InterstitialController.displayNISP.url, messageKey = messages("return_to_national_insurance"), id = Some("national-insurance-state-pension") )
+            
+                <li>@link(controllers.routes.InterstitialController.displayHICBCChildBenefitsSingleAccountView.url, messageKey = "label.view_hicbc_taxfree", inParagraph = true)</li>
             }else{
                 <li>@link(childBenefitTaxChargeLink, messageKey = "label.visit_high_income_child_benefit_charge", inParagraph = true) @messages("label.hicbc_to")</li>
                 <li>@messages("label.hicbc_li1")</li>

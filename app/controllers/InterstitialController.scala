@@ -22,6 +22,7 @@ import connectors.TaiConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
+import models.TaxComponents.readsIsHICBCWithCharge
 import models._
 import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.Logging
@@ -38,7 +39,7 @@ import viewmodels.AlertBannerViewModel
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 import views.html.{SelfAssessmentSummaryView, ShutteringView}
-import models.TaxComponents.readsIsHICBCWithCharge
+
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -51,6 +52,7 @@ class InterstitialController @Inject() (
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   viewChildBenefitsSummarySingleAccountInterstitialView: ViewChildBenefitsSummarySingleAccountInterstitialView,
+  viewHICBCChargeInPAYEView: ViewHICBCChargeInPAYEView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
@@ -138,6 +140,12 @@ class InterstitialController @Inject() (
           viewChildBenefitsSummarySingleAccountInterstitialView(isRegisteredForHICBCWithCharge)
         )
       }
+  }
+
+  def displayHICBCChildBenefitsSingleAccountView: Action[AnyContent] = authenticate { implicit request =>
+    Ok(
+      viewHICBCChargeInPAYEView()
+    )
   }
 
   def displaySaRegistrationPage: Action[AnyContent] = authenticate { implicit request =>
