@@ -528,15 +528,15 @@ label.high_income_child_benefit_charge=Tâl Treth Budd-dal Plant Incwm Uchel
 label.change_your_bank_details=Newid eich manylion banc
 label.check_if_you_can_claim=Gwirio a allwch hawlio
 
-label.visit_high_income_child_benefit_charge=Visit High Income Child Benefit Charge
-label.hicbc_to = to
-label.hicbc_li1=find out if you need to pay the charge
-label.hicbc_li2=register for the charge
-label.hicbc_li3=or opt out of Child Benefit
-label.view_hicbc_taxfree = View the High Income Child Benefit charge in your tax-free amount
-label.continue_hicbc_taxfree = Continue to your tax-free amount
-label.hicbc_paye=You pay the High Income Child Benefit Charge through Pay As You Earn (PAYE).
-label.hicbc_deduction_tax_free=It will show as a deduction from your tax-free amount.
+label.visit_high_income_child_benefit_charge=Ewch i Dâl Treth Budd-dal Plant Incwm Uchel i wneud
+label.hicbc_to = y canlynol
+label.hicbc_li1=darganfod a oes angen i chi dalu’r tâl
+label.hicbc_li2=cofrestru ar gyfer y tâl
+label.hicbc_li3=neu optio allan o Fudd-dal Plant
+label.view_hicbc_taxfree = Bwrw golwg dros y tâl Budd-dal Plant Incwm Uchel yn eich swm rhydd o dreth
+label.continue_hicbc_taxfree = Parhau i’ch swm rhydd o dreth
+label.hicbc_paye=Rydych yn talu’r Tâl Treth Budd-dal Plant Incwm Uchel drwy Talu Wrth Ennill (TWE).
+label.hicbc_deduction_tax_free=Bydd yn dangos fel didyniad o’ch swm rhydd o dreth.
 
 # Pensions
 title.pensions=Pensiynau
