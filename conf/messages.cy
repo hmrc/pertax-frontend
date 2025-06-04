@@ -529,7 +529,11 @@ label.change_your_bank_details=Newid eich manylion banc
 label.check_if_you_can_claim=Gwirio a allwch hawlio
 
 label.visit_high_income_child_benefit_charge=Visit High Income Child Benefit Charge
-label.hicbc_li1=Find out if you need to pay the charge
+label.hicbc_to = to
+label.hicbc_li1=find out if you need to pay the charge
+label.hicbc_li2=register for the charge
+label.hicbc_li3=or opt out of Child Benefit
+label.view_hicbc_taxfree = View the High Income Child Benefit charge in your tax-free amount
 
 # Pensions
 title.pensions=Pensiynau

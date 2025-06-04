@@ -149,7 +149,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val contentString = contentAsString(result)
       contentString must include("Visit High Income Child Benefit Charge")
-      contentString must include("Find out if you need to pay the charge")
+      contentString must include("find out if you need to pay the charge")
     }
   }
 
