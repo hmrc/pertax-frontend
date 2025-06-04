@@ -528,6 +528,9 @@ label.high_income_child_benefit_charge=Tâl Treth Budd-dal Plant Incwm Uchel
 label.change_your_bank_details=Newid eich manylion banc
 label.check_if_you_can_claim=Gwirio a allwch hawlio
 
+label.visit_high_income_child_benefit_charge=Visit High Income Child Benefit Charge
+label.hicbc_li1=Find out if you need to pay the charge
+
 # Pensions
 title.pensions=Pensiynau
 

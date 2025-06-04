@@ -38,7 +38,7 @@ import viewmodels.AlertBannerViewModel
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 import views.html.{SelfAssessmentSummaryView, ShutteringView}
-
+import models.TaxComponents.readsIsHICBCWithCharge
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -130,8 +130,8 @@ class InterstitialController @Inject() (
 
   def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate.async { implicit request =>
     taiConnector
-      .taxComponents(request.authNino, current.currentYear)
-      .map(_.contains("HICBCPaye"))
+      .taxComponents[Boolean](request.authNino, current.currentYear)(implicitly, implicitly, readsIsHICBCWithCharge)
+      .map(_.getOrElse(false))
       .fold(_ => false, identity)
       .map { isRegisteredForHICBCWithCharge =>
         Ok(

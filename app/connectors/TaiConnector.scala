@@ -19,8 +19,8 @@ package connectors
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import models.TaxComponents
 import models.admin.TaxComponentsToggle
+import play.api.libs.json.Reads
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -40,11 +40,12 @@ class TaiConnector @Inject() (
   featureFlagService: FeatureFlagService
 ) {
 
-  private lazy val taiUrl                                 = servicesConfig.baseUrl("tai")
-  def taxComponents(nino: Nino, year: Int)(implicit
+  private lazy val taiUrl                              = servicesConfig.baseUrl("tai")
+  def taxComponents[A](nino: Nino, year: Int)(implicit
     hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): EitherT[Future, UpstreamErrorResponse, List[String]] =
+    ec: ExecutionContext,
+    reads: Reads[A]
+  ): EitherT[Future, UpstreamErrorResponse, Option[A]] =
     featureFlagService.getAsEitherT(TaxComponentsToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
         val url = s"$taiUrl/tai/$nino/tax-account/$year/tax-components"
@@ -55,9 +56,9 @@ class TaiConnector @Inject() (
               .transform(_.withRequestTimeout(configDecorator.taiTimeoutInMilliseconds.milliseconds))
               .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
           )
-          .map(result => TaxComponents.fromJsonTaxComponents(result.json))
+          .map(result => result.json.asOpt[A](reads))
       } else {
-        EitherT.right[UpstreamErrorResponse](Future.successful(List.empty[String]))
+        EitherT.right[UpstreamErrorResponse](Future.successful[Option[A]](None))
       }
     }
 

@@ -22,6 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
+import models.TaxComponents.readsListString
 import models.admin.ShowOutageBannerToggle
 import play.api.mvc._
 import services._
@@ -60,10 +61,10 @@ class HomeController @Inject() (
   private def getTaxComponentsOrEmptyList(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier
   ): Future[List[String]] = taiConnector
-    .taxComponents(nino, year)
+    .taxComponents[List[String]](nino, year)
     .fold(
       _ => List.empty,
-      taxComponents => taxComponents
+      taxComponents => taxComponents.getOrElse(List.empty)
     )
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>

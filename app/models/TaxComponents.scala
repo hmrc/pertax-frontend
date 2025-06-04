@@ -16,11 +16,10 @@
 
 package models
 
-import play.api.libs.json.JsValue
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json._
 
 object TaxComponents {
-  def fromJsonTaxComponents(taxComponents: JsValue): List[String] =
-    (taxComponents \\ "componentType").map(_.as[String]).toList
 
   def isMarriageAllowanceRecipient(taxComponents: List[String]): Boolean =
     taxComponents.contains("MarriageAllowanceReceived")
@@ -33,4 +32,18 @@ object TaxComponents {
 
   def isCompanyBenefitRecipient(taxComponents: List[String]): Boolean =
     taxComponents.exists(componentType => componentType == "CarBenefit" || componentType == "MedicalInsurance")
+
+  implicit val readsListString: Reads[List[String]] = Reads { json =>
+    def fromJsonTaxComponents(taxComponents: JsValue): List[String] =
+      (taxComponents \\ "componentType").map(_.as[String]).toList
+    JsSuccess(fromJsonTaxComponents(json))
+  }
+
+  implicit val readsIsHICBCWithCharge: Reads[Boolean] = Reads { json =>
+    val readsItem: Reads[Boolean] = (
+      (__ \ "componentType").read[String] and
+        (__ \ "amount").read[Int]
+    )((componentType, amount) => componentType == "HICBCPaye" && amount > 0)
+    JsSuccess((json \ "data").as[JsArray].value.toSeq.map(_.as[Boolean](readsItem)).filter(identity).contains(true))
+  }
 }
