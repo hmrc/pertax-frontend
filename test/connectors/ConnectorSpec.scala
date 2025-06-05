@@ -34,8 +34,6 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 
 trait ConnectorSpec extends BaseSpec with Status with HeaderNames with MimeTypes {
 
-  scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
-
   val server: WireMockServer
 
   implicit def app(confStrings: Map[String, Any], overrides: GuiceableModule*): Application =
