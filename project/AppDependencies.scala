@@ -5,7 +5,7 @@ object AppDependencies {
 
   private val playVersion               = "play-30"
   private val cryptoVersion             = "8.2.0"
-  private val webChatVersion            = "1.6.0"
+  private val webChatVersion            = "1.7.0"
   private val scaWrapperVersion         = "2.10.0"
   private val mongoFeatureClientVersion = "1.10.0"
 
