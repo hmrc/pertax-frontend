@@ -142,7 +142,7 @@ class InterstitialController @Inject() (
       }
   }
 
-  def displayHICBCChildBenefitsSingleAccountView: Action[AnyContent] = authenticate { implicit request =>
+  def displayHICBCChargeInPAYEView: Action[AnyContent] = authenticate { implicit request =>
     Ok(
       viewHICBCChargeInPAYEView()
     )
