@@ -139,7 +139,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayChildBenefitsSingleAccountView" must {
     "return OK & correct view for new Child Benefits where no HICBC components returned from API" in {
-      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any(), any(), any()))
+      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any())(any(), any()))
         .thenReturn(taxComponentsHICBCSuccessResponse(false))
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
@@ -151,7 +151,7 @@ class InterstitialControllerSpec extends BaseSpec {
       contentString must include("find out if you need to pay the charge")
     }
     "return OK & correct view for new Child Benefits where HICBC components returned from API" in {
-      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any(), any(), any()))
+      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any())(any(), any()))
         .thenReturn(taxComponentsHICBCSuccessResponse(true))
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))

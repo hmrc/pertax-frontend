@@ -61,7 +61,7 @@ class HomeController @Inject() (
   private def getTaxComponentsOrEmptyList(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier
   ): Future[List[String]] = taiConnector
-    .taxComponents[List[String]](nino, year)
+    .taxComponents(nino, year)(readsListString)
     .fold(
       _ => List.empty,
       taxComponents => taxComponents.getOrElse(List.empty)

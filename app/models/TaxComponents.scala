@@ -33,13 +33,13 @@ object TaxComponents {
   def isCompanyBenefitRecipient(taxComponents: List[String]): Boolean =
     taxComponents.exists(componentType => componentType == "CarBenefit" || componentType == "MedicalInsurance")
 
-  implicit val readsListString: Reads[List[String]] = Reads { json =>
+  val readsListString: Reads[List[String]] = Reads { json =>
     def fromJsonTaxComponents(taxComponents: JsValue): List[String] =
       (taxComponents \\ "componentType").map(_.as[String]).toList
     JsSuccess(fromJsonTaxComponents(json))
   }
 
-  implicit val readsIsHICBCWithCharge: Reads[Boolean] = Reads { json =>
+  val readsIsHICBCWithCharge: Reads[Boolean] = Reads { json =>
     val readsItem: Reads[Boolean] = (
       (__ \ "componentType").read[String] and
         (__ \ "amount").read[Int]

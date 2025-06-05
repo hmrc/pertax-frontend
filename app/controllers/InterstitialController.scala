@@ -132,7 +132,7 @@ class InterstitialController @Inject() (
 
   def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate.async { implicit request =>
     taiConnector
-      .taxComponents[Boolean](request.authNino, current.currentYear)
+      .taxComponents(request.authNino, current.currentYear)(readsIsHICBCWithCharge)
       .map(_.getOrElse(false))
       .fold(_ => false, identity)
       .map { isRegisteredForHICBCWithCharge =>

@@ -41,10 +41,9 @@ class TaiConnector @Inject() (
 ) {
 
   private lazy val taiUrl                              = servicesConfig.baseUrl("tai")
-  def taxComponents[A](nino: Nino, year: Int)(implicit
+  def taxComponents[A](nino: Nino, year: Int)(reads: Reads[A])(implicit
     hc: HeaderCarrier,
-    ec: ExecutionContext,
-    reads: Reads[A]
+    ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, Option[A]] =
     featureFlagService.getAsEitherT(TaxComponentsToggle).flatMap { toggle =>
       if (toggle.isEnabled) {

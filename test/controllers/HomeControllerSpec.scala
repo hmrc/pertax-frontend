@@ -92,7 +92,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       Future.successful(List.empty)
     )
 
-    when(mockTaiConnector.taxComponents[List[String]](any(), any())(any(), any(), any())).thenReturn(
+    when(mockTaiConnector.taxComponents[List[String]](any(), any())(any())(any(), any())).thenReturn(
       EitherT(
         Future.successful[Either[UpstreamErrorResponse, Option[List[String]]]](
           Right[UpstreamErrorResponse, Option[List[String]]](Some(taxComponents))
@@ -127,7 +127,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     }
 
     "Return a Html that is returned as part of Benefit Cards NOT incl tax components when error returned from tax components call" in {
-      when(mockTaiConnector.taxComponents[List[String]](any(), any())(any(), any(), any())).thenReturn(
+      when(mockTaiConnector.taxComponents[List[String]](any(), any())(any())(any(), any())).thenReturn(
         EitherT(
           Future.successful[Either[UpstreamErrorResponse, Option[List[String]]]](
             Left[UpstreamErrorResponse, Option[List[String]]](UpstreamErrorResponse("", INTERNAL_SERVER_ERROR))

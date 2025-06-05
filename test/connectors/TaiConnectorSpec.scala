@@ -18,6 +18,7 @@ package connectors
 
 import cats.data.EitherT
 import config.ConfigDecorator
+import models.TaxComponents._
 import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
 import play.api.Application
@@ -30,7 +31,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.time.TaxYear
-import models.TaxComponents._
+
 import scala.util.Random
 
 class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
@@ -93,7 +94,7 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
       stubGet(url, OK, Some(taxComponentsJson.toString))
       val result: Option[List[String]] =
         connector
-          .taxComponents(nino, taxYear)(implicitly, implicitly, readsListString)
+          .taxComponents(nino, taxYear)(readsListString)
           .value
           .futureValue
           .getOrElse(Some(List.empty))
@@ -104,7 +105,7 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
       stubGet(url, OK, Some(taxComponentsJson.toString))
       val result: Option[Boolean] =
         connector
-          .taxComponents(nino, taxYear)(implicitly, implicitly, readsIsHICBCWithCharge)
+          .taxComponents(nino, taxYear)(readsIsHICBCWithCharge)
           .value
           .futureValue
           .getOrElse(None)
@@ -117,7 +118,7 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
 
       val result: Option[List[String]] =
         connector
-          .taxComponents(nino, taxYear)(implicitly, implicitly, readsListString)
+          .taxComponents(nino, taxYear)(readsListString)
           .value
           .futureValue
           .getOrElse(Some(List.empty))
@@ -139,7 +140,7 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
 
         val result: UpstreamErrorResponse =
           connector
-            .taxComponents(nino, taxYear)(implicitly, implicitly, readsListString)
+            .taxComponents(nino, taxYear)(readsListString)
             .value
             .futureValue
             .swap
@@ -194,7 +195,7 @@ class TaiConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper with Def
 
       val result: UpstreamErrorResponse =
         connector
-          .taxComponents(nino, taxYear)(implicitly, implicitly, readsListString)
+          .taxComponents(nino, taxYear)(readsListString)
           .value
           .futureValue
           .swap
