@@ -18,8 +18,6 @@ package connectors
 
 import cats.data.EitherT
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper

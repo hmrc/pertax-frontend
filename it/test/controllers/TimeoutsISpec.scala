@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin._
 import models.dto.AddressPageVisitedDto
@@ -165,8 +166,8 @@ class TimeoutsISpec extends IntegrationSpec {
       .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
     when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
       Future.successful(
         UserAnswers

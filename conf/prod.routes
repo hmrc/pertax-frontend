@@ -74,6 +74,7 @@ GET         /personal-account/national-insurance-summary/print-letter           
 GET         /personal-account/national-insurance-summary/save-letter-as-pdf            controllers.NiLetterController.saveNationalInsuranceNumberAsPdf
 GET         /personal-account/child-benefit-forms                                      controllers.InterstitialController.displayChildBenefits
 GET         /personal-account/child-benefit/home                                       controllers.InterstitialController.displayChildBenefitsSingleAccountView
+GET         /personal-account/high-income-child-benefit-charge-in-paye                 controllers.InterstitialController.displayHICBCChargeInPAYEView
 GET         /personal-account/messages                                                 controllers.MessageController.messageList
 GET         /personal-account/messages/:url                                            controllers.MessageController.messageDetail(url: String)
 

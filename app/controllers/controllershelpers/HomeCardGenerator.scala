@@ -155,7 +155,7 @@ class HomeCardGenerator @Inject() (
   def getNationalInsuranceCard()(implicit messages: Messages): HtmlFormat.Appendable = nispView()
 
   def getBenefitCards(
-    taxComponents: Option[TaxComponents],
+    taxComponents: List[String],
     trustedHelper: Option[TrustedHelper]
   )(implicit messages: Messages): List[Html] =
     if (trustedHelper.isEmpty) {
@@ -168,7 +168,7 @@ class HomeCardGenerator @Inject() (
 
   def getChildBenefitCard()(implicit messages: Messages): HtmlFormat.Appendable = childBenefitSingleAccountView()
 
-  def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit
+  def getMarriageAllowanceCard(taxComponents: List[String])(implicit
     messages: Messages
   ): HtmlFormat.Appendable =
     marriageAllowanceView(taxComponents)

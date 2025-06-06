@@ -22,8 +22,6 @@ import config.ConfigDecorator
 import izumi.reflect.Tag
 import models.{PayApiModels, PaymentRequest}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.libs.ws.BodyWritable

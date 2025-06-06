@@ -18,6 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import config.NewsAndTilesConfig
+import connectors.TaiConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import models._
@@ -38,6 +39,7 @@ import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.AlertBannerHelper
@@ -52,6 +54,7 @@ class InterstitialControllerSpec extends BaseSpec {
   private val mockNewsAndTilesConfig                                = mock[NewsAndTilesConfig]
   val mockCitizenDetailsService: CitizenDetailsService              = mock[CitizenDetailsService]
   val mockAlertBannerHelper: AlertBannerHelper                      = mock[util.AlertBannerHelper]
+  private val mockTaiConnector: TaiConnector                        = mock[TaiConnector]
 
   private def setupAuth(
     saUserType: Option[SelfAssessmentUserType] = None,
@@ -93,7 +96,8 @@ class InterstitialControllerSpec extends BaseSpec {
       bind[AuthJourney].toInstance(mockAuthJourney),
       bind[NewsAndTilesConfig].toInstance(mockNewsAndTilesConfig),
       bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
-      bind[util.AlertBannerHelper].toInstance(mockAlertBannerHelper)
+      bind[util.AlertBannerHelper].toInstance(mockAlertBannerHelper),
+      bind[TaiConnector].toInstance(mockTaiConnector)
     ) ++ bindings
 
     localGuiceApplicationBuilder(extraConfigValues)
@@ -110,11 +114,17 @@ class InterstitialControllerSpec extends BaseSpec {
       mockFormPartialService,
       mockNewsAndTilesConfig,
       mockCitizenDetailsService,
-      mockAlertBannerHelper
+      mockAlertBannerHelper,
+      mockTaiConnector
     )
   }
 
-  "Calling displayNationalInsurance" must {
+  private def taxComponentsHICBCSuccessResponse(
+    value: Boolean
+  ): EitherT[Future, UpstreamErrorResponse, Option[Boolean]] =
+    EitherT.right[UpstreamErrorResponse](Future.successful(Some(value)))
+
+  "displayChildBenefits" must {
     "redirect to /your-national-insurance-state-pension when when call displayNationalInsurance" in {
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
@@ -127,26 +137,43 @@ class InterstitialControllerSpec extends BaseSpec {
     }
   }
 
-  "Calling displayChildBenefits" must {
-    "Return moved permanently to displayChildBenefitsSingleAccountView" in {
+  "Calling displayHICBCChargeInPAYEView" must {
+    "return OK & correct view" in {
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
-      val result                                  = controller.displayChildBenefits()(fakeRequest)
+      val result                                  = controller.displayHICBCChargeInPAYEView()(fakeRequest)
+      status(result) mustBe OK
 
-      status(result) mustBe MOVED_PERMANENTLY
-      redirectLocation(
-        result
-      ) mustBe Some(controllers.routes.InterstitialController.displayChildBenefitsSingleAccountView.url)
+      val contentString = contentAsString(result)
+      contentString must include("View the High Income Child Benefit charge in your tax-free amount")
     }
   }
 
   "Calling displayChildBenefitsSingleAccountView" must {
-    "return OK for new Child Benefits" in {
+    "return OK & correct view for new Child Benefits where no HICBC components returned from API" in {
+      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any())(any(), any()))
+        .thenReturn(taxComponentsHICBCSuccessResponse(false))
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
       val result                                  = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
-
       status(result) mustBe OK
+
+      val contentString = contentAsString(result)
+      contentString must include("Visit High Income Child Benefit Charge")
+      contentString must include("find out if you need to pay the charge")
+    }
+    "return OK & correct view for new Child Benefits where HICBC components returned from API" in {
+      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any())(any(), any()))
+        .thenReturn(taxComponentsHICBCSuccessResponse(true))
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+      setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
+      val result                                  = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
+      status(result) mustBe OK
+
+      val contentString = contentAsString(result)
+      contentString mustNot include("Visit High Income Child Benefit Charge")
+      contentString mustNot include("find out if you need to pay the charge")
+      contentString must include("View the High Income Child Benefit charge in your tax-free amount")
     }
   }
 
