@@ -26,13 +26,14 @@ object AllFeatureFlags {
     PaperlessInterruptToggle,
     TaxSummariesTileToggle,
     ShowOutageBannerToggle,
-    AgentClientAuthorisationToggle,
+    AgentClientRelationshipsToggle,
     BreathingSpaceIndicatorToggle,
     AlertBannerPaperlessStatusToggle,
     GetPersonFromCitizenDetailsToggle,
     DfsDigitalFormFrontendAvailableToggle,
     AddressChangeAllowedToggle,
-    VoluntaryContributionsAlertToggle
+    VoluntaryContributionsAlertToggle,
+    PeakDemandBannerToggle
   )
 }
 
@@ -66,10 +67,10 @@ case object ShowOutageBannerToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable the show outage banner")
 }
 
-case object AgentClientAuthorisationToggle extends FeatureFlagName {
-  override val name: String                = "agent-client-authorisation-toggle"
+case object AgentClientRelationshipsToggle extends FeatureFlagName {
+  override val name: String                = "agent-client-relationships-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable calls to agent-client-authorisation service from Profile and Setting page"
+    "Enable/disable calls to agent-client-relationships service from Profile and Setting page"
   )
 }
 
@@ -112,5 +113,12 @@ case object VoluntaryContributionsAlertToggle extends FeatureFlagName {
   override val name: String                = "voluntary-contributions-alert-toggle"
   override val description: Option[String] = Some(
     "Enable/disable the alert banner for voluntary National Insurance contributions information"
+  )
+}
+
+case object PeakDemandBannerToggle extends FeatureFlagName {
+  override val name: String                = "peak-demand-banner-toggle"
+  override val description: Option[String] = Some(
+    "Enable/Disable the temporary peak demand banner on the home page"
   )
 }

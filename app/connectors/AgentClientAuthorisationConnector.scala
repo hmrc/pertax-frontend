@@ -101,16 +101,16 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
     with Throttle
     with Logging {
   val rateLimiter: RateLimiter = limiters.rateLimiterForGetClientStatus
-  lazy val baseUrl: String     = servicesConfig.baseUrl("agent-client-authorisation")
+  lazy val baseUrl: String     = servicesConfig.baseUrl("agent-client-relationships")
   lazy val timeoutInSec: Int   =
-    servicesConfig.getInt("feature.agent-client-authorisation.timeoutInSec")
+    servicesConfig.getInt("feature.agent-client-relationships.timeoutInSec")
 
   override def getAgentClientStatus(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] = {
-    val url    = s"$baseUrl/agent-client-authorisation/status"
+    val url    = s"$baseUrl/agent-client-relationships/customer-status"
     val result =
       withThrottle {
         httpClientV2

@@ -285,7 +285,7 @@ trait IntegrationSpec
         "microservice.services.auth.port"                       -> server.port(),
         "microservice.services.pertax.port"                     -> server.port(),
         "microservice.services.message-frontend.port"           -> server.port(),
-        "microservice.services.agent-client-authorisation.port" -> server.port(),
+        "microservice.services.agent-client-relationships.port" -> server.port(),
         "microservice.services.breathing-space-if-proxy.port"   -> server.port(),
         "microservice.services.taxcalc-frontend.port"           -> server.port(),
         "microservice.services.fandf.port"                      -> server.port()
