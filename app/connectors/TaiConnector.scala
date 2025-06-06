@@ -20,6 +20,7 @@ import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import models.admin.TaxComponentsToggle
+import play.api.Logging
 import play.api.libs.json.Reads
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
@@ -30,6 +31,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 class TaiConnector @Inject() (
@@ -38,7 +40,7 @@ class TaiConnector @Inject() (
   httpClientResponse: HttpClientResponse,
   configDecorator: ConfigDecorator,
   featureFlagService: FeatureFlagService
-) {
+) extends Logging {
 
   private lazy val taiUrl                              = servicesConfig.baseUrl("tai")
   def taxComponents[A](nino: Nino, year: Int)(reads: Reads[A])(implicit
@@ -55,7 +57,14 @@ class TaiConnector @Inject() (
               .transform(_.withRequestTimeout(configDecorator.taiTimeoutInMilliseconds.milliseconds))
               .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
           )
-          .map(result => result.json.asOpt[A](reads))
+          .map { result =>
+            Try(result.json.as[A](reads)) match {
+              case Success(value) => Some(value)
+              case Failure(ex)    =>
+                logger.error("Exception when parsing API response - returning None instead.", ex)
+                None
+            }
+          }
       } else {
         EitherT.right[UpstreamErrorResponse](Future.successful[Option[A]](None))
       }

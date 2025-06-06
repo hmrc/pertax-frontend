@@ -62,10 +62,7 @@ class HomeController @Inject() (
     hc: HeaderCarrier
   ): Future[List[String]] = taiConnector
     .taxComponents(nino, year)(readsListString)
-    .fold(
-      _ => List.empty,
-      taxComponents => taxComponents.getOrElse(List.empty)
-    )
+    .fold(_ => List.empty, _.getOrElse(List.empty))
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType

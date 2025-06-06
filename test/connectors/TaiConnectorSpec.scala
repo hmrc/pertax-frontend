@@ -101,6 +101,17 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
       result mustBe Some(taxComponentsList)
     }
 
+    "return None when reading invalid json" in new LocalSetup {
+      stubGet(url, OK, Some("invalid"))
+      val result: Option[List[String]] =
+        connector
+          .taxComponents(nino, taxYear)(readsListString)
+          .value
+          .futureValue
+          .getOrElse(Some(List.empty))
+      result mustBe None
+    }
+
     "return OK on success when reading as a boolean (for HICBC)" in new LocalSetup {
       stubGet(url, OK, Some(taxComponentsJson.toString))
       val result: Option[Boolean] =
