@@ -39,6 +39,8 @@ import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.time.CurrentTaxYear
+import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.ArgumentMatchers.{any, eq}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -64,7 +66,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       bind[SelfAssessmentService].toInstance(mockSelfAssessmentService)
     )
     .build()
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit             = {
     super.beforeEach()
     reset(mockAuditConnector, mockAuthAction, mockSelfAssessmentStatusAction)
   }
@@ -89,7 +91,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]): Option[Future[Result]] = {
-      controller //Call to inject mocks
+      controller // Call to inject mocks
       route(app, req)
     }
   }

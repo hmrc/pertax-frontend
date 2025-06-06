@@ -26,9 +26,8 @@ case class SummaryCardPartial(
 )
 
 object SummaryCardPartial {
-  implicit val htmlReads: Reads[HtmlFormat.Appendable] = jsValue => {
+  implicit val htmlReads: Reads[HtmlFormat.Appendable] = jsValue =>
     JsSuccess(HtmlFormat.raw(jsValue.as[JsString].value))
-  }
 
   implicit val reads: Reads[SummaryCardPartial] = Json.reads[SummaryCardPartial]
 }

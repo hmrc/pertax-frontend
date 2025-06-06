@@ -20,15 +20,16 @@ import cats.data.EitherT
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthRetrievals, SelfAssessmentStatusAction}
 import controllers.bindable.Origin
-import models._
+import models.*
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, when}
 import play.api.Application
-import play.api.inject._
-import play.api.mvc._
+import play.api.inject.*
+import play.api.mvc.*
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import services._
-import testUtils.Fixtures._
+import play.api.test.Helpers.*
+import services.*
+import testUtils.Fixtures.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -95,7 +96,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     def routeWrapper(req: FakeRequest[AnyContentAsEmpty.type]): Option[Future[Result]] = {
-      controller //Call to inject mocks
+      controller // Call to inject mocks
       route(app, req)
     }
   }
@@ -381,9 +382,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
       override lazy val getIVJourneyStatusResponse
         : EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse] =
-        EitherT[Future, UpstreamErrorResponse, IdentityVerificationResponse](
-          Future.successful(Left(UpstreamErrorResponse.apply("Bad request", 400)))
-        )
+        EitherT.leftT[Future, IdentityVerificationResponse](UpstreamErrorResponse.apply("Bad request", 400))
 
       val result: Future[Result] =
         controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))

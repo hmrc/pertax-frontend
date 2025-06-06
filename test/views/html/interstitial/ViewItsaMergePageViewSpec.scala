@@ -26,12 +26,13 @@ import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.DateTimeTools.current
 import views.html.ViewSpec
+import org.mockito.Mockito.{reset, times, verify, when}
 
 class ViewItsaMergePageViewSpec extends ViewSpec {
 
   lazy val viewItsaMergePageView: ViewItsaMergePageView = inject[ViewItsaMergePageView]
 
-  lazy implicit val configDecorator: ConfigDecorator            = mock[ConfigDecorator] //inject[ConfigDecorator]
+  lazy implicit val configDecorator: ConfigDecorator            = mock[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(request = FakeRequest())
 
@@ -42,10 +43,7 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
 
     val user: SelfAssessmentUser
 
-    implicit val request: UserRequest[AnyContent] = buildUserRequest(
-      saUser = user,
-      request = request
-    )
+    implicit val request: UserRequest[AnyContent] = userRequest.copy(saUserType = user)
 
   }
 

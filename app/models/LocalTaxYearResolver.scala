@@ -24,7 +24,5 @@ import java.time.LocalDate
 @Singleton
 class LocalTaxYearResolver @Inject() (val configDecorator: ConfigDecorator) extends CurrentTaxYear {
 
-  override lazy val now: () => LocalDate = () => {
-    configDecorator.currentLocalDate
-  }
+  override lazy val now: () => LocalDate = () => configDecorator.currentLocalDate
 }

@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.{ErrorSummary => HmrcErrorSummary}
+
 @this(govukErrorSummary: GovukErrorSummary)
 
 @(form: Form[_], errorFieldName: Option[String] = None)(implicit messages: Messages)
@@ -25,7 +27,7 @@
             content = Text(messages(s"head.${error.message}"))
         )
     }) { errorLinks =>
-            @govukErrorSummary(ErrorSummary(
+            @govukErrorSummary(HmrcErrorSummary(
             errorList = errorLinks.toSeq,
             title = Text(messages("label.theres_a_problem"))
             ))

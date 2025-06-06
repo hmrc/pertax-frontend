@@ -67,7 +67,7 @@ class ConfigDecorator @Inject() (
   private def getExternalUrl(key: String): Option[String] =
     runModeConfiguration.getOptional[String](s"external-url.$key")
 
-  //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g. localhost:9030/tai in local should be /tai in prod
+  // These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g. localhost:9030/tai in local should be /tai in prod
   lazy val seissFrontendHost: String                       = getExternalUrl(s"self-employed-income-support-frontend.host").getOrElse("")
   private lazy val incomeTaxViewChangeFrontendHost: String =
     getExternalUrl(s"income-tax-view-change-frontend.host").getOrElse("")

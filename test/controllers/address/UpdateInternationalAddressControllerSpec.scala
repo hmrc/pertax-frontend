@@ -34,6 +34,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.model.DataEvent
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
   private lazy val controller: UpdateInternationalAddressController =

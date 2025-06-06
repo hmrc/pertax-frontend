@@ -35,8 +35,11 @@ import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import util.AlertBannerHelper
+import org.mockito.Mockito.{reset, when}
+import org.mockito.ArgumentMatchers.{any, eq}
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class HomeControllerSpec extends BaseSpec with WireMockHelper {
   val fakeAuthJourney              = new FakeAuthJourney
@@ -64,7 +67,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    org.mockito.MockitoSugar.reset(
+    reset(
       mockTaiService,
       mockBreathingSpaceService,
       mockHomeCardGenerator,

@@ -32,6 +32,7 @@ import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 

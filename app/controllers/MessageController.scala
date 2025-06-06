@@ -46,7 +46,7 @@ class MessageController @Inject() (
   def messageList: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
-      messageFrontendService.getMessageListPartial map { p: HtmlPartial =>
+      messageFrontendService.getMessageListPartial map { p =>
         Ok(
           messageInboxView(
             messageListPartial = p successfulContentOrElse Html(

@@ -32,6 +32,7 @@ import testUtils.Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddres
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{times, verify, when}
 
 class UpdateAddressControllerSpec extends AddressBaseSpec {
   private lazy val controller: UpdateAddressController = app.injector.instanceOf[UpdateAddressController]

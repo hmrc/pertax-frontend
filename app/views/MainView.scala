@@ -33,7 +33,6 @@ import views.html.components.{AdditionalJavascript, HeadBlock}
 
 import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
-import uk.gov.hmrc.webchat.client.WebChatClient
 
 @ImplementedBy(classOf[MainViewImpl])
 trait MainView {
@@ -53,8 +52,7 @@ trait MainView {
     messagesActive: Boolean = false,
     yourProfileActive: Boolean = false,
     hideAccountMenu: Boolean = false,
-    showUserResearchBanner: Boolean = false,
-    webChatIsEnabledHere: Boolean = false
+    showUserResearchBanner: Boolean = false
   )(contentBlock: Html)(implicit
     request: Request[_],
     messages: Messages
@@ -65,7 +63,6 @@ class MainViewImpl @Inject() (
   appConfig: ConfigDecorator,
   wrapperService: WrapperService,
   additionalScripts: AdditionalJavascript,
-  webChatClient: WebChatClient,
   headBlock: HeadBlock,
   accessibilityStatementConfig: AccessibilityStatementConfig
 ) extends MainView
@@ -87,8 +84,7 @@ class MainViewImpl @Inject() (
     messagesActive: Boolean = false,
     yourProfileActive: Boolean = false,
     hideAccountMenu: Boolean = false,
-    showUserResearchBanner: Boolean = false,
-    webChatIsEnabledHere: Boolean = false
+    showUserResearchBanner: Boolean = false
   )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
 
     val trustedHelper: Option[TrustedHelper] = Try(request.asInstanceOf[UserRequest[_]]) match {
@@ -97,12 +93,6 @@ class MainViewImpl @Inject() (
     }
 
     val fullPageTitle = s"$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"
-
-    val webChatScripts: List[Html] = if (appConfig.webChatIsEnabled && webChatIsEnabledHere) {
-      webChatClient.loadRequiredElements().toList ++ webChatClient.loadHMRCChatSkinElement("popup").toList
-    } else {
-      List.empty
-    }
 
     logger.debug(s"SCA Wrapper layout used for request `${request.uri}``")
     wrapperService.standardScaLayout(
@@ -123,7 +113,7 @@ class MainViewImpl @Inject() (
       keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
       showBackLinkJS = showBackLink,
       backLinkUrl = if (!backLinkUrl.equals("#")) Some(backLinkUrl) else None,
-      scripts = Seq(additionalScripts(scripts)(request)) ++ webChatScripts,
+      scripts = Seq(additionalScripts(scripts)(request)),
       styleSheets = Seq(headBlock(stylesheets)(request)),
       bannerConfig = BannerConfig(
         showAlphaBanner = false,

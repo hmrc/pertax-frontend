@@ -36,6 +36,7 @@ import views.html.components.alertBanner.paperlessStatus._
 import views.html.components.alertBanner.peakDemandBanner
 
 import scala.concurrent.Future
+import org.mockito.Mockito.{reset, times, verify, when}
 
 class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
 

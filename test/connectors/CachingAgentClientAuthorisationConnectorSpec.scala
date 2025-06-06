@@ -28,6 +28,7 @@ import repositories.SessionCacheRepository
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
+import org.mockito.Mockito.{reset, times, verify, when}
 
 import scala.concurrent.{ExecutionContext, Future}
 

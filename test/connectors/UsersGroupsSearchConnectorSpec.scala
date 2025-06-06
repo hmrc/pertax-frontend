@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class UsersGroupsSearchConnectorSpec extends ConnectorSpec with WireMockHelper {
 
-  override lazy val app: Application             =
+  override lazy val app: Application =
     app(Map("microservice.services.users-groups-search.port" -> server.port()))
 
   lazy val connector: UsersGroupsSearchConnector =

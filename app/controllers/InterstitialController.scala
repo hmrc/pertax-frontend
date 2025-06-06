@@ -71,10 +71,9 @@ class InterstitialController @Inject() (
   private val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
-  private val authenticate: ActionBuilder[UserRequest, AnyContent] = {
+  private val authenticate: ActionBuilder[UserRequest, AnyContent]   =
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)
-  }
   private val authenticateSa: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(saBreadcrumb)
@@ -174,7 +173,7 @@ class InterstitialController @Inject() (
         saPartial   <- saPartial
       } yield Ok(
         selfAssessmentSummaryView(
-          //TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
+          // TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
           formPartial = if (configDecorator.partialUpgradeEnabled) {
             FormPartialUpgrade.upgrade(formPartial successfulContentOrEmpty)
           } else {

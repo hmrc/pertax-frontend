@@ -22,7 +22,7 @@ import controllers.routes
 import models._
 import models.admin._
 import org.mockito.ArgumentMatchers.any
-import org.mockito.{ArgumentMatchers, MockitoSugar}
+import org.mockito.ArgumentMatchers
 import play.api.Configuration
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -44,6 +44,8 @@ import views.html.cards.home._
 import java.time.LocalDate
 import scala.concurrent.Future
 import scala.util.Random
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar
 
 class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
