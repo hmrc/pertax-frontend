@@ -77,7 +77,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(headerSettings(A11yTest) *)
   .settings(automateHeaderSettings(A11yTest))
 
-Test / parallelExecution := false
+Test / parallelExecution := true
 Test / Keys.fork := true
 Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
 
