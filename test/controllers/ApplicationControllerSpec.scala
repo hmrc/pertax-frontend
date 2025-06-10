@@ -22,6 +22,7 @@ import controllers.auth.{AuthRetrievals, SelfAssessmentStatusAction}
 import controllers.bindable.Origin
 import models._
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, when}
 import play.api.Application
 import play.api.inject._
 import play.api.mvc._
@@ -66,10 +67,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+    reset(mockIdentityVerificationFrontendService)
+    reset(mockAuthAction)
+    reset(mockSelfAssessmentStatusAction)
     reset(
-      mockIdentityVerificationFrontendService,
-      mockAuthAction,
-      mockSelfAssessmentStatusAction,
       mockAuthJourney
     )
   }

@@ -20,6 +20,7 @@ import cats.data.EitherT
 import connectors.AddressLookupConnector
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import models.{AnyOtherMove, MovedFromScotland, MovedToScotland}
+import org.mockito.Mockito.when
 import play.api.http.Status._
 import testUtils.BaseSpec
 import uk.gov.hmrc.http.UpstreamErrorResponse

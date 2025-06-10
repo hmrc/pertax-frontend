@@ -21,6 +21,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{Request, Result}
@@ -50,8 +51,10 @@ class MessageControllerSpec extends BaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockMessageFrontendService, mock[CitizenDetailsConnector])
+    reset(mockMessageFrontendService)
+    reset(mock[CitizenDetailsConnector])
     reset(mockAuthJourney)
+
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
         block(

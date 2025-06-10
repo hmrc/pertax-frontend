@@ -19,6 +19,7 @@ package views.html.interstitial
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
+import org.mockito.Mockito.reset
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, AnyContentAsEmpty}
 import play.api.test.FakeRequest

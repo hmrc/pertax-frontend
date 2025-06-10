@@ -23,6 +23,7 @@ import models.dto.AddressPageVisitedDto
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest

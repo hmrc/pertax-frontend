@@ -46,7 +46,7 @@ class MainViewSpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .configure(
-      Map(
+      Map[String, Any](
         "cookie.encryption.key"                                         -> "gvBoGdgzqG1AarzF1LY0zQ==",
         "sso.encryption.key"                                            -> "gvBoGdgzqG1AarzF1LY0zQ==",
         "queryParameter.encryption.key"                                 -> "gvBoGdgzqG1AarzF1LY0zQ==",

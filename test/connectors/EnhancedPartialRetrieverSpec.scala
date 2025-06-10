@@ -16,9 +16,8 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
 import models._
-import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, notFound, ok, serverError, urlEqualTo}
 import org.scalatest.RecoverMethods
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -30,8 +29,14 @@ import play.twirl.api.Html
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
+import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
-class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with IntegrationPatience with RecoverMethods {
+class EnhancedPartialRetrieverSpec
+    extends BaseSpec
+    with WireMockHelper
+    with IntegrationPatience
+    with RecoverMethods
+    with LogCapturing {
 
   private lazy implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
 
@@ -46,16 +51,12 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
 
   private def httpClientV2: HttpClientV2        = app.injector.instanceOf[HttpClientV2]
   private def headerCarrierForPartialsConverter = app.injector.instanceOf[HeaderCarrierForPartialsConverter]
-  private val mockLogger: Logger                = mock[Logger]
-  private def sut: EnhancedPartialRetriever     =
-    new EnhancedPartialRetriever(httpClientV2, headerCarrierForPartialsConverter) {
-      override protected val logger: Logger = mockLogger
-    }
 
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    reset(mockLogger)
-  }
+  val testLogger                            = Logger("test-logger")
+  private def sut: EnhancedPartialRetriever =
+    new EnhancedPartialRetriever(httpClientV2, headerCarrierForPartialsConverter) {
+      override protected val logger: Logger = testLogger
+    }
 
   "Calling EnhancedPartialRetriever.loadPartial" must {
 
@@ -103,7 +104,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     "return a list of successful partial summary card objects, one to test each reconciliation status" in {
       val response                               =
         """[
-          |{"partialName": "card1", "partialContent": "content1", "partialReconciliationStatus": {"code":4, "name":"Overpaid"}}, 
+          |{"partialName": "card1", "partialContent": "content1", "partialReconciliationStatus": {"code":4, "name":"Overpaid"}},
           |{"partialName": "card2", "partialContent": "content2", "partialReconciliationStatus": {"code":5, "name":"Underpaid"}},
           |{"partialName": "card3", "partialContent": "content3", "partialReconciliationStatus": {"code":1, "name":"Balanced"}},
           |{"partialName": "card4", "partialContent": "content4", "partialReconciliationStatus": {"code":2, "name":"OpTolerance"}},
@@ -178,16 +179,18 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with WireMockHelper with Int
     }
 
     "return an empty list and log the failure when 5xx response code returned" in {
-      val url                            = s"http://localhost:${server.port()}/"
+      val url          = s"http://localhost:${server.port()}/"
+      val errorMessage = "error"
       server.stubFor(
-        get(urlEqualTo("/")).willReturn(serverError().withBody("error"))
+        get(urlEqualTo("/")).willReturn(serverError().withBody(errorMessage))
       )
-      sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url).futureValue mustBe Nil
-      val captor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-      Mockito
-        .verify(mockLogger, atLeast(1))
-        .error(captor.capture())(ArgumentMatchers.any())
-      captor.getValue.contains("Failed to load partial")
+      withCaptureOfLoggingFrom(testLogger) { logs =>
+        sut.loadPartialAsSeqSummaryCard[SummaryCardPartial](url).futureValue mustBe Nil
+
+        logs.map(_.getMessage) must contain(
+          s"Failed to load partial from http://localhost:${server.port()}/, partial info: Failure(Some(500),$errorMessage)"
+        )
+      }
     }
 
     "return an empty list when empty list returned" in {

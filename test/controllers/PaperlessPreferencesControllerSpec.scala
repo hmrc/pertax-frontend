@@ -18,6 +18,7 @@ package controllers
 
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{Request, Result}

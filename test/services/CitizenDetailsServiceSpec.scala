@@ -20,6 +20,7 @@ import cats.data.EitherT
 import connectors.CitizenDetailsConnector
 import models.{ETag, MatchingDetails}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json, OWrites}

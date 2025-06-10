@@ -23,6 +23,7 @@ import models.addresslookup.RecordSet
 import models.dto.{AddressFinderDto, AddressPageVisitedDto}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest

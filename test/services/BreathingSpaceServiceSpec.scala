@@ -22,6 +22,7 @@ import models.BreathingSpaceIndicatorResponse
 import models.admin.BreathingSpaceIndicatorToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.http.Status._
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.Nino

@@ -24,6 +24,7 @@ import models.admin.PaperlessInterruptToggle
 import models.{NonFilerSelfAssessmentUser, UserAnswers}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.Json

@@ -22,6 +22,7 @@ import models.{TaxComponentsAvailableState, TaxComponentsDisabledState, TaxCompo
 import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json
 import testUtils.BaseSpec
