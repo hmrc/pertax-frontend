@@ -22,6 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import models.PayApiModels
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, Request, Result}

@@ -22,6 +22,7 @@ import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowOutageBannerToggle
 import models.{BreathingSpaceIndicatorResponse, TaxComponents, TaxComponentsAvailableState}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -64,11 +65,11 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    org.mockito.MockitoSugar.reset(
-      mockTaiService,
-      mockBreathingSpaceService,
-      mockHomeCardGenerator,
-      mockAlertBannerHelper,
+    reset(mockTaiService)
+    reset(mockBreathingSpaceService)
+    reset(mockHomeCardGenerator)
+    reset(mockAlertBannerHelper)
+    reset(
       mockFeatureFlagService
     )
 

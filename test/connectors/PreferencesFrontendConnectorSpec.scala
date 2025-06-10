@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import controllers.auth.requests.UserRequest
 import models._
 import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.ContentTypes

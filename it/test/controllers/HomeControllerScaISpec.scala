@@ -22,7 +22,9 @@ import controllers.auth.requests.UserRequest
 import models.admin._
 import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserAnswers, UserDetails}
 import org.jsoup.Jsoup
-import org.mockito.{ArgumentMatchers, MockitoSugar}
+import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Request, Result}

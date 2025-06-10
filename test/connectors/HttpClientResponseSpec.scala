@@ -17,13 +17,14 @@
 package connectors
 
 import cats.data.EitherT
-import org.mockito.{ArgumentMatchers, Mockito}
+import ch.qos.logback.classic.spi.ILoggingEvent
 import org.scalatest.RecoverMethods
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Logger
 import play.api.http.Status._
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
 import scala.concurrent.Future
 
@@ -32,11 +33,12 @@ class HttpClientResponseSpec
     with WireMockHelper
     with ScalaFutures
     with IntegrationPatience
-    with RecoverMethods {
-  private val mockLogger: Logger = mock[Logger]
+    with RecoverMethods
+    with LogCapturing {
 
+  val testLogger: Logger                                                 = Logger("test-logger")
   private lazy val httpClientResponseUsingMockLogger: HttpClientResponse = new HttpClientResponse {
-    override protected val logger: Logger = mockLogger
+    override protected val logger: Logger = testLogger
   }
 
   private val dummyContent              = "error message"
@@ -82,82 +84,91 @@ class HttpClientResponseSpec
   ): Unit = {
     infoLevel.foreach { httpResponseCode =>
       s"log message: INFO level only when response code is $httpResponseCode" in {
-        reset(mockLogger)
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(block(response).value) { actual =>
-          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-          verifyCalls(info = Some(dummyContent))
+
+        withCaptureOfLoggingFrom(testLogger) { logs =>
+          whenReady(block(response).value) { actual =>
+            actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
+            verifyCalls(logs, info = Some(dummyContent))
+          }
         }
       }
     }
     warnLevel.foreach { httpResponseCode =>
       s"log message: WARNING level only when response is $httpResponseCode" in {
-        reset(mockLogger)
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(block(response).value) { actual =>
-          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-          verifyCalls(warn = Some(dummyContent))
+        withCaptureOfLoggingFrom(testLogger) { logs =>
+          whenReady(block(response).value) { actual =>
+            actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
+            verifyCalls(logs, warn = Some(dummyContent))
+          }
         }
       }
     }
     errorLevelWithThrowable.foreach { httpResponseCode =>
       s"log message: ERROR level only WITH throwable when response code is $httpResponseCode" in {
-        reset(mockLogger)
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(block(response).value) { actual =>
-          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-          verifyCalls(errorWithThrowable = Some(dummyContent))
+        withCaptureOfLoggingFrom(testLogger) { logs =>
+          whenReady(block(response).value) { actual =>
+            actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
+            verifyCalls(logs, errorWithThrowable = Some(dummyContent))
+          }
         }
       }
     }
     errorLevelWithoutThrowable.foreach { httpResponseCode =>
       s"log message: ERROR level only WITHOUT throwable when response code is $httpResponseCode" in {
-        reset(mockLogger)
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
-        whenReady(block(response).value) { actual =>
-          actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-          verifyCalls(errorWithoutThrowable = Some(dummyContent))
+        withCaptureOfLoggingFrom(testLogger) { logs =>
+          whenReady(block(response).value) { actual =>
+            actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
+            verifyCalls(logs, errorWithoutThrowable = Some(dummyContent))
+          }
         }
       }
     }
     "log message: ERROR level only WITHOUT throwable when future failed with HttpException & " +
       "recover to BAD GATEWAY" in {
-        reset(mockLogger)
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future.failed(new HttpException(dummyContent, GATEWAY_TIMEOUT))
-        whenReady(block(response).value) { actual =>
-          actual mustBe Left(UpstreamErrorResponse(dummyContent, BAD_GATEWAY))
-          verifyCalls(errorWithoutThrowable = Some(dummyContent))
+        withCaptureOfLoggingFrom(testLogger) { logs =>
+          whenReady(block(response).value) { actual =>
+            actual mustBe Left(UpstreamErrorResponse(dummyContent, BAD_GATEWAY))
+            verifyCalls(logs, errorWithoutThrowable = Some(dummyContent))
+          }
         }
       }
     "log nothing at all when future failed with non-HTTPException" in {
-      reset(mockLogger)
       val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
         Future.failed(new RuntimeException(dummyContent))
 
-      recoverToSucceededIf[RuntimeException] {
-        block(response).value
+      withCaptureOfLoggingFrom(testLogger) { logs =>
+        recoverToSucceededIf[RuntimeException] {
+          block(response).value
+        }
+        verifyCalls(logs)
       }
-      verifyCalls()
     }
 
     "log specific BAD_REQUEST with address update message as WARNING" in {
-      reset(mockLogger)
       val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
         Future(Left(UpstreamErrorResponse(specificBadRequestMessage, BAD_REQUEST)))
 
-      whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
-        actual mustBe Left(UpstreamErrorResponse(specificBadRequestMessage, BAD_REQUEST))
-        verifyCalls(warn = Some(s"Specific 400 Error - Address Update: $specificBadRequestMessage"))
+      withCaptureOfLoggingFrom(testLogger) { logs =>
+        whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
+          actual mustBe Left(UpstreamErrorResponse(specificBadRequestMessage, BAD_REQUEST))
+          verifyCalls(logs, warn = Some(s"Specific 400 Error - Address Update: $specificBadRequestMessage"))
+        }
       }
     }
   }
 
   private def verifyCalls(
+    logs: Seq[ILoggingEvent],
     info: Option[String] = None,
     warn: Option[String] = None,
     errorWithThrowable: Option[String] = None,
@@ -169,23 +180,15 @@ class HttpClientResponseSpec
     val errorWithThrowableTimes    = errorWithThrowable.map(_ => 1).getOrElse(0)
     val errorWithoutThrowableTimes = errorWithoutThrowable.map(_ => 1).getOrElse(0)
 
-    def argumentMatcher(content: Option[String]): String = content match {
-      case None    => ArgumentMatchers.any()
-      case Some(c) => ArgumentMatchers.eq(c)
-    }
-
-    Mockito
-      .verify(mockLogger, times(infoTimes))
-      .info(argumentMatcher(info))(ArgumentMatchers.any())
-    Mockito
-      .verify(mockLogger, times(warnTimes))
-      .warn(argumentMatcher(warn))(ArgumentMatchers.any())
-    Mockito
-      .verify(mockLogger, times(errorWithThrowableTimes))
-      .error(argumentMatcher(errorWithThrowable), ArgumentMatchers.any())(ArgumentMatchers.any())
-    Mockito
-      .verify(mockLogger, times(errorWithoutThrowableTimes))
-      .error(argumentMatcher(errorWithoutThrowable))(ArgumentMatchers.any())
+    logs.count(_.getLevel == ch.qos.logback.classic.Level.INFO) mustBe infoTimes
+    logs.count(_.getLevel == ch.qos.logback.classic.Level.WARN) mustBe warnTimes
+    logs.count(_.getLevel == ch.qos.logback.classic.Level.INFO) mustBe infoTimes
+    logs.count(log =>
+      log.getThrowableProxy != null && log.getLevel == ch.qos.logback.classic.Level.ERROR
+    ) mustBe errorWithThrowableTimes
+    logs.count(log =>
+      log.getThrowableProxy == null && log.getLevel == ch.qos.logback.classic.Level.ERROR
+    ) mustBe errorWithoutThrowableTimes
   }
 
 }

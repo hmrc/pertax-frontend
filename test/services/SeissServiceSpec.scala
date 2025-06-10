@@ -22,6 +22,7 @@ import config.ConfigDecorator
 import connectors.SeissConnector
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, SeissModel}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import testUtils.BaseSpec
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.UpstreamErrorResponse

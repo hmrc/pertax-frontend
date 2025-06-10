@@ -22,6 +22,7 @@ import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto.{AddressDto, AddressPageVisitedDto, InternationalAddressChoiceDto}
 import models.{PersonDetails, UserAnswers}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}

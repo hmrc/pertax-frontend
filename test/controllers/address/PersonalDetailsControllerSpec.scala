@@ -21,6 +21,7 @@ import models.admin.RlsInterruptToggle
 import models.{PersonDetails, UserName}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.http.Status._
 import play.api.mvc.Result
 import play.api.test.FakeRequest

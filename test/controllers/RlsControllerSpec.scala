@@ -24,6 +24,7 @@ import models.admin.RlsInterruptToggle
 import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK, SEE_OTHER}
 import play.api.inject.bind

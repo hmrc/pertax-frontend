@@ -24,6 +24,7 @@ import models._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.exceptions.TestFailedException
 import play.api.Application
 import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, REQUEST_TIMEOUT, SERVICE_UNAVAILABLE, UNPROCESSABLE_ENTITY}
@@ -64,10 +65,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
       bind[SelfAssessmentService].toInstance(mockSelfAssessmentService)
     )
     .build()
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    reset(mockAuditConnector, mockAuthAction, mockSelfAssessmentStatusAction)
-  }
 
   trait LocalSetup {
 

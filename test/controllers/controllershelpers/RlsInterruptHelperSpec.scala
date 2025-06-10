@@ -23,6 +23,7 @@ import models.admin.RlsInterruptToggle
 import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.Results._
@@ -55,11 +56,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
     .build()
 
   lazy val rlsInterruptHelper: RlsInterruptHelper = app.injector.instanceOf[RlsInterruptHelper]
-
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    reset(mockCitizenDetailsService, mockConfigDecorator, mockFeatureFlagService, mockJourneyCacheRepository)
-  }
 
   implicit val userRequest: UserRequest[AnyContent] = UserRequest(
     Fixtures.fakeNino,

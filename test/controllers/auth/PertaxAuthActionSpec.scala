@@ -23,6 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
 import models.{ErrorView, PertaxResponse, UserAnswers, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, when}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, SEE_OTHER, UNAUTHORIZED}
@@ -47,7 +48,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
   override implicit lazy val app: Application = GuiceApplicationBuilder().build()
 
-  private val configDecorator: ConfigDecorator         = mock[ConfigDecorator]
+  private val mockConfigDecorator: ConfigDecorator     = mock[ConfigDecorator]
   private val mockPertaxConnector                      = mock[PertaxConnector]
   val internalServerErrorView: InternalServerErrorView = app.injector.instanceOf[InternalServerErrorView]
   val mainView: MainView                               = app.injector.instanceOf[MainView]
@@ -60,11 +61,21 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
       internalServerErrorView,
       mainView,
       cc
-    )(configDecorator)
+    )(mockConfigDecorator)
 
-  when(configDecorator.pertaxUrl).thenReturn("PERTAX_URL")
-  when(configDecorator.defaultOrigin).thenReturn(Origin("PERTAX"))
-  when(configDecorator.serviceIdentityCheckFailedUrl).thenReturn("/personal-account/identity-check-failed")
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockConfigDecorator)
+    reset(mockPertaxConnector)
+
+    when(mockConfigDecorator.pertaxFrontendHost).thenReturn("")
+    when(mockConfigDecorator.pertaxFrontendForAuthHost).thenReturn("")
+    when(mockConfigDecorator.personalAccount).thenReturn("")
+    when(mockConfigDecorator.ggSignInUrl).thenReturn("")
+    when(mockConfigDecorator.pertaxUrl).thenReturn("PERTAX_URL")
+    when(mockConfigDecorator.defaultOrigin).thenReturn(Origin("PERTAX"))
+    when(mockConfigDecorator.serviceIdentityCheckFailedUrl).thenReturn("/personal-account/identity-check-failed")
+  }
 
   private val fakeRequest             = FakeRequest("GET", "/personal-account")
   val expectedRequest: UserRequest[_] =

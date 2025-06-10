@@ -21,6 +21,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import error.ErrorRenderer
 import models.admin.AddressChangeAllowedToggle
+import org.mockito.Mockito.when
 import play.api.mvc.Request
 import play.api.mvc.Results._
 import play.api.test.FakeRequest

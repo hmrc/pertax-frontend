@@ -74,6 +74,7 @@ class PertaxAuthAction @Inject() (
         Future.successful(Some(InternalServerError(internalServerErrorView())))
 
       case Right(PertaxResponse(_, _, Some(errorView), _)) =>
+        println("LKJHGFDGHJKLKJHGFC")
         pertaxConnector.loadPartial(errorView.url).map {
           case partial: HtmlPartial.Success =>
             Some(Status(errorView.statusCode)(mainView(partial.title.getOrElse(""))(partial.content)))

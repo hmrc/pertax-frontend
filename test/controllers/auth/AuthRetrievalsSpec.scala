@@ -19,6 +19,7 @@ package controllers.auth
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserAnswers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
