@@ -528,8 +528,8 @@ label.high_income_child_benefit_charge=Tâl Treth Budd-dal Plant Incwm Uchel
 label.change_your_bank_details=Newid eich manylion banc
 label.check_if_you_can_claim=Gwirio a allwch hawlio
 
-label.visit_high_income_child_benefit_charge=Ewch i Dâl Treth Budd-dal Plant Incwm Uchel i wneud
-label.hicbc_to = y canlynol
+label.visit_high_income_child_benefit_charge=Ewch i Dâl Treth Budd-dal Plant Incwm Uchel
+label.hicbc_to = i wneud y canlynol:
 label.hicbc_li1=darganfod a oes angen i chi dalu’r tâl
 label.hicbc_li2=cofrestru ar gyfer y tâl
 label.hicbc_li3=neu optio allan o Fudd-dal Plant
