@@ -16,7 +16,8 @@
 
 package models.admin
 
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagName
+import uk.gov.hmrc.mongoFeatureToggles.model.Environment.Environment
+import uk.gov.hmrc.mongoFeatureToggles.model.{Environment, FeatureFlagName}
 
 object AllFeatureFlags {
   val list: List[FeatureFlagName] = List(
@@ -25,7 +26,7 @@ object AllFeatureFlags {
     RlsInterruptToggle,
     PaperlessInterruptToggle,
     TaxSummariesTileToggle,
-    ShowOutageBannerToggle,
+    ShowPlannedOutageBannerToggle,
     AgentClientRelationshipsToggle,
     BreathingSpaceIndicatorToggle,
     AlertBannerPaperlessStatusToggle,
@@ -39,12 +40,14 @@ object AllFeatureFlags {
 
 case object TaxcalcToggle extends FeatureFlagName {
   override val name: String                = "taxcalc"
-  override val description: Option[String] = Some("Enable/disable the tile for payments and repayments")
+  override val description: Option[String] = Some("Enable/disable the tile for payments and repayments (NPS/ETMP)")
 }
 
 case object TaxComponentsToggle extends FeatureFlagName {
   override val name: String                = "tax-components"
-  override val description: Option[String] = Some("Check your income tax")
+  override val description: Option[String] = Some(
+    "Enable/disable calls for tax-components from tai (NPS). Used for marriage allowance and high income child benefit charge"
+  )
 }
 
 case object RlsInterruptToggle extends FeatureFlagName {
@@ -62,9 +65,11 @@ case object TaxSummariesTileToggle extends FeatureFlagName {
   override val description: Option[String] = Some("Enable/disable the tile for annual tax summary")
 }
 
-case object ShowOutageBannerToggle extends FeatureFlagName {
+case object ShowPlannedOutageBannerToggle extends FeatureFlagName {
   override val name: String                = "show-outage-banner-toggle"
-  override val description: Option[String] = Some("Enable/disable the show outage banner")
+  override val description: Option[String] = Some(
+    "Enable/disable banner warning users of a planned outage. Banner content to be adjusted in app-config first"
+  )
 }
 
 case object AgentClientRelationshipsToggle extends FeatureFlagName {
@@ -84,7 +89,7 @@ case object BreathingSpaceIndicatorToggle extends FeatureFlagName {
 case object GetPersonFromCitizenDetailsToggle extends FeatureFlagName {
   override val name: String                = "get-person-from-citizen-details-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable call to designatory-details"
+    "Enable/disable call to designatory-details for person details (NPS)"
   )
 }
 
@@ -98,27 +103,28 @@ case object DfsDigitalFormFrontendAvailableToggle extends FeatureFlagName {
 case object AddressChangeAllowedToggle extends FeatureFlagName {
   override val name: String                = "address-change-allowed-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable indicating whether the address change is allowed in profile and settings page"
+    "Enable/disable indicating whether the address change is allowed in profile and settings page (NPS)"
   )
 }
 
 case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
   override val name: String                = "alert-banner-paperless-status-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable paperless alerts in alert banner on the home page"
+    "Enable/disable banner alerting users of bounced emails due to paperless preference"
   )
 }
 
 case object VoluntaryContributionsAlertToggle extends FeatureFlagName {
-  override val name: String                = "voluntary-contributions-alert-toggle"
-  override val description: Option[String] = Some(
+  override val name: String                         = "voluntary-contributions-alert-toggle"
+  override val description: Option[String]          = Some(
     "Enable/disable the alert banner for voluntary National Insurance contributions information"
   )
+  override val lockedEnvironments: Seq[Environment] = Seq(Environment.Production, Environment.Staging)
 }
 
 case object PeakDemandBannerToggle extends FeatureFlagName {
   override val name: String                = "peak-demand-banner-toggle"
   override val description: Option[String] = Some(
-    "Enable/Disable the temporary peak demand banner on the home page"
+    "Enable/disable banner warning users of issues accessing some services"
   )
 }

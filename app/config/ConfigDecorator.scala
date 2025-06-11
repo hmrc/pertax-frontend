@@ -278,9 +278,6 @@ class ConfigDecorator @Inject() (
   lazy val pegaSaRegistrationEnabled: Boolean =
     servicesConfig.getBoolean("feature.pegaSaRegistration.enabled")
 
-  lazy val webChatIsEnabled: Boolean =
-    runModeConfiguration.getOptional[Boolean]("feature.web-chat.enabled").getOrElse(false)
-
   val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongo.encryption.enabled")
 
 }
