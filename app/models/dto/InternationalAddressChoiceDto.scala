@@ -39,9 +39,9 @@ object InternationalAddressChoiceDto extends Enumerable.Implicits with Formatter
   val values: Set[InternationalAddressChoiceDto] = Set(England, NorthernIreland, Scotland, Wales, OutsideUK)
 
   implicit val enumerable: Enumerable[InternationalAddressChoiceDto] =
-    Enumerable(values.toSeq.map(v => v.toString -> v): _*)
+    Enumerable(values.toSeq.map(v => v.toString -> v)*)
 
-  implicit lazy val writes: Writes[InternationalAddressChoiceDto]    = Writes {
+  implicit lazy val writes: Writes[InternationalAddressChoiceDto] = Writes {
     case OutsideUK       => JsString(OutsideUK.toString)
     case England         => JsString(England.toString)
     case Scotland        => JsString(Scotland.toString)
@@ -53,7 +53,7 @@ object InternationalAddressChoiceDto extends Enumerable.Implicits with Formatter
     errorMessageKey: String = "error.international_address_select.required"
   ): Form[InternationalAddressChoiceDto] =
     Form(
-      "internationalAddressChoice" -> of(
+      "internationalAddressChoice" -> of(using
         enumerableFormatter[InternationalAddressChoiceDto](errorMessageKey, errorMessageKey)
       )
     )

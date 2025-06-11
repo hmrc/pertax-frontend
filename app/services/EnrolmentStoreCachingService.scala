@@ -46,7 +46,7 @@ class EnrolmentStoreCachingService @Inject() (
   def getSaUserTypeFromCache(
     saUtr: SaUtr
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
-    journeyCacheRepository.get(hc).flatMap { userAnswers =>
+    journeyCacheRepository.get(using hc).flatMap { userAnswers =>
       userAnswers.get[SelfAssessmentUserType](SelfAssessmentUserTypePage) match {
         case Some(userType) => Future.successful(userType)
         case None           =>
@@ -102,7 +102,7 @@ class EnrolmentStoreCachingService @Inject() (
                   userDetails.identityProviderType,
                   id,
                   userDetails.obfuscatedUserId.getOrElse(""),
-                  userDetails.email.map(SensitiveString),
+                  userDetails.email.map(SensitiveString.apply),
                   userDetails.lastAccessedTimestamp,
                   AccountDetails.additionalFactorsToMFADetails(userDetails.additionalFactors),
                   None

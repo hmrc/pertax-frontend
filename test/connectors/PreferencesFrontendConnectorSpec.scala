@@ -197,7 +197,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
         .value
         .futureValue
 
-      result mustBe a[Right[_, PaperlessMessagesStatus]]
+      result mustBe a[Right[?, PaperlessMessagesStatus]]
 
       result.getOrElse(PaperlessStatusNewCustomer()) mustBe a[PaperlessStatusOptIn]
     }
@@ -224,7 +224,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
         .value
         .futureValue
 
-      result mustBe a[Right[_, PaperlessMessagesStatus]]
+      result mustBe a[Right[?, PaperlessMessagesStatus]]
 
       result.getOrElse(PaperlessStatusNewCustomer()) mustBe a[PaperlessStatusBounced]
     }
@@ -257,7 +257,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           .value
           .futureValue
 
-        result mustBe a[Left[_, _]]
+        result mustBe a[Left[?, ?]]
 
         is4xx(result.swap.getOrElse(UpstreamErrorResponse("Error", INTERNAL_SERVER_ERROR)).statusCode) mustBe true
       }
@@ -290,7 +290,7 @@ class PreferencesFrontendConnectorSpec extends BaseSpec with WireMockHelper with
           .value
           .futureValue
 
-        result mustBe a[Left[_, _]]
+        result mustBe a[Left[?, ?]]
 
         is5xx(result.swap.getOrElse(UpstreamErrorResponse("Error", BAD_REQUEST)).statusCode) mustBe true
       }

@@ -67,7 +67,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
       val expectedNextUrl       = "someNextUrl"
       val createPaymentResponse = PayApiModels("someJourneyId", expectedNextUrl)
 
-      when(mockPayConnector.createPayment(any())(any(), any()))
+      when(mockPayConnector.createPayment(any())(using any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[PayApiModels]](
             Future.successful(Right(Some(createPaymentResponse)))
@@ -90,7 +90,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
     ).foreach { error =>
       s"redirect to a BAD_REQUEST page if createPayment fails with an $error status" in {
 
-        when(mockPayConnector.createPayment(any())(any(), any()))
+        when(mockPayConnector.createPayment(any())(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, Option[PayApiModels]](
               Future.successful(Left(UpstreamErrorResponse("", error)))

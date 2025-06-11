@@ -63,7 +63,7 @@ class AddressControllerSpec extends AddressBaseSpec {
 
         val result = controller.addressJourneyEnforcer { _ => _ =>
           Future(Ok(expectedContent))
-        }(userRequest)
+        }(using userRequest)
 
         status(result) mustBe OK
         contentAsString(result) mustBe expectedContent
@@ -85,10 +85,12 @@ class AddressControllerSpec extends AddressBaseSpec {
 
         val result = controller.addressJourneyEnforcer { _ => _ =>
           Future(Ok(expectedContent))
-        }(userRequest)
+        }(using userRequest)
 
         status(result) mustBe INTERNAL_SERVER_ERROR
-        contentAsString(result) mustBe internalServerErrorView.apply()(userRequest, configDecorator, messages).body
+        contentAsString(result) mustBe internalServerErrorView
+          .apply()(using userRequest, configDecorator, messages)
+          .body
       }
     }
   }

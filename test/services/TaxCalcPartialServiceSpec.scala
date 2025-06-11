@@ -67,15 +67,15 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
         mockEnhancedPartialRetriever.loadPartialAsSeqSummaryCard[SummaryCardPartial](
           any(),
           ArgumentMatchers.eq(timeoutValue)
-        )(any(), any(), any())
-      ) thenReturn
+        )(using any(), any(), any())
+      ) `thenReturn`
         Future.successful[Seq[SummaryCardPartial]](summaryCardPartialData)
 
       val result: Seq[SummaryCardPartial] =
-        taxCalcPartialService.getTaxCalcPartial(buildFakeRequestWithAuth("GET")).futureValue
+        taxCalcPartialService.getTaxCalcPartial(using buildFakeRequestWithAuth("GET")).futureValue
       result mustBe summaryCardPartialData.headOption.toSeq
       verify(mockEnhancedPartialRetriever, times(1))
-        .loadPartialAsSeqSummaryCard[SummaryCardPartial](any(), any())(any(), any(), any())
+        .loadPartialAsSeqSummaryCard[SummaryCardPartial](any(), any())(using any(), any(), any())
     }
   }
 }

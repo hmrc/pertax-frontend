@@ -56,7 +56,7 @@ class EnrolmentsHelper @Inject() (internalServerErrorView: InternalServerErrorVi
       }
 
   def singleAccountEnrolmentPresent(enrolments: Set[Enrolment], sessionNino: Nino)(implicit
-    request: Request[_],
+    request: Request[?],
     configDecorator: ConfigDecorator,
     messages: Messages
   ): Either[Result, Boolean] =

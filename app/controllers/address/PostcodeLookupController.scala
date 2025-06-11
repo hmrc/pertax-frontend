@@ -175,7 +175,7 @@ class PostcodeLookupController @Inject() (
     lookupServiceDown: Boolean,
     filter: Option[String],
     forceLookup: Boolean
-  )(f: PartialFunction[RecordSet, Future[Result]])(implicit request: UserRequest[_]): Future[Result] =
+  )(f: PartialFunction[RecordSet, Future[Result]])(implicit request: UserRequest[?]): Future[Result] =
     if (!forceLookup && lookupServiceDown) {
       Future.successful(Redirect(routes.UpdateAddressController.onPageLoad(typ)))
     } else {

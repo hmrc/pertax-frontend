@@ -67,7 +67,7 @@ class SelfAssessmentStatusAction @Inject() (
   override protected def refine[A](request: AuthenticatedRequest[A]): Future[Either[Result, UserRequest[A]]] = {
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    getSelfAssessmentUserType(hc, request).map { saType =>
+    getSelfAssessmentUserType(using hc, request).map { saType =>
       Right(
         UserRequest(
           request.authNino,

@@ -60,12 +60,12 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
           configuration.getOptional[Boolean](s"feature.news.items.$i.dynamic-content") match {
             case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate))
             case None    =>
-              val shortDescription = if (messages.lang.code equals "en") {
+              val shortDescription = if (messages.lang.code `equals` "en") {
                 configuration.get[String](s"feature.news.items.$i.short-description-en")
               } else {
                 configuration.get[String](s"feature.news.items.$i.short-description-cy")
               }
-              val content          = if (messages.lang.code equals "en") {
+              val content          = if (messages.lang.code `equals` "en") {
                 configuration.get[String](s"feature.news.items.$i.content-en")
               } else {
                 configuration.get[String](s"feature.news.items.$i.content-cy")

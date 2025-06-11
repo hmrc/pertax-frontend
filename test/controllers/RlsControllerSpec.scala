@@ -47,7 +47,7 @@ class RlsControllerSpec extends BaseSpec {
   val mockCachingHelper: AddressJourneyCachingHelper   = mock[AddressJourneyCachingHelper]
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
 
-  when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
+  when(mockAuditConnector.sendEvent(any())(using any(), any())).thenReturn(Future.successful(Success))
 
   val mockInterstitialController: InterstitialController = mock[InterstitialController]
   override implicit lazy val app: Application            = localGuiceApplicationBuilder()
@@ -67,20 +67,19 @@ class RlsControllerSpec extends BaseSpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(RlsInterruptToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
-    when(mockCachingHelper.addToCache(any(), any())(any(), any())) thenReturn {
+      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(RlsInterruptToggle, isEnabled = true)))
+    when(mockCachingHelper.addToCache(any(), any())(using any(), any())) `thenReturn`
       Future.successful(UserAnswers.empty("id"))
-    }
   }
 
   "rlsInterruptOnPageLoad" must {
     "return internal server error" when {
       "There is no personal details" in {
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.leftT(UpstreamErrorResponse("not found", NOT_FOUND))
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.leftT[Future, PersonDetails](UpstreamErrorResponse("not found", NOT_FOUND))
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -99,11 +98,11 @@ class RlsControllerSpec extends BaseSpec {
       "there is no residential and postal address" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -122,11 +121,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -145,11 +144,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = true, postal = true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -169,11 +168,11 @@ class RlsControllerSpec extends BaseSpec {
         val postalAddress = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, mainAddress, postalAddress)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = true, postal = true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -194,11 +193,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -219,11 +218,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -244,11 +243,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -269,11 +268,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -294,11 +293,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -319,11 +318,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -344,11 +343,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -369,11 +368,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -395,11 +394,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, Fixtures.buildPersonDetailsCorrespondenceAddress.address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -423,11 +422,11 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

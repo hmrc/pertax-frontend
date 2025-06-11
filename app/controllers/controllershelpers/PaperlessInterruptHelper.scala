@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait PaperlessInterruptHelper {
   def enforcePaperlessPreference(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Result]
+  )(implicit request: UserRequest[?], ec: ExecutionContext): Future[Result]
 }
 
 class PaperlessInterruptHelperImpl @Inject() (
@@ -41,7 +41,7 @@ class PaperlessInterruptHelperImpl @Inject() (
 
   def enforcePaperlessPreference(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Result] =
+  )(implicit request: UserRequest[?], ec: ExecutionContext): Future[Result] =
     featureFlagService.get(PaperlessInterruptToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {
         preferencesFrontendConnector

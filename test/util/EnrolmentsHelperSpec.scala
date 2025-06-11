@@ -70,7 +70,7 @@ class EnrolmentsHelperSpec extends BaseSpec {
           nino
         )
 
-        result mustBe a[Left[Result, _]]
+        result mustBe a[Left[Result, ?]]
         result.swap.getOrElse(Ok("")).header.status mustBe INTERNAL_SERVER_ERROR
       }
     }

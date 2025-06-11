@@ -185,9 +185,9 @@ class AddressLookupConnectorSpec extends BaseSpec with WireMockHelper with Integ
           )
         )
 
-        when(mockHttpClientV2.post(any())(any())).thenReturn(mockRequestBuilder)
+        when(mockHttpClientV2.post(any())(using any())).thenReturn(mockRequestBuilder)
 
-        when(mockRequestBuilder.withBody(any())(any(), any(), any()))
+        when(mockRequestBuilder.withBody(any())(using any(), any(), any()))
           .thenReturn(mockRequestBuilder)
         when(mockRequestBuilder.transform(any()))
           .thenReturn(mockRequestBuilder)

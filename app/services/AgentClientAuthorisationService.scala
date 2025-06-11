@@ -34,7 +34,7 @@ class AgentClientAuthorisationService @Inject() (
   featureFlagService: FeatureFlagService
 ) extends Logging {
 
-  def getAgentClientStatus(implicit hc: HeaderCarrier, ec: ExecutionContext, request: UserRequest[_]): Future[Boolean] =
+  def getAgentClientStatus(implicit hc: HeaderCarrier, ec: ExecutionContext, request: UserRequest[?]): Future[Boolean] =
     featureFlagService.get(AgentClientRelationshipsToggle).flatMap { toggle =>
       if (toggle.isEnabled && request.trustedHelper.isEmpty) {
         agentClientAuthorisationConnector.getAgentClientStatus

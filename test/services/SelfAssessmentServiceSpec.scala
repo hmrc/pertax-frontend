@@ -63,7 +63,7 @@ class SelfAssessmentServiceSpec extends BaseSpec {
 
           val redirectUrl = "/foo"
 
-          when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any())).thenReturn(
+          when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(using any())).thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(Right(HttpResponse(OK, Json.toJson(SaEnrolmentResponse(redirectUrl)).toString)))
             )
@@ -73,8 +73,7 @@ class SelfAssessmentServiceSpec extends BaseSpec {
         }
       }
 
-      "return UpstreamErrorResponse" when {
-
+      "return UpstreamErrorResponse" when
         List(
           BAD_REQUEST,
           NOT_FOUND,
@@ -86,7 +85,7 @@ class SelfAssessmentServiceSpec extends BaseSpec {
         ).foreach { error =>
           s"the connector returns a $error response" in {
 
-            when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any())).thenReturn(
+            when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(using any())).thenReturn(
               EitherT[Future, UpstreamErrorResponse, HttpResponse](
                 Future.successful(Left(UpstreamErrorResponse("", error)))
               )
@@ -97,7 +96,6 @@ class SelfAssessmentServiceSpec extends BaseSpec {
               .statusCode mustBe error
           }
         }
-      }
     }
   }
 }

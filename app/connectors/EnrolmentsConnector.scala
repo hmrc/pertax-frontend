@@ -29,6 +29,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits.{readEitherOf, readRaw}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http._
+import play.api.libs.ws.JsonBodyWritables._
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -73,7 +74,7 @@ class EnrolmentsConnector @Inject() (
           .post(url"${configDecorator.enrolmentStoreProxyUrl}/enrolment-store/enrolments")
           .withBody(Json.toJson(requestBody))
           .transform(_.withRequestTimeout(configDecorator.enrolmentStoreProxyTimeoutInMilliseconds.milliseconds))
-          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](using readEitherOf(using readRaw), ec)
       )
       .map(httpResponse =>
         httpResponse.status match {

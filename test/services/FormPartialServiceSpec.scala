@@ -58,14 +58,14 @@ class FormPartialServiceSpec extends BaseSpec {
         when(mockConfigDecorator.nationalInsuranceFormPartialLinkUrl).thenReturn("test-url")
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
           .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = false)))
-        when(mockEnhancedPartialRetriever.loadPartial(any(), any())(any(), any())) thenReturn
+        when(mockEnhancedPartialRetriever.loadPartial(any(), any())(using any(), any())) `thenReturn`
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
         val result: HtmlPartial =
-          formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
+          formPartialService.getNationalInsurancePartial(using buildFakeRequestWithAuth("GET")).futureValue
         result mustBe HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered")
         verify(mockEnhancedPartialRetriever, times(0))
-          .loadPartial(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
+          .loadPartial(any(), ArgumentMatchers.eq(timeoutValue))(using any(), any())
       }
     }
 
@@ -74,14 +74,14 @@ class FormPartialServiceSpec extends BaseSpec {
         when(mockConfigDecorator.selfAssessmentFormPartialLinkUrl).thenReturn("test-url")
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
           .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = false)))
-        when(mockEnhancedPartialRetriever.loadPartial(any(), any())(any(), any())) thenReturn
+        when(mockEnhancedPartialRetriever.loadPartial(any(), any())(using any(), any())) `thenReturn`
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
         val result: HtmlPartial =
-          formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
+          formPartialService.getSelfAssessmentPartial(using buildFakeRequestWithAuth("GET")).futureValue
         result mustBe HtmlPartial.Failure(None, "dfs-digital-form-frontend is shuttered")
         verify(mockEnhancedPartialRetriever, times(0))
-          .loadPartial(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())
+          .loadPartial(any(), ArgumentMatchers.eq(timeoutValue))(using any(), any())
       }
     }
 
@@ -89,25 +89,30 @@ class FormPartialServiceSpec extends BaseSpec {
       when(mockConfigDecorator.nationalInsuranceFormPartialLinkUrl).thenReturn("test-url")
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
         .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
-      when(mockEnhancedPartialRetriever.loadPartial(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())) thenReturn
+      when(
+        mockEnhancedPartialRetriever.loadPartial(any(), ArgumentMatchers.eq(timeoutValue))(using any(), any())
+      ) `thenReturn`
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
       val result: HtmlPartial =
-        formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).futureValue
+        formPartialService.getNationalInsurancePartial(using buildFakeRequestWithAuth("GET")).futureValue
       result mustBe HtmlPartial.Success(Some("Title"), Html("<title/>"))
-      verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any(), any())(any(), any())
+      verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any(), any())(using any(), any())
     }
 
     "return form list for Self-assessment" in new LocalSetup {
       when(mockConfigDecorator.selfAssessmentFormPartialLinkUrl).thenReturn("test-url")
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
         .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
-      when(mockEnhancedPartialRetriever.loadPartial(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())) thenReturn
+      when(
+        mockEnhancedPartialRetriever.loadPartial(any(), ArgumentMatchers.eq(timeoutValue))(using any(), any())
+      ) `thenReturn`
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      val result: HtmlPartial = formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).futureValue
+      val result: HtmlPartial =
+        formPartialService.getSelfAssessmentPartial(using buildFakeRequestWithAuth("GET")).futureValue
       result mustBe HtmlPartial.Success(Some("Title"), Html("<title/>"))
-      verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any(), any())(any(), any())
+      verify(mockEnhancedPartialRetriever, times(1)).loadPartial(any(), any())(using any(), any())
     }
   }
 

@@ -45,28 +45,28 @@ class OriginSpec extends BaseSpec with EitherValues with OptionValues {
     "default when origin has invalid characters" in {
       val result = queryBinder.bind("origin", Map("origin" -> Seq("!asdasd"))).value
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(Origin("")) mustBe Origin("unknown")
     }
 
     "default when no origin supplied" in {
       val result = queryBinder.bind("origin", Map("origin" -> Seq.empty)).value
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(Origin("")) mustBe Origin("unknown")
     }
 
     "take the first when two origins supplied" in {
       val result = queryBinder.bind("origin", Map("origin" -> Seq("origin1", "origin2"))).value
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(Origin("")) mustBe Origin("origin1")
     }
 
     "create origin" in {
       val result = queryBinder.bind("origin", Map("origin" -> Seq("theOrigin"))).value
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(Origin("")) mustBe Origin("theOrigin")
     }
 

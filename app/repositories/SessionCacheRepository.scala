@@ -47,7 +47,7 @@ class SessionCacheRepository @Inject() (
       sessionIdKey = SessionKeys.sessionId
     ) {
 
-  implicit lazy val symmetricCryptoFactory: Encrypter with Decrypter =
+  implicit lazy val symmetricCryptoFactory: Encrypter & Decrypter =
     new ApplicationCrypto(configuration.underlying).JsonCrypto
 
   override def putSession[T: Writes](
@@ -76,7 +76,7 @@ class SessionCacheRepository @Inject() (
     encryptedData.map { cache =>
       if (appConfig.mongoEncryptionEnabled) {
         val decrypter = JsonEncryption.sensitiveDecrypter[T, SensitiveT[T]](SensitiveT.apply)
-        Try(cache.as[SensitiveT[T]](decrypter).decryptedValue) match {
+        Try(cache.as[SensitiveT[T]](using decrypter).decryptedValue) match {
           case Success(decrypted)                        => decrypted
           case Failure(exception) if NonFatal(exception) => cache.as[T]
           case Failure(exception)                        => throw exception

@@ -55,7 +55,7 @@ class AuthRetrievalsImpl @Inject() (
   private def getTrustedHelper(implicit headerCarrier: HeaderCarrier): Future[Option[TrustedHelper]] =
     fandfService.getTrustedHelper()
 
-  //scalastyle:off cyclomatic.complexity
+  // scalastyle:off cyclomatic.complexity
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -73,7 +73,7 @@ class AuthRetrievalsImpl @Inject() (
           confidenceLevel ~
           profile =>
         val finalRequest = for {
-          userAnswers   <- journeyCacheRepository.get(hc)
+          userAnswers   <- journeyCacheRepository.get(using hc)
           trustedHelper <- getTrustedHelper
         } yield {
           val trimmedRequest: Request[A] = request

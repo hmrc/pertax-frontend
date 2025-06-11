@@ -26,7 +26,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
-import play.api.mvc.Results._
+import play.api.mvc.Results.*
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import repositories.JourneyCacheRepository
@@ -35,6 +35,7 @@ import testUtils.Fixtures.{buildFakeAddress, buildFakeCorrespondenceAddress}
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
@@ -80,11 +81,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress),
           Some(buildFakeCorrespondenceAddress)
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
@@ -100,11 +101,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress)
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
@@ -133,11 +134,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
@@ -166,11 +167,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
@@ -199,11 +200,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress)
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
@@ -232,11 +233,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
@@ -265,11 +266,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = true, postal = true)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
@@ -298,11 +299,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
@@ -331,11 +332,11 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT(personDetails)
+        when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
         )
 
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
@@ -363,7 +364,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
       "return the result of a passed in block" in {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = false)))
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
           .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(

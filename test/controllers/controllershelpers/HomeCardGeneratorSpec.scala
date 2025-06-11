@@ -90,7 +90,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       nispView,
       selfAssessmentRegistrationView,
       mockTaxCalcPartialService
-    )(configDecorator, ec)
+    )(using configDecorator, ec)
 
   private val homeCardGenerator = createHomeCardGenerator(stubConfigDecorator)
 
@@ -133,11 +133,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     }
 
-    "should have benefit cards when no trusted helper exists in the request" in {
-
+    "should have benefit cards when no trusted helper exists in the request" in
       homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), None)
 
-    }
   }
 
   "Calling getNationalInsuranceCard" must {
@@ -156,7 +154,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getTaxCreditsEndedCard()
 
-      val expTaxCreditsEnded = new TaxCreditsEndedView()()(implicitly)
+      val expTaxCreditsEnded = new TaxCreditsEndedView()()(using implicitly)
       cardBody mustBe expTaxCreditsEnded
       val renderedHtml       = cardBody.toString
       renderedHtml.contains(messages("label.tax_credits_ended_content")) mustBe true
@@ -300,7 +298,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         nispView,
         selfAssessmentRegistrationView,
         mockTaxCalcPartialService
-      )(mockConfigDecorator, ec)
+      )(using mockConfigDecorator, ec)
     }
 
     implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
@@ -320,7 +318,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = createController().getSelfAssessmentCard()
 
-      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly))
+      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(using implicitly))
     }
 
     "return Itsa Card with correct name when the user has ITSA enrolments when name change toggle set to false" in {
@@ -334,7 +332,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = createController().getSelfAssessmentCard()
 
-      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly))
+      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(using implicitly))
       cardBody.map(_.toString().contains("Making Tax Digital for Income Tax")) mustBe Some(true)
     }
 
@@ -501,7 +499,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         )
       )
 
-      when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
+      when(mockTaxCalcPartialService.getTaxCalcPartial(using any())).thenReturn(
         Future.successful(
           Seq(
             SummaryCardPartial("name1", Html("<p>test1</p>"), Overpaid),
@@ -536,7 +534,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         )
       )
 
-      when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
+      when(mockTaxCalcPartialService.getTaxCalcPartial(using any())).thenReturn(
         Future.successful(
           Seq(
             SummaryCardPartial("name1", Html("<p>test1</p>"), Overpaid),
@@ -570,7 +568,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         )
       )
 
-      when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
+      when(mockTaxCalcPartialService.getTaxCalcPartial(using any())).thenReturn(
         Future.successful(
           Seq(
             SummaryCardPartial("name1", Html("<p>test1</p>"), Overpaid),

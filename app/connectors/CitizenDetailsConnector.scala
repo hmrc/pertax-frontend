@@ -32,6 +32,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import play.api.libs.ws.JsonBodyWritables._
 
 import javax.inject.Named
 import scala.concurrent.duration.DurationInt
@@ -43,13 +44,13 @@ trait CitizenDetailsConnector {
   )(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
-    request: Request[_]
+    request: Request[?]
   ): EitherT[Future, UpstreamErrorResponse, JsValue]
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
     ec: ExecutionContext,
-    request: Request[_]
+    request: Request[?]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
 
   def getMatchingDetails(
@@ -71,7 +72,7 @@ class CachingCitizenDetailsConnector @Inject() (
 
   def cache[L, A: Format](
     key: String
-  )(f: => EitherT[Future, L, A])(implicit request: Request[_]): EitherT[Future, L, A] = {
+  )(f: => EitherT[Future, L, A])(implicit request: Request[?]): EitherT[Future, L, A] = {
 
     def fetchAndCache: EitherT[Future, L, A] =
       for {
@@ -101,16 +102,16 @@ class CachingCitizenDetailsConnector @Inject() (
   def personDetails(nino: Nino)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
-    request: Request[_]
+    request: Request[?]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
-    cache(s"getPersonDetails-$nino") {
+    cache(s"getPersonDetails-$nino")(
       underlying.personDetails(nino: Nino)
-    }(sensitiveFormatService.sensitiveFormatFromReadsWrites[JsValue], request)
+    )(using sensitiveFormatService.sensitiveFormatFromReadsWrites[JsValue], request)
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
     ec: ExecutionContext,
-    request: Request[_]
+    request: Request[?]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     for {
       update <- underlying.updateAddress(nino, etag, address)
@@ -144,20 +145,20 @@ class DefaultCitizenDetailsConnector @Inject() (
   )(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
-    request: Request[_]
+    request: Request[?]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] = {
     val url                                                              = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
     val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
       .get(url"$url")
       .transform(_.withRequestTimeout(configDecorator.citizenDetailsTimeoutInMilliseconds.milliseconds))
-      .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+      .execute[Either[UpstreamErrorResponse, HttpResponse]](using readEitherOf(using readRaw), ec)
     httpClientResponse.read(apiResponse).map(_.json)
   }
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
     ec: ExecutionContext,
-    request: Request[_]
+    request: Request[?]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
     val url  = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address"
@@ -165,7 +166,7 @@ class DefaultCitizenDetailsConnector @Inject() (
       httpClientV2
         .post(url"$url")
         .withBody(body)
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](using readEitherOf(using readRaw), ec)
     )
   }
 
@@ -176,7 +177,7 @@ class DefaultCitizenDetailsConnector @Inject() (
     httpClientResponse.read(
       httpClientV2
         .get(url"$url")
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](using readEitherOf(using readRaw), ec)
     )
   }
 
@@ -188,7 +189,7 @@ class DefaultCitizenDetailsConnector @Inject() (
     httpClientResponse.read(
       httpClientV2
         .get(url"$url")
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](using readEitherOf(using readRaw), ec)
     )
   }
 

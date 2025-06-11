@@ -62,11 +62,11 @@ class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with Integ
   "Calling getMessageListPartial" must {
     "return message partial for list of messages" in {
       val expected = HtmlPartial.Success.apply(None, Html("body"))
-      when(mockEnhancedPartialRetriever.loadPartial(any(), any())(any(), any())).thenReturn(
+      when(mockEnhancedPartialRetriever.loadPartial(any(), any())(using any(), any())).thenReturn(
         Future.successful(expected)
       )
 
-      val result = messageFrontendService.getMessageListPartial(FakeRequest()).futureValue
+      val result = messageFrontendService.getMessageListPartial(using FakeRequest()).futureValue
 
       result mustBe expected
     }
@@ -75,11 +75,11 @@ class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with Integ
   "Calling getMessageDetailPartial" must {
     "return message partial for message details" in {
       val expected = HtmlPartial.Success.apply(None, Html("body"))
-      when(mockEnhancedPartialRetriever.loadPartial(any(), any())(any(), any())).thenReturn(
+      when(mockEnhancedPartialRetriever.loadPartial(any(), any())(using any(), any())).thenReturn(
         Future.successful(expected)
       )
 
-      val partial = messageFrontendService.getMessageDetailPartial("abcd")(FakeRequest()).futureValue
+      val partial = messageFrontendService.getMessageDetailPartial("abcd")(using FakeRequest()).futureValue
 
       partial mustBe expected
 
@@ -89,11 +89,11 @@ class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with Integ
   "Calling getMessageInboxLinkPartial" must {
     "return message inbox link partial" in {
       val expected = HtmlPartial.Success.apply(None, Html("body"))
-      when(mockEnhancedPartialRetriever.loadPartial(any(), any())(any(), any())).thenReturn(
+      when(mockEnhancedPartialRetriever.loadPartial(any(), any())(using any(), any())).thenReturn(
         Future.successful(expected)
       )
 
-      val partial = messageFrontendService.getMessageInboxLinkPartial(FakeRequest()).futureValue
+      val partial = messageFrontendService.getMessageInboxLinkPartial(using FakeRequest()).futureValue
 
       partial mustBe expected
 

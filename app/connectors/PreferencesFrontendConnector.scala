@@ -31,6 +31,7 @@ import uk.gov.hmrc.http.{HttpReads, HttpResponse, StringContextOps, UpstreamErro
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
+import play.api.libs.ws.JsonBodyWritables._
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -52,7 +53,7 @@ class PreferencesFrontendConnector @Inject() (
   val url: String                            = preferencesFrontendUrl
 
   def getPaperlessPreference()(implicit
-    request: UserRequest[_]
+    request: UserRequest[?]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
 
     def newReadEitherOf[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
@@ -65,7 +66,7 @@ class PreferencesFrontendConnector @Inject() (
 
     val url =
       s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
-        .encryptAndEncode(Messages("label.continue"))}"
+          .encryptAndEncode(Messages("label.continue"))}"
 
     val body: JsObject = Json.obj("active" -> true)
 
@@ -74,18 +75,18 @@ class PreferencesFrontendConnector @Inject() (
       .withBody(body)
 
     httpClientResponse
-      .read(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](newReadEitherOf, implicitly))
+      .read(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](using newReadEitherOf, implicitly))
   }
 
   def getPaperlessStatus(url: String, returnMessage: String)(implicit
-    request: UserRequest[_]
+    request: UserRequest[?]
   ): EitherT[Future, UpstreamErrorResponse, PaperlessMessagesStatus] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + url
 
     val fullUrl =
       url"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptOnly(absoluteUrl)}&returnLinkText=${tools
-        .encryptOnly(returnMessage)}"
+          .encryptOnly(returnMessage)}"
     httpClientResponse
       .read(
         httpClientV2

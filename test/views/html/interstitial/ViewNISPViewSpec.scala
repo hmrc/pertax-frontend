@@ -18,7 +18,7 @@ package views.html.interstitial
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.shouldBe
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
@@ -27,6 +27,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import viewmodels.AlertBannerViewModel
 import views.html.ViewSpec
+import views.html.interstitial.ViewNISPView
 
 class ViewNISPViewSpec extends ViewSpec {
 
@@ -116,7 +117,11 @@ class ViewNISPViewSpec extends ViewSpec {
         Some(TrustedHelper("principalName", "attorneyName", "returnLinkUrl", Some(trustedHelperNino.nino)))
       val userRequestWithTrustedHelper = buildUserRequest(trustedHelper = trustedHelper, request = FakeRequest())
       val document                     = asDocument(
-        view(Html(""), None, emptyBannerViewModel)(userRequestWithTrustedHelper, configDecorator, messages).toString
+        view(Html(""), None, emptyBannerViewModel)(using
+          userRequestWithTrustedHelper,
+          configDecorator,
+          messages
+        ).toString
       )
 
       document.body().toString must include("Your National Insurance number is")
@@ -129,7 +134,7 @@ class ViewNISPViewSpec extends ViewSpec {
       val userRequestWithoutTrustedHelper = buildUserRequest(trustedHelper = None, request = FakeRequest())
       val document                        =
         asDocument(
-          view(Html(""), Some(nino), emptyBannerViewModel)(
+          view(Html(""), Some(nino), emptyBannerViewModel)(using
             userRequestWithoutTrustedHelper,
             configDecorator,
             messages
@@ -147,7 +152,7 @@ class ViewNISPViewSpec extends ViewSpec {
       val userRequestWithTrustedHelperNoNino = buildUserRequest(trustedHelper = trustedHelper, request = FakeRequest())
       val document                           =
         asDocument(
-          view(Html(""), Some(nino), emptyBannerViewModel)(
+          view(Html(""), Some(nino), emptyBannerViewModel)(using
             userRequestWithTrustedHelperNoNino,
             configDecorator,
             messages
@@ -163,7 +168,7 @@ class ViewNISPViewSpec extends ViewSpec {
       val userRequestWithoutTrustedHelper = buildUserRequest(trustedHelper = None, request = FakeRequest())
       val document                        =
         asDocument(
-          view(Html(""), None, emptyBannerViewModel)(
+          view(Html(""), None, emptyBannerViewModel)(using
             userRequestWithoutTrustedHelper,
             configDecorator,
             messages

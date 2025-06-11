@@ -26,6 +26,8 @@ object ClosePostalAddressChoiceDto {
 
   implicit val formats: OFormat[ClosePostalAddressChoiceDto] = Json.format[ClosePostalAddressChoiceDto]
 
+  def unapply(obj: ClosePostalAddressChoiceDto): Some[Boolean] = Some(obj.value)
+
   val form: Form[ClosePostalAddressChoiceDto] = Form(
     mapping(
       "onPageLoad" -> optional(boolean)

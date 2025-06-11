@@ -66,7 +66,7 @@ class AddressSelectorController @Inject() (
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-      journeyCacheRepository.get(hc).map { userAnswers =>
+      journeyCacheRepository.get(using hc).map { userAnswers =>
         userAnswers.get(SelectedRecordSetPage(typ)) match {
           case Some(recordSet) =>
             val orderedSet = RecordSet(addressSelectorService.orderSet(recordSet.addresses))

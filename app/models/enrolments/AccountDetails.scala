@@ -73,6 +73,12 @@ case class AccountDetails(
 
 object AccountDetails {
 
+  def unapply(obj: AccountDetails): Some[
+    (IdentityProviderType, String, String, Option[SensitiveString], Option[String], Seq[MFADetails], Option[Boolean])
+  ] = Some(
+    (obj.identityProviderType, obj.credId, obj.userId, obj.email, obj.lastLoginDate, obj.mfaDetails, obj.hasSA)
+  )
+
   def additionalFactorsToMFADetails(additionalFactors: Option[List[AdditionalFactors]]): Seq[MFADetails] =
     additionalFactors.fold[Seq[MFADetails]](Seq.empty[MFADetails]) { additionalFactors =>
       additionalFactors.map { additionalFactor =>
@@ -102,12 +108,12 @@ object AccountDetails {
         o.hasSA.map(hasSA => Json.obj("hasSA" -> hasSA)).getOrElse(Json.obj())
   }
 
-  def mongoFormats(implicit crypto: Encrypter with Decrypter): Format[AccountDetails] = {
+  def mongoFormats(implicit crypto: Encrypter & Decrypter): Format[AccountDetails] = {
 
-    implicit val strFormats: Format[String] = Format(Reads.StringReads, Writes.StringWrites)
-    implicit val ssf                        = JsonEncryption.sensitiveEncrypterDecrypter(SensitiveString.apply)
+    implicit val strFormats: Format[String]   = Format(Reads.StringReads, Writes.StringWrites)
+    implicit val ssf: Format[SensitiveString] = JsonEncryption.sensitiveEncrypterDecrypter(SensitiveString.apply)
 
-    ((__ \ "identityProviderType").format[IdentityProviderType](IdentityProviderTypeFormat.reads)(
+    ((__ \ "identityProviderType").format[IdentityProviderType](IdentityProviderTypeFormat.reads)(using
       IdentityProviderTypeFormat.writes
     ) ~
       (__ \ "credId").format[String] ~

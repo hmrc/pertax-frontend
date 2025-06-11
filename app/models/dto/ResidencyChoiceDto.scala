@@ -39,6 +39,8 @@ object ResidencyChoiceDto {
     Json.format[ResidencyChoiceDto]
   }
 
+  def unapply(obj: ResidencyChoiceDto): Some[AddrType] = Some(obj.residencyChoice)
+
   val form = Form(
     mapping(
       "residencyChoice" -> optional(text)
@@ -46,7 +48,7 @@ object ResidencyChoiceDto {
         .transform[AddrType](
           x => AddrType(x.fold("")(_.toString)).getOrElse(ResidentialAddrType),
           ad => Some(ad.toString)
-        ) //getOrElse here will never fall back to default because of isDefined above
+        ) // getOrElse here will never fall back to default because of isDefined above
     )(ResidencyChoiceDto.apply)(ResidencyChoiceDto.unapply)
   )
 }

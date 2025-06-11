@@ -165,8 +165,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
         result.statusCode mustBe BAD_REQUEST
       }
 
-      "return a UpstreamErrorResponse with the correct error code" when {
-
+      "return a UpstreamErrorResponse with the correct error code" when
         List(
           UNAUTHORIZED,
           NOT_FOUND,
@@ -176,10 +175,10 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
           s"an $error is returned from the HttpClientResponse" in {
 
             val mockRequestBuilder = mock[RequestBuilder]
-            when(mockHttpClient.post(any[URL])(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
+            when(mockHttpClient.post(any[URL])(using any[HeaderCarrier])).thenReturn(mockRequestBuilder)
 
             when(mockRequestBuilder.setHeader(any[(String, String)])).thenReturn(mockRequestBuilder)
-            when(mockRequestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
+            when(mockRequestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](using any(), any()))
               .thenReturn(Future.successful(Left(UpstreamErrorResponse(dummyContent, error))))
 
             when(mockHttpClientResponse.readLogUnauthorisedAsInfo(any())).thenReturn(
@@ -203,7 +202,6 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
             result.statusCode mustBe error
           }
         }
-      }
 
     }
   }

@@ -63,7 +63,7 @@ class DefaultAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Wi
       stubGet(url, INTERNAL_SERVER_ERROR, None)
       val result = connector.getAgentClientStatus.value.futureValue
 
-      result mustBe a[Left[UpstreamErrorResponse, _]]
+      result mustBe a[Left[UpstreamErrorResponse, ?]]
       result.swap.getOrElse(UpstreamErrorResponse("", OK)) mustBe a[UpstreamErrorResponse]
     }
   }

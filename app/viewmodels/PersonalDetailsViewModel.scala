@@ -183,7 +183,7 @@ class PersonalDetailsViewModel @Inject() (
   def getPersonDetailsTable(
     ninoToDisplay: Option[Nino],
     name: Option[String]
-  )(implicit request: UserRequest[_]): Future[Seq[PersonalDetailsTableRowModel]] = {
+  )(implicit request: UserRequest[?]): Future[Seq[PersonalDetailsTableRowModel]] = {
     val nameRow: Option[PersonalDetailsTableRowModel] =
       name.map(name =>
         PersonalDetailsTableRowModel(
@@ -240,7 +240,7 @@ class PersonalDetailsViewModel @Inject() (
     )
 
   def getPaperlessSettingsRow(implicit
-    request: UserRequest[_],
+    request: UserRequest[?],
     messages: play.api.i18n.Messages,
     ec: ExecutionContext
   ): Future[Option[PersonalDetailsTableRowModel]] =
@@ -263,7 +263,7 @@ class PersonalDetailsViewModel @Inject() (
       )
 
   def getSignInDetailsRow(implicit
-    request: UserRequest[_],
+    request: UserRequest[?],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
     request.profile.map { profileUrl =>

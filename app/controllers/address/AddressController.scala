@@ -47,7 +47,7 @@ abstract class AddressController @Inject() (
 
   def addressJourneyEnforcer(
     block: Nino => PersonDetails => Future[Result]
-  )(implicit request: UserRequest[_]): Future[Result] =
+  )(implicit request: UserRequest[?]): Future[Result] =
     featureFlagService.get(AddressChangeAllowedToggle).flatMap { toggle =>
       if (!toggle.isEnabled) {
         Future.successful(InternalServerError(internalServerErrorView()))

@@ -41,7 +41,7 @@ class SeissServiceSpec extends BaseSpec {
   "Calling hasClaims" must {
     "return true" when {
       "The user has 1 or more claims" in {
-        when(mockSeissConnector.getClaims(any())(any()))
+        when(mockSeissConnector.getClaims(any())(using any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](List(SeissModel("utr"))))
 
         val result = sut.hasClaims(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("utr"))).futureValue
@@ -52,7 +52,7 @@ class SeissServiceSpec extends BaseSpec {
 
     "return false" when {
       "The user has no claims" in {
-        when(mockSeissConnector.getClaims(any())(any()))
+        when(mockSeissConnector.getClaims(any())(using any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](List.empty: List[SeissModel]))
 
         val result = sut.hasClaims(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("utr"))).futureValue
@@ -60,7 +60,7 @@ class SeissServiceSpec extends BaseSpec {
         result mustBe false
       }
       "there is an error" in {
-        when(mockSeissConnector.getClaims(any())(any()))
+        when(mockSeissConnector.getClaims(any())(using any()))
           .thenReturn(EitherT.leftT[Future, List[SeissModel]](UpstreamErrorResponse("error", 500, 500)))
 
         val result = sut.hasClaims(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("utr"))).futureValue
@@ -68,7 +68,7 @@ class SeissServiceSpec extends BaseSpec {
         result mustBe false
       }
       "The user is not a sa filer" in {
-        when(mockSeissConnector.getClaims(any())(any()))
+        when(mockSeissConnector.getClaims(any())(using any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](List.empty: List[SeissModel]))
 
         val result = sut.hasClaims(NonFilerSelfAssessmentUser).futureValue

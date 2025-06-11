@@ -19,20 +19,18 @@ package connectors
 import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post}
 import config.ConfigDecorator
-import izumi.reflect.Tag
 import models.{PayApiModels, PaymentRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.libs.json.Json
-import play.api.libs.ws.BodyWritable
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
 
@@ -111,12 +109,12 @@ class PayApiConnectorSpec extends ConnectorSpec with WireMockHelper with Default
           )
         )
 
-        when(mockHttpClient.post(any())(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
+        when(mockHttpClient.post(any())(using any[HeaderCarrier])).thenReturn(mockRequestBuilder)
 
-        when(mockRequestBuilder.withBody(any())(any[BodyWritable[Any]], any[Tag[Any]], any[ExecutionContext]))
+        when(mockRequestBuilder.withBody(any())(using any(), any(), any()))
           .thenReturn(mockRequestBuilder)
 
-        when(mockRequestBuilder.execute(any[HttpReads[HttpResponse]], any[ExecutionContext]))
+        when(mockRequestBuilder.execute(using any(), any()))
           .thenReturn(Future.successful(HttpResponse(httpResponse, "")))
 
         when(mockConfigDecorator.makeAPaymentUrl).thenReturn("http://localhost:8080" + url)

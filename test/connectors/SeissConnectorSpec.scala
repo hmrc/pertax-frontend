@@ -103,7 +103,7 @@ class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
           stubPost(url, OK, Some(requestBody), Some(response))
 
           val result = connector.getClaims(utr.toString()).value.futureValue
-          result mustBe a[Right[_, _]]
+          result mustBe a[Right[?, ?]]
           result.getOrElse(seissModelEmptyList) mustBe List(SeissModel("1234567890"))
         }
       }
@@ -119,7 +119,7 @@ class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
           stubPost(url, OK, Some(requestBody), Some(response))
 
           val result = connector.getClaims(utr.toString()).value.futureValue
-          result mustBe a[Right[_, _]]
+          result mustBe a[Right[?, ?]]
           result.getOrElse(Seq("", "")) mustBe empty
         }
       }
@@ -130,7 +130,7 @@ class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
             stubPost(url, statusCode, Some(requestBody), None)
 
             val result = connector.getClaims(utr.toString()).value.futureValue
-            result mustBe a[Left[_, _]]
+            result mustBe a[Left[?, ?]]
             result.left mustBe UpstreamErrorResponse(_: String, statusCode)
           }
         )
@@ -140,7 +140,7 @@ class SeissConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
           stubWithDelay(url, OK, Some(requestBody), None, delay)
 
           val result = connector.getClaims(utr.toString()).value.futureValue
-          result mustBe a[Left[_, _]]
+          result mustBe a[Left[?, ?]]
           result.swap.getOrElse(seissModelEmptyList) mustBe UpstreamErrorResponse(_: String, INTERNAL_SERVER_ERROR)
         }
       }

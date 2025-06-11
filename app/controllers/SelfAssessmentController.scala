@@ -105,7 +105,7 @@ class SelfAssessmentController @Inject() (
 
   private def handleIvExemptAuditing(
     saUserType: String
-  )(implicit hc: HeaderCarrier, request: UserRequest[_]): Future[AuditResult] =
+  )(implicit hc: HeaderCarrier, request: UserRequest[?]): Future[AuditResult] =
     auditConnector.sendEvent(
       buildEvent(
         "saIdentityVerificationBypass",

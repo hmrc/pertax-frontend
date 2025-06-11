@@ -37,7 +37,7 @@ class SaPartialService @Inject() (
   def getSaAccountSummary(implicit request: RequestHeader): Future[HtmlPartial] =
     enhancedPartialRetriever.loadPartial(
       configDecorator.businessTaxAccountService + s"/business-account/partial/sa/account-summary?returnUrl=${tools
-        .urlEncode(returnUrl)}&returnLinkText=${tools.urlEncode(returnLinkText)}"
+          .urlEncode(returnUrl)}&returnLinkText=${tools.urlEncode(returnLinkText)}"
     )
 
 }

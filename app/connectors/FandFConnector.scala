@@ -41,5 +41,5 @@ class FandFConnector @Inject() (
           .get(url"${configDecorator.fandfHost}/delegation/get")
           .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
-      .map(_.json.asOpt[TrustedHelper](uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper.reads))
+      .map(_.json.asOpt[TrustedHelper](using uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper.reads))
 }

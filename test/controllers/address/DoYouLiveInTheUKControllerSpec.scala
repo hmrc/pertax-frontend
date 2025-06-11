@@ -37,20 +37,20 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       val userAnswersToReturn: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
       status(result) mustBe OK
-      verify(mockJourneyCacheRepository, times(1)).get(any())
+      verify(mockJourneyCacheRepository, times(1)).get(using any())
     }
 
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in {
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
 
       val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
-      verify(mockJourneyCacheRepository, times(1)).get(any())
+      verify(mockJourneyCacheRepository, times(1)).get(using any())
     }
   }
 
@@ -76,7 +76,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       def userAnswersToReturn: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
 
       lazy val controller: DoYouLiveInTheUKController = appn(extraConfigValues =
         Map("feature.update-international-address-form.enabled" -> true)
@@ -96,7 +96,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       def userAnswersToReturn: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
 
       lazy val controller: DoYouLiveInTheUKController = appn(extraConfigValues =
         Map("feature.update-international-address-form.enabled" -> false)

@@ -61,7 +61,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
       internalServerErrorView,
       mainView,
       cc
-    )(mockConfigDecorator)
+    )(using mockConfigDecorator)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -78,7 +78,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
   }
 
   private val fakeRequest             = FakeRequest("GET", "/personal-account")
-  val expectedRequest: UserRequest[_] =
+  val expectedRequest: UserRequest[?] =
     UserRequest(
       Fixtures.fakeNino,
       WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -95,7 +95,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
   "Pertax auth action" when {
     "the pertax API returns an ACCESS_GRANTED response" must {
       "load the request" in {
-        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+        when(mockPertaxConnector.pertaxPostAuthorise(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PertaxResponse](
               Future.successful(Right(PertaxResponse("ACCESS_GRANTED", "", None, None)))
@@ -109,7 +109,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
     "the pertax API response returns a NO_HMRC_PT_ENROLMENT response" must {
       "redirect to the returned location" in {
-        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+        when(mockPertaxConnector.pertaxPostAuthorise(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PertaxResponse](
               Future.successful(Right(PertaxResponse("NO_HMRC_PT_ENROLMENT", "", None, Some("redirectLocation"))))
@@ -126,7 +126,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
     "the pertax API response returns a CONFIDENCE_LEVEL_UPLIFT_REQUIRED response" must {
       "redirect to uplift Journey" in {
-        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+        when(mockPertaxConnector.pertaxPostAuthorise(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PertaxResponse](
               Future.successful(
@@ -147,7 +147,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
     "the pertax API response returns a CREDENTIAL_STRENGTH_UPLIFT_REQUIRED response" must {
       "return an InternalServerError" in {
-        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+        when(mockPertaxConnector.pertaxPostAuthorise(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PertaxResponse](
               Future.successful(
@@ -168,7 +168,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
     "the pertax API response returns an error view" must {
       "show the corresponding view" in {
-        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+        when(mockPertaxConnector.pertaxPostAuthorise(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PertaxResponse](
               Future.successful(
@@ -184,7 +184,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
             )
           )
 
-        when(mockPertaxConnector.loadPartial(any())(any(), any()))
+        when(mockPertaxConnector.loadPartial(any())(using any(), any()))
           .thenReturn(Future.successful(HtmlPartial.Success(None, Html("Should be in the resulting view"))))
 
         val result = pertaxAuthAction.filter(expectedRequest).futureValue
@@ -194,7 +194,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
         contentAsString(Future.successful(result.get)) must include(messages("Should be in the resulting view"))
       }
       "return internal server error" in {
-        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+        when(mockPertaxConnector.pertaxPostAuthorise(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PertaxResponse](
               Future.successful(
@@ -210,7 +210,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
             )
           )
 
-        when(mockPertaxConnector.loadPartial(any())(any(), any()))
+        when(mockPertaxConnector.loadPartial(any())(using any(), any()))
           .thenReturn(Future.successful(HtmlPartial.Failure(None, "")))
 
         val result = pertaxAuthAction.filter(expectedRequest).futureValue
@@ -225,7 +225,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
     "the pertax API response returns an unauthorised response" must {
       "redirect to sign in Journey" in {
-        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+        when(mockPertaxConnector.pertaxPostAuthorise(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PertaxResponse](
               Future.successful(Left(UpstreamErrorResponse("", UNAUTHORIZED)))
@@ -245,7 +245,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
     "the pertax API response returns an unexpected response" must {
       "throw an internal server error" in {
-        when(mockPertaxConnector.pertaxPostAuthorise(any(), any()))
+        when(mockPertaxConnector.pertaxPostAuthorise(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, PertaxResponse](
               Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))

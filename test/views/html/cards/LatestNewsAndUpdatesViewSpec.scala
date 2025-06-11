@@ -55,14 +55,11 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
       )
     }
 
-    "render the given url correctly" in {
-
+    "render the given url correctly" in
       hasLink(
         doc,
         Messages("label.percentage_points_uplift_in_NIC")
       )
-
-    }
 
     "render the given content correctly" in {
 

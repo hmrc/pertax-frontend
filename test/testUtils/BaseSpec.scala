@@ -33,7 +33,6 @@ import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.MessagesControllerComponents
-import play.api.test.Helpers.baseApplicationBuilder.injector
 import play.api.test.Injecting
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
@@ -61,7 +60,7 @@ trait BaseSpec
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val mockPartialRetriever: FormPartialRetriever = mock[FormPartialRetriever]
-  when(mockPartialRetriever.getPartialContentAsync(any(), any(), any())(any(), any()))
+  when(mockPartialRetriever.getPartialContentAsync(any(), any(), any())(using any(), any()))
     .thenReturn(Future.successful(Html("")))
 
   val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
@@ -90,7 +89,7 @@ trait BaseSpec
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
   val mockAuthJourney: AuthJourney            = mock[AuthJourney]
 
-  implicit lazy val ec: ExecutionContext     = injector().instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext     = app.injector.instanceOf[ExecutionContext]
   lazy val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
   implicit def messagesApi: MessagesApi      = inject[MessagesApi]
 

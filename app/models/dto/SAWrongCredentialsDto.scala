@@ -26,6 +26,10 @@ object SAWrongCredentialsDto {
 
   implicit val formats: OFormat[SAWrongCredentialsDto] = Json.format[SAWrongCredentialsDto]
 
+  def unapply(obj: SAWrongCredentialsDto): Some[Boolean] = Some(
+    obj.value
+  )
+
   val form: Form[SAWrongCredentialsDto] = Form(
     mapping(
       "wrongCredentialsFormChoice" -> optional(boolean)

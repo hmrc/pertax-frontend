@@ -68,11 +68,11 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
           hasExistingRelationships = true
         )
 
-        when(mockSessionCacheRepository.getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any()))
+        when(mockSessionCacheRepository.getFromSession[AgentClientStatus](DataKey(any[String]()))(using any(), any()))
           .thenReturn(Future.successful(None))
 
         when(
-          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
+          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(using any(), any())
         )
           .thenReturn(Future.successful(("", "")))
 
@@ -84,10 +84,10 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
         result mustBe Right(expected)
 
         verify(mockSessionCacheRepository, times(1))
-          .getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any())
+          .getFromSession[AgentClientStatus](DataKey(any[String]()))(using any(), any())
 
         verify(mockSessionCacheRepository, times(1))
-          .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
+          .putSession[AgentClientStatus](DataKey(any[String]()), any())(using any(), any())
 
         verify(mockAgentClientAuthorisationConnector, times(1)).getAgentClientStatus
       }
@@ -99,14 +99,14 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
           hasExistingRelationships = true
         )
 
-        when(mockSessionCacheRepository.getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any()))
+        when(mockSessionCacheRepository.getFromSession[AgentClientStatus](DataKey(any[String]()))(using any(), any()))
           .thenReturn(Future.successful(Some(expected)))
 
         when(mockAgentClientAuthorisationConnector.getAgentClientStatus)
           .thenReturn(null)
 
         when(
-          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
+          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(using any(), any())
         )
           .thenReturn(null)
 
@@ -115,10 +115,10 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
         result mustBe Right(expected)
 
         verify(mockSessionCacheRepository, times(1))
-          .getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any())
+          .getFromSession[AgentClientStatus](DataKey(any[String]()))(using any(), any())
 
         verify(mockSessionCacheRepository, times(0))
-          .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any())
+          .putSession[AgentClientStatus](DataKey(any[String]()), any())(using any(), any())
 
         verify(mockAgentClientAuthorisationConnector, times(0)).getAgentClientStatus
       }
@@ -128,7 +128,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
       stubGet(url, INTERNAL_SERVER_ERROR, None)
 
       val result = connector.getAgentClientStatus.value.futureValue
-      result mustBe a[Left[_, _]]
+      result mustBe a[Left[?, ?]]
       result.swap.getOrElse(UpstreamErrorResponse("", OK)) mustBe an[UpstreamErrorResponse]
     }
   }

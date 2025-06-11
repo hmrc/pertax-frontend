@@ -35,7 +35,7 @@ trait RlsInterruptHelper {
   def enforceByRlsStatus(
     block: => Future[Result]
   )(implicit
-    request: UserRequest[_],
+    request: UserRequest[?],
     ec: ExecutionContext
   ): Future[Result]
 }
@@ -52,7 +52,7 @@ class RlsInterruptHelperImpl @Inject() (
   def enforceByRlsStatus(
     block: => Future[Result]
   )(implicit
-    request: UserRequest[_],
+    request: UserRequest[?],
     ec: ExecutionContext
   ): Future[Result] =
     featureFlagService.get(RlsInterruptToggle).flatMap { featureFlag =>

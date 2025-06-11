@@ -75,7 +75,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
   "AlertBannerHelper.getContent" must {
     "return bounce email content " in {
       val link = "/link"
-      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(using any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusBounced(link): PaperlessMessagesStatus)
       )
 
@@ -86,7 +86,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
 
     "return verify email content " in {
       val link = "/link"
-      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(using any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusUnverified(link): PaperlessMessagesStatus)
       )
 
@@ -105,7 +105,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle)))
         .thenReturn(Future.successful(FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = false)))
       val link                                 = "/link"
-      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(using any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusUnverified(link): PaperlessMessagesStatus)
       )
 
@@ -117,7 +117,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
     "include peak demand banner when toggle is enabled" in {
       when(mockFeatureFlagService.get(PeakDemandBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(PeakDemandBannerToggle, isEnabled = true)))
-      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(using any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn()))
 
       val result = alertBannerHelper.getContent.futureValue
@@ -128,7 +128,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
     "not include peak demand banner when toggle is disabled" in {
       when(mockFeatureFlagService.get(PeakDemandBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(PeakDemandBannerToggle, isEnabled = false)))
-      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(using any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn()))
 
       val result = alertBannerHelper.getContent.futureValue
@@ -147,7 +147,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       PaperlessStatusNoEmail()
     ).foreach { paperlessStatusResponse =>
       s"paperless status is $paperlessStatusResponse" in {
-        when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(using any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](paperlessStatusResponse: PaperlessMessagesStatus)
         )
 
@@ -158,7 +158,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
     }
 
     "paperless status returns a server error" in {
-      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(using any())).thenReturn(
         EitherT.leftT[Future, PaperlessMessagesStatus](UpstreamErrorResponse("Server error", 500))
       )
 

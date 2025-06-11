@@ -17,7 +17,7 @@
 package testUtils.fakes
 
 import controllers.auth.requests.UserRequest
-import controllers.controllershelpers.{PaperlessInterruptHelper}
+import controllers.controllershelpers.PaperlessInterruptHelper
 import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -25,5 +25,5 @@ import scala.concurrent.{ExecutionContext, Future}
 class FakePaperlessInterruptHelper extends PaperlessInterruptHelper {
   def enforcePaperlessPreference(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Result] = block
+  )(implicit request: UserRequest[?], ec: ExecutionContext): Future[Result] = block
 }

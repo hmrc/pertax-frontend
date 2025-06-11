@@ -25,7 +25,7 @@ import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.URL
@@ -110,10 +110,10 @@ class IdentityVerificationFrontendConnectorSpec
         when(mockRequestBuilder.setHeader(any()))
           .thenReturn(mockRequestBuilder)
 
-        when(mockHttpClient.get(any[URL])(any[HeaderCarrier]))
+        when(mockHttpClient.get(any[URL])(using any[HeaderCarrier]))
           .thenReturn(mockRequestBuilder)
 
-        when(mockRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
+        when(mockRequestBuilder.execute(using any(), any()))
           .thenReturn(Future.successful(HttpResponse(httpResponse, "")))
 
         def identityVerificationFrontendConnectorWithMock: IdentityVerificationFrontendConnector =

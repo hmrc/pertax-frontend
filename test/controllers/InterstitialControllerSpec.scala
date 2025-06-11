@@ -20,7 +20,7 @@ import cats.data.EitherT
 import config.NewsAndTilesConfig
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import models._
+import models.*
 import models.admin.{BreathingSpaceIndicatorToggle, ShowPlannedOutageBannerToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -28,9 +28,9 @@ import org.mockito.Mockito.{times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
 import play.api.Application
 import play.api.inject.{Binding, bind}
-import play.api.mvc._
+import play.api.mvc.*
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.twirl.api.Html
 import services.CitizenDetailsService
 import services.partials.{FormPartialService, SaPartialService}
@@ -39,6 +39,7 @@ import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.AlertBannerHelper
@@ -87,7 +88,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
   setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
 
-  private def appn(bindings: Seq[Binding[_]] = Nil, extraConfigValues: Map[String, Any] = Map.empty): Application = {
+  private def appn(bindings: Seq[Binding[?]] = Nil, extraConfigValues: Map[String, Any] = Map.empty): Application = {
     val fullBindings = Seq(
       bind[FormPartialService].toInstance(mockFormPartialService),
       bind[SaPartialService].toInstance(mockSaPartialService),
@@ -149,19 +150,18 @@ class InterstitialControllerSpec extends BaseSpec {
         HtmlPartial.Success(Some("Success"), Html("any"))
       }
 
-      when(mockFormPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
-      when(mockFormPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
+      when(mockFormPartialService.getSelfAssessmentPartial(using any())) `thenReturn` formPartialServiceResponse
+      when(mockFormPartialService.getNationalInsurancePartial(using any())) `thenReturn` formPartialServiceResponse
 
-      when(mockSaPartialService.getSaAccountSummary(any())) thenReturn {
+      when(mockSaPartialService.getSaAccountSummary(using any())) `thenReturn`
         Future.successful {
           HtmlPartial.Success(Some("Success"), Html("any"))
         }
-      }
 
       val result = controller.displaySelfAssessment()(fakeRequest)
 
       status(result) mustBe OK
-      verify(mockFormPartialService, times(1)).getSelfAssessmentPartial(any())
+      verify(mockFormPartialService, times(1)).getSelfAssessmentPartial(using any())
     }
 
     "call FormPartialService.getSelfAssessmentPartial and return return 401 for a high GG user not enrolled in SA" in {
@@ -202,7 +202,7 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth()
-      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(
+      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(using any())).thenReturn(
         List[NewsAndContentModel](
           NewsAndContentModel(
             "nicSection",
@@ -223,7 +223,7 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth()
-      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(using any())).thenReturn(List[NewsAndContentModel]())
       val result = controller.displayNewsAndUpdates("nicSection")(fakeRequest)
 
       status(result) mustBe SEE_OTHER
@@ -234,7 +234,7 @@ class InterstitialControllerSpec extends BaseSpec {
       val app                                     = appn(extraConfigValues = Map("feature.news.enabled" -> false))
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth()
-      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(using any())).thenReturn(List[NewsAndContentModel]())
       val result                                  = controller.displayNewsAndUpdates("nicSection")(fakeRequest)
       status(result) mustBe UNAUTHORIZED
     }
@@ -416,14 +416,14 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth()
 
-      when(mockFormPartialService.getNISPPartial(any()))
+      when(mockFormPartialService.getNISPPartial(using any()))
         .thenReturn(Future.successful(HtmlPartial.Success(Some("title"), Html("nisp partial"))))
 
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
-        .thenReturn(EitherT.rightT(Fixtures.buildPersonDetails))
+      when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any()))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Fixtures.buildPersonDetails))
 
       val bannerHtml = Html("<div class='voluntary-banner'>Banner Content</div>")
-      when(mockAlertBannerHelper.getVoluntaryContributionsAlertBannerContent(any(), any()))
+      when(mockAlertBannerHelper.getVoluntaryContributionsAlertBannerContent(using any(), any()))
         .thenReturn(Future.successful(Some(bannerHtml)))
 
       val result = controller.displayNISP()(fakeRequest)

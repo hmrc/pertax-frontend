@@ -39,7 +39,7 @@ class TaiServiceSpec extends BaseSpec {
 
   val fakeTaxYear: Int = TaxYear.now().getYear
 
-  def sut: TaiService = new TaiService(connector, mockFeatureFlagService)(ec)
+  def sut: TaiService = new TaiService(connector, mockFeatureFlagService)(using ec)
 
   when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
     .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
@@ -62,7 +62,7 @@ class TaiServiceSpec extends BaseSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
 
-        when(connector.taxComponents(any(), any())(any(), any()))
+        when(connector.taxComponents(any(), any())(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(
@@ -87,7 +87,7 @@ class TaiServiceSpec extends BaseSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
 
-        when(connector.taxComponents(any(), any())(any(), any()))
+        when(connector.taxComponents(any(), any())(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(
@@ -107,7 +107,7 @@ class TaiServiceSpec extends BaseSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
 
-        when(connector.taxComponents(any(), any())(any(), any()))
+        when(connector.taxComponents(any(), any())(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(
@@ -127,7 +127,7 @@ class TaiServiceSpec extends BaseSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
 
-        when(connector.taxComponents(any(), any())(any(), any()))
+        when(connector.taxComponents(any(), any())(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(
@@ -147,7 +147,7 @@ class TaiServiceSpec extends BaseSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
 
-        when(connector.taxComponents(any(), any())(any(), any()))
+        when(connector.taxComponents(any(), any())(using any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(

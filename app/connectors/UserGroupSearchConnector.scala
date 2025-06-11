@@ -50,7 +50,7 @@ class UsersGroupsSearchConnector @Inject() (
         httpClient
           .get(url"$url")
           .transform(_.withRequestTimeout(appConfig.enrolmentStoreProxyTimeoutInMilliseconds.milliseconds))
-          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](using readEitherOf(using readRaw), ec)
       )
       .map(httpResponse =>
         httpResponse.status match {

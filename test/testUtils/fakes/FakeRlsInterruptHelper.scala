@@ -25,5 +25,5 @@ import scala.concurrent.{ExecutionContext, Future}
 class FakeRlsInterruptHelper extends RlsInterruptHelper {
   def enforceByRlsStatus(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Result] = block
+  )(implicit request: UserRequest[?], ec: ExecutionContext): Future[Result] = block
 }

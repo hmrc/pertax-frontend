@@ -121,7 +121,7 @@ class ClosePostalAddressController @Inject() (
     }
 
   private def submitConfirmClosePostalAddress(nino: Nino, personDetails: PersonDetails)(implicit
-    request: UserRequest[_]
+    request: UserRequest[?]
   ): Future[Result] = {
 
     val address        = getAddress(personDetails.correspondenceAddress)
@@ -153,7 +153,7 @@ class ClosePostalAddressController @Inject() (
                                     )
                                   )
                       _        <- cachingHelper
-                                    .clearCache() //This clears ENTIRE session cache, no way to target individual keys
+                                    .clearCache() // This clears ENTIRE session cache, no way to target individual keys
                       inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
                       _        <- addressMovedService
                                     .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))

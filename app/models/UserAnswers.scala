@@ -32,7 +32,7 @@ final case class UserAnswers(
 ) {
 
   def get[A](page: QuestionPage[A])(implicit rds: Reads[A]): Option[A] =
-    Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
+    Reads.optionNoError(using Reads.at(page.path)).reads(data).getOrElse(None)
 
   def set[A](page: Settable[A], value: A)(implicit writes: Writes[A]): Try[UserAnswers] =
     page.cleanupBeforeSettingValue(this).flatMap { ua =>
@@ -59,17 +59,17 @@ final case class UserAnswers(
   def remove[A](page: QuestionPage[A]): Try[UserAnswers] =
     data.removeObject(page.path) match {
       case JsSuccess(jsValue, _) =>
-        Success(this copy (data = jsValue))
+        Success(this.copy(data = jsValue))
       case JsError(_)            =>
         throw new RuntimeException("Unable to remove page: " + page)
     }
 
-  def isDefined(gettable: Gettable[_]): Boolean =
-    Reads.optionNoError(Reads.at[JsValue](gettable.path)).reads(data) match {
-      case JsSuccess(a @ Some(_), _) if a.isDefined => true
-      case _                                        =>
+  def isDefined(gettable: Gettable[?]): Boolean =
+    Reads.optionNoError(using Reads.at[JsValue](gettable.path)).reads(data) match {
+      case JsSuccess(Some(_), _) => true
+      case _                     =>
         Reads
-          .optionNoError(Reads.at[JsValue](gettable.path))
+          .optionNoError(using Reads.at[JsValue](gettable.path))
           .reads(data)
           .map(_.isDefined)
           .getOrElse(false)
@@ -81,6 +81,10 @@ object UserAnswers {
   val empty: UserAnswers             = empty("")
   def empty(id: String): UserAnswers = new UserAnswers(id, Json.obj())
 
+  def unapply(userAnswers: UserAnswers): Some[(String, JsObject, Instant)] = Some(
+    (userAnswers.id, userAnswers.data, userAnswers.lastUpdated)
+  )
+
   val reads: Reads[UserAnswers] = {
 
     import play.api.libs.functional.syntax._
@@ -88,8 +92,8 @@ object UserAnswers {
     (
       (__ \ "_id").read[String] and
         (__ \ "data").read[JsObject] and
-        (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
-    )(UserAnswers.apply _)
+        (__ \ "lastUpdated").read(using MongoJavatimeFormats.instantFormat)
+    )(UserAnswers.apply)
   }
 
   val writes: OWrites[UserAnswers] = {
@@ -99,7 +103,7 @@ object UserAnswers {
     (
       (__ \ "_id").write[String] and
         (__ \ "data").write[JsObject] and
-        (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
+        (__ \ "lastUpdated").write(using MongoJavatimeFormats.instantFormat)
     )(unlift(UserAnswers.unapply))
   }
 

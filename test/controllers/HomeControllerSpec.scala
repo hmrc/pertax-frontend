@@ -73,21 +73,21 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       mockFeatureFlagService
     )
 
-    when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
+    when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(using any(), any()))
       .thenReturn(Future.successful(WithinPeriod))
-    when(mockHomeCardGenerator.getIncomeCards(any(), any())).thenReturn(
+    when(mockHomeCardGenerator.getIncomeCards(using any(), any())).thenReturn(
       Future.successful(Seq.empty)
     )
-    when(mockHomeCardGenerator.getATSCard()(any(), any())).thenReturn(
+    when(mockHomeCardGenerator.getATSCard()(using any(), any())).thenReturn(
       Future.successful(Seq.empty)
     )
-    when(mockHomeCardGenerator.getBenefitCards(any(), any())(any())).thenReturn(
+    when(mockHomeCardGenerator.getBenefitCards(any(), any())(using any())).thenReturn(
       List.empty
     )
-    when(mockAlertBannerHelper.getContent(any(), any(), any())).thenReturn(
+    when(mockAlertBannerHelper.getContent(using any(), any(), any())).thenReturn(
       Future.successful(List.empty)
     )
-    when(mockTaiService.retrieveTaxComponentsState(any(), any())(any())).thenReturn(
+    when(mockTaiService.retrieveTaxComponentsState(any(), any())(using any())).thenReturn(
       Future.successful(
         TaxComponentsAvailableState(TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments")))
       )
@@ -107,7 +107,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     "Return a Html that is returned as part of Benefit Cards" in {
       val expectedHtmlString = "<div class='TestingForBenefitCards'></div>"
       val expectedHtml: Html = Html(expectedHtmlString)
-      when(mockHomeCardGenerator.getBenefitCards(any(), any())(any())).thenReturn(
+      when(mockHomeCardGenerator.getBenefitCards(any(), any())(using any())).thenReturn(
         List(expectedHtml)
       )
 
@@ -122,7 +122,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     "Return a Breathing space if that is returned within period" in {
       val expectedHtmlString =
         "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
-      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
+      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(using any(), any())).thenReturn(
         Future.successful(BreathingSpaceIndicatorResponse.WithinPeriod)
       )
 
@@ -137,7 +137,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     "Does not return a Breathing space if that is returned within period" in {
       val expectedHtmlString =
         "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
-      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
+      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(using any(), any())).thenReturn(
         Future.successful(BreathingSpaceIndicatorResponse.OutOfPeriod)
       )
 
@@ -157,7 +157,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       s"Does not return a Breathing space if that is returned $breathingSpaceResponse" in {
         val expectedHtmlString =
           "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
-        when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
+        when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(using any(), any())).thenReturn(
           Future.successful(breathingSpaceResponse)
         )
 
@@ -204,7 +204,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       val expectedHtmlString = "<div class='alertBannerContent'></div>"
       val expectedHtml: Html = Html(expectedHtmlString)
 
-      when(mockAlertBannerHelper.getContent(any(), any(), any()))
+      when(mockAlertBannerHelper.getContent(using any(), any(), any()))
         .thenReturn(Future.successful(List(expectedHtml)))
 
       val appLocal: Application = appBuilder.build()

@@ -90,7 +90,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       stubGet(url, OK, Some(breathingSpaceTrueResponse))
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-      result mustBe a[Right[_, Boolean]]
+      result mustBe a[Right[?, Boolean]]
       result.getOrElse(false) mustBe true
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
@@ -99,7 +99,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
       stubGet(url, OK, Some(breathingSpaceFalseResponse))
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-      result mustBe a[Right[_, Boolean]]
+      result mustBe a[Right[?, Boolean]]
       result.getOrElse(true) mustBe false
       verifyHeader(getRequestedFor(urlEqualTo(url)))
     }
@@ -110,7 +110,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
         stubGet(url, httpResponse, Some(dummyContent))
 
         val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-        result mustBe a[Left[UpstreamErrorResponse, _]]
+        result mustBe a[Left[UpstreamErrorResponse, ?]]
         verifyHeader(getRequestedFor(urlEqualTo(url)))
       }
     }
@@ -125,7 +125,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
             )
           )
 
-          when(mockHttpClientV2.get(any())(any())).thenReturn(mockRequestBuilder)
+          when(mockHttpClientV2.get(any())(using any())).thenReturn(mockRequestBuilder)
 
           when(mockRequestBuilder.transform(any()))
             .thenReturn(mockRequestBuilder)
@@ -135,7 +135,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
           val connector = new BreathingSpaceConnector(mockHttpClientV2, mockHttpClientResponse, configDecorator)
 
           val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-          result mustBe a[Left[UpstreamErrorResponse, _]]
+          result mustBe a[Left[UpstreamErrorResponse, ?]]
         }
     }
 
@@ -150,7 +150,7 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
 
       withCaptureOfLoggingFrom(testLogger) { logs =>
         val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-        result mustBe a[Left[UpstreamErrorResponse, _]]
+        result mustBe a[Left[UpstreamErrorResponse, ?]]
         result.swap.exists(_.statusCode == FORBIDDEN)
         verifyHeader(getRequestedFor(urlEqualTo(url)))
         logs.filter(_.getLevel == ch.qos.logback.classic.Level.WARN).map(_.getMessage) must contain(
@@ -182,7 +182,7 @@ class BreathingSpaceConnectorTimeoutSpec extends ConnectorSpec with WireMockHelp
       stubWithDelay(url, OK, None, None, 100)
 
       val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
-      result mustBe a[Left[UpstreamErrorResponse, _]]
+      result mustBe a[Left[UpstreamErrorResponse, ?]]
       result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_GATEWAY
     }
   }

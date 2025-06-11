@@ -128,7 +128,7 @@ class CitizenDetailsConnectorSpec
       val result: Either[UpstreamErrorResponse, JsValue] =
         connector.personDetails(nino).value.futureValue
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(null) mustBe Json.parse(personDetails)
     }
 
@@ -174,7 +174,7 @@ class CitizenDetailsConnectorSpec
           .updateAddress(nino, etag, address)
           .value
           .futureValue
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe CREATED
     }
 
@@ -208,7 +208,7 @@ class CitizenDetailsConnectorSpec
           .value
           .futureValue
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe CREATED
     }
 
@@ -262,13 +262,13 @@ class CitizenDetailsConnectorSpec
     }
 
     "return OK containing an SAUTR when the service returns an SAUTR" in new LocalSetup {
-      val saUtr: String                                       = new SaUtrGenerator().nextSaUtr.utr
+      val saUtr: String = new SaUtrGenerator().nextSaUtr.utr
       stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr)).toString()))
 
       val result: Either[UpstreamErrorResponse, HttpResponse] =
         connector.getMatchingDetails(nino).value.futureValue
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
     }
 
@@ -278,7 +278,7 @@ class CitizenDetailsConnectorSpec
       val result: Either[UpstreamErrorResponse, HttpResponse] =
         connector.getMatchingDetails(nino).value.futureValue
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
     }
 
@@ -320,7 +320,7 @@ class CitizenDetailsConnectorSpec
       val result: Either[UpstreamErrorResponse, HttpResponse] =
         connector.getEtag(nino.nino).value.futureValue
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
 
     }
@@ -350,7 +350,7 @@ class CitizenDetailsConnectorSpec
           )
         )
 
-        when(mockHttpClientV2.get(any())(any())).thenReturn(mockRequestBuilder)
+        when(mockHttpClientV2.get(any())(using any())).thenReturn(mockRequestBuilder)
 
         when(mockRequestBuilder.transform(any()))
           .thenReturn(mockRequestBuilder)
@@ -381,7 +381,7 @@ class CitizenDetailsConnectorSpec
         )
       )
 
-      when(mockHttpClientV2.get(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockHttpClientV2.get(any())(using any())).thenReturn(mockRequestBuilder)
 
       when(mockRequestBuilder.transform(any()))
         .thenReturn(mockRequestBuilder)

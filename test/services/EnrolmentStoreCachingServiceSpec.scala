@@ -50,7 +50,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
   trait LocalSetup {
 
     when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty("")))
+    when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty("")))
 
     lazy val sut: EnrolmentStoreCachingService =
       new EnrolmentStoreCachingService(
@@ -66,7 +66,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
       "return NonFilerSelfAssessmentUser when the connector returns a Left" in new LocalSetup {
 
-        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Seq[String]](
             Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
           )
@@ -76,12 +76,12 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
         result mustBe NonFilerSelfAssessmentUser
 
-        verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any(), any())(any(), any())
+        verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any(), any())(using any(), any())
       }
 
       "return NotEnrolledSelfAssessmentUser when the connector returns a Right with an empty sequence" in new LocalSetup {
 
-        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Seq[String]](
             Future.successful(Right(Seq[String]()))
           )
@@ -91,12 +91,12 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
         result mustBe NotEnrolledSelfAssessmentUser(saUtr)
 
-        verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any(), any())(any(), any())
+        verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any(), any())(using any(), any())
       }
 
       "return WrongCredentialsSelfAssessmentUser when the connector returns a Right with a non-empty sequence" in new LocalSetup {
 
-        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Seq[String]](
             Future.successful(Right(Seq("Hello there")))
           )
@@ -106,7 +106,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
         result mustBe WrongCredentialsSelfAssessmentUser(saUtr)
 
-        verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any(), any())(any(), any())
+        verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any(), any())(using any(), any())
       }
     }
 
@@ -122,7 +122,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         mockUsersGroupsSearchConnector
       )
 
-      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(using any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Seq[String]](
           Future.successful(
             Right(Seq[String]())
@@ -130,7 +130,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         )
       )
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(
         Future.successful(UserAnswers.empty("id")),
         Future.successful(cachedUserAnswers)
       )
@@ -141,7 +141,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
       sut.getSaUserTypeFromCache(saUtr).futureValue
 
-      verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any(), any())(any(), any())
+      verify(mockEnrolmentsConnector, times(1)).getUserIdsWithEnrolments(any(), any())(using any(), any())
     }
 
     "retrieveMTDEnrolment" must {
@@ -159,7 +159,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         )
         lazy val testNino: Nino = new Generator().nextNino
 
-        when(mockEnrolmentsConnector.getKnownFacts(any())(any(), any())).thenReturn(
+        when(mockEnrolmentsConnector.getKnownFacts(any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[KnownFactResponseForNINO]](
             Future.successful(
               Right(Some(enrolment))
@@ -168,7 +168,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         )
 
         val result = sut.retrieveMTDEnrolment(testNino)
-        verify(mockEnrolmentsConnector, times(1)).getKnownFacts(any())(any(), any())
+        verify(mockEnrolmentsConnector, times(1)).getKnownFacts(any())(using any(), any())
         result.futureValue mustBe Some("Enrolment Value")
       }
       "return None when no verifiers are returned" in {
@@ -181,7 +181,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
         lazy val testNino: Nino = new Generator().nextNino
 
-        when(mockEnrolmentsConnector.getKnownFacts(any())(any(), any())).thenReturn(
+        when(mockEnrolmentsConnector.getKnownFacts(any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[KnownFactResponseForNINO]](
             Future.successful(
               Right(None)
@@ -190,7 +190,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         )
 
         val result = sut.retrieveMTDEnrolment(testNino)
-        verify(mockEnrolmentsConnector, times(1)).getKnownFacts(any())(any(), any())
+        verify(mockEnrolmentsConnector, times(1)).getKnownFacts(any())(using any(), any())
         result.futureValue mustBe None
       }
 
@@ -204,7 +204,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
         lazy val testNino: Nino = new Generator().nextNino
 
-        when(mockEnrolmentsConnector.getKnownFacts(any())(any(), any())).thenReturn(
+        when(mockEnrolmentsConnector.getKnownFacts(any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[KnownFactResponseForNINO]](
             Future.successful(
               Left(UpstreamErrorResponse.apply("ERROR", 400))
@@ -213,7 +213,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
         )
 
         val result = sut.retrieveMTDEnrolment(testNino)
-        verify(mockEnrolmentsConnector, times(1)).getKnownFacts(any())(any(), any())
+        verify(mockEnrolmentsConnector, times(1)).getKnownFacts(any())(using any(), any())
         result.futureValue mustBe None
       }
     }
@@ -226,7 +226,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
             mockUsersGroupsSearchConnector
           )
 
-        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Seq[String]](
             Future.successful(
               Right(Seq("ID 1", "ID 2", "ID 3"))
@@ -245,7 +245,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
             mockUsersGroupsSearchConnector
           )
 
-        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Seq[String]](
             Future.successful(
               Right(Seq.empty)
@@ -265,7 +265,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
             mockUsersGroupsSearchConnector
           )
 
-        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Seq[String]](
             Future.successful(
               Left(UpstreamErrorResponse.apply("ERROR", 400))
@@ -295,7 +295,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
           additionalFactors = Some(List(AdditionalFactors("sms", Some("07783924321"))))
         )
 
-        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
             Future.successful(
               Right(
@@ -317,7 +317,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
             mockUsersGroupsSearchConnector
           )
 
-        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
             Future.successful(
               Right(
@@ -339,7 +339,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
             mockUsersGroupsSearchConnector
           )
 
-        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
             Future.successful(
               Left(
@@ -372,7 +372,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
           additionalFactors = Some(List(AdditionalFactors("sms", Some("07783924321"))))
         )
 
-        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(any(), any())).thenReturn(
+        when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any(), any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Seq[String]](
             Future.successful(
               Right(Seq("ID 1", "ID 2", "ID 3"))
@@ -380,7 +380,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
           )
         )
 
-        when(mockUsersGroupsSearchConnector.getUserDetails(any())(any(), any())).thenReturn(
+        when(mockUsersGroupsSearchConnector.getUserDetails(any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[UsersGroupResponse]](
             Future.successful(
               Right(
@@ -394,7 +394,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
             usersGroupSearchResponse.identityProviderType,
             "ID 1",
             usersGroupSearchResponse.obfuscatedUserId.getOrElse(""),
-            usersGroupSearchResponse.email.map(SensitiveString),
+            usersGroupSearchResponse.email.map(SensitiveString.apply),
             usersGroupSearchResponse.lastAccessedTimestamp,
             AccountDetails.additionalFactorsToMFADetails(usersGroupSearchResponse.additionalFactors),
             None

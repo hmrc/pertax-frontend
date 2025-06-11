@@ -35,7 +35,7 @@ object AddrType {
   }
 
   val values: Seq[AddrType]                                                                                   = Seq(ResidentialAddrType, PostalAddrType)
-  implicit val enumerable: Enumerable[AddrType]                                                               = Enumerable(values.map(v => v.toString -> v): _*)
+  implicit val enumerable: Enumerable[AddrType]                                                               = Enumerable(values.map(v => v.toString -> v)*)
   implicit def queryBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[AddrType] =
     new QueryStringBindable[AddrType] {
       def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, AddrType]] =

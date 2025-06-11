@@ -42,7 +42,7 @@ trait UnauthenticatedMainView {
     disableSessionExpired: Boolean = false,
     fullWidth: Boolean = false
   )(contentBlock: Html)(implicit
-    request: Request[_],
+    request: Request[?],
     messages: Messages
   ): HtmlFormat.Appendable
 }
@@ -62,10 +62,10 @@ class UnauthenticatedMainViewImpl @Inject() (
     showBackLink: Boolean = false,
     disableSessionExpired: Boolean = false,
     fullWidth: Boolean = false
-  )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
+  )(contentBlock: Html)(implicit request: Request[?], messages: Messages): HtmlFormat.Appendable = {
 
     val fullPageTitle = s"$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"
-    val attorney      = Try(request.asInstanceOf[UserRequest[_]]) match {
+    val attorney      = Try(request.asInstanceOf[UserRequest[?]]) match {
       case Failure(_: java.lang.ClassCastException) => None
       case Success(value)                           => value.trustedHelper
       case Failure(exception)                       => throw exception
@@ -89,8 +89,8 @@ class UnauthenticatedMainViewImpl @Inject() (
       timeOutUrl = Some(controllers.routes.SessionManagementController.timeOut.url),
       keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
       showBackLinkJS = showBackLink,
-      scripts = Seq(additionalScripts(None)(request)),
-      styleSheets = Seq(headBlock(None)(request)),
+      scripts = Seq(additionalScripts(None)(using request)),
+      styleSheets = Seq(headBlock(None)(using request)),
       optTrustedHelper = attorney,
       fullWidth = fullWidth,
       hideMenuBar = true,
@@ -100,7 +100,7 @@ class UnauthenticatedMainViewImpl @Inject() (
         showBetaBanner = true,
         showHelpImproveBanner = false
       )
-    )(messages, request)
+    )(using messages, request)
 
   }
 }

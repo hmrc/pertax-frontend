@@ -54,7 +54,7 @@ trait MainView {
     hideAccountMenu: Boolean = false,
     showUserResearchBanner: Boolean = false
   )(contentBlock: Html)(implicit
-    request: Request[_],
+    request: Request[?],
     messages: Messages
   ): HtmlFormat.Appendable
 }
@@ -85,9 +85,9 @@ class MainViewImpl @Inject() (
     yourProfileActive: Boolean = false,
     hideAccountMenu: Boolean = false,
     showUserResearchBanner: Boolean = false
-  )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
+  )(contentBlock: Html)(implicit request: Request[?], messages: Messages): HtmlFormat.Appendable = {
 
-    val trustedHelper: Option[TrustedHelper] = Try(request.asInstanceOf[UserRequest[_]]) match {
+    val trustedHelper: Option[TrustedHelper] = Try(request.asInstanceOf[UserRequest[?]]) match {
       case Success(userRequest) => userRequest.trustedHelper
       case Failure(_)           => None
     }
@@ -113,8 +113,8 @@ class MainViewImpl @Inject() (
       keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
       showBackLinkJS = showBackLink,
       backLinkUrl = if (!backLinkUrl.equals("#")) Some(backLinkUrl) else None,
-      scripts = Seq(additionalScripts(scripts)(request)),
-      styleSheets = Seq(headBlock(stylesheets)(request)),
+      scripts = Seq(additionalScripts(scripts)(using request)),
+      styleSheets = Seq(headBlock(stylesheets)(using request)),
       bannerConfig = BannerConfig(
         showAlphaBanner = false,
         showBetaBanner = true,
@@ -124,6 +124,6 @@ class MainViewImpl @Inject() (
       fullWidth = fullWidth,
       hideMenuBar = hideAccountMenu,
       disableSessionExpired = disableSessionExpired
-    )(messages, request)
+    )(using messages, request)
   }
 }

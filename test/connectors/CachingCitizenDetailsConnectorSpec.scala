@@ -17,10 +17,9 @@
 package connectors
 
 import cats.data.EitherT
-import cats.implicits._
+import cats.implicits.*
 import models.{Address, AgentClientStatus}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsValue, Json}
@@ -28,8 +27,10 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import repositories.SessionCacheRepository
 import testUtils.{BaseSpec, WireMockHelper}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
+import org.mockito.Mockito.{reset, times, verify, when}
+import scala.concurrent.Future
 
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext
@@ -52,8 +53,7 @@ class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec wit
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockCitizenDetailsConnector)
-    reset(mockSessionCacheRepository)
+    reset(mockCitizenDetailsConnector, mockSessionCacheRepository)
   }
 
   def connector: CachingCitizenDetailsConnector = inject[CachingCitizenDetailsConnector]
@@ -81,19 +81,21 @@ class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec wit
       "updating an address" in {
 
         when(
-          mockSessionCacheRepository.deleteFromSessionEitherT[AgentClientStatus, JsValue](DataKey(any[String]()))(any())
+          mockSessionCacheRepository.deleteFromSessionEitherT[AgentClientStatus, JsValue](DataKey(any[String]()))(using
+            any()
+          )
         )
-          .thenReturn(EitherT.rightT(()))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](()))
 
-        when(mockCitizenDetailsConnector.updateAddress(any(), any(), any())(any(), any(), any()))
-          .thenReturn(EitherT.rightT(HttpResponse(OK, Json.toJson(address), Map.empty)))
+        when(mockCitizenDetailsConnector.updateAddress(any(), any(), any())(using any(), any(), any()))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, Json.toJson(address), Map.empty)))
 
         val _ = connector.updateAddress(generatedNino, "0", address).value.futureValue
 
         verify(mockSessionCacheRepository, times(1))
-          .deleteFromSessionEitherT[AgentClientStatus, JsValue](DataKey(any[String]()))(any())
+          .deleteFromSessionEitherT[AgentClientStatus, JsValue](DataKey(any[String]()))(using any())
 
-        verify(mockCitizenDetailsConnector, times(1)).updateAddress(any(), any(), any())(any(), any(), any())
+        verify(mockCitizenDetailsConnector, times(1)).updateAddress(any(), any(), any())(using any(), any(), any())
       }
 
     }

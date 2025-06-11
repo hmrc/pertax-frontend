@@ -127,7 +127,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   "getSignInDetailsRow" must {
     "return None" when {
       "user is GG and profile URL is not defined" in {
-        val actual = personalDetailsViewModel.getSignInDetailsRow(userRequest, messages)
+        val actual = personalDetailsViewModel.getSignInDetailsRow(using userRequest, messages)
         actual mustBe None
       }
     }
@@ -144,7 +144,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           Some(profileUrl)
         )
         val request    = userRequest.copy(profile = Some(profileUrl))
-        val actual     = personalDetailsViewModel.getSignInDetailsRow(request, messages)
+        val actual     = personalDetailsViewModel.getSignInDetailsRow(using request, messages)
         actual mustBe Some(expected)
 
       }
@@ -165,11 +165,11 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         )
       )
 
-      when(mockPreferencesConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+      when(mockPreferencesConnector.getPaperlessStatus(any(), any())(using any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn("link"): PaperlessMessagesStatus)
       )
 
-      val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages, ec)
+      val actual = personalDetailsViewModel.getPaperlessSettingsRow(using userRequest, messages, ec)
       actual.futureValue mustBe expected
     }
   }
@@ -177,7 +177,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   "getTrustedHelpersRow" must {
     "return None" when {
       "user is not verify" in {
-        val actual   = personalDetailsViewModel.getTrustedHelpersRow(messages)
+        val actual   = personalDetailsViewModel.getTrustedHelpersRow(using messages)
         val expected = Some(
           PersonalDetailsTableRowModel(
             "trusted_helpers",
@@ -194,7 +194,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "return PersonalDetailsTableRowModel" when {
       "user is verify" in {
-        val actual   = personalDetailsViewModel.getTrustedHelpersRow(messages)
+        val actual   = personalDetailsViewModel.getTrustedHelpersRow(using messages)
         val expected = Some(
           PersonalDetailsTableRowModel(
             "trusted_helpers",
@@ -213,7 +213,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   "getPersonDetailsTable" must {
     "contain the ninoSaveUrl" when {
       "nino is defined in model" in {
-        val actual   = personalDetailsViewModel.getPersonDetailsTable(Some(testNino), None)(userRequest)
+        val actual   = personalDetailsViewModel.getPersonDetailsTable(Some(testNino), None)(using userRequest)
         val expected = PersonalDetailsTableRowModel(
           "national_insurance",
           "label.national_insurance",
@@ -229,7 +229,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
     "contain nino row" when {
       "nino is defined" in {
-        val actual   = personalDetailsViewModel.getPersonDetailsTable(Some(testNino), None)(userRequest)
+        val actual   = personalDetailsViewModel.getPersonDetailsTable(Some(testNino), None)(using userRequest)
         val expected = PersonalDetailsTableRowModel(
           "national_insurance",
           "label.national_insurance",
@@ -245,7 +245,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     "not contain nino row" when {
       "nino is not defined" in {
         val request = userRequest
-        val actual  = personalDetailsViewModel.getPersonDetailsTable(None, None)(request)
+        val actual  = personalDetailsViewModel.getPersonDetailsTable(None, None)(using request)
         actual.futureValue.isEmpty mustBe true
       }
     }
@@ -262,7 +262,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
 
-        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
+        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(using messages)
         val expected =
           PersonalDetailsTableRowModel(
             id = "main_address",
@@ -283,7 +283,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
 
-        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
+        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(using messages)
         val expected = PersonalDetailsTableRowModel(
           "main_address",
           "label.main_address",
@@ -304,7 +304,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val actual   = personalDetailsViewModel.getAddressRow(
           Some(personDetails),
           List(AddressJourneyTTLModel(testNino.nino, editedAddress()))
-        )(messages)
+        )(using messages)
         val expected = PersonalDetailsTableRowModel(
           "main_address",
           "label.main_address",
@@ -323,7 +323,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, None)
 
-        val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
+        val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(using messages)
         actual.futureValue.mainAddress.isEmpty mustBe true
       }
 
@@ -331,7 +331,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, None)
 
-        val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
+        val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(using messages)
         actual.futureValue.mainAddress.isEmpty mustBe true
       }
     }
@@ -345,7 +345,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
 
-        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
+        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(using messages)
         val expected =
           PersonalDetailsTableRowModel(
             id = "postal_address",
@@ -366,7 +366,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
 
-        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
+        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(using messages)
         val expected = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
@@ -375,7 +375,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           "label.your.postal_address",
           Some(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url)
           // TODO: If start change of address page experiment is successful replace above line with below
-          //Some(controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url)
+          // Some(controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url)
         )
 
         actual.futureValue.postalAddress mustBe Some(expected)
@@ -389,7 +389,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val actual   = personalDetailsViewModel.getAddressRow(
           Some(personDetails),
           List(AddressJourneyTTLModel(testNino.nino, editedOtherAddress()))
-        )(messages)
+        )(using messages)
         val expected = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
@@ -407,7 +407,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, None)
 
-        val actual                = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
+        val actual                = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(using messages)
         val expectedPostalAddress = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
@@ -416,7 +416,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           "label.your.postal_address",
           Some(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url),
           // TODO: If start change of address page experiment is successful replace above line with below
-          //Some(controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url),
+          // Some(controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url),
           isPostalAddressSame = true
         )
 
@@ -429,7 +429,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, None)
 
-        val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
+        val actual = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(using messages)
 
         actual.futureValue.postalAddress.isEmpty mustBe true
       }
@@ -438,7 +438,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
   "getManageTaxAgentsRow" must {
     "render the correct manageTaxAgentsUrl" in {
-      val result = personalDetailsViewModel.getManageTaxAgentsRow(messages)
+      val result = personalDetailsViewModel.getManageTaxAgentsRow(using messages)
 
       result.get.linkUrl mustBe Some(s"http://localhost:9435/agent-client-relationships/manage-your-tax-agents")
     }

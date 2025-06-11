@@ -48,7 +48,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         .empty("id")
         .setOrException(SelectedAddressRecordPage(ResidentialAddrType), fakeStreetPafAddressRecord)
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -63,7 +63,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         .setOrException(SelectedAddressRecordPage(ResidentialAddrType), fakeStreetPafAddressRecord)
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -76,7 +76,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -87,7 +87,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
       val userAnswers: UserAnswers = UserAnswers.empty("id")
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -98,7 +98,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     "redirect user to beginning of journey and return 303 for postal addressType and no pagevisitedDto in cache" in {
 
       val userAnswers: UserAnswers = UserAnswers.empty
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -113,7 +113,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         .setOrException(SelectedAddressRecordPage(PostalAddrType), fakeStreetPafAddressRecord)
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -126,7 +126,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -137,7 +137,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
       val userAnswers: UserAnswers = UserAnswers.empty("id")
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -156,7 +156,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         )
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -173,7 +173,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         )
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -186,7 +186,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -201,7 +201,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
@@ -216,14 +216,14 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(using any(), any())
     }
 
     "verify an audit event has been sent when user chooses to add postal address" in {
@@ -232,14 +232,14 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe OK
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(using any(), any())
     }
   }
 
@@ -253,7 +253,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         .empty("id")
         .setOrException(SelectedAddressRecordPage(PostalAddrType), addressRecord)
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onSubmit(PostalAddrType)(FakeRequest("POST", ""))
 
@@ -264,11 +264,11 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
       val userAnswers: UserAnswers = UserAnswers.empty("id").setOrException(AddressLookupServiceDownPage, true)
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*)
+          .withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress*)
           .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(PostalAddrType)(currentRequest)
@@ -281,11 +281,11 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
       val userAnswers: UserAnswers = UserAnswers.empty("id").setOrException(AddressLookupServiceDownPage, true)
 
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*)
+          .withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress*)
           .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)

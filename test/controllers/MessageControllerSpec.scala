@@ -77,15 +77,14 @@ class MessageControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockMessageFrontendService.getMessageListPartial(any())) thenReturn {
+      when(mockMessageFrontendService.getMessageListPartial(using any())) `thenReturn`
         Future(HtmlPartial.Success(Some("Success"), Html("<title>Message List</title>")))
-      }
 
       val r    = controller.messageList(FakeRequest())
       val body = contentAsString(r)
 
       status(r) mustBe OK
-      verify(mockMessageFrontendService, times(1)).getMessageListPartial(any())
+      verify(mockMessageFrontendService, times(1)).getMessageListPartial(using any())
       body must include("Message List")
     }
   }
@@ -102,14 +101,13 @@ class MessageControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+      when(mockMessageFrontendService.getMessageDetailPartial(any())(using any())) `thenReturn`
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
-      }
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(FakeRequest("GET", "/foo"))
 
       status(r) mustBe OK
-      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
+      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(using any())
     }
 
     "call messages and return 200 with no page title when called by a high GG user" in {
@@ -121,15 +119,14 @@ class MessageControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+      when(mockMessageFrontendService.getMessageDetailPartial(any())(using any())) `thenReturn`
         Future(HtmlPartial.Success(None, Html("List")))
-      }
 
       val r    = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
       val body = contentAsString(r)
 
       status(r) mustBe OK
-      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
+      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(using any())
       body must include("List")
     }
 
@@ -142,9 +139,8 @@ class MessageControllerSpec extends BaseSpec {
           )
       })
 
-      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+      when(mockMessageFrontendService.getMessageDetailPartial(any())(using any())) `thenReturn`
         Future(HtmlPartial.Failure(None, ""))
-      }
 
       val r    = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
       val body = contentAsString(r)
@@ -155,7 +151,7 @@ class MessageControllerSpec extends BaseSpec {
       )
 
       status(r) mustBe OK
-      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
+      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(using any())
     }
   }
 }

@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import play.api.libs.ws.JsonBodyWritables._
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -51,7 +52,7 @@ class AddressLookupConnector @Inject() (
     httpClientResponse
       .read(
         httpClientV2
-          .post(url"$url")(newHc)
+          .post(url"$url")(using newHc)
           .withBody(addressRequestBody)
           .transform(_.withRequestTimeout(configDecorator.addressLookupTimeoutInSec.seconds))
           .execute[Either[UpstreamErrorResponse, HttpResponse]]

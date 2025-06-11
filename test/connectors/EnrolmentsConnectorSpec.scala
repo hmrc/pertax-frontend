@@ -53,7 +53,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       stubGet(url, NO_CONTENT, None)
       val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(Seq("", "")) mustBe empty
     }
 
@@ -69,7 +69,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       stubGet(url, OK, Some(json))
       val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(Seq("", "")) mustBe empty
     }
 
@@ -94,7 +94,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       stubGet(url, OK, Some(json))
       val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
 
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(Seq("", "")) must contain.allElementsOf(expected)
     }
   }
@@ -142,7 +142,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       stubPost(url, OK, Some(requestBody), Some(expectedJson))
 
       val result = connector.getKnownFacts(nino = testNino).value.futureValue
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(None) mustBe Some(expectedResult)
     }
     "return None when enrolment store gives no content" in {
@@ -156,7 +156,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       stubPost(url, NO_CONTENT, Some(requestBody), None)
 
       val result = connector.getKnownFacts(nino = testNino).value.futureValue
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(Some("invalid result")) mustBe None
     }
 
@@ -171,7 +171,7 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       stubPost(url, 1, Some(requestBody), None)
 
       val result = connector.getKnownFacts(nino = testNino).value.futureValue
-      result mustBe a[Right[_, _]]
+      result mustBe a[Right[?, ?]]
       result.getOrElse(Some("invalid result")) mustBe None
     }
   }

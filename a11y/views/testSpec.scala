@@ -42,7 +42,7 @@ class testSpec extends A11ySpec {
 
   case class ExpectedData(title: String)
 
-  //scalastyle:off cyclomatic.complexity
+  // scalastyle:off cyclomatic.complexity
   def getExpectedData(key: String): ExpectedData =
     key match {
       case "id-check-complete"                     =>
@@ -290,7 +290,7 @@ class testSpec extends A11ySpec {
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "Bearer 1")
 
   "/personal-account/" when {
-    "calling authenticated pages" must {
+    "calling authenticated pages" must
       urls.foreach { case (url, expectedData: ExpectedData) =>
         s"pass content checks at url $url" in {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
@@ -312,9 +312,8 @@ class testSpec extends A11ySpec {
         }
 
       }
-    }
 
-    "calling unauthenticated pages" must {
+    "calling unauthenticated pages" must
       unauthUrls.foreach { case (url, expectedData: ExpectedData) =>
         s"pass content checks at url $url" in {
           server.stubFor(
@@ -332,6 +331,5 @@ class testSpec extends A11ySpec {
 
         }
       }
-    }
   }
 }

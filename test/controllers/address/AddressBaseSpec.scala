@@ -95,30 +95,30 @@ trait AddressBaseSpec extends BaseSpec {
       mockAgentClientAuthorisationService
     )
     setupAuth()
-    when(mockAgentClientAuthorisationService.getAgentClientStatus(any(), any(), any()))
+    when(mockAgentClientAuthorisationService.getAgentClientStatus(using any(), any(), any()))
       .thenReturn(Future.successful(true))
-    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
+    when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
     when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-    when(mockJourneyCacheRepository.clear(any[HeaderCarrier])).thenReturn(Future.successful((): Unit))
-    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+    when(mockJourneyCacheRepository.clear(using any[HeaderCarrier])).thenReturn(Future.successful((): Unit))
+    when(mockAuditConnector.sendEvent(any())(using any(), any())).thenReturn(Future.successful(AuditResult.Success))
+    when(mockCitizenDetailsService.personDetails(any())(using any(), any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, PersonDetails](
         Future.successful(Right(personDetailsResponse))
       )
     )
-    when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
+    when(mockCitizenDetailsService.getEtag(any())(using any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, Option[ETag]](
         Future.successful(Right(eTagResponse))
       )
     )
-    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any()))
+    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(using any(), any(), any()))
       .thenReturn(updateAddressResponse())
     when(mockEditAddressLockRepository.insert(any(), any()))
       .thenReturn(Future.successful(isInsertCorrespondenceAddressLockSuccessful))
     when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(getEditedAddressIndicators))
-    when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+    when(mockEditAddressLockRepository.getAddressesLock(any())(using any()))
       .thenReturn(Future.successful(getAddressesLockResponse))
-    when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any()))
+    when(mockAddressMovedService.moved(any[String](), any[String]())(using any(), any()))
       .thenReturn(Future.successful(MovedToScotland))
     when(mockAddressMovedService.toMessageKey(any[AddressChanged]())).thenReturn(None)
   }
@@ -131,10 +131,10 @@ trait AddressBaseSpec extends BaseSpec {
 
   protected def fakeAddressJourneyCachingHelper: AddressJourneyCachingHelper = new AddressJourneyCachingHelper(
     mockJourneyCacheRepository
-  )(ec)
+  )(using ec)
 
   protected def appn(
-    extraBindings: Seq[Binding[_]] = Nil,
+    extraBindings: Seq[Binding[?]] = Nil,
     extraConfigValues: Map[String, Any] = Map.empty
   ): Application = {
     val fullBindings = Seq(

@@ -43,17 +43,17 @@ object UsersGroupResponse {
   implicit val reads: Reads[UsersGroupResponse] = (
     (JsPath \ "identityProviderType")
       .readNullable[JsValue]
-      .map(_.fold(SCP: IdentityProviderType)(_.as[IdentityProviderType](IdentityProviderTypeFormat.reads))) and
+      .map(_.fold(SCP: IdentityProviderType)(_.as[IdentityProviderType](using IdentityProviderTypeFormat.reads))) and
       (JsPath \ "obfuscatedUserId").readNullable[String] and
       (JsPath \ "email").readNullable[String] and
       (JsPath \ "lastAccessedTimestamp").readNullable[String] and
       (JsPath \ "additionalFactors").readNullable[List[AdditionalFactors]]
-  )(UsersGroupResponse.apply _)
+  )(UsersGroupResponse.apply)
 
   implicit val writes: Writes[UsersGroupResponse] = new Writes[UsersGroupResponse] {
     override def writes(o: UsersGroupResponse): JsValue =
       Json.obj(
-        "identityProviderType"  -> Json.toJson(o.identityProviderType)(IdentityProviderTypeFormat.writes),
+        "identityProviderType"  -> Json.toJson(o.identityProviderType)(using IdentityProviderTypeFormat.writes),
         "obfuscatedUserId"      -> o.obfuscatedUserId,
         "email"                 -> o.email,
         "lastAccessedTimestamp" -> o.lastAccessedTimestamp,

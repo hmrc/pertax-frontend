@@ -55,7 +55,7 @@ class RlsController @Inject() (
     authJourney.authWithPersonalDetails
 
   private def auditRls(mainAddress: Option[Address], postalAddress: Option[Address])(implicit
-    request: UserRequest[_],
+    request: UserRequest[?],
     ec: ExecutionContext
   ) =
     editAddressLockRepository.getAddressesLock(request.authNino.withoutSuffix).flatMap {

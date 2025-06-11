@@ -68,7 +68,7 @@ class ApplicationController @Inject() (
 
   private def processSafeUrl(safeUrl: Either[String, Option[SafeRedirectUrl]], continueUrl: Option[RedirectUrl])(
     implicit request: Request[AnyContent]
-  ): Future[Result]                                        =
+  ): Future[Result] =
     safeUrl match {
       case Left(error)    => Future.successful(BadRequest(error))
       case Right(safeUrl) =>
@@ -148,7 +148,7 @@ class ApplicationController @Inject() (
       }
       safeUrl
         .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
-        .fold(BadRequest("Missing origin")) { url: String =>
+        .fold(BadRequest("Missing origin")) { (url: String) =>
           Redirect(configDecorator.getBasGatewayFrontendSignOutUrl(url))
         }
     }

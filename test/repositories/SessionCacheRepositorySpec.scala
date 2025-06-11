@@ -42,12 +42,12 @@ class SessionCacheRepositorySpec extends BaseSpec {
     "item 3" -> 11
   )
 
-  val fakeRequest: FakeRequest[AnyContentAsEmpty.type]               = FakeRequest()
+  val fakeRequest: FakeRequest[AnyContentAsEmpty.type]            = FakeRequest()
     .withSession(
       SessionKeys.authToken -> "Bearer 1",
       SessionKeys.sessionId -> "SessionId"
     )
-  implicit lazy val symmetricCryptoFactory: Encrypter with Decrypter =
+  implicit lazy val symmetricCryptoFactory: Encrypter & Decrypter =
     new ApplicationCrypto(injectedConfiguration.underlying).JsonCrypto
 
   val encrypter: Writes[SensitiveT[JsValue]] = JsonEncryption.sensitiveEncrypter[JsValue, SensitiveT[JsValue]]
@@ -63,7 +63,7 @@ class SessionCacheRepositorySpec extends BaseSpec {
                       data
                     )
         result <- repository
-                    .getFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(implicitly, fakeRequest)
+                    .getFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(using implicitly, fakeRequest)
 
       } yield result).futureValue
 
@@ -82,7 +82,7 @@ class SessionCacheRepositorySpec extends BaseSpec {
                       encryptedData
                     )
         result <- repository
-                    .getFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(implicitly, fakeRequest)
+                    .getFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(using implicitly, fakeRequest)
 
       } yield result).futureValue
 
@@ -100,7 +100,7 @@ class SessionCacheRepositorySpec extends BaseSpec {
                       data
                     )
         result <- repository
-                    .getFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(implicitly, fakeRequest)
+                    .getFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(using implicitly, fakeRequest)
 
       } yield result).futureValue
 
@@ -115,7 +115,7 @@ class SessionCacheRepositorySpec extends BaseSpec {
 
       val result = (for {
         _      <- repository
-                    .putSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"), data)(implicitly, fakeRequest)
+                    .putSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"), data)(using implicitly, fakeRequest)
         result <- repository.cacheRepo
                     .get[JsValue](fakeRequest)(
                       DataKey[JsValue](s"getPersonDetails-$generatedNino")
@@ -130,7 +130,7 @@ class SessionCacheRepositorySpec extends BaseSpec {
 
       val result = (for {
         _      <- repository
-                    .putSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"), data)(implicitly, fakeRequest)
+                    .putSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"), data)(using implicitly, fakeRequest)
         result <- repository.cacheRepo
                     .get[JsValue](fakeRequest)(
                       DataKey[JsValue](s"getPersonDetails-$generatedNino")
@@ -152,7 +152,7 @@ class SessionCacheRepositorySpec extends BaseSpec {
                       DataKey[JsValue](s"getPersonDetails-$generatedNino"),
                       encryptedData
                     )
-        _      <- repository.deleteFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(fakeRequest)
+        _      <- repository.deleteFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(using fakeRequest)
         result <- repository.cacheRepo
                     .get[JsValue](fakeRequest)(
                       DataKey[JsValue](s"getPersonDetails-$generatedNino")
@@ -170,7 +170,7 @@ class SessionCacheRepositorySpec extends BaseSpec {
                       DataKey[JsValue](s"getPersonDetails-$generatedNino"),
                       data
                     )
-        _      <- repository.deleteFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(fakeRequest)
+        _      <- repository.deleteFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(using fakeRequest)
         result <- repository.cacheRepo
                     .get[JsValue](fakeRequest)(
                       DataKey[JsValue](s"getPersonDetails-$generatedNino")
@@ -190,7 +190,7 @@ class SessionCacheRepositorySpec extends BaseSpec {
                       DataKey[JsValue](s"getPersonDetails-$generatedNino"),
                       encryptedData
                     )
-        _      <- repository.deleteFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(fakeRequest)
+        _      <- repository.deleteFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(using fakeRequest)
         result <- repository.cacheRepo
                     .get[JsValue](fakeRequest)(
                       DataKey[JsValue](s"getPersonDetails-$generatedNino")
@@ -208,7 +208,7 @@ class SessionCacheRepositorySpec extends BaseSpec {
                       DataKey[JsValue](s"getPersonDetails-$generatedNino"),
                       data
                     )
-        _      <- repository.deleteFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(fakeRequest)
+        _      <- repository.deleteFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(using fakeRequest)
         result <- repository.cacheRepo
                     .get[JsValue](fakeRequest)(
                       DataKey[JsValue](s"getPersonDetails-$generatedNino")

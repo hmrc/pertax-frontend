@@ -32,7 +32,7 @@ class SelfAssessmentService @Inject() (
 )(implicit ec: ExecutionContext) {
 
   def getSaEnrolmentUrl(implicit
-    request: UserRequest[_],
+    request: UserRequest[?],
     hc: HeaderCarrier
   ): EitherT[Future, UpstreamErrorResponse, Option[String]] = {
     def saEnrolmentRequest: SaEnrolmentRequest = request.saUserType match {

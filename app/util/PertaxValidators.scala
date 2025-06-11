@@ -39,29 +39,31 @@ object PertaxValidators {
     }
 
   def optionalTextIfFieldsHaveContent(requiredFields: String*): FieldMapping[Option[String]] =
-    optionalTextIfFormDataValidatesMapping(fieldsArePresentIfCurrentFieldIsMissingFormDataValidator(requiredFields: _*))
+    optionalTextIfFormDataValidatesMapping(fieldsArePresentIfCurrentFieldIsMissingFormDataValidator(requiredFields*))
 
   private def optionalTextIfFormDataValidatesMapping(
     formDataValidator: FormDataValidator
   ): FieldMapping[Option[String]] =
-    of(new Formatter[Option[String]] {
+    of(using
+      new Formatter[Option[String]] {
 
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[String]] = {
+        override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[String]] = {
 
-        def formValueUnlessEmptyString: Option[String] = {
-          val v = data.get(key)
-          if (v.fold(true)(_.isEmpty)) None else v
+          def formValueUnlessEmptyString: Option[String] = {
+            val v = data.get(key)
+            if (v.fold(true)(_.isEmpty)) None else v
+          }
+
+          formDataValidator(key, data) match {
+            case Nil        => Right(formValueUnlessEmptyString)
+            case formErrors => Left(formErrors)
+          }
         }
 
-        formDataValidator(key, data) match {
-          case Nil        => Right(formValueUnlessEmptyString)
-          case formErrors => Left(formErrors)
-        }
+        override def unbind(key: String, value: Option[String]): Map[String, String] =
+          value.fold[Map[String, String]](Map.empty)(v => Map(key -> v))
       }
-
-      override def unbind(key: String, value: Option[String]): Map[String, String] =
-        value.fold[Map[String, String]](Map.empty)(v => Map(key -> v))
-    })
+    )
 
   private val AddressLineRegex = """^[A-Za-z0-9 \-,.&'\/]+""".r
   val PostcodeRegex: Regex     =

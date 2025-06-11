@@ -75,9 +75,8 @@ class StartDateController @Inject() (
                 }
 
               Future.successful(Ok(enterStartDateView(postcodesMatch, typ)))
-            } getOrElse {
+            } getOrElse
               Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
-            }
           }
         }
       }

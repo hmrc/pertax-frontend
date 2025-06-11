@@ -103,7 +103,7 @@ class PertaxAuthAction @Inject() (
       )
     )
 
-  private def upliftJourney(request: Request[_], upliftRedirect: String): Result =
+  private def upliftJourney(request: Request[?], upliftRedirect: String): Result =
     Redirect(
       upliftRedirect,
       Map(

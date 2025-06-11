@@ -27,7 +27,7 @@ object AuditServiceTools {
 
   def buildEvent(auditType: String, transactionName: String, detail: Map[String, Option[String]])(implicit
     hc: HeaderCarrier,
-    request: UserRequest[_]
+    request: UserRequest[?]
   ): DataEvent = {
     val customTags = Map(
       "clientIP"        -> hc.trueClientIp,
@@ -61,7 +61,7 @@ object AuditServiceTools {
 
   def buildPersonDetailsEvent(auditType: String, personDetails: PersonDetails)(implicit
     hc: HeaderCarrier,
-    request: UserRequest[_]
+    request: UserRequest[?]
   ): DataEvent =
     buildEvent(
       auditType,
@@ -83,7 +83,7 @@ object AuditServiceTools {
 
   def buildAddressChangeEvent(auditType: String, personDetails: PersonDetails, isInternationalAddress: Boolean)(implicit
     hc: HeaderCarrier,
-    request: UserRequest[_]
+    request: UserRequest[?]
   ): DataEvent =
     buildEvent(
       auditType,

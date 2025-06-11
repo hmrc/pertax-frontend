@@ -24,8 +24,8 @@ import javax.inject.{Inject, Provider, Singleton}
 @Singleton
 class CryptoProvider @Inject() (
   configuration: Configuration
-) extends Provider[Encrypter with Decrypter] {
+) extends Provider[Encrypter & Decrypter] {
 
-  override def get(): Encrypter with Decrypter =
+  override def get(): Encrypter & Decrypter =
     new ApplicationCrypto(configuration.underlying).JsonCrypto
 }

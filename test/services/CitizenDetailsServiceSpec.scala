@@ -44,7 +44,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
     "personDetails is called" must {
 
       "return person details when connector returns and OK status with body" in {
-        when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockConnector.personDetails(any())(using any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, JsValue](
             Future.successful(Right(Json.toJson(buildPersonDetails)))
           )
@@ -53,7 +53,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         val result =
           sut.personDetails(fakeNino).value.futureValue
 
-        result mustBe a[Right[_, _]]
+        result mustBe a[Right[?, ?]]
         result.getOrElse(buildPersonDetails.copy(address = None)) mustBe buildPersonDetails
       }
 
@@ -67,7 +67,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         BAD_GATEWAY
       ).foreach { errorResponse =>
         s"return an UpstreamErrorResponse containing $errorResponse when connector returns the same" in {
-          when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
+          when(mockConnector.personDetails(any())(using any(), any(), any())).thenReturn(
             EitherT[Future, UpstreamErrorResponse, JsValue](
               Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
             )
@@ -82,7 +82,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
 
     "updateAddress is called" must {
       "return HttpResponse with an OK status when connector returns and OK status with body" in {
-        when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        when(mockConnector.updateAddress(any(), any(), any())(using any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
             Future.successful(Right(HttpResponse(OK, "")))
           )
@@ -94,7 +94,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .value
             .futureValue
 
-        result mustBe a[Right[_, _]]
+        result mustBe a[Right[?, ?]]
         result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
       }
 
@@ -108,7 +108,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         BAD_GATEWAY
       ).foreach { errorResponse =>
         s"return an UpstreamErrorResponse containing $errorResponse when connector returns the same" in {
-          when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+          when(mockConnector.updateAddress(any(), any(), any())(using any(), any(), any())).thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
             )
@@ -129,7 +129,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
 
     "getMatchingDetails is called" must {
       "return matching details when connector returns and OK status with body" in {
-        when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
+        when(mockConnector.getMatchingDetails(any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
             Future.successful(
               Right(
@@ -145,12 +145,12 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .value
             .futureValue
 
-        result mustBe a[Right[_, MatchingDetails]]
+        result mustBe a[Right[?, MatchingDetails]]
         result.getOrElse(MatchingDetails(Some(SaUtr("Invalid")))) mustBe MatchingDetails(Some(saUtr))
       }
 
       "return error when connector returns and OK status with no body" in {
-        when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
+        when(mockConnector.getMatchingDetails(any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
             Future.successful(Right(HttpResponse(OK, Json.obj("ids" -> "").toString)))
           )
@@ -162,7 +162,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .value
             .futureValue
 
-        result mustBe a[Right[_, MatchingDetails]]
+        result mustBe a[Right[?, MatchingDetails]]
         result.getOrElse(MatchingDetails(Some(SaUtr("Invalid")))) mustBe MatchingDetails(None)
       }
 
@@ -176,7 +176,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         BAD_GATEWAY
       ).foreach { errorResponse =>
         s"return an UpstreamErrorResponse containing $errorResponse when connector returns the same" in {
-          when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
+          when(mockConnector.getMatchingDetails(any())(using any(), any())).thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
             )
@@ -193,7 +193,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
       implicit val etagWrites: OWrites[ETag] = Json.writes[ETag]
 
       "return etag when connector returns and OK status with body" in {
-        when(mockConnector.getEtag(any())(any(), any())).thenReturn(
+        when(mockConnector.getEtag(any())(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
             Future.successful(Right(HttpResponse(OK, Json.toJson(ETag("1")).toString)))
           )
@@ -202,7 +202,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         val result =
           sut.getEtag(fakeNino.nino).value.futureValue
 
-        result mustBe a[Right[_, _]]
+        result mustBe a[Right[?, ?]]
         result.getOrElse(Some(ETag("wrong etag"))) mustBe Some(ETag("1"))
       }
 
@@ -216,7 +216,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         BAD_GATEWAY
       ).foreach { errorResponse =>
         s"return an UpstreamErrorResponse containing $errorResponse when connector returns the same" in {
-          when(mockConnector.getEtag(any())(any(), any())).thenReturn(
+          when(mockConnector.getEtag(any())(using any(), any())).thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](
               Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
             )

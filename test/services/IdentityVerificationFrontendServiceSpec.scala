@@ -50,7 +50,7 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
         InvalidResponse
       ).foreach { identityVerificationResponse =>
         s"$identityVerificationResponse if returned by the connector within its json response" in {
-          when(identityVerificationConnector.getIVJourneyStatus(any())(any(), any()))
+          when(identityVerificationConnector.getIVJourneyStatus(any())(using any(), any()))
             .thenReturn(
               EitherT[Future, UpstreamErrorResponse, HttpResponse](
                 Future.successful(
@@ -84,7 +84,7 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
         UNPROCESSABLE_ENTITY
       ).foreach { statusCode =>
         s"return Left when a $statusCode is retreived" in {
-          when(identityVerificationConnector.getIVJourneyStatus(any())(any(), any()))
+          when(identityVerificationConnector.getIVJourneyStatus(any())(using any(), any()))
             .thenReturn(
               EitherT[Future, UpstreamErrorResponse, HttpResponse](
                 Future.successful(

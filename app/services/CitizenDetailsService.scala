@@ -36,14 +36,14 @@ class CitizenDetailsService @Inject() (
   )(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
-    request: Request[_]
+    request: Request[?]
   ): EitherT[Future, UpstreamErrorResponse, PersonDetails] =
     citizenDetailsConnector.personDetails(nino).map(_.as[PersonDetails])
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
-    request: Request[_]
+    request: Request[?]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     citizenDetailsConnector.updateAddress(nino: Nino, etag: String, address: Address)
 

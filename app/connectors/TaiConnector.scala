@@ -46,7 +46,7 @@ class TaiConnector @Inject() (
       httpClientV2
         .get(url"$url")
         .transform(_.withRequestTimeout(configDecorator.taiTimeoutInMilliseconds.milliseconds))
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](using readEitherOf(using readRaw), ec)
     )
   }
 }

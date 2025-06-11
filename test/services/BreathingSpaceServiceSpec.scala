@@ -39,7 +39,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle))) thenReturn Future.successful(
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle))) `thenReturn` Future.successful(
       FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)
     )
   }
@@ -49,7 +49,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
   "BreathingSpaceService getBreathingSpaceIndicator is called" must {
 
     "return BreathingSpaceIndicatorResponse.WithinPeriod when Nino is Some(_) and response from connector is true" in {
-      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
+      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(using any(), any()))
         .thenReturn(EitherT[Future, UpstreamErrorResponse, Boolean](Future(Right(true))))
 
       val sut: BreathingSpaceService =
@@ -61,9 +61,10 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "return BreathingSpaceIndicatorResponse.StatusUnknown when isBreathingSpaceIndicatorEnabled is false" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle))) thenReturn Future.successful(
-        FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = false)
-      )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle))) `thenReturn` Future
+        .successful(
+          FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = false)
+        )
 
       val sut: BreathingSpaceService =
         new BreathingSpaceService(mockBreathingSpaceConnector, mockFeatureFlagService)
@@ -74,7 +75,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "return BreathingSpaceIndicatorResponse.OutOfPeriod when response from connector is false" in {
-      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
+      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(using any(), any()))
         .thenReturn(EitherT[Future, UpstreamErrorResponse, Boolean](Future(Right(false))))
 
       val sut: BreathingSpaceService =
@@ -86,7 +87,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "return BreathingSpaceIndicatorResponse.NotFound when response from connector is Left NOT_FOUND response" in {
-      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
+      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(using any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](
             Future(Left(UpstreamErrorResponse("NOT FOUND", NOT_FOUND, NOT_FOUND)))
@@ -102,7 +103,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "return BreathingSpaceIndicatorResponse.StatusUnknown when response from connector is Left INTERNAL_SERVER_ERROR response" in {
-      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
+      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(using any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](
             Future(Left(UpstreamErrorResponse("INTERNAL SERVER ERROR", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
@@ -118,7 +119,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "return BreathingSpaceIndicatorResponse.StatusUnknown when response from connector is Left TOO_MANY_REQUESTS response" in {
-      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
+      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(using any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](
             Future(Left(UpstreamErrorResponse("TOO MANY REQUESTS", TOO_MANY_REQUESTS, TOO_MANY_REQUESTS)))
@@ -134,7 +135,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "throws BadRequestException when BadRequestException is thrown from connector" in {
-      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
+      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(using any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(new BadRequestException("BAD REQUEST")))
         )
@@ -148,7 +149,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "throws UnauthorizedException when UnauthorizedException is thrown from connector" in {
-      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
+      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(using any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(new UnauthorizedException("Unauthorized")))
         )
@@ -162,7 +163,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "throws HttpException when HttpException is thrown from connector" in {
-      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
+      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(using any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(new HttpException("FORBIDDEN", FORBIDDEN)))
         )
@@ -176,7 +177,7 @@ class BreathingSpaceServiceSpec extends BaseSpec {
     }
 
     "return false when FutureEarlyTimeout is thrown from connector" in {
-      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(any(), any()))
+      when(mockBreathingSpaceConnector.getBreathingSpaceIndicator(any())(using any(), any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, Boolean](Future.failed(FutureEarlyTimeout))
         )

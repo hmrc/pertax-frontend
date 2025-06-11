@@ -90,7 +90,7 @@ object Address extends Logging {
       (JsPath \ "endDate").readNullable[LocalDate] and
       (JsPath \ "type").readNullable[String] and
       (JsPath \ "status").readNullable[Int].map(isRls)
-  )(Address.apply _)
+  )(Address.apply)
 
   private def removeNulls(jsObject: JsObject): JsValue =
     JsObject(jsObject.fields.collect {

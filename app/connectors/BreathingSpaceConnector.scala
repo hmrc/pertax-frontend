@@ -47,9 +47,9 @@ class BreathingSpaceConnector @Inject() (
         "Correlation-Id" -> randomUUID.toString
       )
     val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
-      .get(url"$url")(bsHeaderCarrier)
+      .get(url"$url")(using bsHeaderCarrier)
       .transform(_.withRequestTimeout(configDecorator.breathingSpaceTimeoutInMilliseconds.milliseconds))
-      .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+      .execute[Either[UpstreamErrorResponse, HttpResponse]](using readEitherOf(using readRaw), ec)
     httpClientResponse
       .readLogForbiddenAsWarning(apiResponse)
       .map(response => response.json.as[BreathingSpaceIndicator].breathingSpaceIndicator)

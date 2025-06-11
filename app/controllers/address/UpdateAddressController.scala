@@ -116,6 +116,6 @@ class UpdateAddressController @Inject() (
       }
     }
 
-  private def cacheStartDate(typ: AddrType, redirect: Result)(implicit request: UserRequest[_]): Future[Result] =
+  private def cacheStartDate(typ: AddrType, redirect: Result)(implicit request: UserRequest[?]): Future[Result] =
     cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(LocalDate.now())) map (_ => redirect)
 }

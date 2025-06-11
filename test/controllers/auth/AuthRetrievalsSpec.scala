@@ -51,7 +51,7 @@ class AuthRetrievalsSpec extends BaseSpec {
   private val mockFandfService: FandfService                     = mock[FandfService]
 
   private class Harness(authAction: AuthRetrievalsImpl) extends InjectedController {
-    def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
+    def onPageLoad: Action[AnyContent] = authAction { (request: AuthenticatedRequest[AnyContent]) =>
       Ok(
         s"Nino: ${request.authNino.nino}, Enrolments: ${request.enrolments.toString}," +
           s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}"
@@ -60,8 +60,8 @@ class AuthRetrievalsSpec extends BaseSpec {
   }
 
   private type AuthRetrievals =
-    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
-      Option[String] ~ ConfidenceLevel ~ Option[String]
+    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[String] ~ ConfidenceLevel ~
+      Option[String]
 
   private val nino: String                                               = Fixtures.fakeNino.nino
   private val fakeCredentials: Credentials                               = Credentials("foo", "bar")
@@ -84,13 +84,14 @@ class AuthRetrievalsSpec extends BaseSpec {
     profileUrl: Option[String] = None
   ): Harness = {
 
-    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
+    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(using any(), any())) `thenReturn` Future.successful(
       nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(
         credentialStrength
       ) ~ confidenceLevel ~ profileUrl
     )
 
-    when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty("id")))
+    when(mockJourneyCacheRepository.get(using any[HeaderCarrier]))
+      .thenReturn(Future.successful(UserAnswers.empty("id")))
 
     val authAction =
       new AuthRetrievalsImpl(
@@ -98,7 +99,7 @@ class AuthRetrievalsSpec extends BaseSpec {
         messagesControllerComponents,
         mockJourneyCacheRepository,
         mockFandfService
-      )(implicitly, config)
+      )(using implicitly, config)
 
     new Harness(authAction)
   }
@@ -106,7 +107,7 @@ class AuthRetrievalsSpec extends BaseSpec {
   "A user with a nino and an SA enrolment must" must {
     "create an authenticated request" in {
 
-      when(mockFandfService.getTrustedHelper()(any(), any())).thenReturn(
+      when(mockFandfService.getTrustedHelper()(using any(), any())).thenReturn(
         Future.successful(
           None
         )
@@ -126,7 +127,7 @@ class AuthRetrievalsSpec extends BaseSpec {
   "A user with trustedHelper must" must {
     "create an authenticated request containing the trustedHelper" in {
 
-      when(mockFandfService.getTrustedHelper()(any(), any())).thenReturn(
+      when(mockFandfService.getTrustedHelper()(using any(), any())).thenReturn(
         Future.successful(
           Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino)))
         )

@@ -231,7 +231,7 @@ class AddressSubmissionController @Inject() (
     addressDto: AddressDto,
     version: ETag,
     addressType: String
-  )(implicit hc: HeaderCarrier, request: UserRequest[_]) =
+  )(implicit hc: HeaderCarrier, request: UserRequest[?]) =
     if (addressWasUnmodified(originalAddressDto, addressDto)) {
       auditConnector.sendEvent(
         buildEvent(

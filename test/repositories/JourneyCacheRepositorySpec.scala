@@ -61,9 +61,9 @@ class JourneyCacheRepositorySpec
   private val idNotExisting = "id that does not exist"
 
   private val mockConfigDecorator = mock[ConfigDecorator]
-  when(mockConfigDecorator.sessionTimeoutInSeconds) thenReturn 1
+  when(mockConfigDecorator.sessionTimeoutInSeconds) `thenReturn` 1
 
-  protected override val repository = new JourneyCacheRepository(
+  protected override val repository: JourneyCacheRepository = new JourneyCacheRepository(
     mongoComponent = mongoComponent,
     appConfig = mockConfigDecorator,
     clock = stubClock
@@ -71,7 +71,7 @@ class JourneyCacheRepositorySpec
 
   ".set" - {
     "must set the last updated time on the supplied user answers to `now`, and save them" in {
-      val expectedResult = userAnswers copy (lastUpdated = instant)
+      val expectedResult = userAnswers.copy(lastUpdated = instant)
       repository.set(userAnswers).futureValue
       val updatedRecord  = find(Filters.equal("_id", userAnswers.id)).futureValue.headOption.value
       updatedRecord mustEqual expectedResult
@@ -83,7 +83,7 @@ class JourneyCacheRepositorySpec
       "must update the lastUpdated time and get the record" in {
         insert(userAnswers).futureValue
         val result         = repository.get.futureValue
-        val expectedResult = userAnswers copy (lastUpdated = instant)
+        val expectedResult = userAnswers.copy(lastUpdated = instant)
         result mustEqual expectedResult
       }
     }
@@ -91,7 +91,7 @@ class JourneyCacheRepositorySpec
     "when there is no record for this id" - {
       "must return new user answers with no user and session id" in {
         val hc: HeaderCarrier = HeaderCarrier.apply(sessionId = Some(SessionId(idNotExisting)))
-        val res               = repository.get(hc).futureValue
+        val res               = repository.get(using hc).futureValue
         res.get(SubmittedAddressPage(PostalAddrType)) mustBe None
         res.id mustBe idNotExisting
       }
@@ -107,7 +107,7 @@ class JourneyCacheRepositorySpec
     }
     "must successfully when there is no record to remove" in {
       val hc: HeaderCarrier = HeaderCarrier.apply(sessionId = Some(SessionId(idNotExisting)))
-      repository.clear(hc).futureValue mustBe (): Unit
+      repository.clear(using hc).futureValue mustBe (): Unit
     }
   }
 
@@ -118,7 +118,7 @@ class JourneyCacheRepositorySpec
         insert(userAnswers).futureValue
         repository.keepAlive.futureValue
 
-        val expectedUpdatedAnswers = userAnswers copy (lastUpdated = instant)
+        val expectedUpdatedAnswers = userAnswers.copy(lastUpdated = instant)
         val updatedAnswers         = find(Filters.equal("_id", userAnswers.id)).futureValue.headOption.value
         updatedAnswers mustEqual expectedUpdatedAnswers
       }
@@ -127,7 +127,7 @@ class JourneyCacheRepositorySpec
     "when there is no record for this id" - {
       "must return unit + no exception" in {
         val hc: HeaderCarrier = HeaderCarrier.apply(sessionId = Some(SessionId(idNotExisting)))
-        repository.keepAlive(hc).futureValue mustEqual (): Unit
+        repository.keepAlive(using hc).futureValue mustEqual (): Unit
       }
     }
   }

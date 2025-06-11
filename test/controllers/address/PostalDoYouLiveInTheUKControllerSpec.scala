@@ -37,11 +37,11 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       def userAnswersToReturn: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
+      when(mockJourneyCacheRepository.get(using any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
       val result: Future[Result]           = controller.onPageLoad(currentRequest)
 
       status(result) mustBe OK
-      verify(mockJourneyCacheRepository, times(1)).get(any())
+      verify(mockJourneyCacheRepository, times(1)).get(using any())
     }
 
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in {
@@ -49,7 +49,7 @@ class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
-      verify(mockJourneyCacheRepository, times(1)).get(any())
+      verify(mockJourneyCacheRepository, times(1)).get(using any())
     }
   }
 

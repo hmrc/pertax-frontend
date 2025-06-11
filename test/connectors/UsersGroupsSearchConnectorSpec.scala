@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class UsersGroupsSearchConnectorSpec extends ConnectorSpec with WireMockHelper {
 
-  override lazy val app: Application             =
+  override lazy val app: Application =
     app(Map("microservice.services.users-groups-search.port" -> server.port()))
 
   lazy val connector: UsersGroupsSearchConnector =
@@ -86,7 +86,7 @@ class UsersGroupsSearchConnectorSpec extends ConnectorSpec with WireMockHelper {
           Some(usergroupsResponseJson().toString())
         )
         val result = connector.getUserDetails(credId).value.futureValue
-        result mustBe a[Right[_, _]]
+        result mustBe a[Right[?, ?]]
         result.getOrElse("nonsense") mustBe Some(usersGroupSearchResponse)
       }
     }
@@ -96,7 +96,7 @@ class UsersGroupsSearchConnectorSpec extends ConnectorSpec with WireMockHelper {
         stubGet(PATH, OK, Some(""))
 
         val result = connector.getUserDetails(credId).value.futureValue
-        result mustBe a[Right[_, _]]
+        result mustBe a[Right[?, ?]]
         result.getOrElse("nonsense") mustBe None
       }
     }
@@ -106,7 +106,7 @@ class UsersGroupsSearchConnectorSpec extends ConnectorSpec with WireMockHelper {
         stubGet(PATH, BAD_REQUEST, Some(""))
 
         val result = connector.getUserDetails(credId).value.futureValue
-        result mustBe a[Left[UpstreamErrorResponse, _]]
+        result mustBe a[Left[UpstreamErrorResponse, ?]]
       }
     }
   }

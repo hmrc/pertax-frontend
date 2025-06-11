@@ -81,12 +81,11 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
 
     lazy val controller: SelfAssessmentController = app.injector.instanceOf[SelfAssessmentController]
 
-    when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
+    when(mockAuditConnector.sendEvent(any())(using any(), any())) `thenReturn`
       Future.successful(AuditResult.Success)
-    }
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]): Option[Future[Result]] = {
-      controller //Call to inject mocks
+      controller // Call to inject mocks
       route(app, req)
     }
   }
@@ -277,7 +276,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     "redirect to the url returned by the SelfAssessmentService" in new LocalSetup {
       val redirectUrl = "/foo"
 
-      when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())).thenReturn(
+      when(mockSelfAssessmentService.getSaEnrolmentUrl(using any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[String]](
           Future.successful(Right(Some(redirectUrl)))
         )
@@ -287,7 +286,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "show an error page if no url is returned" in new LocalSetup {
 
-      when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())).thenReturn(
+      when(mockSelfAssessmentService.getSaEnrolmentUrl(using any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[String]](
           Future.successful(Right(None))
         )
@@ -307,7 +306,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
     ).foreach { error =>
       s"show an error page if the service returns a $error response" in new LocalSetup {
 
-        when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())).thenReturn(
+        when(mockSelfAssessmentService.getSaEnrolmentUrl(using any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[String]](
             Future.successful(Left(UpstreamErrorResponse("", error)))
           )

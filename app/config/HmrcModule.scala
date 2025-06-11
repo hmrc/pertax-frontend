@@ -24,13 +24,13 @@ import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import java.time.{Clock, ZoneId}
 
 class HmrcModule extends Module {
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
-    val defaultBindings: Seq[Binding[_]] = Seq(
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[?]] = {
+    val defaultBindings: Seq[Binding[?]] = Seq(
       bind[Clock].toInstance(Clock.systemDefaultZone.withZone(ZoneId.of("Europe/London"))),
       bind[ApplicationStartUp].toSelf.eagerly(),
       bind[CitizenDetailsConnector].qualifiedWith("default").to[DefaultCitizenDetailsConnector],
       bind[CitizenDetailsConnector].to[CachingCitizenDetailsConnector],
-      bind[Encrypter with Decrypter].toProvider[CryptoProvider]
+      bind[Encrypter & Decrypter].toProvider[CryptoProvider]
     )
 
     val useAgentClientAuthorisationCache = configuration

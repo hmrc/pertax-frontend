@@ -26,6 +26,8 @@ object AddressFinderDto {
 
   implicit val formats: OFormat[AddressFinderDto] = Json.format[AddressFinderDto]
 
+  def unapply(obj: AddressFinderDto): Some[(String, Option[String])] = Some((obj.postcode, obj.filter))
+
   val form: Form[AddressFinderDto] = Form(
     mapping(
       "postcode" -> text

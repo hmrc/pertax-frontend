@@ -37,28 +37,28 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
 ) extends Results
     with Logging {
 
-  def addToCache[A: Writes](page: QuestionPage[A], record: A)(implicit request: UserRequest[_]): Future[UserAnswers] = {
+  def addToCache[A: Writes](page: QuestionPage[A], record: A)(implicit request: UserRequest[?]): Future[UserAnswers] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    journeyCacheRepository.get(hc).flatMap { userAnswers =>
+    journeyCacheRepository.get(using hc).flatMap { userAnswers =>
       val updatedAnswers = userAnswers.setOrException(page, record)
       journeyCacheRepository.set(updatedAnswers).map(_ => updatedAnswers)
     }
   }
 
-  def cacheAddressLookupServiceDown()(implicit request: UserRequest[_]): Future[UserAnswers] =
+  def cacheAddressLookupServiceDown()(implicit request: UserRequest[?]): Future[UserAnswers] =
     addToCache(AddressLookupServiceDownPage, true)
 
-  def clearCache()(implicit request: UserRequest[_]): Future[Unit] = {
+  def clearCache()(implicit request: UserRequest[?]): Future[Unit] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    journeyCacheRepository.clear(hc)
+    journeyCacheRepository.clear(using hc)
   }
 
   def gettingCachedAddressLookupServiceDown[T](
     block: Option[Boolean] => T
-  )(implicit request: UserRequest[_]): Future[T] = {
+  )(implicit request: UserRequest[?]): Future[T] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     journeyCacheRepository
-      .get(hc)
+      .get(using hc)
       .map { userAnswers =>
         block(userAnswers.get(AddressLookupServiceDownPage))
       }
@@ -72,10 +72,10 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
 
   def gettingCachedJourneyData[T](
     typ: AddrType
-  )(block: AddressJourneyData => Future[T])(implicit request: UserRequest[_]): Future[T] = {
+  )(block: AddressJourneyData => Future[T])(implicit request: UserRequest[?]): Future[T] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     journeyCacheRepository
-      .get(hc)
+      .get(using hc)
       .flatMap { userAnswers =>
         block(
           AddressJourneyData(
@@ -102,9 +102,9 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
       }
   }
 
-  def enforceDisplayAddressPageVisited(result: Result)(implicit request: UserRequest[_]): Future[Result] = {
+  def enforceDisplayAddressPageVisited(result: Result)(implicit request: UserRequest[?]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    journeyCacheRepository.get(hc).map { userAnswers =>
+    journeyCacheRepository.get(using hc).map { userAnswers =>
       userAnswers.get(HasAddressAlreadyVisitedPage) match {
         case Some(_) =>
           logger.info("Has address already visited present")

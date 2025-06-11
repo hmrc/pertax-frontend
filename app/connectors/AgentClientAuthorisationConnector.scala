@@ -43,7 +43,7 @@ trait AgentClientAuthorisationConnector {
   def getAgentClientStatus(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
-    request: Request[_]
+    request: Request[?]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus]
 }
 
@@ -55,7 +55,7 @@ class CachingAgentClientAuthorisationConnector @Inject() (
 
   private def cache[L, A: Format](
     key: String
-  )(f: => EitherT[Future, L, A])(implicit request: Request[_]): EitherT[Future, L, A] = {
+  )(f: => EitherT[Future, L, A])(implicit request: Request[?]): EitherT[Future, L, A] = {
 
     def fetchAndCache: EitherT[Future, L, A] =
       for {
@@ -84,7 +84,7 @@ class CachingAgentClientAuthorisationConnector @Inject() (
   override def getAgentClientStatus(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
-    request: Request[_]
+    request: Request[?]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] =
     cache("agentClientStatus") {
       underlying.getAgentClientStatus
@@ -109,7 +109,7 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
   override def getAgentClientStatus(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
-    request: Request[_]
+    request: Request[?]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] = {
     val url    = s"$baseUrl/agent-client-relationships/customer-status"
     val result =

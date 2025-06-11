@@ -36,7 +36,7 @@ class PaperlessPreferencesController @Inject() (
 
   def managePreferences: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
-      implicit request: UserRequest[_] =>
+      implicit request: UserRequest[?] =>
         Future.successful(
           Redirect(
             getManagePreferencesUrl(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
@@ -46,5 +46,5 @@ class PaperlessPreferencesController @Inject() (
 
   private def getManagePreferencesUrl(returnUrl: String, returnLinkText: String): String =
     s"${configDecorator.preferencesFrontendService}/paperless/check-settings?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools
-      .encryptAndEncode(returnLinkText)}"
+        .encryptAndEncode(returnLinkText)}"
 }

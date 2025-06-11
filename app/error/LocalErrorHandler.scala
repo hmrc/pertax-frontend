@@ -44,13 +44,13 @@ class LocalErrorHandler @Inject() (
   )(implicit requestHeader: RequestHeader): Future[Html] = {
     val messages: Messages = messagesApi.preferred(requestHeader)
     val dummyRequest       = Request(requestHeader, AnyContentAsEmpty)
-    Future.successful(unauthenticatedErrorTemplate(pageTitle, heading, message)(dummyRequest, messages))
+    Future.successful(unauthenticatedErrorTemplate(pageTitle, heading, message)(using dummyRequest, messages))
   }
 
   override def internalServerErrorTemplate(implicit requestHeader: RequestHeader): Future[Html] = {
     val messages: Messages = messagesApi.preferred(requestHeader)
     val dummyRequest       = Request(requestHeader, AnyContentAsEmpty)
-    Future.successful(internalServerErrorView()(dummyRequest, configDecorator, messages))
+    Future.successful(internalServerErrorView()(using dummyRequest, configDecorator, messages))
   }
 
 }

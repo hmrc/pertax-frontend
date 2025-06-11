@@ -32,12 +32,12 @@ class PertaxBaseControllerSpec extends BaseSpec with I18nSupport {
     def executePersonalDetailsNameOrTrustedHelperName(
       optPersonDetails: Option[PersonDetails]
     )(implicit request: UserRequest[AnyContent]): Option[String] =
-      this.personalDetailsNameOrTrustedHelperName(optPersonDetails)(request)
+      this.personalDetailsNameOrTrustedHelperName(optPersonDetails)(using request)
 
     def executePersonalDetailsNameOrDefault(
       optPersonDetails: Option[PersonDetails]
     )(implicit request: UserRequest[AnyContent]): String =
-      this.personalDetailsNameOrDefault(optPersonDetails)(request)
+      this.personalDetailsNameOrDefault(optPersonDetails)(using request)
   }
 
   private val sut = new Harness()
@@ -47,7 +47,7 @@ class PertaxBaseControllerSpec extends BaseSpec with I18nSupport {
   "personalDetailsNameOrDefault" must {
     "return correct default content when no personal details passed in" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executePersonalDetailsNameOrDefault(None)(userRequest) mustBe Messages("label.your_account")
+      sut.executePersonalDetailsNameOrDefault(None)(using userRequest) mustBe Messages("label.your_account")
     }
     "return principal (helpee) name when trusted helper retrieval on request" in {
       val th                                                        = TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))
@@ -55,13 +55,15 @@ class PertaxBaseControllerSpec extends BaseSpec with I18nSupport {
         request = FakeRequest(),
         trustedHelper = Some(th)
       )
-      sut.executePersonalDetailsNameOrDefault(None)(userRequest) mustBe th.principalName
+      sut.executePersonalDetailsNameOrDefault(None)(using userRequest) mustBe th.principalName
     }
     "return correct name when personal details passed in with values and no trusted helper on request" in {
       val person                                                    = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails                                             = PersonDetails(person, None, None)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executePersonalDetailsNameOrDefault(Some(personDetails))(userRequest) mustBe personDetails.person.shortName
+      sut.executePersonalDetailsNameOrDefault(Some(personDetails))(using
+        userRequest
+      ) mustBe personDetails.person.shortName
         .getOrElse("")
     }
     "return correct name when personal details passed in with values and trusted helper on request" in {
@@ -69,7 +71,9 @@ class PertaxBaseControllerSpec extends BaseSpec with I18nSupport {
       val personDetails                                             = PersonDetails(person, None, None)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(request = FakeRequest(), trustedHelper = Some(th))
-      sut.executePersonalDetailsNameOrDefault(Some(personDetails))(userRequest) mustBe personDetails.person.shortName
+      sut.executePersonalDetailsNameOrDefault(Some(personDetails))(using
+        userRequest
+      ) mustBe personDetails.person.shortName
         .getOrElse("")
     }
 
@@ -77,33 +81,37 @@ class PertaxBaseControllerSpec extends BaseSpec with I18nSupport {
       val person                                                    = Person(None, None, None, None, None, None, None, None, None)
       val personDetails                                             = PersonDetails(person, None, None)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executePersonalDetailsNameOrDefault(Some(personDetails))(userRequest) mustBe Messages("label.your_account")
+      sut.executePersonalDetailsNameOrDefault(Some(personDetails))(using userRequest) mustBe Messages(
+        "label.your_account"
+      )
     }
     "return correct default content when personal details passed in with only empty strings" in {
       val person                                                    = Person(Some(""), None, Some(""), None, None, None, None, None, None)
       val personDetails                                             = PersonDetails(person, None, None)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executePersonalDetailsNameOrDefault(Some(personDetails))(userRequest) mustBe Messages("label.your_account")
+      sut.executePersonalDetailsNameOrDefault(Some(personDetails))(using userRequest) mustBe Messages(
+        "label.your_account"
+      )
     }
   }
 
   "personalDetailsNameOrTrustedHelperName" must {
     "return None when no personal details or trusted helper passed in" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executePersonalDetailsNameOrTrustedHelperName(None)(userRequest) mustBe None
+      sut.executePersonalDetailsNameOrTrustedHelperName(None)(using userRequest) mustBe None
     }
     "return principal (helpee) name when no personal details and trusted helper retrieval on request" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         request = FakeRequest(),
         trustedHelper = Some(th)
       )
-      sut.executePersonalDetailsNameOrTrustedHelperName(None)(userRequest) mustBe Some(th.principalName)
+      sut.executePersonalDetailsNameOrTrustedHelperName(None)(using userRequest) mustBe Some(th.principalName)
     }
     "return correct name when personal details passed in with values and no trusted helper on request" in {
       val person                                                    = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails                                             = PersonDetails(person, None, None)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(
+      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(using
         userRequest
       ) mustBe personDetails.person.shortName
     }
@@ -112,7 +120,7 @@ class PertaxBaseControllerSpec extends BaseSpec with I18nSupport {
       val personDetails                                             = PersonDetails(person, None, None)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(request = FakeRequest(), trustedHelper = Some(th))
-      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(
+      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(using
         userRequest
       ) mustBe personDetails.person.shortName
     }
@@ -120,13 +128,13 @@ class PertaxBaseControllerSpec extends BaseSpec with I18nSupport {
       val person                                                    = Person(None, None, None, None, None, None, None, None, None)
       val personDetails                                             = PersonDetails(person, None, None)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(userRequest) mustBe None
+      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(using userRequest) mustBe None
     }
     "return empty name when empty personal details passed in" in {
       val person                                                    = Person(Some(""), None, Some(""), None, None, None, None, None, None)
       val personDetails                                             = PersonDetails(person, None, None)
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(userRequest) mustBe Some("")
+      sut.executePersonalDetailsNameOrTrustedHelperName(Some(personDetails))(using userRequest) mustBe Some("")
     }
   }
 
