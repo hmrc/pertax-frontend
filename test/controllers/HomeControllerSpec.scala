@@ -19,7 +19,7 @@ package controllers
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.admin.ShowOutageBannerToggle
+import models.admin.ShowPlannedOutageBannerToggle
 import models.{BreathingSpaceIndicatorResponse, TaxComponents, TaxComponentsAvailableState}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -93,8 +93,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       )
     )
 
-    when(mockFeatureFlagService.get(ShowOutageBannerToggle))
-      .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = false)))
+    when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
+      .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
 
   }
 
@@ -174,8 +174,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       val expectedHtmlString =
         "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
 
-      when(mockFeatureFlagService.get(ShowOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
 
       val appLocal: Application = appBuilder.build()
 
@@ -189,8 +189,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       val expectedHtmlString =
         "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
 
-      when(mockFeatureFlagService.get(ShowOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = false)))
+      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
 
       val appLocal: Application = appBuilder.build()
 

@@ -21,7 +21,7 @@ import config.NewsAndTilesConfig
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import models._
-import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ShowPlannedOutageBannerToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -366,8 +366,8 @@ class InterstitialControllerSpec extends BaseSpec {
         saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
       )
 
-      when(mockFeatureFlagService.get(ShowOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
 
       val result = controller.displayShutteringPage()(fakeRequest)
       status(result) mustBe OK
@@ -383,8 +383,8 @@ class InterstitialControllerSpec extends BaseSpec {
         saUserType = Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
       )
 
-      when(mockFeatureFlagService.get(ShowOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowOutageBannerToggle, isEnabled = false)))
+      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
 
       val result = controller.displayShutteringPage()(fakeRequest)
       status(result) mustBe SEE_OTHER

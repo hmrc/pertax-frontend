@@ -42,7 +42,7 @@ class FeatureFlagsController @Inject() (
           TaxSummariesTileToggle                -> true,
           AgentClientRelationshipsToggle        -> true,
           BreathingSpaceIndicatorToggle         -> true,
-          ShowOutageBannerToggle                -> false,
+          ShowPlannedOutageBannerToggle         -> false,
           AlertBannerPaperlessStatusToggle      -> true,
           GetPersonFromCitizenDetailsToggle     -> true,
           DfsDigitalFormFrontendAvailableToggle -> true,
