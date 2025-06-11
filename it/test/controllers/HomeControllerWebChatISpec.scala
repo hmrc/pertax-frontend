@@ -39,9 +39,6 @@ class HomeControllerWebChatISpec extends IntegrationSpec {
   private val mockWebChatClient = mock[WebChatClient]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .configure(
-      "feature.web-chat.enabled" -> true
-    )
     .overrides(
       bind[WebChatClient].toInstance(mockWebChatClient)
     )
@@ -70,31 +67,11 @@ class HomeControllerWebChatISpec extends IntegrationSpec {
   }
 
   "personal account page" must {
-    "show the webchat" when {
-      "it is enabled" in {
-        val result: Future[Result] = route(app, request).get
-        httpStatus(result) mustBe OK
-        contentAsString(result) must include("loadRequiredElements")
-        contentAsString(result) must include("loadHMRCChatSkinElement")
-      }
-    }
-
-    "not show the webchat" when {
-      "it is disabled" in {
-        implicit lazy val disabledApp: Application = localGuiceApplicationBuilder()
-          .configure(
-            "feature.web-chat.enabled" -> false
-          )
-          .overrides(
-            bind[WebChatClient].toInstance(mockWebChatClient)
-          )
-          .build()
-
-        val result: Future[Result] = route(disabledApp, request).get
-        httpStatus(result) mustBe OK
-        contentAsString(result) mustNot include("loadRequiredElements")
-        contentAsString(result) mustNot include("loadHMRCChatSkinElement")
-      }
+    "show the webchat" in {
+      val result: Future[Result] = route(app, request).get
+      httpStatus(result) mustBe OK
+      contentAsString(result) must include("loadRequiredElements")
+      contentAsString(result) must include("loadHMRCChatSkinElement")
     }
   }
 

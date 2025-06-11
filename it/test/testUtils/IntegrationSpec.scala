@@ -274,6 +274,40 @@ trait IntegrationSpec
       |}
       |""".stripMargin
 
+  val singleAccountWrapperDataResponse: String =
+    """
+      |{
+      |    "menuItemConfig": [
+      |        {
+      |            "id": "home",
+      |            "text": "Account home",
+      |            "href": "http://localhost:9232/personal-account",
+      |            "leftAligned": true,
+      |            "position": 0,
+      |            "icon": "hmrc-account-icon hmrc-account-icon--home"
+      |        }
+      |    ],
+      |    "ptaMinMenuConfig": {
+      |        "menuName": "Account menu",
+      |        "backName": "Back"
+      |    },
+      |    "urBanners": [
+      |        {
+      |           "page": "test-page",
+      |           "link": "test-link",
+      |           "isEnabled": true
+      |        }
+      |    ],
+      |    "webchatPages": [
+      |        {
+      |            "pattern": "^/personal-account",
+      |            "skinElement": "skinElement",
+      |            "isEnabled": true
+      |        }
+      |    ]
+      |}
+      |""".stripMargin
+
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
@@ -281,14 +315,15 @@ trait IntegrationSpec
         api.inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       )
       .configure(
-        "microservice.services.citizen-details.port"            -> server.port(),
-        "microservice.services.auth.port"                       -> server.port(),
-        "microservice.services.pertax.port"                     -> server.port(),
-        "microservice.services.message-frontend.port"           -> server.port(),
-        "microservice.services.agent-client-relationships.port" -> server.port(),
-        "microservice.services.breathing-space-if-proxy.port"   -> server.port(),
-        "microservice.services.taxcalc-frontend.port"           -> server.port(),
-        "microservice.services.fandf.port"                      -> server.port()
+        "microservice.services.citizen-details.port"                    -> server.port(),
+        "microservice.services.auth.port"                               -> server.port(),
+        "microservice.services.pertax.port"                             -> server.port(),
+        "microservice.services.message-frontend.port"                   -> server.port(),
+        "microservice.services.agent-client-relationships.port"         -> server.port(),
+        "microservice.services.breathing-space-if-proxy.port"           -> server.port(),
+        "microservice.services.taxcalc-frontend.port"                   -> server.port(),
+        "microservice.services.fandf.port"                              -> server.port(),
+        "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port()}"
       )
 
   override def beforeEach(): Unit = {
@@ -334,6 +369,14 @@ trait IntegrationSpec
       WireMock
         .get(urlMatching("/delegation/get"))
         .willReturn(notFound())
+    )
+    server.stubFor(
+      WireMock
+        .get(urlEqualTo("/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"))
+        .willReturn(
+          aResponse()
+            .withBody(singleAccountWrapperDataResponse)
+        )
     )
   }
 

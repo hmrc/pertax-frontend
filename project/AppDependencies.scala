@@ -6,21 +6,20 @@ object AppDependencies {
   private val playVersion               = "play-30"
   private val cryptoVersion             = "8.2.0"
   private val webChatVersion            = "1.7.0"
-  private val scaWrapperVersion         = "2.10.0"
+  private val scaWrapperVersion         = "2.14.0"
   private val mongoFeatureClientVersion = "1.10.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
     "uk.gov.hmrc"       %% "tax-year"                                   % "5.0.0",
     "io.lemonlabs"      %% "scala-uri"                                  % "4.0.3",
-    "org.jsoup"          % "jsoup"                                      % "1.18.3",
+    "org.jsoup"          % "jsoup"                                      % "1.20.1",
     "org.typelevel"     %% "cats-core"                                  % "2.13.0",
-    "org.typelevel"     %% "cats-effect"                                % "3.5.4",
-    "org.apache.commons" % "commons-text"                               % "1.12.0",
+    "org.typelevel"     %% "cats-effect"                                % "3.6.1",
+    "org.apache.commons" % "commons-text"                               % "1.13.1",
     "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % scaWrapperVersion,
     "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % mongoFeatureClientVersion,
-    "uk.gov.hmrc"       %% s"crypto-json-$playVersion"                  % cryptoVersion,
-    "uk.gov.hmrc"       %% "digital-engagement-platform-chat-30"        % webChatVersion
+    "uk.gov.hmrc"       %% s"crypto-json-$playVersion"                  % cryptoVersion
   )
 
   val test: Seq[ModuleID] = Seq(
