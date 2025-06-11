@@ -530,6 +530,17 @@ label.manage_a_claim=Manage a claim
 label.view_your_child_benefit_payment_history=View your Child Benefit payment history
 label.view_your_proof_of_entitlement_to_child_benefit=View your proof of entitlement to Child Benefit
 label.high_income_child_benefit_charge=High Income Child Benefit Charge
+label.visit_high_income_child_benefit_charge=Visit High Income Child Benefit Charge
+label.hicbc_to = to
+label.hicbc_li1=find out if you need to pay the charge
+label.hicbc_li2=register for the charge
+label.hicbc_li3=or opt out of Child Benefit
+label.view_hicbc_taxfree = View the High Income Child Benefit charge in your tax-free amount
+label.continue_hicbc_taxfree = Continue to your tax-free amount
+
+label.hicbc_paye=You pay the High Income Child Benefit Charge through Pay As You Earn (PAYE).
+label.hicbc_deduction_tax_free=It will show as a deduction from your tax-free amount.
+
 label.change_your_bank_details=Change your bank details
 label.check_if_you_can_claim=Check if you can claim
 

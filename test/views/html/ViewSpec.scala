@@ -28,6 +28,9 @@ trait ViewSpec extends BaseSpec with GuiceOneAppPerSuite {
   def hasLink(document: Document, content: String): Assertion =
     document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
+  def notHasLink(document: Document, content: String): Assertion =
+    document.getElementsMatchingText(content).hasAttr("href") mustBe false
+
   implicit lazy val messageProvider: MessagesProvider = inject[MessagesProvider]
   implicit lazy val messages: Messages                = MessagesImpl(Lang("en"), messagesApi)
   lazy val welshMessages: Messages                    = MessagesImpl(Lang("cy"), messagesApi)

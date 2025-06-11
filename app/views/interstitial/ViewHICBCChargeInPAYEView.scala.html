@@ -1,0 +1,38 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+@import views.html.components.{Button, H1, P}
+@import views.MainView
+@this(
+        main: MainView,
+        h1: H1,
+        button: Button,
+        p: P
+)
+
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@main(pageTitle = messages("label.view_hicbc_taxfree"), showBackLink = true) {
+
+    @h1("label.view_hicbc_taxfree")
+    @p(Text(messages("label.hicbc_paye")))
+    @p(Text(messages("label.hicbc_deduction_tax_free")))
+    
+    @button(href = Some(s"${configDecorator.taiHost}/check-income-tax/tax-free-allowance"), id="continue", msg = "label.continue_hicbc_taxfree")
+}

@@ -17,13 +17,17 @@
 package controllers
 
 import com.google.inject.Inject
+import connectors.TaiConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowPlannedOutageBannerToggle
+import models.TaxComponents.readsListString
 import play.api.mvc._
 import services._
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
@@ -35,7 +39,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
-  taiService: TaiService,
+  taiConnector: TaiConnector,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
@@ -54,11 +58,17 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
+  private def getTaxComponentsOrEmptyList(nino: Nino, year: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[List[String]] = taiConnector
+    .taxComponents(nino, year)(readsListString)
+    .fold(_ => List.empty, _.getOrElse(List.empty))
+
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
     enforceInterrupts {
       for {
-        taxSummaryState         <- taiService.retrieveTaxComponentsState(Some(request.helpeeNinoOrElse), current.currentYear)
+        taxComponents           <- getTaxComponentsOrEmptyList(request.helpeeNinoOrElse, current.currentYear)
         breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse)
         incomeCards             <- homeCardGenerator.getIncomeCards
         atsCard                 <- homeCardGenerator.getATSCard()
@@ -67,7 +77,7 @@ class HomeController @Inject() (
         personDetails           <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value
       } yield {
         val nameToDisplay: Option[String] = Some(personalDetailsNameOrDefault(personDetails))
-        val benefitCards                  = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents, request.trustedHelper)
+        val benefitCards                  = homeCardGenerator.getBenefitCards(taxComponents, request.trustedHelper)
 
         Ok(
           homeView(

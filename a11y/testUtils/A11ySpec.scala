@@ -16,12 +16,15 @@
 
 package testUtils
 
-import org.apache.pekko.Done
+import cats.Invariant._
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.AllFeatureFlags
+import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.{reset => resetMock, when}
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
@@ -35,8 +38,8 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.scalatestaccessibilitylinter.AccessibilityMatchers
 
-import scala.concurrent.Future
 import scala.concurrent.duration.Duration
+import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 trait A11ySpec
@@ -45,9 +48,10 @@ trait A11ySpec
     with WireMockHelper
     with ScalaFutures
     with Matchers
+    with IntegrationPatience
     with AccessibilityMatchers {
 
-  val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
+  protected val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
     override def set(key: String, value: Any, expiration: Duration): Future[Done] = Future.successful(Done)
 
     override def remove(key: String): Future[Done] = Future.successful(Done)
@@ -61,17 +65,17 @@ trait A11ySpec
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
 
-  lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
-
-  implicit override val patienceConfig: PatienceConfig =
+  protected lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+  protected implicit lazy val ec: ExecutionContext              = app.injector.instanceOf[ExecutionContext]
+  implicit override val patienceConfig: PatienceConfig          =
     PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
 
-  val configTaxYear        = 2021
-  val testTaxYear: Int     = configTaxYear - 1
-  val generatedNino: Nino  = new Generator().nextNino
-  val generatedUtr: String = new Generator().nextAtedUtr.utr
+  protected val configTaxYear        = 2021
+  protected val testTaxYear: Int     = configTaxYear - 1
+  protected val generatedNino: Nino  = new Generator().nextNino
+  protected val generatedUtr: String = new Generator().nextAtedUtr.utr
 
-  val authResponse: String =
+  protected val authResponse: String =
     s"""
        |{
        |    "confidenceLevel": 200,
@@ -108,7 +112,7 @@ trait A11ySpec
        |}
        |""".stripMargin
 
-  val citizenResponse: String =
+  protected val citizenResponse: String =
     s"""|
        |{
         |  "name": {
@@ -125,7 +129,7 @@ trait A11ySpec
         |}
         |""".stripMargin
 
-  val designatoryDetailsResponse: String =
+  protected val designatoryDetailsResponse: String =
     s"""{
        |"person":{
        |  "firstName":"John",
@@ -165,6 +169,8 @@ trait A11ySpec
     AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
+      when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(flag)))
+        .thenReturn(EitherT.rightT(FeatureFlag(flag, isEnabled = false)))
     }
 
     server.stubFor(

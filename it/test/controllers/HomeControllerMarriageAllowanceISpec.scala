@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
@@ -55,8 +56,8 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     beforeEachHomeController()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
   }
 
   "personal-account" must {

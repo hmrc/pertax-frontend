@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
 import models.admin.TaxComponentsToggle
@@ -159,8 +160,8 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
         )
     )
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
   }
 
   "personal-account" must {
