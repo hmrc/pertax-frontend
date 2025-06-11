@@ -20,6 +20,7 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import models._
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import play.api.Application
 import play.api.libs.json._

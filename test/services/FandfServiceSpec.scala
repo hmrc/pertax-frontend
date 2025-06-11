@@ -19,6 +19,7 @@ package services
 import cats.data.EitherT
 import connectors.FandFConnector
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.mvc.AnyContentAsEmpty

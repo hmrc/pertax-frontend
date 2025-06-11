@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import config.ConfigDecorator
 import models.addresslookup.{AddressRecord, RecordSet}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.Status._

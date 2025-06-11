@@ -471,6 +471,7 @@ label.secondary_class_1_1a_1b_paid_by_employers=secondary Class 1, 1A and 1B (pa
 label.prepare_for_the_health_and_social_care_levy=Prepare for the Health and Social Care Levy (opens in new tab)
 healthAndSocialCareLevy.link.url = https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy
 label.the_increase_will_not_apply_if_you_are_over_the_state_pension_age=The increase will not apply if you are over the State Pension age.
+label.news_and_updates.published = Published
 #
 # ITSA
 #
@@ -726,6 +727,7 @@ alert_banner.paperlessStatus.bounced_email.p1 = We are having trouble sending yo
 alert_banner.paperlessStatus.bounced_email.p2.start = Please
 alert_banner.paperlessStatus.bounced_email.link = check your email address
 alert_banner.paperlessStatus.bounced_email.p2.end = now.
+alert_banner.peak_demand.message = Some services are busier than usual. You might wait longer to access them, or try again later.
 
 #*************************************************************
 # P85

@@ -19,6 +19,7 @@ package services
 import cats.data.EitherT
 import connectors.IdentityVerificationFrontendConnector
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.http.Status._
 import play.api.libs.json.Json
 import testUtils.BaseSpec

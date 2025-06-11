@@ -21,6 +21,7 @@ import connectors.{EnrolmentsConnector, UsersGroupsSearchConnector}
 import models._
 import models.enrolments.{AccountDetails, AdditionalFactors, EACDEnrolment, EnrolmentDoesNotExist, EnrolmentError, IdentifiersOrVerifiers, KnownFactResponseForNINO, SCP, UsersAssignedEnrolment, UsersGroupResponse}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import repositories.JourneyCacheRepository
 import routePages.SelfAssessmentUserTypePage
@@ -41,7 +42,9 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockJourneyCacheRepository, mockEnrolmentsConnector, mockUsersGroupsSearchConnector)
+    reset(mockJourneyCacheRepository)
+    reset(mockEnrolmentsConnector)
+    reset(mockUsersGroupsSearchConnector)
   }
 
   trait LocalSetup {

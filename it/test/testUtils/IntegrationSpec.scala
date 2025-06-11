@@ -21,14 +21,13 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import org.apache.pekko.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import connectors.CitizenDetailsConnector
 import models.admin._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api
 import play.api.cache.AsyncCacheApi
@@ -39,6 +38,7 @@ import repositories.JourneyCacheRepository
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import org.mockito.Mockito.{reset => resetMock}
 
 import java.time.LocalDateTime
 import scala.concurrent.duration.Duration
@@ -294,7 +294,7 @@ trait IntegrationSpec
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    org.mockito.MockitoSugar.reset(mockFeatureFlagService)
+    resetMock(mockFeatureFlagService)
     AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))

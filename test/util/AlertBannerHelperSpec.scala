@@ -19,10 +19,11 @@ package util
 import cats.data.EitherT
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import models.admin.{AlertBannerPaperlessStatusToggle, VoluntaryContributionsAlertToggle}
+import models.admin.{AlertBannerPaperlessStatusToggle, PeakDemandBannerToggle, VoluntaryContributionsAlertToggle}
 import models.{PaperlessMessagesStatus, PaperlessStatusBounced, PaperlessStatusNewCustomer, PaperlessStatusNoEmail, PaperlessStatusOptIn, PaperlessStatusOptOut, PaperlessStatusReopt, PaperlessStatusReoptModified, PaperlessStatusUnverified}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, when}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -33,6 +34,7 @@ import testUtils.{BaseSpec, UserRequestFixture}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.components.alertBanner.paperlessStatus._
+import views.html.components.alertBanner.peakDemandBanner
 
 import scala.concurrent.Future
 
@@ -48,6 +50,10 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle)))
       .thenReturn(Future.successful(FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = true)))
+
+    when(mockFeatureFlagService.get(PeakDemandBannerToggle))
+      .thenReturn(Future.successful(FeatureFlag(PeakDemandBannerToggle, isEnabled = false)))
+
   }
 
   override lazy val app: Application = localGuiceApplicationBuilder()
@@ -56,11 +62,12 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
     )
     .build()
 
-  override lazy val messagesApi: MessagesApi    = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages          = MessagesImpl(Lang("en"), messagesApi)
-  lazy val alertBannerHelper: AlertBannerHelper = app.injector.instanceOf[AlertBannerHelper]
-  lazy val bouncedEmailView: bouncedEmail       = app.injector.instanceOf[bouncedEmail]
-  lazy val unverifiedEmailView: unverifiedEmail = app.injector.instanceOf[unverifiedEmail]
+  override lazy val messagesApi: MessagesApi      = app.injector.instanceOf[MessagesApi]
+  implicit lazy val messages: Messages            = MessagesImpl(Lang("en"), messagesApi)
+  lazy val alertBannerHelper: AlertBannerHelper   = app.injector.instanceOf[AlertBannerHelper]
+  lazy val bouncedEmailView: bouncedEmail         = app.injector.instanceOf[bouncedEmail]
+  lazy val unverifiedEmailView: unverifiedEmail   = app.injector.instanceOf[unverifiedEmail]
+  lazy val peakDemandBannerView: peakDemandBanner = app.injector.instanceOf[peakDemandBanner]
 
   lazy val voluntaryContributionsAlertView: voluntaryContributionsAlertView =
     app.injector.instanceOf[voluntaryContributionsAlertView]
@@ -105,6 +112,28 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       val result = alertBannerHelper.getContent.futureValue
 
       result mustBe List()
+    }
+
+    "include peak demand banner when toggle is enabled" in {
+      when(mockFeatureFlagService.get(PeakDemandBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(PeakDemandBannerToggle, isEnabled = true)))
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn()))
+
+      val result = alertBannerHelper.getContent.futureValue
+
+      result must contain(peakDemandBannerView())
+    }
+
+    "not include peak demand banner when toggle is disabled" in {
+      when(mockFeatureFlagService.get(PeakDemandBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(PeakDemandBannerToggle, isEnabled = false)))
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any()))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn()))
+
+      val result = alertBannerHelper.getContent.futureValue
+
+      result must not contain peakDemandBannerView()
     }
   }
 

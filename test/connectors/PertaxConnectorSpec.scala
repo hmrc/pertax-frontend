@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, post, url
 import config.ConfigDecorator
 import models.{ErrorView, PertaxResponse}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder

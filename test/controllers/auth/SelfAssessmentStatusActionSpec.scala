@@ -20,6 +20,7 @@ import cats.data.EitherT
 import controllers.auth.requests._
 import models._
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder

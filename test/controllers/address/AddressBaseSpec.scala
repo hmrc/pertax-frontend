@@ -27,6 +27,7 @@ import models.addresslookup.RecordSet
 import models.dto.AddressDto
 import models.{Address, AddressChanged, AddressJourneyTTLModel, AddressesLock, ETag, MovedToScotland, NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType, UserAnswers}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, when}
 import play.api.Application
 import play.api.http.Status.NO_CONTENT
 import play.api.i18n.{Lang, Messages, MessagesImpl}
@@ -83,14 +84,14 @@ trait AddressBaseSpec extends BaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+    reset(mockAuthJourney)
+    reset(mockJourneyCacheRepository)
+    reset(mockAddressLookupConnector)
+    reset(mockCitizenDetailsService)
+    reset(mockAddressMovedService)
+    reset(mockEditAddressLockRepository)
+    reset(mockAuditConnector)
     reset(
-      mockAuthJourney,
-      mockJourneyCacheRepository,
-      mockAddressLookupConnector,
-      mockCitizenDetailsService,
-      mockAddressMovedService,
-      mockEditAddressLockRepository,
-      mockAuditConnector,
       mockAgentClientAuthorisationService
     )
     setupAuth()

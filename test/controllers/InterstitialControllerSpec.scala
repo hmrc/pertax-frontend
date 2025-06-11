@@ -25,7 +25,8 @@ import models._
 import models.admin.{BreathingSpaceIndicatorToggle, ShowOutageBannerToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.stubbing.ScalaOngoingStubbing
+import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.stubbing.OngoingStubbing
 import play.api.Application
 import play.api.inject.{Binding, bind}
 import play.api.mvc._
@@ -60,7 +61,7 @@ class InterstitialControllerSpec extends BaseSpec {
     saUserType: Option[SelfAssessmentUserType] = None,
     enrolments: Set[Enrolment] = Set.empty,
     trustedHelper: Option[TrustedHelper] = None
-  ): ScalaOngoingStubbing[ActionBuilder[UserRequest, AnyContent]] = {
+  ): OngoingStubbing[ActionBuilder[UserRequest, AnyContent]] = {
     val actionBuilderFixture: ActionBuilderFixture = new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
         saUserType match {
@@ -109,14 +110,12 @@ class InterstitialControllerSpec extends BaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(
-      mockSaPartialService,
-      mockFormPartialService,
-      mockNewsAndTilesConfig,
-      mockCitizenDetailsService,
-      mockAlertBannerHelper,
-      mockTaiConnector
-    )
+    reset(mockSaPartialService)
+    reset(mockFormPartialService)
+    reset(mockNewsAndTilesConfig)
+    reset(mockCitizenDetailsService)
+    reset(mockAlertBannerHelper)
+    reset(mockTaiConnector)
   }
 
   private def taxComponentsHICBCSuccessResponse(

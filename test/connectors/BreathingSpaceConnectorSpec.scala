@@ -17,21 +17,23 @@
 package connectors
 
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import config.ConfigDecorator
 import org.mockito.ArgumentMatchers.any
-import org.mockito.{ArgumentCaptor, ArgumentMatchers, Mockito, MockitoSugar}
 import play.api.{Application, Logger}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.when
 
 import scala.concurrent.Future
 import scala.util.Random
+import com.github.tomakehurst.wiremock.client.WireMock.{getRequestedFor, matching, urlEqualTo}
+import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
-class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with MockitoSugar {
+class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with MockitoSugar with LogCapturing {
 
   override implicit lazy val app: Application = app(
     Map("microservice.services.breathing-space-if-proxy.port" -> server.port())
@@ -75,12 +77,12 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
 
   private def configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  private val mockLogger: Logger = mock[Logger]
-
   private val dummyContent = "dummy error response"
 
+  val testLogger: Logger = Logger("test-logger")
+
   private def httpClientResponseUsingMockLogger: HttpClientResponse = new HttpClientResponse {
-    override protected val logger: Logger = mockLogger
+    override protected val logger: Logger = testLogger
   }
 
   "getBreathingSpaceIndicator is called" must {
@@ -104,7 +106,6 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
 
     List(SERVICE_UNAVAILABLE, IM_A_TEAPOT, BAD_REQUEST).foreach { httpResponse =>
       s"return an UpstreamErrorResponse when $httpResponse status is received" in {
-        reset(mockLogger)
         val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
         stubGet(url, httpResponse, Some(dummyContent))
 
@@ -139,8 +140,6 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
     }
 
     "return Left but 1 WARN level message logged if receive 403 (indicates IF being restarted due to new release)" in {
-      reset(mockLogger)
-
       val connector = new BreathingSpaceConnector(httpClientV2, httpClientResponseUsingMockLogger, configDecorator) {}
 
       stubGet(
@@ -149,18 +148,16 @@ class BreathingSpaceConnectorSpec extends ConnectorSpec with WireMockHelper with
         Some(dummyContent)
       )
 
-      val result                              = connector.getBreathingSpaceIndicator(nino).value.futureValue
-      result mustBe a[Left[UpstreamErrorResponse, _]]
-      result.swap.exists(_.statusCode == FORBIDDEN)
-      verifyHeader(getRequestedFor(urlEqualTo(url)))
-      val eventCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-      Mockito
-        .verify(mockLogger, times(1))
-        .warn(eventCaptor.capture())(ArgumentMatchers.any())
-      eventCaptor.getValue.contains(dummyContent) mustBe true
-      Mockito
-        .verify(mockLogger, times(0))
-        .error(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+      withCaptureOfLoggingFrom(testLogger) { logs =>
+        val result = connector.getBreathingSpaceIndicator(nino).value.futureValue
+        result mustBe a[Left[UpstreamErrorResponse, _]]
+        result.swap.exists(_.statusCode == FORBIDDEN)
+        verifyHeader(getRequestedFor(urlEqualTo(url)))
+        logs.filter(_.getLevel == ch.qos.logback.classic.Level.WARN).map(_.getMessage) must contain(
+          s"GET of 'http://localhost:${server.port()}/$nino/memorandum' returned 403. Response body: '$dummyContent'"
+        )
+        logs.count(_.getLevel == ch.qos.logback.classic.Level.ERROR) mustBe 0
+      }
     }
   }
 

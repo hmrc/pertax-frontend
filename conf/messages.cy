@@ -321,6 +321,7 @@ label.secondary_class_1_1a_1b_paid_by_employers=CYG Dosbarth 1, 1A ac 1B eilaidd
 label.prepare_for_the_health_and_social_care_levy=Paratoi ar gyfer yr Ardoll Iechyd a Gofal Cymdeithasol (yn agor tab newydd)
 healthAndSocialCareLevy.link.url = https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy.cy
 label.the_increase_will_not_apply_if_you_are_over_the_state_pension_age=Ni fydd y cynnydd yn berthnasol os ydych dros oedran Pensiwn y Wladwriaeth.
+label.news_and_updates.published = Cyhoeddwyd
 #
 # Error messages
 #
@@ -722,6 +723,8 @@ alert_banner.paperlessStatus.bounced_email.p2.start = Gwiriwch
 alert_banner.paperlessStatus.bounced_email.p2.end = nawr.
 alert_banner.paperlessStatus.unverified_email.link = ddilysu’ch cyfeiriad e-bost
 alert_banner.paperlessStatus.unverified_email.p1 = Mae angen i chi
+
+alert_banner.peak_demand.message = Mae ambell wasanaeth yn brysurach nag arfer. Mae’n bosibl y bydd yn rhaid i chi aros yn hirach i gael mynediad atynt, neu gallwch roi cynnig arall arni yn nes ymlaen.
 
 #*************************************************************
 # P85

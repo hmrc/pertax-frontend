@@ -22,12 +22,13 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.AllFeatureFlags
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
-import org.mockito.MockitoSugar.mock
+import org.mockito.Mockito.{reset => resetMock, when}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api
 import play.api.cache.AsyncCacheApi
@@ -164,7 +165,7 @@ trait A11ySpec
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    org.mockito.MockitoSugar.reset(mockFeatureFlagService)
+    resetMock(mockFeatureFlagService)
     AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))

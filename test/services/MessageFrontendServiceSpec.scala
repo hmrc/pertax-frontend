@@ -19,6 +19,7 @@ package services
 import connectors.EnhancedPartialRetriever
 import controllers.auth.requests.UserRequest
 import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.bind
