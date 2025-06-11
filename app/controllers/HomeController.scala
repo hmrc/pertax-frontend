@@ -21,7 +21,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.admin.ShowOutageBannerToggle
+import models.admin.ShowPlannedOutageBannerToggle
 import play.api.mvc._
 import services._
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -62,7 +62,7 @@ class HomeController @Inject() (
         breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse)
         incomeCards             <- homeCardGenerator.getIncomeCards
         atsCard                 <- homeCardGenerator.getATSCard()
-        shutteringMessaging     <- featureFlagService.get(ShowOutageBannerToggle)
+        shutteringMessaging     <- featureFlagService.get(ShowPlannedOutageBannerToggle)
         alertBannerContent      <- alertBannerHelper.getContent
         personDetails           <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).toOption.value
       } yield {
