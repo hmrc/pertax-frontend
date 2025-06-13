@@ -17,12 +17,12 @@
 package testUtils
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import org.apache.pekko.Done
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.admin._
+import models.admin.*
+import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{when, reset as resetMock}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -37,7 +37,6 @@ import repositories.JourneyCacheRepository
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import org.mockito.Mockito.{reset => resetMock}
 
 import java.time.LocalDateTime
 import scala.concurrent.duration.Duration
@@ -340,8 +339,8 @@ trait IntegrationSpec
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
       .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-      .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
+      .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
 
     server.stubFor(
       post(urlEqualTo("/auth/authorise"))

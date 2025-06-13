@@ -17,13 +17,13 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import controllers.auth.requests.UserRequest
-import models.admin._
+import models.admin.*
 import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserAnswers, UserDetails}
 import org.jsoup.Jsoup
-import org.mockito.Mockito.when
 import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.libs.json.Json
@@ -178,14 +178,14 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(EnforcePaperlessPreferenceToggle)))
+      .thenReturn(Future.successful(FeatureFlag(EnforcePaperlessPreferenceToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxSummariesTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(ShowTaxSummariesTileToggle, isEnabled = true)))
   }
 
   "personal-account" when {

@@ -18,7 +18,7 @@ package services
 
 import com.google.inject.Inject
 import connectors.TaiConnector
-import models.admin.TaxComponentsToggle
+import models.admin.TaxComponentsRetrievalToggle
 import models.{TaxComponents, TaxComponentsAvailableState, TaxComponentsDisabledState, TaxComponentsNotAvailableState, TaxComponentsState, TaxComponentsUnreachableState}
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
 import uk.gov.hmrc.domain.Nino
@@ -36,7 +36,7 @@ class TaiService @Inject() (taiConnector: TaiConnector, featureFlagService: Feat
     ninoOpt.fold[Future[TaxComponentsState]](
       Future.successful(TaxComponentsDisabledState)
     ) { nino =>
-      featureFlagService.get(TaxComponentsToggle).flatMap { toggle =>
+      featureFlagService.get(TaxComponentsRetrievalToggle).flatMap { toggle =>
         if (toggle.isEnabled) {
           taiConnector
             .taxComponents(nino, year)

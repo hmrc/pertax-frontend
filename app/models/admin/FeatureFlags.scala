@@ -21,110 +21,113 @@ import uk.gov.hmrc.mongoFeatureToggles.model.{Environment, FeatureFlagName}
 
 object AllFeatureFlags {
   val list: List[FeatureFlagName] = List(
-    TaxcalcToggle,
-    TaxComponentsToggle,
+    ShowTaxCalcTileToggle,
+    TaxComponentsRetrievalToggle,
     RlsInterruptToggle,
-    PaperlessInterruptToggle,
+    EnforcePaperlessPreferenceToggle,
     TaxSummariesTileToggle,
     ShowPlannedOutageBannerToggle,
     AgentClientRelationshipsToggle,
     BreathingSpaceIndicatorToggle,
     AlertBannerPaperlessStatusToggle,
-    GetPersonFromCitizenDetailsToggle,
-    DfsDigitalFormFrontendAvailableToggle,
+    DfsFormsFrontendAvailabilityToggle,
     AddressChangeAllowedToggle,
     VoluntaryContributionsAlertToggle,
     PeakDemandBannerToggle
   )
 }
 
-case object TaxcalcToggle extends FeatureFlagName {
-  override val name: String                = "taxcalc"
-  override val description: Option[String] = Some("Enable/disable the tile for payments and repayments (NPS/ETMP)")
+case object ShowTaxCalcTileToggle extends FeatureFlagName {
+  override val name: String                = "show-taxcalc-tile-toggle"
+  override val description: Option[String] = Some(
+    "Toggle the display of the Payments and Repayments tile (NPS/ETMP data) on the home page"
+  )
 }
 
-case object TaxComponentsToggle extends FeatureFlagName {
-  override val name: String                = "tax-components"
+case object TaxComponentsRetrievalToggle extends FeatureFlagName {
+  override val name: String                = "tax-components-retrieval-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable calls for tax-components from tai (NPS). Used for marriage allowance and high income child benefit charge"
+    "Enable retrieval of tax components from TAI (NPS), used for displaying Marriage Allowance and High Income Child Benefit Charge"
   )
 }
 
 case object RlsInterruptToggle extends FeatureFlagName {
   override val name: String                = "rls-interrupt-toggle"
-  override val description: Option[String] = Some("Enable/disable the interrupt for return letter to sender (RLS)")
+  override val description: Option[String] = Some(
+    "Show interrupt page if a residential or correspondence address has RLS status and has not been updated"
+  )
 }
 
-case object PaperlessInterruptToggle extends FeatureFlagName {
+case object EnforcePaperlessPreferenceToggle extends FeatureFlagName {
   override val name: String                = "enforce-paperless-preference"
-  override val description: Option[String] = Some("Enable/disable the interrupt for paperless setting")
+  override val description: Option[String] = Some(
+    "Show an interrupt to prompt users to set or confirm their paperless communication preference"
+  )
 }
 
 case object TaxSummariesTileToggle extends FeatureFlagName {
   override val name: String                = "tax-summaries-tile"
-  override val description: Option[String] = Some("Enable/disable the tile for annual tax summary")
+  override val description: Option[String] = Some(
+    "Enable/disable the display of the Annual Tax Summary tile on the home page"
+  )
 }
 
 case object ShowPlannedOutageBannerToggle extends FeatureFlagName {
   override val name: String                = "show-outage-banner-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable banner warning users of a planned outage. Banner content to be adjusted in app-config first"
+    "Show or hide the planned outage banner on key pages. Banner content is configured via app-config"
   )
 }
 
 case object AgentClientRelationshipsToggle extends FeatureFlagName {
   override val name: String                = "agent-client-relationships-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable calls to agent-client-relationships service from Profile and Setting page"
+    "Enable/disable the check for agent-client relationships on the Profile and Settings page"
   )
 }
 
 case object BreathingSpaceIndicatorToggle extends FeatureFlagName {
   override val name: String                = "breathing-space-indicator-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable calls to Breathing space"
+    "Enable/disable the call to Breathing Space service to determine protected debt period status for the user"
   )
 }
 
-case object GetPersonFromCitizenDetailsToggle extends FeatureFlagName {
-  override val name: String                = "get-person-from-citizen-details-toggle"
-  override val description: Option[String] = Some(
-    "Enable/disable call to designatory-details for person details (NPS)"
-  )
-}
-
-case object DfsDigitalFormFrontendAvailableToggle extends FeatureFlagName {
+case object DfsFormsFrontendAvailabilityToggle extends FeatureFlagName {
   override val name: String                = "dfs-digital-forms-frontend-available-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable indicating whether the dfs digital forms frontend is available or shuttered"
+    "Enable/disable the use of DFS digital forms frontend partials for Self Assessment, NINO, and NISP pages"
   )
 }
 
 case object AddressChangeAllowedToggle extends FeatureFlagName {
   override val name: String                = "address-change-allowed-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable indicating whether the address change is allowed in profile and settings page (NPS)"
+    "Enable or disable the ability to update residential and postal addresses via the Profile and Settings pages (NPS)"
   )
 }
 
 case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
   override val name: String                = "alert-banner-paperless-status-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable banner alerting users of bounced emails due to paperless preference"
+    "Enable or disable alert banners for users with bounced or unverified email addresses based on paperless preferences"
   )
 }
 
 case object VoluntaryContributionsAlertToggle extends FeatureFlagName {
-  override val name: String                         = "voluntary-contributions-alert-toggle"
-  override val description: Option[String]          = Some(
-    "Enable/disable the alert banner for voluntary National Insurance contributions information"
+  override val name: String = "voluntary-contributions-alert-toggle"
+
+  override val description: Option[String] = Some(
+    "Enable/disable the alert banner providing users with information about voluntary National Insurance contributions"
   )
+
   override val lockedEnvironments: Seq[Environment] = Seq(Environment.Production, Environment.Staging)
 }
 
 case object PeakDemandBannerToggle extends FeatureFlagName {
-  override val name: String                = "peak-demand-banner-toggle"
+  override val name: String = "peak-demand-banner-toggle"
+
   override val description: Option[String] = Some(
-    "Enable/disable banner warning users of issues accessing some services"
+    "Enable/disable the banner informing users about high-demand periods affecting service availability"
   )
 }

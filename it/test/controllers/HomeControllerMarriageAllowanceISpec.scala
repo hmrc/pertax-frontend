@@ -16,17 +16,17 @@
 
 package controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.TaxComponentsToggle
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import models.admin.TaxComponentsRetrievalToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status as httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -55,8 +55,8 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     beforeEachHomeController()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
   }
 
   "personal-account" must {

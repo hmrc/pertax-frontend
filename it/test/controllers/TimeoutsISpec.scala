@@ -16,8 +16,8 @@
 
 package controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin._
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import models.admin.*
 import models.dto.AddressPageVisitedDto
 import models.{Person, PersonDetails, UserAnswers}
 import org.jsoup.Jsoup
@@ -32,7 +32,7 @@ import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status as httpStatus}
 import repositories.JourneyCacheRepository
 import routePages.HasAddressAlreadyVisitedPage
 import testUtils.{FileHelper, IntegrationSpec}
@@ -163,10 +163,10 @@ class TimeoutsISpec extends IntegrationSpec {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
       .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
     when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
       Future.successful(
         UserAnswers
@@ -240,8 +240,8 @@ class TimeoutsISpec extends IntegrationSpec {
 
   "/personal-account/national-insurance-summary" must {
     "display no NI content when partial connector times out" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
 
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
@@ -263,8 +263,8 @@ class TimeoutsISpec extends IntegrationSpec {
     }
 
     "display NI content when partial does not time out" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
       server.stubFor(
         get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
           .willReturn(
@@ -288,8 +288,8 @@ class TimeoutsISpec extends IntegrationSpec {
   "/personal-account/self-assessment-summary" must {
     "display no SA content when partial times out" in {
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
 
       server.stubFor(
         get(urlEqualTo(dfsPartialSAUrl))
@@ -306,8 +306,8 @@ class TimeoutsISpec extends IntegrationSpec {
 
     "display SA content when partial does not time out" in {
       server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
 
       server.stubFor(
         get(urlEqualTo(dfsPartialSAUrl))

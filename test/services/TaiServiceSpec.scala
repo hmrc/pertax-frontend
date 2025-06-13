@@ -18,8 +18,8 @@ package services
 
 import cats.data.EitherT
 import connectors.TaiConnector
+import models.admin.TaxComponentsRetrievalToggle
 import models.{TaxComponentsAvailableState, TaxComponentsDisabledState, TaxComponentsNotAvailableState, TaxComponentsUnreachableState}
-import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -41,8 +41,8 @@ class TaiServiceSpec extends BaseSpec {
 
   def sut: TaiService = new TaiService(connector, mockFeatureFlagService)(ec)
 
-  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-    .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+  when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+    .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
 
   "TaiService" when {
     "retrieveTaxComponentsState" must {
@@ -59,8 +59,8 @@ class TaiServiceSpec extends BaseSpec {
       "handle invalid tax year" in {
         val invalidTaxYear = -1
 
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
 
         when(connector.taxComponents(any(), any())(any(), any()))
           .thenReturn(
@@ -84,8 +84,8 @@ class TaiServiceSpec extends BaseSpec {
         val taxComponentsList = List("MarriageAllowanceReceived", "CarBenefit")
         val taxComponentsJson = Json.obj("taxComponents" -> taxComponentsList)
 
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
 
         when(connector.taxComponents(any(), any())(any(), any()))
           .thenReturn(
@@ -104,8 +104,8 @@ class TaiServiceSpec extends BaseSpec {
       }
 
       "return TaxComponentsNotAvailableState if bad request" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
 
         when(connector.taxComponents(any(), any())(any(), any()))
           .thenReturn(
@@ -124,8 +124,8 @@ class TaiServiceSpec extends BaseSpec {
       }
 
       "return TaxComponentsNotAvailableState if not found" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
 
         when(connector.taxComponents(any(), any())(any(), any()))
           .thenReturn(
@@ -144,8 +144,8 @@ class TaiServiceSpec extends BaseSpec {
       }
 
       "return TaxComponentsUnreachableState if does not return either handled error" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
 
         when(connector.taxComponents(any(), any())(any(), any()))
           .thenReturn(
@@ -167,8 +167,8 @@ class TaiServiceSpec extends BaseSpec {
 
     "Toggle isDisabled" must {
       "return success if TaxComponentsDisabledState when TaxComponents are not present" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = false)))
 
         val result = sut.retrieveTaxComponentsState(Some(fakeNino), fakeTaxYear)
 
