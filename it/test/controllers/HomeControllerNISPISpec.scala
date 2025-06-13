@@ -17,15 +17,15 @@
 package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo}
-import models.admin.DfsDigitalFormFrontendAvailableToggle
+import models.admin.DfsFormsFrontendAvailabilityToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status as httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -81,8 +81,8 @@ class HomeControllerNISPISpec extends IntegrationSpec {
 
       "dfs-digital-forms-frontend-available-toggle is disabled and page is not displaying the National Insurance forms section" in {
 
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-          .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
+          .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = false)))
 
         server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(saUTRActivatedAuthResponse)))
 

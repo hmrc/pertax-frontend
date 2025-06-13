@@ -19,10 +19,10 @@ package controllers.controllershelpers
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.routes
-import models._
-import models.admin._
-import org.mockito.ArgumentMatchers.any
+import models.*
+import models.admin.*
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
@@ -41,7 +41,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import views.html.ViewSpec
-import views.html.cards.home._
+import views.html.cards.home.*
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -228,8 +228,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "the tax summaries card is enabled" must {
       "always return the same markup for a SA user" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxSummariesTileToggle)))
+          .thenReturn(Future.successful(FeatureFlag(ShowTaxSummariesTileToggle, isEnabled = true)))
 
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
@@ -252,8 +252,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       incorrectSaUsers.foreach { saType =>
         s"always return the same markup for a $saType user" in {
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-            .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
+          when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxSummariesTileToggle)))
+            .thenReturn(Future.successful(FeatureFlag(ShowTaxSummariesTileToggle, isEnabled = true)))
 
           implicit val payeRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(saUser = saType, request = FakeRequest())
@@ -267,8 +267,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "the tax summaries card is disabled" must {
       "return None" in {
 
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxSummariesTileToggle)))
+          .thenReturn(Future.successful(FeatureFlag(ShowTaxSummariesTileToggle, isEnabled = false)))
 
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(request = FakeRequest())
@@ -492,8 +492,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getIncomeCards" must {
     "when taxcalc toggle on return tax calc cards plus surrounding cards, all in correct position" in {
 
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-        .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List[NewsAndContentModel](
@@ -527,8 +527,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "when taxcalc toggle off return no tax calc cards" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-        .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = false)))
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List[NewsAndContentModel](
@@ -561,8 +561,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "when taxcalc toggle on but trusted helper present return no tax calc cards" in {
 
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-        .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List[NewsAndContentModel](

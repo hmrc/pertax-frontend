@@ -18,14 +18,14 @@ package services
 
 import config.ConfigDecorator
 import connectors.EnhancedPartialRetriever
-import models.admin.DfsDigitalFormFrontendAvailableToggle
+import models.admin.DfsFormsFrontendAvailabilityToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import play.twirl.api.Html
 import services.partials.FormPartialService
 import testUtils.BaseSpec
-import testUtils.Fixtures._
+import testUtils.Fixtures.*
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.partials.HtmlPartial
 
@@ -56,8 +56,8 @@ class FormPartialServiceSpec extends BaseSpec {
     "form list for National insurance return empty" when {
       "DfsDigitalFormFrontendShuttered is disabled" in new LocalSetup {
         when(mockConfigDecorator.nationalInsuranceFormPartialLinkUrl).thenReturn("test-url")
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-          .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
+          .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = false)))
         when(mockEnhancedPartialRetriever.loadPartial(any(), any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
@@ -72,8 +72,8 @@ class FormPartialServiceSpec extends BaseSpec {
     "form list for Self-assessment return empty" when {
       "DfsDigitalFormFrontendShuttered is disabled" in new LocalSetup {
         when(mockConfigDecorator.selfAssessmentFormPartialLinkUrl).thenReturn("test-url")
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-          .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
+          .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = false)))
         when(mockEnhancedPartialRetriever.loadPartial(any(), any())(any(), any())) thenReturn
           Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
@@ -87,8 +87,8 @@ class FormPartialServiceSpec extends BaseSpec {
 
     "return form list for National insurance" in new LocalSetup {
       when(mockConfigDecorator.nationalInsuranceFormPartialLinkUrl).thenReturn("test-url")
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
       when(mockEnhancedPartialRetriever.loadPartial(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
@@ -100,8 +100,8 @@ class FormPartialServiceSpec extends BaseSpec {
 
     "return form list for Self-assessment" in new LocalSetup {
       when(mockConfigDecorator.selfAssessmentFormPartialLinkUrl).thenReturn("test-url")
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsDigitalFormFrontendAvailableToggle)))
-        .thenReturn(Future.successful(FeatureFlag(DfsDigitalFormFrontendAvailableToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
+        .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
       when(mockEnhancedPartialRetriever.loadPartial(any(), ArgumentMatchers.eq(timeoutValue))(any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
