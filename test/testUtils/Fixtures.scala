@@ -119,7 +119,7 @@ trait PafFixtures {
 
 trait TaiFixtures {
 
-  def buildTaxComponents: TaxComponents = TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
+  def buildTaxComponents: List[String] = List("EmployerProvidedServices", "PersonalPensionPayments")
 }
 
 trait CitizenDetailsFixtures {

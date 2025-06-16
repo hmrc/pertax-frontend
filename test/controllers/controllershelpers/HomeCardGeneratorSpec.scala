@@ -125,7 +125,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
 
       lazy val cardBody =
-        homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), Some(helper))
+        homeCardGenerator.getBenefitCards(Fixtures.buildTaxComponents, Some(helper))
 
       cardBody.isEmpty
 
@@ -135,7 +135,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "should have benefit cards when no trusted helper exists in the request" in {
 
-      homeCardGenerator.getBenefitCards(Some(Fixtures.buildTaxComponents), None)
+      homeCardGenerator.getBenefitCards(Fixtures.buildTaxComponents, None)
 
     }
   }
@@ -176,11 +176,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   "Calling getMarriageAllowanceCard" must {
     "return correct markup when called with a user who has tax summary and receives Marriage Allowance" in {
-      val hasTaxComponents: Boolean = true
-      val taxComponents             = List("MarriageAllowanceReceived")
+      val taxComponents = List("MarriageAllowanceReceived")
 
-      lazy val tc =
-        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+      lazy val tc = taxComponents
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
@@ -188,11 +186,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "return nothing when called with a user who has tax summary and transfers Marriage Allowance" in {
-      val hasTaxComponents: Boolean = true
-      val taxComponents             = List("MarriageAllowanceTransferred")
+      val taxComponents = List("MarriageAllowanceTransferred")
 
-      lazy val tc =
-        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+      lazy val tc = taxComponents
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
@@ -200,11 +196,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "return correct markup when called with a user who has no tax summary" in {
-      val hasTaxComponents = false
-      val taxComponents    = List.empty
+      val taxComponents = List.empty
 
-      lazy val tc =
-        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+      lazy val tc = taxComponents
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
@@ -212,11 +206,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "return correct markup when called with a user who has tax summary but no marriage allowance" in {
-      val hasTaxComponents = true
-      val taxComponents    = List("MedicalInsurance")
+      val taxComponents = List("MedicalInsurance")
 
-      lazy val tc =
-        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+      lazy val tc = taxComponents
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 

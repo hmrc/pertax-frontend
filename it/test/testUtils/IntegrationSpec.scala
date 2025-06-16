@@ -16,6 +16,7 @@
 
 package testUtils
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock
 import org.apache.pekko.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -332,6 +333,8 @@ trait IntegrationSpec
     AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
+      when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(flag)))
+        .thenReturn(EitherT.rightT(FeatureFlag(flag, isEnabled = false)))
     }
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))

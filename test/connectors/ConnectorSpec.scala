@@ -23,34 +23,16 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.auth.requests.UserRequest
 import models.{SelfAssessmentUserType, UserDetails}
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.{HeaderNames, MimeTypes, Status}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import testUtils.BaseSpec
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext
-
-trait ConnectorSpec
-    extends AnyWordSpec
-    with GuiceOneAppPerSuite
-    with Status
-    with HeaderNames
-    with MimeTypes
-    with Matchers
-    with ScalaFutures
-    with IntegrationPatience {
-
-  implicit val hc: HeaderCarrier         = HeaderCarrier()
-  implicit lazy val ec: ExecutionContext =
-    scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
+trait ConnectorSpec extends BaseSpec with Status with HeaderNames with MimeTypes {
 
   val server: WireMockServer
 
