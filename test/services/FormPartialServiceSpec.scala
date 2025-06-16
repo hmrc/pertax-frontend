@@ -25,7 +25,7 @@ import org.mockito.Mockito.{reset, times, verify, when}
 import play.twirl.api.Html
 import services.partials.FormPartialService
 import testUtils.BaseSpec
-import testUtils.Fixtures.*
+import testUtils.Fixtures._
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.partials.HtmlPartial
 

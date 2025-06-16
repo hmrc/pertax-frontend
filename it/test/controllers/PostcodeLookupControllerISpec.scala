@@ -19,7 +19,7 @@ package controllers
 import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
-import models.admin.{TaxComponentsRetrievalToggle, TaxComponentsToggle}
+import models.admin.TaxComponentsRetrievalToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -30,8 +30,6 @@ import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, route, writ
 import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-
-import scala.concurrent.Future
 
 class PostcodeLookupControllerISpec extends IntegrationSpec {
 
@@ -181,7 +179,7 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
       result.map(redirectLocation) mustBe Some(Some("/personal-account/your-address/postal/edit-address"))
     }
 
-    "show select address when the address service returns the set of adresses" in {
+    "show select address when the address service returns the set of addresses" in {
 
       val wholeStreetRequestBody: JsObject = Json.obj(
         "postcode" -> "AA11AA"

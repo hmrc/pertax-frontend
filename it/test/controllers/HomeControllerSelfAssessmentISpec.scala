@@ -18,7 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{TaxComponentsRetrievalToggle, TaxComponentsToggle}
+import models.admin.TaxComponentsRetrievalToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
