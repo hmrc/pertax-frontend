@@ -16,15 +16,16 @@
 
 package controllers.auth
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, urlEqualTo, urlMatching, status as _}
-import models.admin.*
+import cats.data.EitherT
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, urlEqualTo, urlMatching, status => _}
+import models.admin._
 import models.{ErrorView, PertaxResponse}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -68,14 +69,14 @@ class AuthJourneyItSpec extends IntegrationSpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(EnforcePaperlessPreferenceToggle)))
       .thenReturn(Future.successful(FeatureFlag(EnforcePaperlessPreferenceToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxSummariesTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(ShowTaxSummariesTileToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
   }
 
   "personal-account" must {

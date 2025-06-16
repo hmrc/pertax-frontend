@@ -18,9 +18,11 @@ package controllers
 
 import com.google.inject.Inject
 import config.{ConfigDecorator, NewsAndTilesConfig}
+import connectors.TaiConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
+import models.TaxComponents.readsIsHICBCWithCharge
 import models._
 import models.admin.{BreathingSpaceIndicatorToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.Logging
@@ -30,6 +32,7 @@ import services.partials.{FormPartialService, SaPartialService}
 import services.{CitizenDetailsService, SeissService}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.time.CurrentTaxYear
 import util.DateTimeTools._
 import util.{AlertBannerHelper, EnrolmentsHelper, FormPartialUpgrade}
 import viewmodels.AlertBannerViewModel
@@ -37,6 +40,7 @@ import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
 import views.html.{SelfAssessmentSummaryView, ShutteringView}
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
@@ -48,6 +52,7 @@ class InterstitialController @Inject() (
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   viewChildBenefitsSummarySingleAccountInterstitialView: ViewChildBenefitsSummarySingleAccountInterstitialView,
+  viewHICBCChargeInPAYEView: ViewHICBCChargeInPAYEView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
@@ -63,10 +68,14 @@ class InterstitialController @Inject() (
   viewNISPView: ViewNISPView,
   selfAssessmentRegistrationPageView: SelfAssessmentRegistrationPageView,
   checkYourStatePensionCallBackView: CheckYourStatePensionCallBackView,
-  alertBannerHelper: AlertBannerHelper
+  alertBannerHelper: AlertBannerHelper,
+  taiConnector: TaiConnector
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
-    with Logging {
+    with Logging
+    with CurrentTaxYear {
+
+  override def now: () => LocalDate = () => LocalDate.now()
 
   private val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
@@ -121,9 +130,20 @@ class InterstitialController @Inject() (
     Redirect(routes.InterstitialController.displayChildBenefitsSingleAccountView, MOVED_PERMANENTLY)
   }
 
-  def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate { implicit request =>
+  def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate.async { implicit request =>
+    taiConnector
+      .taxComponents(request.authNino, current.currentYear)(readsIsHICBCWithCharge)
+      .fold(_ => false, _.getOrElse(false))
+      .map { isRegisteredForHICBCWithCharge =>
+        Ok(
+          viewChildBenefitsSummarySingleAccountInterstitialView(isRegisteredForHICBCWithCharge)
+        )
+      }
+  }
+
+  def displayHICBCChargeInPAYEView: Action[AnyContent] = authenticate { implicit request =>
     Ok(
-      viewChildBenefitsSummarySingleAccountInterstitialView()
+      viewHICBCChargeInPAYEView()
     )
   }
 

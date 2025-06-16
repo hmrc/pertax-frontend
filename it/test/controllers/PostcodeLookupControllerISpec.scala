@@ -16,9 +16,10 @@
 
 package controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock.*
+import cats.data.EitherT
+import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AgentClientStatus
-import models.admin.TaxComponentsRetrievalToggle
+import models.admin.{TaxComponentsRetrievalToggle, TaxComponentsToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -159,8 +160,8 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
         )
     )
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = false)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = false)))
   }
 
   "personal-account" must {

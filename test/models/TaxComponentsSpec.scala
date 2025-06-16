@@ -16,15 +16,14 @@
 
 package models
 
+import models.TaxComponents.{isCompanyBenefitRecipient, isMarriageAllowanceRecipient, isMarriageAllowanceTransferor, notMarriageAllowanceCustomer}
 import play.api.libs.json.Json
 import testUtils.BaseSpec
 
 class TaxComponentsSpec extends BaseSpec {
 
-  "Calling TaxComponents.fromJsonTaxComponents" must {
-
+  "readsListString" must {
     "produce a valid TaxComponents object when supplied good json" in {
-
       val taxComponentsJson = Json.parse("""{
                                            |   "data" : [ {
                                            |      "componentType" : "EmployerProvidedServices",
@@ -42,32 +41,98 @@ class TaxComponentsSpec extends BaseSpec {
                                            |   "links" : [ ]
                                            |}""".stripMargin)
 
-      val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
-      tc mustBe TaxComponents(List("EmployerProvidedServices", "PersonalPensionPayments"))
+      val tc = taxComponentsJson.as[List[String]](TaxComponents.readsListString)
+      tc mustBe List("EmployerProvidedServices", "PersonalPensionPayments")
+    }
+  }
+
+  "readsIsHICBCWithCharge" must {
+    "return false when no HICBC component exists" in {
+      val taxComponentsJson = Json.parse("""{
+                                           |   "data" : [ {
+                                           |      "componentType" : "EmployerProvidedServices",
+                                           |      "employmentId" : 12,
+                                           |      "amount" : 12321,
+                                           |      "description" : "Some Description",
+                                           |      "iabdCategory" : "Benefit"
+                                           |   }, {
+                                           |      "componentType" : "PersonalPensionPayments",
+                                           |      "employmentId" : 31,
+                                           |      "amount" : 12345,
+                                           |      "description" : "Some Description Some",
+                                           |      "iabdCategory" : "Allowance"
+                                           |   } ],
+                                           |   "links" : [ ]
+                                           |}""".stripMargin)
+
+      val tc = taxComponentsJson.as[Boolean](TaxComponents.readsIsHICBCWithCharge)
+      tc mustBe false
+    }
+    "return true when a HICBC component exists with amount > 0" in {
+      val taxComponentsJson = Json.parse("""{
+                                           |   "data" : [ {
+                                           |      "componentType" : "EmployerProvidedServices",
+                                           |      "employmentId" : 12,
+                                           |      "amount" : 12321,
+                                           |      "description" : "Some Description",
+                                           |      "iabdCategory" : "Benefit"
+                                           |   }, {
+                                           |      "componentType" : "HICBCPaye",
+                                           |      "employmentId" : 31,
+                                           |      "amount" : 12345,
+                                           |      "description" : "Some Description Some",
+                                           |      "iabdCategory" : "Allowance"
+                                           |   } ],
+                                           |   "links" : [ ]
+                                           |}""".stripMargin)
+
+      val tc = taxComponentsJson.as[Boolean](TaxComponents.readsIsHICBCWithCharge)
+      tc mustBe true
+    }
+    "return false when a HICBC component exists with amount == 0" in {
+      val taxComponentsJson = Json.parse("""{
+                                           |   "data" : [ {
+                                           |      "componentType" : "EmployerProvidedServices",
+                                           |      "employmentId" : 12,
+                                           |      "amount" : 12321,
+                                           |      "description" : "Some Description",
+                                           |      "iabdCategory" : "Benefit"
+                                           |   }, {
+                                           |      "componentType" : "HICBCPaye",
+                                           |      "employmentId" : 31,
+                                           |      "amount" : 0,
+                                           |      "description" : "Some Description Some",
+                                           |      "iabdCategory" : "Allowance"
+                                           |   } ],
+                                           |   "links" : [ ]
+                                           |}""".stripMargin)
+
+      val tc = taxComponentsJson.as[Boolean](TaxComponents.readsIsHICBCWithCharge)
+      tc mustBe false
     }
   }
 
   "Checking marriage allowance status" must {
 
     "indicate a recipient but not a transferor if the tax code ends in M" in {
-      val tc = TaxComponents(List("MarriageAllowanceReceived"))
-      tc.isMarriageAllowanceRecipient mustBe true
-      tc.isMarriageAllowanceTransferor mustBe false
-      tc.notMarriageAllowanceCustomer mustBe false
+      val tc = List("MarriageAllowanceReceived")
+      isMarriageAllowanceRecipient(tc) mustBe true
+      isMarriageAllowanceTransferor(tc) mustBe false
+      notMarriageAllowanceCustomer(tc) mustBe false
     }
 
     "indicate a transferor but not a transferee if the tax code ends in N" in {
-      val tc = TaxComponents(List("MarriageAllowanceTransferred"))
-      tc.isMarriageAllowanceRecipient mustBe false
-      tc.isMarriageAllowanceTransferor mustBe true
-      tc.notMarriageAllowanceCustomer mustBe false
+      val tc = List("MarriageAllowanceTransferred")
+      isMarriageAllowanceRecipient(tc) mustBe false
+      isMarriageAllowanceTransferor(tc) mustBe true
+      notMarriageAllowanceCustomer(tc) mustBe false
     }
 
     "indicate neither a transferor or a transferee if the tax code does not end in N or M" in {
-      val tc = TaxComponents(List("MedicalInsurance"))
-      tc.isMarriageAllowanceRecipient mustBe false
-      tc.isMarriageAllowanceTransferor mustBe false
-      tc.notMarriageAllowanceCustomer mustBe true
+      val tc = List("MedicalInsurance")
+      isMarriageAllowanceRecipient(tc) mustBe false
+      isMarriageAllowanceTransferor(tc) mustBe false
+      notMarriageAllowanceCustomer(tc) mustBe true
     }
   }
 
@@ -92,8 +157,8 @@ class TaxComponentsSpec extends BaseSpec {
                                            |  "links" : [ ]
                                            |}""".stripMargin)
 
-      val tc               = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
-      val isCompanyBenefit = tc.isCompanyBenefitRecipient
+      val tc               = taxComponentsJson.as[List[String]](TaxComponents.readsListString)
+      val isCompanyBenefit = isCompanyBenefitRecipient(tc)
       isCompanyBenefit mustBe true
     }
 
@@ -116,8 +181,8 @@ class TaxComponentsSpec extends BaseSpec {
                                            |   "links" : [ ]
                                            |}""".stripMargin)
 
-      val tc               = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
-      val isCompanyBenefit = tc.isCompanyBenefitRecipient
+      val tc               = taxComponentsJson.as[List[String]](TaxComponents.readsListString)
+      val isCompanyBenefit = isCompanyBenefitRecipient(tc)
       isCompanyBenefit mustBe false
     }
 
@@ -140,8 +205,8 @@ class TaxComponentsSpec extends BaseSpec {
                                            |  "links" : [ ]
                                            |}""".stripMargin)
 
-      val tc               = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
-      val isCompanyBenefit = tc.isCompanyBenefitRecipient
+      val tc               = taxComponentsJson.as[List[String]](TaxComponents.readsListString)
+      val isCompanyBenefit = isCompanyBenefitRecipient(tc)
       isCompanyBenefit mustBe true
     }
 
@@ -164,8 +229,8 @@ class TaxComponentsSpec extends BaseSpec {
                                            |  "links" : [ ]
                                            |}""".stripMargin)
 
-      val tc               = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
-      val isCompanyBenefit = tc.isCompanyBenefitRecipient
+      val tc               = taxComponentsJson.as[List[String]](TaxComponents.readsListString)
+      val isCompanyBenefit = isCompanyBenefitRecipient(tc)
       isCompanyBenefit mustBe true
     }
 

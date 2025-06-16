@@ -16,14 +16,15 @@
 
 package controllers
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.client.WireMock._
 import controllers.auth.requests.UserRequest
-import models.admin.*
+import models.admin._
 import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserAnswers, UserDetails}
 import org.jsoup.Jsoup
-import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.libs.json.Json
@@ -37,7 +38,7 @@ import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
+import uk.gov.hmrc.sca.models._
 
 import java.time.LocalDate
 import java.util.UUID
@@ -152,17 +153,17 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     None
   )
   def buildUserRequest[A](
-    authNino: Nino = testNino,
-    saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
-      SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-    ),
-    credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
-    confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-    trustedHelper: Option[TrustedHelper] = None,
-    profile: Option[String] = None,
-    request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
-    userAnswers: UserAnswers = UserAnswers.empty
-  ): UserRequest[A]                    =
+                           authNino: Nino = testNino,
+                           saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
+                             SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+                           ),
+                           credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
+                           confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
+                           trustedHelper: Option[TrustedHelper] = None,
+                           profile: Option[String] = None,
+                           request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
+                           userAnswers: UserAnswers = UserAnswers.empty
+                         ): UserRequest[A]                    =
     UserRequest(
       authNino,
       saUser,
@@ -180,12 +181,12 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(EnforcePaperlessPreferenceToggle)))
       .thenReturn(Future.successful(FeatureFlag(EnforcePaperlessPreferenceToggle, isEnabled = true)))
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxSummariesTileToggle)))
-      .thenReturn(Future.successful(FeatureFlag(ShowTaxSummariesTileToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
+      .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
   }
 
   "personal-account" when {

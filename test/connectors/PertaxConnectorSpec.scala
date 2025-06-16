@@ -23,7 +23,6 @@ import models.{ErrorView, PertaxResponse}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Injecting

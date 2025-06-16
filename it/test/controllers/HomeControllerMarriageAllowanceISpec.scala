@@ -16,17 +16,18 @@
 
 package controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock.*
-import models.admin.TaxComponentsRetrievalToggle
+import cats.data.EitherT
+import com.github.tomakehurst.wiremock.client.WireMock._
+import models.admin.{TaxComponentsRetrievalToggle, TaxComponentsToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
-import play.api.http.Status.*
+import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status as httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -55,8 +56,8 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     beforeEachHomeController()
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
-      .thenReturn(Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
   }
 
   "personal-account" must {
@@ -64,16 +65,16 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
 
       val taxComponentsJson = Json
         .parse("""{
-            |   "data" : [ {
-            |      "componentType" : "MarriageAllowanceTransferred",
-            |      "employmentId" : 12,
-            |      "amount" : 12321,
-            |      "inputAmount" : 12321,
-            |      "description" : "Personal Allowance transferred to partner",
-            |      "iabdCategory" : "Deduction"
-            |   } ],
-            |   "links" : [ ]
-            |}""".stripMargin)
+                 |   "data" : [ {
+                 |      "componentType" : "MarriageAllowanceTransferred",
+                 |      "employmentId" : 12,
+                 |      "amount" : 12321,
+                 |      "inputAmount" : 12321,
+                 |      "description" : "Personal Allowance transferred to partner",
+                 |      "iabdCategory" : "Deduction"
+                 |   } ],
+                 |   "links" : [ ]
+                 |}""".stripMargin)
         .toString
 
       server.stubFor(
@@ -101,16 +102,16 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
 
       val taxComponentsJson = Json
         .parse("""{
-            |   "data" : [ {
-            |      "componentType" : "MarriageAllowanceReceived",
-            |      "employmentId" : 12,
-            |      "amount" : 12321,
-            |      "inputAmount" : 12321,
-            |      "description" : "Personal Allowance transferred to partner",
-            |      "iabdCategory" : "Deduction"
-            |   } ],
-            |   "links" : [ ]
-            |}""".stripMargin)
+                 |   "data" : [ {
+                 |      "componentType" : "MarriageAllowanceReceived",
+                 |      "employmentId" : 12,
+                 |      "amount" : 12321,
+                 |      "inputAmount" : 12321,
+                 |      "description" : "Personal Allowance transferred to partner",
+                 |      "iabdCategory" : "Deduction"
+                 |   } ],
+                 |   "links" : [ ]
+                 |}""".stripMargin)
         .toString
 
       server.stubFor(
@@ -134,16 +135,16 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
 
       val taxComponentsJson = Json
         .parse("""{
-            |   "data" : [ {
-            |      "componentType" : "OtherAllowance",
-            |      "employmentId" : 12,
-            |      "amount" : 12321,
-            |      "inputAmount" : 12321,
-            |      "description" : "Personal Allowance transferred to partner",
-            |      "iabdCategory" : "Deduction"
-            |   } ],
-            |   "links" : [ ]
-            |}""".stripMargin)
+                 |   "data" : [ {
+                 |      "componentType" : "OtherAllowance",
+                 |      "employmentId" : 12,
+                 |      "amount" : 12321,
+                 |      "inputAmount" : 12321,
+                 |      "description" : "Personal Allowance transferred to partner",
+                 |      "iabdCategory" : "Deduction"
+                 |   } ],
+                 |   "links" : [ ]
+                 |}""".stripMargin)
         .toString
 
       server.stubFor(

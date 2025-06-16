@@ -16,14 +16,20 @@
 
 package connectors
 
+import cats.data.EitherT
 import config.ConfigDecorator
+import models.TaxComponents._
+import models.admin.TaxComponentsRetrievalToggle
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.time.TaxYear
 
@@ -44,7 +50,7 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
         |      "description" : "Some Description",
         |      "iabdCategory" : "Benefit"
         |   }, {
-        |      "componentType" : "PersonalPensionPayments",
+        |      "componentType" : "HICBCPaye",
         |      "employmentId" : 31,
         |      "amount" : 12345,
         |      "description" : "Some Description Some",
@@ -53,13 +59,27 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
         |   "links" : [ ]
         |}""".stripMargin)
 
+    val taxComponentsList: List[String] = List("EmployerProvidedServices", "HICBCPaye")
+
     lazy val connector: TaiConnector = {
 
       val serviceConfig = inject[ServicesConfig]
       val httpClient    = inject[HttpClientV2]
 
-      new TaiConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
+      new TaiConnector(
+        httpClient,
+        serviceConfig,
+        inject[HttpClientResponse],
+        inject[ConfigDecorator],
+        mockFeatureFlagService
+      )
     }
+  }
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
   }
 
   "Calling TaiService.taxSummary" must {
@@ -71,22 +91,50 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
 
     val url = s"/tai/$nino/tax-account/$taxYear/tax-components"
 
-    "return OK on success" in new LocalSetup {
+    "return OK on success when reading as a list of strings" in new LocalSetup {
       stubGet(url, OK, Some(taxComponentsJson.toString))
-
-      val result: HttpResponse =
-        connector.taxComponents(nino, taxYear).value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
-      result.status mustBe OK
-      result.json mustBe taxComponentsJson
+      val result: Option[List[String]] =
+        connector
+          .taxComponents(nino, taxYear)(readsListString)
+          .value
+          .futureValue
+          .getOrElse(Some(List.empty))
+      result mustBe Some(taxComponentsList)
     }
 
-    "return __ on success" in new LocalSetup {
-      stubGet(url, OK, Some(taxComponentsJson.toString))
+    "return None when reading invalid json" in new LocalSetup {
+      stubGet(url, OK, Some("invalid"))
+      val result: Option[List[String]] =
+        connector
+          .taxComponents(nino, taxYear)(readsListString)
+          .value
+          .futureValue
+          .getOrElse(Some(List.empty))
+      result mustBe None
+    }
 
-      val result: HttpResponse =
-        connector.taxComponents(nino, taxYear).value.futureValue.getOrElse(HttpResponse(BAD_REQUEST, ""))
-      result.status mustBe OK
-      result.json mustBe taxComponentsJson
+    "return OK on success when reading as a boolean (for HICBC)" in new LocalSetup {
+      stubGet(url, OK, Some(taxComponentsJson.toString))
+      val result: Option[Boolean] =
+        connector
+          .taxComponents(nino, taxYear)(readsIsHICBCWithCharge)
+          .value
+          .futureValue
+          .getOrElse(None)
+      result mustBe Some(true)
+    }
+
+    "return None when tax components feature toggle switched off" in new LocalSetup {
+      when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+        .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = false)))
+
+      val result: Option[List[String]] =
+        connector
+          .taxComponents(nino, taxYear)(readsListString)
+          .value
+          .futureValue
+          .getOrElse(Some(List.empty))
+      result mustBe None
     }
 
     List(
@@ -103,7 +151,12 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
         stubGet(url, statusCode, None)
 
         val result: UpstreamErrorResponse =
-          connector.taxComponents(nino, taxYear).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
+          connector
+            .taxComponents(nino, taxYear)(readsListString)
+            .value
+            .futureValue
+            .swap
+            .getOrElse(UpstreamErrorResponse("", OK))
         result.statusCode mustBe statusCode
       }
     }
@@ -124,11 +177,23 @@ class TaiConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper with Def
       val serviceConfig = inject[ServicesConfig]
       val httpClient    = inject[HttpClientV2]
 
-      new TaiConnector(httpClient, serviceConfig, inject[HttpClientResponse], inject[ConfigDecorator])
+      new TaiConnector(
+        httpClient,
+        serviceConfig,
+        inject[HttpClientResponse],
+        inject[ConfigDecorator],
+        mockFeatureFlagService
+      )
     }
   }
 
-  "Calling TaiService.taxSummary" must {
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
+  }
+
+  "Calling TaiService.taxComponents" must {
     trait LocalSetup extends SpecSetup
 
     val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
@@ -141,7 +206,12 @@ class TaiConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper with Def
       stubWithDelay(url, OK, None, None, 100)
 
       val result: UpstreamErrorResponse =
-        connector.taxComponents(nino, taxYear).value.futureValue.swap.getOrElse(UpstreamErrorResponse("", OK))
+        connector
+          .taxComponents(nino, taxYear)(readsListString)
+          .value
+          .futureValue
+          .swap
+          .getOrElse(UpstreamErrorResponse("", OK))
       result.statusCode mustBe BAD_GATEWAY
     }
   }
