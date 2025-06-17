@@ -42,7 +42,7 @@ case object ShowTaxCalcTileToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Toggle the display of the Payments and Repayments tile (NPS/ETMP data) on the home page"
   )
-  override val defaultState: Boolean = true
+  override val defaultState: Boolean       = true
 }
 
 case object TaxComponentsRetrievalToggle extends FeatureFlagName {
@@ -50,7 +50,7 @@ case object TaxComponentsRetrievalToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Enable retrieval of tax components from TAI (NPS), used for displaying Marriage Allowance and High Income Child Benefit Charge"
   )
-  override val defaultState: Boolean = true
+  override val defaultState: Boolean       = true
 }
 
 case object RlsInterruptToggle extends FeatureFlagName {
