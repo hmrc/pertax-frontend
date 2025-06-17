@@ -35,18 +35,17 @@ class FeatureFlagsController @Inject() (
     featureFlagService
       .setAll(
         Map(
-          TaxcalcToggle                         -> true,
-          TaxComponentsToggle                   -> true,
-          RlsInterruptToggle                    -> true,
-          PaperlessInterruptToggle              -> false,
-          TaxSummariesTileToggle                -> true,
-          AgentClientRelationshipsToggle        -> true,
-          BreathingSpaceIndicatorToggle         -> true,
-          ShowPlannedOutageBannerToggle         -> false,
-          AlertBannerPaperlessStatusToggle      -> true,
-          GetPersonFromCitizenDetailsToggle     -> true,
-          DfsDigitalFormFrontendAvailableToggle -> true,
-          AddressChangeAllowedToggle            -> true
+          ShowTaxCalcTileToggle              -> true,
+          TaxComponentsRetrievalToggle       -> true,
+          RlsInterruptToggle                 -> true,
+          EnforcePaperlessPreferenceToggle   -> false,
+          TaxSummariesTileToggle             -> true,
+          AgentClientRelationshipsToggle     -> true,
+          BreathingSpaceIndicatorToggle      -> true,
+          ShowPlannedOutageBannerToggle      -> false,
+          AlertBannerPaperlessStatusToggle   -> true,
+          DfsFormsFrontendAvailabilityToggle -> true,
+          AddressChangeAllowedToggle         -> true
         )
       )
       .map(_ => Ok("Default flags set"))

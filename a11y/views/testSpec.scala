@@ -18,7 +18,7 @@ package views
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle}
+import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -295,9 +295,6 @@ class testSpec extends A11ySpec {
         s"pass content checks at url $url" in {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
             .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
-
-          when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
-            .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
           server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
           val result: Future[Result] = route(app, request(url)).get

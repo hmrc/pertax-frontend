@@ -19,7 +19,7 @@ package connectors
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import models.admin.TaxComponentsToggle
+import models.admin.TaxComponentsRetrievalToggle
 import play.api.Logging
 import play.api.libs.json.Reads
 import uk.gov.hmrc.domain.Nino
@@ -47,7 +47,7 @@ class TaiConnector @Inject() (
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, Option[A]] =
-    featureFlagService.getAsEitherT(TaxComponentsToggle).flatMap { toggle =>
+    featureFlagService.getAsEitherT(TaxComponentsRetrievalToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
         val url = s"$taiUrl/tai/$nino/tax-account/$year/tax-components"
         httpClientResponse

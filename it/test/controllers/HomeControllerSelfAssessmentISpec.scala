@@ -18,7 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.TaxComponentsToggle
+import models.admin.TaxComponentsRetrievalToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -59,8 +59,8 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
         .willReturn(aResponse().withStatus(NO_CONTENT))
     )
 
-    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
   }
 
   "self-assessment-home" must {
