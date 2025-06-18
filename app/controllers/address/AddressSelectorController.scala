@@ -122,10 +122,6 @@ class AddressSelectorController @Inject() (
                       _ <- cachingHelper.addToCache(SelectedAddressRecordPage(typ), addressRecord)
                       _ <- cachingHelper.addToCache(SubmittedAddressPage(typ), addressDto)
                     } yield {
-                      println("QQQQQ " + postcodeFromRequest)
-                      println("WWWWW " + typ)
-                      println("EEEEE " + personDetails.address.flatMap(_.postcode))
-                      println("RRRRR " + routes.AddressSubmissionController.onPageLoad(typ).url)
                       val postCodeHasChanged = !postcodeFromRequest
                         .replace(" ", "")
                         .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
