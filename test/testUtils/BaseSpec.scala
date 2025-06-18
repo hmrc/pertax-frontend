@@ -102,6 +102,8 @@ trait BaseSpec
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockFeatureFlagService)
+    reset(mockEditAddressLockRepository)
+
     AllFeatureFlags.list.foreach { flag =>
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))

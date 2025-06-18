@@ -16,27 +16,81 @@
 
 package controllers.address
 
+import cats.data.EitherT
+import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import models.UserAnswers
+import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import models.addresslookup.{Address, AddressRecord, Country}
-import models.dto.AddressPageVisitedDto
+import models.dto.{AddressDto, AddressPageVisitedDto}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{reset, times, verify, when}
+import play.api.Application
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
-import play.api.mvc.{Request, Result}
+import play.api.inject.bind
+import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.JourneyCacheRepository
 import routePages.{AddressLookupServiceDownPage, HasAddressAlreadyVisitedPage, SelectedAddressRecordPage, SubmittedAddressPage}
-import testUtils.Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress}
-import uk.gov.hmrc.http.HeaderCarrier
+import services.CitizenDetailsService
+import testUtils.BaseSpec
+import testUtils.Fixtures.{buildPersonDetailsWithPersonalAndCorrespondenceAddress, fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress}
+import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
+class UpdateInternationalAddressControllerSpec extends BaseSpec {
+  def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
+  val personDetails: PersonDetails                        = buildPersonDetailsWithPersonalAndCorrespondenceAddress
+
+  val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
+  val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
+  val mockAuditConnector: AuditConnector                 = mock[AuditConnector]
+
+  class FakeAuthAction extends AuthJourney {
+    override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+      new ActionBuilder[UserRequest, AnyContent] {
+        override def parser: BodyParser[AnyContent] = play.api.test.Helpers.stubBodyParser()
+
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = request))
+
+        override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+      }
+  }
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(
+      bind[AuthJourney].toInstance(new FakeAuthAction),
+      bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
+      bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+      bind[AuditConnector].toInstance(mockAuditConnector)
+    )
+    .build()
+
+  def currentRequest[A]: Request[A] = FakeRequest("GET", "/test").asInstanceOf[Request[A]]
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockJourneyCacheRepository)
+    reset(mockCitizenDetailsService)
+    reset(mockAuditConnector)
+
+    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      EitherT[Future, UpstreamErrorResponse, PersonDetails](
+        Future.successful(Right(personDetails))
+      )
+    )
+
+  }
+
   private lazy val controller: UpdateInternationalAddressController =
     app.injector.instanceOf[UpdateInternationalAddressController]
 
@@ -265,6 +319,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       val userAnswers: UserAnswers = UserAnswers.empty("id").setOrException(AddressLookupServiceDownPage, true)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
@@ -282,6 +337,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       val userAnswers: UserAnswers = UserAnswers.empty("id").setOrException(AddressLookupServiceDownPage, true)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

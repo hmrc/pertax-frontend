@@ -23,7 +23,7 @@ import models.{Address, ETag, MatchingDetails, PersonDetails}
 import play.api.Logging
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,8 +44,8 @@ class CitizenDetailsService @Inject() (
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    citizenDetailsConnector.updateAddress(nino: Nino, etag: String, address: Address)
+  ): EitherT[Future, UpstreamErrorResponse, Boolean] =
+    citizenDetailsConnector.updateAddress(nino: Nino, etag: String, address: Address).map(_ => true)
 
   def getMatchingDetails(
     nino: Nino

@@ -16,36 +16,58 @@
 
 package controllers.address
 
+import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import error.ErrorRenderer
+import models.PersonDetails
 import models.admin.AddressChangeAllowedToggle
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, when}
+import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.mvc.Request
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.CitizenDetailsService
+import testUtils.BaseSpec
+import testUtils.Fixtures.buildPersonDetails
 import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.InternalServerErrorView
 
 import scala.concurrent.Future
 
-class AddressControllerSpec extends AddressBaseSpec {
-  val mockErrorRenderer: ErrorRenderer = mock[ErrorRenderer]
+class AddressControllerSpec extends BaseSpec {
+  val mockErrorRenderer: ErrorRenderer                 = mock[ErrorRenderer]
+  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
+  val mockAppConfigDecorator: ConfigDecorator          = mock[ConfigDecorator]
+  val internalServerErrorView: InternalServerErrorView = app.injector.instanceOf[InternalServerErrorView]
+  implicit lazy val messages: Messages                 = MessagesImpl(Lang("en"), messagesApi)
 
   private object Controller
       extends AddressController(
         app.injector.instanceOf[AuthJourney],
-        cc,
+        mcc,
         mockFeatureFlagService,
         mockErrorRenderer,
         mockCitizenDetailsService,
         internalServerErrorView
-      )
+      )(mockAppConfigDecorator, implicitly)
 
   private lazy val controller: AddressController = Controller
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockCitizenDetailsService)
+    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      EitherT[Future, UpstreamErrorResponse, PersonDetails](
+        Future.successful(Right(buildPersonDetails))
+      )
+    )
+  }
 
   "addressJourneyEnforcer" must {
 
@@ -73,8 +95,6 @@ class AddressControllerSpec extends AddressBaseSpec {
     "show the InternalServerErrorView" when {
 
       "the AddressChangeAllowedToggle is set to false" in {
-        val internalServerErrorView: InternalServerErrorView = app.injector.instanceOf[InternalServerErrorView]
-        val configDecorator: ConfigDecorator                 = app.injector.instanceOf[ConfigDecorator]
         when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
 
@@ -88,7 +108,9 @@ class AddressControllerSpec extends AddressBaseSpec {
         }(userRequest)
 
         status(result) mustBe INTERNAL_SERVER_ERROR
-        contentAsString(result) mustBe internalServerErrorView.apply()(userRequest, configDecorator, messages).body
+        contentAsString(result) mustBe internalServerErrorView
+          .apply()(userRequest, mockAppConfigDecorator, messages)
+          .body
       }
     }
   }

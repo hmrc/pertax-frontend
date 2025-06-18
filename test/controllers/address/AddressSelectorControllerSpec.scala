@@ -16,26 +16,69 @@
 
 package controllers.address
 
+import cats.data.EitherT
 import controllers.address
+import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import models.UserAnswers
+import models.{PersonDetails, UserAnswers}
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{reset, times, verify, when}
+import play.api.Application
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
-import play.api.mvc.{Request, Result}
+import play.api.inject.bind
+import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.JourneyCacheRepository
 import routePages.{AddressLookupServiceDownPage, SelectedRecordSetPage}
-import testUtils.Fixtures.oneAndTwoOtherPlacePafRecordSet
-import uk.gov.hmrc.http.HeaderCarrier
+import services.CitizenDetailsService
+import testUtils.BaseSpec
+import testUtils.Fixtures.{buildPersonDetailsWithPersonalAndCorrespondenceAddress, oneAndTwoOtherPlacePafRecordSet}
+import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class AddressSelectorControllerSpec extends AddressBaseSpec {
+class AddressSelectorControllerSpec extends BaseSpec {
+
+  class FakeAuthAction extends AuthJourney {
+    override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+      new ActionBuilder[UserRequest, AnyContent] {
+        override def parser: BodyParser[AnyContent] = play.api.test.Helpers.stubBodyParser()
+
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(buildUserRequest(request = request))
+
+        override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+      }
+  }
+
+  val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
+  val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
+
+  override implicit lazy val app: Application            = localGuiceApplicationBuilder()
+    .overrides(
+      bind[AuthJourney].toInstance(new FakeAuthAction),
+      bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+      bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository)
+    )
+    .build()
   private lazy val controller: AddressSelectorController = app.injector.instanceOf[AddressSelectorController]
 
-  "onPageLoad" should {
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockJourneyCacheRepository)
+    reset(mockCitizenDetailsService)
+    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      EitherT[Future, UpstreamErrorResponse, PersonDetails](
+        Future.successful(Right(buildPersonDetailsWithPersonalAndCorrespondenceAddress))
+      )
+    )
+  }
+
+  "onPageLoad" must {
 
     "render the page with the results of the address lookup" when {
       "RecordSet can be retrieved from the cache" in {
@@ -82,7 +125,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
     }
   }
 
-  "onSubmit" should {
+  "onSubmit" must {
 
     "call the address lookup service and return 400" when {
       "supplied no addressId in the form" in {
@@ -117,7 +160,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
       }
     }
 
-    "call the address lookup service and redirect to the edit address form for a postal address type when supplied with an addressId" in {
+    "call the address lookup service and redirect to the edit address form for a postal address type when supplied with an addressId and the postcode does not change" in {
 
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
@@ -136,6 +179,27 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/edit-address")
+    }
+
+    "call the address lookup service and redirect to the start date form for a postal address type when supplied with an addressId and the postcode has changed" in {
+
+      def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("addressId" -> "GB990091234514", "postcode" -> "CC00 4TU")
+          .asInstanceOf[Request[A]]
+
+      val userAnswers: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(AddressLookupServiceDownPage, false)
+        .setOrException(SelectedRecordSetPage(PostalAddrType), oneAndTwoOtherPlacePafRecordSet)
+
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
+
+      val result: Future[Result] = controller.onSubmit(PostalAddrType)(currentRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/enter-start-date")
     }
 
     "call the address lookup service and return a 500 when an invalid addressId is supplied in the form" in {
