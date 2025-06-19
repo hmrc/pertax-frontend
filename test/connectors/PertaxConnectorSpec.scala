@@ -164,8 +164,7 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
         result.statusCode mustBe BAD_REQUEST
       }
 
-      "return a UpstreamErrorResponse with the correct error code" when {
-
+      "return a UpstreamErrorResponse with the correct error code" when
         List(
           UNAUTHORIZED,
           NOT_FOUND,
@@ -202,7 +201,6 @@ class PertaxConnectorSpec extends ConnectorSpec with WireMockHelper with Integra
             result.statusCode mustBe error
           }
         }
-      }
 
     }
   }

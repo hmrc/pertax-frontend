@@ -63,17 +63,16 @@ class MessagesSpec extends BaseSpec {
   }
 
   "All message files" must {
-    "have the same set of keys" in {
+    "have the same set of keys" in
       withClue(mismatchingKeys(defaultMessages.keySet, welshMessages.keySet)) {
         assert(welshMessages.keySet equals defaultMessages.keySet)
       }
-    }
 
     "not have the same messages" in {
-      val same = defaultMessages.keys.collect({
+      val same = defaultMessages.keys.collect {
         case messageKey if defaultMessages.get(messageKey) == welshMessages.get(messageKey) =>
           (messageKey, defaultMessages.get(messageKey))
-      })
+      }
 
       val percentageOfSameMessages = 0.04
 

@@ -22,7 +22,7 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import java.time.LocalDate
 
 object DateTimeTools extends CurrentTaxYear with Logging {
-  //Returns for example 1516 in March 2016
+  // Returns for example 1516 in March 2016
   def previousAndCurrentTaxYear: String = previousAndCurrentTaxYearFromGivenYear(current.currentYear)
 
   def previousAndCurrentTaxYearFromGivenYear(year: Int): String = {

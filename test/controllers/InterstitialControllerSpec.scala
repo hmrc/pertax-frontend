@@ -188,11 +188,10 @@ class InterstitialControllerSpec extends BaseSpec {
       when(mockFormPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
       when(mockFormPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
 
-      when(mockSaPartialService.getSaAccountSummary(any())) thenReturn {
+      when(mockSaPartialService.getSaAccountSummary(any())) thenReturn
         Future.successful {
           HtmlPartial.Success(Some("Success"), Html("any"))
         }
-      }
 
       val result = controller.displaySelfAssessment()(fakeRequest)
 

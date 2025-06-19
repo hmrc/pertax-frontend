@@ -26,7 +26,7 @@ import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status => httpStatus, writeableOf_AnyContentAsEmpty}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag

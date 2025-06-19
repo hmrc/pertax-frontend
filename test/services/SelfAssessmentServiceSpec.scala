@@ -73,8 +73,7 @@ class SelfAssessmentServiceSpec extends BaseSpec {
         }
       }
 
-      "return UpstreamErrorResponse" when {
-
+      "return UpstreamErrorResponse" when
         List(
           BAD_REQUEST,
           NOT_FOUND,
@@ -97,7 +96,6 @@ class SelfAssessmentServiceSpec extends BaseSpec {
               .statusCode mustBe error
           }
         }
-      }
     }
   }
 }

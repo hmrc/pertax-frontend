@@ -47,7 +47,7 @@ class CachingItSpec
 
   private val generator = new Generator(new Random())
 
-  private val testNino: Nino = generator.nextNino
+  private val testNino: Nino      = generator.nextNino
   private val differentNino: Nino = {
     @scala.annotation.tailrec
     def next(): Nino = generator.nextNino match {

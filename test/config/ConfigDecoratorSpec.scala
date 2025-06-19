@@ -66,27 +66,24 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       val portalBaseUrlToTest: Option[Nothing] = None
 
-      a[MalformedURLException] must be thrownBy {
+      a[MalformedURLException] must be thrownBy
         configDecorator.toPortalUrl("/some/path")
-      }
     }
 
     "fail with a MalformedURLException if portalBaseUrl is not fully qualified" in new LocalSetup {
 
       val portalBaseUrlToTest: Option[String] = Some("/")
 
-      a[MalformedURLException] must be thrownBy {
+      a[MalformedURLException] must be thrownBy
         configDecorator.toPortalUrl("/some/path")
-      }
     }
 
     "fail with a MalformedURLException if portalBaseUrl is protocol-relative" in new LocalSetup {
 
       val portalBaseUrlToTest: Option[String] = Some("//portal.service")
 
-      a[MalformedURLException] must be thrownBy {
+      a[MalformedURLException] must be thrownBy
         configDecorator.toPortalUrl("/some/path")
-      }
     }
 
   }
