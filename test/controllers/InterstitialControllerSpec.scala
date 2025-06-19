@@ -21,7 +21,7 @@ import config.NewsAndTilesConfig
 import connectors.TaiConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import models._
+import models.*
 import models.admin.{BreathingSpaceIndicatorToggle, ShowPlannedOutageBannerToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -29,9 +29,9 @@ import org.mockito.Mockito.{reset, times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
 import play.api.Application
 import play.api.inject.{Binding, bind}
-import play.api.mvc._
+import play.api.mvc.*
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.twirl.api.Html
 import services.CitizenDetailsService
 import services.partials.{FormPartialService, SaPartialService}
@@ -456,7 +456,7 @@ class InterstitialControllerSpec extends BaseSpec {
         .thenReturn(Future.successful(HtmlPartial.Success(Some("title"), Html("nisp partial"))))
 
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
-        .thenReturn(EitherT.rightT(Fixtures.buildPersonDetails))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Fixtures.buildPersonDetails))
 
       val bannerHtml = Html("<div class='voluntary-banner'>Banner Content</div>")
       when(mockAlertBannerHelper.getVoluntaryContributionsAlertBannerContent(any(), any()))

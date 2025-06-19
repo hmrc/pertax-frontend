@@ -63,7 +63,7 @@ class JourneyCacheRepositorySpec
   private val mockConfigDecorator = mock[ConfigDecorator]
   when(mockConfigDecorator.sessionTimeoutInSeconds) thenReturn 1
 
-  protected override val repository = new JourneyCacheRepository(
+  protected override val repository: JourneyCacheRepository = new JourneyCacheRepository(
     mongoComponent = mongoComponent,
     appConfig = mockConfigDecorator,
     clock = stubClock

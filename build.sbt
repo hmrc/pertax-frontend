@@ -22,7 +22,7 @@ import uk.gov.hmrc.DefaultBuildSettings.*
 val appName = "pertax-frontend"
 
 ThisBuild / majorVersion := 2
-ThisBuild / scalaVersion := "2.13.16"
+ThisBuild / scalaVersion := "3.3.6"
 ThisBuild / scalafmtOnCompile := true
 
 lazy val scoverageSettings =
@@ -42,21 +42,14 @@ lazy val microservice = Project(appName, file("."))
     scalaSettings,
     libraryDependencies ++= AppDependencies.all,
     scalacOptions ++= Seq(
-      "-unchecked",
-      "-feature",
-      "-Werror",
-      "-Wunused",
-      "-Xlint:_",
-      "-Wdead-code",
-      "-Wextra-implicit",
-      "-Wconf:cat=unused-imports&site=.*views\\.html.*:s",
-      "-Wconf:cat=unused-imports&site=<empty>:s",
-      "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
-      "-Wconf:cat=unused&src=.*Routes\\.scala:s",
-      "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s",
-      "-Wconf:cat=unused&src=.*JavaScriptReverseRoutes\\.scala:s",
-      "-Wconf:cat=deprecation&msg=value name in trait Retrievals is deprecated:i",
-      "-Wconf:msg=evidence parameter evidence\\$1 of type util\\.Enumerable\\[A\\] in method writes is never used:i"
+      "-nowarn",
+      "-Wconf:msg=unused import&src=html/.*:s",
+      "-Wconf:msg=unused import&src=xml/.*:s",
+      "-Wconf:msg=unused&src=.*RoutesPrefix\\.scala:s",
+      "-Wconf:msg=unused&src=.*Routes\\.scala:s",
+      "-Wconf:msg=unused&src=.*ReverseRoutes\\.scala:s",
+      "-Wconf:msg=Flag.*repeatedly:s",
+      "-Wconf:msg=Setting -Wunused set to all redundantly:s"
     ),
     routesImport ++= Seq("uk.gov.hmrc.play.bootstrap.binders._", "controllers.bindable._", "models.admin._"),
     TwirlKeys.templateImports ++= Seq(

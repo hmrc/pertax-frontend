@@ -134,7 +134,7 @@ package object models {
       Reads
         .optionNoError(Reads.at[JsValue](JsPath(first :: Nil)))
         .reads(oldValue)
-        .flatMap { opt: Option[JsValue] =>
+        .flatMap { (opt: Option[JsValue]) =>
           opt
             .map(JsSuccess(_))
             .getOrElse {
