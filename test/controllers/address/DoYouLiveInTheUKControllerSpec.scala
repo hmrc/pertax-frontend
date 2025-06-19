@@ -97,7 +97,7 @@ class DoYouLiveInTheUKControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
 
-      val result: Future[Result]           = controller.onPageLoad(currentRequest)
+      val result: Future[Result] = controller.onPageLoad(currentRequest)
       status(result) mustBe OK
       verify(mockJourneyCacheRepository, times(1)).get(any())
     }
