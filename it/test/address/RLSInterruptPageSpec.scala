@@ -16,7 +16,7 @@
 
 package address
 
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, urlEqualTo, status => _}
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, status => _, urlEqualTo}
 import config.{ApplicationStartUp, CryptoProvider}
 import connectors.{AgentClientAuthorisationConnector, CitizenDetailsConnector, DefaultAgentClientAuthorisationConnector, DefaultCitizenDetailsConnector}
 import models.admin._

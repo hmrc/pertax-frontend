@@ -17,7 +17,7 @@
 package controllers.auth
 
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, urlEqualTo, urlMatching, status => _}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, status => _, urlEqualTo, urlMatching}
 import models.admin._
 import models.{ErrorView, PertaxResponse}
 import org.mockito.ArgumentMatchers

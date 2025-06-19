@@ -24,7 +24,7 @@ import play.api.Application
 import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status => httpStatus, writeableOf_AnyContentAsEmpty}
 import play.api.test.{FakeRequest, Helpers}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
@@ -48,7 +48,7 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
   def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
 
-  val breathingSpaceUrl                            = s"/$generatedNino/memorandum"
+  val breathingSpaceUrl = s"/$generatedNino/memorandum"
 
   val breathingSpaceTrueResponse: String =
     s"""

@@ -61,8 +61,8 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
   def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
 
-  val messageCount: Int                            = Random.between(1, 100)
-  val wrapperDataResponse: String                  = Json
+  val messageCount: Int           = Random.between(1, 100)
+  val wrapperDataResponse: String = Json
     .toJson(
       WrapperDataResponse(
         Seq(
@@ -163,7 +163,7 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     profile: Option[String] = None,
     request: Request[A] = FakeRequest().asInstanceOf[Request[A]],
     userAnswers: UserAnswers = UserAnswers.empty
-  ): UserRequest[A]                    =
+  ): UserRequest[A] =
     UserRequest(
       authNino,
       saUser,
