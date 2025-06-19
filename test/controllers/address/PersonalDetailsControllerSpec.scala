@@ -17,36 +17,59 @@
 package controllers.address
 
 import cats.data.EitherT
+import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import models.admin.RlsInterruptToggle
-import models.{PersonDetails, UserName}
+import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
+import play.api.Application
 import play.api.http.Status._
-import play.api.mvc.Result
+import play.api.inject.bind
+import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
-import uk.gov.hmrc.domain.SaUtrGenerator
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import services.CitizenDetailsService
+import testUtils.BaseSpec
+import testUtils.Fixtures.buildPersonDetailsWithPersonalAndCorrespondenceAddress
+import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class PersonalDetailsControllerSpec extends AddressBaseSpec {
+class PersonalDetailsControllerSpec extends BaseSpec {
   private lazy val controller: PersonalDetailsController = app.injector.instanceOf[PersonalDetailsController]
-  val utr: String                                        = new SaUtrGenerator().nextSaUtr.utr
-  val fakeCredentials: Credentials                       = Credentials("foo", "bar")
-  val fakeConfidenceLevel: ConfidenceLevel               = ConfidenceLevel.L200
-  val saEnrolments: Set[Enrolment]                       = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
-  val userName: Option[UserName]                         = Some(UserName(Name(Some("Firstname"), Some("Lastname"))))
+
+  val personDetails: PersonDetails                     = buildPersonDetailsWithPersonalAndCorrespondenceAddress
+  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
+
+  class FakeAuthAction extends AuthJourney {
+    override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+      new ActionBuilder[UserRequest, AnyContent] {
+        override def parser: BodyParser[AnyContent] = play.api.test.Helpers.stubBodyParser()
+
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = request))
+
+        override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+      }
+  }
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(
+      bind[AuthJourney].toInstance(new FakeAuthAction),
+      bind[CitizenDetailsService].toInstance(mockCitizenDetailsService)
+    )
+    .build()
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+    reset(mockCitizenDetailsService)
+
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
-
   }
 
   "Calling redirectToYourProfile" must {
@@ -64,10 +87,12 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
       "main address has an rls status with true" in {
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, PersonDetails](
-            Future.successful(Right(fakePersonDetails.copy(address = Some(fakeAddress.copy(isRls = true)))))
+            Future.successful(Right(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true)))))
           )
         )
-        setupAuth()
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any())).thenReturn(
+          Future.successful(AddressesLock(main = false, postal = false))
+        )
 
         val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
@@ -79,11 +104,13 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, PersonDetails](
             Future.successful(
-              Right(fakePersonDetails.copy(correspondenceAddress = Some(fakeAddress.copy(isRls = true))))
+              Right(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true))))
             )
           )
         )
-        setupAuth()
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any())).thenReturn(
+          Future.successful(AddressesLock(main = false, postal = false))
+        )
 
         val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
@@ -95,11 +122,13 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, PersonDetails](
             Future.successful(
-              Right(fakePersonDetails.copy(correspondenceAddress = Some(fakeAddress.copy(isRls = true))))
+              Right(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true))))
             )
           )
         )
-        setupAuth()
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any())).thenReturn(
+          Future.successful(AddressesLock(main = false, postal = false))
+        )
 
         val result: Future[Result] = controller.onPageLoad(FakeRequest())
 
@@ -110,19 +139,29 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
     "show the your profile page" when {
       "no address has an rls status with true" in {
+        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, PersonDetails](
+            Future.successful(
+              Right(personDetails)
+            )
+          )
+        )
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any())).thenReturn(
+          Future.successful(AddressesLock(main = false, postal = false))
+        )
+        when(mockEditAddressLockRepository.get(any())).thenReturn(
+          Future.successful(List.empty)
+        )
 
-        val result: Future[Result] = controller.onPageLoad(FakeRequest())
+        val result: Future[Result] = controller.onPageLoad(
+          FakeRequest().withHeaders(
+            (HeaderNames.xSessionId, "test-session-id")
+          )
+        )
 
         status(result) mustBe OK
       }
     }
   }
 
-  "Calling onPageLoad" must {
-    "call citizenDetailsService.fakePersonDetails and return 200" in {
-      val result: Future[Result] = controller.onPageLoad(FakeRequest())
-
-      status(result) mustBe OK
-    }
-  }
 }

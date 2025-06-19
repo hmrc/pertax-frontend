@@ -18,28 +18,87 @@ package controllers.address
 
 import cats.data.EitherT
 import cats.implicits._
+import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.PostalAddrType
 import models._
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{reset, times, verify, when}
+import play.api.Application
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
-import play.api.mvc.{Request, Result}
+import play.api.i18n.{Lang, Messages, MessagesImpl}
+import play.api.inject.bind
+import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import testUtils.Fixtures
-import testUtils.Fixtures.buildFakeAddress
+import services.CitizenDetailsService
+import testUtils.{BaseSpec, Fixtures}
+import testUtils.Fixtures.{buildFakeAddress, buildPersonDetailsWithPersonalAndCorrespondenceAddress}
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import uk.gov.hmrc.play.audit.model.DataEvent
+import views.html.personaldetails.UpdateAddressConfirmationView
 
 import java.time.Instant
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class ClosePostalAddressControllerSpec extends AddressBaseSpec {
+class ClosePostalAddressControllerSpec extends BaseSpec {
+  val personDetails: PersonDetails = buildPersonDetailsWithPersonalAndCorrespondenceAddress
+  val nino: Nino                   = buildPersonDetailsWithPersonalAndCorrespondenceAddress.person.nino.get
+
+  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
+  val mockAuditConnector: AuditConnector               = mock[AuditConnector]
+
+  class FakeAuthAction extends AuthJourney {
+    override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+      new ActionBuilder[UserRequest, AnyContent] {
+        override def parser: BodyParser[AnyContent] = play.api.test.Helpers.stubBodyParser()
+
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = request))
+
+        override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+      }
+  }
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(
+      bind[AuthJourney].toInstance(new FakeAuthAction),
+      bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+      bind[AuditConnector].toInstance(mockAuditConnector)
+    )
+    .build()
+
+  def currentRequest[A]: Request[A] = FakeRequest("GET", "/test").asInstanceOf[Request[A]]
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockCitizenDetailsService)
+    reset(mockAuditConnector)
+
+    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      EitherT[Future, UpstreamErrorResponse, PersonDetails](
+        Future.successful(Right(personDetails))
+      )
+    )
+
+  }
+
   private lazy val controller: ClosePostalAddressController = app.injector.instanceOf[ClosePostalAddressController]
-  val addressExceptionMessage                               = "Address does not exist in the current context"
-  val expectedAddressConfirmationView: String               = updateAddressConfirmationView(
+
+  def pruneDataEvent(dataEvent: DataEvent): DataEvent              =
+    dataEvent
+      .copy(tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token", detail = dataEvent.detail - "credId")
+  val updateAddressConfirmationView: UpdateAddressConfirmationView =
+    app.injector.instanceOf[UpdateAddressConfirmationView]
+  val fakeAddress: Address                                         = buildFakeAddress
+  lazy val messages: Messages                                      = MessagesImpl(Lang("en"), messagesApi)
+  val addressExceptionMessage                                      = "Address does not exist in the current context"
+  lazy val expectedAddressConfirmationView: String                 = updateAddressConfirmationView(
     PostalAddrType,
     closedPostalAddress = true,
     Some(fakeAddress.fullAddress),
@@ -132,10 +191,24 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
+      when(mockEditAddressLockRepository.get(any())).thenReturn(
+        Future.successful(List.empty)
+      )
+      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
+          Future.successful(Right(Some(ETag("115"))))
+        )
+      )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+      def currentRequest[A]: Request[A] =
+        FakeRequest().withSession(SessionKeys.sessionId -> "1").asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.confirmSubmit(currentRequest)
+      val result: Future[Result]        = controller.confirmSubmit(currentRequest)
 
       status(result) mustBe OK
       contentAsString(result) mustBe expectedAddressConfirmationView
@@ -151,11 +224,8 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "redirect to personal details if there is a lock on the correspondence address for the user" in {
-      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
-      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-      val personDetails = PersonDetails(person, None, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(personDetails)
+        EitherT.rightT(personDetails.copy(address = personDetails.correspondenceAddress.map(_.copy(isRls = true))))
       )
 
       def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
@@ -164,8 +234,18 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(getEditedAddressIndicators)
       )
+      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
+          Future.successful(Right(Some(ETag("115"))))
+        )
+      )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      val result: Future[Result] = controller.confirmSubmit(FakeRequest())
+      val result: Future[Result] = controller.confirmSubmit(FakeRequest().withSession(SessionKeys.sessionId -> "1"))
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad.url)
@@ -182,8 +262,22 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
+      when(mockEditAddressLockRepository.get(any())).thenReturn(
+        Future.successful(List.empty)
+      )
+      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
+          Future.successful(Right(Some(ETag("115"))))
+        )
+      )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      def currentRequest[A]: Request[A]                            = FakeRequest().asInstanceOf[Request[A]]
+      def currentRequest[A]: Request[A]                            =
+        FakeRequest().withSession(SessionKeys.sessionId -> "1").asInstanceOf[Request[A]]
       def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditResidentialAddress(Instant.now())))
       when(mockEditAddressLockRepository.get(any())).thenReturn(
@@ -211,13 +305,16 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
-
-      def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-        EitherT[Future, UpstreamErrorResponse, HttpResponse](
-          Future.successful(Left(UpstreamErrorResponse("", BAD_REQUEST)))
-        )
+      when(mockEditAddressLockRepository.get(any())).thenReturn(
+        Future.successful(List.empty)
+      )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        updateAddressResponse()
+        EitherT.leftT(UpstreamErrorResponse("bad request", BAD_REQUEST))
+      )
+      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
+          Future.successful(Right(Some(ETag("115"))))
+        )
       )
 
       val result: Future[Result] = controller.confirmSubmit()(FakeRequest())
@@ -235,15 +332,19 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
-
-      def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-        EitherT[Future, UpstreamErrorResponse, HttpResponse](
-          Future.successful(Left(UpstreamErrorResponse("", IM_A_TEAPOT)))
-        )
-      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        updateAddressResponse()
+      when(mockEditAddressLockRepository.get(any())).thenReturn(
+        Future.successful(List.empty)
       )
-      val result: Future[Result]                                                        = controller.confirmSubmit()(FakeRequest())
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.leftT(UpstreamErrorResponse("unexpected error", 418))
+      )
+      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
+          Future.successful(Right(Some(ETag("115"))))
+        )
+      )
+
+      val result: Future[Result] = controller.confirmSubmit()(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       verify(mockCitizenDetailsService, times(1))
@@ -258,13 +359,16 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
-
-      def updateAddressResponse(): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-        EitherT[Future, UpstreamErrorResponse, HttpResponse](
-          Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
-        )
+      when(mockEditAddressLockRepository.get(any())).thenReturn(
+        Future.successful(List.empty)
+      )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        updateAddressResponse()
+        EitherT.leftT(UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
+      )
+      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
+          Future.successful(Right(Some(ETag("115"))))
+        )
       )
 
       def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
@@ -286,10 +390,23 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
+      when(mockEditAddressLockRepository.get(any())).thenReturn(
+        Future.successful(List.empty)
+      )
+      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
+          Future.successful(Right(Some(ETag("115"))))
+        )
+      )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
 
-      def currentRequest[A]: Request[A] = FakeRequest("POST", "/").asInstanceOf[Request[A]]
+      def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "/").withSession(SessionKeys.sessionId -> "1").asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.confirmSubmit(currentRequest)
+      val result: Future[Result]        = controller.confirmSubmit(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
 
@@ -309,14 +426,24 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT(personDetails)
       )
-
+      when(mockEditAddressLockRepository.get(any())).thenReturn(
+        Future.successful(List.empty)
+      )
       when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
         EitherT.leftT(UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
       )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
+        Future.successful(true)
+      )
 
-      def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "/test").withSession(SessionKeys.sessionId -> "1").asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.confirmSubmit(currentRequest)
+      val result: Future[Result]        = controller.confirmSubmit(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
     }

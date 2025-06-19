@@ -94,8 +94,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .value
             .futureValue
 
-        result mustBe a[Right[_, _]]
-        result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
+        result mustBe Right(true)
       }
 
       List(

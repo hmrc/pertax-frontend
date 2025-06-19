@@ -16,21 +16,49 @@
 
 package controllers.address
 
+import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.ResidentialAddrType
-import play.api.mvc._
+import play.api.Application
+import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import testUtils.BaseSpec
+import testUtils.UserRequestFixture.buildUserRequest
+import play.api.inject.bind
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class AddressErrorControllerSpec extends AddressBaseSpec {
+class AddressErrorControllerSpec extends BaseSpec {
 
+  class FakeAuthAction extends AuthJourney {
+    override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+      new ActionBuilder[UserRequest, AnyContent] {
+        override def parser: BodyParser[AnyContent] = play.api.test.Helpers.stubBodyParser()
+
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(buildUserRequest(request = request))
+
+        override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+      }
+  }
+
+  override implicit lazy val app: Application         = localGuiceApplicationBuilder()
+    .overrides(
+      bind[AuthJourney].toInstance(new FakeAuthAction)
+    )
+    .build()
   private lazy val controller: AddressErrorController = app.injector.instanceOf[AddressErrorController]
 
   "cannotUseThisService" must {
 
     "display the cannot use this service page" in {
-      val result: Future[Result] = controller.cannotUseThisService(ResidentialAddrType)(currentRequest)
+      def userRequest[A]: UserRequest[A] =
+        buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
 
+      val result: Future[Result] = controller.cannotUseThisService(ResidentialAddrType)(userRequest)
+
+      redirectLocation(result) mustBe None
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsString(result) must include("You cannot use this service to update your address")
     }

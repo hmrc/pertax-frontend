@@ -17,28 +17,101 @@
 package controllers.address
 
 import cats.data.EitherT
+import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto.{AddressDto, DateDto, InternationalAddressChoiceDto}
-import models.{Address, ETag, UserAnswers}
+import models.{Address, ETag, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{reset, times, verify, when}
+import play.api.Application
 import play.api.http.Status.OK
 import play.api.i18n.Messages
-import play.api.mvc.{Request, Result}
+import play.api.inject.bind
+import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.JourneyCacheRepository
 import routePages.{SelectedAddressRecordPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage, SubmittedStartDatePage}
-import testUtils.Fixtures
+import services.CitizenDetailsService
+import testUtils.{BaseSpec, Fixtures}
 import testUtils.Fixtures._
+import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
 
 import java.time.LocalDate
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class AddressSubmissionControllerSpec extends AddressBaseSpec {
+class AddressSubmissionControllerSpec extends BaseSpec {
+  implicit lazy val messages: Messages = play.api.i18n.MessagesImpl(
+    play.api.i18n.Lang.defaultLang,
+    app.injector.instanceOf[play.api.i18n.MessagesApi]
+  )
+
+  class FakeAuthAction extends AuthJourney {
+    override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+      new ActionBuilder[UserRequest, AnyContent] {
+        override def parser: BodyParser[AnyContent] = play.api.test.Helpers.stubBodyParser()
+
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = request))
+
+        override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+      }
+  }
+
+  val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
+  val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
+  val mockAuditConnector: AuditConnector                 = mock[AuditConnector]
+
+  override implicit lazy val app: Application              = localGuiceApplicationBuilder()
+    .overrides(
+      bind[AuthJourney].toInstance(new FakeAuthAction),
+      bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+      bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
+      bind[AuditConnector].toInstance(mockAuditConnector)
+    )
+    .build()
   private lazy val controller: AddressSubmissionController = app.injector.instanceOf[AddressSubmissionController]
+
+  val personDetails: PersonDetails = buildPersonDetailsWithPersonalAndCorrespondenceAddress
+  val nino: Nino                   = personDetails.person.nino.get
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockJourneyCacheRepository)
+    reset(mockCitizenDetailsService)
+    reset(mockAuditConnector)
+
+    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      EitherT[Future, UpstreamErrorResponse, PersonDetails](
+        Future.successful(Right(personDetails))
+      )
+    )
+    when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
+      EitherT[Future, UpstreamErrorResponse, Option[ETag]](
+        Future.successful(Right(Some(ETag("115"))))
+      )
+    )
+  }
+
+  def currentRequest[A]: Request[A] =
+    FakeRequest("GET", "")
+      .asInstanceOf[Request[A]]
+
+  def fakePOSTRequest[A]: Request[A] =
+    FakeRequest("POST", "/test")
+      .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
+      .asInstanceOf[Request[A]]
+
+  protected def pruneDataEvent(dataEvent: DataEvent): DataEvent =
+    dataEvent
+      .copy(tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token", detail = dataEvent.detail - "credId")
+
   "onPageLoad" must {
     "return 200 if only submittedAddress is present in cache for postal address type" in {
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
@@ -201,6 +274,12 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val fakeAddress: Address =
         buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
 
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
@@ -249,7 +328,12 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
         )
       )
-      val result: Future[Result]         = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
       status(result) mustBe OK
       val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
@@ -263,7 +347,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
+        .updateAddress(meq(nino), meq("115"), meq(buildFakeAddress))(any(), any(), any())
     }
 
     "render the thank you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address, this time using postal type and having no postalSubmittedStartDate in the cache " in {
@@ -279,6 +363,10 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .setOrException(SubmittedAddressPage(PostalAddrType), addressDto)
         )
       )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")
@@ -314,6 +402,10 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
         )
       )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
@@ -329,7 +421,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
+        .updateAddress(meq(nino), meq("115"), meq(buildFakeAddress))(any(), any(), any())
     }
 
     "render the thank you page and log a postcodeAddressModifiedSubmitted audit event upon successful of a modified address" in {
@@ -346,6 +438,10 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
         )
       )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
@@ -382,6 +478,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
         )
       )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       val result: Future[Result] = controller.onSubmit(PostalAddrType)(fakePOSTRequest)
 
@@ -401,6 +498,10 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.OutsideUK)
         )
       )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
@@ -421,6 +522,10 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
         )
       )
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+        EitherT.rightT(true)
+      )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
@@ -440,10 +545,10 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
         )
       )
-
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.leftT(UpstreamErrorResponse("Start Date cannot be the same", 400))
       )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 

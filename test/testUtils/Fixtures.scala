@@ -123,6 +123,23 @@ trait TaiFixtures {
 }
 
 trait CitizenDetailsFixtures {
+  def buildPersonDetailsWithPersonalAndCorrespondenceAddress: PersonDetails =
+    PersonDetails(
+      Person(
+        Some("Firstname"),
+        Some("Middlename"),
+        Some("Lastname"),
+        Some("FML"),
+        Some("Dr"),
+        Some("Phd."),
+        Some("M"),
+        Some(LocalDate.parse("1945-03-18")),
+        Some(Fixtures.fakeNino)
+      ),
+      Some(buildFakeAddress),
+      Some(buildFakeCorrespondenceAddress)
+    )
+
   def buildPersonDetails: PersonDetails =
     PersonDetails(
       Person(
@@ -154,7 +171,7 @@ trait CitizenDetailsFixtures {
         Some(Fixtures.fakeNino)
       ),
       Some(buildFakeAddress),
-      Some(buildFakeCorrespondenceAddress)
+      Some(buildFakeCorrespondenceAddress.copy(postcode = Some("CC1 1AA")))
     )
 
   def buildFakeAddress: Address = Address(
