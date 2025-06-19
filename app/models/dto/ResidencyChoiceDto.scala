@@ -46,7 +46,7 @@ object ResidencyChoiceDto {
         .transform[AddrType](
           x => AddrType(x.fold("")(_.toString)).getOrElse(ResidentialAddrType),
           ad => Some(ad.toString)
-        ) //getOrElse here will never fall back to default because of isDefined above
+        ) // getOrElse here will never fall back to default because of isDefined above
     )(ResidencyChoiceDto.apply)(ResidencyChoiceDto.unapply)
   )
 }

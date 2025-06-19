@@ -133,11 +133,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     }
 
-    "should have benefit cards when no trusted helper exists in the request" in {
-
+    "should have benefit cards when no trusted helper exists in the request" in
       homeCardGenerator.getBenefitCards(Fixtures.buildTaxComponents, None)
 
-    }
   }
 
   "Calling getNationalInsuranceCard" must {

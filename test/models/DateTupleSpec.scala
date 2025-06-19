@@ -121,44 +121,34 @@ class DateTupleSpec extends BaseSpec {
       result.getOrElse(LocalDate.of(1, 1, 1)) mustBe LocalDate.of(2014, 2, 1)
     }
 
-    "return error when all the fields are empty" in {
+    "return error when all the fields are empty" in
       assertError(Map(day -> "", month -> "", year -> ""), errorKey)
-    }
 
-    "return a validation error for invalid date with characters" in {
+    "return a validation error for invalid date with characters" in
       assertError(Map(day -> "1", month -> "2", year -> "bla"), "error.invalid.date.format")
-    }
 
-    "return a validation error for invalid date with invalid month" in {
+    "return a validation error for invalid date with invalid month" in
       assertError(Map(day -> "1", month -> "23", year -> "2014"), "error.invalid.date.format")
-    }
 
-    "return a validation error for invalid date with only 2 digit year" in {
+    "return a validation error for invalid date with only 2 digit year" in
       assertError(Map(day -> "1", month -> "2", year -> "14"), "error.invalid.date.format")
-    }
 
-    "return a validation error for invalid date with more than 4 digit year" in {
+    "return a validation error for invalid date with more than 4 digit year" in
       assertError(Map(day -> "1", month -> "01", year -> "14444"), "error.invalid.date.format")
-    }
 
-    "return a validation error for invalid date with more than 2 digit day" in {
+    "return a validation error for invalid date with more than 2 digit day" in
       assertError(Map(day -> "122", month -> "01", year -> "2014"), "error.invalid.date.format")
-    }
 
-    "return a validation error for invalid date with more than 2 digit month" in {
+    "return a validation error for invalid date with more than 2 digit month" in
       assertError(Map(day -> "1", month -> "133", year -> "2014"), "error.invalid.date.format")
-    }
 
-    "return error.date.required.day when day field is missing" in {
+    "return error.date.required.day when day field is missing" in
       assertError(Map(month -> "2", year -> "2015"), "error.date.required.day")
-    }
 
-    "return error.date.required.month when month field is missing" in {
+    "return error.date.required.month when month field is missing" in
       assertError(Map(day -> "1", year -> "2015"), "error.date.required.month")
-    }
 
-    "return error.date.required.year when year field is missing" in {
+    "return error.date.required.year when year field is missing" in
       assertError(Map(day -> "1", month -> "2"), "error.date.required.year")
-    }
   }
 }

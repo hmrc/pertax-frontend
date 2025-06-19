@@ -68,9 +68,8 @@ class RlsControllerSpec extends BaseSpec {
       .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(EitherT.rightT(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
-    when(mockCachingHelper.addToCache(any(), any())(any(), any())) thenReturn {
+    when(mockCachingHelper.addToCache(any(), any())(any(), any())) thenReturn
       Future.successful(UserAnswers.empty("id"))
-    }
   }
 
   "rlsInterruptOnPageLoad" must {

@@ -208,7 +208,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       def currentRequest[A]: Request[A] =
         FakeRequest().withSession(SessionKeys.sessionId -> "1").asInstanceOf[Request[A]]
 
-      val result: Future[Result]        = controller.confirmSubmit(currentRequest)
+      val result: Future[Result] = controller.confirmSubmit(currentRequest)
 
       status(result) mustBe OK
       contentAsString(result) mustBe expectedAddressConfirmationView
@@ -406,7 +406,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/").withSession(SessionKeys.sessionId -> "1").asInstanceOf[Request[A]]
 
-      val result: Future[Result]        = controller.confirmSubmit(currentRequest)
+      val result: Future[Result] = controller.confirmSubmit(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
 
@@ -443,7 +443,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test").withSession(SessionKeys.sessionId -> "1").asInstanceOf[Request[A]]
 
-      val result: Future[Result]        = controller.confirmSubmit(currentRequest)
+      val result: Future[Result] = controller.confirmSubmit(currentRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
     }

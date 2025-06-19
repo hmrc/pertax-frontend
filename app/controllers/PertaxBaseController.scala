@@ -24,7 +24,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 abstract class PertaxBaseController(cc: MessagesControllerComponents) extends FrontendController(cc) with I18nSupport {
 
-  protected val baseBreadcrumb: Breadcrumb                =
+  protected val baseBreadcrumb: Breadcrumb =
     List("label.account_home" -> routes.HomeController.index.url)
 
   private val emptyStringToNone: String => Option[String] = s =>
