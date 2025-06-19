@@ -91,12 +91,11 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     lazy val controller: ApplicationController = app.injector.instanceOf[ApplicationController]
 
-    when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any(), any())) thenReturn {
+    when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any(), any())) thenReturn
       getIVJourneyStatusResponse
-    }
 
     def routeWrapper(req: FakeRequest[AnyContentAsEmpty.type]): Option[Future[Result]] = {
-      controller //Call to inject mocks
+      controller // Call to inject mocks
       route(app, req)
     }
   }

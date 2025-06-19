@@ -17,7 +17,7 @@
 package testUtils.fakes
 
 import controllers.auth.requests.UserRequest
-import controllers.controllershelpers.{PaperlessInterruptHelper}
+import controllers.controllershelpers.PaperlessInterruptHelper
 import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}

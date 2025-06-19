@@ -65,7 +65,7 @@ class PreferencesFrontendConnector @Inject() (
 
     val url =
       s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
-        .encryptAndEncode(Messages("label.continue"))}"
+          .encryptAndEncode(Messages("label.continue"))}"
 
     val body: JsObject = Json.obj("active" -> true)
 
@@ -85,7 +85,7 @@ class PreferencesFrontendConnector @Inject() (
 
     val fullUrl =
       url"$preferencesFrontendUrl/paperless/status?returnUrl=${tools.encryptOnly(absoluteUrl)}&returnLinkText=${tools
-        .encryptOnly(returnMessage)}"
+          .encryptOnly(returnMessage)}"
     httpClientResponse
       .read(
         httpClientV2

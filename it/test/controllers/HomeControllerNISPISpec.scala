@@ -25,7 +25,7 @@ import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status => httpStatus}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status => httpStatus, writeableOf_AnyContentAsEmpty}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -67,8 +67,8 @@ class HomeControllerNISPISpec extends IntegrationSpec {
         httpStatus(result) mustBe OK
         contentAsString(result).contains(Messages("label.your_national_insurance_and_state_pension")) mustBe true
 
-        val nispViewURL              = "/personal-account/your-national-insurance-state-pension"
-        val nispViewReq              = FakeRequest(GET, nispViewURL)
+        val nispViewURL = "/personal-account/your-national-insurance-state-pension"
+        val nispViewReq = FakeRequest(GET, nispViewURL)
           .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
 
         val resultSa: Future[Result] = route(app, nispViewReq).get
@@ -90,8 +90,8 @@ class HomeControllerNISPISpec extends IntegrationSpec {
         httpStatus(result) mustBe OK
         contentAsString(result).contains(Messages("label.your_national_insurance_and_state_pension")) mustBe true
 
-        val nispViewURL              = "/personal-account/your-national-insurance-state-pension"
-        val nispViewReq              = FakeRequest(GET, nispViewURL)
+        val nispViewURL = "/personal-account/your-national-insurance-state-pension"
+        val nispViewReq = FakeRequest(GET, nispViewURL)
           .withSession(SessionKeys.authToken -> "Bearer 1", SessionKeys.sessionId -> s"session-$uuid")
 
         val resultSa: Future[Result] = route(app, nispViewReq).get

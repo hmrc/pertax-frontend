@@ -74,13 +74,12 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))
 
-        when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn {
+        when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
             Future.successful(
               Right(HttpResponse(PRECONDITION_FAILED, Json.obj("redirectUserTo" -> "/activate-paperless").toString))
             )
           )
-        }
 
         val r = paperlessInterruptHelper.enforcePaperlessPreference(Future(Ok))
         status(r) mustBe SEE_OTHER
@@ -91,9 +90,8 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = false)))
 
-        when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn {
+        when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn
           EitherT[Future, UpstreamErrorResponse, HttpResponse](Future.successful(Right(HttpResponse(OK, ""))))
-        }
 
         val result = paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock))
         result.futureValue mustBe okBlock
@@ -103,11 +101,10 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
           .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))
 
-        when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn {
+        when(mockPreferencesFrontendConnector.getPaperlessPreference()(any())) thenReturn
           EitherT[Future, UpstreamErrorResponse, HttpResponse](
             Future.successful(Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
           )
-        }
 
         val result = paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock)).futureValue
         result mustBe okBlock

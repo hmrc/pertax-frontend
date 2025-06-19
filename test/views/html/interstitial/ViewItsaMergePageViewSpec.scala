@@ -32,7 +32,7 @@ class ViewItsaMergePageViewSpec extends ViewSpec {
 
   lazy val viewItsaMergePageView: ViewItsaMergePageView = inject[ViewItsaMergePageView]
 
-  lazy implicit val configDecorator: ConfigDecorator            = mock[ConfigDecorator] //inject[ConfigDecorator]
+  lazy implicit val configDecorator: ConfigDecorator            = mock[ConfigDecorator] // inject[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(request = FakeRequest())
 

@@ -42,7 +42,7 @@ class TaiConnector @Inject() (
   featureFlagService: FeatureFlagService
 ) extends Logging {
 
-  private lazy val taiUrl                              = servicesConfig.baseUrl("tai")
+  private lazy val taiUrl = servicesConfig.baseUrl("tai")
   def taxComponents[A](nino: Nino, year: Int)(reads: Reads[A])(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext

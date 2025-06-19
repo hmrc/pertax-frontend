@@ -92,11 +92,12 @@ class DoYouLiveInTheUKControllerSpec extends BaseSpec {
 
   "onPageLoad" must {
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in {
-      val result: Future[Result]           = controller.onPageLoad(currentRequest)
       val userAnswersToReturn: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
+
+      val result: Future[Result] = controller.onPageLoad(currentRequest)
       status(result) mustBe OK
       verify(mockJourneyCacheRepository, times(1)).get(any())
     }

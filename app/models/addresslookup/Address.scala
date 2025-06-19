@@ -19,9 +19,8 @@ package models.addresslookup
 import com.fasterxml.jackson.annotation.JsonIgnore
 import play.api.libs.json.{Json, OFormat}
 
-/** Address typically represents a postal address.
-  * For UK addresses, 'town' will always be present.
-  * For non-UK addresses, 'town' may be absent and there may be an extra line instead.
+/** Address typically represents a postal address. For UK addresses, 'town' will always be present. For non-UK
+  * addresses, 'town' may be absent and there may be an extra line instead.
   */
 case class Address(
   lines: List[String],

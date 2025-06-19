@@ -294,7 +294,7 @@ class ContentsCheckSpec extends IntegrationSpec {
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "Bearer 1")
 
   "/personal-account/" when {
-    "calling authenticated pages"   must {
+    "calling authenticated pages"   must
       urls.foreach { case (url, expectedData: ExpectedData) =>
         s"pass content checks at url $url" in {
           if (expectedData.attorneyBannerPresent) {
@@ -360,8 +360,7 @@ class ContentsCheckSpec extends IntegrationSpec {
 
         }
       }
-    }
-    "calling unauthenticated pages" must {
+    "calling unauthenticated pages" must
       unauthUrls.foreach { case (url, expectedData: ExpectedData) =>
         s"pass content checks at url $url" in {
           server.stubFor(
@@ -403,6 +402,5 @@ class ContentsCheckSpec extends IntegrationSpec {
           menuItems.toString mustBe ""
         }
       }
-    }
   }
 }

@@ -18,7 +18,7 @@ package testUtils
 
 import controllers.auth.requests.UserRequest
 import models._
-import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
+import models.addresslookup.{Address => PafAddress, AddressRecord, Country, RecordSet}
 import models.dto.AddressDto
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
@@ -268,7 +268,7 @@ trait CitizenDetailsFixtures {
   )
 
   def fakeStreetTupleListAddressForModified: List[(String, String)] = List(
-    ("line1", "11 Fake Street"), //Note 11 not 1
+    ("line1", "11 Fake Street"), // Note 11 not 1
     ("line2", "Fake Town"),
     ("line3", "Fake City"),
     ("line4", "Fake Region"),
@@ -277,7 +277,7 @@ trait CitizenDetailsFixtures {
   )
 
   def fakeStreetTupleListAddressForModifiedPostcode: List[(String, String)] = List(
-    ("line1", "11 Fake Street"), //Note 11 not 1
+    ("line1", "11 Fake Street"), // Note 11 not 1
     ("line2", "Fake Town"),
     ("line3", "Fake City"),
     ("line4", "Fake Region"),
