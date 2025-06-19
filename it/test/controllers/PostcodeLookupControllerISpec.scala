@@ -17,7 +17,7 @@
 package controllers
 
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.AgentClientStatus
 import models.admin.TaxComponentsToggle
 import org.mockito.ArgumentMatchers
@@ -28,7 +28,7 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsFormUrlEncoded}
 import testUtils.{FileHelper, IntegrationSpec}
-import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
@@ -161,7 +161,7 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
     )
 
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = false)))
+      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsToggle, isEnabled = false)))
   }
 
   "personal-account" must {

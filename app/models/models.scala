@@ -98,7 +98,6 @@ package object models {
             .slice(index + 1, valueToRemoveFrom.value.size)
           JsSuccess(JsArray(updatedJsArray))
         case valueToRemoveFrom: JsArray                                                         => JsError(s"array index out of bounds: $index, $valueToRemoveFrom")
-        case _                                                                                  => JsError(s"cannot set an index on $valueToRemoveFrom")
       }
     }
 

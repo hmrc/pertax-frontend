@@ -17,17 +17,17 @@
 package controllers.auth
 
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, status => _, urlEqualTo, urlMatching}
-import models.admin._
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, post, urlEqualTo, urlMatching, status as _}
+import models.admin.*
 import models.{ErrorView, PertaxResponse}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import testUtils.IntegrationSpec
-import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
@@ -70,7 +70,7 @@ class AuthJourneyItSpec extends IntegrationSpec {
       .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
 
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsToggle, isEnabled = true)))
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(PaperlessInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(PaperlessInterruptToggle, isEnabled = true)))

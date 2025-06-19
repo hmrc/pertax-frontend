@@ -66,8 +66,8 @@ final case class UserAnswers(
 
   def isDefined(gettable: Gettable[_]): Boolean =
     Reads.optionNoError(Reads.at[JsValue](gettable.path)).reads(data) match {
-      case JsSuccess(a @ Some(_), _) if a.isDefined => true
-      case _                                        =>
+      case JsSuccess(Some(_), _) => true
+      case _                     =>
         Reads
           .optionNoError(Reads.at[JsValue](gettable.path))
           .reads(data)

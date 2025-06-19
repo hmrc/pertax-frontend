@@ -17,8 +17,8 @@
 package controllers
 
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin._
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import models.admin.*
 import models.dto.AddressPageVisitedDto
 import models.{Person, PersonDetails, UserAnswers}
 import org.jsoup.Jsoup
@@ -33,11 +33,11 @@ import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status => httpStatus, writeableOf_AnyContentAsEmpty}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, status as httpStatus}
 import repositories.JourneyCacheRepository
 import routePages.HasAddressAlreadyVisitedPage
 import testUtils.{FileHelper, IntegrationSpec}
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.time.TaxYear
 
@@ -167,7 +167,7 @@ class TimeoutsISpec extends IntegrationSpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
       .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsToggle, isEnabled = true)))
     when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
       Future.successful(
         UserAnswers
