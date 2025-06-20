@@ -29,6 +29,9 @@ case class DateDto(
 ) extends Dto
 
 object DateDto {
+  def unapply(obj: DateDto): Some[LocalDate] = Some(
+    obj.startDate
+  )
 
   implicit val formats: OFormat[DateDto] = Json.format[DateDto]
 

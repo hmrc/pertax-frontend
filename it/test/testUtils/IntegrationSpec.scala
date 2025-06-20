@@ -19,9 +19,9 @@ package testUtils
 import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock
 import org.apache.pekko.Done
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.admin._
+import models.admin.*
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -38,7 +38,8 @@ import repositories.JourneyCacheRepository
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import org.mockito.Mockito.{reset => resetMock}
+import org.mockito.Mockito.reset as resetMock
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import java.time.LocalDateTime
 import scala.concurrent.duration.Duration
@@ -334,7 +335,7 @@ trait IntegrationSpec
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
       when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(flag)))
-        .thenReturn(EitherT.rightT(FeatureFlag(flag, isEnabled = false)))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(flag, isEnabled = false)))
     }
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))

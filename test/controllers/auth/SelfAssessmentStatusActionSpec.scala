@@ -59,11 +59,10 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
     actionProvider.invokeBlock(
       request,
-      { userRequest: UserRequest[_] =>
+      (userRequest: UserRequest[_]) =>
         Future.successful(
           Ok(s"Nino: ${userRequest.authNino.nino}, SaUtr: ${userRequest.saUserType.toString}")
         )
-      }
     )
 
   }

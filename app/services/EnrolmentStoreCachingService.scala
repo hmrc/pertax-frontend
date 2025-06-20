@@ -102,7 +102,7 @@ class EnrolmentStoreCachingService @Inject() (
                   userDetails.identityProviderType,
                   id,
                   userDetails.obfuscatedUserId.getOrElse(""),
-                  userDetails.email.map(SensitiveString),
+                  userDetails.email.map(SensitiveString.apply),
                   userDetails.lastAccessedTimestamp,
                   AccountDetails.additionalFactorsToMFADetails(userDetails.additionalFactors),
                   None

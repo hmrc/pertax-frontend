@@ -16,15 +16,14 @@
 
 package testUtils
 
-import cats.Invariant._
+import cats.Invariant.*
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.admin.AllFeatureFlags
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.{reset => resetMock, when}
+import org.mockito.Mockito.{reset as resetMock, when}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
@@ -34,6 +33,7 @@ import play.api
 import play.api.cache.AsyncCacheApi
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.scalatestaccessibilitylinter.AccessibilityMatchers
@@ -170,7 +170,7 @@ trait A11ySpec
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(flag)))
         .thenReturn(Future.successful(FeatureFlag(flag, isEnabled = false)))
       when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(flag)))
-        .thenReturn(EitherT.rightT(FeatureFlag(flag, isEnabled = false)))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(flag, isEnabled = false)))
     }
 
     server.stubFor(
