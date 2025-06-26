@@ -19,7 +19,7 @@ package controllers.controllershelpers
 import com.google.inject.{ImplementedBy, Inject}
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
-import models.admin.PaperlessInterruptToggle
+import models.admin.EnforcePaperlessPreferenceToggle
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import uk.gov.hmrc.http.HttpErrorFunctions.is2xx
@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait PaperlessInterruptHelper {
   def enforcePaperlessPreference(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Result]
+  )(implicit request: UserRequest[?], ec: ExecutionContext): Future[Result]
 }
 
 class PaperlessInterruptHelperImpl @Inject() (
@@ -41,8 +41,8 @@ class PaperlessInterruptHelperImpl @Inject() (
 
   def enforcePaperlessPreference(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], ec: ExecutionContext): Future[Result] =
-    featureFlagService.get(PaperlessInterruptToggle).flatMap { featureFlag =>
+  )(implicit request: UserRequest[?], ec: ExecutionContext): Future[Result] =
+    featureFlagService.get(EnforcePaperlessPreferenceToggle).flatMap { featureFlag =>
       if (featureFlag.isEnabled) {
         preferencesFrontendConnector
           .getPaperlessPreference()
