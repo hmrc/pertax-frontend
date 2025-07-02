@@ -66,34 +66,38 @@ class PersonalDetailsController @Inject() (
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>
     Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad, MOVED_PERMANENTLY))
   }
-  def onPageLoad: Action[AnyContent]            =
-    authenticate.async { implicit request: UserRequest[AnyContent] =>
-      rlsInterruptHelper.enforceByRlsStatus(for {
+  def onPageLoad: Action[AnyContent]            = authenticate.async { implicit request: UserRequest[AnyContent] =>
+    rlsInterruptHelper.enforceByRlsStatus(
+      for {
         agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
         addressModel      <- editAddressLockRepository.get(request.helpeeNinoOrElse.withoutSuffix)
-        personDetails     <- citizenDetailsService
-                               .personDetails(request.helpeeNinoOrElse)
-                               .toOption
-                               .value
-        nameToDisplay      = personalDetailsNameOrTrustedHelperName(personDetails)
-        ninoToDisplay      = personDetails.fold(request.helpeeNinoOrElse)(_.person.nino.getOrElse(request.helpeeNinoOrElse))
-        _                 <- personDetails
-                               .map { details =>
-                                 auditConnector.sendEvent(
-                                   buildPersonDetailsEvent(
-                                     "personalDetailsPageLinkClicked",
-                                     details
-                                   )
-                                 )
-                               }
-                               .getOrElse(Future.successful(()))
-        _                 <- cachingHelper
-                               .addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+
+        personDetailsEither <- citizenDetailsService
+                                 .personDetails(request.helpeeNinoOrElse)
+                                 .value
+
+        personDetails = personDetailsEither.toOption.flatten
+
+        nameToDisplay = personalDetailsNameOrTrustedHelperName(personDetails)
+        ninoToDisplay = personDetails
+                          .flatMap(_.person.nino)
+                          .getOrElse(request.helpeeNinoOrElse)
+
+        _ <- personDetails match {
+               case Some(details) =>
+                 auditConnector.sendEvent(
+                   buildPersonDetailsEvent("personalDetailsPageLinkClicked", details)
+                 )
+               case None          =>
+                 Future.unit
+             }
+
+        _ <- cachingHelper.addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
         addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
         addressDetails             <- personalDetailsViewModel.getAddressRow(personDetails, addressModel)
         paperLessPreference        <- personalDetailsViewModel.getPaperlessSettingsRow
-        personalDetails            <- personalDetailsViewModel.getPersonDetailsTable(Some(ninoToDisplay), nameToDisplay)
+        personalDetailsTable       <- personalDetailsViewModel.getPersonDetailsTable(Some(ninoToDisplay), nameToDisplay)
 
       } yield {
         val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow
@@ -103,7 +107,7 @@ class PersonalDetailsController @Inject() (
 
         Ok(
           personalDetailsView(
-            personalDetails,
+            personalDetailsTable,
             addressDetails,
             trustedHelpers,
             paperlessHelpers,
@@ -112,7 +116,8 @@ class PersonalDetailsController @Inject() (
             addressChangeAllowedToggle.isEnabled
           )
         )
-      })
-    }
+      }
+    )
+  }
 
 }

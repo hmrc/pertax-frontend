@@ -60,11 +60,16 @@ class AddressControllerSpec extends BaseSpec {
   private lazy val controller: AddressController = Controller
 
   override def beforeEach(): Unit = {
+
     super.beforeEach()
     reset(mockCitizenDetailsService)
+    reset(mockErrorRenderer)
+
+    when(mockErrorRenderer.error(any())(any(), any())).thenReturn(InternalServerError("error"))
+
     when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-      EitherT[Future, UpstreamErrorResponse, PersonDetails](
-        Future.successful(Right(buildPersonDetails))
+      EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+        Future.successful(Right(Some(buildPersonDetails)))
       )
     )
   }
@@ -112,6 +117,43 @@ class AddressControllerSpec extends BaseSpec {
           .apply()(userRequest, mockAppConfigDecorator, messages)
           .body
       }
+    }
+  }
+
+  "show the InternalServerErrorView" when {
+
+    "the citizenDetailsService returns Right(None)" in {
+      when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+        .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
+        .thenReturn(EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(None))))
+
+      def userRequest[A]: UserRequest[A] =
+        buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
+
+      val result = controller.addressJourneyEnforcer { _ => _ =>
+        Future(Ok("Success"))
+      }(userRequest)
+
+      status(result) mustBe INTERNAL_SERVER_ERROR
+    }
+
+    "the citizenDetailsService returns Left" in {
+      when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+        .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
+        .thenReturn(EitherT.leftT[Future, Option[PersonDetails]](UpstreamErrorResponse("error", 500)))
+
+      def userRequest[A]: UserRequest[A] =
+        buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
+
+      val result = controller.addressJourneyEnforcer { _ => _ =>
+        Future(Ok("Success"))
+      }(userRequest)
+
+      status(result) mustBe INTERNAL_SERVER_ERROR
     }
   }
 }

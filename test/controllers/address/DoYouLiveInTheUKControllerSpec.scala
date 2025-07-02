@@ -21,8 +21,8 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
-import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import models.dto.AddressPageVisitedDto
+import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
@@ -75,8 +75,8 @@ class DoYouLiveInTheUKControllerSpec extends BaseSpec {
     reset(mockCitizenDetailsService)
 
     when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-      EitherT[Future, UpstreamErrorResponse, PersonDetails](
-        Future.successful(Right(personDetails))
+      EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+        Future.successful(Right(Some(personDetails)))
       )
     )
 

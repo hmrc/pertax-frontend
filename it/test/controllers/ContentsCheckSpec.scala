@@ -16,9 +16,10 @@
 
 package controllers
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.BreathingSpaceIndicatorToggle
+import models.admin.{BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -198,6 +199,8 @@ class ContentsCheckSpec extends IntegrationSpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle))) thenReturn Future.successful(
       FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)
     )
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))

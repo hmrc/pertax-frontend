@@ -19,16 +19,19 @@ package services
 import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.CitizenDetailsConnector
+import models.admin.GetPersonFromCitizenDetailsToggle
 import models.{Address, ETag, MatchingDetails, PersonDetails}
 import play.api.Logging
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class CitizenDetailsService @Inject() (
-  citizenDetailsConnector: CitizenDetailsConnector
+  citizenDetailsConnector: CitizenDetailsConnector,
+  featureFlagService: FeatureFlagService
 ) extends Logging {
 
   def personDetails(
@@ -37,8 +40,55 @@ class CitizenDetailsService @Inject() (
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, PersonDetails] =
-    citizenDetailsConnector.personDetails(nino).map(_.as[PersonDetails])
+  ): EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]] = {
+
+    logger.info(
+      s"[personDetails] About to fetch feature flag GetPersonFromCitizenDetailsToggle for nino: ${nino.value}"
+    )
+
+    val toggleFuture = featureFlagService.get(GetPersonFromCitizenDetailsToggle)
+
+    toggleFuture.onComplete {
+      case scala.util.Success(toggle)    =>
+        logger.info(
+          s"[personDetails] Successfully fetched feature flag: ${toggle.name} -> isEnabled: ${toggle.isEnabled}"
+        )
+      case scala.util.Failure(exception) =>
+        logger.error(s"[personDetails] Failed to fetch feature flag GetPersonFromCitizenDetailsToggle", exception)
+    }
+
+    for {
+      toggle <- EitherT.liftF(toggleFuture)
+      result <- if (toggle.isEnabled) {
+                  logger.info(
+                    s"[personDetails] GetPersonFromCitizenDetailsToggle is ENABLED, calling CitizenDetailsConnector for nino: ${nino.value}"
+                  )
+
+                  citizenDetailsConnector
+                    .personDetails(nino)
+                    .map(jsValue => Some(jsValue.as[PersonDetails]))
+                    .leftMap {
+                      case e: UpstreamErrorResponse =>
+                        logger.error(
+                          s"[personDetails] UpstreamErrorResponse fetching person details for nino: ${nino.value}",
+                          e
+                        )
+                        e
+                      case e                        =>
+                        logger.error(
+                          s"[personDetails] Unexpected error fetching person details for nino: ${nino.value}",
+                          e
+                        )
+                        UpstreamErrorResponse("Internal server error", 500)
+                    }
+                } else {
+                  logger.info(
+                    s"[personDetails] GetPersonFromCitizenDetailsToggle is DISABLED for nino: ${nino.value}. Skipping call, returning None."
+                  )
+                  EitherT.rightT[Future, UpstreamErrorResponse](None)
+                }
+    } yield result
+  }
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     hc: HeaderCarrier,

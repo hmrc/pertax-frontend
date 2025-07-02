@@ -73,8 +73,8 @@ class StartChangeOfAddressControllerSpec extends BaseSpec {
   "onPageLoad" must {
     "return 200 and correct content when passed ResidentialAddrType" in {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -86,8 +86,8 @@ class StartChangeOfAddressControllerSpec extends BaseSpec {
 
     "return 200 and correct content when passed PostalAddrType" in {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 

@@ -30,6 +30,7 @@ import play.api.mvc._
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
 import services.{CitizenDetailsService, SeissService}
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -93,12 +94,17 @@ class InterstitialController @Inject() (
 
   def displayNISP: Action[AnyContent] = authenticate.async { implicit request =>
     val nispPartialFuture = formPartialService.getNISPPartial
-    val ninoFuture        = citizenDetailsService
+
+    val ninoFuture: Future[Option[Nino]] = citizenDetailsService
       .personDetails(request.authNino)
-      .fold(
-        _ => Some(request.authNino),
-        personDetails => personDetails.person.nino
-      )
+      .value
+      .map {
+        case Left(_)                   => Some(request.authNino)
+        case Right(maybePersonDetails) =>
+          maybePersonDetails
+            .map(pd => pd.person.nino.get: Nino)
+            .orElse(Some(request.authNino))
+      }
 
     val alertBannerFuture = alertBannerHelper.getVoluntaryContributionsAlertBannerContent
 
