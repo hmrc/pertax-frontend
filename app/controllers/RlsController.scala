@@ -88,6 +88,11 @@ class RlsController @Inject() (
         )
     }
 
+  private def cleanRlsAddress(maybeAddress: Option[Address], lockFlag: Boolean): Option[Address] =
+    maybeAddress.map { address =>
+      if (address.isRls && !lockFlag) address else address.copy(isRls = false)
+    }
+
   def rlsInterruptOnPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     (for {
       rlsFlag            <- featureFlagService.getAsEitherT(RlsInterruptToggle)
@@ -97,18 +102,8 @@ class RlsController @Inject() (
       maybePersonDetails <- citizenDetailsService.personDetails(request.authNino)
     } yield
       if (rlsFlag.isEnabled) {
-        val mainAddress = maybePersonDetails.flatMap { pd =>
-          pd.address.map { address =>
-            if (address.isRls && !addressLock.main) address else address.copy(isRls = false)
-          }
-        }
-
-        val postalAddress = maybePersonDetails.flatMap { pd =>
-          pd.correspondenceAddress.map { address =>
-            if (address.isRls && !addressLock.postal) address else address.copy(isRls = false)
-          }
-        }
-
+        val mainAddress = maybePersonDetails.flatMap(_.address.flatMap(addr => cleanRlsAddress(Some(addr), addressLock.main)))
+        val postalAddress = maybePersonDetails.flatMap(_.correspondenceAddress.flatMap(addr => cleanRlsAddress(Some(addr), addressLock.postal)))
         if (mainAddress.exists(_.isRls) || postalAddress.exists(_.isRls)) {
           auditRls(mainAddress, postalAddress)
           cachingHelper.addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))

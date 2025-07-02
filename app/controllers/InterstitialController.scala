@@ -102,7 +102,7 @@ class InterstitialController @Inject() (
         case Left(_)                   => Some(request.authNino)
         case Right(maybePersonDetails) =>
           maybePersonDetails
-            .map(pd => pd.person.nino.get: Nino)
+            .flatMap(_.person.nino)
             .orElse(Some(request.authNino))
       }
 
