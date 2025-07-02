@@ -36,28 +36,28 @@ class CitizenDetailsService @Inject() (
 ) extends Logging {
 
   def personDetails(
-                     nino: Nino
-                   )(implicit
-                     hc: HeaderCarrier,
-                     ec: ExecutionContext,
-                     request: Request[_]
-                   ): EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]] =
+    nino: Nino
+  )(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]] =
     for {
       toggle <- EitherT.liftF(featureFlagService.get(GetPersonFromCitizenDetailsToggle))
       result <- if (toggle.isEnabled) {
-        citizenDetailsConnector
-          .personDetails(nino)
-          .map(jsValue => Some(jsValue.as[PersonDetails]))
-          .leftMap {
-            case e: UpstreamErrorResponse => e
-            case e                        =>
-              logger.error(s"Unexpected error fetching person details for nino: ${nino.value}", e)
-              UpstreamErrorResponse("Internal server error", INTERNAL_SERVER_ERROR)
-          }
-      } else {
-        logger.info(s"Feature flag disabled for nino: ${nino.value}")
-        EitherT.rightT[Future, UpstreamErrorResponse](None)
-      }
+                  citizenDetailsConnector
+                    .personDetails(nino)
+                    .map(jsValue => Some(jsValue.as[PersonDetails]))
+                    .leftMap {
+                      case e: UpstreamErrorResponse => e
+                      case e                        =>
+                        logger.error(s"Unexpected error fetching person details for nino: ${nino.value}", e)
+                        UpstreamErrorResponse("Internal server error", INTERNAL_SERVER_ERROR)
+                    }
+                } else {
+                  logger.info(s"Feature flag disabled for nino: ${nino.value}")
+                  EitherT.rightT[Future, UpstreamErrorResponse](None)
+                }
     } yield result
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit

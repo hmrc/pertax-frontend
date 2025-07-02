@@ -102,8 +102,11 @@ class RlsController @Inject() (
       maybePersonDetails <- citizenDetailsService.personDetails(request.authNino)
     } yield
       if (rlsFlag.isEnabled) {
-        val mainAddress = maybePersonDetails.flatMap(_.address.flatMap(addr => cleanRlsAddress(Some(addr), addressLock.main)))
-        val postalAddress = maybePersonDetails.flatMap(_.correspondenceAddress.flatMap(addr => cleanRlsAddress(Some(addr), addressLock.postal)))
+        val mainAddress   =
+          maybePersonDetails.flatMap(_.address.flatMap(addr => cleanRlsAddress(Some(addr), addressLock.main)))
+        val postalAddress = maybePersonDetails.flatMap(
+          _.correspondenceAddress.flatMap(addr => cleanRlsAddress(Some(addr), addressLock.postal))
+        )
         if (mainAddress.exists(_.isRls) || postalAddress.exists(_.isRls)) {
           auditRls(mainAddress, postalAddress)
           cachingHelper.addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
