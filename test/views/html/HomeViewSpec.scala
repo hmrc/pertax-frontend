@@ -129,20 +129,5 @@ class HomeViewSpec extends ViewSpec {
       view.getElementById("alert-banner") mustBe null
     }
 
-    "have the last 2 nino numbers be rendered as an attribute on PAYE tile" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest(), authNino = Nino("AA000000C"))
-      val view                                                      = Jsoup.parse(
-        home(
-          homeViewModel.copy(
-            incomeCards = Seq(payeCard(configDecorator, "00")),
-            alertBannerContent = List(Html("something to alert"))
-          ),
-          shutteringMessaging = true
-        ).toString
-      )
-
-      view.getElementById("paye-card").attr("data-user-group") mustBe "00"
-    }
   }
 }

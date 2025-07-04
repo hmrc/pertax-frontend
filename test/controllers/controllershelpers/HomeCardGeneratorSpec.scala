@@ -108,7 +108,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       lazy val cardBody =
         homeCardGenerator.getPayAsYouEarnCard
 
-      cardBody mustBe payAsYouEarn(config, "00")
+      cardBody mustBe payAsYouEarn()
     }
   }
 
