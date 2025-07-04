@@ -87,7 +87,7 @@ class HomeCardGenerator @Inject() (
     }
 
   def getPayAsYouEarnCard(implicit request: UserRequest[?], messages: Messages): HtmlFormat.Appendable =
-    payAsYouEarnView(configDecorator, request.authNino.withoutSuffix.takeRight(2))
+    payAsYouEarnView()
 
   private def displaySACall: Call = routes.InterstitialController.displaySelfAssessment
 

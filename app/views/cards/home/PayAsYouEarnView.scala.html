@@ -16,17 +16,27 @@
 
 @import tags._
 @import config.ConfigDecorator
-@this()
-@(configDecorator: ConfigDecorator, dataGroupValue: String)(implicit messages: play.api.i18n.Messages)
+@import controllers.auth.requests.UserRequest
+
+@this(configDecorator: ConfigDecorator)
+@()(implicit messages: play.api.i18n.Messages, request: UserRequest[_])
+
+@urlToPaye() = @{
+    val lastDigit = request.authNino.withoutSuffix.reverse.take(1).toInt
+    if(configDecorator.payeToPegaRedirectList.contains(lastDigit)) {
+        s"${configDecorator.payeToPegaRedirectUrl}"
+    } else {
+        s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do"
+    }
+}
 
 @card(
     id = Some("paye-card"),
-    url = Some(s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do"),
+    url = Some(urlToPaye()),
     gaAction = Some("Income"),
     gaLabel = Some("Pay As You Earn (PAYE)"),
     heading = messages("label.pay_as_you_earn_paye"),
     headingTag = "h2",
-    bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.your_income_from_employers_and_private_pensions_") + "</p>")),
-    divAttr = Map("data-user-group" -> dataGroupValue)
+    bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.your_income_from_employers_and_private_pensions_") + "</p>"))
 ) {
 }
