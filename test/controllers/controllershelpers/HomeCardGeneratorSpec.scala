@@ -92,7 +92,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       mockTaxCalcPartialService
     )(configDecorator, ec)
 
-  private val homeCardGenerator = createHomeCardGenerator(stubConfigDecorator)
+  private lazy val homeCardGenerator = createHomeCardGenerator(stubConfigDecorator)
 
   "Calling getPayAsYouEarnCard" must {
     "return correct markup when called with with a Pertax user that is PAYE" in {
