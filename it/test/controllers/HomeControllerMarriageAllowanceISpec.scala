@@ -17,8 +17,8 @@
 package controllers
 
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock.*
-import models.admin.TaxComponentsToggle
+import com.github.tomakehurst.wiremock.client.WireMock._
+import models.admin.TaxComponentsRetrievalToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
@@ -56,8 +56,8 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     beforeEachHomeController()
-    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsToggle)))
-      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsToggle, isEnabled = true)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
   }
 
   "personal-account" must {
@@ -65,16 +65,16 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
 
       val taxComponentsJson = Json
         .parse("""{
-            |   "data" : [ {
-            |      "componentType" : "MarriageAllowanceTransferred",
-            |      "employmentId" : 12,
-            |      "amount" : 12321,
-            |      "inputAmount" : 12321,
-            |      "description" : "Personal Allowance transferred to partner",
-            |      "iabdCategory" : "Deduction"
-            |   } ],
-            |   "links" : [ ]
-            |}""".stripMargin)
+                 |   "data" : [ {
+                 |      "componentType" : "MarriageAllowanceTransferred",
+                 |      "employmentId" : 12,
+                 |      "amount" : 12321,
+                 |      "inputAmount" : 12321,
+                 |      "description" : "Personal Allowance transferred to partner",
+                 |      "iabdCategory" : "Deduction"
+                 |   } ],
+                 |   "links" : [ ]
+                 |}""".stripMargin)
         .toString
 
       server.stubFor(
@@ -102,16 +102,16 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
 
       val taxComponentsJson = Json
         .parse("""{
-            |   "data" : [ {
-            |      "componentType" : "MarriageAllowanceReceived",
-            |      "employmentId" : 12,
-            |      "amount" : 12321,
-            |      "inputAmount" : 12321,
-            |      "description" : "Personal Allowance transferred to partner",
-            |      "iabdCategory" : "Deduction"
-            |   } ],
-            |   "links" : [ ]
-            |}""".stripMargin)
+                 |   "data" : [ {
+                 |      "componentType" : "MarriageAllowanceReceived",
+                 |      "employmentId" : 12,
+                 |      "amount" : 12321,
+                 |      "inputAmount" : 12321,
+                 |      "description" : "Personal Allowance transferred to partner",
+                 |      "iabdCategory" : "Deduction"
+                 |   } ],
+                 |   "links" : [ ]
+                 |}""".stripMargin)
         .toString
 
       server.stubFor(
@@ -135,16 +135,16 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
 
       val taxComponentsJson = Json
         .parse("""{
-            |   "data" : [ {
-            |      "componentType" : "OtherAllowance",
-            |      "employmentId" : 12,
-            |      "amount" : 12321,
-            |      "inputAmount" : 12321,
-            |      "description" : "Personal Allowance transferred to partner",
-            |      "iabdCategory" : "Deduction"
-            |   } ],
-            |   "links" : [ ]
-            |}""".stripMargin)
+                 |   "data" : [ {
+                 |      "componentType" : "OtherAllowance",
+                 |      "employmentId" : 12,
+                 |      "amount" : 12321,
+                 |      "inputAmount" : 12321,
+                 |      "description" : "Personal Allowance transferred to partner",
+                 |      "iabdCategory" : "Deduction"
+                 |   } ],
+                 |   "links" : [ ]
+                 |}""".stripMargin)
         .toString
 
       server.stubFor(

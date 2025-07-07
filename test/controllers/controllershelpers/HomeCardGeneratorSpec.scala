@@ -21,8 +21,8 @@ import controllers.auth.requests.UserRequest
 import controllers.routes
 import models._
 import models.admin._
-import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
@@ -482,8 +482,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getIncomeCards" must {
     "when taxcalc toggle on return tax calc cards plus surrounding cards, all in correct position" in {
 
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-        .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List[NewsAndContentModel](
@@ -517,8 +517,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "when taxcalc toggle off return no tax calc cards" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-        .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = false)))
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List[NewsAndContentModel](
@@ -551,8 +551,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "when taxcalc toggle on but trusted helper present return no tax calc cards" in {
 
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxcalcToggle)))
-        .thenReturn(Future.successful(FeatureFlag(TaxcalcToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
 
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List[NewsAndContentModel](

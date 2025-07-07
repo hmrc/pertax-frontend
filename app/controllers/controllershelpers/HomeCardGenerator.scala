@@ -62,7 +62,7 @@ class HomeCardGenerator @Inject() (
       Some(getPayAsYouEarnCard)
     ).flatten
 
-    val dynamicTaxCalcCards = featureFlagService.get(TaxcalcToggle).flatMap {
+    val dynamicTaxCalcCards = featureFlagService.get(ShowTaxCalcTileToggle).flatMap {
       case FeatureFlag(_, true) if request.trustedHelper.isEmpty =>
         taxCalcPartialService.getTaxCalcPartial.map(_.map(_.partialContent))
       case _                                                     =>
@@ -86,7 +86,7 @@ class HomeCardGenerator @Inject() (
       Future.successful(Nil)
     }
 
-  def getPayAsYouEarnCard(implicit request: UserRequest[_], messages: Messages): HtmlFormat.Appendable =
+  def getPayAsYouEarnCard(implicit request: UserRequest[?], messages: Messages): HtmlFormat.Appendable =
     payAsYouEarnView(configDecorator, request.authNino.withoutSuffix.takeRight(2))
 
   private def displaySACall: Call = routes.InterstitialController.displaySelfAssessment
@@ -95,7 +95,7 @@ class HomeCardGenerator @Inject() (
 
   private def redirectToEnrolCall: Call = routes.SelfAssessmentController.redirectToEnrolForSa
 
-  private def callAndContent(implicit request: UserRequest[_]): Option[(Call, String)] =
+  private def callAndContent(implicit request: UserRequest[?]): Option[(Call, String)] =
     request.saUserType match {
       case ActivatedOnlineFilerSelfAssessmentUser(_)       => Some(displaySACall -> "label.viewAndManageSA")
       case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
@@ -110,7 +110,7 @@ class HomeCardGenerator @Inject() (
 
   def getSelfAssessmentCard()(implicit
     messages: Messages,
-    request: UserRequest[_]
+    request: UserRequest[?]
   ): Option[HtmlFormat.Appendable] = request.trustedHelper match {
     case Some(_) => None
     case None    =>

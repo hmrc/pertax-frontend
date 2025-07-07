@@ -7,7 +7,7 @@ object AppDependencies {
   private val cryptoVersion             = "8.2.0"
   private val webChatVersion            = "1.7.0"
   private val scaWrapperVersion         = "2.15.0"
-  private val mongoFeatureClientVersion = "2.1.0"
+  private val mongoFeatureClientVersion = "1.10.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
