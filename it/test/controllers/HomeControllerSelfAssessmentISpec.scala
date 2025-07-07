@@ -60,7 +60,9 @@ class HomeControllerSelfAssessmentISpec extends IntegrationSpec {
     )
 
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
+      .thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true))
+      )
   }
 
   "self-assessment-home" must {

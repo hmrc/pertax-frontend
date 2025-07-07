@@ -57,7 +57,9 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
     super.beforeEach()
     beforeEachHomeController()
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
+      .thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true))
+      )
   }
 
   "personal-account" must {

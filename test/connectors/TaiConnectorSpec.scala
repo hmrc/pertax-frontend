@@ -80,7 +80,9 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
   override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
+      .thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true))
+      )
   }
 
   "Calling TaiService.taxSummary" must {
@@ -127,7 +129,9 @@ class TaiConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwa
 
     "return None when tax components feature toggle switched off" in new LocalSetup {
       when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
-        .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = false)))
+        .thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = false))
+        )
 
       val result: Option[List[String]] =
         connector
@@ -191,7 +195,9 @@ class TaiConnectorTimeoutSpec extends ConnectorSpec with WireMockHelper with Def
   override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
+      .thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true))
+      )
   }
 
   "Calling TaiService.taxComponents" must {

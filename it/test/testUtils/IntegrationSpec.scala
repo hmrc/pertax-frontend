@@ -24,7 +24,6 @@ import models.admin._
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import org.mockito.internal.util.MockUtil.resetMock
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -39,7 +38,7 @@ import repositories.JourneyCacheRepository
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import org.mockito.Mockito.reset as resetMock
+import org.mockito.Mockito.{reset => resetMock}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import java.time.LocalDateTime

@@ -31,6 +31,8 @@ import testUtils.{FileHelper, IntegrationSpec}
 import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
+import scala.concurrent.Future
+
 class PostcodeLookupControllerISpec extends IntegrationSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -159,7 +161,9 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
     )
 
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = false)))
+      .thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = false))
+      )
   }
 
   "personal-account" must {
