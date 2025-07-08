@@ -75,13 +75,13 @@ class PayAsYouEarnViewSpec extends ViewSpec {
 
   }
 
-  "paye point to pega when nino is ending with 5" in {
+  "paye point to pega when nino is ending with 50" in {
     when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("http://paye-to-pega-redirect-url")
     when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
 
-    val nino                                             = Fixtures.fakeNino.withoutSuffix.take(7)
+    val nino                                             = Fixtures.fakeNino.withoutSuffix.take(6)
     val userRequest: UserRequest[AnyContentAsEmpty.type] =
-      buildUserRequest(request = FakeRequest(), authNino = Nino(nino + "5A"))
+      buildUserRequest(request = FakeRequest(), authNino = Nino(nino + "50A"))
 
     val doc =
       asDocument(
@@ -95,13 +95,13 @@ class PayAsYouEarnViewSpec extends ViewSpec {
 
   }
 
-  "paye point to check-income-tax when nino is not ending with 5" in {
+  "paye point to check-income-tax when nino is not ending with 50" in {
     when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("http://paye-to-pega-redirect-url")
     when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
 
-    val nino                                             = Fixtures.fakeNino.withoutSuffix.take(7)
+    val nino                                             = Fixtures.fakeNino.withoutSuffix.take(6)
     val userRequest: UserRequest[AnyContentAsEmpty.type] =
-      buildUserRequest(request = FakeRequest(), authNino = Nino(nino + "3A"))
+      buildUserRequest(request = FakeRequest(), authNino = Nino(nino + "30A"))
 
     val doc =
       asDocument(

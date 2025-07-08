@@ -22,8 +22,8 @@
 @()(implicit messages: play.api.i18n.Messages, request: UserRequest[_])
 
 @urlToPaye() = @{
-    val lastDigit = request.authNino.withoutSuffix.reverse.take(1).toInt
-    if(configDecorator.payeToPegaRedirectList.contains(lastDigit)) {
+    val penultimateDigit = request.authNino.nino.charAt(6).asDigit
+    if(configDecorator.payeToPegaRedirectList.contains(penultimateDigit)) {
         s"${configDecorator.payeToPegaRedirectUrl}"
     } else {
         s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do"
