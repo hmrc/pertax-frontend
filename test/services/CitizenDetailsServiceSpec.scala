@@ -18,6 +18,7 @@ package services
 
 import cats.data.EitherT
 import connectors.CitizenDetailsConnector
+import models.admin.GetPersonFromCitizenDetailsToggle
 import models.{ETag, MatchingDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -31,6 +32,7 @@ import testUtils.BaseSpec
 import testUtils.Fixtures._
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.Future
 
@@ -38,7 +40,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
 
   val mockConnector: CitizenDetailsConnector                = mock[CitizenDetailsConnector]
   implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/")
-  val sut: CitizenDetailsService                            = new CitizenDetailsService(mockConnector)
+  val sut: CitizenDetailsService                            = new CitizenDetailsService(mockConnector, mockFeatureFlagService)
 
   "CitizenDetailsService" when {
     "personDetails is called" must {
@@ -50,11 +52,14 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
           )
         )
 
+        when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
         val result =
           sut.personDetails(fakeNino).value.futureValue
 
         result mustBe a[Right[_, _]]
-        result.getOrElse(buildPersonDetails.copy(address = None)) mustBe buildPersonDetails
+        result.getOrElse(buildPersonDetails.copy(address = None)) mustBe Some(buildPersonDetails)
       }
 
       List(
@@ -67,6 +72,10 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         BAD_GATEWAY
       ).foreach { errorResponse =>
         s"return an UpstreamErrorResponse containing $errorResponse when connector returns the same" in {
+
+          when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+            .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
           when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
             EitherT[Future, UpstreamErrorResponse, JsValue](
               Future.successful(Left(UpstreamErrorResponse("", errorResponse)))

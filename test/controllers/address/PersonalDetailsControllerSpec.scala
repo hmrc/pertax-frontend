@@ -70,6 +70,9 @@ class PersonalDetailsControllerSpec extends BaseSpec {
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
+
+    when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+      .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
   }
 
   "Calling redirectToYourProfile" must {
@@ -86,12 +89,11 @@ class PersonalDetailsControllerSpec extends BaseSpec {
     "redirect to the rls interrupt page" when {
       "main address has an rls status with true" in {
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, PersonDetails](
-            Future.successful(Right(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true)))))
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(
+              Right(Some(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true)))))
+            )
           )
-        )
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any())).thenReturn(
-          Future.successful(AddressesLock(main = false, postal = false))
         )
 
         val result: Future[Result] = controller.onPageLoad(FakeRequest())
@@ -102,14 +104,11 @@ class PersonalDetailsControllerSpec extends BaseSpec {
 
       "postal address has an rls status with true" in {
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, PersonDetails](
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
             Future.successful(
-              Right(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true))))
+              Right(Some(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true)))))
             )
           )
-        )
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any())).thenReturn(
-          Future.successful(AddressesLock(main = false, postal = false))
         )
 
         val result: Future[Result] = controller.onPageLoad(FakeRequest())
@@ -120,14 +119,11 @@ class PersonalDetailsControllerSpec extends BaseSpec {
 
       "main and postal address has an rls status with true" in {
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, PersonDetails](
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
             Future.successful(
-              Right(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true))))
+              Right(Some(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true)))))
             )
           )
-        )
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any())).thenReturn(
-          Future.successful(AddressesLock(main = false, postal = false))
         )
 
         val result: Future[Result] = controller.onPageLoad(FakeRequest())
@@ -140,15 +136,13 @@ class PersonalDetailsControllerSpec extends BaseSpec {
     "show the your profile page" when {
       "no address has an rls status with true" in {
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, PersonDetails](
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
             Future.successful(
-              Right(personDetails)
+              Right(Some(personDetails))
             )
           )
         )
-        when(mockEditAddressLockRepository.getAddressesLock(any())(any())).thenReturn(
-          Future.successful(AddressesLock(main = false, postal = false))
-        )
+
         when(mockEditAddressLockRepository.get(any())).thenReturn(
           Future.successful(List.empty)
         )

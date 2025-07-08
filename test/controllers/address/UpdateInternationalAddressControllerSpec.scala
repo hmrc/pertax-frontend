@@ -20,9 +20,9 @@ import cats.data.EitherT
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import models.addresslookup.{Address, AddressRecord, Country}
 import models.dto.{AddressDto, AddressPageVisitedDto}
+import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentCaptor
@@ -84,8 +84,8 @@ class UpdateInternationalAddressControllerSpec extends BaseSpec {
     reset(mockAuditConnector)
 
     when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-      EitherT[Future, UpstreamErrorResponse, PersonDetails](
-        Future.successful(Right(personDetails))
+      EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+        Future.successful(Right(Some(personDetails)))
       )
     )
 

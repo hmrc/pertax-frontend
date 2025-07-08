@@ -88,36 +88,28 @@ class RlsController @Inject() (
         )
     }
 
+  private def cleanRlsAddress(maybeAddress: Option[Address], lockFlag: Boolean): Option[Address] =
+    maybeAddress.map { address =>
+      if (address.isRls && !lockFlag) address else address.copy(isRls = false)
+    }
+
   def rlsInterruptOnPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     (for {
-      rlsFlag       <- featureFlagService.getAsEitherT(RlsInterruptToggle)
-      addressLock   <- EitherT[Future, UpstreamErrorResponse, AddressesLock](
-                         editAddressLockRepository.getAddressesLock(request.authNino.withoutSuffix).map(Right(_))
-                       )
-      personDetails <- citizenDetailsService.personDetails(request.authNino)
+      rlsFlag            <- featureFlagService.getAsEitherT(RlsInterruptToggle)
+      addressLock        <- EitherT[Future, UpstreamErrorResponse, AddressesLock](
+                              editAddressLockRepository.getAddressesLock(request.authNino.withoutSuffix).map(Right(_))
+                            )
+      maybePersonDetails <- citizenDetailsService.personDetails(request.authNino)
     } yield
       if (rlsFlag.isEnabled) {
         val mainAddress   =
-          personDetails.address.map { address =>
-            if (address.isRls && !addressLock.main) {
-              address
-            } else {
-              address.copy(isRls = false)
-            }
-          }
-        val postalAddress =
-          personDetails.correspondenceAddress
-            .map { address =>
-              if (address.isRls && !addressLock.postal) {
-                address
-              } else {
-                address.copy(isRls = false)
-              }
-            }
+          maybePersonDetails.flatMap(_.address.flatMap(addr => cleanRlsAddress(Some(addr), addressLock.main)))
+        val postalAddress = maybePersonDetails.flatMap(
+          _.correspondenceAddress.flatMap(addr => cleanRlsAddress(Some(addr), addressLock.postal))
+        )
         if (mainAddress.exists(_.isRls) || postalAddress.exists(_.isRls)) {
           auditRls(mainAddress, postalAddress)
-          cachingHelper
-            .addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+          cachingHelper.addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
           Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
         } else {
           Redirect(routes.HomeController.index)

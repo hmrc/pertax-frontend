@@ -33,9 +33,9 @@ import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.CitizenDetailsService
-import testUtils.{BaseSpec, Fixtures}
 import testUtils.Fixtures.{buildFakeAddress, buildPersonDetailsWithPersonalAndCorrespondenceAddress}
 import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -81,8 +81,8 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
     reset(mockAuditConnector)
 
     when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-      EitherT[Future, UpstreamErrorResponse, PersonDetails](
-        Future.successful(Right(personDetails))
+      EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+        Future.successful(Right(Some(personDetails)))
       )
     )
 
@@ -103,7 +103,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
     closedPostalAddress = true,
     Some(fakeAddress.fullAddress),
     None,
-    false
+    displayP85Message = false
   )(
     buildUserRequest(request = FakeRequest(), saUser = NonFilerSelfAssessmentUser),
     messages
@@ -189,7 +189,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, address, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(personDetails)
+        EitherT.rightT(Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -225,7 +225,9 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
 
     "redirect to personal details if there is a lock on the correspondence address for the user" in {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(personDetails.copy(address = personDetails.correspondenceAddress.map(_.copy(isRls = true))))
+        EitherT.rightT(
+          Some(personDetails.copy(address = personDetails.correspondenceAddress.map(_.copy(isRls = true))))
+        )
       )
 
       def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
@@ -260,7 +262,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, address, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(personDetails)
+        EitherT.rightT(Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -303,7 +305,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(personDetails)
+        EitherT.rightT(Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -330,7 +332,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(personDetails)
+        EitherT.rightT(Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -357,7 +359,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(personDetails)
+        EitherT.rightT(Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -388,7 +390,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
         Future.successful(false)
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(personDetails)
+        EitherT.rightT(Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -424,7 +426,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(personDetails)
+        EitherT.rightT(Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)

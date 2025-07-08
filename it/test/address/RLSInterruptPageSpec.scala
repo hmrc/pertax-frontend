@@ -16,6 +16,7 @@
 
 package address
 
+import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, status => _, urlEqualTo}
 import config.{ApplicationStartUp, CryptoProvider}
 import connectors.{AgentClientAuthorisationConnector, CitizenDetailsConnector, DefaultAgentClientAuthorisationConnector, DefaultCitizenDetailsConnector}
@@ -55,6 +56,8 @@ class RLSInterruptPageSpec extends IntegrationSpec {
     super.beforeEach()
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+      .thenReturn(EitherT.rightT(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
   }
 
   "personal-account" must {
