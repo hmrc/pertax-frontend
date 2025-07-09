@@ -14,10 +14,8 @@
  * limitations under the License.
  *@
 
+@import components.{Button, H1}
 @import controllers.auth.requests.UserRequest
-@import tags._
-@import scala.concurrent.ExecutionContext
-@import components.{ErrorSummary, InputDate, P, Link, Button, H1}
 @import views.MainView
 @this(
     main: MainView,
@@ -38,7 +36,7 @@
     showBackLink = true,
     yourProfileActive = true
 ) {
-    @h1(addrType.ifIs(residential = "changeMainAddress.h1", postal = "changePostalAddress.h1"))
+    @h1(addrType.ifIs(residential = "changeMainAddress.h1", postal = "changePostalAddress.h1"), classes = Some("govuk-heading-xl"))
     <p class="govuk-body">@addrType.ifIs(residential = messages("changeMainAddress.p1"), postal = messages("changePostalAddress.p1"))</p>
 
     @addrType.ifIs(residential = Html(""), postal = Html(s"""<p class="govuk-body">${messages("changePostalAddress.p2")}</p>"""))

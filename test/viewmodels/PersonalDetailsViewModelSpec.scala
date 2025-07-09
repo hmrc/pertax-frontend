@@ -20,6 +20,7 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
+import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.CountryHelper
 import models._
 import models.admin.AddressChangeAllowedToggle
@@ -290,7 +291,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           addressView(testAddress, countryHelper.excludedCountries),
           "label.change",
           "label.your_main_home",
-          Some(controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url)
+          Some(controllers.address.routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType).url)
         )
 
         actual.futureValue.mainAddress mustBe Some(expected)
@@ -373,9 +374,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           correspondenceAddressView(Some(testAddress), countryHelper.excludedCountries),
           "label.change",
           "label.your.postal_address",
-          Some(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url)
-          // TODO: If start change of address page experiment is successful replace above line with below
-          // Some(controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url)
+          Some(controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url)
         )
 
         actual.futureValue.postalAddress mustBe Some(expected)
@@ -414,9 +413,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           correspondenceAddressView(Some(testAddress), countryHelper.excludedCountries),
           "label.change",
           "label.your.postal_address",
-          Some(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url),
-          // TODO: If start change of address page experiment is successful replace above line with below
-          // Some(controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url),
+          Some(controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType).url),
           isPostalAddressSame = true
         )
 
