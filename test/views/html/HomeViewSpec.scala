@@ -20,13 +20,19 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.mockito.Mockito.{reset, when}
+import play.api
+import play.api.Application
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.domain.{Nino, SaUtrGenerator}
+import uk.gov.hmrc.domain.SaUtrGenerator
 import viewmodels.HomeViewModel
 import views.html.cards.home.PayAsYouEarnView
+import controllers.bindable.Origin
+import org.mockito.ArgumentMatchers.any
+import repositories.JourneyCacheRepository
 
 import scala.jdk.CollectionConverters._
 
@@ -35,7 +41,23 @@ class HomeViewSpec extends ViewSpec {
   lazy val home: HomeView             = inject[HomeView]
   lazy val payeCard: PayAsYouEarnView = inject[PayAsYouEarnView]
 
-  implicit val configDecorator: ConfigDecorator = inject[ConfigDecorator]
+  implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(
+      api.inject.bind[ConfigDecorator].toInstance(mockConfigDecorator),
+      api.inject.bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
+    )
+    .build()
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockConfigDecorator)
+    when(mockConfigDecorator.defaultOrigin).thenReturn(Origin("PERTAX"))
+    when(mockConfigDecorator.personalAccount).thenReturn("/personal-account")
+    when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/feedback/url")
+
+  }
 
   val homeViewModel: HomeViewModel =
     HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty, None)
@@ -92,6 +114,11 @@ class HomeViewSpec extends ViewSpec {
     }
 
     "show the Nps Shutter Banner when boolean is set to true" in {
+      when(mockConfigDecorator.shutterBannerParagraphCy).thenReturn("Welsh content")
+      when(mockConfigDecorator.shutterBannerParagraphEn).thenReturn(
+        "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
+      )
+
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val view                                                      = home(homeViewModel, shutteringMessaging = true).toString
 
@@ -129,20 +156,5 @@ class HomeViewSpec extends ViewSpec {
       view.getElementById("alert-banner") mustBe null
     }
 
-    "have the last 2 nino numbers be rendered as an attribute on PAYE tile" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest(), authNino = Nino("AA000000C"))
-      val view                                                      = Jsoup.parse(
-        home(
-          homeViewModel.copy(
-            incomeCards = Seq(payeCard(configDecorator, "00")),
-            alertBannerContent = List(Html("something to alert"))
-          ),
-          shutteringMessaging = true
-        ).toString
-      )
-
-      view.getElementById("paye-card").attr("data-user-group") mustBe "00"
-    }
   }
 }

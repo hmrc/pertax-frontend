@@ -280,4 +280,7 @@ class ConfigDecorator @Inject() (
 
   val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongo.encryption.enabled")
 
+  val payeToPegaRedirectList: Seq[Int] = runModeConfiguration.get[Seq[Int]]("paye.to.pega.redirect.list")
+  val payeToPegaRedirectUrl: String    = runModeConfiguration.get[String]("paye.to.pega.redirect.url")
+
 }
