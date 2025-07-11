@@ -22,7 +22,6 @@ import connectors.CitizenDetailsConnector
 import models.admin.GetPersonFromCitizenDetailsToggle
 import models.{Address, ETag, MatchingDetails, PersonDetails}
 import play.api.Logging
-import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
@@ -48,12 +47,6 @@ class CitizenDetailsService @Inject() (
                   citizenDetailsConnector
                     .personDetails(nino)
                     .map(jsValue => Some(jsValue.as[PersonDetails]))
-                    .leftMap {
-                      case e: UpstreamErrorResponse => e
-                      case e                        =>
-                        logger.error(s"Unexpected error fetching person details for nino: ${nino.value}", e)
-                        UpstreamErrorResponse("Internal server error", INTERNAL_SERVER_ERROR)
-                    }
                 } else {
                   logger.info(s"Feature flag disabled for nino: ${nino.value}")
                   EitherT.rightT[Future, UpstreamErrorResponse](None)

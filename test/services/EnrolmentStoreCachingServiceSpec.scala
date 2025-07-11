@@ -394,7 +394,7 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
             usersGroupSearchResponse.identityProviderType,
             "ID 1",
             usersGroupSearchResponse.obfuscatedUserId.getOrElse(""),
-            usersGroupSearchResponse.email.map(SensitiveString),
+            usersGroupSearchResponse.email.map(SensitiveString.apply),
             usersGroupSearchResponse.lastAccessedTimestamp,
             AccountDetails.additionalFactorsToMFADetails(usersGroupSearchResponse.additionalFactors),
             None

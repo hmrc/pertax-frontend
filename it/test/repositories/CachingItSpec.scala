@@ -23,8 +23,9 @@ import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
 import java.time.temporal.ChronoUnit
@@ -40,7 +41,7 @@ class CachingItSpec
 
   lazy val config: ConfigDecorator = mock[ConfigDecorator]
 
-  override lazy val repository = new EditAddressLockRepository(
+  protected override val repository: EditAddressLockRepository = new EditAddressLockRepository(
     config,
     mongoComponent
   )
@@ -75,7 +76,11 @@ class CachingItSpec
 
         "there isn't an existing record that matches the requested nino" in {
 
-          await(repository.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddressAddedSeconds())))
+          await(
+            repository.insertCore(
+              AddressJourneyTTLModel(testNino.withoutSuffix, editedAddressAddedSeconds())
+            )
+          )
 
           val fGet = repository.get(differentNino.withoutSuffix)
 
@@ -87,7 +92,9 @@ class CachingItSpec
 
           val nino = testNino.withoutSuffix
 
-          await(repository.insertCore(AddressJourneyTTLModel(nino, EditResidentialAddress(Instant.now()))))
+          await(
+            repository.insertCore(AddressJourneyTTLModel(nino, EditResidentialAddress(Instant.now())))
+          )
 
           val fGet = repository.get(nino).futureValue
 

@@ -189,7 +189,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, address, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(Some(personDetails))
+        EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -200,7 +200,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -213,9 +213,9 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       status(result) mustBe OK
       contentAsString(result) mustBe expectedAddressConfirmationView
 
-      val arg       = ArgumentCaptor.forClass(classOf[DataEvent])
+      val arg                  = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
-      val dataEvent = arg.getValue
+      val dataEvent: DataEvent = arg.getValue
 
       pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted")
 
@@ -225,7 +225,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
 
     "redirect to personal details if there is a lock on the correspondence address for the user" in {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(
+        EitherT.rightT[Future, UpstreamErrorResponse](
           Some(personDetails.copy(address = personDetails.correspondenceAddress.map(_.copy(isRls = true))))
         )
       )
@@ -242,7 +242,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -262,7 +262,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, address, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(Some(personDetails))
+        EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -273,7 +273,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -305,13 +305,13 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(Some(personDetails))
+        EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.leftT(UpstreamErrorResponse("bad request", BAD_REQUEST))
+        EitherT.leftT[Future, PersonDetails](UpstreamErrorResponse("bad request", BAD_REQUEST))
       )
       when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[ETag]](
@@ -332,13 +332,13 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(Some(personDetails))
+        EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.leftT(UpstreamErrorResponse("unexpected error", 418))
+        EitherT.leftT[Future, Boolean](UpstreamErrorResponse("unexpected error", 418))
       )
       when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[ETag]](
@@ -359,13 +359,13 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(Some(personDetails))
+        EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.leftT(UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
+        EitherT.leftT[Future, Boolean](UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
       )
       when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[ETag]](
@@ -390,7 +390,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
         Future.successful(false)
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(Some(personDetails))
+        EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -401,7 +401,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
 
@@ -426,16 +426,16 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, None, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(Some(personDetails))
+        EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
       )
       when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-        EitherT.leftT(UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
+        EitherT.leftT[Future, PersonDetails](UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(

@@ -18,9 +18,9 @@ package controllers
 
 import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import controllers.auth.requests.UserRequest
-import models.admin._
+import models.admin.*
 import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserAnswers, UserDetails}
 import org.jsoup.Jsoup
 import org.mockito.Mockito.when
@@ -36,9 +36,9 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.sca.models._
+import uk.gov.hmrc.sca.models.*
 
 import java.time.LocalDate
 import java.util.UUID
@@ -182,7 +182,9 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true)))
+      .thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true))
+      )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(EnforcePaperlessPreferenceToggle)))
       .thenReturn(Future.successful(FeatureFlag(EnforcePaperlessPreferenceToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))

@@ -31,6 +31,7 @@ import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import java.time.{Clock, Instant}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
+import org.mongodb.scala.SingleObservableFuture
 
 @Singleton
 class JourneyCacheRepository @Inject() (
@@ -53,7 +54,7 @@ class JourneyCacheRepository @Inject() (
           IndexOptions()
             .name("lastUpdatedIdx")
             .expireAfter(
-              appConfig.sessionTimeoutInSeconds,
+              appConfig.sessionTimeoutInSeconds.toLong,
               TimeUnit.SECONDS
             )
         )

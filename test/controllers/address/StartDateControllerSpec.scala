@@ -278,7 +278,7 @@ class StartDateControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails(person, address, None)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(Some(personDetails))
+        EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
 
       val userAnswers: UserAnswers = UserAnswers

@@ -51,7 +51,7 @@ class AuthRetrievalsSpec extends BaseSpec {
   private val mockFandfService: FandfService                     = mock[FandfService]
 
   private class Harness(authAction: AuthRetrievalsImpl) extends InjectedController {
-    def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
+    def onPageLoad: Action[AnyContent] = authAction { (request: AuthenticatedRequest[AnyContent]) =>
       Ok(
         s"Nino: ${request.authNino.nino}, Enrolments: ${request.enrolments.toString}," +
           s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}"
@@ -60,8 +60,8 @@ class AuthRetrievalsSpec extends BaseSpec {
   }
 
   private type AuthRetrievals =
-    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
-      Option[String] ~ ConfidenceLevel ~ Option[String]
+    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[String] ~ ConfidenceLevel ~
+      Option[String]
 
   private val nino: String                                               = Fixtures.fakeNino.nino
   private val fakeCredentials: Credentials                               = Credentials("foo", "bar")

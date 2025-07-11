@@ -17,18 +17,18 @@
 package address
 
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, status => _, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, status as _, urlEqualTo}
 import config.{ApplicationStartUp, CryptoProvider}
 import connectors.{AgentClientAuthorisationConnector, CitizenDetailsConnector, DefaultAgentClientAuthorisationConnector, DefaultCitizenDetailsConnector}
-import models.admin._
+import models.admin.*
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, route, status => getStatus, _}
+import play.api.test.Helpers.{GET, route, status as getStatus, *}
 import play.api.{Application, inject}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
-import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.time.{Clock, ZoneId}
@@ -57,7 +57,9 @@ class RLSInterruptPageSpec extends IntegrationSpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
-      .thenReturn(EitherT.rightT(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+      .thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true))
+      )
   }
 
   "personal-account" must {
