@@ -97,7 +97,7 @@ class StartDateController @Inject() (
                     .exists(_.equals(OutsideUK))
 
                   personDetails.address match {
-                    case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
+                    case Some(Address(_, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
                       if (!currentStartDate.isBefore(proposedStartDate)) {
                         Future.successful(
                           BadRequest(
@@ -123,7 +123,7 @@ class StartDateController @Inject() (
                           _ <- cachingHelper.addToCache(SubmittedStartDatePage(typ), dateDto)
                         } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                       }
-                    case _                                                                   =>
+                    case _                                                                =>
                       for {
                         _ <- cachingHelper.addToCache(SubmittedStartDatePage(typ), dateDto)
                       } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))

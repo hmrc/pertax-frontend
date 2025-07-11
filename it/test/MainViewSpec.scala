@@ -79,7 +79,6 @@ class MainViewSpec extends IntegrationSpec {
         Some("Fake Town"),
         Some("Fake City"),
         Some("Fake Region"),
-        None,
         Some("AA1 1AA"),
         None,
         Some(LocalDate.of(2015, 3, 15)),

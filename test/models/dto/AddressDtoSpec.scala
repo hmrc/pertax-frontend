@@ -28,10 +28,9 @@ class AddressDtoSpec extends BaseSpec {
 
       val formData = Map(
         "line1"    -> "Line 1",
-        "line2"    -> "Line 2",
+        "line2"    -> "",
         "line3"    -> "",
         "line4"    -> "",
-        "line5"    -> "",
         "postcode" -> "AA1 1AA"
       )
 
@@ -39,7 +38,7 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           _ => {},
-          success => success mustBe AddressDto("Line 1", "Line 2", None, None, None, Some("AA1 1AA"), None, None)
+          success => success mustBe AddressDto("Line 1", None, None, None, Some("AA1 1AA"), None, None)
         )
     }
 
@@ -47,10 +46,9 @@ class AddressDtoSpec extends BaseSpec {
 
       val formData = Map(
         "line1"    -> "Line 1",
-        "line2"    -> "Line 2",
+        "line2"    -> "",
         "line3"    -> "",
         "line4"    -> "",
-        "line5"    -> "",
         "postcode" -> "AA11AA"
       )
 
@@ -58,7 +56,7 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           _ => {},
-          success => success mustBe AddressDto("Line 1", "Line 2", None, None, None, Some("AA11AA"), None, None)
+          success => success mustBe AddressDto("Line 1", None, None, None, Some("AA11AA"), None, None)
         )
     }
 
@@ -66,10 +64,9 @@ class AddressDtoSpec extends BaseSpec {
 
       val formData = Map(
         "line1"    -> "A-Za-z0-9&',-./",
-        "line2"    -> "Line 2",
+        "line2"    -> "",
         "line3"    -> "",
         "line4"    -> "",
-        "line5"    -> "",
         "postcode" -> "AA1 1AA"
       )
 
@@ -80,7 +77,6 @@ class AddressDtoSpec extends BaseSpec {
           success =>
             success mustBe AddressDto(
               "A-Za-z0-9&',-./",
-              "Line 2",
               None,
               None,
               None,
@@ -95,7 +91,6 @@ class AddressDtoSpec extends BaseSpec {
 
       val formData = Map(
         "line1"    -> "",
-        "line2"    -> "Line 2",
         "postcode" -> "AA1 1AA"
       )
 
@@ -114,7 +109,6 @@ class AddressDtoSpec extends BaseSpec {
 
       val formData = Map(
         "line1"    -> "This is a string with more than thirty five characters",
-        "line2"    -> "Line 2",
         "postcode" -> "AA1 1AA"
       )
 
@@ -133,7 +127,6 @@ class AddressDtoSpec extends BaseSpec {
 
       val formData = Map(
         "line1"    -> "§",
-        "line2"    -> "Line 2",
         "postcode" -> "AA1 1AA"
       )
 
@@ -143,25 +136,6 @@ class AddressDtoSpec extends BaseSpec {
           formWithErrors => {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line1_invalid_characters"
-          },
-          _ => fail("Form should give an error")
-        )
-    }
-
-    "return an error when no data is submitted in line 2" in {
-
-      val formData = Map(
-        "line1"    -> "Line 1",
-        "line2"    -> "",
-        "postcode" -> "AA1 1AA"
-      )
-
-      AddressDto.ukForm
-        .bind(formData)
-        .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.message mustBe "error.line2_required"
           },
           _ => fail("Form should give an error")
         )
@@ -280,7 +254,6 @@ class AddressDtoSpec extends BaseSpec {
         "line2"    -> "Line 2",
         "line3"    -> "Line 3",
         "line4"    -> "This is a string with more than thirty five characters",
-        "line5"    -> "Line 5",
         "postcode" -> "AA1 1AA"
       )
 
@@ -323,7 +296,6 @@ class AddressDtoSpec extends BaseSpec {
         "line2"    -> "Line 2",
         "line3"    -> "Line 3",
         "line4"    -> "",
-        "line5"    -> "Line 5",
         "postcode" -> "AA1 1AA"
       )
 
@@ -331,17 +303,11 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           _ => fail("Form should not contain any errors"),
-          success => {
+          success =>
             success
               .toAddress("Residential", LocalDate.now().minusDays(1))
               .line4
               .nonEmpty mustBe true
-
-            success
-              .toAddress("Residential", LocalDate.now().minusDays(1))
-              .line5
-              .isEmpty mustBe true
-          }
         )
     }
 
@@ -352,7 +318,6 @@ class AddressDtoSpec extends BaseSpec {
         "line2"    -> "Line 2",
         "line3"    -> "",
         "line4"    -> "",
-        "line5"    -> "Line 5",
         "postcode" -> "AA1 1AA"
       )
 
@@ -370,78 +335,7 @@ class AddressDtoSpec extends BaseSpec {
               .toAddress("Residential", LocalDate.now().minusDays(1))
               .line4
               .isEmpty mustBe true
-
-            success
-              .toAddress("Residential", LocalDate.now().minusDays(1))
-              .line5
-              .isEmpty mustBe true
           }
-        )
-    }
-
-    "return an error when more than 35 characters entered in line 5" in {
-
-      val formData = Map(
-        "line1"    -> "Line 1",
-        "line2"    -> "Line 2",
-        "line3"    -> "Line 3",
-        "line4"    -> "Line 4",
-        "line5"    -> "This is a string with more than thirty five characters",
-        "postcode" -> "AA1 1AA"
-      )
-
-      AddressDto.ukForm
-        .bind(formData)
-        .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.message mustBe "error.line5_contains_more_than_35_characters"
-          },
-          _ => fail("Form should give an error")
-        )
-    }
-
-    "return an error when invalid data is submitted in line 5" in {
-
-      val formData = Map(
-        "line1"    -> "Line 1",
-        "line2"    -> "Line 2",
-        "line3"    -> "Line 3",
-        "line4"    -> "Line 4",
-        "line5"    -> "§",
-        "postcode" -> "AA1 1AA"
-      )
-
-      AddressDto.ukForm
-        .bind(formData)
-        .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.message mustBe "error.line5_invalid_characters"
-          },
-          _ => fail("Form should give an error")
-        )
-    }
-
-    "return one error when invalid data is submitted in line 5 and line 4 is empty" in {
-
-      val formData = Map(
-        "line1"    -> "Line 1",
-        "line2"    -> "Line 2",
-        "line3"    -> "Line 3",
-        "line4"    -> "",
-        "line5"    -> "§",
-        "postcode" -> "AA1 1AA"
-      )
-
-      AddressDto.ukForm
-        .bind(formData)
-        .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.message mustBe "error.line5_invalid_characters"
-          },
-          _ => fail("Form should give an error")
         )
     }
 
@@ -488,10 +382,9 @@ class AddressDtoSpec extends BaseSpec {
 
       val formData = Map(
         "line1"   -> "Line 1",
-        "line2"   -> "Line 2",
+        "line2"   -> "",
         "line3"   -> "",
         "line4"   -> "",
-        "line5"   -> "",
         "country" -> "Gibraltar",
         "status"  -> "0"
       )
@@ -500,7 +393,7 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           _ => {},
-          success => success mustBe AddressDto("Line 1", "Line 2", None, None, None, None, Some("Gibraltar"), None)
+          success => success mustBe AddressDto("Line 1", None, None, None, None, Some("Gibraltar"), None)
         )
     }
 
@@ -508,10 +401,9 @@ class AddressDtoSpec extends BaseSpec {
 
       val formData = Map(
         "line1"   -> "A-Za-z0-9&',-./",
-        "line2"   -> "Line 2",
+        "line2"   -> "",
         "line3"   -> "",
         "line4"   -> "",
-        "line5"   -> "",
         "country" -> "Gibraltar",
         "status"  -> "0"
       )
@@ -523,7 +415,6 @@ class AddressDtoSpec extends BaseSpec {
           success =>
             success mustBe AddressDto(
               "A-Za-z0-9&',-./",
-              "Line 2",
               None,
               None,
               None,
@@ -534,30 +425,10 @@ class AddressDtoSpec extends BaseSpec {
         )
     }
 
-    "return an error when no data is submitted in line 1" in {
-
-      val formData = Map(
-        "line1"   -> "",
-        "line2"   -> "Line 2",
-        "country" -> "Gibraltar"
-      )
-
-      AddressDto.internationalForm
-        .bind(formData)
-        .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.message mustBe "error.line1_required"
-          },
-          _ => fail("Form should give an error")
-        )
-    }
-
     "return an error when no more than 35 characters entered in line 1" in {
 
       val formData = Map(
         "line1"   -> "This is a string with more than thirty five characters",
-        "line2"   -> "Line 2",
         "country" -> "Gibraltar"
       )
 
@@ -576,7 +447,6 @@ class AddressDtoSpec extends BaseSpec {
 
       val formData = Map(
         "line1"   -> "§",
-        "line2"   -> "Line 2",
         "country" -> "Gibraltar"
       )
 
@@ -586,25 +456,6 @@ class AddressDtoSpec extends BaseSpec {
           formWithErrors => {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.line1_invalid_characters"
-          },
-          _ => fail("Form should give an error")
-        )
-    }
-
-    "return an error when no data is submitted in line 2" in {
-
-      val formData = Map(
-        "line1"   -> "Line 1",
-        "line2"   -> "",
-        "country" -> "Gibraltar"
-      )
-
-      AddressDto.internationalForm
-        .bind(formData)
-        .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.message mustBe "error.line2_required"
           },
           _ => fail("Form should give an error")
         )
@@ -652,7 +503,6 @@ class AddressDtoSpec extends BaseSpec {
 
       val formData = Map(
         "line1"   -> "Line 1",
-        "line2"   -> "Line 2",
         "line3"   -> "This is a string with more than thirty five characters",
         "country" -> "Gibraltar"
       )
@@ -672,7 +522,6 @@ class AddressDtoSpec extends BaseSpec {
 
       val formData = Map(
         "line1"   -> "Line 1",
-        "line2"   -> "Line 2",
         "line3"   -> "±",
         "country" -> "Gibraltar"
       )
@@ -695,7 +544,6 @@ class AddressDtoSpec extends BaseSpec {
         "line2"   -> "Line 2",
         "line3"   -> "Line 3",
         "line4"   -> "This is a string with more than thirty five characters",
-        "line5"   -> "Line 5",
         "country" -> "Gibraltar"
       )
 
@@ -731,50 +579,6 @@ class AddressDtoSpec extends BaseSpec {
         )
     }
 
-    "return an error when more than 35 characters entered in line 5" in {
-
-      val formData = Map(
-        "line1"   -> "Line 1",
-        "line2"   -> "Line 2",
-        "line3"   -> "Line 3",
-        "line4"   -> "Line 4",
-        "line5"   -> "This is a string with more than thirty five characters",
-        "country" -> "Gibraltar"
-      )
-
-      AddressDto.internationalForm
-        .bind(formData)
-        .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.message mustBe "error.line5_contains_more_than_35_characters"
-          },
-          _ => fail("Form should give an error")
-        )
-    }
-
-    "return an error when invalid data is submitted in line 5" in {
-
-      val formData = Map(
-        "line1"   -> "Line 1",
-        "line2"   -> "Line 2",
-        "line3"   -> "Line 3",
-        "line4"   -> "Line 4",
-        "line5"   -> "§",
-        "country" -> "Gibraltar"
-      )
-
-      AddressDto.internationalForm
-        .bind(formData)
-        .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.message mustBe "error.line5_invalid_characters"
-          },
-          _ => fail("Form should give an error")
-        )
-    }
-
     "return an error when invalid country is submitted" in {
 
       val formData = Map(
@@ -782,7 +586,6 @@ class AddressDtoSpec extends BaseSpec {
         "line2"   -> "Line 2",
         "line3"   -> "Line 3",
         "line4"   -> "Line 4",
-        "line5"   -> "Line 5",
         "country" -> "Country"
       )
 
@@ -820,7 +623,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return address with postcode and not country" in {
       val addressDto =
-        AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
+        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, Some("AA1 1AA"), Some("UK"), None)
 
       addressDto.toList mustBe Seq("Line 1", "Line 2", "Line 3", "AA1 1AA")
     }
@@ -830,7 +633,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return address with country and not postcode" in {
       val addressDto =
-        AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
+        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, Some("AA1 1AA"), Some("UK"), None)
 
       addressDto.toListWithCountry mustBe Seq("Line 1", "Line 2", "Line 3", "UK")
     }
@@ -842,10 +645,9 @@ class AddressDtoSpec extends BaseSpec {
       val addressDto =
         AddressDto(
           "Line 1",
-          "Line 2",
+          Some("Line 2"),
           Some("Line 3"),
           Some("Line 4"),
-          Some("Line 5"),
           Some("AA1 1AA"),
           Some("UK"),
           None
@@ -858,7 +660,6 @@ class AddressDtoSpec extends BaseSpec {
         Some("Line 2"),
         Some("Line 3"),
         Some("Line 4"),
-        Some("Line 5"),
         Some("AA1 1AA"),
         None,
         Some(startDate),
@@ -869,7 +670,7 @@ class AddressDtoSpec extends BaseSpec {
     }
 
     "return address with country when postcode does not exist" in {
-      val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, None, Some("UK"), None)
+      val addressDto = AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, Some("UK"), None)
       val addressTye = "residential"
       val startDate  = LocalDate.of(2019, 1, 1)
 
@@ -877,7 +678,6 @@ class AddressDtoSpec extends BaseSpec {
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),
-        None,
         None,
         None,
         Some("UK"),
@@ -893,7 +693,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return formatted postcode when it contains 7 characters" in {
       val addressDto =
-        AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA9A9AA"), Some("UK"), None)
+        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, Some("AA9A9AA"), Some("UK"), None)
       val addressTye = "residential"
       val startDate  = LocalDate.of(2019, 1, 1)
 
@@ -901,7 +701,6 @@ class AddressDtoSpec extends BaseSpec {
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),
-        None,
         None,
         Some("AA9A 9AA"),
         None,
@@ -914,7 +713,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return formatted postcode when it contains 6 characters" in {
       val addressDto =
-        AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("A9A9AA"), Some("UK"), None)
+        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, Some("A9A9AA"), Some("UK"), None)
       val addressTye = "residential"
       val startDate  = LocalDate.of(2019, 1, 1)
 
@@ -922,7 +721,6 @@ class AddressDtoSpec extends BaseSpec {
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),
-        None,
         None,
         Some("A9A 9AA"),
         None,
@@ -935,7 +733,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return formatted postcode when it contains 5 characters" in {
       val addressDto =
-        AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("A99AA"), Some("UK"), None)
+        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, Some("A99AA"), Some("UK"), None)
       val addressTye = "residential"
       val startDate  = LocalDate.of(2019, 1, 1)
 
@@ -943,7 +741,6 @@ class AddressDtoSpec extends BaseSpec {
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),
-        None,
         None,
         Some("A9 9AA"),
         None,

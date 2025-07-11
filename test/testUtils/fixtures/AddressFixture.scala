@@ -26,7 +26,6 @@ object AddressFixture {
     line2: Option[String] = None,
     line3: Option[String] = None,
     line4: Option[String] = None,
-    line5: Option[String] = None,
     postcode: Option[String] = None,
     country: Option[String] = None,
     startDate: Option[LocalDate] = None,
@@ -34,6 +33,6 @@ object AddressFixture {
     `type`: Option[String] = None,
     isRls: Boolean = false
   ): Address =
-    Address(line1, line2, line3, line4, line5, postcode, country, startDate, endDate, `type`, isRls)
+    Address(line1, line2, line3, line4, postcode, country, startDate, endDate, `type`, isRls)
 
 }

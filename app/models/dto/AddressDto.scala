@@ -29,10 +29,9 @@ import scala.annotation.nowarn
 
 case class AddressDto(
   line1: String,
-  line2: String,
+  line2: Option[String],
   line3: Option[String],
   line4: Option[String],
-  line5: Option[String],
   postcode: Option[String],
   country: Option[String],
   propertyRefNo: Option[String]
@@ -42,10 +41,9 @@ case class AddressDto(
       case Some(postcode) =>
         Address(
           Some(line1),
-          Some(line2),
+          line2,
           line3,
           line4,
-          line5,
           Some(formatMandatoryPostCode(postcode)),
           None,
           Some(startDate),
@@ -56,10 +54,9 @@ case class AddressDto(
       case None           =>
         Address(
           Some(line1),
-          Some(line2),
+          line2,
           line3,
           line4,
-          line5,
           None,
           country,
           Some(startDate),
@@ -70,10 +67,10 @@ case class AddressDto(
     }
 
   def toList: Seq[String] =
-    Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
+    Seq(Some(line1), line2, line3, line4, postcode).flatten
 
   def toListWithCountry: Seq[String] =
-    Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
+    Seq(Some(line1), line2, line3, line4, country).flatten
 
   def formatMandatoryPostCode(postCode: String): String = {
     val trimmedPostcode = postCode.replaceAll(" ", "").toUpperCase()
@@ -87,17 +84,16 @@ object AddressDto extends CountryHelper {
   @nowarn("msg=match may not be exhaustive.")
   def apply(
     line1: String,
-    line2: String,
+    line2: Option[String],
     line3: Option[String],
     line4: Option[String],
-    line5: Option[String],
     postcode: Option[String],
     country: Option[String],
     propertyRefNo: Option[String]
   ): AddressDto =
-    List(line3, line4, line5).filter(op => op.exists(line => line.nonEmpty)).padTo(3, None) match {
-      case List(newLine3, newLine4, newLine5) =>
-        new AddressDto(line1, line2, newLine3, newLine4, newLine5, postcode, country, propertyRefNo)
+    List(line3, line4).filter(op => op.exists(line => line.nonEmpty)).padTo(3, None) match {
+      case List(newLine3, newLine4) =>
+        new AddressDto(line1, line2, newLine3, newLine4, postcode, country, propertyRefNo)
     }
 
   implicit val formats: OFormat[AddressDto] = Json.format[AddressDto]
@@ -107,13 +103,12 @@ object AddressDto extends CountryHelper {
     val defaultPad = 5
     (addressRecord.address.lines.map(s => Option(s).filter(_.trim.nonEmpty)) ++ Seq(addressRecord.address.town))
       .padTo(defaultPad, None) match {
-      case List(line1, line2, line3, line4, line5) =>
+      case List(line1, line2, line3, line4) =>
         AddressDto(
           line1.getOrElse(""),
-          line2.getOrElse(""),
+          line2,
           line3,
           line4,
-          line5,
           Some(addressRecord.address.postcode),
           Some(addressRecord.address.country.toString),
           Some(addressRecord.id)
@@ -127,19 +122,15 @@ object AddressDto extends CountryHelper {
         .verifying("error.line1_required", _.nonEmpty)
         .verifying("error.line1_contains_more_than_35_characters", _.length <= 35)
         .verifying("error.line1_invalid_characters", e => validateAddressLineCharacters(Some(e))),
-      "line2"         -> text
-        .verifying("error.line2_required", _.nonEmpty)
-        .verifying("error.line2_contains_more_than_35_characters", _.length <= 35)
-        .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
+      "line2"         -> optional(text)
+        .verifying("error.line2_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
+        .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(e)),
       "line3"         -> optional(text)
         .verifying("error.line3_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line3_invalid_characters", e => validateAddressLineCharacters(e)),
       "line4"         -> optional(text)
         .verifying("error.line4_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line4_invalid_characters", e => validateAddressLineCharacters(e)),
-      "line5"         -> optional(text)
-        .verifying("error.line5_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
-        .verifying("error.line5_invalid_characters", e => validateAddressLineCharacters(e)),
       "postcode"      -> optional(text)
         .verifying(
           "error.enter_a_valid_uk_postcode",
@@ -160,19 +151,15 @@ object AddressDto extends CountryHelper {
         .verifying("error.line1_required", _.nonEmpty)
         .verifying("error.line1_contains_more_than_35_characters", _.length <= 35)
         .verifying("error.line1_invalid_characters", e => validateAddressLineCharacters(Some(e))),
-      "line2"         -> text
-        .verifying("error.line2_required", _.nonEmpty)
-        .verifying("error.line2_contains_more_than_35_characters", _.length <= 35)
-        .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
+      "line2"         -> optional(text)
+        .verifying("error.line2_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
+        .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(e)),
       "line3"         -> optional(text)
         .verifying("error.line3_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line3_invalid_characters", e => validateAddressLineCharacters(e)),
       "line4"         -> optional(text)
         .verifying("error.line4_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line4_invalid_characters", e => validateAddressLineCharacters(e)),
-      "line5"         -> optional(text)
-        .verifying("error.line5_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
-        .verifying("error.line5_invalid_characters", e => validateAddressLineCharacters(e)),
       "postcode"      -> optional(text),
       "country"       -> optional(text)
         .verifying("error.country_required", e => countries.contains(Country(e.getOrElse(""))) && e.isDefined),
