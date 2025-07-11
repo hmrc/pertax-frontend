@@ -35,9 +35,9 @@ import play.api.test.Helpers._
 import repositories.JourneyCacheRepository
 import routePages.{SelectedAddressRecordPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage, SubmittedStartDatePage}
 import services.CitizenDetailsService
-import testUtils.{BaseSpec, Fixtures}
 import testUtils.Fixtures._
 import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -88,8 +88,8 @@ class AddressSubmissionControllerSpec extends BaseSpec {
     reset(mockAuditConnector)
 
     when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-      EitherT[Future, UpstreamErrorResponse, PersonDetails](
-        Future.successful(Right(personDetails))
+      EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+        Future.successful(Right(Some(personDetails)))
       )
     )
     when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(

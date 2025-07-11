@@ -21,9 +21,9 @@ import connectors.AddressLookupConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import models.addresslookup.RecordSet
 import models.dto.{AddressFinderDto, AddressPageVisitedDto}
+import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -36,9 +36,9 @@ import play.api.test.Helpers._
 import repositories.JourneyCacheRepository
 import routePages.{AddressFinderPage, AddressLookupServiceDownPage, HasAddressAlreadyVisitedPage}
 import services.CitizenDetailsService
-import testUtils.{BaseSpec, Fixtures}
 import testUtils.Fixtures.{buildPersonDetailsWithPersonalAndCorrespondenceAddress, fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
 import testUtils.UserRequestFixture.buildUserRequest
+import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -114,8 +114,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -132,8 +132,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -149,8 +149,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -162,8 +162,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
     "redirect to the beginning of the journey when user has not indicated Residency choice on previous page" in {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -176,8 +176,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
     "redirect to the beginning of the journey when user has not visited your-address page on correspondence journey" in {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -194,8 +194,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -213,8 +213,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -239,8 +239,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -280,8 +280,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
         when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, PersonDetails](
-            Future.successful(Right(personDetails))
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
           )
         )
         def currentRequest[A]: Request[A] =
@@ -308,8 +308,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
       def currentRequest[A]: Request[A] =
@@ -349,8 +349,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -391,8 +391,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -434,8 +434,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -468,8 +468,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -503,8 +503,8 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 

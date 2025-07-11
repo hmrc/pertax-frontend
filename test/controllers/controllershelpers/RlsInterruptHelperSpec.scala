@@ -82,7 +82,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeCorrespondenceAddress)
         )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
+          EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -102,7 +102,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeCorrespondenceAddress)
         )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
+          EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -135,7 +135,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
+          EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -168,7 +168,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
+          EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -201,7 +201,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeCorrespondenceAddress)
         )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
+          EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -234,7 +234,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
+          EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -267,7 +267,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
+          EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -300,7 +300,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
+          EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
@@ -333,7 +333,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](personDetails)
+          EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
         when(mockEditAddressLockRepository.getAddressesLock(any())(any()))

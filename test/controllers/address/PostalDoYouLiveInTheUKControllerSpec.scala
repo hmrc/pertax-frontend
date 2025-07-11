@@ -22,8 +22,8 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
 import models.admin.AddressChangeAllowedToggle
-import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import models.dto.AddressPageVisitedDto
+import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -99,8 +99,8 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -112,8 +112,8 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
 
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in {
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
@@ -138,8 +138,8 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -160,8 +160,8 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -181,8 +181,8 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -197,8 +197,8 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
       def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
 
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 

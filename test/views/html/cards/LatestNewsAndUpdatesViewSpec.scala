@@ -24,7 +24,7 @@ import views.html.ViewSpec
 import views.html.cards.home.LatestNewsAndUpdatesView
 
 class LatestNewsAndUpdatesViewSpec extends ViewSpec {
-  val latestNewsAndUpdatesView: LatestNewsAndUpdatesView = app.injector.instanceOf[LatestNewsAndUpdatesView]
+  lazy val latestNewsAndUpdatesView: LatestNewsAndUpdatesView = app.injector.instanceOf[LatestNewsAndUpdatesView]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 

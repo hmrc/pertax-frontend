@@ -33,7 +33,8 @@ object AllFeatureFlags {
     DfsFormsFrontendAvailabilityToggle,
     AddressChangeAllowedToggle,
     VoluntaryContributionsAlertToggle,
-    PeakDemandBannerToggle
+    PeakDemandBannerToggle,
+    GetPersonFromCitizenDetailsToggle
   )
 }
 
@@ -132,4 +133,12 @@ case object PeakDemandBannerToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Enable/disable the banner informing users about high-demand periods affecting service availability"
   )
+}
+
+case object GetPersonFromCitizenDetailsToggle extends FeatureFlagName {
+  override val name: String                = "get-person-from-citizen-details-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable retrieving person details from designatory-details in Citizen Details (via NPS)"
+  )
+  override val defaultState: Boolean       = true
 }

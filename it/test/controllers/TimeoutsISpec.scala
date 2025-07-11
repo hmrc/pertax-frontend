@@ -170,6 +170,10 @@ class TimeoutsISpec extends IntegrationSpec {
       .thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true))
       )
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+      .thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true))
+      )
     when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
       Future.successful(
         UserAnswers

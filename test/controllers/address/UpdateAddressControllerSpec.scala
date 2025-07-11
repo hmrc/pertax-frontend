@@ -20,9 +20,9 @@ import cats.data.EitherT
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import models.addresslookup.{Address, AddressRecord, Country}
 import models.dto.{AddressDto, AddressPageVisitedDto}
+import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.any
@@ -89,8 +89,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -109,8 +109,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -126,8 +126,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -142,8 +142,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -158,8 +158,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
       val userAnswers: UserAnswers = UserAnswers.empty
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -177,8 +177,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -194,8 +194,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -209,8 +209,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -232,8 +232,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -254,8 +254,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -272,8 +272,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -292,8 +292,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -313,8 +313,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -334,8 +334,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -359,8 +359,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -376,8 +376,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 
@@ -397,8 +397,8 @@ class UpdateAddressControllerSpec extends BaseSpec {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PersonDetails](
-          Future.successful(Right(personDetails))
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
         )
       )
 

@@ -21,8 +21,8 @@ import controllers.address
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import models.{PersonDetails, UserAnswers}
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
+import models.{PersonDetails, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
@@ -72,8 +72,8 @@ class AddressSelectorControllerSpec extends BaseSpec {
     reset(mockJourneyCacheRepository)
     reset(mockCitizenDetailsService)
     when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-      EitherT[Future, UpstreamErrorResponse, PersonDetails](
-        Future.successful(Right(buildPersonDetailsWithPersonalAndCorrespondenceAddress))
+      EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+        Future.successful(Right(Some(buildPersonDetailsWithPersonalAndCorrespondenceAddress)))
       )
     )
   }

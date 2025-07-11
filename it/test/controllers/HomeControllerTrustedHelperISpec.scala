@@ -16,15 +16,20 @@
 
 package controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import cats.data.EitherT
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import models.admin.GetPersonFromCitizenDetailsToggle
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
 import play.api.Application
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.mvc.{AnyContentAsEmpty, Result}
-import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status => httpStatus, writeableOf_AnyContentAsEmpty}
 import play.api.test.FakeRequest
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status as httpStatus, writeableOf_AnyContentAsEmpty}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
 import scala.annotation.tailrec
@@ -48,9 +53,9 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
   @tailrec
   private def generateHelperNino: Nino = {
     val nino = new Generator().nextNino
-    if (nino == generatedNino)
+    if (nino == generatedNino) {
       generateHelperNino
-    else {
+    } else {
       nino
     }
   }
@@ -133,6 +138,11 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
       get(urlEqualTo(s"/citizen-details/$generatedHelperNino/designatory-details"))
         .willReturn(ok(personDetailsResponse(generatedHelperNino.nino)))
     )
+
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+      .thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true))
+      )
   }
 
   "personal-account" must {

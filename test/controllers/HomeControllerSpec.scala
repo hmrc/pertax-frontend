@@ -22,7 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.admin.ShowPlannedOutageBannerToggle
+import models.admin.{GetPersonFromCitizenDetailsToggle, ShowPlannedOutageBannerToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -103,6 +103,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
     when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
       .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
+
+    when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+      .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
   }
 
@@ -245,5 +248,16 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       status(result) mustBe OK
       assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
     }
+  }
+
+  "Alert Banner content is not displayed if empty" in {
+    when(mockAlertBannerHelper.getContent(any(), any(), any()))
+      .thenReturn(Future.successful(List.empty))
+
+    val appLocal: Application      = appBuilder.build()
+    val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+    val result: Future[Result]     = controller.index()(currentRequest)
+    status(result) mustBe OK
+    assert(!contentAsString(result).contains("alertBannerContent"))
   }
 }

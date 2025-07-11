@@ -53,9 +53,12 @@ abstract class AddressController @Inject() (
         Future.successful(InternalServerError(internalServerErrorView()))
       } else {
         citizenDetailsService.personDetails(request.helpeeNinoOrElse).value.flatMap {
-          case Right(personDetails) =>
+          case Right(Some(personDetails)) =>
             block(request.helpeeNinoOrElse)(personDetails)
-          case Left(_)              => Future.successful(errorRenderer.error(INTERNAL_SERVER_ERROR))
+          case Right(None)                =>
+            Future.successful(errorRenderer.error(INTERNAL_SERVER_ERROR))
+          case Left(_)                    =>
+            Future.successful(errorRenderer.error(INTERNAL_SERVER_ERROR))
         }
       }
     }

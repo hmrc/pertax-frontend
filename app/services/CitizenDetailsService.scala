@@ -19,16 +19,19 @@ package services
 import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.CitizenDetailsConnector
+import models.admin.GetPersonFromCitizenDetailsToggle
 import models.{Address, ETag, MatchingDetails, PersonDetails}
 import play.api.Logging
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class CitizenDetailsService @Inject() (
-  citizenDetailsConnector: CitizenDetailsConnector
+  citizenDetailsConnector: CitizenDetailsConnector,
+  featureFlagService: FeatureFlagService
 ) extends Logging {
 
   def personDetails(
@@ -37,8 +40,18 @@ class CitizenDetailsService @Inject() (
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, PersonDetails] =
-    citizenDetailsConnector.personDetails(nino).map(_.as[PersonDetails])
+  ): EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]] =
+    for {
+      toggle <- EitherT.liftF(featureFlagService.get(GetPersonFromCitizenDetailsToggle))
+      result <- if (toggle.isEnabled) {
+                  citizenDetailsConnector
+                    .personDetails(nino)
+                    .map(jsValue => Some(jsValue.as[PersonDetails]))
+                } else {
+                  logger.info(s"Feature flag disabled for nino: ${nino.value}")
+                  EitherT.rightT[Future, UpstreamErrorResponse](None)
+                }
+    } yield result
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     hc: HeaderCarrier,
