@@ -67,7 +67,6 @@ class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec wit
     line2 = Some("Fake Town"),
     line3 = Some("Fake City"),
     line4 = Some("Fake Region"),
-    line5 = None,
     postcode = None,
     country = Some("AA1 1AA"),
     startDate = Some(LocalDate.of(2015, 3, 15)),

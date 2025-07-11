@@ -144,14 +144,14 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
     "return false when the address doesn't match a Welsh Language Unit" in {
 
       val address =
-        Address(None, None, None, None, None, postcode = Some("AA1 1AA"), None, None, None, None, isRls = false)
+        Address(None, None, None, None, postcode = Some("AA1 1AA"), None, None, None, None, isRls = false)
 
       address.isWelshLanguageUnit mustBe false
     }
     "return true when the address does match a Welsh Language Unit" in {
 
       val address =
-        Address(None, None, None, None, None, postcode = Some("CF145Sh"), None, None, None, None, isRls = false)
+        Address(None, None, None, None, postcode = Some("CF145Sh"), None, None, None, None, isRls = false)
 
       address.isWelshLanguageUnit mustBe true
     }

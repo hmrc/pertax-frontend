@@ -27,7 +27,6 @@ case class Address(
   line2: Option[String],
   line3: Option[String],
   line4: Option[String],
-  line5: Option[String],
   postcode: Option[String],
   country: Option[String],
   startDate: Option[LocalDate],
@@ -35,9 +34,9 @@ case class Address(
   `type`: Option[String],
   isRls: Boolean
 ) {
-  lazy val lines: Seq[String]        = List(line1, line2, line3, line4, line5).flatten
+  lazy val lines: Seq[String]        = List(line1, line2, line3, line4).flatten
   lazy val fullAddress: List[String] =
-    List(line1, line2, line3, line4, line5, postcode.map(_.toUpperCase), internationalAddressCountry(country)).flatten
+    List(line1, line2, line3, line4, postcode.map(_.toUpperCase), internationalAddressCountry(country)).flatten
 
   val excludedCountries: Seq[Country] = List(
     Country("GREAT BRITAIN"),
@@ -69,7 +68,6 @@ object Address extends Logging {
         "line2"     -> o.line2,
         "line3"     -> o.line3,
         "line4"     -> o.line4,
-        "line5"     -> o.line5,
         "postcode"  -> o.postcode,
         "country"   -> o.country,
         "startDate" -> o.startDate,
@@ -83,7 +81,6 @@ object Address extends Logging {
       (JsPath \ "line2").readNullable[String] and
       (JsPath \ "line3").readNullable[String] and
       (JsPath \ "line4").readNullable[String] and
-      (JsPath \ "line5").readNullable[String] and
       (JsPath \ "postcode").readNullable[String] and
       (JsPath \ "country").readNullable[String] and
       (JsPath \ "startDate").readNullable[LocalDate] and
