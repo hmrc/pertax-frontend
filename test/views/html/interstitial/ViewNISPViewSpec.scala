@@ -18,7 +18,6 @@ package views.html.interstitial
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
@@ -85,16 +84,16 @@ class ViewNISPViewSpec extends ViewSpec {
       val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
 
       val hyperLinkElement = document.select("#viewStatePensionSummary")
-      hyperLinkElement.text()       shouldBe "View your State Pension summary"
-      hyperLinkElement.attr("href") shouldBe configDecorator.statePensionSummary
+      hyperLinkElement.text() mustBe "View your State Pension summary"
+      hyperLinkElement.attr("href") mustBe configDecorator.statePensionSummary
     }
 
     "display the expected way of accessing the National Insurance Record" in {
       val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
 
       val hyperLinkElement = document.select("#viewNationalInsuranceSummary")
-      hyperLinkElement.text()       shouldBe "View your National Insurance record"
-      hyperLinkElement.attr("href") shouldBe configDecorator.nationalInsuranceRecordUrl
+      hyperLinkElement.text() mustBe "View your National Insurance record"
+      hyperLinkElement.attr("href") mustBe configDecorator.nationalInsuranceRecordUrl
     }
 
     "display the expected National Insurance Number header" in {
@@ -106,8 +105,8 @@ class ViewNISPViewSpec extends ViewSpec {
       val nino        = new Nino("CS700100A")
       val document    = asDocument(view(Html(""), Some(nino), emptyBannerViewModel).toString)
       val ninoElement = document.select(".nino")
-      ninoElement.text().trim shouldBe nino.value
-      document.body().toString    must include("Your National Insurance number is")
+      ninoElement.text().trim mustBe nino.value
+      document.body().toString must include("Your National Insurance number is")
     }
 
     "display the National Insurance number from trustedHelper when available" in {
@@ -121,7 +120,7 @@ class ViewNISPViewSpec extends ViewSpec {
 
       document.body().toString must include("Your National Insurance number is")
       val ninoElement = document.select(".nino")
-      ninoElement.text().trim() shouldBe trustedHelperNino.value
+      ninoElement.text().trim() mustBe trustedHelperNino.value
     }
 
     "display the National Insurance number from nino when trustedHelper is absent" in {
@@ -138,7 +137,7 @@ class ViewNISPViewSpec extends ViewSpec {
 
       document.body().toString must include("Your National Insurance number is")
       val ninoElement = document.select(".nino")
-      ninoElement.text().trim shouldBe nino.value
+      ninoElement.text().trim mustBe nino.value
     }
 
     "display the National Insurance number from nino when trustedHelper has no principalNino" in {
@@ -156,7 +155,7 @@ class ViewNISPViewSpec extends ViewSpec {
 
       document.body().toString must include("Your National Insurance number is")
       val ninoElement = document.select(".nino")
-      ninoElement.text().trim shouldBe nino.value
+      ninoElement.text().trim mustBe nino.value
     }
 
     "not display the National Insurance number when both trustedHelper and nino are absent" in {
@@ -197,12 +196,12 @@ class ViewNISPViewSpec extends ViewSpec {
       val document = asDocument(view(Html(""), None, emptyBannerViewModel).toString)
 
       val viewNinoHyperLinkElement = document.select("#viewNationalInsuranceNumber")
-      viewNinoHyperLinkElement.text()       shouldBe "View and save your National Insurance number"
-      viewNinoHyperLinkElement.attr("href") shouldBe configDecorator.ptaNinoSaveUrl
+      viewNinoHyperLinkElement.text() mustBe "View and save your National Insurance number"
+      viewNinoHyperLinkElement.attr("href") mustBe configDecorator.ptaNinoSaveUrl
 
       val findOutAboutNinoHyperLinkElement = document.select("#findOutAboutNationalInsuranceNumber")
-      findOutAboutNinoHyperLinkElement.text()       shouldBe "Find out more about National Insurance (opens in a new tab)"
-      findOutAboutNinoHyperLinkElement.attr("href") shouldBe "https://www.gov.uk/national-insurance"
+      findOutAboutNinoHyperLinkElement.text() mustBe "Find out more about National Insurance (opens in a new tab)"
+      findOutAboutNinoHyperLinkElement.attr("href") mustBe "https://www.gov.uk/national-insurance"
     }
   }
 }

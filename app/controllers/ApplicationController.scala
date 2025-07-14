@@ -148,7 +148,7 @@ class ApplicationController @Inject() (
       }
       safeUrl
         .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
-        .fold(BadRequest("Missing origin")) { url: String =>
+        .fold(BadRequest("Missing origin")) { (url: String) =>
           Redirect(configDecorator.getBasGatewayFrontendSignOutUrl(url))
         }
     }

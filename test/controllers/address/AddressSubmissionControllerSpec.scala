@@ -277,7 +277,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
 
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
@@ -329,7 +329,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -364,7 +364,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -403,7 +403,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -439,7 +439,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -499,7 +499,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -523,7 +523,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT(true)
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
@@ -546,7 +546,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-        EitherT.leftT(UpstreamErrorResponse("Start Date cannot be the same", 400))
+        EitherT.leftT[Future, Boolean](UpstreamErrorResponse("Start Date cannot be the same", 400))
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 

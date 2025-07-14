@@ -11,7 +11,7 @@ object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc"       %% "tax-year"                                   % "5.0.0",
+    "uk.gov.hmrc"       %% "tax-year"                                   % "6.0.0",
     "io.lemonlabs"      %% "scala-uri"                                  % "4.0.3",
     "org.jsoup"          % "jsoup"                                      % "1.20.1",
     "org.typelevel"     %% "cats-core"                                  % "2.13.0",

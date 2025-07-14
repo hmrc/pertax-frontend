@@ -66,8 +66,8 @@ final case class UserAnswers(
 
   def isDefined(gettable: Gettable[_]): Boolean =
     Reads.optionNoError(Reads.at[JsValue](gettable.path)).reads(data) match {
-      case JsSuccess(a @ Some(_), _) if a.isDefined => true
-      case _                                        =>
+      case JsSuccess(Some(_), _) => true
+      case _                     =>
         Reads
           .optionNoError(Reads.at[JsValue](gettable.path))
           .reads(data)
@@ -77,6 +77,9 @@ final case class UserAnswers(
 }
 
 object UserAnswers {
+  def unapply(userAnswers: UserAnswers): Some[(String, JsObject, Instant)] = Some(
+    (userAnswers.id, userAnswers.data, userAnswers.lastUpdated)
+  )
 
   val empty: UserAnswers             = empty("")
   def empty(id: String): UserAnswers = new UserAnswers(id, Json.obj())
