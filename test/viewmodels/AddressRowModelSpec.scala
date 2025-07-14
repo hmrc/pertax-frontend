@@ -74,4 +74,16 @@ class AddressRowModelSpec extends ViewSpec {
       )
     }
   }
+
+  "changeMainAddressUrl" must {
+    "generate the correct URL with ResidentialAddrType" in {
+      AddressRowModel.changeMainAddressUrl must include("/personal-account/your-address/change-main-address")
+    }
+  }
+
+  "changePostalAddressUrl" must {
+    "generate the correct URL with PostalAddrType" in {
+      AddressRowModel.changePostalAddressUrl must include("/personal-account/your-address/change-postal-address")
+    }
+  }
 }

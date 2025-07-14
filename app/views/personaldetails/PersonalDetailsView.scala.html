@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import components.{H1, H2, P}
+@import components.{H1, H2}
 @import controllers.auth.requests.UserRequest
 @import viewmodels.{AddressRowModel, ExtraLinks, PersonalDetailsTableRowModel}
 @import views.MainView
@@ -86,7 +86,7 @@
             </dd>
             <dd class="govuk-summary-list__actions">
                 @if(addressChangeAllowed) {
-                    <a class="govuk-link" href=@AddressRowModel.changeMainAddressUrl>
+                    <a class="govuk-link" href="@controllers.address.routes.StartChangeOfAddressController.onPageLoad(ResidentialAddrType)">
                         @messages("label.change") <span class="govuk-visually-hidden">@messages("label.your_main_home")</span>
                     </a>
                 }
@@ -101,7 +101,7 @@
             </dd>
             <dd class="govuk-summary-list__actions">
                 @if(addressChangeAllowed) {
-                    <a class="govuk-link" href=@AddressRowModel.changeMainAddressUrl>
+                    <a class="govuk-link" href="@controllers.address.routes.StartChangeOfAddressController.onPageLoad(PostalAddrType)">
                         @messages("label.change") <span class="govuk-visually-hidden">@messages("label.your_main_home")</span>
                     </a>
                 }
