@@ -30,39 +30,39 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import scala.concurrent.{ExecutionContext, Future}
 
 class CitizenDetailsService @Inject() (
-                                        citizenDetailsConnector: CitizenDetailsConnector,
-                                        featureFlagService: FeatureFlagService
-                                      ) extends Logging {
+  citizenDetailsConnector: CitizenDetailsConnector,
+  featureFlagService: FeatureFlagService
+) extends Logging {
 
   def personDetails(
-                     nino: Nino
-                   )(implicit
-                     hc: HeaderCarrier,
-                     ec: ExecutionContext,
-                     request: Request[_]
-                   ): EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]] =
+    nino: Nino
+  )(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]] =
     for {
       toggle <- EitherT.liftF(featureFlagService.get(GetPersonFromCitizenDetailsToggle))
       result <- if (toggle.isEnabled) {
-        citizenDetailsConnector
-          .personDetails(nino)
-          .map(jsValue => Some(jsValue.as[PersonDetails]))
-      } else {
-        logger.info(s"Feature flag disabled for nino: ${nino.value}")
-        EitherT.rightT[Future, UpstreamErrorResponse](None)
-      }
+                  citizenDetailsConnector
+                    .personDetails(nino)
+                    .map(jsValue => Some(jsValue.as[PersonDetails]))
+                } else {
+                  logger.info(s"Feature flag disabled for nino: ${nino.value}")
+                  EitherT.rightT[Future, UpstreamErrorResponse](None)
+                }
     } yield result
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
-                                                                hc: HeaderCarrier,
-                                                                ec: ExecutionContext,
-                                                                request: Request[_]
+    hc: HeaderCarrier,
+    ec: ExecutionContext,
+    request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, Boolean] =
     citizenDetailsConnector.updateAddress(nino: Nino, etag: String, address: Address).map(_ => true)
 
   def getMatchingDetails(
-                          nino: Nino
-                        )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, MatchingDetails] =
+    nino: Nino
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, MatchingDetails] =
     citizenDetailsConnector
       .getMatchingDetails(nino)
       .map { response =>
@@ -70,7 +70,7 @@ class CitizenDetailsService @Inject() (
       }
 
   def getEtag(
-               nino: String
-             )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Option[ETag]] =
+    nino: String
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Option[ETag]] =
     citizenDetailsConnector.getEtag(nino).map(_.json.asOpt[ETag])
 }
