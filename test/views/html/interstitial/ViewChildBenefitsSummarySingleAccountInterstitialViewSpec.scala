@@ -42,7 +42,7 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
 
     implicit val request: UserRequest[AnyContent] = buildUserRequest(
       saUser = user,
-      request = request
+      request = FakeRequest()
     )
 
     def selfAssessmentDoc: Document = asDocument(

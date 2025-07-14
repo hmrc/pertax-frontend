@@ -25,7 +25,6 @@ import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import org.mongodb.scala.result.InsertOneResult
 import play.api.Logging
-import repositories.EditAddressLockRepository.EXPIRE_AT
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -33,6 +32,8 @@ import java.time.{Instant, OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
+import org.mongodb.scala.SingleObservableFuture
+import org.mongodb.scala.ObservableFuture
 
 @Singleton
 class EditAddressLockRepository @Inject() (
@@ -45,10 +46,10 @@ class EditAddressLockRepository @Inject() (
       domainFormat = AddressJourneyTTLModel.format,
       indexes = Seq(
         IndexModel(
-          Indexes.ascending(EXPIRE_AT),
+          Indexes.ascending(repositories.EditAddressLockRepository.EXPIRE_AT),
           IndexOptions()
             .name("ttlIndex")
-            .expireAfter(configDecorator.editAddressTtl, TimeUnit.SECONDS)
+            .expireAfter(configDecorator.editAddressTtl.toLong, TimeUnit.SECONDS)
         ),
         IndexModel(
           Indexes.ascending("nino", "editedAddress.addressType"),
