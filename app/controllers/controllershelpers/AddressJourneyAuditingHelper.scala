@@ -27,8 +27,7 @@ object AddressJourneyAuditingHelper {
       o.line1 == addressDto.line1 &&
       o.line2 == addressDto.line2 &&
       o.line3 == addressDto.line3 &&
-      o.line4 == addressDto.line4 &&
-      o.line5 == addressDto.line5
+      o.line4 == addressDto.line4
     }
 
   def addressWasHeavilyModifiedOrManualEntry(originalAddressDto: Option[AddressDto], addressDto: AddressDto): Boolean =
@@ -44,10 +43,9 @@ object AddressJourneyAuditingHelper {
   private def addressDtoToAuditData(addressDto: AddressDto, prefix: String): Map[String, Option[String]] =
     Map(
       s"${prefix}Line1"    -> Some(addressDto.line1),
-      s"${prefix}Line2"    -> Some(addressDto.line2),
+      s"${prefix}Line2"    -> addressDto.line2,
       s"${prefix}Line3"    -> addressDto.line3,
       s"${prefix}Line4"    -> addressDto.line4,
-      s"${prefix}Line5"    -> addressDto.line5,
       s"${prefix}Postcode" -> addressDto.postcode,
       s"${prefix}Country"  -> addressDto.country,
       s"${prefix}UPRN"     -> addressDto.propertyRefNo
@@ -74,7 +72,6 @@ object AddressJourneyAuditingHelper {
       "submittedLine2"    -> address.line2,
       "submittedLine3"    -> address.line3,
       "submittedLine4"    -> address.line4,
-      "submittedLine5"    -> address.line5,
       "submittedPostcode" -> address.postcode,
       "submittedCountry"  -> address.country
     ).foldLeft(List[(String, Option[String])]())((acc, cur) => cur._2.fold(acc)(_ => cur :: acc)).toMap ++
