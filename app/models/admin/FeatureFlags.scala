@@ -34,7 +34,8 @@ object AllFeatureFlags {
     AddressChangeAllowedToggle,
     VoluntaryContributionsAlertToggle,
     PeakDemandBannerToggle,
-    GetPersonFromCitizenDetailsToggle
+    GetPersonFromCitizenDetailsToggle,
+    PayeToPegaRedirectToggle
   )
 }
 
@@ -141,4 +142,13 @@ case object GetPersonFromCitizenDetailsToggle extends FeatureFlagName {
     "Enable/disable retrieving person details from designatory-details in Citizen Details (via NPS)"
   )
   override val defaultState: Boolean       = true
+}
+
+case object PayeToPegaRedirectToggle extends FeatureFlagName {
+  override val name: String                         = "paye-pega-redirect-toggle"
+  override val description: Option[String]          = Some(
+    "Enable/disable redirecting PAYE tile traffic to PEGA. Used in conjunction of the config `paye.to.pega.redirect.list`"
+  )
+  override val lockedEnvironments: Seq[Environment] =
+    Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
 }

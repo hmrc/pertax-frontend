@@ -20,8 +20,8 @@ import com.google.inject.{Inject, Singleton}
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.routes
-import models._
-import models.admin._
+import models.*
+import models.admin.*
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, Call}
 import play.twirl.api.{Html, HtmlFormat}
@@ -32,7 +32,7 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.sca.logging.Logging
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
-import views.html.cards.home._
+import views.html.cards.home.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -56,28 +56,25 @@ class HomeCardGenerator @Inject() (
     extends Logging {
 
   def getIncomeCards(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
+    val latestNewsCardOpt = getLatestNewsAndUpdatesCard()
+    val additionalCards   = Seq(getSelfAssessmentCard(), Some(getNationalInsuranceCard())).flatten
 
-    val staticCards = Seq(
-      getLatestNewsAndUpdatesCard(),
-      Some(getPayAsYouEarnCard)
-    ).flatten
+    for {
+      payeCard     <- getPayAsYouEarnCard
+      taxCalcCards <- getDynamicTaxCalcCards
+    } yield {
+      val staticCards = latestNewsCardOpt.toSeq :+ payeCard
+      staticCards ++ taxCalcCards ++ additionalCards
+    }
+  }
 
-    val dynamicTaxCalcCards = featureFlagService.get(ShowTaxCalcTileToggle).flatMap {
+  private def getDynamicTaxCalcCards(implicit request: UserRequest[_]): Future[Seq[Html]] =
+    featureFlagService.get(ShowTaxCalcTileToggle).flatMap {
       case FeatureFlag(_, true) if request.trustedHelper.isEmpty =>
         taxCalcPartialService.getTaxCalcPartial.map(_.map(_.partialContent))
       case _                                                     =>
         Future.successful(Seq.empty)
     }
-
-    val additionalCards = Seq(
-      getSelfAssessmentCard(),
-      Some(getNationalInsuranceCard())
-    ).flatten
-
-    dynamicTaxCalcCards.map { taxCalcCards =>
-      staticCards ++ taxCalcCards ++ additionalCards
-    }
-  }
 
   def getATSCard()(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] =
     if (request.trustedHelper.isEmpty) {
@@ -86,8 +83,10 @@ class HomeCardGenerator @Inject() (
       Future.successful(Nil)
     }
 
-  def getPayAsYouEarnCard(implicit request: UserRequest[?], messages: Messages): HtmlFormat.Appendable =
-    payAsYouEarnView()
+  def getPayAsYouEarnCard(implicit request: UserRequest[_], messages: Messages): Future[HtmlFormat.Appendable] =
+    featureFlagService.get(PayeToPegaRedirectToggle).map { case FeatureFlag(_, isEnabled) =>
+      payAsYouEarnView(shouldUsePegaRouting = isEnabled)
+    }
 
   private def displaySACall: Call = routes.InterstitialController.displaySelfAssessment
 
