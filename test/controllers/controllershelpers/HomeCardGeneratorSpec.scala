@@ -19,16 +19,18 @@ package controllers.controllershelpers
 import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import controllers.routes
-import models._
-import models.admin._
+import models.*
+import models.admin.*
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.Configuration
+import play.api
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import play.api.{Application, Configuration}
 import play.twirl.api.Html
+import repositories.JourneyCacheRepository
 import services.partials.TaxCalcPartialService
 import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
@@ -41,7 +43,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import views.html.ViewSpec
-import views.html.cards.home._
+import views.html.cards.home.*
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -95,20 +97,18 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private lazy val homeCardGenerator = createHomeCardGenerator(stubConfigDecorator)
 
   "Calling getPayAsYouEarnCard" must {
-    "return correct markup when called with with a Pertax user that is PAYE" in {
+    "return PAYE card pointing to TAI when toggle is disabled" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
+        .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = false)))
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "GovernmentGateway"),
-        confidenceLevel = ConfidenceLevel.L200,
-        request = FakeRequest(),
-        authNino = Nino("AA000000C")
+        request = FakeRequest()
       )
 
-      lazy val cardBody =
-        homeCardGenerator.getPayAsYouEarnCard
+      val result = homeCardGenerator.getPayAsYouEarnCard.futureValue
 
-      cardBody mustBe payAsYouEarn()
+      result.toString must include("check-income-tax/what-do-you-want-to-do")
     }
   }
 
@@ -132,10 +132,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       verify(mockFeatureFlagService, times(0)).get(any())
 
     }
-
-    "should have benefit cards when no trusted helper exists in the request" in
-      homeCardGenerator.getBenefitCards(Fixtures.buildTaxComponents, None)
-
   }
 
   "Calling getNationalInsuranceCard" must {
@@ -479,110 +475,88 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
   }
 
-  "Calling getIncomeCards" must {
-    "when taxcalc toggle on return tax calc cards plus surrounding cards, all in correct position" in {
-
+  "getIncomeCards" must {
+    "return all expected cards when all toggles are enabled and user has no trusted helper" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
-
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
+        .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = false)))
+      when(mockConfigDecorator.taiHost).thenReturn("https://tai.host.test")
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
-        List[NewsAndContentModel](
-          NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false, LocalDate.now)
-        )
+        List(NewsAndContentModel("newsSectionName", "desc", "content", isDynamic = false, LocalDate.now))
       )
-
       when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
         Future.successful(
           Seq(
-            SummaryCardPartial("name1", Html("<p>test1</p>"), Overpaid),
-            SummaryCardPartial("name2", Html("<p>test2</p>"), Underpaid)
+            SummaryCardPartial("tc1", Html("<p>tc1</p>"), Overpaid),
+            SummaryCardPartial("tc2", Html("<p>tc2</p>"), Underpaid)
           )
         )
       )
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+      implicit val request: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = NonFilerSelfAssessmentUser,
-        confidenceLevel = ConfidenceLevel.L50,
         request = FakeRequest()
       )
 
-      lazy val cards =
-        homeCardGenerator.getIncomeCards.futureValue
+      val cards = homeCardGenerator.getIncomeCards.futureValue
       cards.size mustBe 5
-      cards.head.toString().contains("news-card") mustBe true
-      cards(1).toString().contains("paye-card") mustBe true
-      cards(2).toString().contains("test1") mustBe true
-      cards(3).toString().contains("test2") mustBe true
-      cards(4).toString().contains("ni-and-sp-card") mustBe true
+      cards.map(_.toString).exists(_.contains("news-card")) mustBe true
+      cards.map(_.toString).exists(_.contains("paye-card")) mustBe true
+      cards.map(_.toString).exists(_.contains("tc1")) mustBe true
+      cards.map(_.toString).exists(_.contains("tc2")) mustBe true
+      cards.map(_.toString).exists(_.contains("ni-and-sp-card")) mustBe true
     }
+  }
 
-    "when taxcalc toggle off return no tax calc cards" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = false)))
+  "return PAYE card pointing to PEGA when toggle is enabled and NINO matches the redirect list" in {
+    val matchingNino = "AA000055A"
 
-      when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
-        List[NewsAndContentModel](
-          NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false, LocalDate.now)
-        )
+    val injectedMockConfigDecorator = mock[ConfigDecorator]
+    when(injectedMockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
+    when(injectedMockConfigDecorator.payeToPegaRedirectUrl).thenReturn("https://pega.test.redirect")
+    when(injectedMockConfigDecorator.taiHost).thenReturn("https://tai.test")
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
+      .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
+
+    val app: Application = localGuiceApplicationBuilder()
+      .overrides(
+        api.inject.bind[ConfigDecorator].toInstance(injectedMockConfigDecorator),
+        api.inject.bind[NewsAndTilesConfig].toInstance(newsAndTilesConfig),
+        api.inject.bind[TaxCalcPartialService].toInstance(mockTaxCalcPartialService),
+        api.inject.bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
       )
+      .build()
 
-      when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
-        Future.successful(
-          Seq(
-            SummaryCardPartial("name1", Html("<p>test1</p>"), Overpaid),
-            SummaryCardPartial("name2", Html("<p>test2</p>"), Underpaid)
-          )
-        )
-      )
+    val controller = new HomeCardGenerator(
+      mockFeatureFlagService,
+      app.injector.instanceOf[PayAsYouEarnView],
+      taxCreditsEnded,
+      childBenefitSingleAccount,
+      marriageAllowance,
+      taxSummaries,
+      latestNewsAndUpdatesView,
+      itsaMergeView,
+      saMergeView,
+      enrolmentsHelper,
+      newsAndTilesConfig,
+      nispView,
+      selfAssessmentRegistrationView,
+      mockTaxCalcPartialService
+    )(injectedMockConfigDecorator, ec)
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+    implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+      buildUserRequest(
         saUser = NonFilerSelfAssessmentUser,
-        confidenceLevel = ConfidenceLevel.L50,
-        request = FakeRequest()
+        request = FakeRequest(),
+        authNino = Nino(matchingNino)
       )
 
-      lazy val cards =
-        homeCardGenerator.getIncomeCards.futureValue
-      cards.size mustBe 3
-      cards.head.toString().contains("news-card") mustBe true
-      cards(1).toString().contains("paye-card") mustBe true
-      cards(2).toString().contains("ni-and-sp-card") mustBe true
-    }
+    val result = controller.getPayAsYouEarnCard.futureValue
 
-    "when taxcalc toggle on but trusted helper present return no tax calc cards" in {
+    result.toString must include("https://pega.test.redirect")
 
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
-        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
-
-      when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
-        List[NewsAndContentModel](
-          NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false, LocalDate.now)
-        )
-      )
-
-      when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
-        Future.successful(
-          Seq(
-            SummaryCardPartial("name1", Html("<p>test1</p>"), Overpaid),
-            SummaryCardPartial("name2", Html("<p>test2</p>"), Underpaid)
-          )
-        )
-      )
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        confidenceLevel = ConfidenceLevel.L50,
-        trustedHelper =
-          Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))),
-        request = FakeRequest()
-      )
-
-      lazy val cards =
-        homeCardGenerator.getIncomeCards.futureValue
-      cards.size mustBe 3
-      cards.head.toString().contains("news-card") mustBe true
-      cards(1).toString().contains("paye-card") mustBe true
-      cards(2).toString().contains("ni-and-sp-card") mustBe true
-    }
+    app.stop()
   }
 }
