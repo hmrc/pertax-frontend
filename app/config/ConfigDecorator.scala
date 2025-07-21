@@ -215,9 +215,6 @@ class ConfigDecorator @Inject() (
       .getOrElse("false")
       .toBoolean
 
-  lazy val partialUpgradeEnabled: Boolean =
-    runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)
-
   lazy val itsaViewUrl = s"$incomeTaxViewChangeFrontendHost/report-quarterly/income-and-expenses/view?origin=PTA"
 
   def getFeedbackSurveyUrl(origin: Origin): String =
