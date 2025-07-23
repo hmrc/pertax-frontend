@@ -35,7 +35,7 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.DateTimeTools._
-import util.{AlertBannerHelper, EnrolmentsHelper, FormPartialUpgrade}
+import util.{AlertBannerHelper, EnrolmentsHelper}
 import viewmodels.AlertBannerViewModel
 import views.html.interstitial._
 import views.html.selfassessment.Sa302InterruptView
@@ -113,17 +113,10 @@ class InterstitialController @Inject() (
       maybeNino   <- ninoFuture
       bannerOpt   <- alertBannerFuture
     } yield {
-      val upgradedPartial = if (configDecorator.partialUpgradeEnabled) {
-        FormPartialUpgrade.upgrade(nispPartial.successfulContentOrEmpty)
-      } else {
-        nispPartial.successfulContentOrEmpty
-      }
-
       val bannerList = bannerOpt.toList
-
       Ok(
         viewNISPView(
-          formPartial = upgradedPartial,
+          formPartial = nispPartial.successfulContentOrEmpty,
           nino = maybeNino,
           alertBannerViewModel = AlertBannerViewModel(alertBannerContent = bannerList)
         )
@@ -200,11 +193,7 @@ class InterstitialController @Inject() (
       } yield Ok(
         selfAssessmentSummaryView(
           // TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
-          formPartial = if (configDecorator.partialUpgradeEnabled) {
-            FormPartialUpgrade.upgrade(formPartial successfulContentOrEmpty)
-          } else {
-            formPartial successfulContentOrElse Html("")
-          },
+          formPartial = formPartial successfulContentOrElse Html(""),
           saPartial = saPartial successfulContentOrElse Html("")
         )
       )
