@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,16 @@ package views.html.cards
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.bindable.Origin
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.*
 import play.api
 import play.api.Application
-import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import repositories.JourneyCacheRepository
-import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.Nino
 import views.html.ViewSpec
-import views.html.cards.home.{ChildBenefitSingleAccountView, PayAsYouEarnView}
+import views.html.cards.home.PayAsYouEarnView
 
 class PayAsYouEarnViewSpec extends ViewSpec {
 
@@ -48,70 +44,55 @@ class PayAsYouEarnViewSpec extends ViewSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockConfigDecorator)
-    when(mockConfigDecorator.defaultOrigin).thenReturn(Origin("PERTAX"))
-    when(mockConfigDecorator.personalAccount).thenReturn("/personal-account")
-    when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/feedback/url")
     when(mockConfigDecorator.taiHost).thenReturn("")
+    when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("http://paye-to-pega-redirect-url")
   }
 
-  val nextDeadlineTaxYear = "2021"
+  "paye card" must {
 
-  "paye point to check-income-tax when pega redirect is empty" in {
-    when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("http://paye-to-pega-redirect-url")
-    when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq.empty)
+    "point to check-income-tax when toggle is OFF (shouldUsePegaRouting = false)" in {
+      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
 
-    val userRequest: UserRequest[AnyContentAsEmpty.type] =
-      buildUserRequest(request = FakeRequest())
+      val nino                                             = "AA000055A"
+      val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest(), authNino = Nino(nino))
 
-    val doc =
-      asDocument(
-        payAsYouEarnView()(implicitly, userRequest).toString
-      )
+      val doc = asDocument(payAsYouEarnView(shouldUsePegaRouting = false)(implicitly, userRequest).toString)
 
-    doc
-      .getElementById("paye-card")
-      .getElementsByClass("card-link")
-      .attr("href") mustBe "/check-income-tax/what-do-you-want-to-do"
+      doc
+        .getElementById("paye-card")
+        .getElementsByClass("card-link")
+        .attr("href") mustBe "/check-income-tax/what-do-you-want-to-do"
+    }
 
-  }
+    "point to check-income-tax when toggle is ON but NINO does not match" in {
+      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
 
-  "paye point to pega when nino is ending with 50" in {
-    when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("http://paye-to-pega-redirect-url")
-    when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
+      val nino                                             = "AA000003A"
+      val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest(), authNino = Nino(nino))
 
-    val nino                                             = Fixtures.fakeNino.withoutSuffix.take(6)
-    val userRequest: UserRequest[AnyContentAsEmpty.type] =
-      buildUserRequest(request = FakeRequest(), authNino = Nino(nino + "50A"))
+      val doc = asDocument(payAsYouEarnView(shouldUsePegaRouting = true)(implicitly, userRequest).toString)
 
-    val doc =
-      asDocument(
-        payAsYouEarnView()(implicitly, userRequest).toString
-      )
+      doc
+        .getElementById("paye-card")
+        .getElementsByClass("card-link")
+        .attr("href") mustBe "/check-income-tax/what-do-you-want-to-do"
+    }
 
-    doc
-      .getElementById("paye-card")
-      .getElementsByClass("card-link")
-      .attr("href") mustBe "http://paye-to-pega-redirect-url"
+    "point to pega when toggle is ON and NINO matches" in {
+      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
 
-  }
+      val nino                                             = "AA000055A"
+      val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest(), authNino = Nino(nino))
 
-  "paye point to check-income-tax when nino is not ending with 50" in {
-    when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("http://paye-to-pega-redirect-url")
-    when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
+      val doc = asDocument(payAsYouEarnView(shouldUsePegaRouting = true)(implicitly, userRequest).toString)
 
-    val nino                                             = Fixtures.fakeNino.withoutSuffix.take(6)
-    val userRequest: UserRequest[AnyContentAsEmpty.type] =
-      buildUserRequest(request = FakeRequest(), authNino = Nino(nino + "30A"))
-
-    val doc =
-      asDocument(
-        payAsYouEarnView()(implicitly, userRequest).toString
-      )
-
-    doc
-      .getElementById("paye-card")
-      .getElementsByClass("card-link")
-      .attr("href") mustBe "/check-income-tax/what-do-you-want-to-do"
-
+      doc
+        .getElementById("paye-card")
+        .getElementsByClass("card-link")
+        .attr("href") mustBe "http://paye-to-pega-redirect-url"
+    }
   }
 }
