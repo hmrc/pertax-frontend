@@ -154,7 +154,7 @@ class InterstitialController @Inject() (
 
   def displaySaRegistrationPage: Action[AnyContent] = authenticate { implicit request =>
     val isHelperOrEnrolledOrSa = request.trustedHelper.isDefined || enrolmentsHelper
-      .itsaEnrolmentStatus(request.enrolments)
+      .mtdEnrolmentStatus(request.enrolments)
       .isDefined || request.isSa
     if (isHelperOrEnrolledOrSa || !configDecorator.pegaSaRegistrationEnabled) {
       // Temporarily restricting access based on pegaEnabled, this condition can be removed in future
@@ -168,7 +168,7 @@ class InterstitialController @Inject() (
     val saUserType = request.saUserType
     if (
       enrolmentsHelper
-        .itsaEnrolmentStatus(request.enrolments)
+        .mtdEnrolmentStatus(request.enrolments)
         .isDefined && request.trustedHelper.isEmpty && request.isSa
     ) {
       seissService.hasClaims(saUserType).map { hasSeissClaims =>

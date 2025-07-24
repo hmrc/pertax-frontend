@@ -62,6 +62,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val taxSummaries                   = inject[TaxSummariesView]
   private val latestNewsAndUpdatesView       = inject[LatestNewsAndUpdatesView]
   private val saMergeView                    = inject[SaMergeView]
+  private val mtditView                      = inject[MTDITView]
   private val itsaMergeView                  = inject[ItsaMergeView]
   private val nispView                       = inject[NISPView]
   private val enrolmentsHelper               = inject[EnrolmentsHelper]
@@ -87,6 +88,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       latestNewsAndUpdatesView,
       itsaMergeView,
       saMergeView,
+      mtditView,
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
@@ -281,6 +283,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         latestNewsAndUpdatesView,
         itsaMergeView,
         saMergeView,
+        mtditView,
         enrolmentsHelper,
         newsAndTilesConfig,
         nispView,
@@ -304,9 +307,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSelfAssessmentCard()
+      lazy val cardBody = createController().getSelfAssessmentCards()
 
-      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly))
+      cardBody mustBe Seq(itsaMergeView((current.currentYear + 1).toString)(implicitly))
     }
 
     "return Itsa Card with correct name when the user has ITSA enrolments when name change toggle set to false" in {
@@ -318,22 +321,23 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSelfAssessmentCard()
+      lazy val cardBody = createController().getSelfAssessmentCards()
 
-      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly))
-      cardBody.map(_.toString().contains("Making Tax Digital for Income Tax")) mustBe Some(true)
+      cardBody mustBe Seq(itsaMergeView((current.currentYear + 1).toString)(implicitly))
+      cardBody.map(_.toString().contains("Making Tax Digital for Income Tax")) mustBe Seq(true)
     }
 
     "return PTA Card with link to display self assessment when active user is an SA user but without ITSA enrolments" in {
 
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards()
 
-      cardBody mustBe Some(
+      cardBody mustBe Seq(
         saMergeView(
           (current.currentYear + 1).toString,
           routes.InterstitialController.displaySelfAssessment.url,
           "label.viewAndManageSA"
-        )
+        ),
+        mtditView(implicitly)
       )
     }
 
@@ -345,14 +349,15 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards()
 
-      cardBody mustBe Some(
+      cardBody mustBe Seq(
         saMergeView(
           (current.currentYear + 1).toString,
           routes.SelfAssessmentController.handleSelfAssessment.url,
           "label.activate_your_self_assessment"
-        )
+        ),
+        mtditView(implicitly)
       )
     }
     "return PTA Card with link to self assessment when not enrolled user is an SA user but without ITSA enrolments" in {
@@ -363,14 +368,15 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards()
 
-      cardBody mustBe Some(
+      cardBody mustBe Seq(
         saMergeView(
           (current.currentYear + 1).toString,
           routes.SelfAssessmentController.redirectToEnrolForSa.url,
           "label.request_access_to_your_sa"
-        )
+        ),
+        mtditView(implicitly)
       )
     }
 
@@ -381,9 +387,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards()
 
-      cardBody mustBe None
+      cardBody mustBe Nil
     }
 
     "return None when the trustedHelper is not empty" in {
@@ -393,9 +399,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSelfAssessmentCard()
+      lazy val cardBody = createController().getSelfAssessmentCards()
 
-      cardBody mustBe None
+      cardBody mustBe Nil
     }
 
     "return selfAssessmentRegistrationView when there is no ITSA enrolment and the user is not an SA user" in {
@@ -406,9 +412,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSelfAssessmentCard()
+      lazy val cardBody = createController().getSelfAssessmentCards()
 
-      cardBody mustBe Some(selfAssessmentRegistrationView())
+      cardBody mustBe Seq(selfAssessmentRegistrationView())
     }
 
     "return sa Card when user with wrong creds has wrong credentials but no ITSA enrolment" in {
@@ -419,14 +425,15 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSelfAssessmentCard()
+      lazy val cardBody = createController().getSelfAssessmentCards()
 
-      cardBody mustBe Some(
+      cardBody mustBe Seq(
         saMergeView(
           (current.currentYear + 1).toString,
           routes.SelfAssessmentController.handleSelfAssessment.url,
           "label.find_out_how_to_access_your_self_assessment"
-        )
+        ),
+        mtditView(implicitly)
       )
     }
 
@@ -440,9 +447,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = controller.getSelfAssessmentCard()
+      lazy val cardBody = controller.getSelfAssessmentCards()
 
-      cardBody mustBe None
+      cardBody mustBe Nil
     }
   }
 
@@ -539,6 +546,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       latestNewsAndUpdatesView,
       itsaMergeView,
       saMergeView,
+      mtditView,
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,

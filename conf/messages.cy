@@ -488,6 +488,9 @@ label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigi
 label.online_deadline_final_declarations=Y dyddiad cau ar gyfer datganiadau terfynol neu Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
 label.making_tax_digital=Troi Treth yn Ddigidol
 
+label.mtdit.heading=Troi Treth yn Ddigidol ar gyfer Treth Incwm
+label.mtdit.p1=Os ydych yn unig fasnachwr neu’n landlord, mae ffordd newydd o adrodd am eich incwm a’ch treuliau. Dysgwch ragor.
+
 #
 # Breathing Space
 #

@@ -494,6 +494,9 @@ label.online_deadline_final_declarations=The deadline for final declarations or 
 label.online_deadline_tax_returns=The deadline for tax returns is 31 January {0}.
 label.making_tax_digital=Making Tax Digital
 
+label.mtdit.heading=Making Tax Digital for Income Tax
+label.mtdit.p1=If you''re a sole trader or landlord, there''s a new way to report your income and expenses. Find out more.
+
 #
 # Breathing Space
 #
