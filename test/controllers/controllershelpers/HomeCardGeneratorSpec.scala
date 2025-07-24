@@ -24,6 +24,7 @@ import models.admin.*
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
+import org.mockito.stubbing.OngoingStubbing
 import org.scalatestplus.mockito.MockitoSugar
 import play.api
 import play.api.mvc.AnyContentAsEmpty
@@ -307,7 +308,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSelfAssessmentCards()
+      lazy val cardBody = createController().getSelfAssessmentCards(includeMDTITAdvert = true)
 
       cardBody mustBe Seq(itsaMergeView((current.currentYear + 1).toString)(implicitly))
     }
@@ -321,7 +322,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSelfAssessmentCards()
+      lazy val cardBody = createController().getSelfAssessmentCards(includeMDTITAdvert = true)
 
       cardBody mustBe Seq(itsaMergeView((current.currentYear + 1).toString)(implicitly))
       cardBody.map(_.toString().contains("Making Tax Digital for Income Tax")) mustBe Seq(true)
@@ -329,7 +330,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return PTA Card with link to display self assessment when active user is an SA user but without ITSA enrolments" in {
 
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards(includeMDTITAdvert = true)
 
       cardBody mustBe Seq(
         saMergeView(
@@ -349,7 +350,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards(includeMDTITAdvert = true)
 
       cardBody mustBe Seq(
         saMergeView(
@@ -368,7 +369,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards(includeMDTITAdvert = true)
 
       cardBody mustBe Seq(
         saMergeView(
@@ -380,6 +381,25 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       )
     }
 
+    "return PTA Card with link to self assessment when not enrolled user is an SA user but without ITSA enrolments minus mdtit tile when not requested" in {
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NotEnrolledSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+          request = FakeRequest()
+        )
+
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards(includeMDTITAdvert = false)
+
+      cardBody mustBe Seq(
+        saMergeView(
+          (current.currentYear + 1).toString,
+          routes.SelfAssessmentController.redirectToEnrolForSa.url,
+          "label.request_access_to_your_sa"
+        )
+      )
+    }
+
     "return no card when non-filing user (cannot confirm user's identity) is an SA user but without ITSA enrolments" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
@@ -387,7 +407,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards()
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCards(includeMDTITAdvert = true)
 
       cardBody mustBe Nil
     }
@@ -399,7 +419,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSelfAssessmentCards()
+      lazy val cardBody = createController().getSelfAssessmentCards(includeMDTITAdvert = true)
 
       cardBody mustBe Nil
     }
@@ -412,7 +432,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSelfAssessmentCards()
+      lazy val cardBody = createController().getSelfAssessmentCards(includeMDTITAdvert = true)
 
       cardBody mustBe Seq(selfAssessmentRegistrationView())
     }
@@ -425,7 +445,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSelfAssessmentCards()
+      lazy val cardBody = createController().getSelfAssessmentCards(includeMDTITAdvert = true)
 
       cardBody mustBe Seq(
         saMergeView(
@@ -447,7 +467,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = controller.getSelfAssessmentCards()
+      lazy val cardBody = controller.getSelfAssessmentCards(includeMDTITAdvert = true)
 
       cardBody mustBe Nil
     }
@@ -483,11 +503,13 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "getIncomeCards" must {
-    "return all expected cards when all toggles are enabled and user has no trusted helper" in {
+    def setup: OngoingStubbing[Future[Seq[SummaryCardPartial]]] = {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
         .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = false)))
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(MDTITAdvertToggle)))
+        .thenReturn(Future.successful(FeatureFlag(MDTITAdvertToggle, isEnabled = true)))
       when(mockConfigDecorator.taiHost).thenReturn("https://tai.host.test")
       when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
         List(NewsAndContentModel("newsSectionName", "desc", "content", isDynamic = false, LocalDate.now))
@@ -500,7 +522,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           )
         )
       )
-
+    }
+    "return all expected cards when all toggles are enabled and user has no trusted helper" in {
+      setup
       implicit val request: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = NonFilerSelfAssessmentUser,
         request = FakeRequest()
@@ -510,10 +534,39 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       cards.size mustBe 5
       cards.map(_.toString).exists(_.contains("news-card")) mustBe true
       cards.map(_.toString).exists(_.contains("paye-card")) mustBe true
+      cards.map(_.toString).exists(_.contains("mtdit-card")) mustBe false
       cards.map(_.toString).exists(_.contains("tc1")) mustBe true
       cards.map(_.toString).exists(_.contains("tc2")) mustBe true
       cards.map(_.toString).exists(_.contains("ni-and-sp-card")) mustBe true
     }
+
+    val saUtr: SaUtr = SaUtr("test utr")
+    Seq(
+      ActivatedOnlineFilerSelfAssessmentUser(saUtr = saUtr),
+      NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr = saUtr),
+      WrongCredentialsSelfAssessmentUser(saUtr = saUtr),
+      NotEnrolledSelfAssessmentUser(saUtr = saUtr)
+    ).foreach { saType =>
+      s"return all expected cards when all toggles are enabled and user has no trusted helper incl sa and mdtit tiles for sa user type $saType" in {
+        setup
+
+        implicit val request: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+          saUser = saType,
+          request = FakeRequest()
+        )
+
+        val cards = homeCardGenerator.getIncomeCards.futureValue
+        cards.size mustBe 7
+        cards.map(_.toString).exists(_.contains("news-card")) mustBe true
+        cards.map(_.toString).exists(_.contains("paye-card")) mustBe true
+        cards.map(_.toString).exists(_.contains("mtdit-card")) mustBe true
+        cards.map(_.toString).exists(_.contains("sa-card")) mustBe true
+        cards.map(_.toString).exists(_.contains("tc1")) mustBe true
+        cards.map(_.toString).exists(_.contains("tc2")) mustBe true
+        cards.map(_.toString).exists(_.contains("ni-and-sp-card")) mustBe true
+      }
+    }
+
   }
 
   "return PAYE card pointing to PEGA when toggle is enabled and NINO matches the redirect list" in {

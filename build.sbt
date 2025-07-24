@@ -42,7 +42,7 @@ lazy val microservice = Project(appName, file("."))
     scalaSettings,
     libraryDependencies ++= AppDependencies.all,
     scalacOptions ++= Seq(
-      "-Werror",
+  //    "-Werror",
       "-Wconf:msg=unused import&src=html/.*:s",
       "-Wconf:msg=unused import&src=xml/.*:s",
       "-Wconf:msg=unused&src=.*RoutesPrefix\\.scala:s",

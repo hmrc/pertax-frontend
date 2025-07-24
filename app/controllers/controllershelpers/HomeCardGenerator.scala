@@ -58,15 +58,19 @@ class HomeCardGenerator @Inject() (
 
   def getIncomeCards(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
     val latestNewsCardOpt = getLatestNewsAndUpdatesCard()
-    val additionalCards   = getSelfAssessmentCards() ++ Seq(getNationalInsuranceCard())
 
-    for {
-      payeCard     <- getPayAsYouEarnCard
-      taxCalcCards <- getDynamicTaxCalcCards
-    } yield {
-      val staticCards = latestNewsCardOpt.toSeq :+ payeCard
-      staticCards ++ taxCalcCards ++ additionalCards
+    featureFlagService.get(MDTITAdvertToggle).flatMap { ff =>
+      val additionalCards = getSelfAssessmentCards(includeMDTITAdvert = ff.isEnabled) ++ Seq(getNationalInsuranceCard())
+
+      for {
+        payeCard     <- getPayAsYouEarnCard
+        taxCalcCards <- getDynamicTaxCalcCards
+      } yield {
+        val staticCards = latestNewsCardOpt.toSeq :+ payeCard
+        staticCards ++ taxCalcCards ++ additionalCards
+      }
     }
+
   }
 
   private def getDynamicTaxCalcCards(implicit request: UserRequest[_]): Future[Seq[Html]] =
@@ -108,7 +112,7 @@ class HomeCardGenerator @Inject() (
         None
     }
 
-  def getSelfAssessmentCards()(implicit
+  def getSelfAssessmentCards(includeMDTITAdvert: Boolean)(implicit
     messages: Messages,
     request: UserRequest[?]
   ): Seq[HtmlFormat.Appendable] = request.trustedHelper match {
@@ -119,14 +123,21 @@ class HomeCardGenerator @Inject() (
         request.isSa,
         configDecorator.pegaSaRegistrationEnabled
       ) match {
-        case (true, _, _)         => Seq(itsaMergeView((current.currentYear + 1).toString))
+        case (true, _, _)         =>
+          Seq(itsaMergeView((current.currentYear + 1).toString))
         case (false, true, _)     =>
           callAndContent
             .map { case (redirectUrl, paragraphMessageKey) =>
-              Seq(
-                saMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey),
-                mtditAdvertTileView()
-              )
+              if (includeMDTITAdvert) {
+                Seq(
+                  saMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey),
+                  mtditAdvertTileView()
+                )
+              } else {
+                Seq(
+                  saMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey)
+                )
+              }
             }
             .getOrElse(Nil)
         case (false, false, true) => Seq(selfAssessmentRegistrationView())
