@@ -491,6 +491,10 @@ label.making_tax_digital=Troi Treth yn Ddigidol
 label.mtdit.heading=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtdit.p1=Os ydych yn unig fasnachwr neu’n landlord, mae ffordd newydd o adrodd am eich incwm a’ch treuliau. Dysgwch ragor.
 
+label.mtdit.page.p1=Mae’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm yn ffordd newydd i unig fasnachwyr a landlordiaid roi gwybod i CThEF am incwm a threuliau.
+label.mtdit.page.p2=O 6 Ebrill 2026 ymlaen, mae’n rhaid i rai unig fasnachwyr a landlordiaid ei ddefnyddio, yn seiliedig ar gyfanswm eu hincwm blynyddol o hunangyflogaeth ac eiddo.
+label.mtdit.page.find_out_more=Dysgwch ragor ynghylch Troi Treth yn Ddigidol ar gyfer Treth Incwm a gweld a allwch gofrestru’n gynnar
+
 #
 # Breathing Space
 #

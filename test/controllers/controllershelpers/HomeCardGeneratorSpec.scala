@@ -337,7 +337,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           routes.InterstitialController.displaySelfAssessment.url,
           "label.viewAndManageSA"
         ),
-        mtditView(implicitly)
+        mtditView()
       )
     }
 
@@ -357,7 +357,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           routes.SelfAssessmentController.handleSelfAssessment.url,
           "label.activate_your_self_assessment"
         ),
-        mtditView(implicitly)
+        mtditView()
       )
     }
     "return PTA Card with link to self assessment when not enrolled user is an SA user but without ITSA enrolments" in {
@@ -376,7 +376,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           routes.SelfAssessmentController.redirectToEnrolForSa.url,
           "label.request_access_to_your_sa"
         ),
-        mtditView(implicitly)
+        mtditView()
       )
     }
 
@@ -433,7 +433,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           routes.SelfAssessmentController.handleSelfAssessment.url,
           "label.find_out_how_to_access_your_self_assessment"
         ),
-        mtditView(implicitly)
+        mtditView()
       )
     }
 

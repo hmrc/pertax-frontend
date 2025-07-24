@@ -125,7 +125,7 @@ class HomeCardGenerator @Inject() (
             .map { case (redirectUrl, paragraphMessageKey) =>
               Seq(
                 saMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey),
-                mtditView(implicitly)
+                mtditView()
               )
             }
             .getOrElse(Nil)

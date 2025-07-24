@@ -22,11 +22,11 @@ import connectors.TaiConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
+import models.*
 import models.TaxComponents.readsIsHICBCWithCharge
-import models._
 import models.admin.{BreathingSpaceIndicatorToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.Logging
-import play.api.mvc._
+import play.api.mvc.*
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
 import services.{CitizenDetailsService, SeissService}
@@ -34,10 +34,10 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.DateTimeTools._
+import util.DateTimeTools.*
 import util.{AlertBannerHelper, EnrolmentsHelper, FormPartialUpgrade}
 import viewmodels.AlertBannerViewModel
-import views.html.interstitial._
+import views.html.interstitial.*
 import views.html.selfassessment.Sa302InterruptView
 import views.html.{SelfAssessmentSummaryView, ShutteringView}
 
@@ -58,6 +58,7 @@ class InterstitialController @Inject() (
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewItsaMergePageView: ViewItsaMergePageView,
+  viewMTDITView: ViewMTDITView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
   shutteringView: ShutteringView,
   taxCreditsEndedInformationInterstitialView: TaxCreditsEndedInformationInterstitialView,
@@ -182,6 +183,18 @@ class InterstitialController @Inject() (
       }
     } else {
       errorRenderer.futureError(UNAUTHORIZED)
+    }
+  }
+
+  def displayMTDITPage: Action[AnyContent] = authenticate { implicit request =>
+    if (
+      enrolmentsHelper
+        .mtdEnrolmentStatus(request.enrolments)
+        .isEmpty && request.trustedHelper.isEmpty
+    ) {
+      Ok(viewMTDITView())
+    } else {
+      errorRenderer.error(UNAUTHORIZED)
     }
   }
 

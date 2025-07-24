@@ -19,7 +19,7 @@
 
 @this(p: P)
 
-@(implicit messages: play.api.i18n.Messages)
+@()(implicit messages: play.api.i18n.Messages)
 
 @cardContent = {
     @p(Text(messages("label.mtdit.p1")))
@@ -27,7 +27,7 @@
 
 @card(
     id = Some("mtdit-card"),
-    url = Some(controllers.routes.InterstitialController.displayItsaMergePage.url),
+    url = Some(controllers.routes.InterstitialController.displayMTDITPage.url),
     gaAction = Some("MTDIT"),
     gaLabel = Some("Making Tax Digital for Income Tax"),
     heading = messages("label.mtdit.heading"),
