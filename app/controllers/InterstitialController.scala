@@ -58,7 +58,7 @@ class InterstitialController @Inject() (
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewItsaMergePageView: ViewItsaMergePageView,
-  mtditPageView: MTDITPageView,
+  mtditAdvertPageView: MTDITAdvertPageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
   shutteringView: ShutteringView,
   taxCreditsEndedInformationInterstitialView: TaxCreditsEndedInformationInterstitialView,
@@ -187,7 +187,7 @@ class InterstitialController @Inject() (
   }
 
   def displayMTDITPage: Action[AnyContent] = authenticate { implicit request =>
-    Ok(mtditPageView())
+    Ok(mtditAdvertPageView())
   }
 
   def displaySelfAssessment: Action[AnyContent] = authenticate.async { implicit request =>

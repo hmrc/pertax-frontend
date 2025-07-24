@@ -47,7 +47,7 @@ class HomeCardGenerator @Inject() (
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
   itsaMergeView: ItsaMergeView,
   saMergeView: SaMergeView,
-  mtditView: MTDITView,
+  mtditAdvertTileView: MTDITAdvertTileView,
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig,
   nispView: NISPView,
@@ -125,7 +125,7 @@ class HomeCardGenerator @Inject() (
             .map { case (redirectUrl, paragraphMessageKey) =>
               Seq(
                 saMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey),
-                mtditView()
+                mtditAdvertTileView()
               )
             }
             .getOrElse(Nil)

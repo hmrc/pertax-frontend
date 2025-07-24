@@ -62,7 +62,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val taxSummaries                   = inject[TaxSummariesView]
   private val latestNewsAndUpdatesView       = inject[LatestNewsAndUpdatesView]
   private val saMergeView                    = inject[SaMergeView]
-  private val mtditView                      = inject[MTDITView]
+  private val mtditAdvertTileView            = inject[MTDITAdvertTileView]
   private val itsaMergeView                  = inject[ItsaMergeView]
   private val nispView                       = inject[NISPView]
   private val enrolmentsHelper               = inject[EnrolmentsHelper]
@@ -88,7 +88,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       latestNewsAndUpdatesView,
       itsaMergeView,
       saMergeView,
-      mtditView,
+      mtditAdvertTileView,
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,
@@ -283,7 +283,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         latestNewsAndUpdatesView,
         itsaMergeView,
         saMergeView,
-        mtditView,
+        mtditAdvertTileView,
         enrolmentsHelper,
         newsAndTilesConfig,
         nispView,
@@ -337,7 +337,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           routes.InterstitialController.displaySelfAssessment.url,
           "label.viewAndManageSA"
         ),
-        mtditView()
+        mtditAdvertTileView()
       )
     }
 
@@ -357,7 +357,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           routes.SelfAssessmentController.handleSelfAssessment.url,
           "label.activate_your_self_assessment"
         ),
-        mtditView()
+        mtditAdvertTileView()
       )
     }
     "return PTA Card with link to self assessment when not enrolled user is an SA user but without ITSA enrolments" in {
@@ -376,7 +376,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           routes.SelfAssessmentController.redirectToEnrolForSa.url,
           "label.request_access_to_your_sa"
         ),
-        mtditView()
+        mtditAdvertTileView()
       )
     }
 
@@ -433,7 +433,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           routes.SelfAssessmentController.handleSelfAssessment.url,
           "label.find_out_how_to_access_your_self_assessment"
         ),
-        mtditView()
+        mtditAdvertTileView()
       )
     }
 
@@ -546,7 +546,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       latestNewsAndUpdatesView,
       itsaMergeView,
       saMergeView,
-      mtditView,
+      mtditAdvertTileView,
       enrolmentsHelper,
       newsAndTilesConfig,
       nispView,

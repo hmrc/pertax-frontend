@@ -28,9 +28,9 @@ import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.DateTimeTools.current
 import views.html.ViewSpec
 
-class MTDIDPageViewSpec extends ViewSpec {
+class MTDITAdvertPageViewSpec extends ViewSpec {
 
-  lazy val mtditPageView: MTDITPageView = inject[MTDITPageView]
+  lazy val mtditAdvertPageView: MTDITAdvertPageView = inject[MTDITAdvertPageView]
 
   lazy implicit val configDecorator: ConfigDecorator            = mock[ConfigDecorator] // inject[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
@@ -55,12 +55,12 @@ class MTDIDPageViewSpec extends ViewSpec {
     reset(configDecorator)
   }
 
-  "Rendering MTDITPageView.scala.html" must {
+  "Rendering MTDITAdvertPageView.scala.html" must {
 
     "show content" in {
       val doc =
         asDocument(
-          mtditPageView(
+          mtditAdvertPageView(
           ).toString
         )
 
