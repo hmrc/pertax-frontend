@@ -187,15 +187,7 @@ class InterstitialController @Inject() (
   }
 
   def displayMTDITPage: Action[AnyContent] = authenticate { implicit request =>
-    if (
-      enrolmentsHelper
-        .mtdEnrolmentStatus(request.enrolments)
-        .isEmpty && request.trustedHelper.isEmpty
-    ) {
-      Ok(mtditPageView())
-    } else {
-      errorRenderer.error(UNAUTHORIZED)
-    }
+    Ok(mtditPageView())
   }
 
   def displaySelfAssessment: Action[AnyContent] = authenticate.async { implicit request =>
