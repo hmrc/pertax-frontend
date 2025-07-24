@@ -58,7 +58,7 @@ class InterstitialController @Inject() (
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewItsaMergePageView: ViewItsaMergePageView,
-  viewMTDITView: ViewMTDITView,
+  mtditPageView: MTDITPageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
   shutteringView: ShutteringView,
   taxCreditsEndedInformationInterstitialView: TaxCreditsEndedInformationInterstitialView,
@@ -192,7 +192,7 @@ class InterstitialController @Inject() (
         .mtdEnrolmentStatus(request.enrolments)
         .isEmpty && request.trustedHelper.isEmpty
     ) {
-      Ok(viewMTDITView())
+      Ok(mtditPageView())
     } else {
       errorRenderer.error(UNAUTHORIZED)
     }
