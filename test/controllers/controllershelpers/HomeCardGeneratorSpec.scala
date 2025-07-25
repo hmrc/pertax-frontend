@@ -568,6 +568,29 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     Seq(
+      NonFilerSelfAssessmentUser
+    ).foreach { saType =>
+      s"return all expected cards when all toggles are enabled: SA & MDTIT tiles should not be displayed for sa user type $saType" in {
+        setup
+
+        implicit val request: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+          saUser = saType,
+          request = FakeRequest()
+        )
+
+        val cards = homeCardGenerator.getIncomeCards.futureValue
+        cards.size mustBe 5
+        cards.map(_.toString).exists(_.contains("news-card")) mustBe true
+        cards.map(_.toString).exists(_.contains("paye-card")) mustBe true
+        cards.map(_.toString).exists(_.contains("mtdit-card")) mustBe false
+        cards.map(_.toString).exists(_.contains("sa-card")) mustBe false
+        cards.map(_.toString).exists(_.contains("tc1")) mustBe true
+        cards.map(_.toString).exists(_.contains("tc2")) mustBe true
+        cards.map(_.toString).exists(_.contains("ni-and-sp-card")) mustBe true
+      }
+    }
+
+    Seq(
       ActivatedOnlineFilerSelfAssessmentUser(saUtr = saUtr),
       NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr = saUtr),
       WrongCredentialsSelfAssessmentUser(saUtr = saUtr),
