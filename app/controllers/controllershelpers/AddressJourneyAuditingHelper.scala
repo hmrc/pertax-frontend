@@ -45,7 +45,7 @@ object AddressJourneyAuditingHelper {
     Map(
       s"${prefix}Line1"    -> Some(addressDto.line1),
       s"${prefix}Line2"    -> Some(addressDto.line2),
-      s"${prefix}Line3"    -> addressDto.line3,
+      s"${prefix}Line3"    -> Some(addressDto.line3),
       s"${prefix}Line4"    -> addressDto.line4,
       s"${prefix}Line5"    -> addressDto.line5,
       s"${prefix}Postcode" -> addressDto.postcode,
