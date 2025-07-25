@@ -494,6 +494,13 @@ label.online_deadline_final_declarations=The deadline for final declarations or 
 label.online_deadline_tax_returns=The deadline for tax returns is 31 January {0}.
 label.making_tax_digital=Making Tax Digital
 
+label.mtdit.heading=Making Tax Digital for Income Tax
+label.mtdit.p1=If you''re a sole trader or landlord, there''s a new way to report your income and expenses. Find out more.
+
+label.mtdit.page.p1=Making Tax Digital for Income Tax is a new way for sole traders and landlords to report income and expenses to HMRC.
+label.mtdit.page.p2=Some sole traders and landlords must use it from 6 April 2026, based on their total annual income from self-employment and property.
+label.mtdit.page.find_out_more=Find out more about Making Tax Digital for Income Tax and see if you can sign up early
+
 #
 # Breathing Space
 #

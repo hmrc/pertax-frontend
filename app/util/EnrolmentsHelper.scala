@@ -35,7 +35,7 @@ class EnrolmentsHelper @Inject() (internalServerErrorView: InternalServerErrorVi
     case _                 => throw new RuntimeException(s"Unexpected enrolment status of $value was returned")
   }
 
-  def itsaEnrolmentStatus(enrolments: Set[Enrolment]): Option[ItsaEnrolment] =
+  def mtdEnrolmentStatus(enrolments: Set[Enrolment]): Option[ItsaEnrolment] =
     enrolments
       .find(_.key == "HMRC-MTD-IT")
       .flatMap { enrolment =>

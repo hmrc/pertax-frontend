@@ -134,7 +134,7 @@ class EnrolmentsHelperSpec extends BaseSpec {
   "itsaEnrolmentStatus" when {
     "no sa enrolment is present" must {
       "returns None" in {
-        val result = sut.itsaEnrolmentStatus(
+        val result = sut.mtdEnrolmentStatus(
           Set(Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", nino.nino)), "Activated"))
         )
 
@@ -145,7 +145,7 @@ class EnrolmentsHelperSpec extends BaseSpec {
     List(Activated, NotYetActivated).foreach { status =>
       s"sa enrolment is present and is $status" must {
         "returns ItsaEnrolment status" in {
-          val result = sut.itsaEnrolmentStatus(
+          val result = sut.mtdEnrolmentStatus(
             Set(Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "id")), status.toString))
           )
 
@@ -157,7 +157,7 @@ class EnrolmentsHelperSpec extends BaseSpec {
     "sa enrolment is present and is invalid" must {
       "returns ItsaEnrolment status" in {
         val result = intercept[RuntimeException](
-          sut.itsaEnrolmentStatus(
+          sut.mtdEnrolmentStatus(
             Set(Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "id")), "invalidState"))
           )
         )

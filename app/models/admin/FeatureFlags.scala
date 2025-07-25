@@ -35,7 +35,8 @@ object AllFeatureFlags {
     VoluntaryContributionsAlertToggle,
     PeakDemandBannerToggle,
     GetPersonFromCitizenDetailsToggle,
-    PayeToPegaRedirectToggle
+    PayeToPegaRedirectToggle,
+    MDTITAdvertToggle
   )
 }
 
@@ -148,6 +149,15 @@ case object PayeToPegaRedirectToggle extends FeatureFlagName {
   override val name: String                         = "paye-pega-redirect-toggle"
   override val description: Option[String]          = Some(
     "Enable/disable redirecting PAYE tile traffic to PEGA. Used in conjunction of the config `paye.to.pega.redirect.list`"
+  )
+  override val lockedEnvironments: Seq[Environment] =
+    Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
+}
+
+case object MDTITAdvertToggle extends FeatureFlagName {
+  override val name: String                         = "mdt-it-advert-toggle"
+  override val description: Option[String]          = Some(
+    "Enable/disable Making Tax Digital for Income Tax Advertisement tile"
   )
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)

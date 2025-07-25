@@ -257,7 +257,7 @@ class MainViewSpec extends IntegrationSpec {
           assertContainsLink(
             doc,
             "Return to your account",
-            "http://localhost:9231/trusted-helpers/redirect-to-trusted-helpers"
+            "/return-url"
           )
         }
       }
