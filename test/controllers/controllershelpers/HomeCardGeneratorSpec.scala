@@ -99,6 +99,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   private lazy val homeCardGenerator = createHomeCardGenerator(stubConfigDecorator)
 
+  private val saUtr: SaUtr = SaUtr("test utr")
+
   "Calling getPayAsYouEarnCard" must {
     "return PAYE card pointing to TAI when toggle is disabled" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
@@ -503,7 +505,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "getIncomeCards" must {
-    def setup: OngoingStubbing[Future[Seq[SummaryCardPartial]]] = {
+    def setupForIncomeCards: OngoingStubbing[Future[Seq[SummaryCardPartial]]] = {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
@@ -523,24 +525,14 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         )
       )
     }
-    "return all expected cards when all toggles are enabled and user has no trusted helper" in {
-      setup
-      implicit val request: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        request = FakeRequest()
-      )
-
-      val cards = homeCardGenerator.getIncomeCards.futureValue
-      cards.size mustBe 5
+    def checkNonSAIncomeCardsPresent(cards: Seq[Html])                        = {
       cards.map(_.toString).exists(_.contains("news-card")) mustBe true
       cards.map(_.toString).exists(_.contains("paye-card")) mustBe true
-      cards.map(_.toString).exists(_.contains("mtdit-card")) mustBe false
       cards.map(_.toString).exists(_.contains("tc1")) mustBe true
       cards.map(_.toString).exists(_.contains("tc2")) mustBe true
       cards.map(_.toString).exists(_.contains("ni-and-sp-card")) mustBe true
     }
 
-    val saUtr: SaUtr = SaUtr("test utr")
     Seq(
       ActivatedOnlineFilerSelfAssessmentUser(saUtr = saUtr),
       NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr = saUtr),
@@ -548,46 +540,28 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       NotEnrolledSelfAssessmentUser(saUtr = saUtr)
     ).foreach { saType =>
       s"return all expected cards when all toggles are enabled: SA and MDTIT tiles should be displayed for sa user type $saType" in {
-        setup
-
-        implicit val request: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-          saUser = saType,
-          request = FakeRequest()
-        )
+        setupForIncomeCards
+        implicit val request: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(saUser = saType, request = FakeRequest())
 
         val cards = homeCardGenerator.getIncomeCards.futureValue
         cards.size mustBe 7
-        cards.map(_.toString).exists(_.contains("news-card")) mustBe true
-        cards.map(_.toString).exists(_.contains("paye-card")) mustBe true
+        checkNonSAIncomeCardsPresent(cards)
         cards.map(_.toString).exists(_.contains("mtdit-card")) mustBe true
         cards.map(_.toString).exists(_.contains("sa-card")) mustBe true
-        cards.map(_.toString).exists(_.contains("tc1")) mustBe true
-        cards.map(_.toString).exists(_.contains("tc2")) mustBe true
-        cards.map(_.toString).exists(_.contains("ni-and-sp-card")) mustBe true
       }
     }
 
-    Seq(
-      NonFilerSelfAssessmentUser
-    ).foreach { saType =>
-      s"return all expected cards when all toggles are enabled: SA & MDTIT tiles should not be displayed for sa user type $saType" in {
-        setup
+    s"return all expected cards when all toggles are enabled: SA & MDTIT tiles should not be displayed for sa user type $NonFilerSelfAssessmentUser" in {
+      setupForIncomeCards
+      implicit val request: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
 
-        implicit val request: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-          saUser = saType,
-          request = FakeRequest()
-        )
-
-        val cards = homeCardGenerator.getIncomeCards.futureValue
-        cards.size mustBe 5
-        cards.map(_.toString).exists(_.contains("news-card")) mustBe true
-        cards.map(_.toString).exists(_.contains("paye-card")) mustBe true
-        cards.map(_.toString).exists(_.contains("mtdit-card")) mustBe false
-        cards.map(_.toString).exists(_.contains("sa-card")) mustBe false
-        cards.map(_.toString).exists(_.contains("tc1")) mustBe true
-        cards.map(_.toString).exists(_.contains("tc2")) mustBe true
-        cards.map(_.toString).exists(_.contains("ni-and-sp-card")) mustBe true
-      }
+      val cards = homeCardGenerator.getIncomeCards.futureValue
+      cards.size mustBe 5
+      checkNonSAIncomeCardsPresent(cards)
+      cards.map(_.toString).exists(_.contains("mtdit-card")) mustBe false
+      cards.map(_.toString).exists(_.contains("sa-card")) mustBe false
     }
 
     Seq(
@@ -597,24 +571,18 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       NotEnrolledSelfAssessmentUser(saUtr = saUtr)
     ).foreach { saType =>
       s"return all expected cards when all toggles are enabled except for MDTITAdvertToggle: MDTIT tile for sa user type $saType should not be displayed" in {
-        setup
+        setupForIncomeCards
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(MDTITAdvertToggle)))
           .thenReturn(Future.successful(FeatureFlag(MDTITAdvertToggle, isEnabled = false)))
 
-        implicit val request: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-          saUser = saType,
-          request = FakeRequest()
-        )
+        implicit val request: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(saUser = saType, request = FakeRequest())
 
         val cards = homeCardGenerator.getIncomeCards.futureValue
         cards.size mustBe 6
-        cards.map(_.toString).exists(_.contains("news-card")) mustBe true
-        cards.map(_.toString).exists(_.contains("paye-card")) mustBe true
+        checkNonSAIncomeCardsPresent(cards)
         cards.map(_.toString).exists(_.contains("mtdit-card")) mustBe false
         cards.map(_.toString).exists(_.contains("sa-card")) mustBe true
-        cards.map(_.toString).exists(_.contains("tc1")) mustBe true
-        cards.map(_.toString).exists(_.contains("tc2")) mustBe true
-        cards.map(_.toString).exists(_.contains("ni-and-sp-card")) mustBe true
       }
     }
 
