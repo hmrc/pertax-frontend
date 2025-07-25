@@ -35,7 +35,8 @@ object AllFeatureFlags {
     VoluntaryContributionsAlertToggle,
     PeakDemandBannerToggle,
     GetPersonFromCitizenDetailsToggle,
-    PayeToPegaRedirectToggle
+    PayeToPegaRedirectToggle,
+    MDTITAdvertToggle
   )
 }
 

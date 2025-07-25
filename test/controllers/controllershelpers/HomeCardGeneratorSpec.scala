@@ -547,7 +547,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       WrongCredentialsSelfAssessmentUser(saUtr = saUtr),
       NotEnrolledSelfAssessmentUser(saUtr = saUtr)
     ).foreach { saType =>
-      s"return all expected cards when all toggles are enabled and user has no trusted helper incl sa and mdtit tiles for sa user type $saType" in {
+      s"return all expected cards when all toggles are enabled: SA and MDTIT tiles should be displayed for sa user type $saType" in {
         setup
 
         implicit val request: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
@@ -560,6 +560,34 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         cards.map(_.toString).exists(_.contains("news-card")) mustBe true
         cards.map(_.toString).exists(_.contains("paye-card")) mustBe true
         cards.map(_.toString).exists(_.contains("mtdit-card")) mustBe true
+        cards.map(_.toString).exists(_.contains("sa-card")) mustBe true
+        cards.map(_.toString).exists(_.contains("tc1")) mustBe true
+        cards.map(_.toString).exists(_.contains("tc2")) mustBe true
+        cards.map(_.toString).exists(_.contains("ni-and-sp-card")) mustBe true
+      }
+    }
+
+    Seq(
+      ActivatedOnlineFilerSelfAssessmentUser(saUtr = saUtr),
+      NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr = saUtr),
+      WrongCredentialsSelfAssessmentUser(saUtr = saUtr),
+      NotEnrolledSelfAssessmentUser(saUtr = saUtr)
+    ).foreach { saType =>
+      s"return all expected cards when all toggles are enabled except for MDTITAdvertToggle: MDTIT tile for sa user type $saType should not be displayed" in {
+        setup
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(MDTITAdvertToggle)))
+          .thenReturn(Future.successful(FeatureFlag(MDTITAdvertToggle, isEnabled = false)))
+
+        implicit val request: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+          saUser = saType,
+          request = FakeRequest()
+        )
+
+        val cards = homeCardGenerator.getIncomeCards.futureValue
+        cards.size mustBe 6
+        cards.map(_.toString).exists(_.contains("news-card")) mustBe true
+        cards.map(_.toString).exists(_.contains("paye-card")) mustBe true
+        cards.map(_.toString).exists(_.contains("mtdit-card")) mustBe false
         cards.map(_.toString).exists(_.contains("sa-card")) mustBe true
         cards.map(_.toString).exists(_.contains("tc1")) mustBe true
         cards.map(_.toString).exists(_.contains("tc2")) mustBe true
