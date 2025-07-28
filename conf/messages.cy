@@ -552,6 +552,8 @@ label.your_account=Eich Cyfrif
 label.messages=Negeseuon
 label.message=Neges
 
+label.messages.trusted_helpers.helpee=Ni allwch fwrw golwg dros negeseuon {0} fel ei Gynorthwyydd Dibynadwy 
+
 label.your_paperless_settings=eich gosodiadau di-bapur
 label.paperless_settings=Dewisiadau o ran cysylltu
 label.manage_your_paperless_settings=Rheoli’ch gosodiadau di-bapur
