@@ -241,7 +241,7 @@ class MainViewSpec extends IntegrationSpec {
 
         "a trusted helper is set in the request" in new LocalSetup {
           val principalName                                                      = "John Doe"
-          val url                                                                = "/return-url"
+          val url                                                                = "/trusted-helpers/redirect-to-trusted-helpers"
           val helper: TrustedHelper                                              = TrustedHelper(
             principalName,
             "Attorney name",
@@ -257,7 +257,7 @@ class MainViewSpec extends IntegrationSpec {
           assertContainsLink(
             doc,
             "Return to your account",
-            "http://localhost:9231/trusted-helpers/redirect-to-trusted-helpers"
+            url
           )
         }
       }
