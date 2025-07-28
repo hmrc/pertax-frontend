@@ -51,7 +51,7 @@ class MessageController @Inject() (
         case None     => messageFrontendService.getMessageListPartial
         case Some(th) =>
           Future.successful(
-            HtmlPartial.Success(Html(
+            HtmlPartial.Success(
               title = Some(Messages("label.messages")),
               content = Html(
                 s"""<h1 class="govuk-heading-xl">${Messages("label.messages")}</h1>

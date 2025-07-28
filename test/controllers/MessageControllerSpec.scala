@@ -21,19 +21,22 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.Mockito.*
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.play.partials.HtmlPartial
 
 import scala.concurrent.Future
+import scala.util.Random
 
 class MessageControllerSpec extends BaseSpec {
   val mockInterstitialController: InterstitialController = mock[InterstitialController]
@@ -86,6 +89,27 @@ class MessageControllerSpec extends BaseSpec {
       status(r) mustBe OK
       verify(mockMessageFrontendService, times(1)).getMessageListPartial(any())
       body must include("Message List")
+    }
+    "call messages and return 200 when called by a high GG user as trusted helper - display cannot view message" in {
+      val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
+
+      val trustedHelper: TrustedHelper = TrustedHelper("principal Name", "attorneyName", "returnLink", Some(nino.nino))
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              trustedHelper = Some(trustedHelper)
+            )
+          )
+      })
+
+      val r    = controller.messageList(FakeRequest())
+      val body = contentAsString(r)
+
+      status(r) mustBe OK
+      verify(mockMessageFrontendService, never).getMessageListPartial(any())
+      body must include("You cannot view principal Name’s messages as their Trusted Helper.")
     }
   }
 
