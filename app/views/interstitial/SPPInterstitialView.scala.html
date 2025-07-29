@@ -1,0 +1,68 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.SelectSABPPPaymentModel
+@import play.api.i18n.Messages
+@import controllers.SaBppInterstitialPageController
+@import views.html.components.{ErrorSummary, InputRadios}
+@import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+@import helper._
+@import controllers.routes
+@import views.MainView
+@import controllers.auth.requests.UserRequest
+
+@this(
+    form: FormWithCSRF,
+    mainTemplate: MainView,
+    errorSummary: ErrorSummary,
+    inputRadios: InputRadios
+)
+
+@(formSaPaymentSelect: Form[SelectSABPPPaymentModel], origin: String)(implicit messages: Messages, request: UserRequest[_])
+
+@mainTemplate(
+    pageTitle = messages("sa.message.selectSABPPPaymentType.title")
+) {
+
+    @errorSummary(formSaPaymentSelect, Some("saBppWhatPaymentType-saBppOverduePayment"))
+
+@form(routes.SaBppInterstitialPageController.onSubmit(origin)) {
+    @inputRadios(
+        form = formSaPaymentSelect,
+        legend = messages("sa.message.selectSABPPPaymentType.title"),
+        name = "saBppWhatPaymentType",
+        items = Seq(
+            RadioItem(
+                content = Text(messages("sa.message.selectSABPPPaymentType.saBppOverduePayment")),
+                id = Some("radio-saBppOverduePayment"),
+                value = Some("saBppOverduePayment"),
+                checked = formSaPaymentSelect("saBppWhatPaymentType").value.contains("saBppOverduePayment")
+            ),
+            RadioItem(
+                content = Text(messages("sa.message.selectSABPPPaymentType.saBppAdvancePayment")),
+                id = Some("radio-saBppAdvancePayment"),
+                value = Some("saBppAdvancePayment"),
+                checked = formSaPaymentSelect("saBppWhatPaymentType").value.contains("saBppAdvancePayment")
+            )
+        )
+    )
+
+    <button id="continue-button" type="submit" class="govuk-button" data-module="govuk-button">
+        @messages("global.label.continue_button")
+    </button>
+}
+
+}
