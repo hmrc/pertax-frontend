@@ -22,11 +22,11 @@ import connectors.TaiConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
+import models.*
 import models.TaxComponents.readsIsHICBCWithCharge
-import models._
 import models.admin.{BreathingSpaceIndicatorToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.Logging
-import play.api.mvc._
+import play.api.mvc.*
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
 import services.{CitizenDetailsService, SeissService}
@@ -37,7 +37,7 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import util.DateTimeTools._
 import util.{AlertBannerHelper, EnrolmentsHelper}
 import viewmodels.AlertBannerViewModel
-import views.html.interstitial._
+import views.html.interstitial.*
 import views.html.selfassessment.Sa302InterruptView
 import views.html.{SelfAssessmentSummaryView, ShutteringView}
 
@@ -58,6 +58,7 @@ class InterstitialController @Inject() (
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewItsaMergePageView: ViewItsaMergePageView,
+  mtditAdvertPageView: MTDITAdvertPageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
   shutteringView: ShutteringView,
   taxCreditsEndedInformationInterstitialView: TaxCreditsEndedInformationInterstitialView,
@@ -147,7 +148,7 @@ class InterstitialController @Inject() (
 
   def displaySaRegistrationPage: Action[AnyContent] = authenticate { implicit request =>
     val isHelperOrEnrolledOrSa = request.trustedHelper.isDefined || enrolmentsHelper
-      .itsaEnrolmentStatus(request.enrolments)
+      .mtdEnrolmentStatus(request.enrolments)
       .isDefined || request.isSa
     if (isHelperOrEnrolledOrSa || !configDecorator.pegaSaRegistrationEnabled) {
       // Temporarily restricting access based on pegaEnabled, this condition can be removed in future
@@ -161,7 +162,7 @@ class InterstitialController @Inject() (
     val saUserType = request.saUserType
     if (
       enrolmentsHelper
-        .itsaEnrolmentStatus(request.enrolments)
+        .mtdEnrolmentStatus(request.enrolments)
         .isDefined && request.trustedHelper.isEmpty && request.isSa
     ) {
       seissService.hasClaims(saUserType).map { hasSeissClaims =>
@@ -176,6 +177,10 @@ class InterstitialController @Inject() (
     } else {
       errorRenderer.futureError(UNAUTHORIZED)
     }
+  }
+
+  def displayMTDITPage: Action[AnyContent] = authenticate { implicit request =>
+    Ok(mtditAdvertPageView())
   }
 
   def displaySelfAssessment: Action[AnyContent] = authenticate.async { implicit request =>
