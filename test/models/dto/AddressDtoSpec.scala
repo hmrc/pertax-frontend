@@ -271,34 +271,6 @@ class AddressDtoSpec extends BaseSpec {
         )
     }
 
-    "move line 4 data to line 3 if line 3 is empty" in {
-
-      val formData = Map(
-        "line1"    -> "Line 1",
-        "line2"    -> "Line 2",
-        "line3"    -> "",
-        "line4"    -> "Line 4",
-        "postcode" -> "AA1 1AA"
-      )
-
-      AddressDto.ukForm
-        .bind(formData)
-        .fold(
-          _ => fail("Form should not contain any errors"),
-          success => {
-            success
-              .toAddress("Residential", LocalDate.now().minusDays(1))
-              .line3
-              .nonEmpty mustBe true
-
-            success
-              .toAddress("Residential", LocalDate.now().minusDays(1))
-              .line4
-              .isEmpty mustBe true
-          }
-        )
-    }
-
     "return an error when more than 35 characters entered in line 4" in {
 
       val formData = Map(
@@ -388,7 +360,7 @@ class AddressDtoSpec extends BaseSpec {
       val formData = Map(
         "line1"   -> "Line 1",
         "line2"   -> "Line 2",
-        "line3"   -> "",
+        "line3"   -> "Line 3",
         "line4"   -> "",
         "line5"   -> "",
         "country" -> "Gibraltar",
@@ -408,7 +380,7 @@ class AddressDtoSpec extends BaseSpec {
       val formData = Map(
         "line1"   -> "A-Za-z0-9&',-./",
         "line2"   -> "Line 2",
-        "line3"   -> "",
+        "line3"   -> "Line 3",
         "line4"   -> "",
         "line5"   -> "",
         "country" -> "Gibraltar",
@@ -707,6 +679,7 @@ class AddressDtoSpec extends BaseSpec {
       val formData = Map(
         "line1"   -> "Line 1",
         "line2"   -> "Line 2",
+        "line3"   -> "Line 3",
         "country" -> ""
       )
       AddressDto.internationalForm
