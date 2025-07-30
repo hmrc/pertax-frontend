@@ -20,26 +20,20 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import play.api.Logging
-import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, RequestHeader}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.interstitial.SPPInterstitialView
 import models.SelectSABPPPaymentFormProvider
-
-import scala.concurrent.ExecutionContext
 
 class SaBppInterstitialPageController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
-  view: SPPInterstitialView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends PertaxBaseController(cc)
+  view: SPPInterstitialView,
+  appConfig: ConfigDecorator
+) extends PertaxBaseController(cc)
     with Logging {
 
   def onPageLoad(isBta: String): Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
-    val origin: String = isBta match {
-      case "true" => "bta-sa"
-      case _      => "pta-sa"
-    }
+    val origin: String = "pta-sa"
     Ok(
       view(SelectSABPPPaymentFormProvider.form, origin)
     )
@@ -53,15 +47,13 @@ class SaBppInterstitialPageController @Inject() (
         success =>
           success.saBppWhatPaymentType match {
             case Some(SelectSABPPPaymentFormProvider.saBppOverduePayment) =>
-              if (isEnabled(SaBppSstpNewUrlFeature)(appConfig))
-                Redirect(
-                  controllers.routes.SsttpController
-                    .routeToSsTttpService(SaBppInterstitialPageFormKeys.saBppOverduePayment, origin)
-                )
-              else
-                Redirect(s"${externalUrlConfig.getGovUrl("sa.bppSpreadTheCostOverduePaymentUrl")}?origin=$origin")
+              Redirect(
+                s"${appConfig.bppSpreadTheCostOverduePaymentUrl}?origin=$origin"
+              )
             case Some(SelectSABPPPaymentFormProvider.saBppAdvancePayment) =>
-              Redirect(s"${appConfig.bppSpreadTheCostAdvancePaymentUrl(origin, messages.lang.code)}")
+              Redirect(
+                s"${appConfig.bppSpreadTheCostAdvancePaymentUrl}?origin=$origin&lang=${messagesApi.preferred(request).lang.code}"
+              )
             case _                                                        => throw new IllegalArgumentException("No form option is selected. Empty value for form.")
           }
       )

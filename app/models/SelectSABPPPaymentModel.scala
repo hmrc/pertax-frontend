@@ -23,6 +23,12 @@ import play.api.libs.json.{Json, OFormat}
 
 final case class SelectSABPPPaymentModel(saBppWhatPaymentType: Option[String])
 
+object SelectSABPPPaymentModel {
+  def unapply(selectSABPPPaymentModel: SelectSABPPPaymentModel): Option[Option[String]] = Some(
+    selectSABPPPaymentModel.saBppWhatPaymentType
+  )
+}
+
 object SelectSABPPPaymentFormProvider {
 
   val saBppOverduePayment = "saBppOverduePayment"
@@ -41,7 +47,7 @@ object SelectSABPPPaymentFormProvider {
       )(SelectSABPPPaymentModel.apply)(SelectSABPPPaymentModel.unapply)
     )
 
-  def answerFieldValidator(implicit messages: Messages): Mapping[Option[String]] =
+  private def answerFieldValidator(implicit messages: Messages): Mapping[Option[String]] =
     optional(text).verifying(
       messages("sa.message.selectSABPPPaymentType.error.required"),
       data => data.fold(false)(answers.contains)
