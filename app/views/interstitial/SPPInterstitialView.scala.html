@@ -37,32 +37,32 @@
     pageTitle = messages("sa.message.selectSABPPPaymentType.title")
 ) {
 
-    @errorSummary(formSaPaymentSelect, Some("saBppWhatPaymentType-saBppOverduePayment"))
+    @errorSummary(formSaPaymentSelect, Some("radio-saBppOverduePayment"))
 
-@form(routes.SaBppInterstitialPageController.onSubmit(origin)) {
-    @inputRadios(
-        form = formSaPaymentSelect,
-        legend = messages("sa.message.selectSABPPPaymentType.title"),
-        name = "saBppWhatPaymentType",
-        items = Seq(
-            RadioItem(
-                content = Text(messages("sa.message.selectSABPPPaymentType.saBppOverduePayment")),
-                id = Some("radio-saBppOverduePayment"),
-                value = Some("saBppOverduePayment"),
-                checked = formSaPaymentSelect("saBppWhatPaymentType").value.contains("saBppOverduePayment")
-            ),
-            RadioItem(
-                content = Text(messages("sa.message.selectSABPPPaymentType.saBppAdvancePayment")),
-                id = Some("radio-saBppAdvancePayment"),
-                value = Some("saBppAdvancePayment"),
-                checked = formSaPaymentSelect("saBppWhatPaymentType").value.contains("saBppAdvancePayment")
+    @form(routes.SaBppInterstitialPageController.onSubmit(origin)) {
+        @inputRadios(
+            form = formSaPaymentSelect,
+            legend = messages("sa.message.selectSABPPPaymentType.title"),
+            name = "saBppWhatPaymentType",
+            items = Seq(
+                RadioItem(
+                    content = Text(messages("sa.message.selectSABPPPaymentType.saBppOverduePayment")),
+                    id = Some("radio-saBppOverduePayment"),
+                    value = Some("saBppOverduePayment"),
+                    checked = formSaPaymentSelect("saBppWhatPaymentType").value.contains("saBppOverduePayment")
+                ),
+                RadioItem(
+                    content = Text(messages("sa.message.selectSABPPPaymentType.saBppAdvancePayment")),
+                    id = Some("radio-saBppAdvancePayment"),
+                    value = Some("saBppAdvancePayment"),
+                    checked = formSaPaymentSelect("saBppWhatPaymentType").value.contains("saBppAdvancePayment")
+                )
             )
         )
-    )
 
-    <button id="continue-button" type="submit" class="govuk-button" data-module="govuk-button">
-        @messages("global.label.continue_button")
-    </button>
-}
+        <button id="continue-button" type="submit" class="govuk-button" data-module="govuk-button">
+            @messages("global.label.continue_button")
+        </button>
+    }
 
 }

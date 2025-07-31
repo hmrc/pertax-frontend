@@ -821,6 +821,8 @@ callback_contact_notification=anfon neges destun atoch 1 diwrnod cyn i ni ffonio
 callback_preparation=Sicrhewch fod gennych eich rhif Yswiriant Gwladol wrth law pan fyddwn yn eich ffonio.
 return_to_national_insurance=Yn ôl i’ch Yswiriant Gwladol a’ch Pensiwn y Wladwriaeth
 
+
+head.sa.message.selectSABPPPaymentType.error.required=Dewiswch sut yr hoffech ledaenu cost eich Hunanasesiad
 sa.message.selectSABPPPaymentType.title=Defnyddio Debyd Uniongyrchol i ledaenu cost eich Hunanasesiad
 sa.message.selectSABPPPaymentType.saBppOverduePayment=Talu bil Hunanasesiad sy’n orddyledus
 sa.message.selectSABPPPaymentType.saBppAdvancePayment=Talu fy mil Hunanasesiad nesaf ymlaen llaw

@@ -87,7 +87,7 @@ class SaBppInterstitialPageControllerSpec extends BaseSpec {
         status(result) mustBe SEE_OTHER
         redirectLocation(
           result
-        ).get mustBe "https://www.tax.service.gov.uk/pay-what-you-owe-in-instalments?origin=bta-sa"
+        ).get mustBe "http://localhost:9063/pay-what-you-owe-in-instalments?origin=bta-sa"
 
       }
     }
@@ -144,7 +144,7 @@ class SaBppInterstitialPageControllerSpec extends BaseSpec {
         status(result) mustBe SEE_OTHER
         redirectLocation(
           result
-        ).get mustBe "https://www.tax.service.gov.uk/pay-what-you-owe-in-instalments?origin=pta-sa"
+        ).get mustBe "http://localhost:9063/pay-what-you-owe-in-instalments?origin=pta-sa"
 
       }
     }

@@ -33,7 +33,10 @@ class SaBppInterstitialPageController @Inject() (
     with Logging {
 
   def onPageLoad(isBta: String): Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
-    val origin: String = "pta-sa"
+    val origin: String = isBta match {
+      case "true" => "bta-sa"
+      case _      => "pta-sa"
+    }
     Ok(
       view(SelectSABPPPaymentFormProvider.form, origin)
     )
