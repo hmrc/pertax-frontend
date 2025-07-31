@@ -48,20 +48,19 @@ class SaBppInterstitialPageControllerSpec extends BaseSpec {
       "return a sa bpp interstitial page view with parameter pta-sa" in {
 
         val result: Future[Result] =
-          TestSaBppInterstitialPageController.onPageLoad("false")(fakeRequest)
+          TestSaBppInterstitialPageController.onPageLoad(fakeRequest)
         status(result) mustBe OK
 
         contentAsString(result) must include("Spread the cost of your Self Assessment with a Direct Debit")
         contentAsString(result) must include("Pay an overdue Self Assessment bill")
         contentAsString(result) must include("Pay my next Self Assessment bill in advance")
-        contentAsString(result) must include("origin=pta-sa")
       }
     }
 
     "saBppInterstitialPageController.onSubmit called with form parameters - empty" must {
       "return same page with error message" in {
 
-        val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit("true")(
+        val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit(
           FakeRequest()
             .withFormUrlEncodedBody()
             .withMethod("POST")
@@ -73,50 +72,12 @@ class SaBppInterstitialPageControllerSpec extends BaseSpec {
       }
     }
 
-    "saBppInterstitialPageController.onSubmit called with form parameters - saBppOverduePayment " must {
-      "return SA BPP redirect url for overdue payment" in {
-
-        val answer: (String, String) = "saBppWhatPaymentType" -> "saBppOverduePayment"
-
-        val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit("bta-sa")(
-          FakeRequest()
-            .withFormUrlEncodedBody(answer)
-            .withMethod("POST")
-        )
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(
-          result
-        ).get mustBe "http://localhost:9063/pay-what-you-owe-in-instalments?origin=bta-sa"
-
-      }
-    }
-
-    "saBppInterstitialPageController.onSubmit called with form parameters - saBppAdvancePayment " must {
-      "return SA BPP redirect url for advance payment" in {
-
-        val answer: (String, String) = "saBppWhatPaymentType" -> "saBppAdvancePayment"
-
-        val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit("bta-sa")(
-          FakeRequest()
-            .withFormUrlEncodedBody(answer)
-            .withMethod("POST")
-        )
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(
-          result
-        ).get mustBe "https://www.gov.uk/pay-self-assessment-tax-bill/pay-weekly-monthly?origin=bta-sa&lang=en"
-
-      }
-    }
-
     "saBppInterstitialPageController.onSubmit called with form parameters - saBppAdvancePayment and pta origin" must {
       "return SA BPP redirect url for advance payment pta-origin" in {
 
         val answer: (String, String) = "saBppWhatPaymentType" -> "saBppAdvancePayment"
 
-        val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit("pta-sa")(
+        val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit(
           FakeRequest()
             .withFormUrlEncodedBody(answer)
             .withMethod("POST")
@@ -135,7 +96,7 @@ class SaBppInterstitialPageControllerSpec extends BaseSpec {
 
         val answer: (String, String) = "saBppWhatPaymentType" -> "saBppOverduePayment"
 
-        val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit("pta-sa")(
+        val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit(
           FakeRequest()
             .withFormUrlEncodedBody(answer)
             .withMethod("POST")

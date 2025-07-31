@@ -17,7 +17,7 @@
 @import models.SelectSABPPPaymentModel
 @import play.api.i18n.Messages
 @import controllers.SaBppInterstitialPageController
-@import views.html.components.{ErrorSummary, InputRadios}
+@import views.html.components.{Button, ErrorSummary, InputRadios}
 @import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 @import helper._
 @import controllers.routes
@@ -27,11 +27,12 @@
 @this(
     form: FormWithCSRF,
     mainTemplate: MainView,
+    button: Button,
     errorSummary: ErrorSummary,
     inputRadios: InputRadios
 )
 
-@(formSaPaymentSelect: Form[SelectSABPPPaymentModel], origin: String)(implicit messages: Messages, request: UserRequest[_])
+@(formSaPaymentSelect: Form[SelectSABPPPaymentModel])(implicit messages: Messages, request: UserRequest[_])
 
 @mainTemplate(
     pageTitle = messages("sa.message.selectSABPPPaymentType.title")
@@ -39,7 +40,7 @@
 
     @errorSummary(formSaPaymentSelect, Some("radio-saBppOverduePayment"))
 
-    @form(routes.SaBppInterstitialPageController.onSubmit(origin)) {
+    @form(routes.SaBppInterstitialPageController.onSubmit) {
         @inputRadios(
             form = formSaPaymentSelect,
             legend = messages("sa.message.selectSABPPPaymentType.title"),
@@ -60,9 +61,10 @@
             )
         )
 
-        <button id="continue-button" type="submit" class="govuk-button" data-module="govuk-button">
-            @messages("global.label.continue_button")
-        </button>
+        @button(
+            msg = "global.label.continue_button",
+            id = "continue-button"
+        )
     }
 
 }

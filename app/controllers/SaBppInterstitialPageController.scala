@@ -23,6 +23,7 @@ import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.interstitial.SPPInterstitialView
 import models.SelectSABPPPaymentFormProvider
+import play.api.data.FormError
 
 class SaBppInterstitialPageController @Inject() (
   authJourney: AuthJourney,
@@ -32,21 +33,18 @@ class SaBppInterstitialPageController @Inject() (
 ) extends PertaxBaseController(cc)
     with Logging {
 
-  def onPageLoad(isBta: String): Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
-    val origin: String = isBta match {
-      case "true" => "bta-sa"
-      case _      => "pta-sa"
-    }
+  def onPageLoad: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
     Ok(
-      view(SelectSABPPPaymentFormProvider.form, origin)
+      view(SelectSABPPPaymentFormProvider.form)
     )
   }
 
-  def onSubmit(origin: String): Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
+  def onSubmit: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
+    val origin = "pta-sa"
     SelectSABPPPaymentFormProvider.form
       .bindFromRequest()
       .fold(
-        hasErrors => BadRequest(view(hasErrors, origin)),
+        hasErrors => BadRequest(view(hasErrors)),
         success =>
           success.saBppWhatPaymentType match {
             case Some(SelectSABPPPaymentFormProvider.saBppOverduePayment) =>
@@ -57,7 +55,13 @@ class SaBppInterstitialPageController @Inject() (
               Redirect(
                 s"${appConfig.bppSpreadTheCostAdvancePaymentUrl}?origin=$origin&lang=${messagesApi.preferred(request).lang.code}"
               )
-            case _                                                        => throw new IllegalArgumentException("No form option is selected. Empty value for form.")
+            case _                                                        =>
+              BadRequest(
+                view(
+                  SelectSABPPPaymentFormProvider.form
+                    .withError(FormError("saBppWhatPaymentType", "sa.message.selectSABPPPaymentType.error.required"))
+                )
+              )
           }
       )
   }
