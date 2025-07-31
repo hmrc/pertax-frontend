@@ -1,5 +1,5 @@
-/*
- * Copyright 2025 HM Revenue & Customs
+@*
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,4 +12,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
+
+@import tags._
+@import components.P
+
+@this(p: P)
+
+@()(implicit messages: play.api.i18n.Messages)
+
+@cardContent = {
+    @p(Text(messages("label.mtdit.p1")))
+}
+
+@card(
+    id = Some("mtdit-card"),
+    url = Some(controllers.routes.InterstitialController.displayMTDITPage.url),
+    gaAction = Some("MTDIT"),
+    gaLabel = Some("Making Tax Digital for Income Tax"),
+    heading = messages("label.mtdit.heading"),
+    headingTag = "h2",
+    bodyContent = Some(cardContent)
+) {
+}
