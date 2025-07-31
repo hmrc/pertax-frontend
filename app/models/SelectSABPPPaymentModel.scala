@@ -47,9 +47,9 @@ object SelectSABPPPaymentFormProvider {
       )(SelectSABPPPaymentModel.apply)(SelectSABPPPaymentModel.unapply)
     )
 
-  private def answerFieldValidator(implicit messages: Messages): Mapping[Option[String]] =
+  private def answerFieldValidator: Mapping[Option[String]] =
     optional(text).verifying(
-      messages("sa.message.selectSABPPPaymentType.error.required"),
+      "sa.message.selectSABPPPaymentType.error.required",
       data => data.fold(false)(answers.contains)
     )
 
