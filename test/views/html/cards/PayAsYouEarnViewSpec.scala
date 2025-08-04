@@ -25,6 +25,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import repositories.JourneyCacheRepository
 import testUtils.UserRequestFixture.buildUserRequest
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import views.html.ViewSpec
 import views.html.cards.home.PayAsYouEarnView
@@ -93,6 +94,24 @@ class PayAsYouEarnViewSpec extends ViewSpec {
         .getElementById("paye-card")
         .getElementsByClass("card-link")
         .attr("href") mustBe "http://paye-to-pega-redirect-url"
+    }
+    "point to check-income-tax when toggle is ON and NINO matches but user helping (trusted helpers)" in {
+      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
+
+      val nino                                             = "AA000055A"
+      val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          request = FakeRequest(),
+          authNino = Nino(nino),
+          trustedHelper = Some(TrustedHelper("", "", "", Some(nino)))
+        )
+
+      val doc = asDocument(payAsYouEarnView(shouldUsePegaRouting = true)(implicitly, userRequest).toString)
+
+      doc
+        .getElementById("paye-card")
+        .getElementsByClass("card-link")
+        .attr("href") mustBe "/check-income-tax/what-do-you-want-to-do"
     }
   }
 }
