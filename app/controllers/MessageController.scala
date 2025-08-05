@@ -18,7 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.auth._
+import controllers.auth.*
 import models.Breadcrumb
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -27,7 +27,7 @@ import services.partials.MessageFrontendService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import views.html.message.{MessageDetailView, MessageInboxView}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class MessageController @Inject() (
   val messageFrontendService: MessageFrontendService,
@@ -46,7 +46,25 @@ class MessageController @Inject() (
   def messageList: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
-      messageFrontendService.getMessageListPartial map { (p: HtmlPartial) =>
+
+      val futurePartial = request.trustedHelper match {
+        case None     => messageFrontendService.getMessageListPartial
+        case Some(th) =>
+          Future.successful(
+            HtmlPartial.Success(
+              title = Some(Messages("label.messages")),
+              content = Html(
+                s"""<h1 class="govuk-heading-xl">${Messages("label.messages")}</h1>
+                   |<p class="govuk-body govuk-!-margin-bottom-3">${Messages(
+                    "label.messages.trusted_helpers.helpee",
+                    th.principalName
+                  )}</p>""".stripMargin
+              )
+            )
+          )
+      }
+
+      futurePartial map { (p: HtmlPartial) =>
         Ok(
           messageInboxView(
             messageListPartial = p successfulContentOrElse Html(
