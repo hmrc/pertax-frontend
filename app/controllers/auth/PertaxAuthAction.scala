@@ -25,13 +25,15 @@ import views.html.InternalServerErrorView
 import play.api.Logging
 import play.api.http.Status.UNAUTHORIZED
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.{AbsoluteWithHostnameFromAllowlist, OnlyRelative, RedirectUrl, SafeRedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.partials.HtmlPartial
 
+import java.net.URLEncoder
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -61,7 +63,13 @@ class PertaxAuthAction @Inject() (
       case Right(PertaxResponse("ACCESS_GRANTED", _, _, _))                                      =>
         Future.successful(None)
       case Right(PertaxResponse("NO_HMRC_PT_ENROLMENT", _, _, Some(redirect)))                   =>
-        Future.successful(Some(Redirect(s"$redirect?redirectUrl=${SafeRedirectUrl(request.uri).encodedUrl}")))
+        val redirectUrl = RedirectUrl(request.uri).getEither(
+          OnlyRelative | AbsoluteWithHostnameFromAllowlist("localhost")
+        ) match {
+          case Right(safeRedirectUrl) => URLEncoder.encode(safeRedirectUrl.url, "UTF-8")
+          case Left(error)            => throw new IllegalArgumentException(error)
+        }
+        Future.successful(Some(Redirect(s"$redirect?redirectUrl=$redirectUrl")))
       case Right(PertaxResponse("CONFIDENCE_LEVEL_UPLIFT_REQUIRED", _, _, Some(upliftRedirect))) =>
         Future.successful(Some(upliftJourney(request, upliftRedirect)))
       case Right(PertaxResponse("CREDENTIAL_STRENGTH_UPLIFT_REQUIRED", _, _, Some(_)))           =>
