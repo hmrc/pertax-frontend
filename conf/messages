@@ -817,3 +817,10 @@ callback_contact_timing=contact you within 8 weeks
 callback_contact_notification=text you 1 day before we call
 callback_preparation=Have your National Insurance number ready when we call.
 return_to_national_insurance=Return to your National Insurance and State Pension
+
+
+head.sa.message.selectSABPPPaymentType.error.required=Select how you want to spread the cost of your Self Assessment
+sa.message.selectSABPPPaymentType.title=Spread the cost of your Self Assessment with a Direct Debit
+sa.message.selectSABPPPaymentType.saBppOverduePayment=Pay an overdue Self Assessment bill
+sa.message.selectSABPPPaymentType.saBppAdvancePayment=Pay my next Self Assessment bill in advance
+sa.message.selectSABPPPaymentType.error.required=Select how you want to spread the cost of your Self Assessment
