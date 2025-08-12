@@ -114,7 +114,8 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
         ),
         PtaMinMenuConfig("MenuName", "BackName"),
         List.empty[UrBanner],
-        List.empty[Webchat]
+        List.empty[Webchat],
+        Some(messageCount)
       )
     )
     .toString
@@ -198,12 +199,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       "render the correct title" in {
         server.stubFor(
           WireMock
-            .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-            .willReturn(ok(s"$messageCount"))
-        )
-
-        server.stubFor(
-          WireMock
             .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
             .willReturn(ok(wrapperDataResponse))
         )
@@ -213,12 +208,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
       }
 
       "render the welsh language toggle" in {
-        server.stubFor(
-          WireMock
-            .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-            .willReturn(ok(s"$messageCount"))
-        )
-
         server.stubFor(
           WireMock
             .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
@@ -233,12 +222,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
         "render the Account home button" in {
           server.stubFor(
             WireMock
-              .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-              .willReturn(ok(s"$messageCount"))
-          )
-
-          server.stubFor(
-            WireMock
               .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
               .willReturn(ok(wrapperDataResponse))
           )
@@ -249,12 +232,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
         }
 
         "render the Messages link" in {
-          server.stubFor(
-            WireMock
-              .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-              .willReturn(ok(s"$messageCount"))
-          )
-
           server.stubFor(
             WireMock
               .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
@@ -271,12 +248,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
           "unread message count is populated in the request" in {
             server.stubFor(
               WireMock
-                .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-                .willReturn(ok(s"$messageCount"))
-            )
-
-            server.stubFor(
-              WireMock
                 .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
                 .willReturn(ok(wrapperDataResponse))
             )
@@ -285,18 +256,11 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
             contentAsString(result) must include(s"""<span class="hmrc-notification-badge">$messageCount</span>""")
 
             server.verify(0, getRequestedFor(urlEqualTo("/messages/count?read=No")))
-            server.verify(1, getRequestedFor(urlMatching("/single-customer-account-wrapper-data/message-data.*")))
             server.verify(1, getRequestedFor(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*")))
           }
         }
 
         "render the Check progress link" in {
-          server.stubFor(
-            WireMock
-              .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-              .willReturn(ok(s"$messageCount"))
-          )
-
           server.stubFor(
             WireMock
               .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
@@ -309,12 +273,6 @@ class HomeControllerScaISpec extends IntegrationSpec with MockitoSugar {
         }
 
         "render the Your Profile link" in {
-          server.stubFor(
-            WireMock
-              .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-              .willReturn(ok(s"$messageCount"))
-          )
-
           server.stubFor(
             WireMock
               .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))

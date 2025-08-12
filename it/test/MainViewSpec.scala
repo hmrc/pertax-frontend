@@ -102,19 +102,13 @@ class MainViewSpec extends IntegrationSpec {
         ),
         PtaMinMenuConfig("MenuName", "BackName"),
         List.empty[UrBanner],
-        List.empty[Webchat]
+        List.empty[Webchat],
+        None
       )
     )
     .toString
 
   trait LocalSetup {
-
-    server.stubFor(
-      WireMock
-        .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-        .willReturn(ok(s"""{"count": 0}"""))
-    )
-
     server.stubFor(
       WireMock
         .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))

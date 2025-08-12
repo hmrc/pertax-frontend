@@ -63,7 +63,8 @@ class HomeControllerWebChatISpec extends IntegrationSpec {
         )
     )
     when(mockWebChatClient.loadRequiredElements()(any())).thenReturn(Some(Html("loadRequiredElements")))
-    when(mockWebChatClient.loadHMRCChatSkinElement(any())(any())).thenReturn(Some(Html("loadHMRCChatSkinElement")))
+    when(mockWebChatClient.loadHMRCChatSkinElement(any(), any())(any()))
+      .thenReturn(Some(Html("loadHMRCChatSkinElement")))
   }
 
   "personal account page" must {

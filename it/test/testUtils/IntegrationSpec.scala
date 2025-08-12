@@ -374,9 +374,10 @@ trait IntegrationSpec
         .get(urlMatching("/delegation/get"))
         .willReturn(notFound())
     )
+
     server.stubFor(
       WireMock
-        .get(urlEqualTo("/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"))
+        .get(urlEqualTo("/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en&version=1.0.3"))
         .willReturn(
           aResponse()
             .withBody(singleAccountWrapperDataResponse)

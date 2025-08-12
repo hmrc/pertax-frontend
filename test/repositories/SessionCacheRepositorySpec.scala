@@ -16,14 +16,14 @@
 
 package repositories
 
-import config.{ConfigDecorator, SensitiveT}
+import config.{ConfigDecorator, CryptoProvider, SensitiveT}
 import org.mockito.Mockito.when
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
-import uk.gov.hmrc.crypto.{ApplicationCrypto, Decrypter, Encrypter}
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.crypto.json.JsonEncryption
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongo.cache.DataKey
@@ -32,9 +32,10 @@ class SessionCacheRepositorySpec extends BaseSpec {
 
   val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
   val injectedConfiguration: Configuration = app.injector.instanceOf[Configuration]
+  val cryptoProvider: CryptoProvider       = app.injector.instanceOf[CryptoProvider]
 
   val repository: SessionCacheRepository =
-    new SessionCacheRepository(mockConfigDecorator, mongoComponent, injectedConfiguration)
+    new SessionCacheRepository(mockConfigDecorator, mongoComponent, cryptoProvider)
 
   val data: JsValue = Json.obj(
     "item 1" -> "Something",
@@ -48,7 +49,7 @@ class SessionCacheRepositorySpec extends BaseSpec {
       SessionKeys.sessionId -> "SessionId"
     )
   implicit lazy val symmetricCryptoFactory: Encrypter with Decrypter =
-    new ApplicationCrypto(injectedConfiguration.underlying).JsonCrypto
+    cryptoProvider.get()
 
   val encrypter: Writes[SensitiveT[JsValue]] = JsonEncryption.sensitiveEncrypter[JsValue, SensitiveT[JsValue]]
 

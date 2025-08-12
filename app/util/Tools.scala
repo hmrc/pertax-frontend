@@ -17,7 +17,8 @@
 package util
 
 import com.google.inject.Inject
-import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import uk.gov.hmrc.crypto.PlainText
+import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.ApplicationCrypto
 
 import java.net.{URI, URLEncoder}
 

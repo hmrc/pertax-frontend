@@ -25,10 +25,10 @@ import views.html.InternalServerErrorView
 import play.api.Logging
 import play.api.http.Status.UNAUTHORIZED
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc._
+import play.api.mvc.*
+import services.URLService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.partials.HtmlPartial
 
@@ -37,6 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class PertaxAuthAction @Inject() (
   pertaxConnector: PertaxConnector,
+  urlService: URLService,
   internalServerErrorView: InternalServerErrorView,
   mainView: MainView,
   cc: ControllerComponents
@@ -53,6 +54,8 @@ class PertaxAuthAction @Inject() (
     implicit val implicitRequest: Request[A] = request
     implicit val hc: HeaderCarrier           = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
+    def continueUrl: String = urlService.localFriendlyEncodedUrl(request.uri, request.host)
+
     pertaxConnector.pertaxPostAuthorise.value.flatMap {
       case Left(UpstreamErrorResponse(_, status, _, _)) if status == UNAUTHORIZED                =>
         Future.successful(Some(signInJourney))
@@ -61,7 +64,7 @@ class PertaxAuthAction @Inject() (
       case Right(PertaxResponse("ACCESS_GRANTED", _, _, _))                                      =>
         Future.successful(None)
       case Right(PertaxResponse("NO_HMRC_PT_ENROLMENT", _, _, Some(redirect)))                   =>
-        Future.successful(Some(Redirect(s"$redirect?redirectUrl=${SafeRedirectUrl(request.uri).encodedUrl}")))
+        Future.successful(Some(Redirect(s"$redirect?redirectUrl=$continueUrl")))
       case Right(PertaxResponse("CONFIDENCE_LEVEL_UPLIFT_REQUIRED", _, _, Some(upliftRedirect))) =>
         Future.successful(Some(upliftJourney(request, upliftRedirect)))
       case Right(PertaxResponse("CREDENTIAL_STRENGTH_UPLIFT_REQUIRED", _, _, Some(_)))           =>
