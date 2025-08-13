@@ -184,7 +184,8 @@ class testSpec extends A11ySpec {
         menuWrapperData,
         PtaMinMenuConfig("MenuName", "BackName"),
         List.empty[UrBanner],
-        List.empty[Webchat]
+        List.empty[Webchat],
+        Some(messageCount)
       )
     )
     .toString
@@ -208,12 +209,6 @@ class testSpec extends A11ySpec {
       WireMock
         .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
         .willReturn(ok(wrapperDataResponse))
-    )
-
-    server.stubFor(
-      WireMock
-        .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-        .willReturn(ok(s"$messageCount"))
     )
 
     server.stubFor(get(urlEqualTo("/delegation/get")).willReturn(notFound()))

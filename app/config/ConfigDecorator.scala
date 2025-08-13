@@ -31,6 +31,8 @@ class ConfigDecorator @Inject() (
   servicesConfig: ServicesConfig
 ) {
 
+  val runMode: Option[String] = runModeConfiguration.getOptional[String]("run.mode")
+
   lazy val internalAuthResourceType: String =
     runModeConfiguration.getOptional[String]("internal-auth.resource-type").getOrElse("ddcn-live-admin-frontend")
 
@@ -276,7 +278,7 @@ class ConfigDecorator @Inject() (
   lazy val pegaSaRegistrationEnabled: Boolean =
     servicesConfig.getBoolean("feature.pegaSaRegistration.enabled")
 
-  val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongo.encryption.enabled")
+  val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongodb.encryption.enabled")
 
   val payeToPegaRedirectList: Seq[Int] = runModeConfiguration.get[Seq[Int]]("paye.to.pega.redirect.list")
   val payeToPegaRedirectUrl: String    = runModeConfiguration.get[String]("paye.to.pega.redirect.url")

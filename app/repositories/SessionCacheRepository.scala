@@ -17,19 +17,18 @@
 package repositories
 
 import cats.data.{EitherT, OptionT}
-import config.{ConfigDecorator, SensitiveT}
-import play.api.Configuration
+import config.{ConfigDecorator, CryptoProvider, SensitiveT}
 import play.api.libs.json.{JsValue, Json, Reads, Writes}
 import play.api.mvc.{Request, RequestHeader}
-import uk.gov.hmrc.crypto.{ApplicationCrypto, Decrypter, Encrypter}
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.crypto.json.JsonEncryption
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.mongo.cache.{DataKey, SessionCacheRepository => CacheRepository}
+import uk.gov.hmrc.mongo.cache.{DataKey, SessionCacheRepository as CacheRepository}
 import uk.gov.hmrc.mongo.{CurrentTimestampSupport, MongoComponent}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
@@ -37,7 +36,7 @@ import scala.util.{Failure, Success, Try}
 class SessionCacheRepository @Inject() (
   appConfig: ConfigDecorator,
   mongoComponent: MongoComponent,
-  configuration: Configuration
+  cryptoProvider: CryptoProvider
 )(implicit ec: ExecutionContext)
     extends CacheRepository(
       mongoComponent = mongoComponent,
@@ -48,7 +47,7 @@ class SessionCacheRepository @Inject() (
     ) {
 
   implicit lazy val symmetricCryptoFactory: Encrypter with Decrypter =
-    new ApplicationCrypto(configuration.underlying).JsonCrypto
+    cryptoProvider.get()
 
   override def putSession[T: Writes](
     dataKey: DataKey[T],

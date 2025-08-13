@@ -186,7 +186,8 @@ class ContentsCheckSpec extends IntegrationSpec {
         menuWrapperData,
         PtaMinMenuConfig("MenuName", "BackName"),
         List.empty[UrBanner],
-        List.empty[Webchat]
+        List.empty[Webchat],
+        Some(messageCount)
       )
     )
     .toString
@@ -215,12 +216,6 @@ class ContentsCheckSpec extends IntegrationSpec {
       WireMock
         .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
         .willReturn(ok(wrapperDataResponse))
-    )
-
-    server.stubFor(
-      WireMock
-        .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-        .willReturn(ok(s"$messageCount"))
     )
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
