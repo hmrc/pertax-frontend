@@ -103,6 +103,7 @@ class MainViewSpec extends IntegrationSpec {
         PtaMinMenuConfig("MenuName", "BackName"),
         List.empty[UrBanner],
         List.empty[Webchat],
+        None,
         None
       )
     )

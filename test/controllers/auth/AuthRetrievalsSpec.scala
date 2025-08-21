@@ -23,19 +23,20 @@ import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc._
+import play.api.mvc.*
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.JourneyCacheRepository
-import services.FandfService
-import testUtils.RetrievalOps._
+import testUtils.RetrievalOps.*
 import testUtils.{BaseSpec, Fixtures}
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
-import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.sca.models.{PtaMinMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.utils.Keys
 
 import scala.concurrent.Future
 
@@ -48,7 +49,6 @@ class AuthRetrievalsSpec extends BaseSpec {
 
   private val mockAuthConnector: AuthConnector                   = mock[AuthConnector]
   private val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
-  private val mockFandfService: FandfService                     = mock[FandfService]
 
   private class Harness(authAction: AuthRetrievalsImpl) extends InjectedController {
     def onPageLoad: Action[AnyContent] = authAction { (request: AuthenticatedRequest[AnyContent]) =>
@@ -96,8 +96,7 @@ class AuthRetrievalsSpec extends BaseSpec {
       new AuthRetrievalsImpl(
         mockAuthConnector,
         messagesControllerComponents,
-        mockJourneyCacheRepository,
-        mockFandfService
+        mockJourneyCacheRepository
       )(implicitly, config)
 
     new Harness(authAction)
@@ -105,13 +104,6 @@ class AuthRetrievalsSpec extends BaseSpec {
 
   "A user with a nino and an SA enrolment must" must {
     "create an authenticated request" in {
-
-      when(mockFandfService.getTrustedHelper()(any(), any())).thenReturn(
-        Future.successful(
-          None
-        )
-      )
-
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
       val controller = retrievals(saEnrolments = Enrolments(fakeEnrolments(utr)))
@@ -125,17 +117,28 @@ class AuthRetrievalsSpec extends BaseSpec {
 
   "A user with trustedHelper must" must {
     "create an authenticated request containing the trustedHelper" in {
-
-      when(mockFandfService.getTrustedHelper()(any(), any())).thenReturn(
-        Future.successful(
-          Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino)))
-        )
-      )
-
       val controller =
         retrievals()
 
-      val result = controller.onPageLoad(FakeRequest("", ""))
+      val testTrustedHelper                                                 =
+        TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))
+      val fakeRequestWithTrustedHelper: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
+        .addAttr(
+          Keys.wrapperDataKey,
+          WrapperDataResponse(
+            Nil,
+            PtaMinMenuConfig("", ""),
+            Nil,
+            Nil,
+            Some(0),
+            Some(testTrustedHelper)
+          )
+        )
+        .asInstanceOf[FakeRequest[AnyContentAsEmpty.type]]
+        .withSession(SessionKeys.sessionId -> "foo")
+        .asInstanceOf[FakeRequest[AnyContentAsEmpty.type]]
+
+      val result = controller.onPageLoad(fakeRequestWithTrustedHelper)
       status(result) mustBe OK
       contentAsString(result) must include(
         s"Some(TrustedHelper(principalName,attorneyName,returnUrl,Some($generatedTrustedHelperNino)))"

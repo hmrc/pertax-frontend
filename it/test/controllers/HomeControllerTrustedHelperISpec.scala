@@ -17,7 +17,9 @@
 package controllers
 
 import cats.data.EitherT
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.admin.GetPersonFromCitizenDetailsToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -27,12 +29,10 @@ import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status as httpStatus, writeableOf_AnyContentAsEmpty}
 import testUtils.IntegrationSpec
-import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import java.util.UUID
-import scala.annotation.tailrec
 import scala.concurrent.Future
 
 class HomeControllerTrustedHelperISpec extends IntegrationSpec {
@@ -49,18 +49,6 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
   val uuid: String = UUID.randomUUID().toString
   val pertaxUrl    = s"/pertax/authorise"
   val authUrl      = s"/auth/authorise"
-
-  @tailrec
-  private def generateHelperNino: Nino = {
-    val nino = new Generator().nextNino
-    if (nino == generatedNino) {
-      generateHelperNino
-    } else {
-      nino
-    }
-  }
-
-  val generatedHelperNino: Nino = generateHelperNino
 
   val authTrustedHelperResponse: String =
     s"""
@@ -105,18 +93,23 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
        |}
        |""".stripMargin
 
-  override val fandfTrustedHelperResponse: String =
-    s"""
-       |{
-       |   "principalName": "principal Name",
-       |   "attorneyName": "attorneyName",
-       |   "returnLinkUrl": "returnLink",
-       |   "principalNino": "$generatedHelperNino"
-       |}
-       |""".stripMargin
-
   def request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "1")
+
+  private def setupWrapperData(attorneyBannerPresent: Boolean): StubMapping =
+    if (attorneyBannerPresent) {
+      server.stubFor(
+        WireMock
+          .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
+          .willReturn(ok(singleAccountWrapperDataResponseWithTrustedHelper))
+      )
+    } else {
+      server.stubFor(
+        WireMock
+          .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
+          .willReturn(ok(singleAccountWrapperDataResponse))
+      )
+    }
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -132,8 +125,6 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authTrustedHelperResponse)))
 
-    server.stubFor(get(urlEqualTo("/delegation/get")).willReturn(ok(fandfTrustedHelperResponse)))
-
     server.stubFor(
       get(urlEqualTo(s"/citizen-details/$generatedHelperNino/designatory-details"))
         .willReturn(ok(personDetailsResponse(generatedHelperNino.nino)))
@@ -143,18 +134,25 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
       .thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true))
       )
+
   }
 
   "personal-account" must {
 
-    "show the home page when helping someone" in {
-
+    "show the home page when helping someone - trusted helper" in {
+      setupWrapperData(attorneyBannerPresent = true)
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
       contentAsString(result) must include("principal Name")
       server.verify(1, postRequestedFor(urlEqualTo(pertaxUrl)))
       server.verify(1, getRequestedFor(urlEqualTo(s"/citizen-details/$generatedHelperNino/designatory-details")))
 
+    }
+    "show the home page when helping someone - no trusted helper" in {
+      setupWrapperData(attorneyBannerPresent = false)
+      val result: Future[Result] = route(app, request).get
+      httpStatus(result) mustBe OK
+      contentAsString(result) must not include "principal Name"
     }
   }
 }
