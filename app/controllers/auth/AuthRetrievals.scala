@@ -21,23 +21,22 @@ import config.ConfigDecorator
 import controllers.auth.requests.AuthenticatedRequest
 import io.lemonlabs.uri.Url
 import play.api.Logging
-import play.api.mvc._
+import play.api.mvc.*
 import repositories.JourneyCacheRepository
-import services.FandfService
-import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.v2.{Retrievals, TrustedHelper}
+import uk.gov.hmrc.auth.core.*
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.sca.utils.Keys.getTrustedHelperFromRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthRetrievalsImpl @Inject() (
   val authConnector: AuthConnector,
   mcc: MessagesControllerComponents,
-  journeyCacheRepository: JourneyCacheRepository,
-  fandfService: FandfService
+  journeyCacheRepository: JourneyCacheRepository
 )(implicit ec: ExecutionContext, configDecorator: ConfigDecorator)
     extends AuthRetrievals
     with AuthorisedFunctions
@@ -51,9 +50,6 @@ class AuthRetrievalsImpl @Inject() (
 
   private type RetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~
     Option[String] ~ ConfidenceLevel ~ Option[String]
-
-  private def getTrustedHelper(implicit headerCarrier: HeaderCarrier): Future[Option[TrustedHelper]] =
-    fandfService.getTrustedHelper()
 
   // scalastyle:off cyclomatic.complexity
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
@@ -73,9 +69,10 @@ class AuthRetrievalsImpl @Inject() (
           confidenceLevel ~
           profile =>
         val finalRequest = for {
-          userAnswers   <- journeyCacheRepository.get(hc)
-          trustedHelper <- getTrustedHelper
+          userAnswers <- journeyCacheRepository.get(hc)
         } yield {
+          val trustedHelper = getTrustedHelperFromRequest(request)
+
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>

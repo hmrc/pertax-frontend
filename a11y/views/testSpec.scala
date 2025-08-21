@@ -185,7 +185,8 @@ class testSpec extends A11ySpec {
         PtaMinMenuConfig("MenuName", "BackName"),
         List.empty[UrBanner],
         List.empty[Webchat],
-        Some(messageCount)
+        Some(messageCount),
+        None
       )
     )
     .toString
