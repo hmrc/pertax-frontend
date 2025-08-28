@@ -142,6 +142,8 @@ class AddressSubmissionController @Inject() (
                           addressDto
                             .toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
 
+                        println("PPPPP " + address)
+                        println("YYYYY " + personDetails)
                         val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
 
                         addressMovedService
@@ -150,6 +152,8 @@ class AddressSubmissionController @Inject() (
                             def successResponseBlock(): Result = {
                               val originalAddressDto: Option[AddressDto] =
                                 journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
+                              println("originalAddressDto " + originalAddressDto)
+                              println("line4OrTown " + originalAddressDto.map(_.line4OrTown))
 
                               val addressDtowithFormattedPostCode =
                                 addressDto
@@ -231,7 +235,9 @@ class AddressSubmissionController @Inject() (
     addressDto: AddressDto,
     version: ETag,
     addressType: String
-  )(implicit hc: HeaderCarrier, request: UserRequest[_]) =
+  )(implicit hc: HeaderCarrier, request: UserRequest[_]) = {
+    println("RRRRRR " + originalAddressDto)
+    println("TTTTTT " + addressDto)
     if (addressWasUnmodified(originalAddressDto, addressDto)) {
       auditConnector.sendEvent(
         buildEvent(
@@ -264,4 +270,5 @@ class AddressSubmissionController @Inject() (
         )
       )
     }
+  }
 }
