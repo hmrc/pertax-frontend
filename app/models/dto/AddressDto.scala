@@ -155,9 +155,7 @@ object AddressDto extends CountryHelper {
 
   @nowarn("msg=match may not be exhaustive.")
   def fromAddressRecord(addressRecord: AddressRecord): AddressDto = {
-    println("addressRecord.address.town " + addressRecord.address.town)
     val defaultPad = 3
-    println("lines " + addressRecord.address.lines)
     addressRecord.address.lines
       .map(s => Option(s).filter(_.trim.nonEmpty))
       .padTo(defaultPad, None) match {
