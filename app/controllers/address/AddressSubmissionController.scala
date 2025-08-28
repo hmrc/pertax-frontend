@@ -138,7 +138,7 @@ class AddressSubmissionController @Inject() (
                       journeyData.submittedAddressDto.fold(
                         Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
                       ) { addressDto =>
-                        val address =
+                        val address          =
                           addressDto
                             .toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
                         val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
@@ -230,7 +230,7 @@ class AddressSubmissionController @Inject() (
     addressDto: AddressDto,
     version: ETag,
     addressType: String
-  )(implicit hc: HeaderCarrier, request: UserRequest[_]) = {
+  )(implicit hc: HeaderCarrier, request: UserRequest[_]) =
     if (addressWasUnmodified(originalAddressDto, addressDto)) {
       auditConnector.sendEvent(
         buildEvent(
@@ -263,5 +263,4 @@ class AddressSubmissionController @Inject() (
         )
       )
     }
-  }
 }
