@@ -24,7 +24,7 @@
     @defining(form.errors.map { error =>
         ErrorLink(
             href = Some(s"#${errorFieldName.getOrElse(error.key)}"),
-            content = Text(messages(s"head.${error.message}"))
+            content = Text(messages(s"head.${error.message}", error.args: _* ))
         )
     }) { errorLinks =>
             @govukErrorSummary(HmrcErrorSummary(
