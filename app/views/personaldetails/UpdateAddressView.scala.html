@@ -93,7 +93,7 @@
         form = updateAddressForm,
         id = "line2",
         name = "line2",
-        labelKey = "label.second_line_of_your_address",
+        labelKey = "label.second_line_of_your_address_optional",
         labelClasses = "govuk-label",
         classes = Some("govuk-!-width-three-quarters"),
         autocomplete = Some("address-line2")
@@ -101,19 +101,9 @@
 
     @inputValue(
         form = updateAddressForm,
-        id = "line3",
-        name = "line3",
-        labelKey = "label.third_line_of_your_address",
-        labelClasses = "govuk-label",
-        classes = Some("govuk-!-width-three-quarters"),
-        autocomplete = Some("address-level1")
-    )
-
-    @inputValue(
-        form = updateAddressForm,
-        id = "line4",
-        name = "line4",
-        labelKey = "label.fourth_line_of_your_address",
+        id = "line4OrTown",
+        name = "line4OrTown",
+        labelKey = "label.town",
         labelClasses = "govuk-label",
         classes = Some("govuk-!-width-three-quarters"),
         autocomplete = Some("address-level2")
@@ -121,13 +111,13 @@
 
     @inputValue(
         form = updateAddressForm,
-        id = "line5",
-        name = "line5",
-        labelKey = "label.fifth_line_of_your_address",
+        id = "line5OrCounty",
+        name = "line5OrCounty",
+        labelKey = "label.county",
         labelClasses = "govuk-label",
         classes = Some("govuk-!-width-three-quarters"),
-        autocomplete = Some("address-level3")
-    )
+        autocomplete = Some("address-level1")
+)
 
     @inputValue(
         form = updateAddressForm,
