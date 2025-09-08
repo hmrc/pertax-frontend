@@ -293,7 +293,8 @@ trait IntegrationSpec
       |    "webchatPages": [
       |        {
       |            "pattern": "^/personal-account",
-      |            "skinElement": "skinElement",
+      |            "skinElement": "popup",
+      |            "chatType": "loadHMRCChatSkinElement",
       |            "isEnabled": true
       |        }
       |    ]
@@ -340,6 +341,7 @@ trait IntegrationSpec
       |        {
       |            "pattern": "^/personal-account",
       |            "skinElement": "skinElement",
+      |            "chatType": "loadHMRCChatSkinElement",
       |            "isEnabled": true
       |        }
       |    ],
