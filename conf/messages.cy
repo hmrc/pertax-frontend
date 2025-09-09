@@ -478,9 +478,7 @@ body.seiss=Bwrw golwg dros eich grantiau SEISS
 #
 label.your_self_assessment=Eich Hunanasesiad
 label.online_returns_deadline=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
-label.mtd_for_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_hmrc_compatible_software=Anfon diweddariadau gan ddefnyddio meddalwedd sy’n cydweddu â CThEM.
-label.view_manage_your_mtd_for_sa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
 label.itsa_header=Hunanasesiad Treth Incwm
 label.view_manage_sa_return=Rhagor o fanylion am eich Ffurflenni Treth a’ch taliadau Hunanasesiad
 label.access_your_sa_returns=Cael at eich Ffurflenni Treth Hunanasesiad
