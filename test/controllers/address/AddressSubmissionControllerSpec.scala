@@ -203,6 +203,8 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       uprn: Option[String],
       includeOriginals: Boolean,
       submittedLine1: Option[String] = Some("1 Fake Street"),
+      submittedLine4: Option[String] = Some("Fake Region"),
+      originalLine4: Option[String] = Some("Fake Region"),
       addressType: Option[String] = Some("Residential")
     ): DataEvent = DataEvent(
       "pertax-frontend",
@@ -215,7 +217,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         "submittedLine1"    -> submittedLine1,
         "submittedLine2"    -> Some("Fake Town"),
         "submittedLine3"    -> Some("Fake City"),
-        "submittedLine4"    -> Some("Fake Region"),
+        "submittedLine4"    -> submittedLine4,
         "submittedPostcode" -> Some("AA1 1AA"),
         "submittedCountry"  -> None,
         "addressType"       -> addressType,
@@ -223,7 +225,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         "originalLine1"     -> Some("1 Fake Street").filter(_ => includeOriginals),
         "originalLine2"     -> Some("Fake Town").filter(_ => includeOriginals),
         "originalLine3"     -> Some("Fake City").filter(_ => includeOriginals),
-        "originalLine4"     -> Some("Fake Region").filter(_ => includeOriginals),
+        "originalLine4"     -> originalLine4.filter(_ => includeOriginals),
         "originalPostcode"  -> Some("AA1 1AA").filter(_ => includeOriginals),
         "originalCountry"   -> Some("Country(UK,United Kingdom)").filter(_ => includeOriginals),
         "originalUPRN"      -> uprn.filter(_ => includeOriginals)
@@ -317,7 +319,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
     }
 
     "render the thank-you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address" in {
-      val addressDto: AddressDto         = asAddressDto(fakeStreetTupleListAddressForUnmodified)
+      val addressDto: AddressDto         = asAddressDto(fakeStreetTupleListAddressForUnmodifiedNoRegion)
       val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
@@ -343,18 +345,19 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         dataEvent,
         "postcodeAddressSubmitted",
         Some("GB101"),
+        submittedLine4 = None,
         includeOriginals = false
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq("115"), meq(buildFakeAddress))(any(), any(), any())
+        .updateAddress(meq(nino), meq("115"), meq(buildFakeAddress.copy(line4 = None)))(any(), any(), any())
     }
 
     "render the thank you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address, this time using postal type and having no postalSubmittedStartDate in the cache " in {
       lazy val fakeAddress: Address =
-        buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
+        buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now), line4 = None)
 
-      val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
+      val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodifiedNoRegion)
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
@@ -384,7 +387,8 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         "postcodeAddressSubmitted",
         Some("GB101"),
         includeOriginals = false,
-        addressType = Some("Correspondence")
+        addressType = Some("Correspondence"),
+        submittedLine4 = None
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
@@ -417,11 +421,12 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         dataEvent,
         "manualAddressSubmitted",
         None,
-        includeOriginals = false
+        includeOriginals = false,
+        submittedLine4 = None
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq("115"), meq(buildFakeAddress))(any(), any(), any())
+        .updateAddress(meq(nino), meq("115"), meq(buildFakeAddress.copy(line4 = None)))(any(), any(), any())
     }
 
     "render the thank you page and log a postcodeAddressModifiedSubmitted audit event upon successful of a modified address" in {
@@ -454,11 +459,13 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         "postcodeAddressModifiedSubmitted",
         Some("GB101"),
         includeOriginals = true,
-        Some("11 Fake Street")
+        submittedLine1 = Some("11 Fake Street"),
+        submittedLine4 = None,
+        originalLine4 = None
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
+        .updateAddress(meq(nino), meq("115"), meq(fakeAddress.copy(line4 = None)))(any(), any(), any())
     }
 
     "return 500 when fetching etag from citizen details fails" in {
