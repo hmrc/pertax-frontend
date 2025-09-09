@@ -98,7 +98,7 @@ class RlsControllerSpec extends BaseSpec {
     "redirect to home page" when {
       "there is no residential and postal address" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, None, None)
+        val personDetails = PersonDetails("115", person, None, None)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -121,7 +121,7 @@ class RlsControllerSpec extends BaseSpec {
       "residential address is rls and residential address has been updated" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, address, None)
+        val personDetails = PersonDetails("115", person, address, None)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -144,7 +144,7 @@ class RlsControllerSpec extends BaseSpec {
       "postal address is rls and postal address has been updated" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, None, address)
+        val personDetails = PersonDetails("115", person, None, address)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -168,7 +168,7 @@ class RlsControllerSpec extends BaseSpec {
         val mainAddress   = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val postalAddress = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, mainAddress, postalAddress)
+        val personDetails = PersonDetails("115", person, mainAddress, postalAddress)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -193,7 +193,7 @@ class RlsControllerSpec extends BaseSpec {
       "residential address is rls" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, address, None)
+        val personDetails = PersonDetails("115", person, address, None)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -218,7 +218,7 @@ class RlsControllerSpec extends BaseSpec {
       "postal address is rls" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, None, address)
+        val personDetails = PersonDetails("115", person, None, address)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -243,7 +243,7 @@ class RlsControllerSpec extends BaseSpec {
       "postal and residential address are rls" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, address, address)
+        val personDetails = PersonDetails("115", person, address, address)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -268,7 +268,7 @@ class RlsControllerSpec extends BaseSpec {
       "residential address is rls and postal address has been updated" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, address, None)
+        val personDetails = PersonDetails("115", person, address, None)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -293,7 +293,7 @@ class RlsControllerSpec extends BaseSpec {
       "postal and residential address is rls and residential address has been updated" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, address, address)
+        val personDetails = PersonDetails("115", person, address, address)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -318,7 +318,7 @@ class RlsControllerSpec extends BaseSpec {
       "postal and residential address is rls and correspondence address has been updated" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, address, address)
+        val personDetails = PersonDetails("115", person, address, address)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -343,7 +343,7 @@ class RlsControllerSpec extends BaseSpec {
       "postal address is rls and residential address has been updated" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, None, address)
+        val personDetails = PersonDetails("115", person, None, address)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -368,7 +368,7 @@ class RlsControllerSpec extends BaseSpec {
       "return a 200 status when accessing index page with good nino and a non sa User" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, address, address)
+        val personDetails = PersonDetails("115", person, address, address)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -394,7 +394,8 @@ class RlsControllerSpec extends BaseSpec {
       "a residential address exists" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, Fixtures.buildPersonDetailsCorrespondenceAddress.address, address)
+        val personDetails =
+          PersonDetails("115", person, Fixtures.buildPersonDetailsCorrespondenceAddress.address, address)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
@@ -422,7 +423,7 @@ class RlsControllerSpec extends BaseSpec {
       "a residential address does not exist" in {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-        val personDetails = PersonDetails(person, None, address)
+        val personDetails = PersonDetails("115", person, None, address)
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )

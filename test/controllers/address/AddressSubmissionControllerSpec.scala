@@ -461,30 +461,6 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
     }
 
-    "return 500 when fetching etag from citizen details fails" in {
-
-      def eTagResponse: Option[ETag] = None
-      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-          Future.successful(Right(eTagResponse))
-        )
-      )
-      val addressDto: AddressDto     = asAddressDto(fakeStreetTupleListAddressForUnmodified)
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
-        Future.successful(
-          UserAnswers
-            .empty("id")
-            .setOrException(SubmittedAddressPage(PostalAddrType), addressDto)
-            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
-        )
-      )
-      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-
-      val result: Future[Result] = controller.onSubmit(PostalAddrType)(fakePOSTRequest)
-
-      status(result) mustBe INTERNAL_SERVER_ERROR
-    }
-
     "render the confirmation page with the P85 messaging when updating to move to international address" in {
       val addressDto: AddressDto         = asAddressDto(fakeStreetTupleListAddressForModified)
       val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
@@ -556,6 +532,33 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       contentAsString(result) must include(
         Messages("label.the_date_you_entered_is_earlier_than_a_date_previously_held_")
       )
+    }
+
+    "render the error page when updateAddress returns a 409 Conflict" in {
+      val addressDto: AddressDto         = asAddressDto(fakeStreetTupleListAddressForUnmodified)
+      val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
+
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
+        Future.successful(
+          UserAnswers
+            .empty("id")
+            .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
+            .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
+        )
+      )
+
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any()))
+        .thenReturn(EitherT.leftT(UpstreamErrorResponse("Conflict", 409)))
+
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
+
+      status(result) mustBe INTERNAL_SERVER_ERROR
+
+      verify(mockJourneyCacheRepository, times(1)).get(any())
+      verify(mockCitizenDetailsService, times(1))
+        .updateAddress(meq(nino), meq("115"), any())(any(), any(), any())
+      verify(mockCitizenDetailsService, times(1))
+        .clearCachedPersonDetails(meq(nino))(any())
     }
   }
 }

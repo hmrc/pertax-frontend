@@ -427,8 +427,6 @@ label.you_owe_hmrc_you_must_pay_by_=You owe HMRC £{0}. You must pay by {1}.
 label.you_have_no_payments_to_make_to_hmrc=You have no payments to make to HMRC.
 
 label.self_assessment=Self Assessment
-label.mtd_for_itsa=Making Tax Digital for Income Tax and Self Assessment
-
 label.make_a_payment=Make a payment
 label.check_if_you_need_to_fill_in_a_tax_return=Check if you need to fill in a tax return
 label.find_out_how_to_access_self_assessment=Find out how to access Self Assessment
@@ -477,21 +475,16 @@ label.news_and_updates.published = Published
 #
 label.your_self_assessment=Your Self Assessment
 label.online_returns_deadline=The deadline for online returns is 31 January {0}.
-label.mtd_for_it=Making Tax Digital for Income Tax
-label.mtd_for_it_sa=Making Tax Digital for Income Tax
+label.mtd_for_sa=Making Tax Digital for Income Tax
 label.send_updates_hmrc_compatible_software=Send updates using HMRC compatible software.
-label.send_updates_sole_traders=For sole traders and landlords that send quarterly updates using software.
-label.view_manage_your_mtd_for_it=View and manage Making Tax Digital for Income Tax
+label.view_manage_your_mtd_for_sa=View and manage your Making Tax Digital for Income Tax
 label.itsa_header=Income Tax Self Assessment
-label.it_header=Income Tax
 label.view_manage_sa_return=More details about your Self Assessment returns and payments
 label.access_your_sa_returns=Access your Self Assessment tax returns
 label.old_way_sa_returns=The old way for filing your Self Assessment tax returns.
 label.self_assessment_tax_returns=Self Assessment tax returns
 label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax or access your Self Assessment tax returns.
-label.view_manage_your_mtd_it=View and manage Making Tax Digital for Income Tax, and access Self Assessment.
 label.online_deadline_final_declarations=The deadline for final declarations or online returns is 31 January {0}.
-label.online_deadline_tax_returns=The deadline for tax returns is 31 January {0}.
 label.making_tax_digital=Making Tax Digital
 
 label.mtdit.heading=Making Tax Digital for Income Tax
