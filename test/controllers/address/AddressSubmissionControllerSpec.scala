@@ -541,7 +541,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
         )
       )
-
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any()))
         .thenReturn(EitherT.leftT[Future, Boolean](UpstreamErrorResponse("Conflict", 409)))
 

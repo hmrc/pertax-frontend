@@ -399,6 +399,10 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any()))
         .thenReturn(EitherT.leftT[Future, Option[PersonDetails]](UpstreamErrorResponse("Conflict", CONFLICT)))
 
+      when(mockEditAddressLockRepository.get(any())).thenReturn(
+        Future.successful(List.empty)
+      )
+
       val result: Future[Result] = controller.confirmSubmit(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR

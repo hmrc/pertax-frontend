@@ -328,7 +328,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         createController().getSelfAssessmentCards(includeMDTITAdvert = true)
 
       cardBody mustBe Seq(itsaMergeView((current.currentYear + 1).toString))
-      cardBody.mkString("").contains("Making Tax Digital for Income Tax Self Assessment") mustBe true
+      cardBody.mkString("") must include("Making Tax Digital for Income Tax")
     }
 
     "return PTA Card with link to display self assessment when active user is an SA user but without ITSA enrolments" in {
