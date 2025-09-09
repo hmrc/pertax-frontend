@@ -19,7 +19,7 @@ package services
 import cats.data.EitherT
 import connectors.CitizenDetailsConnector
 import models.admin.GetPersonFromCitizenDetailsToggle
-import models.{ETag, MatchingDetails}
+import models.MatchingDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience

@@ -452,7 +452,7 @@ class RlsControllerSpec extends BaseSpec {
   "should redirect to home when RLS toggle is disabled even if addresses are RLS" in {
     val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
     val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-    val personDetails = PersonDetails(person, address, address)
+    val personDetails = PersonDetails("115", person, address, address)
 
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(RlsInterruptToggle, isEnabled = false)))

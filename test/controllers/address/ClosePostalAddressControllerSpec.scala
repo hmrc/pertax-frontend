@@ -194,11 +194,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
       )
-      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-          Future.successful(Right(Some(ETag("115"))))
-        )
-      )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
@@ -239,11 +234,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(getEditedAddressIndicators)
       )
-      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-          Future.successful(Right(Some(ETag("115"))))
-        )
-      )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
@@ -269,11 +259,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
-      )
-      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-          Future.successful(Right(Some(ETag("115"))))
-        )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
@@ -316,11 +301,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.leftT[Future, PersonDetails](UpstreamErrorResponse("bad request", BAD_REQUEST))
       )
-      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-          Future.successful(Right(Some(ETag("115"))))
-        )
-      )
 
       val result: Future[Result] = controller.confirmSubmit()(FakeRequest())
 
@@ -342,11 +322,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.leftT[Future, Boolean](UpstreamErrorResponse("unexpected error", 418))
-      )
-      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-          Future.successful(Right(Some(ETag("115"))))
-        )
       )
 
       val result: Future[Result] = controller.confirmSubmit()(FakeRequest())
@@ -370,11 +345,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.leftT[Future, Boolean](UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
       )
-      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-          Future.successful(Right(Some(ETag("115"))))
-        )
-      )
 
       def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
@@ -397,11 +367,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       )
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
-      )
-      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-          Future.successful(Right(Some(ETag("115"))))
-        )
       )
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
@@ -429,10 +394,10 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails("115", person, None, address)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
-        .thenReturn(EitherT.rightT(personDetails))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails)))
 
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any()))
-        .thenReturn(EitherT.leftT(UpstreamErrorResponse("Conflict", CONFLICT)))
+        .thenReturn(EitherT.leftT[Future, Option[PersonDetails]](UpstreamErrorResponse("Conflict", CONFLICT)))
 
       val result: Future[Result] = controller.confirmSubmit(FakeRequest())
 

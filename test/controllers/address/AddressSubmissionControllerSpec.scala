@@ -21,7 +21,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto.{AddressDto, DateDto, InternationalAddressChoiceDto}
-import models.{Address, ETag, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
+import models.{Address, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -90,11 +90,6 @@ class AddressSubmissionControllerSpec extends BaseSpec {
     when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
         Future.successful(Right(Some(personDetails)))
-      )
-    )
-    when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-      EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-        Future.successful(Right(Some(ETag("115"))))
       )
     )
   }
@@ -548,7 +543,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
 
       when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any()))
-        .thenReturn(EitherT.leftT(UpstreamErrorResponse("Conflict", 409)))
+        .thenReturn(EitherT.leftT[Future, Boolean](UpstreamErrorResponse("Conflict", 409)))
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 

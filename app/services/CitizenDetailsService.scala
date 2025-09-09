@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.CitizenDetailsConnector
 import models.admin.GetPersonFromCitizenDetailsToggle
-import models.{Address, ETag, MatchingDetails, PersonDetails}
+import models.{Address, MatchingDetails, PersonDetails}
 import play.api.Logging
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Nino
@@ -70,10 +70,5 @@ class CitizenDetailsService @Inject() (
       }
 
   def clearCachedPersonDetails(nino: Nino)(implicit request: Request[_]): Future[Unit] =
-    citizenDetailsConnector match {
-      case cachingConnector: CachingCitizenDetailsConnector =>
-        cachingConnector.clearPersonDetailsCache(nino)
-      case _                                                =>
-        Future.successful(())
-    }
+    citizenDetailsConnector.clearPersonDetailsCache(nino)
 }

@@ -125,6 +125,7 @@ trait TaiFixtures {
 trait CitizenDetailsFixtures {
   def buildPersonDetailsWithPersonalAndCorrespondenceAddress: PersonDetails =
     PersonDetails(
+      "115",
       Person(
         Some("Firstname"),
         Some("Middlename"),

@@ -19,7 +19,7 @@ package repositories
 import cats.data.{EitherT, OptionT}
 import config.{ConfigDecorator, CryptoProvider, SensitiveT}
 import play.api.libs.json.{JsValue, Json, Reads, Writes}
-import play.api.mvc.{Request, RequestHeader}
+import play.api.mvc.RequestHeader
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.crypto.json.JsonEncryption
 import uk.gov.hmrc.http.SessionKeys
@@ -52,7 +52,7 @@ class SessionCacheRepository @Inject() (
   override def putSession[T: Writes](
     dataKey: DataKey[T],
     data: T
-  )(implicit request: Request[Any]): Future[(String, String)] = {
+  )(implicit request: RequestHeader): Future[(String, String)] = {
 
     val jsonData         = if (appConfig.mongoEncryptionEnabled) {
       val encrypter = JsonEncryption.sensitiveEncrypter[T, SensitiveT[T]]
@@ -67,7 +67,7 @@ class SessionCacheRepository @Inject() (
       .map(res => SessionKeys.sessionId -> res.id)
   }
 
-  override def getFromSession[T: Reads](dataKey: DataKey[T])(implicit request: Request[Any]): Future[Option[T]] = {
+  override def getFromSession[T: Reads](dataKey: DataKey[T])(implicit request: RequestHeader): Future[Option[T]] = {
 
     val encryptedDataKey                        = DataKey[JsValue](dataKey.unwrap)
     val encryptedData: OptionT[Future, JsValue] = OptionT(cacheRepo.get[JsValue](request)(encryptedDataKey))
@@ -87,11 +87,11 @@ class SessionCacheRepository @Inject() (
 
   }
 
-  override def deleteFromSession[T](dataKey: DataKey[T])(implicit request: Request[Any]): Future[Unit] = {
+  override def deleteFromSession[T](dataKey: DataKey[T])(implicit request: RequestHeader): Future[Unit] = {
     val encryptedDataKey = DataKey[JsValue](dataKey.unwrap)
     cacheRepo.delete(request)(encryptedDataKey)
   }
 
-  def deleteFromSessionEitherT[L, T](dataKey: DataKey[T])(implicit request: Request[Any]): EitherT[Future, L, Unit] =
+  def deleteFromSessionEitherT[L, T](dataKey: DataKey[T])(implicit request: RequestHeader): EitherT[Future, L, Unit] =
     EitherT[Future, L, Unit](deleteFromSession(dataKey).map(Right(_)))
 }

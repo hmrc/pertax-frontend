@@ -56,6 +56,8 @@ trait CitizenDetailsConnector {
   def getMatchingDetails(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse]
+
+  def clearPersonDetailsCache(nino: Nino)(implicit request: Request[_]): Future[Unit]
 }
 
 @Singleton
@@ -177,4 +179,7 @@ class DefaultCitizenDetailsConnector @Inject() (
         .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
     )
   }
+
+  def clearPersonDetailsCache(nino: Nino)(implicit request: Request[_]): Future[Unit] =
+    Future.unit
 }

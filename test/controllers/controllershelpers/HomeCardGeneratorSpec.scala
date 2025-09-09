@@ -30,7 +30,7 @@ import play.api
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.{Application, Configuration}
-import play.twirl.api.Html
+import play.twirl.api.{Html, HtmlFormat}
 import repositories.JourneyCacheRepository
 import services.partials.TaxCalcPartialService
 import testUtils.Fixtures
@@ -324,10 +324,11 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           request = FakeRequest()
         )
 
-      lazy val cardBody = createController().getSelfAssessmentCards(includeMDTITAdvert = true)
+      lazy val cardBody: Seq[HtmlFormat.Appendable] =
+        createController().getSelfAssessmentCards(includeMDTITAdvert = true)
 
-      cardBody mustBe Some(itsaMergeView((current.currentYear + 1).toString)(implicitly, mockConfigDecorator))
-      cardBody.map(_.toString().contains("Making Tax Digital for Income Tax Self Assessment")) mustBe Some(true)
+      cardBody mustBe Seq(itsaMergeView((current.currentYear + 1).toString))
+      cardBody.mkString("").contains("Making Tax Digital for Income Tax Self Assessment") mustBe true
     }
 
     "return PTA Card with link to display self assessment when active user is an SA user but without ITSA enrolments" in {
