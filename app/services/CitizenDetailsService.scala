@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.CitizenDetailsConnector
 import models.admin.GetPersonFromCitizenDetailsToggle
-import models.{Address, ETag, MatchingDetails, PersonDetails}
+import models.{Address, MatchingDetails, PersonDetails}
 import play.api.Logging
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Nino
@@ -69,8 +69,6 @@ class CitizenDetailsService @Inject() (
         MatchingDetails.fromJsonMatchingDetails(response.json)
       }
 
-  def getEtag(
-    nino: String
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Option[ETag]] =
-    citizenDetailsConnector.getEtag(nino).map(_.json.asOpt[ETag])
+  def clearCachedPersonDetails(nino: Nino)(implicit request: Request[_]): Future[Unit] =
+    citizenDetailsConnector.clearPersonDetailsCache(nino)
 }

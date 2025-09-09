@@ -276,7 +276,7 @@ class StartDateControllerSpec extends BaseSpec {
         _.copy(startDate = Some(LocalDate.of(2016, 11, 22)))
       )
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-      val personDetails = PersonDetails(person, address, None)
+      val personDetails = PersonDetails("115", person, address, None)
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )

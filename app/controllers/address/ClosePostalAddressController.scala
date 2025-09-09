@@ -30,8 +30,8 @@ import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
 import services._
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
@@ -120,61 +120,54 @@ class ClosePostalAddressController @Inject() (
       }
     }
 
-  private def submitConfirmClosePostalAddress(nino: Nino, personDetails: PersonDetails)(implicit
-    request: UserRequest[_]
-  ): Future[Result] = {
+  private def submitConfirmClosePostalAddress(
+    nino: Nino,
+    personDetails: PersonDetails
+  )(implicit request: UserRequest[_]): Future[Result] = {
 
     val address        = getAddress(personDetails.correspondenceAddress)
-    val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
+    val closingAddress = address.copy(startDate = Some(LocalDate.now), endDate = Some(LocalDate.now))
+    val etagValue      = personDetails.etag
+    val postcode       = address.postcode.getOrElse("")
+
+    def handleError(statusCode: Int): Future[Result] = statusCode match {
+      case BAD_REQUEST => errorRenderer.futureError(BAD_REQUEST)
+      case CONFLICT    =>
+        citizenDetailsService.clearCachedPersonDetails(nino)
+        errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+      case _           => errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+    }
+
+    def handleSuccess: Future[Result] =
+      for {
+        _        <- auditConnector.sendEvent(
+                      buildEvent(
+                        "closedAddressSubmitted",
+                        "closure_of_correspondence",
+                        auditForClosingPostalAddress(closingAddress, etagValue, "correspondence")
+                      )
+                    )
+        _        <- cachingHelper.clearCache()
+        inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
+        _        <- addressMovedService.moved(postcode, postcode)
+      } yield
+        if (inserted) {
+          Ok(
+            updateAddressConfirmationView(
+              PostalAddrType,
+              closedPostalAddress = true,
+              Some(getAddress(personDetails.address).fullAddress),
+              None,
+              displayP85Message = false
+            )
+          )
+        } else {
+          errorRenderer.error(INTERNAL_SERVER_ERROR)
+        }
 
     citizenDetailsService
-      .getEtag(nino.nino)
-      .foldF(
-        _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
-        version =>
-          version
-            .map { version =>
-              citizenDetailsService
-                .updateAddress(nino, version.etag, closingAddress)
-                .foldF(
-                  error =>
-                    if (error.statusCode == BAD_REQUEST) {
-                      errorRenderer.futureError(BAD_REQUEST)
-                    } else {
-                      errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-                    },
-                  _ =>
-                    for {
-                      _        <- auditConnector.sendEvent(
-                                    buildEvent(
-                                      "closedAddressSubmitted",
-                                      "closure_of_correspondence",
-                                      auditForClosingPostalAddress(closingAddress, version.etag, "correspondence")
-                                    )
-                                  )
-                      _        <- cachingHelper
-                                    .clearCache() // This clears ENTIRE session cache, no way to target individual keys
-                      inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
-                      _        <- addressMovedService
-                                    .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
-                    } yield
-                      if (inserted) {
-                        Ok(
-                          updateAddressConfirmationView(
-                            PostalAddrType,
-                            closedPostalAddress = true,
-                            Some(getAddress(personDetails.address).fullAddress),
-                            None,
-                            displayP85Message = false
-                          )
-                        )
-                      } else {
-                        errorRenderer.error(INTERNAL_SERVER_ERROR)
-                      }
-                )
-            }
-            .getOrElse(errorRenderer.futureError(INTERNAL_SERVER_ERROR))
-      )
+      .updateAddress(nino, etagValue, closingAddress)
+      .foldF(error => handleError(error.statusCode), _ => handleSuccess)
   }
 
   private def getAddress(address: Option[Address]): Address =
