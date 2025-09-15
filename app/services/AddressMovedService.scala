@@ -16,39 +16,53 @@
 
 package services
 
-import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.AddressLookupConnector
 import models.addresslookup.Country
 import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HeaderCarrier
+import play.api.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressMovedService @Inject() (addressLookupService: AddressLookupConnector) {
+class AddressMovedService @Inject() (addressLookupService: AddressLookupConnector) extends Logging {
 
-  def moved(fromAddressId: String, toAddressId: String)(implicit
+  def moved(originalPostcode: String, newPostcode: String, p85Enabled: Boolean)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[AddressChanged] =
-    withAddressExists(fromAddressId, toAddressId) {
+    if (p85Enabled) {
+      Future.successful(AnyOtherMove)
+    } else {
+      (originalPostcode, newPostcode) match {
+        case (_, "")                         =>
+          logger.error("New postcode is empty when checking for address move.")
+          Future.successful(AnyOtherMove)
+        case ("", _)                         => Future.successful(AnyOtherMove)
+        case (originalPostcode, newPostcode) =>
+          (for {
+            fromResponse <- addressLookupService.lookup(originalPostcode)
+            toResponse   <- addressLookupService.lookup(newPostcode)
+          } yield {
+            val fromSubdivision = fromResponse.addresses.headOption.flatMap(_.address.subdivision)
+            val toSubdivision   = toResponse.addresses.headOption.flatMap(_.address.subdivision)
 
-      for {
-        fromResponse <- addressLookupService.lookup(fromAddressId)
-        toResponse   <- addressLookupService.lookup(toAddressId)
-      } yield {
-        val fromSubdivision = fromResponse.addresses.headOption.flatMap(_.address.subdivision)
-        val toSubdivision   = toResponse.addresses.headOption.flatMap(_.address.subdivision)
-
-        if (hasMovedFromScotland(fromSubdivision, toSubdivision)) {
-          MovedFromScotland
-        } else if (hasMovedToScotland(fromSubdivision, toSubdivision)) {
-          MovedToScotland
-        } else {
-          AnyOtherMove
-        }
+            if (hasMovedFromScotland(fromSubdivision, toSubdivision)) {
+              MovedFromScotland
+            } else if (hasMovedToScotland(fromSubdivision, toSubdivision)) {
+              MovedToScotland
+            } else {
+              AnyOtherMove
+            }
+          }).fold(
+            error => {
+              logger.error(s"Error looking up addresses for old or new postcode during address move check: $error")
+              AnyOtherMove
+            },
+            identity
+          )
       }
-    }.getOrElse(AnyOtherMove)
+    }
 
   def toMessageKey(addressChanged: AddressChanged): Option[String] =
     addressChanged match {
@@ -64,15 +78,6 @@ class AddressMovedService @Inject() (addressLookupService: AddressLookupConnecto
 
   private def hasMovedToScotland(fromSubdivision: Option[Country], toSubdivision: Option[Country]): Boolean =
     !containsScottishSubdivision(fromSubdivision) && containsScottishSubdivision(toSubdivision)
-
-  private def withAddressExists(fromAddressId: String, toAddressId: String)(
-    f: => EitherT[Future, UpstreamErrorResponse, AddressChanged]
-  ): EitherT[Future, UpstreamErrorResponse, AddressChanged] =
-    if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty) {
-      EitherT[Future, UpstreamErrorResponse, AddressChanged](Future.successful(Right(AnyOtherMove)))
-    } else {
-      f
-    }
 
   private def containsScottishSubdivision(subdivision: Option[Country]): Boolean =
     subdivision.fold(false)(_.code.contains(scottishSubdivision))
