@@ -65,8 +65,6 @@ class HomeControllerWebChatISpec extends IntegrationSpec {
     when(mockWebChatClient.loadRequiredElements()(any())).thenReturn(Some(Html("loadRequiredElements")))
     when(mockWebChatClient.loadHMRCChatSkinElement(any(), any())(any()))
       .thenReturn(Some(Html("loadHMRCChatSkinElement")))
-    when(mockWebChatClient.loadWebChatContainer(any())(any()))
-      .thenReturn(Some(Html("loadWebChatContainer")))
   }
 
   "personal account page" must {
@@ -74,7 +72,7 @@ class HomeControllerWebChatISpec extends IntegrationSpec {
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
       contentAsString(result) must include("loadRequiredElements")
-      contentAsString(result) must include("loadWebChatContainer")
+      contentAsString(result) must include("loadHMRCChatSkinElement")
     }
   }
 
@@ -87,7 +85,7 @@ class HomeControllerWebChatISpec extends IntegrationSpec {
       ).get
       httpStatus(result) mustBe OK
       contentAsString(result) mustNot include("loadRequiredElements")
-      contentAsString(result) mustNot include("loadWebChatContainer")
+      contentAsString(result) mustNot include("loadHMRCChatSkinElement")
     }
   }
 }

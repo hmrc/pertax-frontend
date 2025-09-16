@@ -295,7 +295,7 @@ trait IntegrationSpec
       |            "pattern": "^/personal-account",
       |            "skinElement": "skinElement",
       |            "isEnabled": true,
-      |            "chatType": "loadWebChatContainer"
+      |            "chatType": "loadHMRCChatSkinElement"
       |        }
       |    ]
       |}
@@ -342,7 +342,7 @@ trait IntegrationSpec
       |            "pattern": "^/personal-account",
       |            "skinElement": "skinElement",
       |            "isEnabled": true,
-      |            "chatType": "loadWebChatContainer"
+      |            "chatType": "loadHMRCChatSkinElement"
       |        }
       |    ],
       |    "trustedHelper": {
