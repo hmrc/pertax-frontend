@@ -70,6 +70,21 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
       }
   }
 
+  def gettingCachedJourneyData(typ: AddrType)(implicit hc: HeaderCarrier): Future[AddressJourneyData] =
+    journeyCacheRepository.get.map { userAnswers =>
+      AddressJourneyData(
+        userAnswers.get(HasAddressAlreadyVisitedPage),
+        userAnswers.get(SubmittedResidencyChoicePage(typ)),
+        userAnswers.get(SelectedRecordSetPage(typ)),
+        userAnswers.get(AddressFinderPage(typ)),
+        userAnswers.get(SelectedAddressRecordPage(typ)),
+        userAnswers.get(SubmittedAddressPage(typ)),
+        userAnswers.get(SubmittedInternationalAddressChoicePage),
+        userAnswers.get(SubmittedStartDatePage(typ)),
+        userAnswers.get(AddressLookupServiceDownPage).getOrElse(false)
+      )
+    }
+
   def gettingCachedJourneyData[T](
     typ: AddrType
   )(block: AddressJourneyData => Future[T])(implicit request: UserRequest[_]): Future[T] = {

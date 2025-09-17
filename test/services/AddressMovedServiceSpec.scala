@@ -64,7 +64,7 @@ class AddressMovedServiceSpec extends BaseSpec {
               Future.successful(Right(englandRecordSet))
             )
           )
-        service.moved(fromPostcode, fromPostcode).futureValue mustBe AnyOtherMove
+        service.moved(fromPostcode, fromPostcode, false).futureValue mustBe AnyOtherMove
       }
 
       "there are no addresses returned for the previous address" in {
@@ -74,7 +74,7 @@ class AddressMovedServiceSpec extends BaseSpec {
               Future.successful(Right(RecordSet(Seq.empty[AddressRecord])))
             )
           )
-        service.moved(fromPostcode, fromPostcode).futureValue mustBe AnyOtherMove
+        service.moved(fromPostcode, fromPostcode, false).futureValue mustBe AnyOtherMove
       }
 
       "there are no addresses returned for the new address" in {
@@ -92,19 +92,19 @@ class AddressMovedServiceSpec extends BaseSpec {
             )
           )
 
-        service.moved(fromPostcode, toPostcode).futureValue mustBe AnyOtherMove
+        service.moved(fromPostcode, toPostcode, false).futureValue mustBe AnyOtherMove
       }
 
       "there is no postcode for the moving to address" in {
-        service.moved(fromPostcode, "").futureValue mustBe AnyOtherMove
+        service.moved(fromPostcode, "", false).futureValue mustBe AnyOtherMove
       }
 
       "there is no postcode for the moving from address" in {
-        service.moved("", toPostcode).futureValue mustBe AnyOtherMove
+        service.moved("", toPostcode, false).futureValue mustBe AnyOtherMove
       }
 
       "there is no postcode for both the moving to and moving from address" in {
-        service.moved("", "").futureValue mustBe AnyOtherMove
+        service.moved("", "", false).futureValue mustBe AnyOtherMove
       }
 
       List(
@@ -124,8 +124,12 @@ class AddressMovedServiceSpec extends BaseSpec {
                 Future.successful(Left(UpstreamErrorResponse("", BAD_REQUEST)))
               )
             )
-          service.moved(fromPostcode, fromPostcode).futureValue mustBe AnyOtherMove
+          service.moved(fromPostcode, fromPostcode, false).futureValue mustBe AnyOtherMove
         }
+      }
+
+      "when p85enabled is true" in {
+        service.moved(fromPostcode, toPostcode, true).futureValue mustBe AnyOtherMove
       }
     }
 
@@ -143,7 +147,7 @@ class AddressMovedServiceSpec extends BaseSpec {
           )
         )
 
-      service.moved(fromPostcode, toPostcode).futureValue mustBe MovedToScotland
+      service.moved(fromPostcode, toPostcode, false).futureValue mustBe MovedToScotland
     }
 
     "be MovedFromScotland when they have moved from Scotland" in {
@@ -160,7 +164,7 @@ class AddressMovedServiceSpec extends BaseSpec {
           )
         )
 
-      service.moved(fromPostcode, toPostcode).futureValue mustBe MovedFromScotland
+      service.moved(fromPostcode, toPostcode, false).futureValue mustBe MovedFromScotland
     }
   }
 }

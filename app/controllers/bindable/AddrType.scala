@@ -60,7 +60,7 @@ sealed trait AddrType {
     case ResidentialAddrType => residential
     case PostalAddrType      => postal
   }
-
 }
+
 case object PostalAddrType extends AddrType
 case object ResidentialAddrType extends AddrType
