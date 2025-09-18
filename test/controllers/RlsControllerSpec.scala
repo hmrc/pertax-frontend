@@ -80,8 +80,8 @@ class RlsControllerSpec extends BaseSpec {
         .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
 
       val rlsAddress = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
-      val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-      val pd = PersonDetails(person, rlsAddress, None)
+      val person     = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val pd         = PersonDetails(person, rlsAddress, None)
 
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(pd)))
