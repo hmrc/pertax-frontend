@@ -22,9 +22,9 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.admin.RlsInterruptToggle
 import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
-import org.mockito.ArgumentMatchers
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK, SEE_OTHER}
 import play.api.inject.bind
@@ -40,6 +40,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 
 class RlsControllerSpec extends BaseSpec {
 
@@ -71,6 +72,48 @@ class RlsControllerSpec extends BaseSpec {
       .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(RlsInterruptToggle, isEnabled = true)))
     when(mockCachingHelper.addToCache(any(), any())(any(), any())) thenReturn
       Future.successful(UserAnswers.empty("id"))
+  }
+
+  "rlsInterruptOnPageLoad" must {
+    "use helpee NINO for lookups when acting as a trusted helper" in {
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
+
+      val rlsAddress = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+      val person     = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val pd         = PersonDetails(person, rlsAddress, None)
+
+      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(pd)))
+
+      @volatile var seenUserRequest: Option[UserRequest[_]] = None
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {
+          val ur = buildUserRequest(request = request)
+          seenUserRequest = Some(ur)
+          block(ur)
+        }
+      })
+
+      val res: Future[Result] = controller.rlsInterruptOnPageLoad(FakeRequest())
+
+      status(res) mustBe OK
+
+      val lockCaptor = ArgumentCaptor.forClass(classOf[String])
+      val ninoCaptor = ArgumentCaptor.forClass(classOf[uk.gov.hmrc.domain.Nino])
+
+      verify(mockEditAddressLockRepository, times(2)).getAddressesLock(lockCaptor.capture())(any())
+      verify(mockCitizenDetailsService).personDetails(ninoCaptor.capture())(any(), any(), any())
+
+      val helpee = seenUserRequest.get.helpeeNinoOrElse
+
+      lockCaptor.getAllValues.asScala.foreach { v =>
+        v mustBe helpee.withoutSuffix
+      }
+
+      ninoCaptor.getValue mustBe helpee
+    }
   }
 
   "rlsInterruptOnPageLoad" must {
