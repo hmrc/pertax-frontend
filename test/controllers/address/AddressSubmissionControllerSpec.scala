@@ -294,6 +294,8 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
         .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
+      verify(mockEditAddressLockRepository, times(1))
+        .insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "redirect to start of journey if residentialSubmittedAddress is missing from the cache" in {

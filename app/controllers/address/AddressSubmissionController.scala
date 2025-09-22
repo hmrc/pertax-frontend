@@ -175,7 +175,7 @@ class AddressSubmissionController @Inject() (
                                              etag,
                                              addressType.ifIs("Residential", "Correspondence")
                                            )
-            _                           <- editAddressLockRepository.insert(nino.nino, addressType)
+            _                           <- editAddressLockRepository.insert(nino.withoutSuffix, addressType)
             addressMovedCountryInsideUk <-
               addressMovedService
                 .moved(
