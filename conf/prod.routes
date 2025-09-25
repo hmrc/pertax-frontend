@@ -97,7 +97,7 @@ GET         /personal-account/assets/*file                                      
 GET         /personal-account/sa/spread-the-cost-of-your-self-assessment               controllers.SaBppInterstitialPageController.onPageLoad
 POST        /personal-account/sa/spread-the-cost-of-your-self-assessment               controllers.SaBppInterstitialPageController.onSubmit
 
-GET         /personal-account/redirect-to-mdtp                                         controllers.InterstitialController.mtditRedirect
+GET         /personal-account/redirect-to-mtdit                                         controllers.InterstitialController.mtditRedirect
 
 ->         /admin                                                                      admin.Routes
 ->          /                                                                          health.Routes
