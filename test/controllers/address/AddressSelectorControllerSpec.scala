@@ -71,7 +71,7 @@ class AddressSelectorControllerSpec extends BaseSpec {
     super.beforeEach()
     reset(mockJourneyCacheRepository)
     reset(mockCitizenDetailsService)
-    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+    when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
         Future.successful(Right(Some(buildPersonDetailsWithPersonalAndCorrespondenceAddress)))
       )

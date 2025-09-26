@@ -89,7 +89,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
     "show manage your agent link successfully" in {
 
       server.stubFor(
-        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
           .willReturn(ok(designatoryDetails))
       )
       server.stubFor(
@@ -117,7 +117,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
     "show manage your agent link in 2 request but only one request to backend due to cache" in {
 
       server.stubFor(
-        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
           .willReturn(ok(designatoryDetails))
       )
       server.stubFor(
@@ -153,7 +153,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
     "loads between 1sec and 4sec due to early timeout on agent link" in {
 
       server.stubFor(
-        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
           .willReturn(ok(designatoryDetails))
       )
       server.stubFor(

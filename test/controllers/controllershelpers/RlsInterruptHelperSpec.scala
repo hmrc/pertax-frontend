@@ -77,7 +77,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
       "return the result of the block when residential and correspondence are not 1" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, Some(buildFakeAddress), Some(buildFakeCorrespondenceAddress))
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -94,7 +94,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails =
           PersonDetails("115", person, Some(buildFakeAddress.copy(isRls = true)), Some(buildFakeCorrespondenceAddress))
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -124,7 +124,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails =
           PersonDetails("115", person, Some(buildFakeAddress), Some(buildFakeCorrespondenceAddress.copy(isRls = true)))
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -158,7 +158,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -188,7 +188,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails =
           PersonDetails("115", person, Some(buildFakeAddress.copy(isRls = true)), Some(buildFakeCorrespondenceAddress))
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -218,7 +218,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails =
           PersonDetails("115", person, Some(buildFakeAddress), Some(buildFakeCorrespondenceAddress.copy(isRls = true)))
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -252,7 +252,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -286,7 +286,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -320,7 +320,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Some(buildFakeAddress.copy(isRls = true)),
           Some(buildFakeCorrespondenceAddress.copy(isRls = true))
         )
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 

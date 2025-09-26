@@ -76,7 +76,7 @@ class RlsControllerSpec extends BaseSpec {
   "rlsInterruptOnPageLoad" must {
     "return internal server error" when {
       "There is no personal details" in {
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.leftT[Future, PersonDetails](UpstreamErrorResponse("not found", NOT_FOUND))
         )
 
@@ -99,7 +99,7 @@ class RlsControllerSpec extends BaseSpec {
       "there is no residential and postal address" in {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, None, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -122,7 +122,7 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, address, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -145,7 +145,7 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, None, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -169,7 +169,7 @@ class RlsControllerSpec extends BaseSpec {
         val postalAddress = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, mainAddress, postalAddress)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -194,7 +194,7 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, address, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -219,7 +219,7 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, None, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -244,7 +244,7 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -269,7 +269,7 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, address, None)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -294,7 +294,7 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -319,7 +319,7 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -344,7 +344,7 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, None, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -369,7 +369,7 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -396,7 +396,7 @@ class RlsControllerSpec extends BaseSpec {
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails =
           PersonDetails("115", person, Fixtures.buildPersonDetailsCorrespondenceAddress.address, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -424,7 +424,7 @@ class RlsControllerSpec extends BaseSpec {
         val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
         val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails("115", person, None, address)
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
         )
 
@@ -457,7 +457,7 @@ class RlsControllerSpec extends BaseSpec {
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(RlsInterruptToggle, isEnabled = false)))
 
-    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+    when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
       EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
     )
 

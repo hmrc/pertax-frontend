@@ -113,7 +113,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         )
       )
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -131,7 +131,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(false))
         )
       )
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -148,7 +148,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         )
       )
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -161,7 +161,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
 
     "redirect to the beginning of the journey when user has not indicated Residency choice on previous page" in {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -175,7 +175,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
 
     "redirect to the beginning of the journey when user has not visited your-address page on correspondence journey" in {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -193,7 +193,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         )
       )
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -212,7 +212,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         )
       )
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -238,7 +238,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -279,7 +279,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           )
         when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
         when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
             Future.successful(Right(Some(personDetails)))
           )
@@ -307,7 +307,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -348,7 +348,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
             .setOrException(AddressFinderPage(ResidentialAddrType), AddressFinderDto("AA1 1AA", None))
         )
       )
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -390,7 +390,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -433,7 +433,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -467,7 +467,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -502,7 +502,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )

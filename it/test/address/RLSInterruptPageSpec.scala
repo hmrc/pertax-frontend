@@ -94,7 +94,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
              |""".stripMargin
 
         server.stubFor(
-          get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+          get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
             .willReturn(ok(designatoryDetails))
         )
 
@@ -136,7 +136,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
              |""".stripMargin
 
         server.stubFor(
-          get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+          get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
             .willReturn(ok(designatoryDetails))
         )
 
@@ -187,7 +187,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
              |""".stripMargin
 
         server.stubFor(
-          get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+          get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
             .willReturn(ok(designatoryDetails))
         )
 

@@ -454,7 +454,7 @@ class InterstitialControllerSpec extends BaseSpec {
       when(mockFormPartialService.getNISPPartial(any()))
         .thenReturn(Future.successful(HtmlPartial.Success(Some("title"), Html("nisp partial"))))
 
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(Fixtures.buildPersonDetails)))
 
       val bannerHtml = Html("<div class='voluntary-banner'>Banner Content</div>")

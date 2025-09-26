@@ -98,7 +98,7 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswersToReturn))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -111,7 +111,7 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
     }
 
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in {
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -137,7 +137,7 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -159,7 +159,7 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
       when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(true)
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -180,7 +180,7 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
       when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -196,7 +196,7 @@ class PostalDoYouLiveInTheUKControllerSpec extends BaseSpec {
 
       def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
 
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )

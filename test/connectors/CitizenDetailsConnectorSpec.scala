@@ -104,7 +104,7 @@ class CitizenDetailsConnectorSpec
   "Calling personDetails" must {
 
     trait LocalSetup extends SpecSetup {
-      def url: String = s"/citizen-details/$nino/designatory-details"
+      def url: String = s"/citizen-details/$nino/designatory-details?cached=true"
     }
 
     "return OK when called with an existing nino" in new LocalSetup {
@@ -154,13 +154,12 @@ class CitizenDetailsConnectorSpec
     "return CREATED when called with valid Nino and address data" in new LocalSetup {
       stubPost(url, CREATED, Some(requestBody), None)
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
+      val result: Either[UpstreamErrorResponse, Boolean] =
         connector
           .updateAddress(nino, etag, address)
           .value
           .futureValue
-      result mustBe a[Right[_, _]]
-      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe CREATED
+      result mustBe Right(true)
     }
 
     "return CREATED when called with a valid Nino and valid correspondence address with an end date" in new LocalSetup {
@@ -187,14 +186,13 @@ class CitizenDetailsConnectorSpec
 
       stubPost(url, CREATED, Some(requestBody), None)
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
+      val result: Either[UpstreamErrorResponse, Boolean] =
         connector
           .updateAddress(nino, etag, correspondenceAddress)
           .value
           .futureValue
 
-      result mustBe a[Right[_, _]]
-      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe CREATED
+      result mustBe Right(true)
     }
 
     "return BAD_REQUEST when Citizen Details service returns BAD_REQUEST" in new LocalSetup {
@@ -326,7 +324,7 @@ class CitizenDetailsConnectorTimeoutSpec
 
   "Calling personDetails" must {
     trait LocalSetup extends SpecSetup {
-      def url: String = s"/citizen-details/$nino/designatory-details"
+      def url: String = s"/citizen-details/$nino/designatory-details?cached=true"
     }
 
     "return bad gateway when the call to retrieve person details results in a timeout" in new LocalSetup {

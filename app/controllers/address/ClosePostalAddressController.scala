@@ -16,6 +16,7 @@
 
 package controllers.address
 
+import cats.data.EitherT
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
@@ -29,8 +30,9 @@ import models.{Address, EditCorrespondenceAddress, PersonDetails}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
-import services._
+import services.*
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
@@ -106,78 +108,55 @@ class ClosePostalAddressController @Inject() (
   def confirmSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { nino => personDetails =>
-        for {
-          addressChanges <- editAddressLockRepository.get(nino.withoutSuffix)
-          result         <- {
+        EitherT
+          .liftF(editAddressLockRepository.get(nino.withoutSuffix))
+          .flatMap { addressChanges =>
             if (addressChanges.map(_.editedAddress).exists(_.isInstanceOf[EditCorrespondenceAddress])) {
-              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
+              EitherT.rightT[Future, UpstreamErrorResponse](Redirect(routes.PersonalDetailsController.onPageLoad))
             } else {
+              println("PPPPPPPPP Submitting close postal address")
               submitConfirmClosePostalAddress(nino, personDetails)
             }
           }
-        } yield result
-
+          .fold(_ => errorRenderer.error(INTERNAL_SERVER_ERROR), identity)
       }
     }
 
   private def submitConfirmClosePostalAddress(
     nino: Nino,
     personDetails: PersonDetails
-  )(implicit request: UserRequest[_]): Future[Result] = {
+  )(implicit request: UserRequest[_]): EitherT[Future, UpstreamErrorResponse, Result] = {
 
     val address        = getAddress(personDetails.correspondenceAddress)
     val closingAddress = address.copy(startDate = Some(LocalDate.now), endDate = Some(LocalDate.now))
-    val etagValue      = personDetails.etag
-    val postcode       = address.postcode.getOrElse("")
 
-    citizenDetailsService
-      .getEtag(nino.nino)
-      .foldF(
-        _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
-        version =>
-          version
-            .map { version =>
-              citizenDetailsService
-                .updateAddress(nino, version.etag, closingAddress)
-                .foldF(
-                  error =>
-                    if (error.statusCode == BAD_REQUEST) {
-                      errorRenderer.futureError(BAD_REQUEST)
-                    } else {
-                      errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-                    },
-                  _ =>
-                    for {
-                      _        <- auditConnector.sendEvent(
-                                    buildEvent(
-                                      "closedAddressSubmitted",
-                                      "closure_of_correspondence",
-                                      auditForClosingPostalAddress(closingAddress, version.etag, "correspondence")
-                                    )
-                                  )
-                      _        <- cachingHelper
-                                    .clearCache() // This clears ENTIRE session cache, no way to target individual keys
-                      inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
-                      _        <- addressMovedService
-                                    .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""), false)
-                    } yield
-                      if (inserted) {
-                        Ok(
-                          updateAddressConfirmationView(
-                            PostalAddrType,
-                            closedPostalAddress = true,
-                            Some(getAddress(personDetails.address).fullAddress),
-                            None,
-                            displayP85Message = false
-                          )
-                        )
-                      } else {
-                        errorRenderer.error(INTERNAL_SERVER_ERROR)
-                      }
-                )
-            }
-            .getOrElse(errorRenderer.futureError(INTERNAL_SERVER_ERROR))
+    for {
+      _ <- citizenDetailsService
+             .updateAddress(nino, closingAddress, personDetails)
+      _ <- EitherT.liftF(
+             auditConnector.sendEvent(
+               buildEvent(
+                 "closedAddressSubmitted",
+                 "closure_of_correspondence",
+                 auditForClosingPostalAddress(closingAddress, personDetails.etag, "correspondence")
+               )
+             )
+           )
+      _ <- EitherT.liftF(editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType))
+      _ <- EitherT.liftF(citizenDetailsService.clearCachedPersonDetails(nino))
+      _ <- EitherT.liftF(
+             cachingHelper
+               .clearCache()
+           ) // This clears ENTIRE session cache, no way to target individual keys
+    } yield Ok(
+      updateAddressConfirmationView(
+        PostalAddrType,
+        closedPostalAddress = true,
+        Some(getAddress(personDetails.address).fullAddress),
+        None,
+        displayP85Message = false
       )
+    )
   }
 
   private def getAddress(address: Option[Address]): Address =

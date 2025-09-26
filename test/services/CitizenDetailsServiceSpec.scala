@@ -46,7 +46,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
     "personDetails is called" must {
 
       "return person details when connector returns and OK status with body" in {
-        when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, JsValue](
             Future.successful(Right(Json.toJson(buildPersonDetails)))
           )
@@ -76,7 +76,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
           when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
             .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
-          when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
+          when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
             EitherT[Future, UpstreamErrorResponse, JsValue](
               Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
             )
@@ -90,16 +90,16 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
     }
 
     "updateAddress is called" must {
-      "return HttpResponse with an OK status when connector returns and OK status with body" in {
+      "return Right(true) when connector returns and OK status with body" in {
         when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, HttpResponse](
-            Future.successful(Right(HttpResponse(OK, "")))
+          EitherT[Future, UpstreamErrorResponse, Boolean](
+            Future.successful(Right(true))
           )
         )
 
-        val result =
+        val result: Either[UpstreamErrorResponse, Boolean] =
           sut
-            .updateAddress(fakeNino, etag, buildFakeAddress)
+            .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
             .value
             .futureValue
 
@@ -124,7 +124,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
 
           val result =
             sut
-              .updateAddress(fakeNino, etag, buildFakeAddress)
+              .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
               .value
               .futureValue
               .swap

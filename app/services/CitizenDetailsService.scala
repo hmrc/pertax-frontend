@@ -22,6 +22,7 @@ import connectors.CitizenDetailsConnector
 import models.admin.GetPersonFromCitizenDetailsToggle
 import models.{Address, MatchingDetails, PersonDetails}
 import play.api.Logging
+import play.api.http.Status.CONFLICT
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
@@ -35,7 +36,8 @@ class CitizenDetailsService @Inject() (
 ) extends Logging {
 
   def personDetails(
-    nino: Nino
+    nino: Nino,
+    refreshCache: Boolean = false
   )(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
@@ -45,7 +47,7 @@ class CitizenDetailsService @Inject() (
       toggle <- EitherT.liftF(featureFlagService.get(GetPersonFromCitizenDetailsToggle))
       result <- if (toggle.isEnabled) {
                   citizenDetailsConnector
-                    .personDetails(nino)
+                    .personDetails(nino, refreshCache)
                     .map(jsValue => Some(jsValue.as[PersonDetails]))
                 } else {
                   logger.info(s"Feature flag disabled for nino: ${nino.value}")
@@ -53,12 +55,40 @@ class CitizenDetailsService @Inject() (
                 }
     } yield result
 
-  def updateAddress(nino: Nino, etag: String, address: Address)(implicit
+  def updateAddress(nino: Nino, newAddress: Address, currentPersonDetails: PersonDetails, tries: Int = 0)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, Boolean] =
-    citizenDetailsConnector.updateAddress(nino: Nino, etag: String, address: Address).map(_ => true)
+  ): EitherT[Future, UpstreamErrorResponse, Boolean] = {
+
+    def compareAndRetry(
+      currentPersonDetails: PersonDetails,
+      newPersonDetailsOption: Option[PersonDetails],
+      error: UpstreamErrorResponse
+    ): EitherT[Future, UpstreamErrorResponse, Boolean] =
+      newPersonDetailsOption.fold(EitherT.leftT[Future, Boolean](error)) { newPersonDetails =>
+        if (currentPersonDetails.address == newPersonDetails.address) {
+          // Address has not changed in NPS, it is safe to retry with the new etag
+          updateAddress(nino, newAddress, newPersonDetails, tries = tries + 1)
+        } else {
+          EitherT.leftT[Future, Boolean](error)
+        }
+      }
+
+    citizenDetailsConnector
+      .updateAddress(nino: Nino, currentPersonDetails.etag: String, newAddress: Address)
+      .leftFlatMap { error =>
+        if (error.statusCode == CONFLICT && tries == 0) {
+          logger.warn(s"Precondition failed when updating address, retrying once...")
+          for {
+            newPersonDetailsOption <- personDetails(nino, refreshCache = true)
+            result                 <- compareAndRetry(currentPersonDetails, newPersonDetailsOption, error)
+          } yield result
+        } else {
+          EitherT.leftT[Future, Boolean](error)
+        }
+      }
+  }
 
   def getMatchingDetails(
     nino: Nino
