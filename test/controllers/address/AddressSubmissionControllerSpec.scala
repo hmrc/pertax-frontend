@@ -21,7 +21,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto.{AddressDto, DateDto, InternationalAddressChoiceDto}
-import models.{Address, ETag, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
+import models.{Address, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as meq}
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -87,16 +87,12 @@ class AddressSubmissionControllerSpec extends BaseSpec {
     reset(mockCitizenDetailsService)
     reset(mockAuditConnector)
 
-    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+    when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
         Future.successful(Right(Some(personDetails)))
       )
     )
-    when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-      EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-        Future.successful(Right(Some(ETag("115"))))
-      )
-    )
+    when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.unit)
   }
 
   def currentRequest[A]: Request[A] =
@@ -274,7 +270,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
 
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
-      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
 
@@ -293,7 +289,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       status(result) mustBe OK
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
+        .updateAddress(meq(nino), meq(fakeAddress), meq(personDetails), any())(any(), any(), any())
       verify(mockEditAddressLockRepository, times(1))
         .insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
@@ -329,7 +325,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
         )
       )
-      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -349,7 +345,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq("115"), meq(buildFakeAddress))(any(), any(), any())
+        .updateAddress(meq(nino), meq(buildFakeAddress), meq(personDetails), any())(any(), any(), any())
     }
 
     "render the thank you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address, this time using postal type and having no postalSubmittedStartDate in the cache " in {
@@ -365,7 +361,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
             .setOrException(SubmittedAddressPage(PostalAddrType), addressDto)
         )
       )
-      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -391,7 +387,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
+        .updateAddress(meq(nino), meq(fakeAddress), meq(personDetails), any())(any(), any(), any())
     }
 
     "render the thank you page and log a manualAddressSubmitted audit event upon successful submission of a manually entered address" in {
@@ -405,7 +401,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
         )
       )
-      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -425,7 +421,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq("115"), meq(buildFakeAddress))(any(), any(), any())
+        .updateAddress(meq(nino), meq(buildFakeAddress), meq(personDetails), any())(any(), any(), any())
     }
 
     "render the thank you page and log a postcodeAddressModifiedSubmitted audit event upon successful of a modified address" in {
@@ -442,7 +438,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
             .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
         )
       )
-      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -463,31 +459,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
-    }
-
-    "return 500 when fetching etag from citizen details fails" in {
-
-      def eTagResponse: Option[ETag] = None
-      when(mockCitizenDetailsService.getEtag(any())(any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[ETag]](
-          Future.successful(Right(eTagResponse))
-        )
-      )
-      val addressDto: AddressDto     = asAddressDto(fakeStreetTupleListAddressForUnmodified)
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
-        Future.successful(
-          UserAnswers
-            .empty("id")
-            .setOrException(SubmittedAddressPage(PostalAddrType), addressDto)
-            .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
-        )
-      )
-      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-
-      val result: Future[Result] = controller.onSubmit(PostalAddrType)(fakePOSTRequest)
-
-      status(result) mustBe INTERNAL_SERVER_ERROR
+        .updateAddress(meq(nino), meq(fakeAddress), meq(personDetails), any())(any(), any(), any())
     }
 
     "render the confirmation page with the P85 messaging when updating to move to international address" in {
@@ -503,7 +475,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
             .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.OutsideUK)
         )
       )
-      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -529,7 +501,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
             .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
         )
       )
-      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -554,7 +526,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
         )
       )
-      when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.leftT[Future, Boolean](UpstreamErrorResponse("Start Date cannot be the same", 400))
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
@@ -565,6 +537,33 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       contentAsString(result) must include(
         Messages("label.the_date_you_entered_is_earlier_than_a_date_previously_held_")
       )
+    }
+
+    "render the error page when updateAddress returns a 409 Conflict" in {
+      val addressDto: AddressDto         = asAddressDto(fakeStreetTupleListAddressForUnmodified)
+      val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
+
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
+        Future.successful(
+          UserAnswers
+            .empty("id")
+            .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
+            .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
+        )
+      )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any()))
+        .thenReturn(EitherT.leftT[Future, Boolean](UpstreamErrorResponse("Conflict", 409)))
+
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
+
+      status(result) mustBe INTERNAL_SERVER_ERROR
+
+      verify(mockJourneyCacheRepository, times(1)).get(any())
+      // verify(mockCitizenDetailsService, times(1))
+      //  .updateAddress(meq(nino), any(), meq(personDetails), any())(any(), any(), any())
+      // verify(mockCitizenDetailsService, times(1))
+      //  .clearCachedPersonDetails(meq(nino))(any())
     }
   }
 }

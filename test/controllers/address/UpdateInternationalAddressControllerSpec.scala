@@ -83,7 +83,7 @@ class UpdateInternationalAddressControllerSpec extends BaseSpec {
     reset(mockCitizenDetailsService)
     reset(mockAuditConnector)
 
-    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+    when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
         Future.successful(Right(Some(personDetails)))
       )

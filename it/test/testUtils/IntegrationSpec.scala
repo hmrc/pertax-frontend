@@ -444,7 +444,7 @@ trait IntegrationSpec
       server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     }
     server.stubFor(
-      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
         .willReturn(aResponse().withStatus(NOT_FOUND))
     )
     server.stubFor(

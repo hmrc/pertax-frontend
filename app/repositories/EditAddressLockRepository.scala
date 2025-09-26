@@ -20,7 +20,6 @@ import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.bindable.AddrType
 import models._
-import org.mongodb.scala.MongoException
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import org.mongodb.scala.result.InsertOneResult
@@ -73,11 +72,7 @@ class EditAddressLockRepository @Inject() (
 
     logger.info("Inserting address lock: " + AddressJourneyTTLModel(nino, record).toString)
 
-    insertCore(AddressJourneyTTLModel(nino, record)).map(_.wasAcknowledged()) recover { case e: MongoException =>
-      val errorCode = e.getCode
-      logger.error(s"Edit address lock failure with error $errorCode")
-      false
-    }
+    insertCore(AddressJourneyTTLModel(nino, record)).map(_.wasAcknowledged())
   }
 
   def get(nino: String): Future[List[AddressJourneyTTLModel]] =

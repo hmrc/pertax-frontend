@@ -19,12 +19,12 @@ package services
 import cats.data.EitherT
 import connectors.CitizenDetailsConnector
 import models.admin.GetPersonFromCitizenDetailsToggle
-import models.{ETag, MatchingDetails}
+import models.MatchingDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.http.Status._
-import play.api.libs.json.{JsValue, Json, OWrites}
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.Helpers.GET
 import play.api.test.{FakeRequest, Injecting}
@@ -46,7 +46,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
     "personDetails is called" must {
 
       "return person details when connector returns and OK status with body" in {
-        when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, JsValue](
             Future.successful(Right(Json.toJson(buildPersonDetails)))
           )
@@ -76,7 +76,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
           when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
             .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
-          when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
+          when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
             EitherT[Future, UpstreamErrorResponse, JsValue](
               Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
             )
@@ -90,16 +90,16 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
     }
 
     "updateAddress is called" must {
-      "return HttpResponse with an OK status when connector returns and OK status with body" in {
+      "return Right(true) when connector returns and OK status with body" in {
         when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, HttpResponse](
-            Future.successful(Right(HttpResponse(OK, "")))
+          EitherT[Future, UpstreamErrorResponse, Boolean](
+            Future.successful(Right(true))
           )
         )
 
-        val result =
+        val result: Either[UpstreamErrorResponse, Boolean] =
           sut
-            .updateAddress(fakeNino, etag, buildFakeAddress)
+            .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
             .value
             .futureValue
 
@@ -124,7 +124,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
 
           val result =
             sut
-              .updateAddress(fakeNino, etag, buildFakeAddress)
+              .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
               .value
               .futureValue
               .swap
@@ -196,47 +196,6 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         }
       }
     }
-
-    "getEtag is called" must {
-      implicit val etagWrites: OWrites[ETag] = Json.writes[ETag]
-
-      "return etag when connector returns and OK status with body" in {
-        when(mockConnector.getEtag(any())(any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, HttpResponse](
-            Future.successful(Right(HttpResponse(OK, Json.toJson(ETag("1")).toString)))
-          )
-        )
-
-        val result =
-          sut.getEtag(fakeNino.nino).value.futureValue
-
-        result mustBe a[Right[_, _]]
-        result.getOrElse(Some(ETag("wrong etag"))) mustBe Some(ETag("1"))
-      }
-
-      List(
-        BAD_REQUEST,
-        NOT_FOUND,
-        TOO_MANY_REQUESTS,
-        REQUEST_TIMEOUT,
-        INTERNAL_SERVER_ERROR,
-        SERVICE_UNAVAILABLE,
-        BAD_GATEWAY
-      ).foreach { errorResponse =>
-        s"return an UpstreamErrorResponse containing $errorResponse when connector returns the same" in {
-          when(mockConnector.getEtag(any())(any(), any())).thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
-              Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
-            )
-          )
-
-          val result =
-            sut.getEtag(fakeNino.nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
-          result mustBe errorResponse
-        }
-      }
-    }
-
   }
 
 }

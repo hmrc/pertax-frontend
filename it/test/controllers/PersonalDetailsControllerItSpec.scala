@@ -36,7 +36,7 @@ class PersonalDetailsControllerItSpec extends IntegrationSpec {
 
   val uuid: String                                    = UUID.randomUUID().toString
   val agentClientAuthorisationUrl: String             = "/agent-client-relationships/customer-status"
-  val personDetailsUrl: String                        = s"/citizen-details/$generatedNino/designatory-details"
+  val personDetailsUrl: String                        = s"/citizen-details/$generatedNino/designatory-details?cached=true"
   implicit lazy val messageProvider: MessagesProvider = app.injector.instanceOf[MessagesProvider]
   val paperlessStatusTargetUrl: String                =
     "http://localhost/paperless/check-settings?returnUrl=encrypted1&returnLinkText=encrypted2"

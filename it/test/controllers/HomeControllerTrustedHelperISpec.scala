@@ -126,7 +126,7 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authTrustedHelperResponse)))
 
     server.stubFor(
-      get(urlEqualTo(s"/citizen-details/$generatedHelperNino/designatory-details"))
+      get(urlEqualTo(s"/citizen-details/$generatedHelperNino/designatory-details?cached=true"))
         .willReturn(ok(personDetailsResponse(generatedHelperNino.nino)))
     )
 
@@ -145,7 +145,10 @@ class HomeControllerTrustedHelperISpec extends IntegrationSpec {
       httpStatus(result) mustBe OK
       contentAsString(result) must include("principal Name")
       server.verify(1, postRequestedFor(urlEqualTo(pertaxUrl)))
-      server.verify(1, getRequestedFor(urlEqualTo(s"/citizen-details/$generatedHelperNino/designatory-details")))
+      server.verify(
+        1,
+        getRequestedFor(urlEqualTo(s"/citizen-details/$generatedHelperNino/designatory-details?cached=true"))
+      )
 
     }
     "show the home page when helping someone - no trusted helper" in {

@@ -207,7 +207,7 @@ class ContentsCheckSpec extends IntegrationSpec {
     )
     .toString
 
-  val personDetailsUrl: String = s"/citizen-details/$generatedNino/designatory-details"
+  val personDetailsUrl: String = s"/citizen-details/$generatedNino/designatory-details?cached=true"
 
   override def beforeEach(): Unit = {
     super.beforeEach()
