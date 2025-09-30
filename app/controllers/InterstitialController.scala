@@ -269,4 +269,8 @@ class InterstitialController @Inject() (
     }
   }
 
+  def mtditRedirect: Action[AnyContent] = Action { implicit request =>
+    Redirect(configDecorator.useMTDIT)
+  }
+
 }

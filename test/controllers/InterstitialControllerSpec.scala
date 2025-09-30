@@ -469,4 +469,15 @@ class InterstitialControllerSpec extends BaseSpec {
       content must include("voluntary-banner")
     }
   }
+
+  "mtditRedirect" must {
+    "redirect to the correct govuk url" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+
+      val result = controller.mtditRedirect(fakeRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("https://www.gov.uk/guidance/use-making-tax-digital-for-income-tax")
+    }
+  }
 }
