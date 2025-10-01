@@ -23,7 +23,7 @@ import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto.{AddressDto, DateDto, InternationalAddressChoiceDto}
 import models.{Address, ETag, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.{any, eq => meq}
+import org.mockito.ArgumentMatchers.{any, eq as meq}
 import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.http.Status.OK
@@ -31,16 +31,16 @@ import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.JourneyCacheRepository
 import routePages.{SelectedAddressRecordPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage, SubmittedStartDatePage}
 import services.CitizenDetailsService
-import testUtils.Fixtures._
+import testUtils.Fixtures.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 
 import java.time.LocalDate
@@ -290,6 +290,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
             .setOrException(SubmittedAddressPage(PostalAddrType), addressDto)
         )
       )
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result: Future[Result] = controller.onSubmit(PostalAddrType)(fakePOSTRequest)
 
@@ -297,6 +298,8 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
         .updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any(), any(), any())
+      verify(mockEditAddressLockRepository, times(1))
+        .insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "redirect to start of journey if residentialSubmittedAddress is missing from the cache" in {
@@ -308,6 +311,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
         )
       )
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
@@ -334,6 +338,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
@@ -370,6 +375,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")
@@ -410,6 +416,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
@@ -447,6 +454,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
@@ -510,6 +518,8 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
       status(result) mustBe 200
@@ -533,6 +543,8 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         EitherT.rightT[Future, UpstreamErrorResponse](true)
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 

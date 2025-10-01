@@ -97,6 +97,8 @@ GET         /personal-account/assets/*file                                      
 GET         /personal-account/sa/spread-the-cost-of-your-self-assessment               controllers.SaBppInterstitialPageController.onPageLoad
 POST        /personal-account/sa/spread-the-cost-of-your-self-assessment               controllers.SaBppInterstitialPageController.onSubmit
 
+GET         /personal-account/redirect-to-making-tax-digital                           controllers.InterstitialController.mtditRedirect
+
 ->         /admin                                                                      admin.Routes
 ->          /                                                                          health.Routes
 ->          /personal-account/hmrc-frontend                                            hmrcfrontend.Routes

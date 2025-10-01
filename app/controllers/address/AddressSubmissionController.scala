@@ -144,7 +144,7 @@ class AddressSubmissionController @Inject() (
                         val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
 
                         addressMovedService
-                          .moved(originalPostcode, address.postcode.getOrElse(""))
+                          .moved(originalPostcode, address.postcode.getOrElse(""), p85Enabled)
                           .flatMap { addressChanged =>
                             def successResponseBlock(): Result = {
                               val originalAddressDto: Option[AddressDto] =

@@ -36,6 +36,6 @@
     @p(Text(messages("label.mtdit.page.p1")))
     @p(Text(messages("label.mtdit.page.p2")))
     
-    @link(configDecorator.useMTDIT, messages("label.mtdit.page.find_out_more"))
+    @link(controllers.routes.InterstitialController.mtditRedirect.url, messages("label.mtdit.page.find_out_more"))
 
 }
