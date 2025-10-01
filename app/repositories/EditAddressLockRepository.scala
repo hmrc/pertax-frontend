@@ -32,8 +32,6 @@ import java.time.{Instant, OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
-import org.mongodb.scala.SingleObservableFuture
-import org.mongodb.scala.ObservableFuture
 
 @Singleton
 class EditAddressLockRepository @Inject() (

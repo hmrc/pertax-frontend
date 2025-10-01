@@ -156,7 +156,7 @@ class ClosePostalAddressController @Inject() (
                                     .clearCache() // This clears ENTIRE session cache, no way to target individual keys
                       inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
                       _        <- addressMovedService
-                                    .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
+                                    .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""), false)
                     } yield
                       if (inserted) {
                         Ok(

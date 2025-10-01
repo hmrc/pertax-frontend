@@ -19,11 +19,11 @@ package controllers
 import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.admin.{BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import org.scalatest.AppendedClues.convertToClueful
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.libs.json.Json
@@ -31,10 +31,11 @@ import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
 import testUtils.{FileHelper, IntegrationSpec}
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.sca.models.{MenuItemConfig, PtaMinMenuConfig, UrBanner, Webchat, WrapperDataResponse}
-
+import uk.gov.hmrc.sca.models.*
+import org.scalatest.AppendedClues.convertToClueful
 import java.util.UUID
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -186,7 +187,22 @@ class ContentsCheckSpec extends IntegrationSpec {
         menuWrapperData,
         PtaMinMenuConfig("MenuName", "BackName"),
         List.empty[UrBanner],
-        List.empty[Webchat]
+        List.empty[Webchat],
+        Some(messageCount),
+        None
+      )
+    )
+    .toString
+
+  private val wrapperDataResponseWithTrustedHelper = Json
+    .toJson(
+      WrapperDataResponse(
+        menuWrapperData,
+        PtaMinMenuConfig("MenuName", "BackName"),
+        List.empty[UrBanner],
+        List.empty[Webchat],
+        Some(messageCount),
+        Some(TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedNino.nino)))
       )
     )
     .toString
@@ -215,12 +231,6 @@ class ContentsCheckSpec extends IntegrationSpec {
       WireMock
         .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
         .willReturn(ok(wrapperDataResponse))
-    )
-
-    server.stubFor(
-      WireMock
-        .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-        .willReturn(ok(s"$messageCount"))
     )
 
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponseSA)))
@@ -298,15 +308,26 @@ class ContentsCheckSpec extends IntegrationSpec {
   def request(url: String): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid, SessionKeys.authToken -> "Bearer 1")
 
+  private def setupWrapperData(attorneyBannerPresent: Boolean): StubMapping =
+    if (attorneyBannerPresent) {
+      server.stubFor(
+        WireMock
+          .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
+          .willReturn(ok(wrapperDataResponseWithTrustedHelper))
+      )
+    } else {
+      server.stubFor(
+        WireMock
+          .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
+          .willReturn(ok(wrapperDataResponse))
+      )
+    }
+
   "/personal-account/" when {
     "calling authenticated pages"   must
       urls.foreach { case (url, expectedData: ExpectedData) =>
         s"pass content checks at url $url" in {
-          if (expectedData.attorneyBannerPresent) {
-            server.stubFor(get(urlEqualTo("/delegation/get")).willReturn(ok(fandfTrustedHelperResponse)))
-          } else {
-            server.stubFor(get(urlEqualTo("/delegation/get")).willReturn(notFound()))
-          }
+          setupWrapperData(expectedData.attorneyBannerPresent)
           val result: Future[Result] = route(app, request(url)).get
           val content                = Jsoup.parse(contentAsString(result))
 
@@ -373,7 +394,7 @@ class ContentsCheckSpec extends IntegrationSpec {
               .get(urlMatching("/mdtp/journey/journeyId/1234"))
               .willReturn(ok(s""""{"journeyResult": "LockedOut"}""".stripMargin))
           )
-
+          setupWrapperData(expectedData.attorneyBannerPresent)
           val result: Future[Result] = route(app, FakeRequest(GET, url)).get
           val content                = Jsoup.parse(contentAsString(result))
 

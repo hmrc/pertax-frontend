@@ -63,6 +63,7 @@ GET         /personal-account/your-address/change-postal-address                
 GET         /personal-account/self-assessment-summary                                  controllers.InterstitialController.displaySelfAssessment
 GET         /personal-account/self-assessment/sa302/:year                              controllers.InterstitialController.displaySa302Interrupt(year: Int)
 GET         /personal-account/self-assessment-home                                     controllers.InterstitialController.displayItsaMergePage
+GET         /personal-account/making-tax-digital-for-income-tax                        controllers.InterstitialController.displayMTDITPage
 
 GET         /personal-account/sa-enrolment                                             controllers.SelfAssessmentController.redirectToEnrolForSa
 
@@ -92,6 +93,11 @@ GET         /personal-account/services-unavailable                              
 GET         /personal-account/check-your-state-pension-call-back                       controllers.InterstitialController.displayCheckYourStatePensionCallBackView
 
 GET         /personal-account/assets/*file                                             controllers.AssetsController.versioned(path="/public", file: Asset)
+
+GET         /personal-account/sa/spread-the-cost-of-your-self-assessment               controllers.SaBppInterstitialPageController.onPageLoad
+POST        /personal-account/sa/spread-the-cost-of-your-self-assessment               controllers.SaBppInterstitialPageController.onSubmit
+
+GET         /personal-account/redirect-to-making-tax-digital                           controllers.InterstitialController.mtditRedirect
 
 ->         /admin                                                                      admin.Routes
 ->          /                                                                          health.Routes

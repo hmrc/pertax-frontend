@@ -488,6 +488,13 @@ label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigi
 label.online_deadline_final_declarations=Y dyddiad cau ar gyfer datganiadau terfynol neu Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
 label.making_tax_digital=Troi Treth yn Ddigidol
 
+label.mtdit.heading=Troi Treth yn Ddigidol ar gyfer Treth Incwm
+label.mtdit.p1=Os ydych yn unig fasnachwr neu’n landlord, mae ffordd newydd o adrodd am eich incwm a’ch treuliau. Dysgwch ragor.
+
+label.mtdit.page.p1=Mae’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm yn ffordd newydd i unig fasnachwyr a landlordiaid roi gwybod i CThEF am incwm a threuliau.
+label.mtdit.page.p2=O 6 Ebrill 2026 ymlaen, mae’n rhaid i rai unig fasnachwyr a landlordiaid ei ddefnyddio, yn seiliedig ar gyfanswm eu hincwm blynyddol o hunangyflogaeth ac eiddo.
+label.mtdit.page.find_out_more=Dysgwch ragor ynghylch Troi Treth yn Ddigidol ar gyfer Treth Incwm a gweld a allwch gofrestru’n gynnar
+
 #
 # Breathing Space
 #
@@ -551,6 +558,8 @@ label.your_account=Eich Cyfrif
 
 label.messages=Negeseuon
 label.message=Neges
+
+label.messages.trusted_helpers.helpee=Ni allwch fwrw golwg dros negeseuon {0} fel ei Gynorthwyydd Dibynadwy.
 
 label.your_paperless_settings=eich gosodiadau di-bapur
 label.paperless_settings=Dewisiadau o ran cysylltu
@@ -820,3 +829,10 @@ callback_contact_timing=cysylltu â chi cyn pen 8 wythnos
 callback_contact_notification=anfon neges destun atoch 1 diwrnod cyn i ni ffonio
 callback_preparation=Sicrhewch fod gennych eich rhif Yswiriant Gwladol wrth law pan fyddwn yn eich ffonio.
 return_to_national_insurance=Yn ôl i’ch Yswiriant Gwladol a’ch Pensiwn y Wladwriaeth
+
+
+head.sa.message.selectSABPPPaymentType.error.required=Dewiswch sut yr hoffech ledaenu cost eich Hunanasesiad
+sa.message.selectSABPPPaymentType.title=Defnyddio Debyd Uniongyrchol i ledaenu cost eich Hunanasesiad
+sa.message.selectSABPPPaymentType.saBppOverduePayment=Talu bil Hunanasesiad sy’n orddyledus
+sa.message.selectSABPPPaymentType.saBppAdvancePayment=Talu fy mil Hunanasesiad nesaf ymlaen llaw
+sa.message.selectSABPPPaymentType.error.required=Dewiswch sut yr hoffech ledaenu cost eich Hunanasesiad

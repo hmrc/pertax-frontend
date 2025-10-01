@@ -17,7 +17,7 @@
 package config
 
 import play.api.Configuration
-import uk.gov.hmrc.crypto.{ApplicationCrypto, Decrypter, Encrypter}
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter, SymmetricCryptoFactory}
 
 import javax.inject.{Inject, Provider, Singleton}
 
@@ -27,5 +27,5 @@ class CryptoProvider @Inject() (
 ) extends Provider[Encrypter with Decrypter] {
 
   override def get(): Encrypter with Decrypter =
-    new ApplicationCrypto(configuration.underlying).JsonCrypto
+    SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "mongodb.encryption", configuration.underlying)
 }

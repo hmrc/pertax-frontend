@@ -102,19 +102,14 @@ class MainViewSpec extends IntegrationSpec {
         ),
         PtaMinMenuConfig("MenuName", "BackName"),
         List.empty[UrBanner],
-        List.empty[Webchat]
+        List.empty[Webchat],
+        None,
+        None
       )
     )
     .toString
 
   trait LocalSetup {
-
-    server.stubFor(
-      WireMock
-        .get(urlMatching("/single-customer-account-wrapper-data/message-data.*"))
-        .willReturn(ok(s"""{"count": 0}"""))
-    )
-
     server.stubFor(
       WireMock
         .get(urlMatching("/single-customer-account-wrapper-data/wrapper-data.*"))
@@ -257,7 +252,7 @@ class MainViewSpec extends IntegrationSpec {
           assertContainsLink(
             doc,
             "Return to your account",
-            "http://localhost:9231/trusted-helpers/redirect-to-trusted-helpers"
+            url
           )
         }
       }

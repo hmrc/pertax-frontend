@@ -18,12 +18,12 @@ package testUtils
 
 import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.admin._
+import models.admin.*
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset as resetMock, when}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -36,12 +36,12 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
 import repositories.JourneyCacheRepository
 import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import org.mockito.Mockito.{reset => resetMock}
-import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import java.time.LocalDateTime
+import scala.annotation.tailrec
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
@@ -266,16 +266,6 @@ trait IntegrationSpec
        |]
     """.stripMargin
 
-  val fandfTrustedHelperResponse: String =
-    s"""
-      |{
-      |   "principalName": "principal Name",
-      |   "attorneyName": "attorneyName",
-      |   "returnLinkUrl": "returnLink",
-      |   "principalNino": "$generatedNino"
-      |}
-      |""".stripMargin
-
   val singleAccountWrapperDataResponse: String =
     """
       |{
@@ -304,9 +294,63 @@ trait IntegrationSpec
       |        {
       |            "pattern": "^/personal-account",
       |            "skinElement": "skinElement",
-      |            "isEnabled": true
+      |            "isEnabled": true,
+      |            "chatType": "loadHMRCChatSkinElement"
       |        }
       |    ]
+      |}
+      |""".stripMargin
+
+  @tailrec
+  private def generateHelperNino: Nino = {
+    val nino = new Generator().nextNino
+    if (nino == generatedNino) {
+      generateHelperNino
+    } else {
+      nino
+    }
+  }
+
+  protected val generatedHelperNino: Nino = generateHelperNino
+
+  val singleAccountWrapperDataResponseWithTrustedHelper: String =
+    s"""
+      |{
+      |    "menuItemConfig": [
+      |        {
+      |            "id": "home",
+      |            "text": "Account home",
+      |            "href": "http://localhost:9232/personal-account",
+      |            "leftAligned": true,
+      |            "position": 0,
+      |            "icon": "hmrc-account-icon hmrc-account-icon--home"
+      |        }
+      |    ],
+      |    "ptaMinMenuConfig": {
+      |        "menuName": "Account menu",
+      |        "backName": "Back"
+      |    },
+      |    "urBanners": [
+      |        {
+      |           "page": "test-page",
+      |           "link": "test-link",
+      |           "isEnabled": true
+      |        }
+      |    ],
+      |    "webchatPages": [
+      |        {
+      |            "pattern": "^/personal-account",
+      |            "skinElement": "skinElement",
+      |            "isEnabled": true,
+      |            "chatType": "loadHMRCChatSkinElement"
+      |        }
+      |    ],
+      |    "trustedHelper": {
+      |       "principalName": "principal Name",
+      |       "attorneyName": "attorneyName",
+      |       "returnLinkUrl": "returnLink",
+      |       "principalNino": "$generatedHelperNino"    
+      |    }
       |}
       |""".stripMargin
 
@@ -374,9 +418,10 @@ trait IntegrationSpec
         .get(urlMatching("/delegation/get"))
         .willReturn(notFound())
     )
+
     server.stubFor(
       WireMock
-        .get(urlEqualTo("/single-customer-account-wrapper-data/wrapper-data?lang=en&version=1.0.3"))
+        .get(urlEqualTo("/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en&version=1.0.3"))
         .willReturn(
           aResponse()
             .withBody(singleAccountWrapperDataResponse)

@@ -31,6 +31,8 @@ class ConfigDecorator @Inject() (
   servicesConfig: ServicesConfig
 ) {
 
+  val runMode: Option[String] = runModeConfiguration.getOptional[String]("run.mode")
+
   lazy val internalAuthResourceType: String =
     runModeConfiguration.getOptional[String]("internal-auth.resource-type").getOrElse("ddcn-live-admin-frontend")
 
@@ -190,6 +192,7 @@ class ConfigDecorator @Inject() (
   lazy val pegaSaRegistrationUrl: String = runModeConfiguration.get[String]("external-url.pegaSaRegistration.url")
 
   lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
+  lazy val useMTDIT: String              = "https://www.gov.uk/guidance/use-making-tax-digital-for-income-tax"
 
   lazy val childBenefitTaxChargeWelsh: String = "https://www.gov.uk/tal-treth-budd-dal-plant"
 
@@ -214,9 +217,6 @@ class ConfigDecorator @Inject() (
       .getOptional[String]("feature.update-international-address-form.enabled")
       .getOrElse("false")
       .toBoolean
-
-  lazy val partialUpgradeEnabled: Boolean =
-    runModeConfiguration.getOptional[Boolean]("feature.partial-upgraded-required.enabled").getOrElse(false)
 
   lazy val itsaViewUrl = s"$incomeTaxViewChangeFrontendHost/report-quarterly/income-and-expenses/view?origin=PTA"
 
@@ -278,9 +278,14 @@ class ConfigDecorator @Inject() (
   lazy val pegaSaRegistrationEnabled: Boolean =
     servicesConfig.getBoolean("feature.pegaSaRegistration.enabled")
 
-  val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongo.encryption.enabled")
+  val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongodb.encryption.enabled")
 
   val payeToPegaRedirectList: Seq[Int] = runModeConfiguration.get[Seq[Int]]("paye.to.pega.redirect.list")
   val payeToPegaRedirectUrl: String    = runModeConfiguration.get[String]("paye.to.pega.redirect.url")
+
+  val ssttfHost: String                         = getExternalUrl("self-service-time-to-pay-frontend.host").getOrElse("")
+  val bppSpreadTheCostOverduePaymentUrl         = s"$ssttfHost/pay-what-you-owe-in-instalments"
+  val bppSpreadTheCostAdvancePaymentUrl: String =
+    getExternalUrl("bppSpreadTheCostAdvancePaymentUrl").getOrElse("")
 
 }

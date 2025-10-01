@@ -33,6 +33,7 @@ import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
 import play.twirl.api.Html
+import services.URLService
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -50,6 +51,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
 
   private val mockConfigDecorator: ConfigDecorator     = mock[ConfigDecorator]
   private val mockPertaxConnector                      = mock[PertaxConnector]
+  val urlService: URLService                           = inject[URLService]
   val internalServerErrorView: InternalServerErrorView = app.injector.instanceOf[InternalServerErrorView]
   val mainView: MainView                               = app.injector.instanceOf[MainView]
   private val cc                                       = app.injector.instanceOf[ControllerComponents]
@@ -58,6 +60,7 @@ class PertaxAuthActionSpec extends BaseSpec with IntegrationPatience {
   val pertaxAuthAction =
     new PertaxAuthAction(
       mockPertaxConnector,
+      urlService,
       internalServerErrorView,
       mainView,
       cc

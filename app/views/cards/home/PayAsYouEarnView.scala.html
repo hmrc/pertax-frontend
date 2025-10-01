@@ -24,7 +24,7 @@
 
 @urlToPaye() = @{
     val penultimateDigit = request.authNino.nino.charAt(6).asDigit
-    if (shouldUsePegaRouting && configDecorator.payeToPegaRedirectList.contains(penultimateDigit)) {
+    if (shouldUsePegaRouting && configDecorator.payeToPegaRedirectList.contains(penultimateDigit) && request.trustedHelper.isEmpty) {
         configDecorator.payeToPegaRedirectUrl
     } else {
         s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do"

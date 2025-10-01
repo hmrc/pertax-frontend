@@ -17,7 +17,7 @@
 package util
 
 import testUtils.BaseSpec
-import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.ApplicationCrypto
 
 class ToolsSpec extends BaseSpec {
 
