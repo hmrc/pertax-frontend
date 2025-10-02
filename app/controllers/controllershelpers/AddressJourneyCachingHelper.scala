@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,23 +51,6 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
   def clearCache()(implicit request: UserRequest[_]): Future[Unit] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     journeyCacheRepository.clear(hc)
-  }
-
-  def gettingCachedAddressLookupServiceDown[T](
-    block: Option[Boolean] => T
-  )(implicit request: UserRequest[_]): Future[T] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    journeyCacheRepository
-      .get(hc)
-      .map { userAnswers =>
-        block(userAnswers.get(AddressLookupServiceDownPage))
-      }
-      .recover {
-        case _: JsResultException =>
-          logger.error(s"Failed to read cached address lookup service down")
-          block(None)
-        case NonFatal(e)          => throw e
-      }
   }
 
   def gettingCachedJourneyData(typ: AddrType)(implicit hc: HeaderCarrier): Future[AddressJourneyData] =

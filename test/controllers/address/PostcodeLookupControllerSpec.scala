@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.JourneyCacheRepository
-import routePages.{AddressFinderPage, AddressLookupServiceDownPage, HasAddressAlreadyVisitedPage}
+import routePages.{AddressFinderPage, HasAddressAlreadyVisitedPage}
 import services.CitizenDetailsService
 import testUtils.Fixtures.{buildPersonDetailsWithPersonalAndCorrespondenceAddress, fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
 import testUtils.UserRequestFixture.buildUserRequest
@@ -83,13 +83,10 @@ class PostcodeLookupControllerSpec extends BaseSpec {
     reset(mockAddressLookupConnector)
     reset(mockJourneyCacheRepository)
     reset(mockAuditConnector)
-    reset(mockJourneyCacheRepository)
 
     when(mockAddressLookupConnector.lookup(any(), any())(any(), any())) thenReturn
       EitherT[Future, UpstreamErrorResponse, RecordSet](
-        Future.successful(
-          Right(RecordSet(List()))
-        )
+        Future.successful(Right(RecordSet(List())))
       )
   }
 
@@ -114,31 +111,10 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
-
-      status(result) mustBe OK
-    }
-
-    "return 303 if the user has entered a residency choice on the previous page" in {
-
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
-        Future.successful(
-          UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(false))
-        )
-      )
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
-      )
-
-      val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
-
       status(result) mustBe OK
     }
 
@@ -149,22 +125,17 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
-
       status(result) mustBe OK
     }
 
     "redirect to the beginning of the journey when user has not indicated Residency choice on previous page" in {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
@@ -176,9 +147,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
     "redirect to the beginning of the journey when user has not visited your-address page on correspondence journey" in {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
@@ -194,9 +163,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
@@ -213,9 +180,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(FakeRequest())
@@ -229,19 +194,13 @@ class PostcodeLookupControllerSpec extends BaseSpec {
 
   "onSubmit" must {
 
-    "return 404 and log a addressLookupNotFound audit event when an empty record set is returned by the address lookup service" in {
+    "return 404 and log an addressLookupNotFound audit event when an empty record set is returned by the address lookup service" in {
       when(mockAddressLookupConnector.lookup(any(), any())(any(), any())) thenReturn
-        EitherT[Future, UpstreamErrorResponse, RecordSet](
-          Future.successful(
-            Right(RecordSet(List()))
-          )
-        )
+        EitherT[Future, UpstreamErrorResponse, RecordSet](Future.successful(Right(RecordSet(List()))))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       def currentRequest[A]: Request[A] =
@@ -273,17 +232,14 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       s"redirect to 'Edit your address' when address lookup service is a Left containing $errorResponse" in {
         when(mockAddressLookupConnector.lookup(any(), any())(any(), any())) thenReturn
           EitherT[Future, UpstreamErrorResponse, RecordSet](
-            Future.successful(
-              Left(UpstreamErrorResponse("", errorResponse))
-            )
+            Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
           )
         when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
         when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
         when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-            Future.successful(Right(Some(personDetails)))
-          )
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
         )
+
         def currentRequest[A]: Request[A] =
           FakeRequest("POST", "/test")
             .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
@@ -296,21 +252,15 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       }
     }
 
-    "redirect to the edit address page for a postal address type and log a addressLookupResults audit event when a single record is returned by the address lookup service" in {
+    "redirect to the edit address page for a postal address type and log an addressLookupResults audit event when a single record is returned by the address lookup service" in {
       def addressLookupResponse: RecordSet = RecordSet(List(fakeStreetPafAddressRecord))
 
       when(mockAddressLookupConnector.lookup(any(), any())(any(), any())) thenReturn
-        EitherT[Future, UpstreamErrorResponse, RecordSet](
-          Future.successful(
-            Right(addressLookupResponse)
-          )
-        )
+        EitherT[Future, UpstreamErrorResponse, RecordSet](Future.successful(Right(addressLookupResponse)))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
       def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")
@@ -331,15 +281,11 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       )
     }
 
-    "redirect to the edit-address page for a non postal address type and log a addressLookupResults audit event when a single record is returned by the address lookup service" in {
+    "redirect to the edit-address page for a non postal address type and log an addressLookupResults audit event when a single record is returned by the address lookup service" in {
       def addressLookupResponse: RecordSet = RecordSet(List(fakeStreetPafAddressRecord))
 
       when(mockAddressLookupConnector.lookup(any(), any())(any(), any())) thenReturn
-        EitherT[Future, UpstreamErrorResponse, RecordSet](
-          Future.successful(
-            Right(addressLookupResponse)
-          )
-        )
+        EitherT[Future, UpstreamErrorResponse, RecordSet](Future.successful(Right(addressLookupResponse)))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
@@ -349,9 +295,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       def currentRequest[A]: Request[A] =
@@ -373,15 +317,11 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       )
     }
 
-    "redirect to showAddressSelectorForm and log a addressLookupResults audit event when multiple records are returned by the address lookup service" in {
+    "redirect to showAddressSelectorForm and log an addressLookupResults audit event when multiple records are returned by the address lookup service" in {
       def addressLookupResponse: RecordSet = oneAndTwoOtherPlacePafRecordSet
 
       when(mockAddressLookupConnector.lookup(any(), any())(any(), any())) thenReturn
-        EitherT[Future, UpstreamErrorResponse, RecordSet](
-          Future.successful(
-            Right(addressLookupResponse)
-          )
-        )
+        EitherT[Future, UpstreamErrorResponse, RecordSet](Future.successful(Right(addressLookupResponse)))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
@@ -391,9 +331,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       def currentRequest[A]: Request[A] =
@@ -419,24 +357,17 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       def addressLookupResponse: RecordSet = RecordSet(List())
 
       when(mockAddressLookupConnector.lookup(any(), any())(any(), any())) thenReturn
-        EitherT[Future, UpstreamErrorResponse, RecordSet](
-          Future.successful(
-            Right(addressLookupResponse)
-          )
-        )
+        EitherT[Future, UpstreamErrorResponse, RecordSet](Future.successful(Right(addressLookupResponse)))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
             .setOrException(AddressFinderPage(PostalAddrType), AddressFinderDto("AA1 1AA", None))
-            .setOrException(AddressLookupServiceDownPage, false)
         )
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       def currentRequest[A]: Request[A] =
@@ -444,33 +375,26 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(PostalAddrType, None)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(PostalAddrType, Some(true))(currentRequest)
 
       status(result) mustBe NOT_FOUND
     }
 
-    "redirect to the postcodeLookupForm and when a single record is returned by the address lookup service and back = true" in {
+    "redirect to the postcodeLookupForm when a single record is returned by the address lookup service and back = true" in {
       def addressLookupResponse: RecordSet = RecordSet(List(fakeStreetPafAddressRecord))
 
       when(mockAddressLookupConnector.lookup(any(), any())(any(), any())) thenReturn
-        EitherT[Future, UpstreamErrorResponse, RecordSet](
-          Future.successful(
-            Right(addressLookupResponse)
-          )
-        )
+        EitherT[Future, UpstreamErrorResponse, RecordSet](Future.successful(Right(addressLookupResponse)))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
             .setOrException(AddressFinderPage(PostalAddrType), AddressFinderDto("AA1 1AA", None))
-            .setOrException(AddressLookupServiceDownPage, false)
         )
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       def currentRequest[A]: Request[A] =
@@ -484,28 +408,21 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/find-address")
     }
 
-    "redirect to showAddressSelectorForm and display the select-address page when multiple records are returned by the address lookup service back=true" in {
+    "redirect to showAddressSelectorForm and display the select-address page when multiple records are returned by the address lookup service" in {
       def addressLookupResponse: RecordSet = oneAndTwoOtherPlacePafRecordSet
 
       when(mockAddressLookupConnector.lookup(any(), any())(any(), any())) thenReturn
-        EitherT[Future, UpstreamErrorResponse, RecordSet](
-          Future.successful(
-            Right(addressLookupResponse)
-          )
-        )
+        EitherT[Future, UpstreamErrorResponse, RecordSet](Future.successful(Right(addressLookupResponse)))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
           UserAnswers
             .empty("id")
             .setOrException(AddressFinderPage(PostalAddrType), AddressFinderDto("AA1 1AA", None))
-            .setOrException(AddressLookupServiceDownPage, false)
         )
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
-        )
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
       )
 
       def currentRequest[A]: Request[A] =
