@@ -60,10 +60,10 @@ class PostcodeLookupControllerSpec extends BaseSpec {
   class FakeAuthAction extends AuthJourney {
     override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
       new ActionBuilder[UserRequest, AnyContent] {
-        override def parser: BodyParser[AnyContent] = play.api.test.Helpers.stubBodyParser()
+        override def parser: BodyParser[AnyContent]                                                               = play.api.test.Helpers.stubBodyParser()
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = request))
-        override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+        override protected def executionContext: ExecutionContext                                                 = scala.concurrent.ExecutionContext.Implicits.global
       }
   }
 
@@ -99,7 +99,9 @@ class PostcodeLookupControllerSpec extends BaseSpec {
 
     "return 200 if the user has entered a residency choice on the previous page" in {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
-        Future.successful(UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true)))
+        Future.successful(
+          UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+        )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails)))
@@ -110,7 +112,9 @@ class PostcodeLookupControllerSpec extends BaseSpec {
 
     "return 200 if the user is on correspondence address journey and has postal address type" in {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
-        Future.successful(UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true)))
+        Future.successful(
+          UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+        )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails)))
@@ -143,7 +147,9 @@ class PostcodeLookupControllerSpec extends BaseSpec {
 
     "verify an audit event has been sent for a user clicking the change address link" in {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
-        Future.successful(UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true)))
+        Future.successful(
+          UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+        )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails)))
@@ -157,7 +163,9 @@ class PostcodeLookupControllerSpec extends BaseSpec {
 
     "verify an audit event has been sent for a user clicking the change postal address link" in {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
-        Future.successful(UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true)))
+        Future.successful(
+          UserAnswers.empty("id").setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+        )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails)))
@@ -264,7 +272,9 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
-          UserAnswers.empty("id").setOrException(AddressFinderPage(ResidentialAddrType), AddressFinderDto("AA1 1AA", None))
+          UserAnswers
+            .empty("id")
+            .setOrException(AddressFinderPage(ResidentialAddrType), AddressFinderDto("AA1 1AA", None))
         )
       )
       when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
@@ -296,7 +306,9 @@ class PostcodeLookupControllerSpec extends BaseSpec {
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](addressLookupResponse))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
-          UserAnswers.empty("id").setOrException(AddressFinderPage(ResidentialAddrType), AddressFinderDto("AA1 1AA", None))
+          UserAnswers
+            .empty("id")
+            .setOrException(AddressFinderPage(ResidentialAddrType), AddressFinderDto("AA1 1AA", None))
         )
       )
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
