@@ -41,25 +41,25 @@ import views.html.personaldetails.PostcodeLookupView
 import scala.concurrent.{ExecutionContext, Future}
 
 class PostcodeLookupController @Inject() (
-                                           val addressLookupConnector: AddressLookupConnector,
-                                           cachingHelper: AddressJourneyCachingHelper,
-                                           auditConnector: AuditConnector,
-                                           authJourney: AuthJourney,
-                                           cc: MessagesControllerComponents,
-                                           errorRenderer: ErrorRenderer,
-                                           postcodeLookupView: PostcodeLookupView,
-                                           featureFlagService: FeatureFlagService,
-                                           citizenDetailsService: CitizenDetailsService,
-                                           internalServerErrorView: InternalServerErrorView
-                                         )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-  extends AddressController(
-    authJourney,
-    cc,
-    featureFlagService,
-    errorRenderer,
-    citizenDetailsService,
-    internalServerErrorView
-  )
+  val addressLookupConnector: AddressLookupConnector,
+  cachingHelper: AddressJourneyCachingHelper,
+  auditConnector: AuditConnector,
+  authJourney: AuthJourney,
+  cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
+  postcodeLookupView: PostcodeLookupView,
+  featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
+  internalServerErrorView: InternalServerErrorView
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+    extends AddressController(
+      authJourney,
+      cc,
+      featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
+      internalServerErrorView
+    )
     with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
@@ -169,10 +169,10 @@ class PostcodeLookupController @Inject() (
     }
 
   private def lookingUpAddress(
-                                typ: AddrType,
-                                postcode: String,
-                                filter: Option[String]
-                              )(f: PartialFunction[RecordSet, Future[Result]])(implicit request: UserRequest[_]): Future[Result] =
+    typ: AddrType,
+    postcode: String,
+    filter: Option[String]
+  )(f: PartialFunction[RecordSet, Future[Result]])(implicit request: UserRequest[_]): Future[Result] =
     addressLookupConnector
       .lookup(postcode, filter)
       .foldF(
