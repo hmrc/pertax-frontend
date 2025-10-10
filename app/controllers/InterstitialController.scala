@@ -23,9 +23,9 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.*
-import models.TaxComponents.readsIsHICBCWithCharge
 import models.admin.{BreathingSpaceIndicatorToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.Logging
+import play.api.libs.json.{Format, Writes}
 import play.api.mvc.*
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
@@ -34,7 +34,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.DateTimeTools._
+import util.DateTimeTools.*
 import util.{AlertBannerHelper, EnrolmentsHelper}
 import viewmodels.AlertBannerViewModel
 import views.html.interstitial.*
@@ -130,14 +130,15 @@ class InterstitialController @Inject() (
   }
 
   def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate.async { implicit request =>
+    implicit val hicbcFormat: Format[Boolean] =
+      Format(models.TaxComponents.readsIsHICBCWithCharge, Writes.BooleanWrites)
+
     taiConnector
-      .taxComponents(request.authNino, current.currentYear)(readsIsHICBCWithCharge)
+      .taxComponents[Boolean](request.authNino, current.currentYear)(hicbcFormat)
       .fold(_ => false, _.getOrElse(false))
-      .map { isRegisteredForHICBCWithCharge =>
-        Ok(
-          viewChildBenefitsSummarySingleAccountInterstitialView(isRegisteredForHICBCWithCharge)
-        )
-      }
+      .map(isRegisteredForHICBCWithCharge =>
+        Ok(viewChildBenefitsSummarySingleAccountInterstitialView(isRegisteredForHICBCWithCharge))
+      )
   }
 
   def displayHICBCChargeInPAYEView: Action[AnyContent] = authenticate { implicit request =>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package config
 
-import connectors.{AgentClientAuthorisationConnector, CachingAgentClientAuthorisationConnector, CachingCitizenDetailsConnector, CitizenDetailsConnector, DefaultAgentClientAuthorisationConnector, DefaultCitizenDetailsConnector}
+import connectors.{AgentClientAuthorisationConnector, CachingAgentClientAuthorisationConnector, CachingCitizenDetailsConnector, CachingTaiConnector, CitizenDetailsConnector, DefaultAgentClientAuthorisationConnector, DefaultCitizenDetailsConnector, DefaultTaiConnector, TaiConnector}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
@@ -30,6 +30,8 @@ class HmrcModule extends Module {
       bind[ApplicationStartUp].toSelf.eagerly(),
       bind[CitizenDetailsConnector].qualifiedWith("default").to[DefaultCitizenDetailsConnector],
       bind[CitizenDetailsConnector].to[CachingCitizenDetailsConnector],
+      bind[TaiConnector].qualifiedWith("default").to[DefaultTaiConnector],
+      bind[TaiConnector].to[CachingTaiConnector],
       bind[Encrypter with Decrypter].toProvider[CryptoProvider]
     )
 

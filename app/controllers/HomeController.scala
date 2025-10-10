@@ -22,8 +22,8 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.TaxComponents.readsListString
 import models.admin.ShowPlannedOutageBannerToggle
+import play.api.libs.json.{Format, Writes}
 import play.api.mvc._
 import services._
 import uk.gov.hmrc.domain.Nino
@@ -59,10 +59,16 @@ class HomeController @Inject() (
     authJourney.authWithPersonalDetails
 
   private def getTaxComponentsOrEmptyList(nino: Nino, year: Int)(implicit
-    hc: HeaderCarrier
-  ): Future[List[String]] = taiConnector
-    .taxComponents(nino, year)(readsListString)
-    .fold(_ => List.empty, _.getOrElse(List.empty))
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): Future[List[String]] = {
+    implicit val listStringFormat: Format[List[String]] =
+      Format(models.TaxComponents.readsListString, Writes.list[String])
+
+    taiConnector
+      .taxComponents[List[String]](nino, year)(listStringFormat)
+      .fold(_ => List.empty, _.getOrElse(Nil))
+  }
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
