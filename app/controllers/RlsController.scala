@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerCompon
 import repositories.EditAddressLockRepository
 import routePages.HasAddressAlreadyVisitedPage
 import services.CitizenDetailsService
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -54,11 +55,11 @@ class RlsController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  private def auditRls(mainAddress: Option[Address], postalAddress: Option[Address])(implicit
+  private def auditRls(nino: Nino, mainAddress: Option[Address], postalAddress: Option[Address])(implicit
     request: UserRequest[_],
     ec: ExecutionContext
   ) =
-    editAddressLockRepository.getAddressesLock(request.authNino.withoutSuffix).flatMap {
+    editAddressLockRepository.getAddressesLock(nino.withoutSuffix).flatMap {
       case AddressesLock(residentialLock, postalLock) =>
         val residentialDetail =
           if (residentialLock) {
@@ -78,7 +79,7 @@ class RlsController @Inject() (
             "RLSInterrupt",
             "user_shown_rls_interrupt_page",
             Map(
-              "nino"               -> Some(request.authNino.toString),
+              "nino"               -> Some(nino.toString),
               residentialDetail,
               postalDetail,
               "residentialAddress" -> mainAddress.map(_.fullAddress.mkString(";")),
@@ -94,12 +95,14 @@ class RlsController @Inject() (
     }
 
   def rlsInterruptOnPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
+    val helpeeNino: Nino = request.helpeeNinoOrElse
+
     (for {
       rlsFlag            <- featureFlagService.getAsEitherT(RlsInterruptToggle)
       addressLock        <- EitherT[Future, UpstreamErrorResponse, AddressesLock](
-                              editAddressLockRepository.getAddressesLock(request.authNino.withoutSuffix).map(Right(_))
+                              editAddressLockRepository.getAddressesLock(helpeeNino.withoutSuffix).map(Right(_))
                             )
-      maybePersonDetails <- citizenDetailsService.personDetails(request.authNino)
+      maybePersonDetails <- citizenDetailsService.personDetails(helpeeNino)
     } yield
       if (rlsFlag.isEnabled) {
         val mainAddress   =
@@ -108,7 +111,7 @@ class RlsController @Inject() (
           _.correspondenceAddress.flatMap(addr => cleanRlsAddress(Some(addr), addressLock.postal))
         )
         if (mainAddress.exists(_.isRls) || postalAddress.exists(_.isRls)) {
-          auditRls(mainAddress, postalAddress)
+          auditRls(helpeeNino, mainAddress, postalAddress)
           cachingHelper.addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
           Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
         } else {

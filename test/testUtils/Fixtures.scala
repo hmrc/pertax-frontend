@@ -54,8 +54,8 @@ trait PafFixtures {
   val fakeStreetPafAddressRecord: AddressRecord = AddressRecord(
     "GB101",
     PafAddress(
-      List("1 Fake Street", "Fake Town", "Fake City"),
-      Some("Fake Region"),
+      List("1 Fake Street", "Fake Town"),
+      Some("Fake City"),
       None,
       "AA1 1AA",
       subDivision,
@@ -228,63 +228,63 @@ trait CitizenDetailsFixtures {
   def fakeStreetTupleListAddressForUnmodified: List[(String, String)] = List(
     ("line1", "1 Fake Street"),
     ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
+    ("line4OrTown", "Fake City"),
+    ("line5OrCounty", "Fake Region"),
+    ("postcode", "AA1 1AA")
+  )
+
+  def fakeStreetTupleListAddressForUnmodifiedNoRegion: List[(String, String)] = List(
+    ("line1", "1 Fake Street"),
+    ("line2", "Fake Town"),
+    ("line4OrTown", "Fake City"),
     ("postcode", "AA1 1AA")
   )
 
   def fakeStreetTupleListInternationalAddress: List[(String, String)] = List(
     ("line1", "1 Fake Street"),
     ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
+    ("line4OrTown", "Fake City"),
+    ("line5OrCounty", ""),
     ("country", "South Georgia and South Sandwich Island")
   )
 
   def fakeStreetTupleListAddressForUnmodifiedLowerCase: List[(String, String)] = List(
     ("line1", "1 Fake Street"),
     ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
+    ("line4OrTown", "Fake City"),
+    ("line5OrCounty", ""),
     ("postcode", "aa1 1aa")
   )
 
   def fakeStreetTupleListAddressForUnmodifiedNoSpaceInPostcode: List[(String, String)] = List(
     ("line1", "1 Fake Street"),
     ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
+    ("line4OrTown", "Fake City"),
+    ("line5OrCounty", ""),
     ("postcode", "AA11AA")
   )
 
   def fakeStreetTupleListAddressForManuallyEntered: List[(String, String)] = List(
     ("line1", "1 Fake Street"),
     ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
+    ("line4OrTown", "Fake City"),
+    ("line5OrCounty", ""),
     ("postcode", "AA1 1AA")
   )
 
   def fakeStreetTupleListAddressForModified: List[(String, String)] = List(
     ("line1", "11 Fake Street"), // Note 11 not 1
     ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
+    ("line4OrTown", "Fake City"),
+    ("line5OrCounty", ""),
     ("postcode", "AA1 1AA")
   )
 
   def fakeStreetTupleListAddressForModifiedPostcode: List[(String, String)] = List(
     ("line1", "11 Fake Street"), // Note 11 not 1
     ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
+    ("line4OrTown", "Fake City"),
+    ("line5OrCounty", ""),
     ("postcode", "AA1 2AA")
   )
 }

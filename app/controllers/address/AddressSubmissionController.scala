@@ -17,7 +17,6 @@
 package controllers.address
 
 import com.google.inject.Inject
-import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
@@ -59,7 +58,7 @@ class AddressSubmissionController @Inject() (
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
-        cachingHelper.gettingCachedJourneyData(typ).map { journeyData =>
+        cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
           (journeyData.submittedAddressDto, journeyData.submittedInternationalAddressChoiceDto) match {
             case (Some(address), Some(country)) =>
               val isUkAddress              = InternationalAddressChoiceDto.isUk(Some(country))
@@ -88,8 +87,6 @@ class AddressSubmissionController @Inject() (
                       showAddressChangedDate
                     )
                   )
-                } else {
-                  Redirect(routes.PersonalDetailsController.onPageLoad)
                 }
               } else {
                 if (
@@ -108,11 +105,9 @@ class AddressSubmissionController @Inject() (
                       displayDateAddressChanged = true
                     )
                   )
-                } else {
-                  Redirect(routes.PersonalDetailsController.onPageLoad)
                 }
               }
-            case _                              => Redirect(routes.PersonalDetailsController.onPageLoad)
+            case _                              => Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
           }
         }
       }
@@ -150,6 +145,17 @@ class AddressSubmissionController @Inject() (
         identity
       )
     }
+
+  private def mapAddressType(typ: AddrType) = typ match {
+    case PostalAddrType => "Correspondence"
+    case _              => "Residential"
   }
+
+  private def ensuringSubmissionRequirements(typ: AddrType, journeyData: AddressJourneyData)(
+    block: => Future[Result]
+  ): Future[Result] =
+    if (journeyData.submittedStartDateDto.isEmpty && typ == ResidentialAddrType)
+      Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
+    else block
 
 }

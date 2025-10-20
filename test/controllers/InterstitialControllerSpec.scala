@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.mockito.Mockito.{reset, times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
 import play.api.Application
 import play.api.inject.{Binding, bind}
+import play.api.libs.json.Format
 import play.api.mvc.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -150,8 +151,9 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayChildBenefitsSingleAccountView" must {
     "return OK & correct view for new Child Benefits where no HICBC components returned from API" in {
-      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any())(any(), any()))
+      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any[Format[Boolean]]())(any(), any(), any()))
         .thenReturn(taxComponentsHICBCSuccessResponse(false))
+
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
       val result                                  = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
@@ -161,9 +163,11 @@ class InterstitialControllerSpec extends BaseSpec {
       contentString must include("Visit High Income Child Benefit Charge")
       contentString must include("find out if you need to pay the charge")
     }
+
     "return OK & correct view for new Child Benefits where HICBC components returned from API" in {
-      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any())(any(), any()))
+      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any[Format[Boolean]]())(any(), any(), any()))
         .thenReturn(taxComponentsHICBCSuccessResponse(true))
+
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
       val result                                  = controller.displayChildBenefitsSingleAccountView()(fakeRequest)
@@ -467,6 +471,17 @@ class InterstitialControllerSpec extends BaseSpec {
       val content = contentAsString(result)
       content must include("nisp partial")
       content must include("voluntary-banner")
+    }
+  }
+
+  "mtditRedirect" must {
+    "redirect to the correct govuk url" in {
+      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
+
+      val result = controller.mtditRedirect(fakeRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("https://www.gov.uk/guidance/use-making-tax-digital-for-income-tax")
     }
   }
 }

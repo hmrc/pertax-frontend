@@ -293,9 +293,9 @@ trait IntegrationSpec
       |    "webchatPages": [
       |        {
       |            "pattern": "^/personal-account",
-      |            "skinElement": "skinElement",
-      |            "isEnabled": true,
-      |            "chatType": "loadHMRCChatSkinElement"
+      |            "skinElement": "popup",
+      |            "chatType": "loadHMRCChatSkinElement",
+      |            "isEnabled": true
       |        }
       |    ]
       |}
@@ -341,8 +341,8 @@ trait IntegrationSpec
       |        {
       |            "pattern": "^/personal-account",
       |            "skinElement": "skinElement",
-      |            "isEnabled": true,
-      |            "chatType": "loadHMRCChatSkinElement"
+      |            "chatType": "loadHMRCChatSkinElement",
+      |            "isEnabled": true
       |        }
       |    ],
       |    "trustedHelper": {

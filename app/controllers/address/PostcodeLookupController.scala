@@ -121,7 +121,11 @@ class PostcodeLookupController @Inject() (
                                         AddressFinderDto.form
                                           .fill(AddressFinderDto(addressFinderDto.postcode, addressFinderDto.filter))
                                           .withError(
-                                            FormError(postcode, "error.address_doesnt_exist_try_to_enter_manually")
+                                            FormError(
+                                              postcode,
+                                              "error.address_doesnt_exist_try_to_enter_manually",
+                                              Seq(addressFinderDto.postcode)
+                                            )
                                           ),
                                         typ
                                       )
