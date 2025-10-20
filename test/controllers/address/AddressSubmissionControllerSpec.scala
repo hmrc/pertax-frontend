@@ -245,7 +245,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockJourneyCacheRepository, times(1)).get(any())
-      verify(controller.editAddressLockRepository, times(0))
+      verify(mockEditAddressLockRepository, times(0))
         .insert(meq(nino.withoutSuffix), meq(ResidentialAddrType))
     }
 
@@ -351,7 +351,11 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq(buildFakeAddress), meq(buildFakeAddress.copy(line4 = None)), any())(any(), any(), any())
+        .updateAddress(meq(nino), meq(buildFakeAddress), meq(personDetails), any())(
+          any(),
+          any(),
+          any()
+        )
     }
 
     "render the thank you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address, this time using postal type and having no postalSubmittedStartDate in the cache " in {
@@ -429,7 +433,11 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq(buildFakeAddress.copy(line4 = None)), meq(personDetails), any())(any(), any(), any())
+        .updateAddress(meq(nino), meq(buildFakeAddress.copy(line4 = None)), meq(personDetails), any())(
+          any(),
+          any(),
+          any()
+        )
     }
 
     "render the thank you page and log a postcodeAddressModifiedSubmitted audit event upon successful of a modified address" in {
