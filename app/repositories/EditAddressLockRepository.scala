@@ -19,9 +19,10 @@ package repositories
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.bindable.AddrType
-import models._
+import models.*
+import org.mongodb.scala.MongoWriteException
 import org.mongodb.scala.bson.conversions.Bson
-import org.mongodb.scala.model._
+import org.mongodb.scala.model.*
 import org.mongodb.scala.result.InsertOneResult
 import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
@@ -72,7 +73,11 @@ class EditAddressLockRepository @Inject() (
 
     logger.info("Inserting address lock: " + AddressJourneyTTLModel(nino, record).toString)
 
-    insertCore(AddressJourneyTTLModel(nino, record)).map(_.wasAcknowledged())
+    insertCore(AddressJourneyTTLModel(nino, record)).map(_.wasAcknowledged()).recover {
+      case error: MongoWriteException =>
+        logger.error("Could not insert address lock: " + error.getMessage)
+        false
+    }
   }
 
   def get(nino: String): Future[List[AddressJourneyTTLModel]] =
