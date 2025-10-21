@@ -143,7 +143,12 @@ class AddressSubmissionController @Inject() (
               submittedAddress
             )
 
-          case _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+          case (false, _) =>
+            logger.error(s"Start date is missing and address type is Residential")
+            errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+          case (_, None)  =>
+            logger.error(s"No submitted address found in journey data for address type: $addressType")
+            errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }
       }).foldF(
         error => errorRenderer.futureError(error.statusCode),

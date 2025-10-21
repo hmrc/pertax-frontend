@@ -229,7 +229,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       dataEvent.generatedAt
     )
 
-    "redirect to start of journey if ResidentialSubmittedStartDate is missing from the cache, and the journey type is ResidentialAddrType" in {
+    "Return an error if ResidentialSubmittedStartDate is missing from the cache, and the journey type is ResidentialAddrType" in {
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
@@ -240,32 +240,12 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
+      status(result) mustBe INTERNAL_SERVER_ERROR
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockEditAddressLockRepository, times(0))
         .insert(meq(nino.withoutSuffix), meq(ResidentialAddrType))
-    }
-
-    "redirect to start of journey if residentialSubmittedStartDate is missing from the cache, and the journey type is residentialAddrType" in {
-      val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
-        Future.successful(
-          UserAnswers
-            .empty("id")
-            .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
-        )
-      )
-
-      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
-
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
-
-      verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
-      verify(mockJourneyCacheRepository, times(1)).get(any())
     }
 
     "render the thank-you page if postalSubmittedStartDate is not in the cache, and the journey type is PostalAddrType" in {
@@ -298,7 +278,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         .insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "redirect to start of journey if residentialSubmittedAddress is missing from the cache" in {
+    "returns an error if residentialSubmittedAddress is missing from the cache" in {
       val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
@@ -311,8 +291,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/profile-and-settings")
+      status(result) mustBe INTERNAL_SERVER_ERROR
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockJourneyCacheRepository, times(1)).get(any())
@@ -351,7 +330,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq(buildFakeAddress), meq(personDetails), any())(
+        .updateAddress(meq(nino), meq(buildFakeAddress.copy(line4 = None)), meq(personDetails), any())(
           any(),
           any(),
           any()
@@ -477,7 +456,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
       verify(mockJourneyCacheRepository, times(1)).get(any())
       verify(mockCitizenDetailsService, times(1))
-        .updateAddress(meq(nino), meq(fakeAddress), meq(personDetails), any())(any(), any(), any())
+        .updateAddress(meq(nino), meq(fakeAddress.copy(line4 = None)), meq(personDetails), any())(any(), any(), any())
     }
 
     "render the confirmation page with the P85 messaging when updating to move to international address" in {
