@@ -49,11 +49,11 @@ class SaBppInterstitialPageController @Inject() (
           success.saBppWhatPaymentType match {
             case Some(SelectSABPPPaymentFormProvider.saBppOverduePayment) =>
               Redirect(
-                s"${appConfig.bppSpreadTheCostOverduePaymentUrl}?origin=$origin"
+                s"${appConfig.bppSpreadTheCostOverduePaymentUrl}?calledFrom=$origin"
               )
             case Some(SelectSABPPPaymentFormProvider.saBppAdvancePayment) =>
               Redirect(
-                s"${appConfig.bppSpreadTheCostAdvancePaymentUrl}?origin=$origin&lang=${messagesApi.preferred(request).lang.code}"
+                s"${appConfig.bppSpreadTheCostAdvancePaymentUrl}?calledFrom=$origin&lang=${messagesApi.preferred(request).lang.code}"
               )
             case _                                                        =>
               BadRequest(
