@@ -131,6 +131,7 @@ trait A11ySpec
 
   protected val designatoryDetailsResponse: String =
     s"""{
+       |"etag":"115",
        |"person":{
        |  "firstName":"John",
        |  "middleName":"",
