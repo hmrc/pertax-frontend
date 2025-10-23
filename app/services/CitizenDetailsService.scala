@@ -67,6 +67,7 @@ class CitizenDetailsService @Inject() (
       error: UpstreamErrorResponse
     ): EitherT[Future, UpstreamErrorResponse, Boolean] =
       newPersonDetailsOption.fold(EitherT.leftT[Future, Boolean](error)) { newPersonDetails =>
+        logger.warn("Etag conflict detected, comparing addresses to determine if retry is safe.")
         if (currentPersonDetails.address == newPersonDetails.address) {
           // Address has not changed in NPS, it is safe to retry with the new etag
           updateAddress(nino, newAddress, newPersonDetails, tries = tries + 1)
