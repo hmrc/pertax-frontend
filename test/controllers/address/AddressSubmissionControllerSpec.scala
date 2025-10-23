@@ -22,6 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto.{AddressDto, DateDto, InternationalAddressChoiceDto}
 import models.{Address, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
+import controllers.controllershelpers.AddressSubmissionControllerHelper
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as meq}
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -42,7 +43,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
-
+import play.api.mvc.Results.Ok
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -64,16 +65,18 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       }
   }
 
-  val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
-  val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
-  val mockAuditConnector: AuditConnector                 = mock[AuditConnector]
+  val mockJourneyCacheRepository: JourneyCacheRepository                       = mock[JourneyCacheRepository]
+  val mockCitizenDetailsService: CitizenDetailsService                         = mock[CitizenDetailsService]
+  val mockAuditConnector: AuditConnector                                       = mock[AuditConnector]
+  val mockAddressSubmissionControllerHelper: AddressSubmissionControllerHelper = mock[AddressSubmissionControllerHelper]
 
   override implicit lazy val app: Application              = localGuiceApplicationBuilder()
     .overrides(
       bind[AuthJourney].toInstance(new FakeAuthAction),
       bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
       bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
-      bind[AuditConnector].toInstance(mockAuditConnector)
+      bind[AuditConnector].toInstance(mockAuditConnector),
+      bind[AddressSubmissionControllerHelper].toInstance(mockAddressSubmissionControllerHelper)
     )
     .build()
   private lazy val controller: AddressSubmissionController = app.injector.instanceOf[AddressSubmissionController]
@@ -96,11 +99,11 @@ class AddressSubmissionControllerSpec extends BaseSpec {
   }
 
   def currentRequest[A]: Request[A] =
-    FakeRequest("GET", "")
+    fakeScaRequest("GET", "")
       .asInstanceOf[Request[A]]
 
   def fakePOSTRequest[A]: Request[A] =
-    FakeRequest("POST", "/test")
+    fakeScaRequest("POST", "/test")
       .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
       .asInstanceOf[Request[A]]
 
@@ -536,7 +539,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
       )
     }
 
-    "render the error page when updateAddress returns a 409 Conflict" in {
+    "redirect to a try again page when address change returns a 409 Conflict" in {
       val addressDto: AddressDto         = asAddressDto(fakeStreetTupleListAddressForUnmodified)
       val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
 
@@ -548,13 +551,21 @@ class AddressSubmissionControllerSpec extends BaseSpec {
             .setOrException(SubmittedStartDatePage(ResidentialAddrType), submittedStartDateDto)
         )
       )
-      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any()))
-        .thenReturn(EitherT.leftT[Future, Boolean](UpstreamErrorResponse("Conflict", 409)))
+      when(
+        mockAddressSubmissionControllerHelper.updateCitizenDetailsAddress(
+          meq(nino),
+          meq(ResidentialAddrType),
+          any(),
+          meq(personDetails),
+          any()
+        )(any(), any(), any())
+      ).thenReturn(
+        Future.successful(Ok("Success"))
+      )
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
-      status(result) mustBe INTERNAL_SERVER_ERROR
+      status(result) mustBe SEE_OTHER
 
       verify(mockJourneyCacheRepository, times(1)).get(any())
       // verify(mockCitizenDetailsService, times(1))

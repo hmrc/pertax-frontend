@@ -26,9 +26,9 @@ import models.dto.InternationalAddressChoiceDto.isUk
 import models.dto.{AddressDto, DateDto, InternationalAddressChoiceDto}
 import models.{Address, AddressJourneyData, PersonDetails}
 import play.api.Logging
-import play.api.http.Status.INTERNAL_SERVER_ERROR
+import play.api.http.Status.{CONFLICT, INTERNAL_SERVER_ERROR}
 import play.api.i18n.Messages
-import play.api.mvc.Results.{BadRequest, Ok}
+import play.api.mvc.Results.{BadRequest, Ok, Redirect}
 import play.api.mvc.Result
 import repositories.EditAddressLockRepository
 import services.{AddressMovedService, CitizenDetailsService}
@@ -100,7 +100,10 @@ class AddressSubmissionControllerHelper @Inject() (
           case error if isStartDateError(error) =>
             Future.successful(startDateErrorResponse)
 
-          case _ =>
+          case error if error.statusCode == CONFLICT =>
+            logger.error("Etag conflict detected when updating address. Retry was not successful.")
+            Future.successful(Redirect(controllers.routes.UpdateDetailsErrorController.displayTryAgainToUpdateDetails))
+          case _                                     =>
             errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         },
         _ =>

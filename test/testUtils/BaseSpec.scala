@@ -32,8 +32,10 @@ import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.MessagesControllerComponents
-import play.api.test.Injecting
+import play.api.libs.typedmap.TypedMap
+import play.api.mvc.{Cookie, Cookies, MessagesControllerComponents}
+import play.api.test.{FakeRequest, Injecting}
+import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.domain.{Generator, Nino}
@@ -42,6 +44,8 @@ import uk.gov.hmrc.mongo.test.CleanMongoCollectionSupport
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.FormPartialRetriever
+import uk.gov.hmrc.sca.models.{PtaMinMenuConfig, WrapperDataResponse}
+import uk.gov.hmrc.sca.utils.Keys
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -114,4 +118,25 @@ trait BaseSpec
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
       .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
   }
+
+  val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
+    Seq.empty,
+    PtaMinMenuConfig("", ""),
+    List.empty,
+    List.empty,
+    None,
+    None
+  )
+
+  def fakeScaRequest(method: String = "GET", path: String = ""): FakeRequest[Any] =
+    FakeRequest(method, path).withAttrs(
+      TypedMap(
+        Keys.wrapperIsAuthenticatedKey -> true,
+        Keys.wrapperFilterHasRun       -> true,
+        Keys.wrapperDataKey            -> wrapperDataResponse,
+        Keys.messageDataKey            -> 0,
+        RequestAttrKey.Cookies         -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
+      )
+    )
+
 }

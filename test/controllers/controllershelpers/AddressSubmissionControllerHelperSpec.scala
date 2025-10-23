@@ -28,23 +28,18 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import play.api
 import play.api.i18n.{Lang, Messages, MessagesImpl, MessagesProvider}
-import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import services.{AddressMovedService, CitizenDetailsService}
 import testUtils.BaseSpec
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
-import play.api.libs.typedmap.TypedMap
-import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies}
-import play.api.mvc.request.{Cell, RequestAttrKey}
-import testUtils.Fixtures.buildPersonDetails
+import play.api.mvc.Request
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.language.LanguageUtils
-import uk.gov.hmrc.sca.models.{PtaMinMenuConfig, WrapperDataResponse}
-import uk.gov.hmrc.sca.utils.Keys
 import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, UpdateAddressConfirmationView}
+import testUtils.Fixtures.buildPersonDetails
 
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -65,25 +60,9 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
   implicit lazy val messageProvider: MessagesProvider = inject[MessagesProvider]
   implicit lazy val messages: Messages                = MessagesImpl(Lang("en"), messagesApi)
 
-  val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(
-    Seq.empty,
-    PtaMinMenuConfig("", ""),
-    List.empty,
-    List.empty,
-    None,
-    None
-  )
-
-  val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-    .withAttrs(
-      TypedMap(
-        Keys.wrapperIsAuthenticatedKey -> true,
-        Keys.wrapperFilterHasRun       -> true,
-        Keys.wrapperDataKey            -> wrapperDataResponse,
-        Keys.messageDataKey            -> 0,
-        RequestAttrKey.Cookies         -> Cell(Cookies(Seq(Cookie("PLAY_LANG", "en"))))
-      )
-    )
+  val fakeRequest: Request[Any] =
+    fakeScaRequest("GET", "")
+      .asInstanceOf[Request[Any]]
 
   override def beforeEach(): Unit = {
     super.beforeEach()

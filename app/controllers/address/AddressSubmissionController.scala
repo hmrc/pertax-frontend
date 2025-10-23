@@ -17,23 +17,20 @@
 package controllers.address
 
 import com.google.inject.Inject
-import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import controllers.controllershelpers.{AddressJourneyCachingHelper, AddressSubmissionControllerHelper}
 import error.ErrorRenderer
 import models.dto.{AddressDto, InternationalAddressChoiceDto}
-import models.AddressJourneyData
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.CitizenDetailsService
-import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.personaldetails.ReviewChangesView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class AddressSubmissionController @Inject() (
   authJourney: AuthJourney,
@@ -120,20 +117,14 @@ class AddressSubmissionController @Inject() (
 
   def onSubmit(addressType: AddrType): Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { nino => personDetails =>
-      (for {
-        journeyData: AddressJourneyData <- EitherT[Future, UpstreamErrorResponse, AddressJourneyData](
-                                             cachingHelper.gettingCachedJourneyData(addressType).map(Right(_))
-                                           )
-      } yield {
+      cachingHelper.gettingCachedJourneyData(addressType).flatMap { journeyData =>
         val maybeSubmittedAddress = journeyData.submittedAddressDto
+        val isStartDateValid      = addressSubmissionControllerHelper.isSubmittedAddressStartDateValid(
+          journeyData.submittedStartDateDto,
+          addressType
+        )
 
-        (
-          addressSubmissionControllerHelper.isSubmittedAddressStartDateValid(
-            journeyData.submittedStartDateDto,
-            addressType
-          ),
-          maybeSubmittedAddress
-        ) match {
+        (isStartDateValid, maybeSubmittedAddress) match {
           case (true, Some(submittedAddress: AddressDto)) =>
             addressSubmissionControllerHelper.updateCitizenDetailsAddress(
               nino,
@@ -150,10 +141,7 @@ class AddressSubmissionController @Inject() (
             logger.error(s"No submitted address found in journey data for address type: $addressType")
             errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }
-      }).foldF(
-        error => errorRenderer.futureError(error.statusCode),
-        identity
-      )
+      }
     }
   }
 
