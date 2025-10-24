@@ -33,7 +33,7 @@ import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.typedmap.TypedMap
-import play.api.mvc.{Cookie, Cookies, MessagesControllerComponents}
+import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies, Headers, MessagesControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
 import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.twirl.api.Html
@@ -128,9 +128,13 @@ trait BaseSpec
     None
   )
 
-  def fakeScaRequest(method: String = "GET", path: String = ""): FakeRequest[Any] =
-    FakeRequest(method, path).withAttrs(
-      TypedMap(
+  def fakeScaRequest(method: String = "GET", path: String = ""): FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest(
+      method,
+      path,
+      headers = Headers(),
+      body = AnyContentAsEmpty,
+      attrs = TypedMap(
         Keys.wrapperIsAuthenticatedKey -> true,
         Keys.wrapperFilterHasRun       -> true,
         Keys.wrapperDataKey            -> wrapperDataResponse,
