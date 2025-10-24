@@ -70,12 +70,13 @@ class TimeoutsISpec extends IntegrationSpec {
   private val breathingSpaceUrl = s"/$generatedNino/memorandum"
   private val taxComponentsUrl  = s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"
   private val taxCalcUrl        = "/tax-you-paid/summary-card-partials"
-  private val citizenDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
+  private val citizenDetailsUrl = s"/citizen-details/$generatedNino/designatory-details?cached=true"
   private val dfsPartialNinoUrl = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
   private val dfsPartialSAUrl   = "/digital-forms/forms/personal-tax/self-assessment/catalogue"
 
   private val personDetails: PersonDetails =
     PersonDetails(
+      "115",
       Person(
         Some("Firstname"),
         Some("Middlename"),
@@ -154,7 +155,7 @@ class TimeoutsISpec extends IntegrationSpec {
     server.stubFor(
       get(urlPathEqualTo(taxCalcUrl)).willReturn(ok(taxCalcValidResponse).withFixedDelay(delayInMilliseconds))
     )
-    server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+    server.stubFor(get(urlEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     homePageGET
   }
 
@@ -236,7 +237,7 @@ class TimeoutsISpec extends IntegrationSpec {
       server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
       server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
       server.stubFor(get(urlPathEqualTo(taxCalcUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
-      server.stubFor(get(urlPathEqualTo(citizenDetailsUrl)).willReturn(ok(Json.toJson(personDetails).toString())))
+      server.stubFor(get(urlEqualTo(citizenDetailsUrl)).willReturn(ok(Json.toJson(personDetails).toString())))
 
       val result: Future[Result] = homePageGET
       val content                = Jsoup.parse(contentAsString(result))
@@ -251,7 +252,7 @@ class TimeoutsISpec extends IntegrationSpec {
         .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
 
       server.stubFor(
-        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
           .willReturn(
             ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino))
           )
@@ -273,7 +274,7 @@ class TimeoutsISpec extends IntegrationSpec {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
         .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
       server.stubFor(
-        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+        get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
           .willReturn(
             ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino))
           )

@@ -19,17 +19,18 @@ package services
 import cats.data.EitherT
 import connectors.CitizenDetailsConnector
 import models.admin.GetPersonFromCitizenDetailsToggle
-import models.{ETag, MatchingDetails}
+import models.MatchingDetails
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.concurrent.IntegrationPatience
-import play.api.http.Status._
-import play.api.libs.json.{JsValue, Json, OWrites}
+import play.api.http.Status.*
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.Helpers.GET
 import play.api.test.{FakeRequest, Injecting}
 import testUtils.BaseSpec
-import testUtils.Fixtures._
+import testUtils.Fixtures.*
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -42,11 +43,18 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
   implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/")
   val sut: CitizenDetailsService                            = new CitizenDetailsService(mockConnector, mockFeatureFlagService)
 
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockConnector)
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+  }
+
   "CitizenDetailsService" when {
     "personDetails is called" must {
 
       "return person details when connector returns and OK status with body" in {
-        when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, JsValue](
             Future.successful(Right(Json.toJson(buildPersonDetails)))
           )
@@ -76,7 +84,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
           when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
             .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
-          when(mockConnector.personDetails(any())(any(), any(), any())).thenReturn(
+          when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
             EitherT[Future, UpstreamErrorResponse, JsValue](
               Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
             )
@@ -90,20 +98,108 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
     }
 
     "updateAddress is called" must {
-      "return HttpResponse with an OK status when connector returns and OK status with body" in {
+      "return Right(true) when connector returns and OK status with body" in {
         when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, HttpResponse](
-            Future.successful(Right(HttpResponse(OK, "")))
+          EitherT[Future, UpstreamErrorResponse, Boolean](
+            Future.successful(Right(true))
           )
         )
 
-        val result =
+        val result: Either[UpstreamErrorResponse, Boolean] =
           sut
-            .updateAddress(fakeNino, etag, buildFakeAddress)
+            .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
             .value
             .futureValue
 
         result mustBe Right(true)
+      }
+
+      "Retries with new Etag successfully when connector returns CONFLICT on first attempt" in {
+        when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, Boolean](
+              Future.successful(Left(UpstreamErrorResponse("Precondition Failed", CONFLICT)))
+            ),
+            EitherT[Future, UpstreamErrorResponse, Boolean](
+              Future.successful(Right(true))
+            )
+          )
+
+        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, JsValue](
+            Future.successful(Right(Json.toJson(buildPersonDetails.copy(etag = "newEtag"))))
+          )
+        )
+
+        val result: Either[UpstreamErrorResponse, Boolean] =
+          sut
+            .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
+            .value
+            .futureValue
+
+        result mustBe Right(true)
+        verify(mockConnector, times(2)).updateAddress(any(), any(), any())(any(), any(), any())
+        verify(mockConnector, times(1)).personDetails(any(), any())(any(), any(), any())
+      }
+
+      "Do not retry with new Etag when connector returns CONFLICT on first attempt and address has changed" in {
+        when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, Boolean](
+              Future.successful(Left(UpstreamErrorResponse("Precondition Failed", CONFLICT)))
+            ),
+            EitherT[Future, UpstreamErrorResponse, Boolean](
+              Future.successful(Right(true))
+            )
+          )
+
+        val personDetaisWithNewAddress = buildPersonDetails.copy(
+          address = Some(
+            buildPersonDetails.address.get.copy(line1 = Some("A different address line"))
+          )
+        )
+        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, JsValue](
+            Future.successful(Right(Json.toJson(personDetaisWithNewAddress)))
+          )
+        )
+
+        val result: Either[UpstreamErrorResponse, Boolean] =
+          sut
+            .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
+            .value
+            .futureValue
+
+        result mustBe a[Left[UpstreamErrorResponse, _]]
+        result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe CONFLICT
+        verify(mockConnector, times(1)).updateAddress(any(), any(), any())(any(), any(), any())
+        verify(mockConnector, times(1)).personDetails(any(), any())(any(), any(), any())
+      }
+
+      "Do not retry multiple times on CONFLICT" in {
+        when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, Boolean](
+              Future.successful(Left(UpstreamErrorResponse("Precondition Failed", CONFLICT)))
+            )
+          )
+
+        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, JsValue](
+            Future.successful(Right(Json.toJson(buildPersonDetails.copy(etag = "newEtag"))))
+          )
+        )
+
+        val result: Either[UpstreamErrorResponse, Boolean] =
+          sut
+            .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
+            .value
+            .futureValue
+
+        result mustBe a[Left[UpstreamErrorResponse, _]]
+        result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe CONFLICT
+        verify(mockConnector, times(2)).updateAddress(any(), any(), any())(any(), any(), any())
+        verify(mockConnector, times(1)).personDetails(any(), any())(any(), any(), any())
       }
 
       List(
@@ -124,7 +220,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
 
           val result =
             sut
-              .updateAddress(fakeNino, etag, buildFakeAddress)
+              .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
               .value
               .futureValue
               .swap
@@ -196,47 +292,6 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         }
       }
     }
-
-    "getEtag is called" must {
-      implicit val etagWrites: OWrites[ETag] = Json.writes[ETag]
-
-      "return etag when connector returns and OK status with body" in {
-        when(mockConnector.getEtag(any())(any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, HttpResponse](
-            Future.successful(Right(HttpResponse(OK, Json.toJson(ETag("1")).toString)))
-          )
-        )
-
-        val result =
-          sut.getEtag(fakeNino.nino).value.futureValue
-
-        result mustBe a[Right[_, _]]
-        result.getOrElse(Some(ETag("wrong etag"))) mustBe Some(ETag("1"))
-      }
-
-      List(
-        BAD_REQUEST,
-        NOT_FOUND,
-        TOO_MANY_REQUESTS,
-        REQUEST_TIMEOUT,
-        INTERNAL_SERVER_ERROR,
-        SERVICE_UNAVAILABLE,
-        BAD_GATEWAY
-      ).foreach { errorResponse =>
-        s"return an UpstreamErrorResponse containing $errorResponse when connector returns the same" in {
-          when(mockConnector.getEtag(any())(any(), any())).thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
-              Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
-            )
-          )
-
-          val result =
-            sut.getEtag(fakeNino.nino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
-          result mustBe errorResponse
-        }
-      }
-    }
-
   }
 
 }

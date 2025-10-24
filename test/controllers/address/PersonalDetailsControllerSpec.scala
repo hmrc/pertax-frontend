@@ -88,7 +88,7 @@ class PersonalDetailsControllerSpec extends BaseSpec {
   "Calling onPageLoad" must {
     "redirect to the rls interrupt page" when {
       "main address has an rls status with true" in {
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
             Future.successful(
               Right(Some(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true)))))
@@ -103,7 +103,7 @@ class PersonalDetailsControllerSpec extends BaseSpec {
       }
 
       "postal address has an rls status with true" in {
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
             Future.successful(
               Right(Some(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true)))))
@@ -118,7 +118,7 @@ class PersonalDetailsControllerSpec extends BaseSpec {
       }
 
       "main and postal address has an rls status with true" in {
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
             Future.successful(
               Right(Some(personDetails.copy(address = personDetails.address.map(_.copy(isRls = true)))))
@@ -135,7 +135,7 @@ class PersonalDetailsControllerSpec extends BaseSpec {
 
     "show the your profile page" when {
       "no address has an rls status with true" in {
-        when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
             Future.successful(
               Right(Some(personDetails))

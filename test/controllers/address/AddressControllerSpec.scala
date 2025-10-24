@@ -67,7 +67,7 @@ class AddressControllerSpec extends BaseSpec {
 
     when(mockErrorRenderer.error(any())(any(), any())).thenReturn(InternalServerError("error"))
 
-    when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+    when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
       EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
         Future.successful(Right(Some(buildPersonDetails)))
       )
@@ -126,7 +126,7 @@ class AddressControllerSpec extends BaseSpec {
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
         .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
 
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
         .thenReturn(EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(None))))
 
       def userRequest[A]: UserRequest[A] =
@@ -143,7 +143,7 @@ class AddressControllerSpec extends BaseSpec {
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
         .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
 
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any()))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
         .thenReturn(EitherT.leftT[Future, Option[PersonDetails]](UpstreamErrorResponse("error", 500)))
 
       def userRequest[A]: UserRequest[A] =

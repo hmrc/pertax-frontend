@@ -85,7 +85,7 @@ class StartDateControllerSpec extends BaseSpec {
         .empty("id")
         .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
 
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -103,7 +103,7 @@ class StartDateControllerSpec extends BaseSpec {
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -125,7 +125,7 @@ class StartDateControllerSpec extends BaseSpec {
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -149,7 +149,7 @@ class StartDateControllerSpec extends BaseSpec {
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -173,7 +173,7 @@ class StartDateControllerSpec extends BaseSpec {
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -192,7 +192,7 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "return 400 when passed ResidentialAddrType and missing date fields" in {
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -207,7 +207,7 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "return 400 when passed ResidentialAddrType and day out of range - too early" in {
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -223,7 +223,7 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "return 400 when passed ResidentialAddrType and day out of range - too late" in {
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -240,7 +240,7 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "return 400 when passed ResidentialAddrType and month out of range at lower bound" in {
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -256,7 +256,7 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "return 400 when passed ResidentialAddrType and month out of range at upper bound" in {
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -276,8 +276,8 @@ class StartDateControllerSpec extends BaseSpec {
         _.copy(startDate = Some(LocalDate.of(2016, 11, 22)))
       )
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
-      val personDetails = PersonDetails(person, address, None)
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      val personDetails = PersonDetails("115", person, address, None)
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
 
@@ -315,7 +315,7 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.OutsideUK)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -330,7 +330,7 @@ class StartDateControllerSpec extends BaseSpec {
           )
           .asInstanceOf[Request[A]]
 
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -349,7 +349,7 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -379,7 +379,7 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -396,7 +396,7 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -420,7 +420,7 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -444,7 +444,7 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -469,7 +469,7 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -494,7 +494,7 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -519,7 +519,7 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
