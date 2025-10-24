@@ -40,7 +40,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class HomeCardGenerator @Inject() (
   featureFlagService: FeatureFlagService,
   payAsYouEarnView: PayAsYouEarnView,
-  taxCreditsEndedView: TaxCreditsEndedView,
   childBenefitSingleAccountView: ChildBenefitSingleAccountView,
   marriageAllowanceView: MarriageAllowanceView,
   taxSummariesView: TaxSummariesView,
@@ -175,12 +174,10 @@ class HomeCardGenerator @Inject() (
     trustedHelper: Option[TrustedHelper]
   )(implicit messages: Messages): List[Html] =
     if (trustedHelper.isEmpty) {
-      List(getChildBenefitCard(), getMarriageAllowanceCard(taxComponents), getTaxCreditsEndedCard())
+      List(getChildBenefitCard(), getMarriageAllowanceCard(taxComponents))
     } else {
       List.empty
     }
-
-  def getTaxCreditsEndedCard()(implicit messages: Messages): HtmlFormat.Appendable = taxCreditsEndedView()
 
   def getChildBenefitCard()(implicit messages: Messages): HtmlFormat.Appendable = childBenefitSingleAccountView()
 

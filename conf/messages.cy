@@ -524,8 +524,6 @@ label.you_can_still_make_payments_towards_your_debt_during_breathing_space=Gallw
 # Benefits
 #
 title.benefits=Budd-daliadau
-label.tax_credits_ended=Mae credydau treth wedi dod i ben ar 5 Ebrill 2025
-label.tax_credits_ended_content = Mae Credyd Cynhwysol a Chredyd Pensiwn wedi disodli credydau treth.
 label.view_your_tax_credits_payments=Bwrw golwg ar eich taliadau credydau treth
 
 title.marriage_allowance=Lwfans Priodasol
