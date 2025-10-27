@@ -57,7 +57,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val generator = new Generator(new Random())
 
   private val payAsYouEarn                   = inject[PayAsYouEarnView]
-  private val taxCreditsEnded                = inject[TaxCreditsEndedView]
   private val childBenefitSingleAccount      = inject[ChildBenefitSingleAccountView]
   private val marriageAllowance              = inject[MarriageAllowanceView]
   private val taxSummaries                   = inject[TaxSummariesView]
@@ -82,7 +81,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     new HomeCardGenerator(
       mockFeatureFlagService,
       payAsYouEarn,
-      taxCreditsEnded,
       childBenefitSingleAccount,
       marriageAllowance,
       taxSummaries,
@@ -147,22 +145,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       cardBody mustBe nispView()
     }
 
-  }
-
-  "Calling getTaxCreditsEndedCard" must {
-    "return correct markup" in {
-      val homeCardGenerator = createHomeCardGenerator(mockConfigDecorator)
-
-      lazy val cardBody = homeCardGenerator.getTaxCreditsEndedCard()
-
-      val expTaxCreditsEnded = new TaxCreditsEndedView()()(implicitly)
-      cardBody mustBe expTaxCreditsEnded
-      val renderedHtml       = cardBody.toString
-      renderedHtml.contains(messages("label.tax_credits_ended_content")) mustBe true
-      renderedHtml.contains(
-        routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView.url
-      ) mustBe true
-    }
   }
 
   "Calling getChildBenefitCard" must {
@@ -279,7 +261,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       new HomeCardGenerator(
         mockFeatureFlagService,
         payAsYouEarn,
-        taxCreditsEnded,
         childBenefitSingleAccount,
         marriageAllowance,
         taxSummaries,
@@ -611,7 +592,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     val controller = new HomeCardGenerator(
       mockFeatureFlagService,
       app.injector.instanceOf[PayAsYouEarnView],
-      taxCreditsEnded,
       childBenefitSingleAccount,
       marriageAllowance,
       taxSummaries,
