@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,6 +90,10 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     when(mockHomeCardGenerator.getBenefitCards(any(), any())(any())).thenReturn(
       List.empty
     )
+    when(mockHomeCardGenerator.getTrustedHelpersCard()(any())).thenReturn(
+      Html("<div class='trusted-helpers-card'></div>")
+    )
+
     when(mockAlertBannerHelper.getContent(any(), any(), any())).thenReturn(
       Future.successful(List.empty)
     )
@@ -108,7 +112,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
     when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
-
   }
 
   def currentRequest[A]: Request[A] =
@@ -243,6 +246,19 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
       when(mockAlertBannerHelper.getContent(any(), any(), any()))
         .thenReturn(Future.successful(List(expectedHtml)))
+
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(currentRequest)
+      status(result) mustBe OK
+      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+    }
+
+    "Trusted helpers card is displayed" in {
+      val expectedHtmlString = "<div class='trusted-helpers-card'></div>"
+      when(mockHomeCardGenerator.getTrustedHelpersCard()(any()))
+        .thenReturn(Html(expectedHtmlString))
 
       val appLocal: Application = appBuilder.build()
 

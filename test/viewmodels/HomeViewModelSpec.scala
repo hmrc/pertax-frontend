@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,10 @@ class HomeViewModelSpec extends BaseSpec {
       NonFilerSelfAssessmentUser,
       breathingSpaceIndicator = false,
       alertBannerContent = List.empty,
+      None,
       None
     )
-    homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, None, false, List.empty, None)
+    homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, None, false, List.empty, None, None)
   }
 
   Seq(
@@ -44,14 +45,9 @@ class HomeViewModelSpec extends BaseSpec {
     WrongCredentialsSelfAssessmentUser(SaUtr(utr)),
     NotEnrolledSelfAssessmentUser(SaUtr(utr))
   ).foreach { saUserType =>
-//    s"have a UTR for a ${saUserType.toString}" in {
-//      val homeViewModel =
-//        HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, saUserType, breathingSpaceIndicator = true)
-//      homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true)
-//    }
     s"have a UTR for a ${saUserType.toString}" in {
-      val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, saUserType, true, List.empty, None)
-      homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true, List.empty, None)
+      val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, saUserType, true, List.empty, None, None)
+      homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true, List.empty, None, None)
     }
   }
 }

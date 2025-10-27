@@ -845,3 +845,7 @@ sa.message.selectSABPPPaymentType.title=Defnyddio Debyd Uniongyrchol i ledaenu c
 sa.message.selectSABPPPaymentType.saBppOverduePayment=Talu bil Hunanasesiad sy’n orddyledus
 sa.message.selectSABPPPaymentType.saBppAdvancePayment=Talu fy mil Hunanasesiad nesaf ymlaen llaw
 sa.message.selectSABPPPaymentType.error.required=Dewiswch sut yr hoffech ledaenu cost eich Hunanasesiad
+
+label.trusted_helpers=Cynorthwywyr dibynadwy
+label.trusted_helpers_content=Cael help gyda’ch treth ar-lein gan rywun dibynadwy, neu helpwch rywun rydych yn ei adnabod.
+

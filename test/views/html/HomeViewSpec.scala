@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,21 @@ package views.html
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
+import controllers.bindable.Origin
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import play.api
 import play.api.Application
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
+import repositories.JourneyCacheRepository
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.SaUtrGenerator
 import viewmodels.HomeViewModel
 import views.html.cards.home.PayAsYouEarnView
-import controllers.bindable.Origin
-import org.mockito.ArgumentMatchers.any
-import repositories.JourneyCacheRepository
 
 import scala.jdk.CollectionConverters._
 
@@ -56,11 +56,20 @@ class HomeViewSpec extends ViewSpec {
     when(mockConfigDecorator.defaultOrigin).thenReturn(Origin("PERTAX"))
     when(mockConfigDecorator.personalAccount).thenReturn("/personal-account")
     when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/feedback/url")
-
   }
 
   val homeViewModel: HomeViewModel =
-    HomeViewModel(Nil, Nil, Nil, showUserResearchBanner = true, None, breathingSpaceIndicator = true, List.empty, None)
+    HomeViewModel(
+      Nil,
+      Nil,
+      Nil,
+      showUserResearchBanner = true,
+      None,
+      breathingSpaceIndicator = true,
+      List.empty,
+      None,
+      None
+    )
 
   "Rendering HomeView.scala.html" must {
 
@@ -127,7 +136,7 @@ class HomeViewSpec extends ViewSpec {
       )
     }
 
-    "not how the Nps Shutter Banner when boolean is set to false" in {
+    "not show the Nps Shutter Banner when boolean is set to false" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val view                                                      = home(homeViewModel, shutteringMessaging = false).toString
 
@@ -156,5 +165,15 @@ class HomeViewSpec extends ViewSpec {
       view.getElementById("alert-banner") mustBe null
     }
 
+    "show the trusted helpers card when supplied in the view model" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val helpersHtml                                               = Html("<div class='trusted-helpers-card'></div>")
+      val view                                                      = home(
+        homeViewModel.copy(trustedHelpersCard = Some(helpersHtml)),
+        shutteringMessaging = false
+      ).toString
+
+      view must include("<div class='trusted-helpers-card'></div>")
+    }
   }
 }

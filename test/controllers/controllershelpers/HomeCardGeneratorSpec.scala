@@ -65,6 +65,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val mtditAdvertTileView            = inject[MTDITAdvertTileView]
   private val itsaMergeView                  = inject[ItsaMergeView]
   private val nispView                       = inject[NISPView]
+  private val trustedHelpersView             = inject[TrustedHelpersView]
   private val enrolmentsHelper               = inject[EnrolmentsHelper]
   private val selfAssessmentRegistrationView = inject[SelfAssessmentRegistrationView]
   private val mockConfigDecorator            = mock[ConfigDecorator]
@@ -92,7 +93,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       newsAndTilesConfig,
       nispView,
       selfAssessmentRegistrationView,
-      mockTaxCalcPartialService
+      mockTaxCalcPartialService,
+      trustedHelpersView
     )(configDecorator, ec)
 
   private lazy val homeCardGenerator = createHomeCardGenerator(stubConfigDecorator)
@@ -133,7 +135,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       cardBody.isEmpty
 
       verify(mockFeatureFlagService, times(0)).get(any())
-
     }
   }
 
@@ -144,7 +145,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       cardBody mustBe nispView()
     }
-
   }
 
   "Calling getChildBenefitCard" must {
@@ -272,7 +272,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         newsAndTilesConfig,
         nispView,
         selfAssessmentRegistrationView,
-        mockTaxCalcPartialService
+        mockTaxCalcPartialService,
+        trustedHelpersView
       )(mockConfigDecorator, ec)
     }
 
@@ -566,7 +567,13 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         cards.map(_.toString).exists(_.contains("sa-card")) mustBe true
       }
     }
+  }
 
+  "Calling getTrustedHelpersCard" must {
+    "return trusted helpers markup" in {
+      val result = homeCardGenerator.getTrustedHelpersCard()
+      result mustBe trustedHelpersView()
+    }
   }
 
   "return PAYE card pointing to PEGA when toggle is enabled and NINO matches the redirect list" in {
@@ -603,7 +610,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       newsAndTilesConfig,
       nispView,
       selfAssessmentRegistrationView,
-      mockTaxCalcPartialService
+      mockTaxCalcPartialService,
+      app.injector.instanceOf[TrustedHelpersView]
     )(injectedMockConfigDecorator, ec)
 
     implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =

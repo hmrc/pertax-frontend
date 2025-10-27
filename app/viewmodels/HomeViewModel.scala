@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ final case class HomeViewModel(
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
   alertBannerContent: List[Html],
-  name: Option[String]
+  name: Option[String],
+  trustedHelpersCard: Option[Html]
 )
 
 object HomeViewModel {
@@ -39,7 +40,8 @@ object HomeViewModel {
     selfAssessmentUserType: SelfAssessmentUserType,
     breathingSpaceIndicator: Boolean,
     alertBannerContent: List[Html],
-    name: Option[String]
+    name: Option[String],
+    trustedHelpersCard: Option[Html]
   ): HomeViewModel = {
 
     val utr: Option[String] = selfAssessmentUserType match {
@@ -55,7 +57,8 @@ object HomeViewModel {
       utr,
       breathingSpaceIndicator,
       alertBannerContent,
-      name
+      name,
+      trustedHelpersCard
     )
   }
 }

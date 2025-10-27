@@ -72,20 +72,33 @@ class HomeController @Inject() (
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
+
+    val nino: Nino   = request.helpeeNinoOrElse
+    val taxYear: Int = current.currentYear
+
     enforceInterrupts {
+      val fTaxComponents           = getTaxComponentsOrEmptyList(nino, taxYear)
+      val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
+      val fIncomeCards             = homeCardGenerator.getIncomeCards
+      val fAtsCard                 = homeCardGenerator.getATSCard()
+      val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
+      val fAlertBannerContent      = alertBannerHelper.getContent
+      val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
+
       for {
-        taxComponents           <- getTaxComponentsOrEmptyList(request.helpeeNinoOrElse, current.currentYear)
-        breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse)
-        incomeCards             <- homeCardGenerator.getIncomeCards
-        atsCard                 <- homeCardGenerator.getATSCard()
-        shutteringMessaging     <- featureFlagService.get(ShowPlannedOutageBannerToggle)
-        alertBannerContent      <- alertBannerHelper.getContent
-        eitherPersonDetails     <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).value
+        taxComponents           <- fTaxComponents
+        breathingSpaceIndicator <- fBreathingSpaceIndicator
+        incomeCards             <- fIncomeCards
+        atsCard                 <- fAtsCard
+        shutteringMessaging     <- fShutteringMessaging
+        alertBannerContent      <- fAlertBannerContent
+        eitherPersonDetails     <- fEitherPersonDetails
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
+        val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
-        val nameToDisplay: Option[String] = Some(personalDetailsNameOrDefault(personDetailsOpt))
-        val benefitCards                  = homeCardGenerator.getBenefitCards(taxComponents, request.trustedHelper)
+        val benefitCards       = homeCardGenerator.getBenefitCards(taxComponents, request.trustedHelper)
+        val trustedHelpersCard = Some(homeCardGenerator.getTrustedHelpersCard())
 
         Ok(
           homeView(
@@ -97,7 +110,8 @@ class HomeController @Inject() (
               saUserType,
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
               alertBannerContent,
-              nameToDisplay
+              nameToDisplay,
+              trustedHelpersCard
             ),
             shutteringMessaging.isEnabled
           )
