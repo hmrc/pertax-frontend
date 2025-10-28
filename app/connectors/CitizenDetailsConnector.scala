@@ -163,10 +163,7 @@ class DefaultCitizenDetailsConnector @Inject() (
       .get(url"$url")
       .transform(_.withRequestTimeout(configDecorator.citizenDetailsTimeoutInMilliseconds.milliseconds))
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-    httpClientResponse.read(apiResponse).map { response =>
-      println(response.body)
-      response.json
-    }
+    httpClientResponse.read(apiResponse).map(_.json)
   }
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit

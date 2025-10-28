@@ -114,7 +114,6 @@ class ClosePostalAddressController @Inject() (
             if (addressChanges.map(_.editedAddress).exists(_.isInstanceOf[EditCorrespondenceAddress])) {
               EitherT.rightT[Future, UpstreamErrorResponse](Redirect(routes.PersonalDetailsController.onPageLoad))
             } else {
-              println("PPPPPPPPP Submitting close postal address")
               submitConfirmClosePostalAddress(nino, personDetails)
             }
           }

@@ -80,7 +80,7 @@ class CitizenDetailsService @Inject() (
       .updateAddress(nino: Nino, currentPersonDetails.etag: String, newAddress: Address)
       .leftFlatMap { error =>
         if (error.statusCode == CONFLICT && tries == 0) {
-          logger.warn(s"Precondition failed when updating address, retrying once...")
+          logger.warn(s"Etag conflict was found, now retrying once...")
           for {
             newPersonDetailsOption <- personDetails(nino, refreshCache = true)
             result                 <- compareAndRetry(currentPersonDetails, newPersonDetailsOption, error)
