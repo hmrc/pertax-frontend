@@ -847,3 +847,6 @@ sa.message.selectSABPPPaymentType.title=Defnyddio Debyd Uniongyrchol i ledaenu c
 sa.message.selectSABPPPaymentType.saBppOverduePayment=Talu bil Hunanasesiad sy’n orddyledus
 sa.message.selectSABPPPaymentType.saBppAdvancePayment=Talu fy mil Hunanasesiad nesaf ymlaen llaw
 sa.message.selectSABPPPaymentType.error.required=Dewiswch sut yr hoffech ledaenu cost eich Hunanasesiad
+
+personal_details.try_again.you.will.need.to = bydd yn rhaid i chi
+personal_details.try_again.try.again.to.update = rhowch gynnig arall arni i ddiweddaru’ch manylion.

@@ -17,25 +17,23 @@
 @import controllers.auth.requests.UserRequest
 @import components.{H1, P, Link}
 @import views.MainView
+
 @this(
-main: MainView,
-h1: H1,
-p: P,
-link: Link
+  main: MainView,
+  h1: H1,
+ link: Link
 )
 
 @()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
-pageTitle = messages("label.your_address_cannot_be_updated"),
-showBackLink = true,
-yourProfileActive = true
+  pageTitle = messages("global.error.InternalServerError500.title"),
+  showBackLink = false,
+  yourProfileActive = true
 ) {
 
-@h1("label.you_cannot_use_this_service_to_update_your_address")
+  @h1("global.error.InternalServerError500.title")
 
-@p(Text(messages("label.this_is_because_you_do_not_live_in_the_uk")), classes = Some("govuk-body-l"))
-
-@link("asdf", "label.if_you_do_live_in_the_uk_link_text", inParagraph = true)
+  <p class="govuk-body">@messages("personal_details.try_again.you.will.need.to") @link(controllers.address.routes.PersonalDetailsController.onPageLoad.url, "personal_details.try_again.try.again.to.update", inParagraph = true, fullStop = true)</p>
 
 }

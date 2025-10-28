@@ -101,7 +101,7 @@ class AddressSubmissionControllerHelper @Inject() (
             Future.successful(startDateErrorResponse)
 
           case error if error.statusCode == CONFLICT =>
-            logger.error("Etag conflict detected when updating address. Retry was not successful.")
+            logger.error("Etag conflict detected when updating address. Retry was not successful or not possible.")
             Future.successful(Redirect(controllers.routes.UpdateDetailsErrorController.displayTryAgainToUpdateDetails))
           case _                                     =>
             errorRenderer.futureError(INTERNAL_SERVER_ERROR)

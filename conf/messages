@@ -834,3 +834,6 @@ sa.message.selectSABPPPaymentType.title=Spread the cost of your Self Assessment 
 sa.message.selectSABPPPaymentType.saBppOverduePayment=Pay an overdue Self Assessment bill
 sa.message.selectSABPPPaymentType.saBppAdvancePayment=Pay my next Self Assessment bill in advance
 sa.message.selectSABPPPaymentType.error.required=Select how you want to spread the cost of your Self Assessment
+
+personal_details.try_again.you.will.need.to = You will need to
+personal_details.try_again.try.again.to.update = try again to update your details
