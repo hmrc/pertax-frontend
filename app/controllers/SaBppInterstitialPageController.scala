@@ -40,7 +40,6 @@ class SaBppInterstitialPageController @Inject() (
   }
 
   def onSubmit: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
-    val origin = "pta-sa"
     SelectSABPPPaymentFormProvider.form
       .bindFromRequest()
       .fold(
@@ -49,11 +48,11 @@ class SaBppInterstitialPageController @Inject() (
           success.saBppWhatPaymentType match {
             case Some(SelectSABPPPaymentFormProvider.saBppOverduePayment) =>
               Redirect(
-                s"${appConfig.bppSpreadTheCostOverduePaymentUrl}?calledFrom=$origin"
+                s"${appConfig.bppSpreadTheCostOverduePaymentUrl}?calledFrom=pta-sa"
               )
             case Some(SelectSABPPPaymentFormProvider.saBppAdvancePayment) =>
               Redirect(
-                s"${appConfig.bppSpreadTheCostAdvancePaymentUrl}?calledFrom=$origin&lang=${messagesApi.preferred(request).lang.code}"
+                s"${appConfig.bppSpreadTheCostAdvancePaymentUrl}?calledFrom=pta-web&lang=${messagesApi.preferred(request).lang.code}"
               )
             case _                                                        =>
               BadRequest(
