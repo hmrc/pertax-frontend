@@ -28,6 +28,7 @@ import error.ErrorRenderer
 import models.dto.ClosePostalAddressChoiceDto
 import models.{Address, EditCorrespondenceAddress, PersonDetails}
 import play.api.Logging
+import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
 import services.*
@@ -117,7 +118,17 @@ class ClosePostalAddressController @Inject() (
               submitConfirmClosePostalAddress(nino, personDetails)
             }
           }
-          .fold(_ => errorRenderer.error(INTERNAL_SERVER_ERROR), identity)
+          .fold(
+            {
+              case error if error.statusCode == 409 =>
+                logger.error(
+                  "Etag conflict detected when closing correspondence address. Retry was not successful or not possible."
+                )
+                Redirect(controllers.routes.UpdateDetailsErrorController.displayTryAgainToUpdateDetails)
+              case _                                => errorRenderer.error(INTERNAL_SERVER_ERROR)
+            },
+            identity
+          )
       }
     }
 

@@ -387,7 +387,8 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
 
       val result: Future[Result] = controller.confirmSubmit(FakeRequest())
 
-      status(result) mustBe INTERNAL_SERVER_ERROR
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/problem-with-service")
     }
   }
 }
