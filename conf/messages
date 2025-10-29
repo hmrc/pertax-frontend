@@ -834,5 +834,5 @@ sa.message.selectSABPPPaymentType.saBppOverduePayment=Pay an overdue Self Assess
 sa.message.selectSABPPPaymentType.saBppAdvancePayment=Pay my next Self Assessment bill in advance
 sa.message.selectSABPPPaymentType.error.required=Select how you want to spread the cost of your Self Assessment
 
-label.trusted_helpers=Trusted helpers
+label.trusted_helpers_heading=Trusted helpers
 label.trusted_helpers_content=Get help with your tax online from someone you trust, or help someone you know.

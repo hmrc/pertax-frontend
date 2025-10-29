@@ -69,7 +69,7 @@
     }
 
     <div class="govuk-inset-text govuk-!-margin-top-2">
-        <ul class="govuk-list govuk-!-margin-left-0"><!-- removed duplicate govuk-list -->
+        <ul class="govuk-list govuk-!-margin-left-0">
             @viewModel.saUtr.map { utr =>
                 <li><div id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong><p></p></div></li>
             }
