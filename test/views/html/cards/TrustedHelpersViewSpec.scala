@@ -30,7 +30,7 @@ class TrustedHelpersViewSpec extends ViewSpec {
     val doc = asDocument(trustedHelpersView().toString)
 
     "render the given heading correctly" in {
-      doc.text() must include(Messages("label.trusted_helpers"))
+      doc.text() must include(Messages("label.trusted_helpers_heading"))
     }
 
     "render the given content correctly" in {
