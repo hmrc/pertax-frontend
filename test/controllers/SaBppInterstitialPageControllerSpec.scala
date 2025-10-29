@@ -86,7 +86,7 @@ class SaBppInterstitialPageControllerSpec extends BaseSpec {
         status(result) mustBe SEE_OTHER
         redirectLocation(
           result
-        ).get mustBe "https://www.gov.uk/pay-self-assessment-tax-bill/pay-weekly-monthly?calledFrom=pta-sa&lang=en"
+        ).get mustBe "https://www.gov.uk/pay-self-assessment-tax-bill/pay-weekly-monthly?calledFrom=pta-web&lang=en"
 
       }
     }
