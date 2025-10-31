@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.dto.DateDto
 import models.Address
+import models.dto.InternationalAddressChoiceDto
 import models.dto.InternationalAddressChoiceDto.OutsideUK
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -59,22 +60,41 @@ class StartDateController @Inject() (
       internalServerErrorView
     ) {
 
+  private def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
+
+  private def normPostcode(p: Option[String]): String =
+    p.getOrElse("").toUpperCase.replaceAll("\\s+", "")
+
+  private def normCountry(c: Option[String]): String =
+    c.getOrElse("").trim.toUpperCase.replaceAll("\\s+", "")
+
+  private def normCountryFromChoice(choice: Option[InternationalAddressChoiceDto]): String =
+    normCountry(choice.map(_.toString))
+
+  private def isScotland(cNorm: String): Boolean =
+    cNorm == "SCOTLAND"
+
+  private def isCrossBorderScotland(oldCN: String, newCN: String): Boolean =
+    isScotland(oldCN) ^ isScotland(newCN)
+
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-            val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("").toString
-            val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
-            journeyData.submittedAddressDto map { _ =>
-              val postcodesMatch =
-                if (newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))) {
-                  journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
-                } else {
-                  dateDtoForm
-                }
+            journeyData.submittedAddressDto map { newAddrDto =>
+              val newPc      = normPostcode(newAddrDto.postcode)
+              val oldPc      = normPostcode(personDetails.address.flatMap(_.postcode))
+              val newCountry = normCountryFromChoice(journeyData.submittedInternationalAddressChoiceDto)
+              val oldCountry = normCountry(personDetails.address.flatMap(_.country))
 
-              Future.successful(Ok(enterStartDateView(postcodesMatch, typ)))
+              val prefill = newPc.nonEmpty && newPc == oldPc && newCountry == oldCountry
+
+              val formToShow =
+                if (prefill) journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
+                else dateDtoForm
+
+              Future.successful(Ok(enterStartDateView(formToShow, typ)))
             } getOrElse
               Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
           }
@@ -92,49 +112,63 @@ class StartDateController @Inject() (
               formWithErrors => Future.successful(BadRequest(enterStartDateView(formWithErrors, typ))),
               dateDto =>
                 cachingHelper.gettingCachedJourneyData(typ) { cache =>
-                  val proposedStartDate = dateDto.startDate
-                  val p85Enabled        = cache.submittedInternationalAddressChoiceDto
-                    .exists(_.equals(OutsideUK))
+                  val proposed   = dateDto.startDate
+                  val p85Enabled = cache.submittedInternationalAddressChoiceDto.exists(_ == OutsideUK)
 
-                  personDetails.address match {
-                    case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
-                      if (!currentStartDate.isBefore(proposedStartDate)) {
-                        Future.successful(
-                          BadRequest(
-                            cannotUpdateAddressEarlyDateView(
-                              typ,
-                              languageUtils.Dates.formatDate(proposedStartDate),
-                              p85Enabled
-                            )
-                          )
+                  if (proposed.isAfter(LocalDate.now())) {
+                    Future.successful(
+                      BadRequest(
+                        cannotUpdateAddressFutureDateView(
+                          typ,
+                          languageUtils.Dates.formatDate(proposed),
+                          p85Enabled
                         )
-                      } else if (proposedStartDate.isAfter(LocalDate.now())) {
-                        Future.successful(
-                          BadRequest(
-                            cannotUpdateAddressFutureDateView(
-                              typ,
-                              languageUtils.Dates.formatDate(proposedStartDate),
-                              p85Enabled
+                      )
+                    )
+                  } else {
+                    val newCountryNorm = normCountryFromChoice(cache.submittedInternationalAddressChoiceDto)
+                    val oldCountryNorm = normCountry(personDetails.address.flatMap(_.country))
+                    val crossBorder    = isCrossBorderScotland(oldCountryNorm, newCountryNorm)
+
+                    personDetails.address match {
+                      case Some(Address(_, _, _, _, _, _, _, Some(currentStart), _, _, _)) =>
+                        if (p85Enabled || crossBorder) {
+                          if (!currentStart.isBefore(proposed)) {
+                            Future.successful(
+                              BadRequest(
+                                cannotUpdateAddressEarlyDateView(
+                                  typ,
+                                  languageUtils.Dates.formatDate(proposed),
+                                  p85Enabled
+                                )
+                              )
                             )
-                          )
-                        )
-                      } else {
-                        for {
-                          _ <- cachingHelper.addToCache(SubmittedStartDatePage(typ), dateDto)
-                        } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                      }
-                    case _                                                                   =>
-                      for {
-                        _ <- cachingHelper.addToCache(SubmittedStartDatePage(typ), dateDto)
-                      } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                          } else {
+                            cachingHelper
+                              .addToCache(SubmittedStartDatePage(typ), dateDto)
+                              .map(_ => Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
+                          }
+                        } else {
+                          val toPersist =
+                            if (!proposed.isAfter(currentStart)) DateDto(LocalDate.now())
+                            else dateDto
+
+                          cachingHelper
+                            .addToCache(SubmittedStartDatePage(typ), toPersist)
+                            .map(_ => Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
+                        }
+
+                      case _ =>
+                        cachingHelper
+                          .addToCache(SubmittedStartDatePage(typ), dateDto)
+                          .map(_ => Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
+                    }
                   }
                 }
             )
         }
       }
     }
-
-  private def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
 
   private def nonPostalJourneyEnforcer(typ: AddrType)(block: => Future[Result]): Future[Result] =
     typ match {
