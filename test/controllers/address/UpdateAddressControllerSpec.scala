@@ -88,7 +88,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(SelectedAddressRecordPage(ResidentialAddrType), fakeStreetPafAddressRecord)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -108,7 +108,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -125,7 +125,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -141,7 +141,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
       val userAnswers: UserAnswers = UserAnswers.empty("id")
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -157,7 +157,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       val userAnswers: UserAnswers = UserAnswers.empty
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -176,7 +176,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -193,7 +193,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -208,7 +208,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
       val userAnswers: UserAnswers = UserAnswers.empty("id")
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -231,7 +231,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -253,7 +253,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -271,7 +271,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -291,7 +291,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -312,7 +312,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -333,7 +333,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -358,7 +358,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
         .setOrException(SelectedAddressRecordPage(PostalAddrType), addressRecord)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -375,7 +375,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )
@@ -396,7 +396,7 @@ class UpdateAddressControllerSpec extends BaseSpec {
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(UserAnswers.empty))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-      when(mockCitizenDetailsService.personDetails(any())(any(), any(), any())).thenReturn(
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
           Future.successful(Right(Some(personDetails)))
         )

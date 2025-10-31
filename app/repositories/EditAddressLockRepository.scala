@@ -19,10 +19,10 @@ package repositories
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.bindable.AddrType
-import models._
-import org.mongodb.scala.MongoException
+import models.*
+import org.mongodb.scala.MongoWriteException
 import org.mongodb.scala.bson.conversions.Bson
-import org.mongodb.scala.model._
+import org.mongodb.scala.model.*
 import org.mongodb.scala.result.InsertOneResult
 import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
@@ -73,10 +73,10 @@ class EditAddressLockRepository @Inject() (
 
     logger.info("Inserting address lock: " + AddressJourneyTTLModel(nino, record).toString)
 
-    insertCore(AddressJourneyTTLModel(nino, record)).map(_.wasAcknowledged()) recover { case e: MongoException =>
-      val errorCode = e.getCode
-      logger.error(s"Edit address lock failure with error $errorCode")
-      false
+    insertCore(AddressJourneyTTLModel(nino, record)).map(_.wasAcknowledged()).recover {
+      case error: MongoWriteException =>
+        logger.error("Could not insert address lock: " + error.getMessage)
+        false
     }
   }
 

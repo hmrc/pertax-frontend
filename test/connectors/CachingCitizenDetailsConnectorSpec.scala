@@ -23,12 +23,12 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.inject.bind
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.JsValue
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import repositories.SessionCacheRepository
 import testUtils.{BaseSpec, WireMockHelper}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 import scala.concurrent.Future
 
@@ -59,7 +59,7 @@ class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec wit
 
   def connector: CachingCitizenDetailsConnector = inject[CachingCitizenDetailsConnector]
 
-  def url(nino: String): String = s"/citizen-details/$nino/designatory-details"
+  def url(nino: String): String = s"/citizen-details/$nino/designatory-details?cached=true"
 
   implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
@@ -87,7 +87,7 @@ class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec wit
           .thenReturn(EitherT.rightT[Future, AgentClientStatus](()))
 
         when(mockCitizenDetailsConnector.updateAddress(any(), any(), any())(any(), any(), any()))
-          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, Json.toJson(address), Map.empty)))
+          .thenReturn(EitherT.rightT[Future, Boolean](true))
 
         val _ = connector.updateAddress(generatedNino, "0", address).value.futureValue
 

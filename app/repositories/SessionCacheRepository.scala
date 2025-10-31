@@ -19,7 +19,7 @@ package repositories
 import cats.data.{EitherT, OptionT}
 import config.{ConfigDecorator, CryptoProvider, SensitiveT}
 import play.api.libs.json.{JsValue, Json, Reads, Writes}
-import play.api.mvc.{Request, RequestHeader}
+import play.api.mvc.RequestHeader
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.crypto.json.JsonEncryption
 import uk.gov.hmrc.http.SessionKeys
@@ -92,6 +92,6 @@ class SessionCacheRepository @Inject() (
     cacheRepo.delete(request)(encryptedDataKey)
   }
 
-  def deleteFromSessionEitherT[L, T](dataKey: DataKey[T])(implicit request: Request[Any]): EitherT[Future, L, Unit] =
+  def deleteFromSessionEitherT[L, T](dataKey: DataKey[T])(implicit request: RequestHeader): EitherT[Future, L, Unit] =
     EitherT[Future, L, Unit](deleteFromSession(dataKey).map(Right(_)))
 }
