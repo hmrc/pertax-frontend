@@ -40,7 +40,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait CitizenDetailsConnector {
   def personDetails(
-    nino: Nino
+    nino: Nino,
+    refreshCache: Boolean = false
   )(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
@@ -51,14 +52,13 @@ trait CitizenDetailsConnector {
     headerCarrier: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
+  ): EitherT[Future, UpstreamErrorResponse, Boolean]
 
   def getMatchingDetails(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse]
-  def getEtag(
-    nino: String
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse]
+
+  def clearPersonDetailsCache(nino: Nino)(implicit request: Request[_]): Future[Unit]
 }
 
 @Singleton
@@ -99,34 +99,44 @@ class CachingCitizenDetailsConnector @Inject() (
     readAndUpdate
   }
 
-  def personDetails(nino: Nino)(implicit
+  def personDetails(nino: Nino, refreshCache: Boolean = false)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, JsValue] =
-    cache(s"getPersonDetails-$nino") {
-      underlying.personDetails(nino: Nino)
-    }(sensitiveFormatService.sensitiveFormatFromReadsWrites[JsValue], request)
+  ): EitherT[Future, UpstreamErrorResponse, JsValue] = {
+    val cacheKey = s"getPersonDetails-$nino"
+    if (refreshCache) {
+      EitherT.liftF(sessionCacheRepository.deleteFromSession(DataKey[JsValue](cacheKey))).flatMap { _ =>
+        cache(cacheKey) {
+          underlying.personDetails(nino: Nino, refreshCache)
+        }(sensitiveFormatService.sensitiveFormatFromReadsWrites[JsValue], request)
+      }
+    } else {
+      cache(cacheKey) {
+        underlying.personDetails(nino: Nino, refreshCache)
+      }(sensitiveFormatService.sensitiveFormatFromReadsWrites[JsValue], request)
+    }
+  }
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+  ): EitherT[Future, UpstreamErrorResponse, Boolean] =
     for {
       update <- underlying.updateAddress(nino, etag, address)
       _      <- sessionCacheRepository.deleteFromSessionEitherT(DataKey[JsValue](s"getPersonDetails-$nino"))
-    } yield update
+    } yield true
 
   def getMatchingDetails(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     underlying.getMatchingDetails(nino)
 
-  def getEtag(
-    nino: String
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    underlying.getEtag(nino)
+  def clearPersonDetailsCache(nino: Nino)(implicit request: Request[_]): Future[Unit] = {
+    val cacheKey = s"getPersonDetails-$nino"
+    sessionCacheRepository.deleteFromSession(DataKey[JsValue](cacheKey)).map(_ => ())
+  }
 }
 
 @Singleton
@@ -141,13 +151,14 @@ class DefaultCitizenDetailsConnector @Inject() (
   private lazy val citizenDetailsUrl: String = servicesConfig.baseUrl("citizen-details")
 
   def personDetails(
-    nino: Nino
+    nino: Nino,
+    refreshCache: Boolean = false
   )(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] = {
-    val url                                                              = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
+    val url                                                              = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details?cached=${!refreshCache}"
     val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
       .get(url"$url")
       .transform(_.withRequestTimeout(configDecorator.citizenDetailsTimeoutInMilliseconds.milliseconds))
@@ -159,15 +170,17 @@ class DefaultCitizenDetailsConnector @Inject() (
     headerCarrier: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+  ): EitherT[Future, UpstreamErrorResponse, Boolean] = {
     val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
     val url  = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address"
-    httpClientResponse.read(
-      httpClientV2
-        .post(url"$url")
-        .withBody(body)
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-    )
+    httpClientResponse
+      .read(
+        httpClientV2
+          .post(url"$url")
+          .withBody(body)
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+      )
+      .map(_ => true)
   }
 
   def getMatchingDetails(
@@ -181,16 +194,6 @@ class DefaultCitizenDetailsConnector @Inject() (
     )
   }
 
-  def getEtag(
-    nino: String
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
-
-    val url = s"$citizenDetailsUrl/citizen-details/$nino/etag"
-    httpClientResponse.read(
-      httpClientV2
-        .get(url"$url")
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-    )
-  }
-
+  def clearPersonDetailsCache(nino: Nino)(implicit request: Request[_]): Future[Unit] =
+    Future.unit
 }

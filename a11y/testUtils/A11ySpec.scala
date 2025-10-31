@@ -131,6 +131,7 @@ trait A11ySpec
 
   protected val designatoryDetailsResponse: String =
     s"""{
+       |"etag":"115",
        |"person":{
        |  "firstName":"John",
        |  "middleName":"",
@@ -186,7 +187,8 @@ trait A11ySpec
     server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
 
     server.stubFor(
-      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details")).willReturn(ok(designatoryDetailsResponse))
+      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
+        .willReturn(ok(designatoryDetailsResponse))
     )
 
     server.stubFor(

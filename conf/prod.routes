@@ -89,6 +89,7 @@ GET         /personal-account/tax-credits-have-ended                            
 GET         /personal-account/tax-credits-are-ending                                   controllers.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView
 
 GET         /personal-account/services-unavailable                                     controllers.InterstitialController.displayShutteringPage
+GET         /personal-account/problem-with-service                                     controllers.UpdateDetailsErrorController.displayTryAgainToUpdateDetails
 
 GET         /personal-account/check-your-state-pension-call-back                       controllers.InterstitialController.displayCheckYourStatePensionCallBackView
 

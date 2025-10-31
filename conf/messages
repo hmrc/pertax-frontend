@@ -439,7 +439,6 @@ label.you_have_no_payments_to_make_to_hmrc=You have no payments to make to HMRC.
 
 label.self_assessment=Self Assessment
 label.mtd_for_itsa=Making Tax Digital for Income Tax and Self Assessment
-
 label.make_a_payment=Make a payment
 label.check_if_you_need_to_fill_in_a_tax_return=Check if you need to fill in a tax return
 label.find_out_how_to_access_self_assessment=Find out how to access Self Assessment
@@ -833,3 +832,6 @@ sa.message.selectSABPPPaymentType.title=Spread the cost of your Self Assessment 
 sa.message.selectSABPPPaymentType.saBppOverduePayment=Pay an overdue Self Assessment bill
 sa.message.selectSABPPPaymentType.saBppAdvancePayment=Pay my next Self Assessment bill in advance
 sa.message.selectSABPPPaymentType.error.required=Select how you want to spread the cost of your Self Assessment
+
+personal_details.try_again.you.will.need.to = You will need to
+personal_details.try_again.try.again.to.update = try again to update your details

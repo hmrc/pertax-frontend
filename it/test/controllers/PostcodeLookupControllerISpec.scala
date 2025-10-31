@@ -49,7 +49,7 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
 
   val urlPost = "/lookup"
 
-  val personDetailsUrl = s"/citizen-details/$generatedNino/designatory-details"
+  val personDetailsUrl = s"/citizen-details/$generatedNino/designatory-details?cached=true"
 
   val addressRecordSet: String =
     """|
@@ -132,7 +132,7 @@ class PostcodeLookupControllerISpec extends IntegrationSpec {
     beforeEachHomeController()
 
     server.stubFor(
-      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
         .willReturn(ok(designatoryDetails))
     )
 
