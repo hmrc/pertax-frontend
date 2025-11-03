@@ -93,8 +93,7 @@ class StartDateController @Inject() (
               val formToShow =
                 if (prefill) {
                   journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
-                }
-                else {
+                } else {
                   dateDtoForm
                 }
 
@@ -156,8 +155,7 @@ class StartDateController @Inject() (
                           val toPersist =
                             if (!proposed.isAfter(currentStart)) {
                               DateDto(LocalDate.now())
-                            }
-                            else {
+                            } else {
                               dateDto
                             }
 

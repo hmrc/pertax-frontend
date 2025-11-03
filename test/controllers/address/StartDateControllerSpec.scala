@@ -17,6 +17,7 @@
 package controllers.address
 
 import cats.data.EitherT
+import cats.instances.future._
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
@@ -32,10 +33,10 @@ import play.api.test.Helpers.{redirectLocation, _}
 import repositories.JourneyCacheRepository
 import routePages.{HasAddressAlreadyVisitedPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage}
 import services.CitizenDetailsService
-import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import testUtils.Fixtures.{buildPersonDetailsWithPersonalAndCorrespondenceAddress, fakeStreetTupleListAddressForUnmodified}
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import testUtils.{BaseSpec, Fixtures}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -52,8 +53,8 @@ class StartDateControllerSpec extends BaseSpec {
   class FakeAuthAction extends AuthJourney {
     override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
       new ActionBuilder[UserRequest, AnyContent] {
-        override def parser: BodyParser[AnyContent] = play.api.test.Helpers.stubBodyParser()
-        override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+        override def parser: BodyParser[AnyContent]                                                               = play.api.test.Helpers.stubBodyParser()
+        override protected def executionContext: ExecutionContext                                                 = scala.concurrent.ExecutionContext.Implicits.global
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = request))
       }
@@ -148,8 +149,8 @@ class StartDateControllerSpec extends BaseSpec {
 
     "return 400 when updated start date is not after recorded start date for international or cross-border (P85 messaging)" in {
       val existingAddress = personDetails.address.map(_.copy(startDate = Some(LocalDate.now().minusDays(1))))
-      val person = personDetails.copy(address = existingAddress)
-      val userAnswers = UserAnswers
+      val person          = personDetails.copy(address = existingAddress)
+      val userAnswers     = UserAnswers
         .empty("id")
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.OutsideUK)
 
