@@ -91,8 +91,12 @@ class StartDateController @Inject() (
               val prefill = newPc.nonEmpty && newPc == oldPc && newCountry == oldCountry
 
               val formToShow =
-                if (prefill) journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
-                else dateDtoForm
+                if (prefill) {
+                  journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
+                }
+                else {
+                  dateDtoForm
+                }
 
               Future.successful(Ok(enterStartDateView(formToShow, typ)))
             } getOrElse
@@ -150,8 +154,12 @@ class StartDateController @Inject() (
                           }
                         } else {
                           val toPersist =
-                            if (!proposed.isAfter(currentStart)) DateDto(LocalDate.now())
-                            else dateDto
+                            if (!proposed.isAfter(currentStart)) {
+                              DateDto(LocalDate.now())
+                            }
+                            else {
+                              dateDto
+                            }
 
                           cachingHelper
                             .addToCache(SubmittedStartDatePage(typ), toPersist)
