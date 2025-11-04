@@ -57,7 +57,7 @@ class HomeControllerWebChatISpec extends IntegrationSpec {
     server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
     server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
     server.stubFor(
-      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
+      get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details?cached=true"))
         .willReturn(
           ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino))
         )

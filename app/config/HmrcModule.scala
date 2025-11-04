@@ -29,7 +29,8 @@ class HmrcModule extends Module {
       bind[Clock].toInstance(Clock.systemDefaultZone.withZone(ZoneId.of("Europe/London"))),
       bind[ApplicationStartUp].toSelf.eagerly(),
       bind[CitizenDetailsConnector].qualifiedWith("default").to[DefaultCitizenDetailsConnector],
-      bind[CitizenDetailsConnector].to[CachingCitizenDetailsConnector],
+      bind[CitizenDetailsConnector]
+        .to[CachingCitizenDetailsConnector], // do not disable caching. The address change relies on the cache
       bind[TaiConnector].qualifiedWith("default").to[DefaultTaiConnector],
       bind[TaiConnector].to[CachingTaiConnector],
       bind[Encrypter with Decrypter].toProvider[CryptoProvider]

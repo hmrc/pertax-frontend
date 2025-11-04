@@ -846,6 +846,8 @@ sa.message.selectSABPPPaymentType.saBppOverduePayment=Talu bil Hunanasesiad sy�
 sa.message.selectSABPPPaymentType.saBppAdvancePayment=Talu fy mil Hunanasesiad nesaf ymlaen llaw
 sa.message.selectSABPPPaymentType.error.required=Dewiswch sut yr hoffech ledaenu cost eich Hunanasesiad
 
+personal_details.try_again.you.will.need.to = bydd yn rhaid i chi
+personal_details.try_again.try.again.to.update = rhowch gynnig arall arni i ddiweddaru’ch manylion.
+
 label.trusted_helpers_heading=Cynorthwywyr dibynadwy
 label.trusted_helpers_content=Cael help gyda’ch treth ar-lein gan rywun dibynadwy, neu helpwch rywun rydych yn ei adnabod.
-
