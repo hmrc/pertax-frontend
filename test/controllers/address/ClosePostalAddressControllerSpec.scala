@@ -399,5 +399,29 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/problem-with-service")
     }
+
+    "render the error view when citizen-details returns Etag conflict" in {
+      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
+      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val personDetails = PersonDetails("115", person, None, address)
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails)))
+      when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.successful(()))
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT.leftT[Future, Option[PersonDetails]](
+            UpstreamErrorResponse("", CONFLICT)
+          )
+        )
+
+      when(mockEditAddressLockRepository.get(any())).thenReturn(
+        Future.successful(List.empty)
+      )
+
+      val result: Future[Result] = controller.confirmSubmit(FakeRequest())
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/problem-with-service")
+    }
   }
 }

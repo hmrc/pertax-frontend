@@ -16,7 +16,7 @@
 
 package util
 
-import play.api.http.Status.BAD_REQUEST
+import play.api.http.Status.{BAD_REQUEST, CONFLICT}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 object EtagError {
@@ -24,5 +24,7 @@ object EtagError {
     "The remote endpoint has indicated that Optimistic Lock value is not correct."
 
   def isConflict(error: UpstreamErrorResponse): Boolean =
-    error.statusCode == BAD_REQUEST && error.message.contains(etagErrorResponse)
+    // there is a bug in citizen-details and Conflict is not returned but bad request.
+    // Using both Bad request and conflict in case the bug is fixed.
+    (error.statusCode == BAD_REQUEST && error.message.contains(etagErrorResponse)) || error.statusCode == CONFLICT
 }

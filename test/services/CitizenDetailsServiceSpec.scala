@@ -214,6 +214,101 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         verify(mockConnector, times(1)).personDetails(any(), any())(any(), any(), any())
       }
 
+      "Retries with new Etag successfully when connector returns Conflict on first attempt" in {
+        when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, Boolean](
+              Future.successful(
+                Left(
+                  UpstreamErrorResponse(
+                    "",
+                    CONFLICT
+                  )
+                )
+              )
+            ),
+            EitherT[Future, UpstreamErrorResponse, Boolean](
+              Future.successful(Right(true))
+            )
+          )
+
+        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, JsValue](
+            Future.successful(Right(Json.toJson(buildPersonDetails.copy(etag = "newEtag"))))
+          )
+        )
+
+        val result: Either[UpstreamErrorResponse, Boolean] =
+          sut
+            .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
+            .value
+            .futureValue
+
+        result mustBe Right(true)
+        verify(mockConnector, times(2)).updateAddress(any(), any(), any())(any(), any(), any())
+        verify(mockConnector, times(1)).personDetails(any(), any())(any(), any(), any())
+      }
+
+      "Do not retry with new Etag when connector returns conflict on first attempt and address has changed" in {
+        when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, Boolean](
+              Future.successful(Left(UpstreamErrorResponse("", CONFLICT)))
+            ),
+            EitherT[Future, UpstreamErrorResponse, Boolean](
+              Future.successful(Right(true))
+            )
+          )
+
+        val personDetaisWithNewAddress = buildPersonDetails.copy(
+          address = Some(
+            buildPersonDetails.address.get.copy(line1 = Some("A different address line"))
+          )
+        )
+        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, JsValue](
+            Future.successful(Right(Json.toJson(personDetaisWithNewAddress)))
+          )
+        )
+
+        val result: Either[UpstreamErrorResponse, Boolean] =
+          sut
+            .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
+            .value
+            .futureValue
+
+        result mustBe a[Left[UpstreamErrorResponse, _]]
+        result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe CONFLICT
+        verify(mockConnector, times(1)).updateAddress(any(), any(), any())(any(), any(), any())
+        verify(mockConnector, times(1)).personDetails(any(), any())(any(), any(), any())
+      }
+
+      "Do not retry multiple times on Conflict" in {
+        when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, Boolean](
+              Future.successful(Left(UpstreamErrorResponse("", CONFLICT)))
+            )
+          )
+
+        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, JsValue](
+            Future.successful(Right(Json.toJson(buildPersonDetails.copy(etag = "newEtag"))))
+          )
+        )
+
+        val result: Either[UpstreamErrorResponse, Boolean] =
+          sut
+            .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
+            .value
+            .futureValue
+
+        result mustBe a[Left[UpstreamErrorResponse, _]]
+        result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe CONFLICT
+        verify(mockConnector, times(2)).updateAddress(any(), any(), any())(any(), any(), any())
+        verify(mockConnector, times(1)).personDetails(any(), any())(any(), any(), any())
+      }
+
       List(
         BAD_REQUEST,
         NOT_FOUND,
