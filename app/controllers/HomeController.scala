@@ -98,7 +98,11 @@ class HomeController @Inject() (
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
         val benefitCards       = homeCardGenerator.getBenefitCards(taxComponents, request.trustedHelper)
-        val trustedHelpersCard = Some(homeCardGenerator.getTrustedHelpersCard())
+        val trustedHelpersCard = if (request.trustedHelper.isDefined) {
+          None
+        } else {
+          Some(homeCardGenerator.getTrustedHelpersCard())
+        }
 
         Ok(
           homeView(
