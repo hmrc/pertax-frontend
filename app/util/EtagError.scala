@@ -21,7 +21,7 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 
 object EtagError {
   private val etagErrorResponse =
-    "The remote endpoint has indicated that Start Date cannot be the same as, or prior to, the previous address start date already held on NPS."
+    "The remote endpoint has indicated that Optimistic Lock value is not correct."
 
   def isConflict(error: UpstreamErrorResponse): Boolean =
     error.statusCode == BAD_REQUEST && error.message.contains(etagErrorResponse)

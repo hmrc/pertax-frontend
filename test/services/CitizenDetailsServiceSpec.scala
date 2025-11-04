@@ -44,7 +44,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
   val sut: CitizenDetailsService                            = new CitizenDetailsService(mockConnector, mockFeatureFlagService)
 
   val etagErrorResponse              =
-    "The remote endpoint has indicated that Start Date cannot be the same as, or prior to, the previous address start date already held on NPS."
+    "The remote endpoint has indicated that Optimistic Lock value is not correct."
   val etagErrorUpstreamErrorResponse =
     s"""POST of 'https://citizen-details.protected.mdtp:443/citizen-details/<nino>/designatory-details/address' returned 400. Response body: '{"reason":"$etagErrorResponse"}'"""
 
