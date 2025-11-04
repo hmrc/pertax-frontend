@@ -43,6 +43,11 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
   implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/")
   val sut: CitizenDetailsService                            = new CitizenDetailsService(mockConnector, mockFeatureFlagService)
 
+  val etagErrorResponse              =
+    "The remote endpoint has indicated that Start Date cannot be the same as, or prior to, the previous address start date already held on NPS."
+  val etagErrorUpstreamErrorResponse =
+    s"""POST of 'https://citizen-details.protected.mdtp:443/citizen-details/<nino>/designatory-details/address' returned 400. Response body: '{"reason":"$etagErrorResponse"}'"""
+
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockConnector)
@@ -114,11 +119,18 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         result mustBe Right(true)
       }
 
-      "Retries with new Etag successfully when connector returns CONFLICT on first attempt" in {
+      "Retries with new Etag successfully when connector returns Etag error on first attempt" in {
         when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, Boolean](
-              Future.successful(Left(UpstreamErrorResponse("Precondition Failed", CONFLICT)))
+              Future.successful(
+                Left(
+                  UpstreamErrorResponse(
+                    etagErrorUpstreamErrorResponse,
+                    BAD_REQUEST
+                  )
+                )
+              )
             ),
             EitherT[Future, UpstreamErrorResponse, Boolean](
               Future.successful(Right(true))
@@ -142,11 +154,11 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         verify(mockConnector, times(1)).personDetails(any(), any())(any(), any(), any())
       }
 
-      "Do not retry with new Etag when connector returns CONFLICT on first attempt and address has changed" in {
+      "Do not retry with new Etag when connector returns Etag error on first attempt and address has changed" in {
         when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, Boolean](
-              Future.successful(Left(UpstreamErrorResponse("Precondition Failed", CONFLICT)))
+              Future.successful(Left(UpstreamErrorResponse(etagErrorUpstreamErrorResponse, BAD_REQUEST)))
             ),
             EitherT[Future, UpstreamErrorResponse, Boolean](
               Future.successful(Right(true))
@@ -171,16 +183,16 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .futureValue
 
         result mustBe a[Left[UpstreamErrorResponse, _]]
-        result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe CONFLICT
+        result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_REQUEST
         verify(mockConnector, times(1)).updateAddress(any(), any(), any())(any(), any(), any())
         verify(mockConnector, times(1)).personDetails(any(), any())(any(), any(), any())
       }
 
-      "Do not retry multiple times on CONFLICT" in {
+      "Do not retry multiple times on Etag Error" in {
         when(mockConnector.updateAddress(any(), any(), any())(any(), any(), any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, Boolean](
-              Future.successful(Left(UpstreamErrorResponse("Precondition Failed", CONFLICT)))
+              Future.successful(Left(UpstreamErrorResponse(etagErrorUpstreamErrorResponse, BAD_REQUEST)))
             )
           )
 
@@ -197,7 +209,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             .futureValue
 
         result mustBe a[Left[UpstreamErrorResponse, _]]
-        result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe CONFLICT
+        result.swap.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_REQUEST
         verify(mockConnector, times(2)).updateAddress(any(), any(), any())(any(), any(), any())
         verify(mockConnector, times(1)).personDetails(any(), any())(any(), any(), any())
       }

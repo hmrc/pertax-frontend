@@ -371,7 +371,12 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "render the error view when citizen-details returns CONFLICT" in {
+    "render the error view when citizen-details returns Etag error" in {
+      val etagErrorResponse              =
+        "The remote endpoint has indicated that Start Date cannot be the same as, or prior to, the previous address start date already held on NPS."
+      val etagErrorUpstreamErrorResponse =
+        s"""POST of 'https://citizen-details.protected.mdtp:443/citizen-details/<nino>/designatory-details/address' returned 400. Response body: '{"reason":"$etagErrorResponse"}'"""
+
       val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address
       val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails("115", person, None, address)
@@ -379,7 +384,11 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails)))
       when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.successful(()))
       when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any()))
-        .thenReturn(EitherT.leftT[Future, Option[PersonDetails]](UpstreamErrorResponse("Conflict", CONFLICT)))
+        .thenReturn(
+          EitherT.leftT[Future, Option[PersonDetails]](
+            UpstreamErrorResponse(etagErrorUpstreamErrorResponse, BAD_REQUEST)
+          )
+        )
 
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)

@@ -37,6 +37,7 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
+import util.EtagError
 import views.html.InternalServerErrorView
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
@@ -120,12 +121,12 @@ class ClosePostalAddressController @Inject() (
           }
           .fold(
             {
-              case error if error.statusCode == 409 =>
+              case error if EtagError.isConflict(error) =>
                 logger.error(
                   "Etag conflict detected when closing correspondence address. Retry was not successful or not possible."
                 )
                 Redirect(controllers.routes.UpdateDetailsErrorController.displayTryAgainToUpdateDetails)
-              case _                                => errorRenderer.error(INTERNAL_SERVER_ERROR)
+              case _                                    => errorRenderer.error(INTERNAL_SERVER_ERROR)
             },
             identity
           )

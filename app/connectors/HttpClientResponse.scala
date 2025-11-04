@@ -36,7 +36,7 @@ class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Loggi
     case Success(Left(error))
         if error.statusCode == BAD_REQUEST &&
           error.message.toLowerCase().contains("start date") =>
-      logger.warn(s"Specific 400 Error - Address Update: ${error.message}")
+      logger.info(s"Specific 400 Error - Address Update: ${error.message}")
     case Failure(exception: HttpException)                                                        =>
       logger.error(exception.message)
   }
