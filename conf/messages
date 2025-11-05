@@ -835,3 +835,6 @@ sa.message.selectSABPPPaymentType.error.required=Select how you want to spread t
 
 personal_details.try_again.you.will.need.to = You will need to
 personal_details.try_again.try.again.to.update = try again to update your details
+
+label.trusted_helpers_heading=Trusted helpers
+label.trusted_helpers_content=Get help with your tax online from someone you trust, or help someone you know.

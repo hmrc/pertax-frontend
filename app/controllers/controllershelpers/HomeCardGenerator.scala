@@ -51,33 +51,43 @@ class HomeCardGenerator @Inject() (
   newsAndTilesConfig: NewsAndTilesConfig,
   nispView: NISPView,
   selfAssessmentRegistrationView: SelfAssessmentRegistrationView,
-  taxCalcPartialService: TaxCalcPartialService
+  taxCalcPartialService: TaxCalcPartialService,
+  trustedHelpersView: TrustedHelpersView
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
     extends Logging {
 
   def getIncomeCards(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
     val latestNewsCardOpt = getLatestNewsAndUpdatesCard()
 
-    featureFlagService.get(MDTITAdvertToggle).flatMap { ff =>
-      val additionalCards = getSelfAssessmentCards(includeMDTITAdvert = ff.isEnabled) ++ Seq(getNationalInsuranceCard())
+    val mdtitAdvertFlagF = featureFlagService.get(MDTITAdvertToggle)
+    val payeCardF        = getPayAsYouEarnCard
+    val taxCalcCardsF    = getDynamicTaxCalcCards
 
-      for {
-        payeCard     <- getPayAsYouEarnCard
-        taxCalcCards <- getDynamicTaxCalcCards
-      } yield {
-        val staticCards = latestNewsCardOpt.toSeq :+ payeCard
-        staticCards ++ taxCalcCards ++ additionalCards
-      }
+    for {
+      mdtitAdvertFlag <- mdtitAdvertFlagF
+      payeCard        <- payeCardF
+      taxCalcCards    <- taxCalcCardsF
+    } yield {
+      val additionalCards =
+        getSelfAssessmentCards(includeMDTITAdvert = mdtitAdvertFlag.isEnabled) :+ getNationalInsuranceCard()
+      (latestNewsCardOpt.toSeq :+ payeCard) ++ taxCalcCards ++ additionalCards
     }
-
   }
 
+  def getTrustedHelpersCard()(implicit messages: Messages): HtmlFormat.Appendable =
+    trustedHelpersView()
+
   private def getDynamicTaxCalcCards(implicit request: UserRequest[_]): Future[Seq[Html]] =
-    featureFlagService.get(ShowTaxCalcTileToggle).flatMap {
-      case FeatureFlag(_, true) if request.trustedHelper.isEmpty =>
-        taxCalcPartialService.getTaxCalcPartial.map(_.map(_.partialContent))
-      case _                                                     =>
-        Future.successful(Seq.empty)
+    if (request.trustedHelper.isDefined) {
+      Future.successful(Seq.empty)
+    } else {
+      featureFlagService.get(ShowTaxCalcTileToggle).flatMap { taxCalcTileFlag =>
+        if (taxCalcTileFlag.isEnabled) {
+          taxCalcPartialService.getTaxCalcPartial.map(_.map(_.partialContent))
+        } else {
+          Future.successful(Seq.empty)
+        }
+      }
     }
 
   def getATSCard()(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] =
