@@ -154,14 +154,14 @@ class HttpClientResponseSpec
       }
     }
 
-    "log specific BAD_REQUEST with address update message as WARNING" in {
+    "log specific BAD_REQUEST with address update message as INFO" in {
       val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
         Future(Left(UpstreamErrorResponse(specificBadRequestMessage, BAD_REQUEST)))
 
       withCaptureOfLoggingFrom(testLogger) { logs =>
         whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
           actual mustBe Left(UpstreamErrorResponse(specificBadRequestMessage, BAD_REQUEST))
-          verifyCalls(logs, warn = Some(s"Specific 400 Error - Address Update: $specificBadRequestMessage"))
+          verifyCalls(logs, info = Some(s"Specific 400 Error - Address Update: $specificBadRequestMessage"))
         }
       }
     }
