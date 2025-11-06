@@ -17,17 +17,14 @@
 package controllers
 
 import com.google.inject.Inject
-import connectors.TaiConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowPlannedOutageBannerToggle
-import play.api.libs.json.{Format, Writes}
 import play.api.mvc._
 import services._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
@@ -39,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
-  taiConnector: TaiConnector,
+  taiService: TaiService,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
@@ -58,18 +55,6 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  private def getTaxComponentsOrEmptyList(nino: Nino, year: Int)(implicit
-    hc: HeaderCarrier,
-    request: Request[_]
-  ): Future[List[String]] = {
-    implicit val listStringFormat: Format[List[String]] =
-      Format(models.TaxComponents.readsListString, Writes.list[String])
-
-    taiConnector
-      .taxComponents[List[String]](nino, year)(listStringFormat)
-      .fold(_ => List.empty, _.getOrElse(Nil))
-  }
-
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
 
@@ -77,7 +62,7 @@ class HomeController @Inject() (
     val taxYear: Int = current.currentYear
 
     enforceInterrupts {
-      val fTaxComponents           = getTaxComponentsOrEmptyList(nino, taxYear)
+      val fTaxComponents           = taiService.getTaxComponentsList(nino, taxYear)
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
       val fIncomeCards             = homeCardGenerator.getIncomeCards
       val fAtsCard                 = homeCardGenerator.getATSCard()

@@ -21,7 +21,6 @@ import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.bind
-import play.api.libs.json.Format
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.WireMockHelper
@@ -59,14 +58,14 @@ class DefaultTaiConnectorSpec extends ConnectorSpec with WireMockHelper with Int
 
   "DefaultTaiConnector.taxComponents" must {
 
-    "return Right(Some(value)) when toggle enabled and JSON parses for A=Boolean" in {
+    "return Right(Some(json)) when toggle enabled" in {
       when(mockFeatureFlagService.getAsEitherT(models.admin.TaxComponentsRetrievalToggle))
         .thenReturn(toggle(enabled = true))
 
-      stubGet(url, OK, Some("true"))
+      stubGet(url, OK, Some("""{"x": "some Json"}"""))
 
       val result =
-        connector.taxComponents[Boolean](nino, year)(implicitly[Format[Boolean]]).value.futureValue
+        connector.taxComponents(nino, year).value.futureValue
 
       result mustBe Right(Some(true))
     }
@@ -75,10 +74,10 @@ class DefaultTaiConnectorSpec extends ConnectorSpec with WireMockHelper with Int
       when(mockFeatureFlagService.getAsEitherT(models.admin.TaxComponentsRetrievalToggle))
         .thenReturn(toggle(enabled = true))
 
-      stubGet(url, OK, Some("""{"unexpected":"shape"}"""))
+      stubGet(url, OK, Some("""invalid json"""))
 
       val result =
-        connector.taxComponents[Boolean](nino, year)(implicitly[Format[Boolean]]).value.futureValue
+        connector.taxComponents(nino, year).value.futureValue
 
       result mustBe Right(None)
     }
@@ -90,7 +89,7 @@ class DefaultTaiConnectorSpec extends ConnectorSpec with WireMockHelper with Int
       stubGet(url, INTERNAL_SERVER_ERROR, None)
 
       val result =
-        connector.taxComponents[Boolean](nino, year)(implicitly[Format[Boolean]]).value.futureValue
+        connector.taxComponents(nino, year).value.futureValue
 
       result mustBe a[Left[UpstreamErrorResponse, _]]
     }
@@ -100,7 +99,7 @@ class DefaultTaiConnectorSpec extends ConnectorSpec with WireMockHelper with Int
         .thenReturn(toggle(enabled = false))
 
       val result =
-        connector.taxComponents[Boolean](nino, year)(implicitly[Format[Boolean]]).value.futureValue
+        connector.taxComponents(nino, year).value.futureValue
 
       result mustBe Right(None)
     }

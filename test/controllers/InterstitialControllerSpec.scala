@@ -29,7 +29,7 @@ import org.mockito.Mockito.{reset, times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
 import play.api.Application
 import play.api.inject.{Binding, bind}
-import play.api.libs.json.Format
+import play.api.libs.json.Json
 import play.api.mvc.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -119,11 +119,6 @@ class InterstitialControllerSpec extends BaseSpec {
     reset(mockTaiConnector)
   }
 
-  private def taxComponentsHICBCSuccessResponse(
-    value: Boolean
-  ): EitherT[Future, UpstreamErrorResponse, Option[Boolean]] =
-    EitherT.right[UpstreamErrorResponse](Future.successful(Some(value)))
-
   "displayChildBenefits" must {
     "redirect to /your-national-insurance-state-pension when when call displayNationalInsurance" in {
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
@@ -151,8 +146,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayChildBenefitsSingleAccountView" must {
     "return OK & correct view for new Child Benefits where no HICBC components returned from API" in {
-      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any[Format[Boolean]]())(any(), any(), any()))
-        .thenReturn(taxComponentsHICBCSuccessResponse(false))
+      when(mockTaiConnector.taxComponents(any(), any())(any(), any(), any()))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Json.obj("x" -> "x")))
 
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
@@ -165,8 +160,8 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return OK & correct view for new Child Benefits where HICBC components returned from API" in {
-      when(mockTaiConnector.taxComponents[Boolean](any(), any())(any[Format[Boolean]]())(any(), any(), any()))
-        .thenReturn(taxComponentsHICBCSuccessResponse(true))
+      when(mockTaiConnector.taxComponents(any(), any())(any(), any(), any()))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Json.obj("x" -> "x")))
 
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))

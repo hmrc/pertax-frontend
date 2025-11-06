@@ -34,8 +34,8 @@ class SessionCacheRepositorySpec extends BaseSpec {
   val injectedConfiguration: Configuration = app.injector.instanceOf[Configuration]
   val cryptoProvider: CryptoProvider       = app.injector.instanceOf[CryptoProvider]
 
-  val repository: SessionCacheRepository =
-    new SessionCacheRepository(mockConfigDecorator, mongoComponent, cryptoProvider)
+  val repository: EncryptedSessionCacheRepository =
+    new EncryptedSessionCacheRepository(mockConfigDecorator, mongoComponent, cryptoProvider)
 
   val data: JsValue = Json.obj(
     "item 1" -> "Something",

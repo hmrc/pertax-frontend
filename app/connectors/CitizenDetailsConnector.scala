@@ -17,22 +17,20 @@
 package connectors
 
 import cats.data.EitherT
-import cats.implicits._
+import cats.implicits.*
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import models.Address
 import play.api.libs.json.{Format, JsValue, Json}
 import play.api.mvc.Request
 import play.api.{Logger, Logging}
-import repositories.SessionCacheRepository
-import services.SensitiveFormatService
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits.{readEitherOf, readRaw}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
-import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import services.CacheService
 
 import javax.inject.Named
 import scala.concurrent.duration.DurationInt
@@ -64,59 +62,28 @@ trait CitizenDetailsConnector {
 @Singleton
 class CachingCitizenDetailsConnector @Inject() (
   @Named("default") underlying: CitizenDetailsConnector,
-  sensitiveFormatService: SensitiveFormatService,
-  sessionCacheRepository: SessionCacheRepository
-)(implicit ec: ExecutionContext)
-    extends CitizenDetailsConnector
+  cacheService: CacheService
+) extends CitizenDetailsConnector
     with Logging {
 
-  def cache[L, A: Format](
-    key: String
-  )(f: => EitherT[Future, L, A])(implicit request: Request[_]): EitherT[Future, L, A] = {
-
-    def fetchAndCache: EitherT[Future, L, A] =
-      for {
-        result <- f
-        _      <- EitherT[Future, L, (String, String)](
-                    sessionCacheRepository
-                      .putSession[A](DataKey[A](key), result)
-                      .map(Right(_))
-                  )
-      } yield result
-
-    def readAndUpdate: EitherT[Future, L, A] =
-      EitherT(
-        sessionCacheRepository
-          .getFromSession[A](DataKey[A](key))
-          .flatMap {
-            case None        =>
-              fetchAndCache.value
-            case Some(value) =>
-              Future.successful(Right(value))
-          }
-      )
-
-    readAndUpdate
-  }
+  def cacheKey(nino: Nino) = s"getPersonDetails-$nino"
 
   def personDetails(nino: Nino, refreshCache: Boolean = false)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, JsValue] = {
-    val cacheKey = s"getPersonDetails-$nino"
+  ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     if (refreshCache) {
-      EitherT.liftF(sessionCacheRepository.deleteFromSession(DataKey[JsValue](cacheKey))).flatMap { _ =>
-        cache(cacheKey) {
+      EitherT.liftF(cacheService.deleteFromCache(cacheKey(nino))).flatMap { _ =>
+        cacheService.cache(cacheKey(nino)) {
           underlying.personDetails(nino: Nino, refreshCache)
-        }(sensitiveFormatService.sensitiveFormatFromReadsWrites[JsValue], request)
+        }
       }
     } else {
-      cache(cacheKey) {
+      cacheService.cache(cacheKey(nino)) {
         underlying.personDetails(nino: Nino, refreshCache)
-      }(sensitiveFormatService.sensitiveFormatFromReadsWrites[JsValue], request)
+      }
     }
-  }
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit
     headerCarrier: HeaderCarrier,
@@ -125,7 +92,7 @@ class CachingCitizenDetailsConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, Boolean] =
     for {
       update <- underlying.updateAddress(nino, etag, address)
-      _      <- sessionCacheRepository.deleteFromSessionEitherT(DataKey[JsValue](s"getPersonDetails-$nino"))
+      _      <- cacheService.deleteFromCacheAsEitherT(cacheKey(nino))
     } yield true
 
   def getMatchingDetails(
@@ -133,10 +100,8 @@ class CachingCitizenDetailsConnector @Inject() (
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     underlying.getMatchingDetails(nino)
 
-  def clearPersonDetailsCache(nino: Nino)(implicit request: Request[_]): Future[Unit] = {
-    val cacheKey = s"getPersonDetails-$nino"
-    sessionCacheRepository.deleteFromSession(DataKey[JsValue](cacheKey)).map(_ => ())
-  }
+  def clearPersonDetailsCache(nino: Nino)(implicit request: Request[_]): Future[Unit] =
+    cacheService.deleteFromCache(cacheKey(nino))
 }
 
 @Singleton

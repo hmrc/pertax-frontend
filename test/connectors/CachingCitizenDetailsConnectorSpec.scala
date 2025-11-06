@@ -17,7 +17,7 @@
 package connectors
 
 import cats.data.EitherT
-import cats.implicits._
+import cats.implicits.*
 import models.{Address, AgentClientStatus}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -26,19 +26,20 @@ import play.api.inject.bind
 import play.api.libs.json.JsValue
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import repositories.SessionCacheRepository
+import repositories.EncryptedSessionCacheRepository
+import services.CacheService
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
-import scala.concurrent.Future
 
+import scala.concurrent.Future
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext
 
 class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec with WireMockHelper {
 
   val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
-  val mockSessionCacheRepository: SessionCacheRepository   = mock[SessionCacheRepository]
+  val mockCacheService: CacheService                       = mock[CacheService]
 
   override implicit val hc: HeaderCarrier         = HeaderCarrier()
   override implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -48,13 +49,13 @@ class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec wit
     bind(classOf[CitizenDetailsConnector])
       .qualifiedWith("default")
       .toInstance(mockCitizenDetailsConnector),
-    bind[SessionCacheRepository].toInstance(mockSessionCacheRepository)
+    bind[CacheService].toInstance(mockCacheService)
   )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockCitizenDetailsConnector)
-    reset(mockSessionCacheRepository)
+    reset(mockCacheService)
   }
 
   def connector: CachingCitizenDetailsConnector = inject[CachingCitizenDetailsConnector]
@@ -81,9 +82,7 @@ class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec wit
     "clear the cache" when {
       "updating an address" in {
 
-        when(
-          mockSessionCacheRepository.deleteFromSessionEitherT[AgentClientStatus, JsValue](DataKey(any[String]()))(any())
-        )
+        when(mockCacheService.deleteFromCacheAsEitherT[UpstreamErrorResponse](any())(any()))
           .thenReturn(EitherT.rightT[Future, AgentClientStatus](()))
 
         when(mockCitizenDetailsConnector.updateAddress(any(), any(), any())(any(), any(), any()))
@@ -91,8 +90,8 @@ class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec wit
 
         val _ = connector.updateAddress(generatedNino, "0", address).value.futureValue
 
-        verify(mockSessionCacheRepository, times(1))
-          .deleteFromSessionEitherT[AgentClientStatus, JsValue](DataKey(any[String]()))(any())
+        verify(mockCacheService, times(1))
+          .deleteFromCacheAsEitherT[UpstreamErrorResponse](any())(any())
 
         verify(mockCitizenDetailsConnector, times(1)).updateAddress(any(), any(), any())(any(), any(), any())
       }

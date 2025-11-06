@@ -30,7 +30,7 @@ import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Format
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -102,14 +102,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       Future.successful(List.empty)
     )
 
-    when(mockTaiConnector.taxComponents[List[String]](any(), any())(any[Format[List[String]]]())(any(), any(), any()))
-      .thenReturn(
-        EitherT(
-          Future.successful[Either[UpstreamErrorResponse, Option[List[String]]]](
-            Right[UpstreamErrorResponse, Option[List[String]]](Some(taxComponents))
-          )
-        )
-      )
+    when(mockTaiConnector.taxComponents(any(), any())(any(), any(), any()))
+      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Json.obj("x" -> "x")))
 
     when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
       .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
@@ -140,14 +134,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     }
 
     "Return a Html that is returned as part of Benefit Cards NOT incl tax components when error returned from tax components call" in {
-      when(mockTaiConnector.taxComponents[List[String]](any(), any())(any[Format[List[String]]]())(any(), any(), any()))
-        .thenReturn(
-          EitherT(
-            Future.successful[Either[UpstreamErrorResponse, Option[List[String]]]](
-              Left[UpstreamErrorResponse, Option[List[String]]](UpstreamErrorResponse("", INTERNAL_SERVER_ERROR))
-            )
-          )
-        )
+      when(mockTaiConnector.taxComponents(any(), any())(any(), any(), any()))
+        .thenReturn(EitherT.leftT[Future, JsValue](UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
 
       val expectedHtmlString = "<div class='TestingForBenefitCards'></div>"
       val expectedHtml: Html = Html(expectedHtmlString)
