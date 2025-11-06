@@ -22,11 +22,11 @@ import connectors.CitizenDetailsConnector
 import models.admin.GetPersonFromCitizenDetailsToggle
 import models.{Address, MatchingDetails, PersonDetails}
 import play.api.Logging
-import play.api.http.Status.CONFLICT
 import play.api.mvc.Request
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import util.EtagError
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -79,7 +79,7 @@ class CitizenDetailsService @Inject() (
     citizenDetailsConnector
       .updateAddress(nino: Nino, currentPersonDetails.etag: String, newAddress: Address)
       .leftFlatMap { error =>
-        if (error.statusCode == CONFLICT && tries == 0) {
+        if (EtagError.isConflict(error) && tries == 0) {
           logger.warn(s"Etag conflict was found, now retrying once...")
           for {
             newPersonDetailsOption <- personDetails(nino, refreshCache = true)
