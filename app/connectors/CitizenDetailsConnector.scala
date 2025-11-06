@@ -75,12 +75,12 @@ class CachingCitizenDetailsConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     if (refreshCache) {
       EitherT.liftF(cacheService.deleteFromCache(cacheKey(nino))).flatMap { _ =>
-        cacheService.cache(cacheKey(nino)) {
+        cacheService.cache(cacheKey(nino)) { () =>
           underlying.personDetails(nino: Nino, refreshCache)
         }
       }
     } else {
-      cacheService.cache(cacheKey(nino)) {
+      cacheService.cache(cacheKey(nino)) { () =>
         underlying.personDetails(nino: Nino, refreshCache)
       }
     }

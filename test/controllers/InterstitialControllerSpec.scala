@@ -18,7 +18,7 @@ package controllers
 
 import cats.data.EitherT
 import config.NewsAndTilesConfig
-import connectors.TaiConnector
+import services.TaiService
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import models.*
@@ -29,7 +29,6 @@ import org.mockito.Mockito.{reset, times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
 import play.api.Application
 import play.api.inject.{Binding, bind}
-import play.api.libs.json.Json
 import play.api.mvc.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -56,7 +55,7 @@ class InterstitialControllerSpec extends BaseSpec {
   private val mockNewsAndTilesConfig                                = mock[NewsAndTilesConfig]
   val mockCitizenDetailsService: CitizenDetailsService              = mock[CitizenDetailsService]
   val mockAlertBannerHelper: AlertBannerHelper                      = mock[util.AlertBannerHelper]
-  private val mockTaiConnector: TaiConnector                        = mock[TaiConnector]
+  private val mockTaiService: TaiService                            = mock[TaiService]
 
   private def setupAuth(
     saUserType: Option[SelfAssessmentUserType] = None,
@@ -99,7 +98,7 @@ class InterstitialControllerSpec extends BaseSpec {
       bind[NewsAndTilesConfig].toInstance(mockNewsAndTilesConfig),
       bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
       bind[util.AlertBannerHelper].toInstance(mockAlertBannerHelper),
-      bind[TaiConnector].toInstance(mockTaiConnector)
+      bind[TaiService].toInstance(mockTaiService)
     ) ++ bindings
 
     localGuiceApplicationBuilder(extraConfigValues)
@@ -116,7 +115,7 @@ class InterstitialControllerSpec extends BaseSpec {
     reset(mockNewsAndTilesConfig)
     reset(mockCitizenDetailsService)
     reset(mockAlertBannerHelper)
-    reset(mockTaiConnector)
+    reset(mockTaiService)
   }
 
   "displayChildBenefits" must {
@@ -146,8 +145,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayChildBenefitsSingleAccountView" must {
     "return OK & correct view for new Child Benefits where no HICBC components returned from API" in {
-      when(mockTaiConnector.taxComponents(any(), any())(any(), any(), any()))
-        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Json.obj("x" -> "x")))
+      when(mockTaiService.isRecipientOfHicBc(any())(any(), any()))
+        .thenReturn(Future.successful(false))
 
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))
@@ -160,8 +159,8 @@ class InterstitialControllerSpec extends BaseSpec {
     }
 
     "return OK & correct view for new Child Benefits where HICBC components returned from API" in {
-      when(mockTaiConnector.taxComponents(any(), any())(any(), any(), any()))
-        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Json.obj("x" -> "x")))
+      when(mockTaiService.isRecipientOfHicBc(any())(any(), any()))
+        .thenReturn(Future.successful(true))
 
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth(Some(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))))

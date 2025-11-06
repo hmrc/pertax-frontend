@@ -38,11 +38,10 @@ class CacheService @Inject() (sessionCacheRepository: EncryptedSessionCacheRepos
 
   def cache[L, A: Format](
     key: String
-  )(f: => EitherT[Future, L, A])(implicit request: Request[_]): EitherT[Future, L, A] = {
-
+  )(f: () => EitherT[Future, L, A])(implicit request: Request[_]): EitherT[Future, L, A] = {
     def fetchAndCache: EitherT[Future, L, A] =
       for {
-        result <- f
+        result <- f()
         _      <- EitherT[Future, L, (String, String)](
                     sessionCacheRepository
                       .putSession[A](DataKey[A](key), result)

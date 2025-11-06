@@ -167,9 +167,9 @@ class TimeoutsISpec extends IntegrationSpec {
       .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
-    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
       .thenReturn(
-        EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true))
+        Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true))
       )
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
       .thenReturn(

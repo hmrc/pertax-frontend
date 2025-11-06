@@ -82,7 +82,7 @@ class CachingTaiConnector @Inject() (
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] = {
     val key = s"taxComponents.${nino.value}.$year"
-    cacheService.cache[UpstreamErrorResponse, JsValue](key) {
+    cacheService.cache[UpstreamErrorResponse, JsValue](key) { () =>
       underlying.taxComponents(nino, year)
     }
   }
