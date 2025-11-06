@@ -174,7 +174,7 @@ class DefaultCitizenDetailsConnector @Inject() (
     val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
     val url  = s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address"
     httpClientResponse
-      .read(
+      .readUpdateAddress(
         httpClientV2
           .post(url"$url")
           .withBody(body)

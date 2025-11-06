@@ -79,7 +79,10 @@ class CitizenDetailsService @Inject() (
     citizenDetailsConnector
       .updateAddress(nino: Nino, currentPersonDetails.etag: String, newAddress: Address)
       .leftFlatMap { error =>
-        if (EtagError.isConflict(error) && tries == 0) {
+        if (EtagError.isConflict(error) && tries == 1) {
+          logger.error(s"Update address failed for the second time on citizen-details.", error)
+          EitherT.leftT[Future, Boolean](error)
+        } else if (EtagError.isConflict(error) && tries == 0) {
           logger.warn(s"Etag conflict was found, now retrying once...")
           for {
             newPersonDetailsOption <- personDetails(nino, refreshCache = true)
