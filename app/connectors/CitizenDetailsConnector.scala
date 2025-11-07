@@ -55,8 +55,6 @@ trait CitizenDetailsConnector {
   def getMatchingDetails(
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse]
-
-  def clearPersonDetailsCache(nino: Nino)(implicit request: Request[_]): Future[Unit]
 }
 
 @Singleton
@@ -75,12 +73,12 @@ class CachingCitizenDetailsConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     if (refreshCache) {
       EitherT.liftF(cacheService.deleteFromCache(cacheKey(nino))).flatMap { _ =>
-        cacheService.cache(cacheKey(nino)) { () =>
+        cacheService.cache(cacheKey(nino)) {
           underlying.personDetails(nino: Nino, refreshCache)
         }
       }
     } else {
-      cacheService.cache(cacheKey(nino)) { () =>
+      cacheService.cache(cacheKey(nino)) {
         underlying.personDetails(nino: Nino, refreshCache)
       }
     }
@@ -99,9 +97,6 @@ class CachingCitizenDetailsConnector @Inject() (
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     underlying.getMatchingDetails(nino)
-
-  def clearPersonDetailsCache(nino: Nino)(implicit request: Request[_]): Future[Unit] =
-    cacheService.deleteFromCache(cacheKey(nino))
 }
 
 @Singleton
@@ -158,7 +153,4 @@ class DefaultCitizenDetailsConnector @Inject() (
         .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
     )
   }
-
-  def clearPersonDetailsCache(nino: Nino)(implicit request: Request[_]): Future[Unit] =
-    Future.unit
 }

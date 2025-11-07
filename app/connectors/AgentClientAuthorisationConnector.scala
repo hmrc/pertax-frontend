@@ -54,7 +54,7 @@ class CachingAgentClientAuthorisationConnector @Inject() (
     ec: ExecutionContext,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] =
-    cacheService.cache("agentClientStatus") { () =>
+    cacheService.cache("agentClientStatus") {
       underlying.getAgentClientStatus
     }
 
