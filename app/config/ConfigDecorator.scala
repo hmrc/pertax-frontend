@@ -62,7 +62,7 @@ class ConfigDecorator @Inject() (
   private lazy val enrolmentStoreProxyService = servicesConfig.baseUrl("enrolment-store-proxy")
 
   lazy val addTaxesFrontendUrl: String = servicesConfig.baseUrl("add-taxes-frontend")
-  lazy val addTaxesPtaOrigin: String   = "pta-web"
+  lazy val addTaxesPtaOrigin: String   = "pta-sa"
 
   lazy val pertaxUrl: String = servicesConfig.baseUrl("pertax")
 
