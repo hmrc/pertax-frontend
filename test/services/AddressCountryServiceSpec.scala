@@ -24,10 +24,9 @@ import org.mockito.ArgumentMatchers.{any, eq as meq}
 import org.mockito.Mockito.{reset, when}
 import play.api.Application
 import play.api.inject.bind
-import play.api.test.Helpers.await
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import testUtils.BaseSpec
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import play.api.test.Helpers.defaultAwaitTimeout
 
 import scala.concurrent.Future
 
@@ -118,11 +117,9 @@ class AddressCountryServiceSpec extends BaseSpec {
       ex.getMessage must include("Address lookup failed or returned no results")
     }
 
-    "fail with exception when postcode is missing" in {
-      val ex = intercept[RuntimeException] {
-        await(service.isCrossBorderScotland(None, Some(InternationalAddressChoiceDto.England)))
-      }
-      ex.getMessage must include("Missing postcode for cross-border check")
+    "return true when postcode is missing" in {
+      val resultF = service.isCrossBorderScotland(None, Some(InternationalAddressChoiceDto.England))
+      await(resultF) mustBe true
     }
   }
 }

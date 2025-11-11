@@ -27,7 +27,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class AddressCountryService @Inject() (connector: AddressLookupConnector, normalization: NormalizationUtils)(implicit
   ec: ExecutionContext
 ) {
-
   def isCrossBorderScotland(
     currentPostcode: Option[String],
     newInternationalChoice: Option[InternationalAddressChoiceDto]
@@ -47,7 +46,8 @@ class AddressCountryService @Inject() (connector: AddressLookupConnector, normal
         }
 
       case _ =>
-        Future.failed(new RuntimeException("Missing postcode for cross-border check"))
+        // Defaulting to true because there is no current post code, so treat it as cross border
+        Future.successful(true)
     }
   }
 }
