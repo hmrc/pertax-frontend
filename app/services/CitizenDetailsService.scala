@@ -102,7 +102,4 @@ class CitizenDetailsService @Inject() (
       .map { response =>
         MatchingDetails.fromJsonMatchingDetails(response.json)
       }
-
-  def clearCachedPersonDetails(nino: Nino)(implicit request: Request[_]): Future[Unit] =
-    citizenDetailsConnector.clearPersonDetailsCache(nino)
 }

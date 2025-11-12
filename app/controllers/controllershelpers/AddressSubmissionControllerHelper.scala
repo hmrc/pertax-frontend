@@ -116,7 +116,6 @@ class AddressSubmissionControllerHelper @Inject() (
                                              addressType.ifIs("Residential", "Correspondence")
                                            )
             _                           <- editAddressLockRepository.insert(nino.withoutSuffix, addressType)
-            _                           <- citizenDetailsService.clearCachedPersonDetails(nino)
             addressMovedCountryInsideUk <-
               addressMovedService
                 .moved(

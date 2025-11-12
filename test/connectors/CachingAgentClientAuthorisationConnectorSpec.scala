@@ -25,7 +25,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import repositories.SessionCacheRepository
+import repositories.EncryptedSessionCacheRepository
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
@@ -35,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with BaseSpec with WireMockHelper {
 
   val mockAgentClientAuthorisationConnector: AgentClientAuthorisationConnector = mock[AgentClientAuthorisationConnector]
-  val mockSessionCacheRepository: SessionCacheRepository                       = mock[SessionCacheRepository]
+  val mockSessionCacheRepository: EncryptedSessionCacheRepository              = mock[EncryptedSessionCacheRepository]
 
   override implicit val hc: HeaderCarrier         = HeaderCarrier()
   override implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -45,7 +45,7 @@ class CachingAgentClientAuthorisationConnectorSpec extends ConnectorSpec with Ba
     bind(classOf[AgentClientAuthorisationConnector])
       .qualifiedWith("default")
       .toInstance(mockAgentClientAuthorisationConnector),
-    bind[SessionCacheRepository].toInstance(mockSessionCacheRepository)
+    bind[EncryptedSessionCacheRepository].toInstance(mockSessionCacheRepository)
   )
 
   override def beforeEach(): Unit = {

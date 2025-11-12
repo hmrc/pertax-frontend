@@ -16,7 +16,6 @@
 
 package controllers
 
-import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.admin.TaxComponentsRetrievalToggle
 import org.mockito.ArgumentMatchers
@@ -29,7 +28,7 @@ import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, status as httpStatus, writeableOf_AnyContentAsEmpty}
 import testUtils.IntegrationSpec
-import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
+import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.time.TaxYear
 
@@ -56,9 +55,9 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     beforeEachHomeController()
-    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxComponentsRetrievalToggle)))
       .thenReturn(
-        EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true))
+        Future.successful(FeatureFlag(TaxComponentsRetrievalToggle, isEnabled = true))
       )
   }
 

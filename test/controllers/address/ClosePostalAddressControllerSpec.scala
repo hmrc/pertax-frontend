@@ -191,7 +191,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
-      when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.successful(()))
 
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -237,7 +236,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(getEditedAddressIndicators)
       )
-      when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.successful(()))
 
       when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](true)
@@ -263,7 +261,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
-      when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.successful(()))
 
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -304,7 +301,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
-      when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.successful(()))
 
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -328,7 +324,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
-      when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.successful(()))
 
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -352,7 +347,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails))
       )
-      when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.successful(()))
 
       when(mockEditAddressLockRepository.get(any())).thenReturn(
         Future.successful(List.empty)
@@ -382,7 +376,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val personDetails = PersonDetails("115", person, None, address)
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails)))
-      when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.successful(()))
       when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any()))
         .thenReturn(
           EitherT.leftT[Future, Option[PersonDetails]](
@@ -406,7 +399,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec {
       val personDetails = PersonDetails("115", person, None, address)
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(personDetails)))
-      when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.successful(()))
       when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any()))
         .thenReturn(
           EitherT.leftT[Future, Option[PersonDetails]](

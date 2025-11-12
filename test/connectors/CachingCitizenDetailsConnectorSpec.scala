@@ -17,47 +17,44 @@
 package connectors
 
 import cats.data.EitherT
-import cats.implicits._
-import models.{Address, AgentClientStatus}
+import cats.implicits.*
+import models.Address
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
-import play.api.Application
-import play.api.inject.bind
-import play.api.libs.json.JsValue
+import org.mockito.Mockito.{reset, spy, times, verify, when}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import repositories.SessionCacheRepository
+import services.CacheService
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import play.api.libs.json.Json
+import play.api.libs.json.*
+import repositories.EncryptedSessionCacheRepository
 import uk.gov.hmrc.mongo.cache.DataKey
-import scala.concurrent.Future
 
+import scala.concurrent.Future
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext
 
 class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec with WireMockHelper {
 
-  val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
-  val mockSessionCacheRepository: SessionCacheRepository   = mock[SessionCacheRepository]
+  val mockUnderlyingConnector: CitizenDetailsConnector                     = mock[CitizenDetailsConnector]
+  val mockEncryptedSessionCacheRepository: EncryptedSessionCacheRepository = mock[EncryptedSessionCacheRepository]
+
+  val spyCacheService: CacheService = spy(
+    new CacheService(mockEncryptedSessionCacheRepository)
+  )
 
   override implicit val hc: HeaderCarrier         = HeaderCarrier()
   override implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  override implicit lazy val app: Application = app(
-    Map("microservice.services.citizen-details.port" -> server.port()),
-    bind(classOf[CitizenDetailsConnector])
-      .qualifiedWith("default")
-      .toInstance(mockCitizenDetailsConnector),
-    bind[SessionCacheRepository].toInstance(mockSessionCacheRepository)
-  )
-
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockCitizenDetailsConnector)
-    reset(mockSessionCacheRepository)
+    reset(mockUnderlyingConnector)
+    reset(mockEncryptedSessionCacheRepository)
   }
 
-  def connector: CachingCitizenDetailsConnector = inject[CachingCitizenDetailsConnector]
+  def connector: CachingCitizenDetailsConnector =
+    new CachingCitizenDetailsConnector(mockUnderlyingConnector, spyCacheService)
 
   def url(nino: String): String = s"/citizen-details/$nino/designatory-details?cached=true"
 
@@ -77,24 +74,121 @@ class CachingCitizenDetailsConnectorSpec extends ConnectorSpec with BaseSpec wit
     isRls = false
   )
 
-  "Calling CachingCitizenDetailsConnector.updateAddress" must {
+  "Calling personDetails" when {
+    "refreshCache is true" must {
+      "invalidate cache and call connector" in {
+        val data = Json.obj("personDetails" -> "some content")
+
+        when(mockEncryptedSessionCacheRepository.deleteFromSession(DataKey[JsValue](any()))(any())).thenReturn(
+          Future.unit
+        )
+        when(mockEncryptedSessionCacheRepository.getFromSession[JsValue](DataKey[JsValue](any()))(any(), any()))
+          .thenReturn(
+            Future.successful(None)
+          )
+        when(mockEncryptedSessionCacheRepository.putSession[JsValue](DataKey[JsValue](any()), any())(any(), any()))
+          .thenReturn(
+            Future.successful(("1", data))
+          )
+
+        when(mockUnderlyingConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](data)
+        )
+
+        val result = connector.personDetails(generatedNino, true).value.futureValue
+
+        result mustBe Right(data)
+
+        verify(mockEncryptedSessionCacheRepository, times(1)).deleteFromSession(DataKey[JsValue](any()))(any())
+        verify(mockEncryptedSessionCacheRepository, times(1))
+          .getFromSession[JsValue](DataKey[JsValue](any()))(any(), any())
+        verify(mockEncryptedSessionCacheRepository, times(1))
+          .putSession[JsValue](DataKey[JsValue](any()), any())(any(), any())
+        verify(mockUnderlyingConnector, times(1)).personDetails(any(), any())(any(), any(), any())
+      }
+    }
+
+    "refreshCache is false" must {
+      "retrieve cache" in {
+        val data = Json.obj("personDetails" -> "some content")
+
+        when(mockEncryptedSessionCacheRepository.deleteFromSession(DataKey[JsValue](any()))(any())).thenReturn(
+          Future.unit
+        )
+        when(mockEncryptedSessionCacheRepository.getFromSession[JsValue](DataKey[JsValue](any()))(any(), any()))
+          .thenReturn(
+            Future.successful(Some(data))
+          )
+        when(mockEncryptedSessionCacheRepository.putSession[JsValue](DataKey[JsValue](any()), any())(any(), any()))
+          .thenReturn(
+            Future.successful(("1", data))
+          )
+
+        when(mockUnderlyingConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](data)
+        )
+
+        val result = connector.personDetails(generatedNino, false).value.futureValue
+
+        result mustBe Right(data)
+
+        verify(mockEncryptedSessionCacheRepository, times(0)).deleteFromSession(DataKey[JsValue](any()))(any())
+        verify(mockEncryptedSessionCacheRepository, times(1))
+          .getFromSession[JsValue](DataKey[JsValue](any()))(any(), any())
+        verify(mockEncryptedSessionCacheRepository, times(0))
+          .putSession[JsValue](DataKey[JsValue](any()), any())(any(), any())
+        verify(mockUnderlyingConnector, times(0)).personDetails(any(), any())(any(), any(), any())
+      }
+
+      "fetch and fill cache" in {
+        val data = Json.obj("personDetails" -> "some content")
+
+        when(mockEncryptedSessionCacheRepository.deleteFromSession(DataKey[JsValue](any()))(any())).thenReturn(
+          Future.unit
+        )
+        when(mockEncryptedSessionCacheRepository.getFromSession[JsValue](DataKey[JsValue](any()))(any(), any()))
+          .thenReturn(
+            Future.successful(None)
+          )
+        when(mockEncryptedSessionCacheRepository.putSession[JsValue](DataKey[JsValue](any()), any())(any(), any()))
+          .thenReturn(
+            Future.successful(("1", data))
+          )
+
+        when(mockUnderlyingConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](data)
+        )
+
+        val result = connector.personDetails(generatedNino, false).value.futureValue
+
+        result mustBe Right(data)
+
+        verify(mockEncryptedSessionCacheRepository, times(0)).deleteFromSession(DataKey[JsValue](any()))(any())
+        verify(mockEncryptedSessionCacheRepository, times(1))
+          .getFromSession[JsValue](DataKey[JsValue](any()))(any(), any())
+        verify(mockEncryptedSessionCacheRepository, times(1))
+          .putSession[JsValue](DataKey[JsValue](any()), any())(any(), any())
+        verify(mockUnderlyingConnector, times(1)).personDetails(any(), any())(any(), any(), any())
+      }
+    }
+  }
+
+  "Calling updateAddress" must {
     "clear the cache" when {
       "updating an address" in {
-
-        when(
-          mockSessionCacheRepository.deleteFromSessionEitherT[AgentClientStatus, JsValue](DataKey(any[String]()))(any())
+        when(mockUnderlyingConnector.updateAddress(any(), any(), any())(any(), any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](true)
         )
-          .thenReturn(EitherT.rightT[Future, AgentClientStatus](()))
+        when(mockEncryptedSessionCacheRepository.deleteFromSession(DataKey[JsValue](any()))(any())).thenReturn(
+          Future.unit
+        )
 
-        when(mockCitizenDetailsConnector.updateAddress(any(), any(), any())(any(), any(), any()))
-          .thenReturn(EitherT.rightT[Future, Boolean](true))
+        val result = connector.updateAddress(generatedNino, "0", address).value.futureValue
+        result mustBe Right(true)
 
-        val _ = connector.updateAddress(generatedNino, "0", address).value.futureValue
+        verify(mockEncryptedSessionCacheRepository, times(1)).deleteFromSession(DataKey[JsValue](any()))(any())
+        verify(mockUnderlyingConnector, times(1)).updateAddress(any(), any(), any())(any(), any(), any())
 
-        verify(mockSessionCacheRepository, times(1))
-          .deleteFromSessionEitherT[AgentClientStatus, JsValue](DataKey(any[String]()))(any())
-
-        verify(mockCitizenDetailsConnector, times(1)).updateAddress(any(), any(), any())(any(), any(), any())
       }
 
     }

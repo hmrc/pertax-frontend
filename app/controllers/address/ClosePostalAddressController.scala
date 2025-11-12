@@ -154,7 +154,6 @@ class ClosePostalAddressController @Inject() (
              )
            )
       _ <- EitherT.liftF(editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType))
-      _ <- EitherT.liftF(citizenDetailsService.clearCachedPersonDetails(nino))
       _ <- EitherT.liftF(
              cachingHelper
                .clearCache()

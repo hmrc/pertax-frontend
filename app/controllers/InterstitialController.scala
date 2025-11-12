@@ -18,18 +18,16 @@ package controllers
 
 import com.google.inject.Inject
 import config.{ConfigDecorator, NewsAndTilesConfig}
-import connectors.TaiConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.*
 import models.admin.{BreathingSpaceIndicatorToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.Logging
-import play.api.libs.json.{Format, Writes}
 import play.api.mvc.*
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
-import services.{CitizenDetailsService, SeissService}
+import services.{CitizenDetailsService, SeissService, TaiService}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -71,7 +69,7 @@ class InterstitialController @Inject() (
   selfAssessmentRegistrationPageView: SelfAssessmentRegistrationPageView,
   checkYourStatePensionCallBackView: CheckYourStatePensionCallBackView,
   alertBannerHelper: AlertBannerHelper,
-  taiConnector: TaiConnector
+  taiService: TaiService
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with Logging
@@ -130,15 +128,9 @@ class InterstitialController @Inject() (
   }
 
   def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate.async { implicit request =>
-    implicit val hicbcFormat: Format[Boolean] =
-      Format(models.TaxComponents.readsIsHICBCWithCharge, Writes.BooleanWrites)
-
-    taiConnector
-      .taxComponents[Boolean](request.authNino, current.currentYear)(hicbcFormat)
-      .fold(_ => false, _.getOrElse(false))
-      .map(isRegisteredForHICBCWithCharge =>
-        Ok(viewChildBenefitsSummarySingleAccountInterstitialView(isRegisteredForHICBCWithCharge))
-      )
+    taiService.isRecipientOfHicBc(request.authNino).map { isRegisteredForHICBCWithCharge =>
+      Ok(viewChildBenefitsSummarySingleAccountInterstitialView(isRegisteredForHICBCWithCharge))
+    }
   }
 
   def displayHICBCChargeInPAYEView: Action[AnyContent] = authenticate { implicit request =>

@@ -17,7 +17,7 @@
 package connectors
 
 import cats.data.EitherT
-import cats.implicits._
+import cats.implicits.*
 import com.google.common.util.concurrent.RateLimiter
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
@@ -26,17 +26,15 @@ import play.api.Logging
 import play.api.libs.json.Format
 import play.api.libs.json.Format.GenericFormat
 import play.api.mvc.Request
-import repositories.SessionCacheRepository
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import services.CacheService
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{GatewayTimeoutException, HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
-import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.{FutureEarlyTimeout, Limiters, Throttle}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 trait AgentClientAuthorisationConnector {
   def getAgentClientStatus(implicit
@@ -48,44 +46,15 @@ trait AgentClientAuthorisationConnector {
 
 class CachingAgentClientAuthorisationConnector @Inject() (
   @Named("default") underlying: AgentClientAuthorisationConnector,
-  sessionCacheRepository: SessionCacheRepository
-)(implicit ec: ExecutionContext)
-    extends AgentClientAuthorisationConnector {
-
-  private def cache[L, A: Format](
-    key: String
-  )(f: => EitherT[Future, L, A])(implicit request: Request[_]): EitherT[Future, L, A] = {
-
-    def fetchAndCache: EitherT[Future, L, A] =
-      for {
-        result <- f
-        _      <- EitherT[Future, L, (String, String)](
-                    sessionCacheRepository
-                      .putSession[A](DataKey[A](key), result)
-                      .map(Right(_))
-                  )
-      } yield result
-
-    EitherT(
-      sessionCacheRepository
-        .getFromSession[A](DataKey[A](key))
-        .map {
-          case None        => fetchAndCache
-          case Some(value) => EitherT.rightT[Future, L](value)
-        }
-        .map(_.value)
-        .flatten
-    ) recoverWith { case NonFatal(_) =>
-      fetchAndCache
-    }
-  }
+  cacheService: CacheService
+) extends AgentClientAuthorisationConnector {
 
   override def getAgentClientStatus(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] =
-    cache("agentClientStatus") {
+    cacheService.cache("agentClientStatus") {
       underlying.getAgentClientStatus
     }
 

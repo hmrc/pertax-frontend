@@ -92,7 +92,6 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         Future.successful(Right(Some(personDetails)))
       )
     )
-    when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(Future.unit)
   }
 
   def currentRequest =
