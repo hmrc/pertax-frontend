@@ -61,14 +61,13 @@ class HttpClientResponse @Inject() (implicit ec: ExecutionContext) extends Loggi
 
   def read(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     EitherT(
       response
         andThen
           (logErrorResponsesMain orElse logUpstreamErrorResponseAsError)
           recover recoverHttpException
     )
-  }
 
   def readUpdateAddress(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]]

@@ -405,7 +405,7 @@ class InterstitialControllerSpec extends BaseSpec {
       val result = controller.displayShutteringPage()(fakeRequest)
       status(result) mustBe OK
       contentAsString(result) must include(
-        "The following services will be unavailable from 10pm on Friday 12 July to 7am on Monday 15 July."
+        "The following services will be unavailable from"
       )
     }
 

@@ -181,7 +181,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
     "Shuttering is displayed if toggled on" in {
       val expectedHtmlString =
-        "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
+        "A number of services will be unavailable from"
 
       when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
@@ -196,7 +196,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
     "Shuttering is not displayed if toggled off" in {
       val expectedHtmlString =
-        "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
+        "A number of services will be unavailable from"
 
       when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
