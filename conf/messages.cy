@@ -718,19 +718,18 @@ label.return_to_your_profile_page = Dychwelyd i’ch proffil
 #*************************************************************
 alertBannerShuttering.title = Y gwasanaethau na fyddant ar gael
 alertBannerShuttering.cysp = Gwirioʼch Pensiwn y Wladwriaeth
-alertBannerShuttering.taxRefund = Gwneud cais am ad-daliad treth
 alertBannerShuttering.c2ni = Yswiriant Gwladol Dosbarth 2
 alertBannerShuttering.cocar = Car cwmni
 alertBannerShuttering.helpToSave = Cymorth i Gynilo
 alertBannerShuttering.tamc = Lwfans Priodasol
 alertBannerShuttering.medben = Buddiannau meddygol
 alertBannerShuttering.paye = TWE – Gwasanaeth Gwirio’ch Treth Incwm
-alertBannerShuttering.pensionLifetimeAllowance = Lwfans Oes Pensiwn
+alertBannerShuttering.pensionLifetimeAllowance = Gwiriwch Eich Diogelu Pensiwn
 alertBannerShuttering.repayments = Ad-daliadau
 alertBannerShuttering.taxcalc = Cyfrifiad Treth
 alertBannerShuttering.fandf = Cynorthwywyr Dibynadwy
 alertBannerShuttering.childBenefit = Budd-dal Plant
-alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau’r Cyflogai, gan gynnwys gweithio gartref, gwisg, dillad gwaith, offer a thanysgrifiadau proffesiynol
+alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau Cyfradd Unffurf, yn cynnwys gwisg unffurf, dillad gwaith ac offer
 
 #*************************************************************
 # Alert Banner

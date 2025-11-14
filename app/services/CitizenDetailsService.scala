@@ -50,7 +50,7 @@ class CitizenDetailsService @Inject() (
                     .personDetails(nino, refreshCache)
                     .map(jsValue => Some(jsValue.as[PersonDetails]))
                 } else {
-                  logger.info(s"Feature flag disabled for nino: ${nino.value}")
+                  logger.warn("GetPersonFromCitizenDetailsToggle flag disabled")
                   EitherT.rightT[Future, UpstreamErrorResponse](None)
                 }
     } yield result

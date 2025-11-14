@@ -720,19 +720,18 @@ label.return_to_your_profile_page=Return to your profile
 #*************************************************************
 alertBannerShuttering.title = Services unavailable
 alertBannerShuttering.cysp = Check your State Pension
-alertBannerShuttering.taxRefund = Claim a Tax Refund
 alertBannerShuttering.c2ni = Class 2 National Insurance
 alertBannerShuttering.cocar = Company Car
 alertBannerShuttering.helpToSave = Help to Save
 alertBannerShuttering.tamc = Marriage Allowance
 alertBannerShuttering.medben = Medical Benefits
 alertBannerShuttering.paye = PAYE Check Your Income Tax Service
-alertBannerShuttering.pensionLifetimeAllowance = Pensions Lifetime Allowance
+alertBannerShuttering.pensionLifetimeAllowance = Check Your Pension Protection
 alertBannerShuttering.repayments = Repayments
 alertBannerShuttering.taxcalc = Tax Calculation
 alertBannerShuttering.fandf = Trusted Helpers
 alertBannerShuttering.childBenefit = Child Benefit
-alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Employee Expenses, including working from home, uniform, work clothes, tools and professional subscriptions
+alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Flat Rate Expenses, including  uniform, work clothing and tools
 
 #*************************************************************
 # Alert Banner
