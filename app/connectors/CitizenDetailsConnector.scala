@@ -54,7 +54,7 @@ trait CitizenDetailsConnector {
 
   def getMatchingDetails(
     nino: Nino
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse]
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, JsValue]
 }
 
 @Singleton
@@ -95,7 +95,7 @@ class CachingCitizenDetailsConnector @Inject() (
 
   def getMatchingDetails(
     nino: Nino
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, JsValue] =
     underlying.getMatchingDetails(nino)
 }
 
@@ -145,12 +145,14 @@ class DefaultCitizenDetailsConnector @Inject() (
 
   def getMatchingDetails(
     nino: Nino
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, JsValue] = {
     val url = s"$citizenDetailsUrl/citizen-details/nino/$nino"
-    httpClientResponse.read(
-      httpClientV2
-        .get(url"$url")
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-    )
+    httpClientResponse
+      .read(
+        httpClientV2
+          .get(url"$url")
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+      )
+      .map(_.json)
   }
 }

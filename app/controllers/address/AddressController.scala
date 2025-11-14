@@ -23,7 +23,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import error.ErrorRenderer
 import models.PersonDetails
-import models.admin.AddressChangeAllowedToggle
+import models.admin.{AddressChangeAllowedToggle, GetPersonFromCitizenDetailsToggle}
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
 import services.CitizenDetailsService
 import uk.gov.hmrc.domain.Nino
@@ -47,9 +47,14 @@ abstract class AddressController @Inject() (
 
   def addressJourneyEnforcer(
     block: Nino => PersonDetails => Future[Result]
-  )(implicit request: UserRequest[_]): Future[Result] =
-    featureFlagService.get(AddressChangeAllowedToggle).flatMap { toggle =>
-      if (!toggle.isEnabled) {
+  )(implicit request: UserRequest[_]): Future[Result] = {
+    val isAddressChangeAllowed = for {
+      addressChangeToggle    <- featureFlagService.get(AddressChangeAllowedToggle)
+      getPersonDetailsToggle <- featureFlagService.get(GetPersonFromCitizenDetailsToggle)
+    } yield addressChangeToggle.isEnabled && getPersonDetailsToggle.isEnabled
+
+    isAddressChangeAllowed.flatMap { allowed =>
+      if (!allowed) {
         Future.successful(InternalServerError(internalServerErrorView()))
       } else {
         citizenDetailsService.personDetails(request.helpeeNinoOrElse).value.flatMap {
@@ -62,4 +67,5 @@ abstract class AddressController @Inject() (
         }
       }
     }
+  }
 }
