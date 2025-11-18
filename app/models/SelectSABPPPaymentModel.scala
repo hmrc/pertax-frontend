@@ -40,7 +40,7 @@ object SelectSABPPPaymentFormProvider {
     paymentType -> messages(s"sa.message.selectSABPPPaymentType.$paymentType")
   }
 
-  def form(implicit messages: Messages): Form[SelectSABPPPaymentModel] =
+  def form: Form[SelectSABPPPaymentModel] =
     Form[SelectSABPPPaymentModel](
       mapping(
         "saBppWhatPaymentType" -> answerFieldValidator

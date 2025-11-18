@@ -18,7 +18,7 @@ package models.enrolments
 
 import play.api.libs.json.{Format, Json}
 
-case class KnownFactResponseForNINO(service: String, enrolments: List[EACDEnrolment]) {
+case class KnownFactsResponse(service: String, enrolments: List[EACDEnrolment]) {
 
   def getUTR: String =
     enrolments.head.identifiers.collect {
@@ -31,7 +31,7 @@ case class KnownFactResponseForNINO(service: String, enrolments: List[EACDEnrolm
     }.headOption
 }
 
-object KnownFactResponseForNINO {
-  implicit val format: Format[KnownFactResponseForNINO] =
-    Json.format[KnownFactResponseForNINO]
+object KnownFactsResponse {
+  implicit val format: Format[KnownFactsResponse] =
+    Json.format[KnownFactsResponse]
 }

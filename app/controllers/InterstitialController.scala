@@ -27,7 +27,8 @@ import play.api.Logging
 import play.api.mvc.*
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
-import services.{CitizenDetailsService, SeissService, TaiService}
+import services.{CitizenDetailsService, EnrolmentStoreProxyService, SeissService, TaiService}
+import models.MtdUserType._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -69,7 +70,8 @@ class InterstitialController @Inject() (
   selfAssessmentRegistrationPageView: SelfAssessmentRegistrationPageView,
   checkYourStatePensionCallBackView: CheckYourStatePensionCallBackView,
   alertBannerHelper: AlertBannerHelper,
-  taiService: TaiService
+  taiService: TaiService,
+  enrolmentStoreProxyService: EnrolmentStoreProxyService
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with Logging
@@ -172,8 +174,45 @@ class InterstitialController @Inject() (
     }
   }
 
-  def displayMTDITPage: Action[AnyContent] = authenticate { implicit request =>
-    Ok(mtditAdvertPageView())
+  def displayMTDITPage: Action[AnyContent] = authenticate.async { implicit request =>
+    if (request.trustedHelper.nonEmpty || enrolmentsHelper.mtdEnrolmentStatus(request.enrolments).nonEmpty) {
+      errorRenderer.futureError(FORBIDDEN)
+    } else {
+      enrolmentStoreProxyService
+        .getMtdUserType(request.authNino)
+        .fold(
+          _ =>
+            logger.info(
+              s"Server error from eacd"
+            )
+            Ok(mtditAdvertPageView())
+          ,
+          {
+            case NonFilerMtdUser                          =>
+              logger.info(
+                s"The user is not registered with MTD"
+              )
+              Ok(mtditAdvertPageView())
+            case NotEnrolledMtdUser                       =>
+              logger.info(
+                s"The user is registered but not enrolled with MTD"
+              )
+              Ok(mtditAdvertPageView())
+            case WrongCredentialsMtdUser(mtdItid, credId) =>
+              logger.info(
+                s"Wrong account for MTD. Current cred is ${request.credentials.providerId} and MTD is on credential $credId}"
+              )
+              Ok(mtditAdvertPageView())
+            case EnrolledMtdUser(mtdItId: String)         =>
+              Redirect(controllers.routes.InterstitialController.displayItsaMergePage)
+            case _                                        =>
+              logger.info(
+                s"Could not determine Mtd user type"
+              )
+              Ok(mtditAdvertPageView())
+          }
+        )
+    }
   }
 
   def displaySelfAssessment: Action[AnyContent] = authenticate.async { implicit request =>

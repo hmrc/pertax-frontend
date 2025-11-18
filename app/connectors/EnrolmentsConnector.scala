@@ -17,36 +17,91 @@
 package connectors
 
 import cats.data.EitherT
-import com.google.inject.Inject
+import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import models.enrolments.EnrolmentEnum.IRSAKey
-import models.enrolments.{KnownFactQueryForNINO, KnownFactResponseForNINO}
-import play.api.http.Status._
-import play.api.libs.Files.logger
+import models.enrolments.{KnownFactsRequest, KnownFactsResponse}
+import play.api.Logging
+import play.api.http.Status.*
 import play.api.libs.json.Format.GenericFormat
-import play.api.libs.json.Json
-import uk.gov.hmrc.domain.Nino
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HttpReads.Implicits.{readEitherOf, readRaw}
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.*
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import play.api.mvc.Request
+import services.CacheService
 
-import scala.concurrent.duration._
+import javax.inject.Named
+import scala.concurrent.duration.*
 import scala.concurrent.{ExecutionContext, Future}
 
-class EnrolmentsConnector @Inject() (
+trait EnrolmentsConnector {
+
+  def getUserIdsWithEnrolments(
+    enrolmentKey: String
+  )(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, Seq[String]]
+
+  def getKnownFacts(
+    knownFactsRequest: KnownFactsRequest
+  )(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, KnownFactsResponse]
+}
+
+@Singleton
+class CachingEnrolmentsConnector @Inject() (
+  @Named("default") underlying: EnrolmentsConnector,
+  cacheService: CacheService
+) extends EnrolmentsConnector
+    with Logging {
+
+  private def knownFactsCacheKey(knownFactsRequest: KnownFactsRequest) =
+    s"""getKnownFacts-${knownFactsRequest.service}-${knownFactsRequest.service}-${knownFactsRequest.knownFacts
+        .map(x => s"${x.key}+${x.value}")
+        .mkString("-")}"""
+
+  def getKnownFacts(
+    knownFactsRequest: KnownFactsRequest
+  )(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, KnownFactsResponse] =
+    cacheService.cache(knownFactsCacheKey(knownFactsRequest)) {
+      underlying.getKnownFacts(knownFactsRequest)
+    }
+
+  def getUserIdsWithEnrolments(
+    enrolmentKey: String
+  )(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, Seq[String]] =
+    cacheService.cache(s"credentials-$enrolmentKey") {
+      underlying.getUserIdsWithEnrolments(enrolmentKey)
+    }
+}
+
+class DefaultEnrolmentsConnector @Inject() (
   httpv2: HttpClientV2,
   configDecorator: ConfigDecorator,
   httpClientResponse: HttpClientResponse
-) {
+)(implicit ec: ExecutionContext)
+    extends EnrolmentsConnector {
 
   val baseUrl: String = configDecorator.enrolmentStoreProxyUrl
 
+  // ES0 - Query users who have an assigned enrolment
   def getUserIdsWithEnrolments(
-    enrolmentIdentifier: String,
-    enrolmentValue: String
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Seq[String]] = {
-    val url = s"$baseUrl/enrolment-store/enrolments/$enrolmentIdentifier~$enrolmentValue/users"
+    enrolmentKey: String
+  )(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, Seq[String]] = {
+    val url = s"$baseUrl/enrolment-store/enrolments/$enrolmentKey/users"
     httpClientResponse
       .read(
         httpv2
@@ -55,39 +110,33 @@ class EnrolmentsConnector @Inject() (
       )
       .map { response =>
         response.status match {
-          case OK =>
+          case NO_CONTENT => Seq.empty
+          case _          =>
             (response.json \ "principalUserIds").as[Seq[String]]
-          case _  =>
-            Seq.empty
         }
       }
   }
 
-  def getKnownFacts(nino: Nino)(implicit
+  // ES20 - Query known facts by verifiers/identifiers
+  def getKnownFacts(
+    knownFactsRequest: KnownFactsRequest
+  )(implicit
     headerCarrier: HeaderCarrier,
-    ec: ExecutionContext
-  ): EitherT[Future, UpstreamErrorResponse, Option[KnownFactResponseForNINO]] = {
-    val requestBody = KnownFactQueryForNINO.apply(nino, IRSAKey.toString)
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, KnownFactsResponse] =
     httpClientResponse
       .read(
         httpv2
           .post(url"${configDecorator.enrolmentStoreProxyUrl}/enrolment-store/enrolments")
-          .withBody(Json.toJson(requestBody))
+          .withBody(Json.toJson(knownFactsRequest))
           .transform(_.withRequestTimeout(configDecorator.enrolmentStoreProxyTimeoutInMilliseconds.milliseconds))
-          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
       .map(httpResponse =>
         httpResponse.status match {
-          case OK         =>
-            Some(httpResponse.json.as[KnownFactResponseForNINO])
-          case NO_CONTENT => None
-          case status     =>
-            logger.error(
-              s"EACD returned status of $status when searching for users with $IRSAKey enrolment for NINO ${nino.nino}." +
-                s"\nError Message: ${httpResponse.body}"
-            )
-            None
+          case NO_CONTENT => KnownFactsResponse(knownFactsRequest.service, List.empty)
+          case _          =>
+            httpResponse.json.as[KnownFactsResponse]
         }
       )
-  }
 }

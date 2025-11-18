@@ -22,7 +22,7 @@ import uk.gov.hmrc.DefaultBuildSettings.*
 val appName = "pertax-frontend"
 
 ThisBuild / majorVersion := 2
-ThisBuild / scalaVersion := "3.3.6"
+ThisBuild / scalaVersion := "3.3.7"
 ThisBuild / scalafmtOnCompile := true
 
 lazy val scoverageSettings =
@@ -49,7 +49,8 @@ lazy val microservice = Project(appName, file("."))
       "-Wconf:msg=unused&src=.*Routes\\.scala:s",
       "-Wconf:msg=unused&src=.*ReverseRoutes\\.scala:s",
       "-Wconf:msg=Flag.*repeatedly:s",
-      "-Wconf:msg=Setting -Wunused set to all redundantly:s"
+      "-Wconf:msg=Setting -Wunused set to all redundantly:s",
+      "-Wconf:msg=unused implicit parameter&src=.*Enumerable\\.scala:s"
     ),
     routesImport ++= Seq("uk.gov.hmrc.play.bootstrap.binders._", "controllers.bindable._", "models.admin._"),
     TwirlKeys.templateImports ++= Seq(

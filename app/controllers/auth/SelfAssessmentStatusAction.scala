@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import controllers.auth.requests._
 import models._
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
-import services.{CitizenDetailsService, EnrolmentStoreCachingService}
+import services.{CitizenDetailsService, EnrolmentStoreProxyService}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentStatusAction @Inject() (
   CitizenDetailsService: CitizenDetailsService,
-  enrolmentsCachingService: EnrolmentStoreCachingService,
+  enrolmentStoreProxyService: EnrolmentStoreProxyService,
   enrolmentsHelper: EnrolmentsHelper,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
@@ -58,7 +58,14 @@ class SelfAssessmentStatusAction @Inject() (
         case None                                                  =>
           getSaUtrFromCitizenDetailsService(request.authNino).flatMap {
             case Some(saUtr) =>
-              enrolmentsCachingService.getSaUserTypeFromCache(saUtr)
+              enrolmentStoreProxyService
+                .findCredentialsWithIrSaForUtr(saUtr)
+                .fold[SelfAssessmentUserType](
+                  _ => NonFilerSelfAssessmentUser,
+                  creds =>
+                    if (creds.isEmpty) { NotEnrolledSelfAssessmentUser(saUtr) }
+                    else { WrongCredentialsSelfAssessmentUser(saUtr) }
+                )
             case None        => Future.successful(NonFilerSelfAssessmentUser)
           }
       }

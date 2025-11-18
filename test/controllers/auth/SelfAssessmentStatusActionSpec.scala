@@ -28,7 +28,7 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{CitizenDetailsService, EnrolmentStoreCachingService}
+import services.{CitizenDetailsService, EnrolmentStoreProxyService}
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier}
@@ -40,11 +40,11 @@ import scala.concurrent.Future
 class SelfAssessmentStatusActionSpec extends BaseSpec {
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
   private val saUtr                                    = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-  private val enrolmentsCachingService                 = mock[EnrolmentStoreCachingService]
+  private val mockEnrolmentStoreProxyService           = mock[EnrolmentStoreProxyService]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
-    .overrides(bind[EnrolmentStoreCachingService].toInstance(enrolmentsCachingService))
+    .overrides(bind[EnrolmentStoreProxyService].toInstance(mockEnrolmentStoreProxyService))
     .configure(Map("metrics.enabled" -> false))
     .build()
 
@@ -72,7 +72,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
   ): AuthenticatedRequest[AnyContent] =
     AuthenticatedRequest(
       Nino("AB123456D"),
-      Credentials("", "GovernmentGateway"),
+      Credentials("credId", "GovernmentGateway"),
       ConfidenceLevel.L200,
       None,
       None,
@@ -129,8 +129,9 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
               )
             )
 
-          when(enrolmentsCachingService.getSaUserTypeFromCache(any())(any(), any()))
-            .thenReturn(Future.successful(userType))
+          when(mockEnrolmentStoreProxyService.findCredentialsWithIrSaForUtr(any())(any(), any())).thenReturn(
+            EitherT.rightT[Future, UpstreamErrorResponse]("credId")
+          )
 
           val result = harness()(request)
           contentAsString(result) must include(s"${userType.toString}")

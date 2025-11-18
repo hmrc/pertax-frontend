@@ -91,7 +91,7 @@ class CachingCitizenDetailsConnector @Inject() (
     for {
       update <- underlying.updateAddress(nino, etag, address)
       _      <- cacheService.deleteFromCacheAsEitherT(cacheKey(nino))
-    } yield true
+    } yield update
 
   def getMatchingDetails(
     nino: Nino
