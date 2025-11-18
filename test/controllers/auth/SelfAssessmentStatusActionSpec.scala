@@ -90,7 +90,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
       val result = harness()(request)
       contentAsString(result) must include(s"ActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
-      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any(), any())
+      verify(mockCitizenDetailsService, times(0)).getSaUtrFromMatchingDetails(any())(any(), any())
     }
   }
 
@@ -102,7 +102,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
       val result = harness()(request)
       contentAsString(result) must include(s"NotYetActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
-      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any(), any())
+      verify(mockCitizenDetailsService, times(0)).getSaUtrFromMatchingDetails(any())(any(), any())
     }
   }
 
@@ -122,11 +122,9 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
       userTypeList.foreach { case (userType, key) =>
         s"return $key when the enrolments caching service returns ${userType.toString}" in {
 
-          when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
+          when(mockCitizenDetailsService.getSaUtrFromMatchingDetails(any())(any(), any()))
             .thenReturn(
-              EitherT[Future, UpstreamErrorResponse, MatchingDetails](
-                Future.successful(Right(MatchingDetails(Some(saUtr))))
-              )
+              EitherT.rightT[Future, UpstreamErrorResponse](Some(saUtr))
             )
 
           when(enrolmentsCachingService.getSaUserTypeFromCache(any())(any(), any()))
@@ -134,25 +132,24 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
           val result = harness()(request)
           contentAsString(result) must include(s"${userType.toString}")
-          verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
+          verify(mockCitizenDetailsService, times(1)).getSaUtrFromMatchingDetails(any())(any(), any())
         }
       }
     }
   }
 
   "return NonFilerSelfAssessmentUser" when {
-    "CitizenDetails has no matching SA account" in {
+    "getSaUtrFromMatchingDetails returns None" in {
       implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest()
 
-      when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
+      when(mockCitizenDetailsService.getSaUtrFromMatchingDetails(any())(any(), any()))
         .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, MatchingDetails](
-            Future.successful(Left(UpstreamErrorResponse("", NOT_FOUND)))
-          )
+          EitherT.rightT[Future, UpstreamErrorResponse](None)
         )
+
       val result = harness()(request)
       contentAsString(result) must include("NonFilerSelfAssessmentUser")
-      verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
+      verify(mockCitizenDetailsService, times(1)).getSaUtrFromMatchingDetails(any())(any(), any())
     }
   }
 }

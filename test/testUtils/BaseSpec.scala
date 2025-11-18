@@ -18,7 +18,7 @@ package testUtils
 
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import models.admin.{AddressChangeAllowedToggle, AllFeatureFlags, DfsFormsFrontendAvailabilityToggle}
+import models.admin.{AddressChangeAllowedToggle, AllFeatureFlags, DfsFormsFrontendAvailabilityToggle, GetPersonFromCitizenDetailsToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -114,6 +114,9 @@ trait BaseSpec
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
       .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
       .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
