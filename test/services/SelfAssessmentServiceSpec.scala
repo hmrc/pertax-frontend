@@ -19,10 +19,10 @@ package services
 import cats.data.EitherT
 import connectors.SelfAssessmentConnector
 import controllers.auth.requests.UserRequest
-import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentResponse, UserDetails}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import play.api.http.Status._
+import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse, UserDetails}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito.{times, verify, when}
+import play.api.http.Status.*
 import play.api.libs.json.{Json, OWrites}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -32,7 +32,6 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
-import java.util.UUID
 import scala.concurrent.Future
 
 class SelfAssessmentServiceSpec extends BaseSpec {
@@ -43,7 +42,7 @@ class SelfAssessmentServiceSpec extends BaseSpec {
 
   val utr: SaUtr = new SaUtrGenerator().nextSaUtr
 
-  val providerId: String = UUID.randomUUID().toString
+  val providerId: String = "providerId"
 
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(
@@ -61,7 +60,8 @@ class SelfAssessmentServiceSpec extends BaseSpec {
 
         "the connector returns a successful response" in {
 
-          val redirectUrl = "/foo"
+          val redirectUrl                = "/foo"
+          val expectedSaEnrolmentRequest = SaEnrolmentRequest("pta-sa", Some(utr), providerId)
 
           when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any())).thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](
@@ -70,6 +70,7 @@ class SelfAssessmentServiceSpec extends BaseSpec {
           )
 
           sut.getSaEnrolmentUrl.value.futureValue mustBe Right(Some(redirectUrl))
+          verify(mockSelfAssessmentConnector, times(1)).enrolForSelfAssessment(eqTo(expectedSaEnrolmentRequest))(any())
         }
       }
 

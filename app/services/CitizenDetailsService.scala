@@ -20,13 +20,13 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.CitizenDetailsConnector
 import models.admin.GetPersonFromCitizenDetailsToggle
-import models.{Address, MatchingDetails, PersonDetails}
+import models.{Address, PersonDetails}
 import play.api.Logging
-import play.api.http.Status.CONFLICT
 import play.api.mvc.Request
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import util.EtagError
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -50,7 +50,7 @@ class CitizenDetailsService @Inject() (
                     .personDetails(nino, refreshCache)
                     .map(jsValue => Some(jsValue.as[PersonDetails]))
                 } else {
-                  logger.info(s"Feature flag disabled for nino: ${nino.value}")
+                  logger.warn("GetPersonFromCitizenDetailsToggle flag disabled")
                   EitherT.rightT[Future, UpstreamErrorResponse](None)
                 }
     } yield result
@@ -79,7 +79,10 @@ class CitizenDetailsService @Inject() (
     citizenDetailsConnector
       .updateAddress(nino: Nino, currentPersonDetails.etag: String, newAddress: Address)
       .leftFlatMap { error =>
-        if (error.statusCode == CONFLICT && tries == 0) {
+        if (EtagError.isConflict(error) && tries == 1) {
+          logger.error(s"Update address failed for the second time on citizen-details.", error)
+          EitherT.leftT[Future, Boolean](error)
+        } else if (EtagError.isConflict(error) && tries == 0) {
           logger.warn(s"Etag conflict was found, now retrying once...")
           for {
             newPersonDetailsOption <- personDetails(nino, refreshCache = true)
@@ -91,15 +94,23 @@ class CitizenDetailsService @Inject() (
       }
   }
 
-  def getMatchingDetails(
+  def getSaUtrFromMatchingDetails(
     nino: Nino
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, MatchingDetails] =
-    citizenDetailsConnector
-      .getMatchingDetails(nino)
-      .map { response =>
-        MatchingDetails.fromJsonMatchingDetails(response.json)
-      }
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Option[SaUtr]] =
+    for {
+      toggle <- EitherT.liftF(featureFlagService.get(GetPersonFromCitizenDetailsToggle))
+      result <- if (toggle.isEnabled) {
+                  citizenDetailsConnector
+                    .getMatchingDetails(nino)
+                    .map(json =>
+                      (json \ "ids" \ "sautr")
+                        .asOpt[String]
+                        .map(SaUtr.apply)
+                    )
+                } else {
+                  logger.warn("GetPersonFromCitizenDetailsToggle flag disabled")
+                  EitherT.rightT[Future, UpstreamErrorResponse](None)
+                }
+    } yield result
 
-  def clearCachedPersonDetails(nino: Nino)(implicit request: Request[_]): Future[Unit] =
-    citizenDetailsConnector.clearPersonDetailsCache(nino)
 }

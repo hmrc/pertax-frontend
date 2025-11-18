@@ -98,9 +98,6 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
           Future.successful(true)
         )
-        when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(
-          Future.unit
-        )
         when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(
           Future.successful(AnyOtherMove)
         )
@@ -140,7 +137,6 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         verify(mockAuditConnector, times(1)).sendEvent(any())(any(), any())
         verify(mockCitizenDetailsService, times(1)).updateAddress(any(), any(), any(), any())(any(), any(), any())
         verify(mockEditAddressLockRepository, times(1)).insert(any(), any())
-        verify(mockCitizenDetailsService, times(1)).clearCachedPersonDetails(any())(any())
         verify(mockAddressMovedService, times(1)).moved(any(), any(), any())(any(), any())
         verify(mockAddressMovedService, times(1)).toMessageKey(any())
       }
@@ -153,9 +149,6 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         )
         when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
           Future.successful(true)
-        )
-        when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(
-          Future.unit
         )
         when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(
           Future.successful(AnyOtherMove)
@@ -196,7 +189,6 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         verify(mockAuditConnector, times(1)).sendEvent(any())(any(), any())
         verify(mockCitizenDetailsService, times(1)).updateAddress(any(), any(), any(), any())(any(), any(), any())
         verify(mockEditAddressLockRepository, times(1)).insert(any(), any())
-        verify(mockCitizenDetailsService, times(1)).clearCachedPersonDetails(any())(any())
         verify(mockAddressMovedService, times(1)).moved(any(), any(), any())(any(), any())
         verify(mockAddressMovedService, times(1)).toMessageKey(any())
       }
@@ -209,9 +201,6 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         )
         when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
           Future.successful(true)
-        )
-        when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(
-          Future.unit
         )
         when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(
           Future.successful(AnyOtherMove)
@@ -252,7 +241,6 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         verify(mockAuditConnector, times(1)).sendEvent(any())(any(), any())
         verify(mockCitizenDetailsService, times(1)).updateAddress(any(), any(), any(), any())(any(), any(), any())
         verify(mockEditAddressLockRepository, times(1)).insert(any(), any())
-        verify(mockCitizenDetailsService, times(1)).clearCachedPersonDetails(any())(any())
         verify(mockAddressMovedService, times(1)).moved(any(), any(), any())(any(), any())
         verify(mockAddressMovedService, times(1)).toMessageKey(any())
       }
@@ -274,9 +262,6 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
         Future.successful(true)
-      )
-      when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(
-        Future.unit
       )
       when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(
         Future.successful(AnyOtherMove)
@@ -316,7 +301,6 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(any(), any(), any(), any())(any(), any(), any())
       verify(mockEditAddressLockRepository, times(0)).insert(any(), any())
-      verify(mockCitizenDetailsService, times(0)).clearCachedPersonDetails(any())(any())
       verify(mockAddressMovedService, times(0)).moved(any(), any(), any())(any(), any())
       verify(mockAddressMovedService, times(0)).toMessageKey(any())
     }
@@ -337,9 +321,6 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       )
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
         Future.successful(true)
-      )
-      when(mockCitizenDetailsService.clearCachedPersonDetails(any())(any())).thenReturn(
-        Future.unit
       )
       when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(
         Future.successful(AnyOtherMove)
@@ -376,7 +357,6 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(any(), any(), any(), any())(any(), any(), any())
       verify(mockEditAddressLockRepository, times(0)).insert(any(), any())
-      verify(mockCitizenDetailsService, times(0)).clearCachedPersonDetails(any())(any())
       verify(mockAddressMovedService, times(0)).moved(any(), any(), any())(any(), any())
       verify(mockAddressMovedService, times(0)).toMessageKey(any())
     }

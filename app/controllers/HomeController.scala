@@ -17,17 +17,14 @@
 package controllers
 
 import com.google.inject.Inject
-import connectors.TaiConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowPlannedOutageBannerToggle
-import play.api.libs.json.{Format, Writes}
 import play.api.mvc._
 import services._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
@@ -39,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
-  taiConnector: TaiConnector,
+  taiService: TaiService,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
@@ -58,34 +55,39 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  private def getTaxComponentsOrEmptyList(nino: Nino, year: Int)(implicit
-    hc: HeaderCarrier,
-    request: Request[_]
-  ): Future[List[String]] = {
-    implicit val listStringFormat: Format[List[String]] =
-      Format(models.TaxComponents.readsListString, Writes.list[String])
-
-    taiConnector
-      .taxComponents[List[String]](nino, year)(listStringFormat)
-      .fold(_ => List.empty, _.getOrElse(Nil))
-  }
-
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val saUserType = request.saUserType
+
+    val nino: Nino   = request.helpeeNinoOrElse
+    val taxYear: Int = current.currentYear
+
     enforceInterrupts {
+      val fTaxComponents           = taiService.getTaxComponentsList(nino, taxYear)
+      val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
+      val fIncomeCards             = homeCardGenerator.getIncomeCards
+      val fAtsCard                 = homeCardGenerator.getATSCard()
+      val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
+      val fAlertBannerContent      = alertBannerHelper.getContent
+      val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
+
       for {
-        taxComponents           <- getTaxComponentsOrEmptyList(request.helpeeNinoOrElse, current.currentYear)
-        breathingSpaceIndicator <- breathingSpaceService.getBreathingSpaceIndicator(request.helpeeNinoOrElse)
-        incomeCards             <- homeCardGenerator.getIncomeCards
-        atsCard                 <- homeCardGenerator.getATSCard()
-        shutteringMessaging     <- featureFlagService.get(ShowPlannedOutageBannerToggle)
-        alertBannerContent      <- alertBannerHelper.getContent
-        eitherPersonDetails     <- citizenDetailsService.personDetails(request.helpeeNinoOrElse).value
+        taxComponents           <- fTaxComponents
+        breathingSpaceIndicator <- fBreathingSpaceIndicator
+        incomeCards             <- fIncomeCards
+        atsCard                 <- fAtsCard
+        shutteringMessaging     <- fShutteringMessaging
+        alertBannerContent      <- fAlertBannerContent
+        eitherPersonDetails     <- fEitherPersonDetails
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
+        val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
-        val nameToDisplay: Option[String] = Some(personalDetailsNameOrDefault(personDetailsOpt))
-        val benefitCards                  = homeCardGenerator.getBenefitCards(taxComponents, request.trustedHelper)
+        val benefitCards       = homeCardGenerator.getBenefitCards(taxComponents, request.trustedHelper)
+        val trustedHelpersCard = if (request.trustedHelper.isDefined) {
+          None
+        } else {
+          Some(homeCardGenerator.getTrustedHelpersCard())
+        }
 
         Ok(
           homeView(
@@ -97,7 +99,8 @@ class HomeController @Inject() (
               saUserType,
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
               alertBannerContent,
-              nameToDisplay
+              nameToDisplay,
+              trustedHelpersCard
             ),
             shutteringMessaging.isEnabled
           )

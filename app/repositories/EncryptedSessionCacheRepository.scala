@@ -16,8 +16,8 @@
 
 package repositories
 
-import cats.data.{EitherT, OptionT}
 import config.{ConfigDecorator, CryptoProvider, SensitiveT}
+import play.api.Logging
 import play.api.libs.json.{JsValue, Json, Reads, Writes}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
@@ -29,11 +29,10 @@ import uk.gov.hmrc.mongo.{CurrentTimestampSupport, MongoComponent}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.*
-import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 @Singleton
-class SessionCacheRepository @Inject() (
+class EncryptedSessionCacheRepository @Inject() (
   appConfig: ConfigDecorator,
   mongoComponent: MongoComponent,
   cryptoProvider: CryptoProvider
@@ -44,7 +43,8 @@ class SessionCacheRepository @Inject() (
       ttl = appConfig.sessionCacheTtl.minutes,
       timestampSupport = new CurrentTimestampSupport(),
       sessionIdKey = SessionKeys.sessionId
-    ) {
+    )
+    with Logging {
 
   implicit lazy val symmetricCryptoFactory: Encrypter with Decrypter =
     cryptoProvider.get()
@@ -69,21 +69,24 @@ class SessionCacheRepository @Inject() (
 
   override def getFromSession[T: Reads](dataKey: DataKey[T])(implicit request: RequestHeader): Future[Option[T]] = {
 
-    val encryptedDataKey                        = DataKey[JsValue](dataKey.unwrap)
-    val encryptedData: OptionT[Future, JsValue] = OptionT(cacheRepo.get[JsValue](request)(encryptedDataKey))
+    val encryptedDataKey                       = DataKey[JsValue](dataKey.unwrap)
+    val encryptedData: Future[Option[JsValue]] = cacheRepo.get[JsValue](request)(encryptedDataKey)
 
-    encryptedData.map { cache =>
+    encryptedData.map { maybeCache =>
       if (appConfig.mongoEncryptionEnabled) {
         val decrypter = JsonEncryption.sensitiveDecrypter[T, SensitiveT[T]](SensitiveT.apply)
-        Try(cache.as[SensitiveT[T]](decrypter).decryptedValue) match {
-          case Success(decrypted)                        => decrypted
-          case Failure(exception) if NonFatal(exception) => cache.as[T]
-          case Failure(exception)                        => throw exception
+        maybeCache.flatMap { cache =>
+          Try(cache.as[SensitiveT[T]](decrypter).decryptedValue) match {
+            case Success(decrypted) => Some(decrypted)
+            case Failure(exception) =>
+              logger.error(s"could not decrypt ${dataKey.unwrap}")
+              None
+          }
         }
       } else {
-        cache.as[T]
+        maybeCache.map(_.as[T])
       }
-    }.value
+    }
 
   }
 
@@ -91,7 +94,4 @@ class SessionCacheRepository @Inject() (
     val encryptedDataKey = DataKey[JsValue](dataKey.unwrap)
     cacheRepo.delete(request)(encryptedDataKey)
   }
-
-  def deleteFromSessionEitherT[L, T](dataKey: DataKey[T])(implicit request: RequestHeader): EitherT[Future, L, Unit] =
-    EitherT[Future, L, Unit](deleteFromSession(dataKey).map(Right(_)))
 }

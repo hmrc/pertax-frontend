@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,29 @@
 
 package controllers
 
-import cats.data.EitherT
-import connectors.TaiConnector
 import controllers.auth.AuthJourney
+import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, ShowPlannedOutageBannerToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Format
 import play.api.mvc.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import play.twirl.api.Html
 import services.*
+import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
 import testUtils.{BaseSpec, WireMockHelper}
-import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import util.AlertBannerHelper
 
@@ -48,20 +49,20 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
   val fakePaperlessInterruptHelper = new FakePaperlessInterruptHelper
 
-  val mockTaiConnector: TaiConnector                   = mock[TaiConnector]
   val mockBreathingSpaceService: BreathingSpaceService = mock[BreathingSpaceService]
   val mockHomeCardGenerator: HomeCardGenerator         = mock[HomeCardGenerator]
   val mockAlertBannerHelper: AlertBannerHelper         = mock[AlertBannerHelper]
+  val mockTaiService: TaiService                       = mock[TaiService]
 
   lazy val appBuilder: GuiceApplicationBuilder = localGuiceApplicationBuilder()
     .overrides(
       bind[AuthJourney].toInstance(fakeAuthJourney),
       bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
       bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-      bind[TaiConnector].toInstance(mockTaiConnector),
       bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
       bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-      bind[AlertBannerHelper].toInstance(mockAlertBannerHelper)
+      bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
+      bind[TaiService].toInstance(mockTaiService)
     )
 
   private val taxComponents = List("EmployerProvidedServices", "PersonalPensionPayments")
@@ -71,13 +72,11 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockTaiConnector)
+    reset(mockTaiService)
     reset(mockBreathingSpaceService)
     reset(mockHomeCardGenerator)
     reset(mockAlertBannerHelper)
-    reset(
-      mockFeatureFlagService
-    )
+    reset(mockFeatureFlagService)
 
     when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
       .thenReturn(Future.successful(WithinPeriod))
@@ -90,25 +89,22 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     when(mockHomeCardGenerator.getBenefitCards(any(), any())(any())).thenReturn(
       List.empty
     )
+    when(mockHomeCardGenerator.getTrustedHelpersCard()(any())).thenReturn(
+      Html("<div class='trusted-helpers-card'></div>")
+    )
+
     when(mockAlertBannerHelper.getContent(any(), any(), any())).thenReturn(
       Future.successful(List.empty)
     )
 
-    when(mockTaiConnector.taxComponents[List[String]](any(), any())(any[Format[List[String]]]())(any(), any(), any()))
-      .thenReturn(
-        EitherT(
-          Future.successful[Either[UpstreamErrorResponse, Option[List[String]]]](
-            Right[UpstreamErrorResponse, Option[List[String]]](Some(taxComponents))
-          )
-        )
-      )
+    when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
+      .thenReturn(Future.successful(taxComponents))
 
     when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
       .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
 
     when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
-
   }
 
   def currentRequest[A]: Request[A] =
@@ -121,30 +117,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       val expectedHtmlString = "<div class='TestingForBenefitCards'></div>"
       val expectedHtml: Html = Html(expectedHtmlString)
       when(mockHomeCardGenerator.getBenefitCards(ArgumentMatchers.eq(taxComponents), any())(any())).thenReturn(
-        List(expectedHtml)
-      )
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
-    "Return a Html that is returned as part of Benefit Cards NOT incl tax components when error returned from tax components call" in {
-      when(mockTaiConnector.taxComponents[List[String]](any(), any())(any[Format[List[String]]]())(any(), any(), any()))
-        .thenReturn(
-          EitherT(
-            Future.successful[Either[UpstreamErrorResponse, Option[List[String]]]](
-              Left[UpstreamErrorResponse, Option[List[String]]](UpstreamErrorResponse("", INTERNAL_SERVER_ERROR))
-            )
-          )
-        )
-
-      val expectedHtmlString = "<div class='TestingForBenefitCards'></div>"
-      val expectedHtml: Html = Html(expectedHtmlString)
-      when(mockHomeCardGenerator.getBenefitCards(ArgumentMatchers.eq(List.empty), any())(any())).thenReturn(
         List(expectedHtml)
       )
 
@@ -209,7 +181,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
     "Shuttering is displayed if toggled on" in {
       val expectedHtmlString =
-        "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
+        "A number of services will be unavailable from"
 
       when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
@@ -224,7 +196,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
     "Shuttering is not displayed if toggled off" in {
       val expectedHtmlString =
-        "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
+        "A number of services will be unavailable from"
 
       when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
@@ -251,6 +223,59 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       status(result) mustBe OK
       assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
     }
+
+    "Trusted helpers card is displayed" in {
+      val expectedHtmlString = "<div class='trusted-helpers-card'></div>"
+      when(mockHomeCardGenerator.getTrustedHelpersCard()(any()))
+        .thenReturn(Html(expectedHtmlString))
+
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(currentRequest)
+      status(result) mustBe OK
+      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+    }
+
+    "Trusted helpers card is hidden when acting as a trusted helper" in {
+      val th = TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))
+
+      val appLocal: Application =
+        localGuiceApplicationBuilder()
+          .overrides(
+            bind[AuthJourney].toInstance(new AuthJourney {
+              override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+                new testUtils.ActionBuilderFixture {
+                  override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
+                    : Future[Result] =
+                    block(
+                      buildUserRequest(
+                        request = request,
+                        trustedHelper = Some(th)
+                      )
+                    )
+                }
+            }),
+            bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
+            bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
+            bind[TaiService].toInstance(mockTaiService),
+            bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
+            bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper)
+          )
+          .build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+
+      val result = controller.index()(FakeRequest())
+      status(result) mustBe OK
+
+      val html = contentAsString(result).replaceAll("\\s", "")
+      html must not include "<divclass='trusted-helpers-card'></div>"
+
+      verify(mockHomeCardGenerator, times(0)).getTrustedHelpersCard()(any())
+    }
+
   }
 
   "Alert Banner content is not displayed if empty" in {

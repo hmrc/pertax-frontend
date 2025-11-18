@@ -44,6 +44,17 @@ class HttpClientResponseSpec
   private val dummyContent              = "error message"
   private val specificBadRequestMessage =
     "Start Date cannot be the same as, or prior to, the previous address start date"
+  private val optimisticLockMessage     = "The remote endpoint has indicated that Optimistic Lock value is not correct."
+
+  "readUpdateAddress" must {
+    behave like clientResponseLogger(
+      httpClientResponseUsingMockLogger.readUpdateAddress,
+      infoLevel = Set(NOT_FOUND, CONFLICT),
+      warnLevel = Set(LOCKED),
+      errorLevelWithThrowable = Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED, FORBIDDEN),
+      errorLevelWithoutThrowable = Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR)
+    )
+  }
 
   "read" must {
     behave like clientResponseLogger(
@@ -154,14 +165,26 @@ class HttpClientResponseSpec
       }
     }
 
-    "log specific BAD_REQUEST with address update message as WARNING" in {
+    "log specific BAD_REQUEST with address update message as INFO" in {
       val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
         Future(Left(UpstreamErrorResponse(specificBadRequestMessage, BAD_REQUEST)))
 
       withCaptureOfLoggingFrom(testLogger) { logs =>
-        whenReady(httpClientResponseUsingMockLogger.read(response).value) { actual =>
+        whenReady(httpClientResponseUsingMockLogger.readUpdateAddress(response).value) { actual =>
           actual mustBe Left(UpstreamErrorResponse(specificBadRequestMessage, BAD_REQUEST))
-          verifyCalls(logs, warn = Some(s"Specific 400 Error - Address Update: $specificBadRequestMessage"))
+          verifyCalls(logs, info = Some(s"Specific 400 Error - Address Update: $specificBadRequestMessage"))
+        }
+      }
+    }
+
+    "log specific BAD_REQUEST with optimistic lock message as INFO" in {
+      val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+        Future(Left(UpstreamErrorResponse(optimisticLockMessage, BAD_REQUEST)))
+
+      withCaptureOfLoggingFrom(testLogger) { logs =>
+        whenReady(httpClientResponseUsingMockLogger.readUpdateAddress(response).value) { actual =>
+          actual mustBe Left(UpstreamErrorResponse(optimisticLockMessage, BAD_REQUEST))
+          verifyCalls(logs, info = Some(optimisticLockMessage))
         }
       }
     }

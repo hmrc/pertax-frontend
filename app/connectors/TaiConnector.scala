@@ -20,29 +20,25 @@ import cats.data.EitherT
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import models.admin.TaxComponentsRetrievalToggle
 import play.api.Logging
-import play.api.libs.json.Format
+import play.api.libs.json.{Format, JsValue}
 import play.api.mvc.Request
-import repositories.SessionCacheRepository
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
-import uk.gov.hmrc.mongo.cache.DataKey
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import services.CacheService
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 trait TaiConnector {
-  def taxComponents[A](nino: Nino, year: Int)(format: Format[A])(implicit
+  def taxComponents(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, Option[A]]
+  ): EitherT[Future, UpstreamErrorResponse, JsValue]
 }
 
 @Singleton
@@ -50,87 +46,44 @@ class DefaultTaiConnector @Inject() (
   val httpClientV2: HttpClientV2,
   servicesConfig: ServicesConfig,
   httpClientResponse: HttpClientResponse,
-  configDecorator: ConfigDecorator,
-  featureFlagService: FeatureFlagService
+  configDecorator: ConfigDecorator
 ) extends TaiConnector
     with Logging {
 
   private lazy val taiUrl = servicesConfig.baseUrl("tai")
 
-  override def taxComponents[A](nino: Nino, year: Int)(format: Format[A])(implicit
+  override def taxComponents(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, Option[A]] =
-    featureFlagService.getAsEitherT(TaxComponentsRetrievalToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
-        val url = s"$taiUrl/tai/$nino/tax-account/$year/tax-components"
-        httpClientResponse
-          .read(
-            httpClientV2
-              .get(url"$url")
-              .transform(_.withRequestTimeout(configDecorator.taiTimeoutInMilliseconds.milliseconds))
-              .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-          )
-          .map { resp =>
-            resp.json.validate[A](format).asOpt.orElse {
-              logger.error("Exception when parsing API response - returning None instead.")
-              None
-            }
-          }
-      } else {
-        EitherT.rightT[Future, UpstreamErrorResponse](Option.empty[A])
-      }
-    }
+  ): EitherT[Future, UpstreamErrorResponse, JsValue] = {
+    val url = s"$taiUrl/tai/$nino/tax-account/$year/tax-components"
+    httpClientResponse
+      .read(
+        httpClientV2
+          .get(url"$url")
+          .transform(_.withRequestTimeout(configDecorator.taiTimeoutInMilliseconds.milliseconds))
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+      )
+      .map(_.json)
+  }
 }
 
 @Singleton
 class CachingTaiConnector @Inject() (
   @Named("default") underlying: TaiConnector,
-  sessionCacheRepository: SessionCacheRepository
-)(implicit ec: ExecutionContext)
-    extends TaiConnector
+  cacheService: CacheService
+) extends TaiConnector
     with Logging {
 
-  private def cache[L, A](
-    key: String
-  )(
-    f: => EitherT[Future, L, Option[A]]
-  )(using request: Request[_], format: Format[A]): EitherT[Future, L, Option[A]] = {
-
-    def fetchAndMaybeCache: EitherT[Future, L, Option[A]] =
-      for {
-        result <- f
-        _      <- result match {
-                    case Some(value) =>
-                      EitherT.liftF(sessionCacheRepository.putSession[A](DataKey[A](key), value).map(_ => ()))
-                    case None        =>
-                      EitherT.rightT[Future, L](())
-                  }
-      } yield result
-
-    EitherT(
-      sessionCacheRepository
-        .getFromSession[A](DataKey[A](key))
-        .flatMap {
-          case Some(value) => Future.successful(Right(Some(value)))
-          case None        => fetchAndMaybeCache.value
-        }
-        .recover { case NonFatal(e) =>
-          logger.warn(s"TaxComponents cache read failed for key=$key: ${e.getMessage}")
-          Right(None)
-        }
-    )
-  }
-
-  override def taxComponents[A](nino: Nino, year: Int)(format: Format[A])(implicit
+  override def taxComponents(nino: Nino, year: Int)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, Option[A]] = {
+  ): EitherT[Future, UpstreamErrorResponse, JsValue] = {
     val key = s"taxComponents.${nino.value}.$year"
-    cache[UpstreamErrorResponse, A](key) {
-      underlying.taxComponents(nino, year)(format)
-    }(using request, format)
+    cacheService.cache[UpstreamErrorResponse, JsValue](key) {
+      underlying.taxComponents(nino, year)
+    }
   }
 }

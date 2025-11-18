@@ -16,31 +16,23 @@
 
 package connectors
 
-import cats.data.EitherT
-import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
-import play.api.inject.bind
-import play.api.libs.json.Format
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import play.api.libs.json.Json
 
 class DefaultTaiConnectorSpec extends ConnectorSpec with WireMockHelper with IntegrationPatience {
-
-  private val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   override implicit lazy val app: Application =
     app(
       Map(
         "microservice.services.tai.port" -> server.port(),
         "tai.timeoutInMilliseconds"      -> 1000
-      ),
-      bind[FeatureFlagService].toInstance(mockFeatureFlagService)
+      )
     )
 
   def connector: DefaultTaiConnector =
@@ -52,57 +44,25 @@ class DefaultTaiConnectorSpec extends ConnectorSpec with WireMockHelper with Int
   private val year = 2024
   private val url  = s"/tai/${nino.nino}/tax-account/$year/tax-components"
 
-  private def toggle(enabled: Boolean) =
-    EitherT.rightT[scala.concurrent.Future, UpstreamErrorResponse](
-      FeatureFlag(models.admin.TaxComponentsRetrievalToggle, enabled)
-    )
-
   "DefaultTaiConnector.taxComponents" must {
 
-    "return Right(Some(value)) when toggle enabled and JSON parses for A=Boolean" in {
-      when(mockFeatureFlagService.getAsEitherT(models.admin.TaxComponentsRetrievalToggle))
-        .thenReturn(toggle(enabled = true))
-
-      stubGet(url, OK, Some("true"))
+    "return Right(json)" in {
+      val jsonString = """{"x": "some Json"}"""
+      stubGet(url, OK, Some(jsonString))
 
       val result =
-        connector.taxComponents[Boolean](nino, year)(implicitly[Format[Boolean]]).value.futureValue
+        connector.taxComponents(nino, year).value.futureValue
 
-      result mustBe Right(Some(true))
-    }
-
-    "return Right(None) when toggle enabled but JSON does not validate to A" in {
-      when(mockFeatureFlagService.getAsEitherT(models.admin.TaxComponentsRetrievalToggle))
-        .thenReturn(toggle(enabled = true))
-
-      stubGet(url, OK, Some("""{"unexpected":"shape"}"""))
-
-      val result =
-        connector.taxComponents[Boolean](nino, year)(implicitly[Format[Boolean]]).value.futureValue
-
-      result mustBe Right(None)
+      result mustBe Right(Json.parse(jsonString))
     }
 
     "return Left(UpstreamErrorResponse) when downstream returns 5xx" in {
-      when(mockFeatureFlagService.getAsEitherT(models.admin.TaxComponentsRetrievalToggle))
-        .thenReturn(toggle(enabled = true))
-
       stubGet(url, INTERNAL_SERVER_ERROR, None)
 
       val result =
-        connector.taxComponents[Boolean](nino, year)(implicitly[Format[Boolean]]).value.futureValue
+        connector.taxComponents(nino, year).value.futureValue
 
       result mustBe a[Left[UpstreamErrorResponse, _]]
-    }
-
-    "Return Right(None) when toggle disabled (no HTTP call)" in {
-      when(mockFeatureFlagService.getAsEitherT(models.admin.TaxComponentsRetrievalToggle))
-        .thenReturn(toggle(enabled = false))
-
-      val result =
-        connector.taxComponents[Boolean](nino, year)(implicitly[Format[Boolean]]).value.futureValue
-
-      result mustBe Right(None)
     }
   }
 }

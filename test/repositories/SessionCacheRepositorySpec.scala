@@ -34,8 +34,8 @@ class SessionCacheRepositorySpec extends BaseSpec {
   val injectedConfiguration: Configuration = app.injector.instanceOf[Configuration]
   val cryptoProvider: CryptoProvider       = app.injector.instanceOf[CryptoProvider]
 
-  val repository: SessionCacheRepository =
-    new SessionCacheRepository(mockConfigDecorator, mongoComponent, cryptoProvider)
+  val repository: EncryptedSessionCacheRepository =
+    new EncryptedSessionCacheRepository(mockConfigDecorator, mongoComponent, cryptoProvider)
 
   val data: JsValue = Json.obj(
     "item 1" -> "Something",
@@ -54,24 +54,6 @@ class SessionCacheRepositorySpec extends BaseSpec {
   val encrypter: Writes[SensitiveT[JsValue]] = JsonEncryption.sensitiveEncrypter[JsValue, SensitiveT[JsValue]]
 
   "getFromSession retrieve data" when {
-    "encryption is enabled and data are not encrypted" in {
-      when(mockConfigDecorator.mongoEncryptionEnabled).thenReturn(true)
-
-      val result = (for {
-        _      <- repository.cacheRepo
-                    .put[JsValue](fakeRequest)(
-                      DataKey[JsValue](s"getPersonDetails-$generatedNino"),
-                      data
-                    )
-        result <- repository
-                    .getFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(implicitly, fakeRequest)
-
-      } yield result).futureValue
-
-      result mustBe Some(data)
-
-    }
-
     "encryption is enabled and data are encrypted" in {
       when(mockConfigDecorator.mongoEncryptionEnabled).thenReturn(true)
 
@@ -108,6 +90,27 @@ class SessionCacheRepositorySpec extends BaseSpec {
       result mustBe Some(data)
 
     }
+  }
+
+  "getFromSession returns None" when {
+    "encryption is enabled and data cannot be decrypted" in {
+      when(mockConfigDecorator.mongoEncryptionEnabled).thenReturn(true)
+
+      val result = (for {
+        _      <- repository.cacheRepo
+                    .put[JsValue](fakeRequest)(
+                      DataKey[JsValue](s"getPersonDetails-$generatedNino"),
+                      data
+                    )
+        result <- repository
+                    .getFromSession(DataKey[JsValue](s"getPersonDetails-$generatedNino"))(implicitly, fakeRequest)
+
+      } yield result).futureValue
+
+      result mustBe None
+
+    }
+
   }
 
   "putSession insert data" when {
