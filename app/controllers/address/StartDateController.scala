@@ -23,7 +23,7 @@ import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.dto.InternationalAddressChoiceDto.OutsideUK
-import models.dto.{DateDto, InternationalAddressChoiceDto}
+import models.dto.DateDto
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import routePages.SubmittedStartDatePage
@@ -109,10 +109,20 @@ class StartDateController @Inject() (
                   implicit val hc: HeaderCarrier =
                     HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
+                  val currentAddressOpt = personDetails.address
+
+                  val currentLines: Seq[String] =
+                    currentAddressOpt
+                      .map(a => Seq(a.line1, a.line2, a.line3, a.line4, a.line5).flatten)
+                      .getOrElse(Seq.empty)
+
+                  val currentPostcode: Option[String] = currentAddressOpt.flatMap(_.postcode)
+
                   addressCountryService
                     .isCrossBorderScotland(
-                      personDetails.address.flatMap(_.postcode),
-                      cache.submittedInternationalAddressChoiceDto
+                      currentAddressLines = currentLines,
+                      currentPostcode = currentPostcode,
+                      newInternationalChoice = cache.submittedInternationalAddressChoiceDto
                     )
                     .flatMap { crossBorder =>
                       startDateDecisionService
