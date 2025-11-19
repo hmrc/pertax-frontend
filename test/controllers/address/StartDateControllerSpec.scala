@@ -32,7 +32,7 @@ import play.api.test.Helpers.{redirectLocation, *}
 import repositories.JourneyCacheRepository
 import routePages.{HasAddressAlreadyVisitedPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage}
 import services.{AddressCountryService, CitizenDetailsService, NormalizationUtils, StartDateDecisionService}
-import testUtils.Fixtures.{buildPersonDetailsWithPersonalAndCorrespondenceAddress, fakeStreetTupleListAddressForUnmodified}
+import testUtils.Fixtures.{buildPersonDetailsCorrespondenceAddress, buildPersonDetailsWithPersonalAndCorrespondenceAddress, fakeStreetTupleListAddressForUnmodified}
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
@@ -41,6 +41,7 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class StartDateControllerSpec extends BaseSpec {
+
   def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
 
   val thisYearStr: String          = "2019"
@@ -60,7 +61,8 @@ class StartDateControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = request))
 
-        override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+        override protected def executionContext: ExecutionContext =
+          scala.concurrent.ExecutionContext.Implicits.global
       }
   }
 
@@ -87,17 +89,19 @@ class StartDateControllerSpec extends BaseSpec {
   private lazy val controller: StartDateController = app.injector.instanceOf[StartDateController]
 
   "onPageLoad" must {
+
     "return 200 when passed ResidentialAddrType and submittedAddress is in cache" in {
       val addressDto: AddressDto   = asAddressDto(fakeStreetTupleListAddressForUnmodified)
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(SubmittedAddressPage(ResidentialAddrType), addressDto)
 
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       val result: Future[Result] = controller.onPageLoad(ResidentialAddrType)(currentRequest)
@@ -111,11 +115,12 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
 
       val result: Future[Result] = controller.onPageLoad(PostalAddrType)(currentRequest)
 
@@ -132,12 +137,14 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
-      when(mockAddressCountryService.isCrossBorderScotland(any(), any())(any())).thenReturn(Future.successful(false))
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(false))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       def postReq[A]: Request[A] =
@@ -157,12 +164,14 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
-      when(mockAddressCountryService.isCrossBorderScotland(any(), any())(any())).thenReturn(Future.successful(false))
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(false))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       def postReq[A]: Request[A] =
@@ -182,12 +191,14 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
-      when(mockAddressCountryService.isCrossBorderScotland(any(), any())(any())).thenReturn(Future.successful(false))
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(false))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       def postReq[A]: Request[A] =
@@ -202,11 +213,12 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "return 400 when passed ResidentialAddrType and missing date fields" in {
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "").withFormUrlEncodedBody().asInstanceOf[Request[A]]
@@ -217,11 +229,12 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "return 400 when passed ResidentialAddrType and day out of range - too early" in {
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")
@@ -233,11 +246,12 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "return 400 when passed ResidentialAddrType and day out of range - too late" in {
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")
@@ -250,11 +264,12 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "return 400 when passed ResidentialAddrType and month out of range at lower bound" in {
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")
@@ -266,11 +281,12 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "return 400 when passed ResidentialAddrType and month out of range at upper bound" in {
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")
@@ -282,10 +298,10 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "return 400 with P85 messaging when passed ResidentialAddrType and the updated start date is not after the start date on record (international address)" in {
-      val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(
+      val address       = buildPersonDetailsCorrespondenceAddress.address.map(
         _.copy(startDate = Some(LocalDate.of(2016, 11, 22)))
       )
-      val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+      val person        = buildPersonDetailsCorrespondenceAddress.person
       val personDetails = PersonDetails("115", person, address, None)
 
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
@@ -297,7 +313,8 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.OutsideUK)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockAddressCountryService.isCrossBorderScotland(any(), any())(any())).thenReturn(Future.successful(false))
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(false))
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")
@@ -316,12 +333,14 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.OutsideUK)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
-      when(mockAddressCountryService.isCrossBorderScotland(any(), any())(any())).thenReturn(Future.successful(false))
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(false))
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")
@@ -337,19 +356,21 @@ class StartDateControllerSpec extends BaseSpec {
       contentAsString(result) must include("Complete a P85 form (opens in new tab)")
     }
 
-    "redirect (no P85 messaging) when startDate is earlier than recorded with residential address type (domestic address)" in {
+    "redirect (no P85 messaging) when startDate is earlier than recorded with residential address type (domestic, non cross-border)" in {
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
-      when(mockAddressCountryService.isCrossBorderScotland(any(), any())(any())).thenReturn(Future.successful(false))
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(false))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       def postReq[A]: Request[A] =
@@ -364,19 +385,21 @@ class StartDateControllerSpec extends BaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
     }
 
-    "redirect when startDate is the same as recorded with residential address type (domestic address)" in {
+    "redirect when startDate is the same as recorded with residential address type (domestic, non cross-border)" in {
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
-      when(mockAddressCountryService.isCrossBorderScotland(any(), any())(any())).thenReturn(Future.successful(false))
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(false))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       def postReq[A]: Request[A] =
@@ -390,6 +413,58 @@ class StartDateControllerSpec extends BaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
     }
 
+    "return 400 when startDate is earlier than recorded and move is cross-border Scotland" in {
+      val userAnswers: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+        .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
+
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
+        )
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(true))
+
+      def postReq[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
+          .asInstanceOf[Request[A]]
+
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(postReq)
+
+      status(result) mustBe BAD_REQUEST
+    }
+
+    "return 400 when startDate is the same as recorded and move is cross-border Scotland" in {
+      val userAnswers: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+        .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
+
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
+        )
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(true))
+
+      def postReq[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
+          .asInstanceOf[Request[A]]
+
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(postReq)
+
+      status(result) mustBe BAD_REQUEST
+    }
+
     "redirect to correct successful url when supplied with startDate after recorded with residential address type" in {
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
@@ -397,12 +472,14 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
-      when(mockAddressCountryService.isCrossBorderScotland(any(), any())(any())).thenReturn(Future.successful(false))
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(false))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       def postReq[A]: Request[A] =
@@ -423,12 +500,14 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
-      when(mockAddressCountryService.isCrossBorderScotland(any(), any())(any())).thenReturn(Future.successful(false))
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(false))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       def postReq[A]: Request[A] =
@@ -449,12 +528,14 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
-      when(mockAddressCountryService.isCrossBorderScotland(any(), any())(any())).thenReturn(Future.successful(false))
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(false))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       def postReq[A]: Request[A] =
@@ -475,12 +556,14 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-          Future.successful(Right(Some(personDetails)))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails)))
+          )
         )
-      )
-      when(mockAddressCountryService.isCrossBorderScotland(any(), any())(any())).thenReturn(Future.successful(false))
+      when(mockAddressCountryService.isCrossBorderScotland(any(), any(), any())(any()))
+        .thenReturn(Future.successful(false))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
       def postReq[A]: Request[A] =

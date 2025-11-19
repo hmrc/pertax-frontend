@@ -61,7 +61,7 @@ class AddressCountryService @Inject() (
 
                   // Exactly one address for this postcode -> use its country
                   case single :: Nil =>
-                    val oldCountryName = single.address.country.name
+                    val oldCountryName = single.address.subdivision.get.name
                     val oldCountryNorm = normalization.normCountry(Some(oldCountryName))
                     Future.successful(normalization.isCrossBorderScotland(oldCountryNorm, newCountryNorm))
 
@@ -79,7 +79,7 @@ class AddressCountryService @Inject() (
 
                     maybeMatch match {
                       case Some(matched) =>
-                        val oldCountryName = matched.address.country.name
+                        val oldCountryName = matched.address.subdivision.get.name
                         val oldCountryNorm = normalization.normCountry(Some(oldCountryName))
                         Future.successful(normalization.isCrossBorderScotland(oldCountryNorm, newCountryNorm))
 

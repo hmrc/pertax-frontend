@@ -32,8 +32,8 @@ import scala.concurrent.Future
 
 class AddressCountryServiceSpec extends BaseSpec {
 
-  val mockConnector: AddressLookupConnector = mock[AddressLookupConnector]
-  val normalizationUtils                    = new NormalizationUtils
+  private val mockConnector: AddressLookupConnector = mock[AddressLookupConnector]
+  private val normalizationUtils                    = new NormalizationUtils
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -49,14 +49,18 @@ class AddressCountryServiceSpec extends BaseSpec {
     reset(mockConnector)
   }
 
-  private def addressRecord(country: Country): AddressRecord =
+  private def addressRecord(
+    country: Country,
+    lines: Seq[String] = Seq("1 TEST STREET"),
+    postcode: String = "EH1 1AA"
+  ): AddressRecord =
     AddressRecord(
       id = "1",
       address = Address(
-        lines = List("1 Test Street"),
-        town = Some("TestTown"),
-        county = Some("TestCounty"),
-        postcode = "EH1 1AA",
+        lines = lines.toList,
+        town = Some("TESTTOWN"),
+        county = Some("TESTCOUNTY"),
+        postcode = postcode,
         subdivision = Some(country),
         country = country
       ),
@@ -65,23 +69,35 @@ class AddressCountryServiceSpec extends BaseSpec {
 
   "AddressCountryService.isCrossBorderScotland" must {
 
-    "return true when old country is Scotland and new choice is England" in {
+    "return true when old country is Scotland and new choice is England (cross-border)" in {
       val recordSet = RecordSet(Seq(addressRecord(Country.Scotland)))
 
       when(mockConnector.lookup(meq("EH1 1AA"), meq(None))(any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](recordSet))
 
-      val resultF = service.isCrossBorderScotland(Some("EH1 1AA"), Some(InternationalAddressChoiceDto.England))
+      val resultF =
+        service.isCrossBorderScotland(
+          currentAddressLines = Seq("1 TEST STREET"),
+          currentPostcode = Some("EH1 1AA"),
+          newInternationalChoice = Some(InternationalAddressChoiceDto.England)
+        )
+
       await(resultF) mustBe true
     }
 
-    "return false when old country is England and new choice is OutsideUK (cross-border to Scotland check)" in {
+    "return false when old country is England and new choice is OutsideUK (not a Scotland cross-border move)" in {
       val recordSet = RecordSet(Seq(addressRecord(Country.England)))
 
       when(mockConnector.lookup(meq("EH1 1AA"), meq(None))(any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](recordSet))
 
-      val resultF = service.isCrossBorderScotland(Some("EH1 1AA"), Some(InternationalAddressChoiceDto.OutsideUK))
+      val resultF =
+        service.isCrossBorderScotland(
+          currentAddressLines = Seq("1 TEST STREET"),
+          currentPostcode = Some("EH1 1AA"),
+          newInternationalChoice = Some(InternationalAddressChoiceDto.OutsideUK)
+        )
+
       await(resultF) mustBe false
     }
 
@@ -91,7 +107,13 @@ class AddressCountryServiceSpec extends BaseSpec {
       when(mockConnector.lookup(meq("EH1 1AA"), meq(None))(any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](recordSet))
 
-      val resultF = service.isCrossBorderScotland(Some("EH1 1AA"), Some(InternationalAddressChoiceDto.England))
+      val resultF =
+        service.isCrossBorderScotland(
+          currentAddressLines = Seq("1 TEST STREET"),
+          currentPostcode = Some("EH1 1AA"),
+          newInternationalChoice = Some(InternationalAddressChoiceDto.England)
+        )
+
       await(resultF) mustBe false
     }
 
@@ -101,25 +123,107 @@ class AddressCountryServiceSpec extends BaseSpec {
       when(mockConnector.lookup(meq("EH1 1AA"), meq(None))(any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](recordSet))
 
-      val resultF = service.isCrossBorderScotland(Some("EH1 1AA"), Some(InternationalAddressChoiceDto.Scotland))
+      val resultF =
+        service.isCrossBorderScotland(
+          currentAddressLines = Seq("1 TEST STREET"),
+          currentPostcode = Some("EH1 1AA"),
+          newInternationalChoice = Some(InternationalAddressChoiceDto.Scotland)
+        )
+
       await(resultF) mustBe false
     }
 
-    "fail with exception when lookup returns empty addresses" in {
+    "return true when lookup returns empty addresses (safe default)" in {
       val recordSet = RecordSet(Seq.empty)
 
       when(mockConnector.lookup(meq("EH1 1AA"), meq(None))(any(), any()))
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](recordSet))
 
-      val ex = intercept[RuntimeException] {
-        await(service.isCrossBorderScotland(Some("EH1 1AA"), Some(InternationalAddressChoiceDto.England)))
-      }
-      ex.getMessage must include("Address lookup failed or returned no results")
+      val resultF =
+        service.isCrossBorderScotland(
+          currentAddressLines = Seq("1 TEST STREET"),
+          currentPostcode = Some("EH1 1AA"),
+          newInternationalChoice = Some(InternationalAddressChoiceDto.England)
+        )
+
+      await(resultF) mustBe true
+    }
+
+    "return true when connector lookup fails (safe default)" in {
+      when(mockConnector.lookup(meq("EH1 1AA"), meq(None))(any(), any()))
+        .thenReturn(EitherT.leftT[Future, RecordSet](UpstreamErrorResponse("boom", 500)))
+
+      val resultF =
+        service.isCrossBorderScotland(
+          currentAddressLines = Seq("1 TEST STREET"),
+          currentPostcode = Some("EH1 1AA"),
+          newInternationalChoice = Some(InternationalAddressChoiceDto.England)
+        )
+
+      await(resultF) mustBe true
     }
 
     "return true when postcode is missing" in {
-      val resultF = service.isCrossBorderScotland(None, Some(InternationalAddressChoiceDto.England))
+      val resultF =
+        service.isCrossBorderScotland(
+          currentAddressLines = Seq("1 TEST STREET"),
+          currentPostcode = None,
+          newInternationalChoice = Some(InternationalAddressChoiceDto.England)
+        )
+
       await(resultF) mustBe true
+    }
+
+    "return false for multiple addresses when one matches by lines + postcode and move is England to England" in {
+      val record1   = addressRecord(Country.England, Seq("1 TEST STREET"), "EH1 1AA")
+      val record2   = addressRecord(Country.Scotland, Seq("2 OTHER STREET"), "EH1 1AA")
+      val recordSet = RecordSet(Seq(record1, record2))
+
+      when(mockConnector.lookup(meq("EH1 1AA"), meq(None))(any(), any()))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](recordSet))
+
+      val resultF =
+        service.isCrossBorderScotland(
+          currentAddressLines = Seq("1 TEST STREET"),
+          currentPostcode = Some("EH1 1AA"),
+          newInternationalChoice = Some(InternationalAddressChoiceDto.England)
+        )
+
+      await(resultF) mustBe false
+    }
+
+    "return true for multiple addresses when none match by lines + postcode (safe default cross-border=true)" in {
+      val record1   = addressRecord(Country.England, Seq("10 OTHER STREET"), "EH1 1AA")
+      val record2   = addressRecord(Country.Scotland, Seq("11 OTHER STREET"), "EH1 1AA")
+      val recordSet = RecordSet(Seq(record1, record2))
+
+      when(mockConnector.lookup(meq("EH1 1AA"), meq(None))(any(), any()))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](recordSet))
+
+      val resultF =
+        service.isCrossBorderScotland(
+          currentAddressLines = Seq("1 TEST STREET"),
+          currentPostcode = Some("EH1 1AA"),
+          newInternationalChoice = Some(InternationalAddressChoiceDto.England)
+        )
+
+      await(resultF) mustBe true
+    }
+
+    "return false when new country choice is missing or not meaningful" in {
+      val recordSet = RecordSet(Seq(addressRecord(Country.England)))
+
+      when(mockConnector.lookup(any[String], any[Option[String]])(any(), any()))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](recordSet))
+
+      val resultF =
+        service.isCrossBorderScotland(
+          currentAddressLines = Seq("1 TEST STREET"),
+          currentPostcode = Some("EH1 1AA"),
+          newInternationalChoice = None
+        )
+
+      await(resultF) mustBe false
     }
   }
 }
