@@ -21,6 +21,7 @@ import config.NewsAndTilesConfig
 import services.TaiService
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import controllers.interstitials.InterstitialController
 import models.*
 import models.admin.{BreathingSpaceIndicatorToggle, ShowPlannedOutageBannerToggle}
 import org.mockito.ArgumentMatchers
@@ -127,7 +128,7 @@ class InterstitialControllerSpec extends BaseSpec {
       status(result) mustBe MOVED_PERMANENTLY
       redirectLocation(
         result
-      ) mustBe Some(controllers.routes.InterstitialController.displayChildBenefitsSingleAccountView.url)
+      ) mustBe Some(controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url)
     }
   }
 
@@ -438,7 +439,7 @@ class InterstitialControllerSpec extends BaseSpec {
       val result: Future[Result] = controller.displayTaxCreditsTransitionInformationInterstitialView(fakeRequest)
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(
-        controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView.url
+        controllers.interstitials.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView.url
       )
     }
 

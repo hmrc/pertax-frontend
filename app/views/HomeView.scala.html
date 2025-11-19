@@ -32,7 +32,7 @@
 @bannerHtml = {
     <p class="govuk-notification-banner__heading">
         @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerParagraphCy }else {@configDecorator.shutterBannerParagraphEn}<br/>
-        <a class="govuk-notification-banner__link" href="@controllers.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
+        <a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
     </p>
 }
 
@@ -62,7 +62,7 @@
                 @messages("label.breathing_space")
                 </strong>
                 <span class="govuk-phase-banner__text">
-                    <a class="govuk-link govuk-link--no-visited-state" href="@controllers.routes.InterstitialController.displayBreathingSpaceDetails">@messages("label.find_out_what_it_means_to_be_in_breathing_space")</a>
+                    <a class="govuk-link govuk-link--no-visited-state" href="@controllers.interstitials.routes.InterstitialController.displayBreathingSpaceDetails">@messages("label.find_out_what_it_means_to_be_in_breathing_space")</a>
                 </span>
             </p>
         </div>

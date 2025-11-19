@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.interstitials
 
 import com.google.inject.Inject
 import config.{ConfigDecorator, NewsAndTilesConfig}
+import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.*
-import models.admin.{BreathingSpaceIndicatorToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
+import models.MtdUserType.*
+import models.admin.{BreathingSpaceIndicatorToggle, MTDUserStatusToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.Logging
 import play.api.mvc.*
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
 import services.{CitizenDetailsService, EnrolmentStoreProxyService, SeissService, TaiService}
-import models.MtdUserType._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -80,7 +81,7 @@ class InterstitialController @Inject() (
   override def now: () => LocalDate = () => LocalDate.now()
 
   private val saBreadcrumb: Breadcrumb =
-    "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
+    "label.self_assessment" -> controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
   private val authenticate: ActionBuilder[UserRequest, AnyContent]   =
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction
@@ -90,7 +91,7 @@ class InterstitialController @Inject() (
       .addBreadcrumb(saBreadcrumb)
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async {
-    Future.successful(Redirect(controllers.routes.InterstitialController.displayNISP.url))
+    Future.successful(Redirect(controllers.interstitials.routes.InterstitialController.displayNISP.url))
   }
 
   def displayNISP: Action[AnyContent] = authenticate.async { implicit request =>
@@ -126,7 +127,10 @@ class InterstitialController @Inject() (
   }
 
   def displayChildBenefits: Action[AnyContent] = authenticate {
-    Redirect(routes.InterstitialController.displayChildBenefitsSingleAccountView, MOVED_PERMANENTLY)
+    Redirect(
+      controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView,
+      MOVED_PERMANENTLY
+    )
   }
 
   def displayChildBenefitsSingleAccountView: Action[AnyContent] = authenticate.async { implicit request =>
@@ -178,39 +182,52 @@ class InterstitialController @Inject() (
     if (request.trustedHelper.nonEmpty || enrolmentsHelper.mtdEnrolmentStatus(request.enrolments).nonEmpty) {
       errorRenderer.futureError(FORBIDDEN)
     } else {
-      enrolmentStoreProxyService
-        .getMtdUserType(request.authNino)
-        .fold(
-          _ =>
-            logger.info(
-              s"Server error from eacd"
-            )
-            Ok(mtditAdvertPageView())
-          ,
-          {
-            case NonFilerMtdUser                          =>
-              logger.info(
-                s"The user is not registered with MTD"
+      featureFlagService
+        .getAsEitherT(MTDUserStatusToggle)
+        .foldF(
+          _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
+          toggle =>
+            if (toggle.isEnabled) {
+              enrolmentStoreProxyService
+                .getMtdUserType(request.authNino)
+                .fold(
+                  _ =>
+                    logger.info(
+                      s"Server error from eacd"
+                    )
+                    Ok(mtditAdvertPageView())
+                  ,
+                  {
+                    case NonFilerMtdUser                          =>
+                      logger.info(
+                        s"The user is not registered with MTD"
+                      )
+                      Ok(mtditAdvertPageView())
+                    case NotEnrolledMtdUser                       =>
+                      logger.info(
+                        s"The user is registered but not enrolled with MTD"
+                      )
+                      Ok(mtditAdvertPageView())
+                    case WrongCredentialsMtdUser(mtdItid, credId) =>
+                      logger.info(
+                        s"Wrong account for MTD. Current cred is ${request.credentials.providerId} and MTD is on credential $credId}"
+                      )
+                      Ok(mtditAdvertPageView())
+                    case EnrolledMtdUser(mtdItId: String)         =>
+                      Redirect(controllers.interstitials.routes.InterstitialController.displayItsaMergePage)
+                    case _                                        =>
+                      logger.info(
+                        s"Could not determine Mtd user type"
+                      )
+                      Ok(mtditAdvertPageView())
+                  }
+                )
+            } else {
+              logger.warn(
+                s"MTDUserStatusToggle toggle is disabled"
               )
-              Ok(mtditAdvertPageView())
-            case NotEnrolledMtdUser                       =>
-              logger.info(
-                s"The user is registered but not enrolled with MTD"
-              )
-              Ok(mtditAdvertPageView())
-            case WrongCredentialsMtdUser(mtdItid, credId) =>
-              logger.info(
-                s"Wrong account for MTD. Current cred is ${request.credentials.providerId} and MTD is on credential $credId}"
-              )
-              Ok(mtditAdvertPageView())
-            case EnrolledMtdUser(mtdItId: String)         =>
-              Redirect(controllers.routes.InterstitialController.displayItsaMergePage)
-            case _                                        =>
-              logger.info(
-                s"Could not determine Mtd user type"
-              )
-              Ok(mtditAdvertPageView())
-          }
+              Future.successful(Ok(mtditAdvertPageView()))
+            }
         )
     }
   }
@@ -256,7 +273,7 @@ class InterstitialController @Inject() (
       if (models.nonEmpty) {
         Ok(viewNewsAndUpdatesView(models, newsSectionId))
       } else {
-        Redirect(routes.HomeController.index)
+        Redirect(controllers.routes.HomeController.index)
       }
     } else {
       errorRenderer.error(UNAUTHORIZED)
@@ -278,7 +295,7 @@ class InterstitialController @Inject() (
       if (featureFlag.isEnabled) {
         Future.successful(Ok(shutteringView()))
       } else {
-        Future.successful(Redirect(routes.HomeController.index))
+        Future.successful(Redirect(controllers.routes.HomeController.index))
       }
     }
   }
@@ -288,7 +305,7 @@ class InterstitialController @Inject() (
   }
 
   def displayTaxCreditsTransitionInformationInterstitialView: Action[AnyContent] = Action {
-    Redirect(controllers.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
+    Redirect(controllers.interstitials.routes.InterstitialController.displayTaxCreditsEndedInformationInterstitialView)
   }
 
   def displayCheckYourStatePensionCallBackView: Action[AnyContent] = authenticate.async { implicit request =>

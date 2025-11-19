@@ -108,36 +108,63 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
   "A user without an SA enrolment" when {
     "CitizenDetails has a matching SA account" must {
-
-      val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-
-      val userTypeList: List[(SelfAssessmentUserType, String)] = List(
-        (WrongCredentialsSelfAssessmentUser(saUtr), "a Wrong credentials SA user"),
-        (NotEnrolledSelfAssessmentUser(saUtr), "a Not Enrolled SA user"),
-        (NonFilerSelfAssessmentUser, "a Non Filer SA user")
-      )
-
+      val saUtr                                              = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
       implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set.empty)
 
-      userTypeList.foreach { case (userType, key) =>
-        s"return $key when the enrolments caching service returns ${userType.toString}" in {
+      s"return WrongCredentialsSelfAssessmentUser when the enrolments store proxy service returns a different credId" in {
 
-          when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
-            .thenReturn(
-              EitherT[Future, UpstreamErrorResponse, MatchingDetails](
-                Future.successful(Right(MatchingDetails(Some(saUtr))))
-              )
+        when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, MatchingDetails](
+              Future.successful(Right(MatchingDetails(Some(saUtr))))
             )
-
-          when(mockEnrolmentStoreProxyService.findCredentialsWithIrSaForUtr(any())(any(), any())).thenReturn(
-            EitherT.rightT[Future, UpstreamErrorResponse]("credId")
           )
 
-          val result = harness()(request)
-          contentAsString(result) must include(s"${userType.toString}")
-          verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
-        }
+        when(mockEnrolmentStoreProxyService.findCredentialsWithIrSaForUtr(any())(any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](Seq("wrongCredId"))
+        )
+
+        val result = harness()(request)
+        contentAsString(result) must include(s"${WrongCredentialsSelfAssessmentUser(saUtr).toString}")
+        verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
       }
+
+      s"return NotEnrolledSelfAssessmentUser when the enrolments store proxy service returns a cred" in {
+
+        when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, MatchingDetails](
+              Future.successful(Right(MatchingDetails(Some(saUtr))))
+            )
+          )
+
+        when(mockEnrolmentStoreProxyService.findCredentialsWithIrSaForUtr(any())(any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](Seq.empty)
+        )
+
+        val result = harness()(request)
+        contentAsString(result) must include(s"${NotEnrolledSelfAssessmentUser(saUtr).toString}")
+        verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
+      }
+
+      s"return NonFilerSelfAssessmentUser when the enrolments store proxy service returns a failure" in {
+
+        when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, MatchingDetails](
+              Future.successful(Right(MatchingDetails(Some(saUtr))))
+            )
+          )
+
+        when(mockEnrolmentStoreProxyService.findCredentialsWithIrSaForUtr(any())(any(), any())).thenReturn(
+          EitherT.leftT[Future, Seq[String]](UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
+        )
+
+        val result = harness()(request)
+        contentAsString(result) must include(s"${NonFilerSelfAssessmentUser.toString}")
+        verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
+      }
+
     }
   }
 

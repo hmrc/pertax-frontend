@@ -73,7 +73,7 @@ class HomeControllerBreathingSpaceISpec extends IntegrationSpec {
   }
 
   "personal-account" must {
-    val urlBreathingSpace = controllers.routes.InterstitialController.displayBreathingSpaceDetails.url
+    val urlBreathingSpace = controllers.interstitials.routes.InterstitialController.displayBreathingSpaceDetails.url
 
     "show BreathingSpaceIndicator when receive true response from BreathingSpaceIfProxy" in {
       server.stubFor(

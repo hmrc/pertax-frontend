@@ -193,7 +193,7 @@ class TimeoutsISpec extends IntegrationSpec {
 
       contentAsString(result).contains(Messages("label.breathing_space")) mustBe false
       contentAsString(result).contains(
-        controllers.routes.InterstitialController.displayBreathingSpaceDetails.url
+        controllers.interstitials.routes.InterstitialController.displayBreathingSpaceDetails.url
       ) mustBe false
       server.verify(1, getRequestedFor(urlEqualTo(breathingSpaceUrl)))
     }

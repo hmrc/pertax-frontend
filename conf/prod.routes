@@ -60,22 +60,22 @@ GET         /personal-account/your-address/thanks                               
 GET         /personal-account/your-address/change-main-address                         controllers.address.StartChangeOfAddressController.onPageLoad(addrType: AddrType = ResidentialAddrType)
 GET         /personal-account/your-address/change-postal-address                       controllers.address.StartChangeOfAddressController.onPageLoad(addrType: AddrType = PostalAddrType)
 
-GET         /personal-account/self-assessment-summary                                  controllers.InterstitialController.displaySelfAssessment
-GET         /personal-account/self-assessment/sa302/:year                              controllers.InterstitialController.displaySa302Interrupt(year: Int)
-GET         /personal-account/self-assessment-home                                     controllers.InterstitialController.displayItsaMergePage
-GET         /personal-account/making-tax-digital-for-income-tax                        controllers.InterstitialController.displayMTDITPage
+GET         /personal-account/self-assessment-summary                                  controllers.interstitials.InterstitialController.displaySelfAssessment
+GET         /personal-account/self-assessment/sa302/:year                              controllers.interstitials.InterstitialController.displaySa302Interrupt(year: Int)
+GET         /personal-account/self-assessment-home                                     controllers.interstitials.InterstitialController.displayItsaMergePage
+GET         /personal-account/making-tax-digital-for-income-tax                        controllers.interstitials.InterstitialController.displayMTDITPage
 
 GET         /personal-account/sa-enrolment                                             controllers.SelfAssessmentController.redirectToEnrolForSa
 
-GET         /personal-account/national-insurance-summary                               controllers.InterstitialController.displayNationalInsurance
-GET         /personal-account/your-national-insurance-state-pension                    controllers.InterstitialController.displayNISP
-GET         /personal-account/news/:newsSectionId                                      controllers.InterstitialController.displayNewsAndUpdates(newsSectionId: String)
-GET         /personal-account/breathing-space                                          controllers.InterstitialController.displayBreathingSpaceDetails
+GET         /personal-account/national-insurance-summary                               controllers.interstitials.InterstitialController.displayNationalInsurance
+GET         /personal-account/your-national-insurance-state-pension                    controllers.interstitials.InterstitialController.displayNISP
+GET         /personal-account/news/:newsSectionId                                      controllers.interstitials.InterstitialController.displayNewsAndUpdates(newsSectionId: String)
+GET         /personal-account/breathing-space                                          controllers.interstitials.InterstitialController.displayBreathingSpaceDetails
 GET         /personal-account/national-insurance-summary/print-letter                  controllers.NiLetterController.printNationalInsuranceNumber
 GET         /personal-account/national-insurance-summary/save-letter-as-pdf            controllers.NiLetterController.saveNationalInsuranceNumberAsPdf
-GET         /personal-account/child-benefit-forms                                      controllers.InterstitialController.displayChildBenefits
-GET         /personal-account/child-benefit/home                                       controllers.InterstitialController.displayChildBenefitsSingleAccountView
-GET         /personal-account/high-income-child-benefit-charge-in-paye                 controllers.InterstitialController.displayHICBCChargeInPAYEView
+GET         /personal-account/child-benefit-forms                                      controllers.interstitials.InterstitialController.displayChildBenefits
+GET         /personal-account/child-benefit/home                                       controllers.interstitials.InterstitialController.displayChildBenefitsSingleAccountView
+GET         /personal-account/high-income-child-benefit-charge-in-paye                 controllers.interstitials.InterstitialController.displayHICBCChargeInPAYEView
 GET         /personal-account/messages                                                 controllers.MessageController.messageList
 GET         /personal-account/messages/:url                                            controllers.MessageController.messageDetail(url: String)
 
@@ -83,22 +83,22 @@ GET         /personal-account/keep-alive                                        
 GET         /personal-account/timeout                                                  controllers.SessionManagementController.timeOut
 
 GET         /personal-account/preferences                                              controllers.PaperlessPreferencesController.managePreferences
-GET         /personal-account/self-assessment-who-needs-to-register                    controllers.InterstitialController.displaySaRegistrationPage
+GET         /personal-account/self-assessment-who-needs-to-register                    controllers.interstitials.InterstitialController.displaySaRegistrationPage
 
-GET         /personal-account/tax-credits-have-ended                                   controllers.InterstitialController.displayTaxCreditsEndedInformationInterstitialView
-GET         /personal-account/tax-credits-are-ending                                   controllers.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView
+GET         /personal-account/tax-credits-have-ended                                   controllers.interstitials.InterstitialController.displayTaxCreditsEndedInformationInterstitialView
+GET         /personal-account/tax-credits-are-ending                                   controllers.interstitials.InterstitialController.displayTaxCreditsTransitionInformationInterstitialView
 
-GET         /personal-account/services-unavailable                                     controllers.InterstitialController.displayShutteringPage
+GET         /personal-account/services-unavailable                                     controllers.interstitials.InterstitialController.displayShutteringPage
 GET         /personal-account/problem-with-service                                     controllers.UpdateDetailsErrorController.displayTryAgainToUpdateDetails
 
-GET         /personal-account/check-your-state-pension-call-back                       controllers.InterstitialController.displayCheckYourStatePensionCallBackView
+GET         /personal-account/check-your-state-pension-call-back                       controllers.interstitials.InterstitialController.displayCheckYourStatePensionCallBackView
 
 GET         /personal-account/assets/*file                                             controllers.AssetsController.versioned(path="/public", file: Asset)
 
 GET         /personal-account/sa/spread-the-cost-of-your-self-assessment               controllers.SaBppInterstitialPageController.onPageLoad
 POST        /personal-account/sa/spread-the-cost-of-your-self-assessment               controllers.SaBppInterstitialPageController.onSubmit
 
-GET         /personal-account/redirect-to-making-tax-digital                           controllers.InterstitialController.mtditRedirect
+GET         /personal-account/redirect-to-making-tax-digital                           controllers.interstitials.InterstitialController.mtditRedirect
 
 ->         /admin                                                                      admin.Routes
 ->          /                                                                          health.Routes

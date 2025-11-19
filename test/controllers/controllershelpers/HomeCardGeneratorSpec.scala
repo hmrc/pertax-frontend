@@ -320,7 +320,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       cardBody mustBe Seq(
         saMergeView(
           (current.currentYear + 1).toString,
-          routes.InterstitialController.displaySelfAssessment.url,
+          controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
           "label.viewAndManageSA"
         ),
         mtditAdvertTileView()

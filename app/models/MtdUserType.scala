@@ -19,13 +19,18 @@ package models
 sealed trait MtdUser
 
 object MtdUserType {
+  // The user has not registered for MTD
   case object NonFilerMtdUser extends MtdUser
 
+  // The user has registered for MTD but has not been enrolled for online use
   case object NotEnrolledMtdUser extends MtdUser
 
+  // The user has registered for MTD and enrolled for MTD but on a different credential
   case class WrongCredentialsMtdUser(mtdItid: String, credId: String) extends MtdUser
 
+  // The service could determine the user type for MTD
   case object UnknownMtdUser extends MtdUser
 
+  // the user has registered and is enrolled with the current cred.
   case class EnrolledMtdUser(mtdItId: String) extends MtdUser
 }

@@ -41,7 +41,7 @@
         @h2("label.self_assessment_tax_returns")
         @saActionNeeded match {
             case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-                @link(routes.InterstitialController.displaySelfAssessment.url, "label.access_your_sa_returns")
+                @link(controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url, "label.access_your_sa_returns")
             }
             case NotYetActivatedOnlineFilerSelfAssessmentUser(_) => {
                 <ul class="govuk-list">

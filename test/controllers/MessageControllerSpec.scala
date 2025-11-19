@@ -19,6 +19,7 @@ package controllers
 import connectors.CitizenDetailsConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import controllers.interstitials.InterstitialController
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*

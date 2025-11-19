@@ -80,8 +80,10 @@ case object TaxSummariesTileToggle extends FeatureFlagName {
 case object ShowPlannedOutageBannerToggle extends FeatureFlagName {
   override val name: String                = "show-outage-banner-toggle"
   override val description: Option[String] = Some(
-    "Show or hide the planned outage banner on key pages. Banner content is configured via app-config"
+    "Show or hide the planned outage banner on the PTA home page. Banner content is configured via app-config and code changes"
   )
+  override val lockedEnvironments          =
+    Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
 }
 
 case object AgentClientRelationshipsToggle extends FeatureFlagName {
@@ -133,7 +135,7 @@ case object PeakDemandBannerToggle extends FeatureFlagName {
   override val name: String = "peak-demand-banner-toggle"
 
   override val description: Option[String] = Some(
-    "Enable/disable the banner informing users about high-demand periods affecting service availability"
+    "Enable/disable the banner on PTA home page informing users about high-demand periods or failures affecting service availability"
   )
 }
 
@@ -158,6 +160,15 @@ case object MDTITAdvertToggle extends FeatureFlagName {
   override val name: String                         = "mdt-it-advert-toggle"
   override val description: Option[String]          = Some(
     "Enable/disable Making Tax Digital for Income Tax Advertisement tile"
+  )
+  override val lockedEnvironments: Seq[Environment] =
+    Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
+}
+
+case object MTDUserStatusToggle extends FeatureFlagName {
+  override val name: String                         = "mdt-user-status-toggle"
+  override val description: Option[String]          = Some(
+    "Enable/disable calls to EACD to determine MTD user status"
   )
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)

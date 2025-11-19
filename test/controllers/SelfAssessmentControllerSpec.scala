@@ -18,9 +18,10 @@ package controllers
 
 import cats.data.EitherT
 import connectors.PayApiConnector
-import controllers.auth._
+import controllers.auth.*
 import controllers.auth.requests.UserRequest
-import models._
+import controllers.interstitials.InterstitialController
+import models.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.any
@@ -31,7 +32,7 @@ import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NO
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, redirectLocation, _}
+import play.api.test.Helpers.{contentAsString, redirectLocation, *}
 import services.SelfAssessmentService
 import testUtils.Fixtures.buildFakeRequestWithAuth
 import testUtils.UserRequestFixture.buildUserRequest
