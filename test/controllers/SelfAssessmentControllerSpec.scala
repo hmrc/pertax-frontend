@@ -20,7 +20,7 @@ import cats.data.EitherT
 import connectors.PayApiConnector
 import controllers.auth.*
 import controllers.auth.requests.UserRequest
-import controllers.interstitials.InterstitialController
+import controllers.interstitials.{InterstitialController, MtdAdvertInterstitialController}
 import models.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -54,12 +54,14 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockPayApiConnector: PayApiConnector                       = mock[PayApiConnector]
   val mockSelfAssessmentService: SelfAssessmentService           = mock[SelfAssessmentService]
 
-  val saUtr: SaUtr                                       = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-  val mockInterstitialController: InterstitialController = mock[InterstitialController]
+  val saUtr: SaUtr                                                         = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  val mockInterstitialController: InterstitialController                   = mock[InterstitialController]
+  val mockMtdAdvertInterstitialController: MtdAdvertInterstitialController = mock[MtdAdvertInterstitialController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[MtdAdvertInterstitialController].toInstance(mockMtdAdvertInterstitialController),
       bind[AuthJourney].toInstance(mockAuthJourney),
       bind[AuditConnector].toInstance(mockAuditConnector),
       bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),

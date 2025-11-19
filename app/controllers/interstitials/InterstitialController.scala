@@ -23,13 +23,12 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.*
-import models.MtdUserType.*
-import models.admin.{BreathingSpaceIndicatorToggle, MTDUserStatusToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
+import models.admin.{BreathingSpaceIndicatorToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.Logging
 import play.api.mvc.*
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
-import services.{CitizenDetailsService, EnrolmentStoreProxyService, SeissService, TaiService}
+import services.{CitizenDetailsService, SeissService, TaiService}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -58,7 +57,6 @@ class InterstitialController @Inject() (
   sa302InterruptView: Sa302InterruptView,
   viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewItsaMergePageView: ViewItsaMergePageView,
-  mtditAdvertPageView: MTDITAdvertPageView,
   viewBreathingSpaceView: ViewBreathingSpaceView,
   shutteringView: ShutteringView,
   taxCreditsEndedInformationInterstitialView: TaxCreditsEndedInformationInterstitialView,
@@ -71,8 +69,7 @@ class InterstitialController @Inject() (
   selfAssessmentRegistrationPageView: SelfAssessmentRegistrationPageView,
   checkYourStatePensionCallBackView: CheckYourStatePensionCallBackView,
   alertBannerHelper: AlertBannerHelper,
-  taiService: TaiService,
-  enrolmentStoreProxyService: EnrolmentStoreProxyService
+  taiService: TaiService
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with Logging
@@ -175,60 +172,6 @@ class InterstitialController @Inject() (
       }
     } else {
       errorRenderer.futureError(UNAUTHORIZED)
-    }
-  }
-
-  def displayMTDITPage: Action[AnyContent] = authenticate.async { implicit request =>
-    if (request.trustedHelper.nonEmpty || enrolmentsHelper.mtdEnrolmentStatus(request.enrolments).nonEmpty) {
-      errorRenderer.futureError(FORBIDDEN)
-    } else {
-      featureFlagService
-        .getAsEitherT(MTDUserStatusToggle)
-        .foldF(
-          _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
-          toggle =>
-            if (toggle.isEnabled) {
-              enrolmentStoreProxyService
-                .getMtdUserType(request.authNino)
-                .fold(
-                  _ =>
-                    logger.info(
-                      s"Server error from eacd"
-                    )
-                    Ok(mtditAdvertPageView())
-                  ,
-                  {
-                    case NonFilerMtdUser                          =>
-                      logger.info(
-                        s"The user is not registered with MTD"
-                      )
-                      Ok(mtditAdvertPageView())
-                    case NotEnrolledMtdUser                       =>
-                      logger.info(
-                        s"The user is registered but not enrolled with MTD"
-                      )
-                      Ok(mtditAdvertPageView())
-                    case WrongCredentialsMtdUser(mtdItid, credId) =>
-                      logger.info(
-                        s"Wrong account for MTD. Current cred is ${request.credentials.providerId} and MTD is on credential $credId}"
-                      )
-                      Ok(mtditAdvertPageView())
-                    case EnrolledMtdUser(mtdItId: String)         =>
-                      Redirect(controllers.interstitials.routes.InterstitialController.displayItsaMergePage)
-                    case _                                        =>
-                      logger.info(
-                        s"Could not determine Mtd user type"
-                      )
-                      Ok(mtditAdvertPageView())
-                  }
-                )
-            } else {
-              logger.warn(
-                s"MTDUserStatusToggle toggle is disabled"
-              )
-              Future.successful(Ok(mtditAdvertPageView()))
-            }
-        )
     }
   }
 

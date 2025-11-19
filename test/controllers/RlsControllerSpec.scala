@@ -20,12 +20,12 @@ import cats.data.EitherT
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import controllers.interstitials.InterstitialController
+import controllers.interstitials.{InterstitialController, MtdAdvertInterstitialController}
 import models.admin.RlsInterruptToggle
 import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
 import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK, SEE_OTHER}
 import play.api.inject.bind
@@ -38,23 +38,21 @@ import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 
 import scala.concurrent.Future
 
 class RlsControllerSpec extends BaseSpec {
 
-  val mockAuditConnector: AuditConnector               = mock[AuditConnector]
-  val mockCachingHelper: AddressJourneyCachingHelper   = mock[AddressJourneyCachingHelper]
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
-
-  when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
-
-  val mockInterstitialController: InterstitialController = mock[InterstitialController]
+  val mockAuditConnector: AuditConnector                                   = mock[AuditConnector]
+  val mockCachingHelper: AddressJourneyCachingHelper                       = mock[AddressJourneyCachingHelper]
+  val mockCitizenDetailsService: CitizenDetailsService                     = mock[CitizenDetailsService]
+  val mockInterstitialController: InterstitialController                   = mock[InterstitialController]
+  val mockMtdAdvertInterstitialController: MtdAdvertInterstitialController = mock[MtdAdvertInterstitialController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[MtdAdvertInterstitialController].toInstance(mockMtdAdvertInterstitialController),
       bind[AuthJourney].toInstance(mockAuthJourney),
       bind[AuditConnector].toInstance(mockAuditConnector),
       bind[AddressJourneyCachingHelper].toInstance(mockCachingHelper),
@@ -66,6 +64,13 @@ class RlsControllerSpec extends BaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+    reset(
+      mockAuditConnector,
+      mockCachingHelper,
+      mockCitizenDetailsService,
+      mockInterstitialController,
+      mockMtdAdvertInterstitialController
+    )
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(RlsInterruptToggle)))
       .thenReturn(Future.successful(FeatureFlag(RlsInterruptToggle, isEnabled = true)))
     when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(RlsInterruptToggle)))

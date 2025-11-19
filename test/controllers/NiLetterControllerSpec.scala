@@ -18,7 +18,7 @@ package controllers
 
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.interstitials.InterstitialController
+import controllers.interstitials.{InterstitialController, MtdAdvertInterstitialController}
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
@@ -32,13 +32,15 @@ import scala.concurrent.Future
 
 class NiLetterControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
-  val mockInterstitialController: InterstitialController = mock[InterstitialController]
-  val mockHomeController: HomeController                 = mock[HomeController]
-  val mockRlsConfirmAddressController: RlsController     = mock[RlsController]
+  val mockInterstitialController: InterstitialController                   = mock[InterstitialController]
+  val mockMtdAdvertInterstitialController: MtdAdvertInterstitialController = mock[MtdAdvertInterstitialController]
+  val mockHomeController: HomeController                                   = mock[HomeController]
+  val mockRlsConfirmAddressController: RlsController                       = mock[RlsController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[MtdAdvertInterstitialController].toInstance(mockMtdAdvertInterstitialController),
       bind[HomeController].toInstance(mockHomeController),
       bind[RlsController].toInstance(mockRlsConfirmAddressController),
       bind[AuthJourney].toInstance(mockAuthJourney)

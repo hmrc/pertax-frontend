@@ -63,7 +63,7 @@ GET         /personal-account/your-address/change-postal-address                
 GET         /personal-account/self-assessment-summary                                  controllers.interstitials.InterstitialController.displaySelfAssessment
 GET         /personal-account/self-assessment/sa302/:year                              controllers.interstitials.InterstitialController.displaySa302Interrupt(year: Int)
 GET         /personal-account/self-assessment-home                                     controllers.interstitials.InterstitialController.displayItsaMergePage
-GET         /personal-account/making-tax-digital-for-income-tax                        controllers.interstitials.InterstitialController.displayMTDITPage
+GET         /personal-account/making-tax-digital-for-income-tax                        controllers.interstitials.MtdAdvertInterstitialController.displayMTDITPage
 
 GET         /personal-account/sa-enrolment                                             controllers.SelfAssessmentController.redirectToEnrolForSa
 
