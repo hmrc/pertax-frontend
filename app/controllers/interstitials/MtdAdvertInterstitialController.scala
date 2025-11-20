@@ -16,6 +16,7 @@
 
 package controllers.interstitials
 
+import cats.data.EitherT
 import com.google.inject.Inject
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
@@ -27,6 +28,7 @@ import play.api.Logging
 import play.api.mvc.*
 import services.partials.{FormPartialService, SaPartialService}
 import services.EnrolmentStoreProxyService
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.EnrolmentsHelper
@@ -64,52 +66,34 @@ class MtdAdvertInterstitialController @Inject() (
     } else {
       featureFlagService
         .getAsEitherT(MTDUserStatusToggle)
-        .foldF(
-          _ => errorRenderer.futureError(INTERNAL_SERVER_ERROR),
-          toggle =>
-            if (toggle.isEnabled) {
-              enrolmentStoreProxyService
-                .getMtdUserType(request.authNino)
-                .fold(
-                  _ =>
-                    logger.info(
-                      s"Server error from eacd"
-                    )
-                    Ok(mtditAdvertPageView())
-                  ,
-                  {
-                    case NonFilerMtdUser                          =>
-                      logger.info(
-                        s"The user is not registered with MTD"
-                      )
-                      Ok(mtditAdvertPageView())
-                    case NotEnrolledMtdUser                       =>
-                      logger.info(
-                        s"The user is registered but not enrolled with MTD"
-                      )
-                      Ok(mtditAdvertPageView())
-                    case WrongCredentialsMtdUser(mtdItid, credId) =>
-                      logger.info(
-                        s"Wrong account for MTD. Current cred is ${request.credentials.providerId} and MTD is on credential $credId}"
-                      )
-                      Ok(mtditAdvertPageView())
-                    case EnrolledMtdUser(mtdItId: String)         =>
-                      Redirect(controllers.interstitials.routes.InterstitialController.displayItsaMergePage)
-                    case _                                        =>
-                      logger.info(
-                        s"Could not determine Mtd user type"
-                      )
-                      Ok(mtditAdvertPageView())
-                  }
-                )
-            } else {
-              logger.warn(
-                s"MTDUserStatusToggle toggle is disabled"
-              )
-              Future.successful(Ok(mtditAdvertPageView()))
-            }
-        )
+        .flatMap { toggle =>
+          if (toggle.isEnabled) {
+            enrolmentStoreProxyService
+              .getMtdUserType(request.authNino)
+              .map {
+                case NonFilerMtdUser                          =>
+                  logger.info(s"The user is not registered with MTD")
+                  Ok(mtditAdvertPageView())
+                case NotEnrolledMtdUser                       =>
+                  logger.info(s"The user is registered but not enrolled with MTD")
+                  Ok(mtditAdvertPageView())
+                case WrongCredentialsMtdUser(mtdItid, credId) =>
+                  logger.info(
+                    s"Wrong account for MTD. Current cred is ${request.credentials.providerId} and MTD is on credential $credId}"
+                  )
+                  Ok(mtditAdvertPageView())
+                case EnrolledMtdUser(mtdItId: String)         =>
+                  Redirect(controllers.interstitials.routes.InterstitialController.displayItsaMergePage)
+                case _                                        =>
+                  logger.info(s"Could not determine Mtd user type")
+                  Ok(mtditAdvertPageView())
+              }
+          } else {
+            logger.warn(s"MTDUserStatusToggle toggle is disabled")
+            EitherT.rightT[Future, UpstreamErrorResponse](Ok(mtditAdvertPageView()))
+          }
+        }
+        .fold(_ => Ok(mtditAdvertPageView()), identity)
     }
   }
-
 }
