@@ -22,7 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{AddressJourneyCachingHelper, RlsInterruptHelper}
 import error.ErrorRenderer
-import models.admin.AddressChangeAllowedToggle
+import models.admin.{AddressChangeAllowedToggle, GetPersonFromCitizenDetailsToggle}
 import models.dto.AddressPageVisitedDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
@@ -95,6 +95,7 @@ class PersonalDetailsController @Inject() (
         _ <- cachingHelper.addToCache(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
 
         addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
+        getPersonDetailsToggle     <- featureFlagService.get(GetPersonFromCitizenDetailsToggle)
         addressDetails             <- personalDetailsViewModel.getAddressRow(personDetails, addressModel)
         paperLessPreference        <- personalDetailsViewModel.getPaperlessSettingsRow
         personalDetailsTable       <- personalDetailsViewModel.getPersonDetailsTable(Some(ninoToDisplay), nameToDisplay)
@@ -113,7 +114,7 @@ class PersonalDetailsController @Inject() (
             paperlessHelpers,
             signinDetailsHelpers,
             manageTaxAgent,
-            addressChangeAllowedToggle.isEnabled
+            addressChangeAllowedToggle.isEnabled && getPersonDetailsToggle.isEnabled
           )
         )
       }

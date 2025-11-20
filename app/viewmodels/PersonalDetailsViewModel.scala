@@ -21,8 +21,8 @@ import config.ConfigDecorator
 import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
-import models._
-import models.admin.AddressChangeAllowedToggle
+import models.*
+import models.admin.{AddressChangeAllowedToggle, GetPersonFromCitizenDetailsToggle}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -53,8 +53,9 @@ class PersonalDetailsViewModel @Inject() (
 
     for {
       addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
+      getPersonDetailsToggle     <- featureFlagService.get(GetPersonFromCitizenDetailsToggle)
     } yield
-      if (addressChangeAllowedToggle.isEnabled) {
+      if (addressChangeAllowedToggle.isEnabled && getPersonDetailsToggle.isEnabled) {
         if (isMainAddressChangeLocked) {
           personDetails.flatMap(_.address.map { address =>
             PersonalDetailsTableRowModel(
@@ -105,8 +106,9 @@ class PersonalDetailsViewModel @Inject() (
 
     for {
       addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
+      getPersonDetailsToggle     <- featureFlagService.get(GetPersonFromCitizenDetailsToggle)
     } yield
-      if (addressChangeAllowedToggle.isEnabled) {
+      if (addressChangeAllowedToggle.isEnabled && getPersonDetailsToggle.isEnabled) {
         postalAddress match {
           case Some(address) => Some(address)
           case _             =>

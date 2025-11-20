@@ -22,14 +22,14 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import error.ErrorRenderer
 import models.PersonDetails
-import models.admin.AddressChangeAllowedToggle
+import models.admin.{AddressChangeAllowedToggle, GetPersonFromCitizenDetailsToggle}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.mvc.Request
-import play.api.mvc.Results._
+import play.api.mvc.Results.*
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.CitizenDetailsService
 import testUtils.BaseSpec
 import testUtils.Fixtures.buildPersonDetails
@@ -82,6 +82,8 @@ class AddressControllerSpec extends BaseSpec {
 
         when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
@@ -102,6 +104,28 @@ class AddressControllerSpec extends BaseSpec {
       "the AddressChangeAllowedToggle is set to false" in {
         when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
+        when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
+        def userRequest[A]: UserRequest[A] =
+          buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
+
+        val expectedContent = "Success"
+
+        val result = controller.addressJourneyEnforcer { _ => _ =>
+          Future(Ok(expectedContent))
+        }(userRequest)
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe internalServerErrorView
+          .apply()(userRequest, mockAppConfigDecorator, messages)
+          .body
+      }
+      "the GetPersonFromCitizenDetailsToggle is set to false" in {
+        when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = false)))
 
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
@@ -125,6 +149,8 @@ class AddressControllerSpec extends BaseSpec {
     "the citizenDetailsService returns Right(None)" in {
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
         .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+        .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
         .thenReturn(EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(None))))
@@ -142,6 +168,8 @@ class AddressControllerSpec extends BaseSpec {
     "the citizenDetailsService returns Left" in {
       when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
         .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+        .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
         .thenReturn(EitherT.leftT[Future, Option[PersonDetails]](UpstreamErrorResponse("error", 500)))

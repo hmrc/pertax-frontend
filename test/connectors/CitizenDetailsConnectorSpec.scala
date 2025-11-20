@@ -27,7 +27,7 @@ import play.api.test.{DefaultAwaitTimeout, FakeRequest, Injecting}
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtrGenerator}
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.time.LocalDate
@@ -244,25 +244,15 @@ class CitizenDetailsConnectorSpec
       def url: String = s"/citizen-details/nino/$nino"
     }
 
-    "return OK containing an SAUTR when the service returns an SAUTR" in new LocalSetup {
+    "return jsValue for a valid json response" in new LocalSetup {
       val saUtr: String = new SaUtrGenerator().nextSaUtr.utr
-      stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr)).toString()))
+      val saUtrJson     = Json.obj("ids" -> Json.obj("sautr" -> saUtr))
+      stubGet(url, OK, Some(saUtrJson.toString))
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
+      val result: Either[UpstreamErrorResponse, JsValue] =
         connector.getMatchingDetails(nino).value.futureValue
 
-      result mustBe a[Right[_, _]]
-      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
-    }
-
-    "return OK containing no SAUTR when the service does not return an SAUTR" in new LocalSetup {
-      stubGet(url, OK, Some(Json.obj("ids" -> Json.obj("sautr" -> JsNull)).toString()))
-
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
-        connector.getMatchingDetails(nino).value.futureValue
-
-      result mustBe a[Right[_, _]]
-      result.getOrElse(HttpResponse(BAD_REQUEST, "")).status mustBe OK
+      result mustBe Right(saUtrJson)
     }
 
     "return NOT_FOUND when citizen-details returns an 404" in new LocalSetup {

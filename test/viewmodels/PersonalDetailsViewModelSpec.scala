@@ -22,8 +22,8 @@ import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.CountryHelper
-import models._
-import models.admin.AddressChangeAllowedToggle
+import models.*
+import models.admin.{AddressChangeAllowedToggle, GetPersonFromCitizenDetailsToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -119,6 +119,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     reset(mockFeatureFlagService)
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
       .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
   }
 
   "getSignInDetailsRow" must {
@@ -258,6 +260,32 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
           .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
+        val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
+        val expected =
+          PersonalDetailsTableRowModel(
+            id = "main_address",
+            titleMessage = "label.main_address",
+            content = addressUnavailableView(displayAllLettersLine = false),
+            linkTextMessage = "",
+            visuallyhiddenText = "label.your_main_home",
+            linkUrl = None
+          )
+
+        actual.futureValue.mainAddress mustBe Some(expected)
+      }
+
+      "GetPersonFromCitizenDetailsToggle toggle switched off" in {
+        val address       = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person        = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails("1", person, address, address)
+
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(AddressChangeAllowedToggle)))
+          .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = false)))
 
         val actual   = personalDetailsViewModel.getAddressRow(Some(personDetails), List.empty)(messages)
         val expected =

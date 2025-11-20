@@ -19,7 +19,6 @@ package services
 import cats.data.EitherT
 import connectors.CitizenDetailsConnector
 import models.admin.GetPersonFromCitizenDetailsToggle
-import models.MatchingDetails
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -51,8 +50,6 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockConnector)
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
-      .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
   }
 
   "CitizenDetailsService" when {
@@ -71,8 +68,7 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         val result =
           sut.personDetails(fakeNino).value.futureValue
 
-        result mustBe a[Right[_, _]]
-        result.getOrElse(buildPersonDetails.copy(address = None)) mustBe Some(buildPersonDetails)
+        result mustBe Right(Some(buildPersonDetails))
       }
 
       List(
@@ -100,6 +96,23 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
           result mustBe errorResponse
         }
       }
+
+      "return None when is GetPersonFromCitizenDetailsToggle disabled" in {
+        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, JsValue](
+            Future.successful(Right(Json.toJson(buildPersonDetails)))
+          )
+        )
+
+        when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = false)))
+
+        val result =
+          sut.personDetails(fakeNino).value.futureValue
+
+        result mustBe Right(None)
+        verify(mockConnector, times(0)).getMatchingDetails(any())(any(), any())
+      }
     }
 
     "updateAddress is called" must {
@@ -109,6 +122,8 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             Future.successful(Right(true))
           )
         )
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
         val result: Either[UpstreamErrorResponse, Boolean] =
           sut
@@ -136,7 +151,8 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
               Future.successful(Right(true))
             )
           )
-
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
         when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, JsValue](
             Future.successful(Right(Json.toJson(buildPersonDetails.copy(etag = "newEtag"))))
@@ -164,6 +180,8 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
               Future.successful(Right(true))
             )
           )
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
         val personDetaisWithNewAddress = buildPersonDetails.copy(
           address = Some(
@@ -202,6 +220,9 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
           )
         )
 
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
         val result: Either[UpstreamErrorResponse, Boolean] =
           sut
             .updateAddress(fakeNino, buildFakeAddress, buildPersonDetails)
@@ -232,6 +253,9 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             )
           )
 
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
         when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
           EitherT[Future, UpstreamErrorResponse, JsValue](
             Future.successful(Right(Json.toJson(buildPersonDetails.copy(etag = "newEtag"))))
@@ -259,6 +283,9 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
               Future.successful(Right(true))
             )
           )
+
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
         val personDetaisWithNewAddress = buildPersonDetails.copy(
           address = Some(
@@ -296,6 +323,9 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
             Future.successful(Right(Json.toJson(buildPersonDetails.copy(etag = "newEtag"))))
           )
         )
+
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
         val result: Either[UpstreamErrorResponse, Boolean] =
           sut
@@ -339,64 +369,68 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
     }
 
     "getMatchingDetails is called" must {
-      "return matching details when connector returns and OK status with body" in {
+      "return SaUtr when matching returns a SaUtr" in {
         when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, HttpResponse](
-            Future.successful(
-              Right(
-                HttpResponse(OK, Json.obj("ids" -> Json.obj("sautr" -> saUtr.utr)).toString)
-              )
-            )
-          )
+          EitherT.rightT[Future, UpstreamErrorResponse](Json.obj("ids" -> Json.obj("sautr" -> saUtr.utr)))
         )
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
         val result =
           sut
-            .getMatchingDetails(fakeNino)
+            .getSaUtrFromMatchingDetails(fakeNino)
             .value
             .futureValue
 
-        result mustBe a[Right[_, MatchingDetails]]
-        result.getOrElse(MatchingDetails(Some(SaUtr("Invalid")))) mustBe MatchingDetails(Some(saUtr))
+        result mustBe Right(Some(saUtr))
       }
 
-      "return error when connector returns and OK status with no body" in {
+      "return None when connector returns a Json with no body" in {
         when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, HttpResponse](
-            Future.successful(Right(HttpResponse(OK, Json.obj("ids" -> "").toString)))
-          )
+          EitherT.rightT[Future, UpstreamErrorResponse](Json.obj("ids" -> ""))
         )
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
-        val result: Either[UpstreamErrorResponse, MatchingDetails] =
+        val result: Either[UpstreamErrorResponse, Option[SaUtr]] =
           sut
-            .getMatchingDetails(fakeNino)
+            .getSaUtrFromMatchingDetails(fakeNino)
             .value
             .futureValue
 
-        result mustBe a[Right[_, MatchingDetails]]
-        result.getOrElse(MatchingDetails(Some(SaUtr("Invalid")))) mustBe MatchingDetails(None)
+        result mustBe Right(None)
       }
 
-      List(
-        BAD_REQUEST,
-        NOT_FOUND,
-        TOO_MANY_REQUESTS,
-        REQUEST_TIMEOUT,
-        INTERNAL_SERVER_ERROR,
-        SERVICE_UNAVAILABLE,
-        BAD_GATEWAY
-      ).foreach { errorResponse =>
-        s"return an UpstreamErrorResponse containing $errorResponse when connector returns the same" in {
-          when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
-            EitherT[Future, UpstreamErrorResponse, HttpResponse](
-              Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
-            )
-          )
+      "return Left when connector returns a Left" in {
+        when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
+          EitherT.leftT[Future, JsValue](UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
+        )
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
-          val result =
-            sut.getMatchingDetails(fakeNino).value.futureValue.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode
-          result mustBe errorResponse
-        }
+        val result: Either[UpstreamErrorResponse, Option[SaUtr]] =
+          sut
+            .getSaUtrFromMatchingDetails(fakeNino)
+            .value
+            .futureValue
+
+        result mustBe a[Left[UpstreamErrorResponse, _]]
+      }
+
+      "return None when GetPersonFromCitizenDetailsToggle is disabled" in {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = false)))
+
+        val result: Either[UpstreamErrorResponse, Option[SaUtr]] =
+          sut
+            .getSaUtrFromMatchingDetails(fakeNino)
+            .value
+            .futureValue
+
+        result mustBe Right(None)
+
+        verify(mockConnector, times(0)).getMatchingDetails(any())(any(), any())
+
       }
     }
   }
