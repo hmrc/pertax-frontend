@@ -103,7 +103,7 @@ class DefaultEnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper w
            |    }]
            |}""".stripMargin
 
-      val knownFactsRequest = KnownFactsRequest("IR-SA", List(IdentifiersOrVerifiers("NINO", testNino.nino)))
+      val knownFactsRequest   = KnownFactsRequest("IR-SA", List(IdentifiersOrVerifiers("NINO", testNino.nino)))
       lazy val expectedResult = KnownFactsResponse(
         "IR-SA",
         List(
@@ -115,7 +115,8 @@ class DefaultEnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper w
       )
 
       val url         = "/enrolment-store-proxy/enrolment-store/enrolments"
-      val requestBody = Json.toJson(KnownFactsRequest.apply("IR-SA",List(IdentifiersOrVerifiers("NINO", testNino.nino)))).toString()
+      val requestBody =
+        Json.toJson(KnownFactsRequest.apply("IR-SA", List(IdentifiersOrVerifiers("NINO", testNino.nino)))).toString()
 
       stubPost(url, OK, Some(requestBody), Some(expectedJson))
 
@@ -128,7 +129,8 @@ class DefaultEnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper w
       val testNino = generator.nextNino
 
       val url         = "/enrolment-store-proxy/enrolment-store/enrolments"
-      val requestBody = Json.toJson(KnownFactsRequest.apply("IR-SA",List(IdentifiersOrVerifiers("NINO", testNino.nino)))).toString()
+      val requestBody =
+        Json.toJson(KnownFactsRequest.apply("IR-SA", List(IdentifiersOrVerifiers("NINO", testNino.nino)))).toString()
 
       val knownFactsRequest = KnownFactsRequest("IR-SA", List(IdentifiersOrVerifiers("NINO", testNino.nino)))
 

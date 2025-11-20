@@ -113,10 +113,10 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
       s"return WrongCredentialsSelfAssessmentUser when the enrolments store proxy service returns a different credId" in {
 
-        when(mockCitizenDetailsService.getMatchingDetails(any())(any(), any()))
+        when(mockCitizenDetailsService.getSaUtrFromMatchingDetails(any())(any(), any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, MatchingDetails](
-              Future.successful(Right(MatchingDetails(Some(saUtr))))
+            EitherT[Future, UpstreamErrorResponse, Option[SaUtr]](
+              Future.successful(Right(Some(saUtr)))
             )
           )
 
@@ -126,15 +126,15 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
         val result = harness()(request)
         contentAsString(result) must include(s"${WrongCredentialsSelfAssessmentUser(saUtr).toString}")
-        verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
+        verify(mockCitizenDetailsService, times(1)).getSaUtrFromMatchingDetails(any())(any(), any())
       }
 
       s"return NotEnrolledSelfAssessmentUser when the enrolments store proxy service returns a cred" in {
 
-          when(mockCitizenDetailsService.getSaUtrFromMatchingDetails(any())(any(), any()))
-            .thenReturn(
-              EitherT.rightT[Future, UpstreamErrorResponse](Some(saUtr))
-            )
+        when(mockCitizenDetailsService.getSaUtrFromMatchingDetails(any())(any(), any()))
+          .thenReturn(
+            EitherT.rightT[Future, UpstreamErrorResponse](Some(saUtr))
+          )
 
         when(mockEnrolmentStoreProxyService.findCredentialsWithIrSaForUtr(any())(any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Seq.empty)
@@ -149,8 +149,8 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
         when(mockCitizenDetailsService.getSaUtrFromMatchingDetails(any())(any(), any()))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, MatchingDetails](
-              Future.successful(Right(MatchingDetails(Some(saUtr))))
+            EitherT[Future, UpstreamErrorResponse, Option[SaUtr]](
+              Future.successful(Right(Some(saUtr)))
             )
           )
 
@@ -160,7 +160,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
         val result = harness()(request)
         contentAsString(result) must include(s"${NonFilerSelfAssessmentUser.toString}")
-        verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any(), any())
+        verify(mockCitizenDetailsService, times(1)).getSaUtrFromMatchingDetails(any())(any(), any())
       }
 
     }
