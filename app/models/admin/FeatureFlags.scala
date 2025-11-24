@@ -36,7 +36,8 @@ object AllFeatureFlags {
     PeakDemandBannerToggle,
     GetPersonFromCitizenDetailsToggle,
     PayeToPegaRedirectToggle,
-    MDTITAdvertToggle
+    MDTITAdvertToggle,
+    MTDUserStatusToggle
   )
 }
 
