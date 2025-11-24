@@ -60,7 +60,7 @@ class CachingEnrolmentsConnector @Inject() (
     with Logging {
 
   private def knownFactsCacheKey(knownFactsRequest: KnownFactsRequest) =
-    s"""getKnownFacts-${knownFactsRequest.service}-${knownFactsRequest.service}-${knownFactsRequest.knownFacts
+    s"""getKnownFacts-${knownFactsRequest.service}-${knownFactsRequest.knownFacts
         .map(x => s"${x.key}+${x.value}")
         .mkString("-")}"""
 
