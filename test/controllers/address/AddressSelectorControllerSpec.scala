@@ -32,7 +32,7 @@ import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.JourneyCacheRepository
-import routePages.{AddressLookupServiceDownPage, SelectedRecordSetPage}
+import routePages.SelectedRecordSetPage
 import services.CitizenDetailsService
 import testUtils.BaseSpec
 import testUtils.Fixtures.{buildPersonDetailsWithPersonalAndCorrespondenceAddress, oneAndTwoOtherPlacePafRecordSet}
@@ -92,7 +92,6 @@ class AddressSelectorControllerSpec extends BaseSpec {
 
         val userAnswers: UserAnswers = UserAnswers
           .empty("id")
-          .setOrException(AddressLookupServiceDownPage, false)
           .setOrException(SelectedRecordSetPage(ResidentialAddrType), recordSet)
 
         when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
@@ -131,7 +130,6 @@ class AddressSelectorControllerSpec extends BaseSpec {
       "supplied no addressId in the form" in {
         val userAnswers: UserAnswers = UserAnswers
           .empty("id")
-          .setOrException(AddressLookupServiceDownPage, false)
           .setOrException(SelectedRecordSetPage(PostalAddrType), oneAndTwoOtherPlacePafRecordSet)
 
         when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
@@ -146,7 +144,6 @@ class AddressSelectorControllerSpec extends BaseSpec {
       "supplied no addressId in the form with a filter" in {
         val userAnswers: UserAnswers = UserAnswers
           .empty("id")
-          .setOrException(AddressLookupServiceDownPage, false)
           .setOrException(SelectedRecordSetPage(PostalAddrType), oneAndTwoOtherPlacePafRecordSet)
 
         when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
@@ -169,7 +166,6 @@ class AddressSelectorControllerSpec extends BaseSpec {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
-        .setOrException(AddressLookupServiceDownPage, false)
         .setOrException(SelectedRecordSetPage(PostalAddrType), oneAndTwoOtherPlacePafRecordSet)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
@@ -190,7 +186,6 @@ class AddressSelectorControllerSpec extends BaseSpec {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
-        .setOrException(AddressLookupServiceDownPage, false)
         .setOrException(SelectedRecordSetPage(PostalAddrType), oneAndTwoOtherPlacePafRecordSet)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
@@ -205,7 +200,6 @@ class AddressSelectorControllerSpec extends BaseSpec {
     "call the address lookup service and return a 500 when an invalid addressId is supplied in the form" in {
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
-        .setOrException(AddressLookupServiceDownPage, false)
         .setOrException(SelectedRecordSetPage(ResidentialAddrType), oneAndTwoOtherPlacePafRecordSet)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
@@ -227,7 +221,6 @@ class AddressSelectorControllerSpec extends BaseSpec {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
-        .setOrException(AddressLookupServiceDownPage, false)
         .setOrException(SelectedRecordSetPage(ResidentialAddrType), oneAndTwoOtherPlacePafRecordSet)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
@@ -243,7 +236,6 @@ class AddressSelectorControllerSpec extends BaseSpec {
 
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
-        .setOrException(AddressLookupServiceDownPage, false)
         .setOrException(SelectedRecordSetPage(ResidentialAddrType), oneAndTwoOtherPlacePafRecordSet)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))

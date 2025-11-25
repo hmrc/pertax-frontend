@@ -35,7 +35,7 @@ import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.JourneyCacheRepository
-import routePages.{AddressLookupServiceDownPage, HasAddressAlreadyVisitedPage, SelectedAddressRecordPage, SubmittedAddressPage}
+import routePages.{HasAddressAlreadyVisitedPage, SelectedAddressRecordPage, SubmittedAddressPage}
 import services.CitizenDetailsService
 import testUtils.BaseSpec
 import testUtils.Fixtures.{buildPersonDetailsWithPersonalAndCorrespondenceAddress, fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress}
@@ -316,7 +316,7 @@ class UpdateInternationalAddressControllerSpec extends BaseSpec {
 
     "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a postal journey and input default startDate into cache" in {
 
-      val userAnswers: UserAnswers = UserAnswers.empty("id").setOrException(AddressLookupServiceDownPage, true)
+      val userAnswers: UserAnswers = UserAnswers.empty("id")
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
@@ -334,7 +334,7 @@ class UpdateInternationalAddressControllerSpec extends BaseSpec {
 
     "return 303, caching addressDto and redirecting to enter start date page when supplied valid form input on a non postal journey" in {
 
-      val userAnswers: UserAnswers = UserAnswers.empty("id").setOrException(AddressLookupServiceDownPage, true)
+      val userAnswers: UserAnswers = UserAnswers.empty("id")
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))

@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.bindable.AddrType
 import models._
 import play.api.Logging
-import play.api.libs.json.{JsResultException, Writes}
+import play.api.libs.json.Writes
 import play.api.mvc.{Result, Results}
 import repositories.JourneyCacheRepository
 import routePages._
@@ -29,7 +29,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 @Singleton
 class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: JourneyCacheRepository)(implicit
@@ -44,9 +43,6 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
       journeyCacheRepository.set(updatedAnswers).map(_ => updatedAnswers)
     }
   }
-
-  def cacheAddressLookupServiceDown()(implicit request: UserRequest[_]): Future[UserAnswers] =
-    addToCache(AddressLookupServiceDownPage, true)
 
   def clearCache()(implicit request: UserRequest[_]): Future[Unit] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -63,8 +59,7 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
         userAnswers.get(SelectedAddressRecordPage(typ)),
         userAnswers.get(SubmittedAddressPage(typ)),
         userAnswers.get(SubmittedInternationalAddressChoicePage),
-        userAnswers.get(SubmittedStartDatePage(typ)),
-        userAnswers.get(AddressLookupServiceDownPage).getOrElse(false)
+        userAnswers.get(SubmittedStartDatePage(typ))
       )
     }
 
@@ -84,19 +79,9 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
             userAnswers.get(SelectedAddressRecordPage(typ)),
             userAnswers.get(SubmittedAddressPage(typ)),
             userAnswers.get(SubmittedInternationalAddressChoicePage),
-            userAnswers.get(SubmittedStartDatePage(typ)),
-            userAnswers.get(AddressLookupServiceDownPage).getOrElse(false)
+            userAnswers.get(SubmittedStartDatePage(typ))
           )
         )
-      }
-      .recoverWith {
-        case _: JsResultException =>
-          logger.error(s"Failed to read cached address")
-          block(
-            AddressJourneyData(None, None, None, None, None, None, None, None, addressLookupServiceDown = false)
-          )
-        case NonFatal(e)          =>
-          throw e
       }
   }
 
