@@ -35,7 +35,8 @@
 @(formSaPaymentSelect: Form[SelectSABPPPaymentModel])(implicit messages: Messages, request: UserRequest[_])
 
 @mainTemplate(
-    pageTitle = messages("sa.message.selectSABPPPaymentType.title")
+    pageTitle = messages("sa.message.selectSABPPPaymentType.title"),
+    showBackLink = true
 ) {
 
     @errorSummary(formSaPaymentSelect, Some("radio-saBppOverduePayment"))
