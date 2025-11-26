@@ -17,7 +17,7 @@
 package services
 
 import connectors.AddressLookupConnector
-import models.dto.InternationalAddressChoiceDto
+import models.addresslookup.RecordSet
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -31,88 +31,54 @@ class AddressCountryService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def isCrossBorderScotland(
-    currentAddressLines: Seq[String],
-    currentPostcode: Option[String],
-    newInternationalChoice: Option[InternationalAddressChoiceDto]
-  )(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def deriveCountryForPostcode(
+    postcodeOpt: Option[String]
+  )(implicit hc: HeaderCarrier): Future[Option[String]] =
+    postcodeOpt.filter(_.trim.nonEmpty) match {
+      case None =>
+        logger.warn("[AddressCountryService] No postcode provided; cannot derive country")
+        Future.successful(None)
 
-    val newCountryNorm = normalization.normCountryFromChoice(newInternationalChoice)
+      case Some(postcode) =>
+        connector
+          .lookup(postcode, filter = None)
+          .value
+          .map {
+            case Right(recordSet: RecordSet) if recordSet.addresses.nonEmpty =>
 
-    // If the new country is not set / not meaningful, we don't treat it as cross-border.
-    if (newCountryNorm.isEmpty) {
-      Future.successful(false)
-    } else {
-      currentPostcode.filter(_.trim.nonEmpty) match {
-        case Some(pc) =>
-          connector
-            .lookup(pc, filter = None)
-            .value
-            .flatMap {
-              case Right(recordSet) if recordSet.addresses.nonEmpty =>
-                val addresses = recordSet.addresses
+              val normalisedCountries: Set[String] =
+                recordSet.addresses
+                  .flatMap { record =>
+                    record.address.subdivision
+                      .map(_.name)
+                      .orElse(Some(record.address.country.name))
+                  }
+                  .map(name => normalization.normalizeCountryName(Some(name)))
+                  .filter(_.nonEmpty)
+                  .toSet
 
-                def normLines(lines: Seq[String]): Seq[String] =
-                  lines
-                    .map(_.trim.toUpperCase.replaceAll("\\s+", " "))
-                    .filter(_.nonEmpty)
+              normalisedCountries.toList match {
+                case singleCountry :: Nil =>
+                  Some(singleCountry)
 
-                addresses match {
+                case _ =>
+                  logger.warn(
+                    s"[AddressCountryService] Multiple countries for postcode $postcode ($normalisedCountries); returning None"
+                  )
+                  None
+              }
 
-                  // Exactly one address for this postcode -> use its country
-                  case single :: Nil =>
-                    val oldCountryName = single.address.subdivision.get.name
-                    val oldCountryNorm = normalization.normCountry(Some(oldCountryName))
-                    Future.successful(normalization.isCrossBorderScotland(oldCountryNorm, newCountryNorm))
+            case Right(_) =>
+              logger.warn(
+                s"[AddressCountryService] No addresses returned for postcode $postcode; returning None"
+              )
+              None
 
-                  // Multiple addresses -> try to match on address lines + postcode
-                  case many =>
-                    val currentNormLines = normLines(currentAddressLines)
-
-                    val maybeMatch = many.find { rec =>
-                      val recLinesNorm = normLines(rec.address.lines)
-                      val samePostcode =
-                        normalization.samePostcode(Some(rec.address.postcode), currentPostcode)
-
-                      samePostcode && recLinesNorm == currentNormLines
-                    }
-
-                    maybeMatch match {
-                      case Some(matched) =>
-                        val oldCountryName = matched.address.subdivision.get.name
-                        val oldCountryNorm = normalization.normCountry(Some(oldCountryName))
-                        Future.successful(normalization.isCrossBorderScotland(oldCountryNorm, newCountryNorm))
-
-                      case None =>
-                        logger.warn(
-                          s"[AddressCountryService] Multiple addresses for postcode $pc but none matched by address lines; defaulting to cross-border=true"
-                        )
-                        Future.successful(true)
-                    }
-                }
-
-              // Lookup succeeded but no addresses for this postcode
-              case Right(_) =>
-                logger.warn(
-                  s"[AddressCountryService] Address lookup returned no addresses for postcode $pc; defaulting to cross-border=true"
-                )
-                Future.successful(true)
-
-              // Lookup failed (error from connector)
-              case Left(err) =>
-                logger.warn(
-                  s"[AddressCountryService] Address lookup failed for postcode $pc, defaulting to cross-border=true. Error: $err"
-                )
-                Future.successful(true)
-            }
-
-        // No usable current postcode -> safest is to treat as cross-border
-        case None =>
-          logger.warn(
-            "[AddressCountryService] Current postcode is empty or missing; defaulting to cross-border=true"
-          )
-          Future.successful(true)
-      }
+            case Left(error) =>
+              logger.warn(
+                s"[AddressCountryService] Address lookup failed for postcode $postcode; returning None. Error: $error"
+              )
+              None
+          }
     }
-  }
 }

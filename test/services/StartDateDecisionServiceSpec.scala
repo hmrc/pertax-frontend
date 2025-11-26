@@ -42,97 +42,97 @@ class StartDateDecisionServiceSpec extends BaseSpec {
   override def beforeEach(): Unit =
     super.beforeEach()
 
-  "StartDateDecisionService.decide" must {
+  "StartDateDecisionService.determineStartDate" must {
 
-    "return Left(FutureDateError) when proposed is after today" in {
-      val res = service.decide(
-        proposed = future,
-        currentStart = Some(earlier),
+    "return Left(FutureDateError) when requested date is after today" in {
+      val res = service.determineStartDate(
+        requestedDate = future,
+        recordedStartDate = Some(earlier),
         today = today,
-        p85Enabled = false,
-        crossBorder = false
+        overseasMove = false,
+        scotlandBorderChange = false
       )
       res mustBe Left(FutureDateError)
     }
 
-    "return Left(EarlyDateError) when P85 enabled and proposed <= current start date" in {
-      val resEqual   = service.decide(
-        proposed = sameAsCurrent,
-        currentStart = Some(sameAsCurrent),
+    "return Left(EarlyDateError) when overseasMove=true and requestedDate <= recorded start date" in {
+      val resEqual   = service.determineStartDate(
+        requestedDate = sameAsCurrent,
+        recordedStartDate = Some(sameAsCurrent),
         today = today,
-        p85Enabled = true,
-        crossBorder = false
+        overseasMove = true,
+        scotlandBorderChange = false
       )
-      val resEarlier = service.decide(
-        proposed = earlier,
-        currentStart = Some(sameAsCurrent),
+      val resEarlier = service.determineStartDate(
+        requestedDate = earlier,
+        recordedStartDate = Some(sameAsCurrent),
         today = today,
-        p85Enabled = true,
-        crossBorder = false
+        overseasMove = true,
+        scotlandBorderChange = false
       )
       resEqual mustBe Left(EarlyDateError)
       resEarlier mustBe Left(EarlyDateError)
     }
 
-    "return Right(proposed) when P85 enabled and proposed is after current start date" in {
-      val res = service.decide(
-        proposed = later,
-        currentStart = Some(earlier),
+    "return Right(requestedDate) when overseasMove=true and requestedDate is after recorded start date" in {
+      val res = service.determineStartDate(
+        requestedDate = later,
+        recordedStartDate = Some(earlier),
         today = today,
-        p85Enabled = true,
-        crossBorder = false
+        overseasMove = true,
+        scotlandBorderChange = false
       )
       res mustBe Right(later)
     }
 
-    "return Left(EarlyDateError) when crossBorder=true and proposed <= current start date" in {
-      val res = service.decide(
-        proposed = sameAsCurrent,
-        currentStart = Some(sameAsCurrent),
+    "return Left(EarlyDateError) when scotlandBorderChange=true and requestedDate <= recorded start date" in {
+      val res = service.determineStartDate(
+        requestedDate = sameAsCurrent,
+        recordedStartDate = Some(sameAsCurrent),
         today = today,
-        p85Enabled = false,
-        crossBorder = true
+        overseasMove = false,
+        scotlandBorderChange = true
       )
       res mustBe Left(EarlyDateError)
     }
 
-    "DOMESTIC: return Right(today) when proposed <= current start date (no P85, no crossBorder)" in {
-      val resEqual   = service.decide(
-        proposed = sameAsCurrent,
-        currentStart = Some(sameAsCurrent),
+    "DOMESTIC: return Right(today) when requestedDate <= recorded start date (no overseasMove, no scotlandBorderChange)" in {
+      val resEqual   = service.determineStartDate(
+        requestedDate = sameAsCurrent,
+        recordedStartDate = Some(sameAsCurrent),
         today = today,
-        p85Enabled = false,
-        crossBorder = false
+        overseasMove = false,
+        scotlandBorderChange = false
       )
-      val resEarlier = service.decide(
-        proposed = earlier,
-        currentStart = Some(sameAsCurrent),
+      val resEarlier = service.determineStartDate(
+        requestedDate = earlier,
+        recordedStartDate = Some(sameAsCurrent),
         today = today,
-        p85Enabled = false,
-        crossBorder = false
+        overseasMove = false,
+        scotlandBorderChange = false
       )
       resEqual mustBe Right(today)
       resEarlier mustBe Right(today)
     }
 
-    "DOMESTIC: return Right(proposed) when proposed is after current start date (no P85, no crossBorder)" in {
-      val res = service.decide(
-        proposed = later,
-        currentStart = Some(earlier),
+    "DOMESTIC: return Right(requestedDate) when requestedDate is after recorded start date (no overseasMove, no scotlandBorderChange)" in {
+      val res = service.determineStartDate(
+        requestedDate = later,
+        recordedStartDate = Some(earlier),
         today = today,
-        p85Enabled = false,
-        crossBorder = false
+        overseasMove = false,
+        scotlandBorderChange = false
       )
       res mustBe Right(later)
     }
 
-    "return Right(proposed) when there is no current start date on record" in {
-      val res = service.decide(
-        proposed = earlier,
-        currentStart = None,
+    "return Right(requestedDate) when there is no recorded start date on record" in {
+      val res = service.determineStartDate(
+        requestedDate = earlier,
+        recordedStartDate = None,
         today = today,
-        p85Enabled = false,
-        crossBorder = false
+        overseasMove = false,
+        scotlandBorderChange = false
       )
       res mustBe Right(earlier)
     }

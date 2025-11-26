@@ -16,7 +16,6 @@
 
 package services
 
-import models.dto.InternationalAddressChoiceDto
 import play.api.Application
 import play.api.inject.bind
 import testUtils.BaseSpec
@@ -34,59 +33,78 @@ class NormalizationUtilsSpec extends BaseSpec {
   override def beforeEach(): Unit =
     super.beforeEach()
 
-  "samePostcode" must {
+  "postcodesMatch" must {
+
     "return true when postcodes are equal ignoring spaces and case" in {
-      utils.samePostcode(Some("EH1 1AA"), Some("eh11aa")) mustBe true
-      utils.samePostcode(Some(" SW1A  2AA "), Some("sw1a2aa")) mustBe true
+      utils.postcodesMatch(Some("EH1 1AA"), Some("eh11aa")) mustBe true
+      utils.postcodesMatch(Some(" SW1A  2AA "), Some("sw1a2aa")) mustBe true
     }
 
-    "return false when postcodes differ after normalization" in {
-      utils.samePostcode(Some("EH1 1AA"), Some("EH1 2AA")) mustBe false
+    "return false when postcodes differ after normalisation" in {
+      utils.postcodesMatch(Some("EH1 1AA"), Some("EH1 2AA")) mustBe false
     }
 
-    "treat None as empty string and compare accordingly" in {
-      utils.samePostcode(None, None) mustBe true
-      utils.samePostcode(None, Some("")) mustBe true
-      utils.samePostcode(Some("W1A1HQ"), None) mustBe false
+    "treat None as empty string for comparison" in {
+      utils.postcodesMatch(None, None) mustBe true
+      utils.postcodesMatch(None, Some("")) mustBe true
+      utils.postcodesMatch(Some("W1A1HQ"), None) mustBe false
     }
   }
 
-  "normCountry" must {
+  "normalizeCountryName" must {
+
     "uppercase and strip all whitespace" in {
-      utils.normCountry(Some("  Scotland ")) mustBe "SCOTLAND"
-      utils.normCountry(Some("United   Kingdom")) mustBe "UNITEDKINGDOM"
-      utils.normCountry(Some(" GB-ENG ")) mustBe "GB-ENG".toUpperCase.replaceAll("\\s+", "")
+      utils.normalizeCountryName(Some("  Scotland ")) mustBe "SCOTLAND"
+      utils.normalizeCountryName(Some("United   Kingdom")) mustBe "UNITEDKINGDOM"
+      utils.normalizeCountryName(Some(" GB-ENG ")) mustBe "GB-ENG".toUpperCase.replaceAll("\\s+", "")
     }
 
     "return empty string for None" in {
-      utils.normCountry(None) mustBe ""
+      utils.normalizeCountryName(None) mustBe ""
     }
   }
 
-  "normCountryFromChoice" must {
-    "normalize from InternationalAddressChoiceDto" in {
-      utils.normCountryFromChoice(Some(InternationalAddressChoiceDto.England)) mustBe "ENGLAND"
-      utils.normCountryFromChoice(Some(InternationalAddressChoiceDto.Scotland)) mustBe "SCOTLAND"
-      utils.normCountryFromChoice(Some(InternationalAddressChoiceDto.OutsideUK)) mustBe "OUTSIDEUK"
-    }
+  "movedAcrossScottishBorder" must {
 
-    "return empty string for None" in {
-      utils.normCountryFromChoice(None) mustBe ""
-    }
-  }
-
-  "isCrossBorderScotland" must {
-    "return true when exactly one side is Scotland (XOR)" in {
-      utils.isCrossBorderScotland("SCOTLAND", "ENGLAND") mustBe true
-      utils.isCrossBorderScotland("ENGLAND", "SCOTLAND") mustBe true
-      utils.isCrossBorderScotland("", "SCOTLAND") mustBe true
-      utils.isCrossBorderScotland("SCOTLAND", "") mustBe true
+    "return true when exactly one side is Scotland" in {
+      utils.movedAcrossScottishBorder("SCOTLAND", "ENGLAND") mustBe true
+      utils.movedAcrossScottishBorder("ENGLAND", "SCOTLAND") mustBe true
+      utils.movedAcrossScottishBorder("", "SCOTLAND") mustBe true
+      utils.movedAcrossScottishBorder("SCOTLAND", "") mustBe true
     }
 
     "return false when both are Scotland or both are not Scotland" in {
-      utils.isCrossBorderScotland("SCOTLAND", "SCOTLAND") mustBe false
-      utils.isCrossBorderScotland("ENGLAND", "WALES") mustBe false
-      utils.isCrossBorderScotland("", "") mustBe false
+      utils.movedAcrossScottishBorder("SCOTLAND", "SCOTLAND") mustBe false
+      utils.movedAcrossScottishBorder("ENGLAND", "WALES") mustBe false
+      utils.movedAcrossScottishBorder("", "") mustBe false
+    }
+  }
+
+  "isUkCountry" must {
+
+    "return true for recognised UK territories" in {
+      utils.isUkCountry("UNITEDKINGDOM") mustBe true
+      utils.isUkCountry("ENGLAND") mustBe true
+      utils.isUkCountry("SCOTLAND") mustBe true
+      utils.isUkCountry("WALES") mustBe true
+      utils.isUkCountry("CYMRU") mustBe true
+      utils.isUkCountry("NORTHERNIRELAND") mustBe true
+    }
+
+    "return false for anything else" in {
+      utils.isUkCountry("FRANCE") mustBe false
+      utils.isUkCountry("IRELAND") mustBe false
+      utils.isUkCountry("") mustBe false
+    }
+  }
+
+  "isNonUkCountry" must {
+
+    "be the negation of isUkCountry" in {
+      utils.isNonUkCountry("UNITEDKINGDOM") mustBe false
+      utils.isNonUkCountry("SCOTLAND") mustBe false
+      utils.isNonUkCountry("FRANCE") mustBe true
+      utils.isNonUkCountry("") mustBe true
     }
   }
 }

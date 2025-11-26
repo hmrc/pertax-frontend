@@ -24,33 +24,35 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class StartDateDecisionService @Inject() {
 
-  def decide(
-    proposed: LocalDate,
-    currentStart: Option[LocalDate],
+  def determineStartDate(
+    requestedDate: LocalDate,
+    recordedStartDate: Option[LocalDate],
     today: LocalDate,
-    p85Enabled: Boolean,
-    crossBorder: Boolean
+    overseasMove: Boolean,
+    scotlandBorderChange: Boolean
   ): Either[StartDateError, LocalDate] =
 
-    if (proposed.isAfter(today)) {
+    if (requestedDate.isAfter(today)) {
       Left(FutureDateError)
     } else {
-      currentStart match {
-        case Some(cs) if p85Enabled || crossBorder =>
-          if (!cs.isBefore(proposed)) Left(EarlyDateError) else Right(proposed)
+      recordedStartDate match {
 
-        case Some(cs) =>
-          if (!proposed.isAfter(cs)) Right(today) else Right(proposed)
+        case Some(existingDate) if overseasMove || scotlandBorderChange =>
+          if (!existingDate.isBefore(requestedDate)) Left(EarlyDateError)
+          else Right(requestedDate)
 
-        case None => Right(proposed)
+        case Some(existingDate) =>
+          if (!requestedDate.isAfter(existingDate)) Right(today)
+          else Right(requestedDate)
+
+        case None =>
+          Right(requestedDate)
       }
     }
 }
 
 object StartDateDecisionService {
   sealed trait StartDateError
-
   case object FutureDateError extends StartDateError
-
   case object EarlyDateError extends StartDateError
 }

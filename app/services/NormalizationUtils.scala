@@ -16,22 +16,32 @@
 
 package services
 
-import models.dto.InternationalAddressChoiceDto
 import javax.inject.{Inject, Singleton}
 
 @Singleton
 class NormalizationUtils @Inject() {
-  private def normPostcode(pc: Option[String]): String = pc.getOrElse("").replace(" ", "").toUpperCase
 
-  def samePostcode(a: Option[String], b: Option[String]): Boolean = normPostcode(a) == normPostcode(b)
+  private def normalizePostcode(postcode: Option[String]): String =
+    postcode.getOrElse("").replace(" ", "").toUpperCase
 
-  def normCountry(c: Option[String]): String =
-    c.getOrElse("").trim.toUpperCase.replaceAll("\\s+", "")
+  def postcodesMatch(a: Option[String], b: Option[String]): Boolean =
+    normalizePostcode(a) == normalizePostcode(b)
 
-  def normCountryFromChoice(choice: Option[InternationalAddressChoiceDto]): String =
-    normCountry(choice.map(_.toString))
+  def normalizeCountryName(countryOpt: Option[String]): String =
+    countryOpt.getOrElse("").trim.toUpperCase.replaceAll("\\s+", "")
 
-  private def isScotland(cNorm: String): Boolean = cNorm == "SCOTLAND"
+  private def isScottishCountry(normalized: String): Boolean =
+    normalized == "SCOTLAND"
 
-  def isCrossBorderScotland(oldCN: String, newCN: String): Boolean = isScotland(oldCN) ^ isScotland(newCN)
+  def movedAcrossScottishBorder(oldCountry: String, newCountry: String): Boolean =
+    isScottishCountry(oldCountry) ^ isScottishCountry(newCountry)
+
+  def isUkCountry(normalized: String): Boolean =
+    normalized match {
+      case "UNITEDKINGDOM" | "ENGLAND" | "SCOTLAND" | "WALES" | "CYMRU" | "NORTHERNIRELAND" => true
+      case _                                                                                => false
+    }
+
+  def isNonUkCountry(normalized: String): Boolean =
+    !isUkCountry(normalized)
 }

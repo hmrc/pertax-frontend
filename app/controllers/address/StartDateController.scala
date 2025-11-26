@@ -22,7 +22,6 @@ import controllers.auth.AuthJourney
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
-import models.dto.InternationalAddressChoiceDto.OutsideUK
 import models.dto.DateDto
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -65,7 +64,8 @@ class StartDateController @Inject() (
       internalServerErrorView
     ) {
 
-  private def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
+  private def dateDtoForm: Form[DateDto] =
+    DateDto.form(configDecorator.currentLocalDate)
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -74,13 +74,15 @@ class StartDateController @Inject() (
           cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
             journeyData.submittedAddressDto match {
               case Some(_) =>
-                val newPc      = journeyData.submittedAddressDto.flatMap(_.postcode)
-                val oldPc      = personDetails.address.flatMap(_.postcode)
+                val submittedPostcode = journeyData.submittedAddressDto.flatMap(_.postcode)
+                val existingPostcode  = personDetails.address.flatMap(_.postcode)
+
                 val formToShow =
-                  if (normalizationUtils.samePostcode(newPc, oldPc))
+                  if (normalizationUtils.postcodesMatch(submittedPostcode, existingPostcode))
                     journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
                   else
                     dateDtoForm
+
                 Future.successful(Ok(enterStartDateView(formToShow, typ)))
 
               case None =>
@@ -101,32 +103,62 @@ class StartDateController @Inject() (
               formWithErrors => Future.successful(BadRequest(enterStartDateView(formWithErrors, typ))),
               dateDto =>
                 cachingHelper.gettingCachedJourneyData(typ) { cache =>
-                  val proposed: LocalDate = dateDto.startDate
-                  val p85Enabled: Boolean = cache.submittedInternationalAddressChoiceDto.exists(_ == OutsideUK)
-                  val currentStartOpt     = personDetails.address.flatMap(_.startDate)
-                  val today: LocalDate    = LocalDate.now()
+                  val proposedStartDate: LocalDate         = dateDto.startDate
+                  val recordedStartDate: Option[LocalDate] =
+                    personDetails.address.flatMap(_.startDate)
+                  val today: LocalDate                     = LocalDate.now()
+
+                  val currentCountryCodeOpt: Option[String] =
+                    personDetails.address
+                      .flatMap(_.country)
+                      .map(countryName => normalizationUtils.normalizeCountryName(Some(countryName)))
+
+                  val submittedPostcode: Option[String] =
+                    cache.submittedAddressDto.flatMap(_.postcode)
 
                   implicit val hc: HeaderCarrier =
                     HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-                  val currentAddressOpt = personDetails.address
-
-                  val currentLines: Seq[String] =
-                    currentAddressOpt
-                      .map(a => Seq(a.line1, a.line2, a.line3, a.line4, a.line5).flatten)
-                      .getOrElse(Seq.empty)
-
-                  val currentPostcode: Option[String] = currentAddressOpt.flatMap(_.postcode)
-
                   addressCountryService
-                    .isCrossBorderScotland(
-                      currentAddressLines = currentLines,
-                      currentPostcode = currentPostcode,
-                      newInternationalChoice = cache.submittedInternationalAddressChoiceDto
-                    )
-                    .flatMap { crossBorder =>
+                    .deriveCountryForPostcode(submittedPostcode)
+                    .flatMap { derivedCountryCodeOpt =>
+                      val (p85Enabled, isCrossBorderMove): (Boolean, Boolean) =
+                        derivedCountryCodeOpt match {
+                          case Some(newCountryCode) =>
+                            val newIsNonUk: Boolean =
+                              normalizationUtils.isNonUkCountry(newCountryCode)
+
+                            val currentIsNonUk: Boolean =
+                              currentCountryCodeOpt.exists(normalizationUtils.isNonUkCountry)
+
+                            val overseasMove: Boolean =
+                              newIsNonUk || currentIsNonUk
+
+                            val movedAcrossBorder: Boolean =
+                              currentCountryCodeOpt match {
+                                case Some(currentCountryCode) =>
+                                  normalizationUtils.movedAcrossScottishBorder(
+                                    currentCountryCode,
+                                    newCountryCode
+                                  )
+                                case None                     =>
+                                  true
+                              }
+
+                            (overseasMove, movedAcrossBorder)
+
+                          case None =>
+                            (false, true)
+                        }
+
                       startDateDecisionService
-                        .decide(proposed, currentStartOpt, today, p85Enabled, crossBorder)
+                        .determineStartDate(
+                          requestedDate = proposedStartDate,
+                          recordedStartDate = recordedStartDate,
+                          today = today,
+                          overseasMove = p85Enabled,
+                          scotlandBorderChange = isCrossBorderMove
+                        )
                         .fold(
                           {
                             case StartDateDecisionService.FutureDateError =>
@@ -134,17 +166,18 @@ class StartDateController @Inject() (
                                 BadRequest(
                                   cannotUpdateAddressFutureDateView(
                                     typ,
-                                    languageUtils.Dates.formatDate(proposed),
+                                    languageUtils.Dates.formatDate(proposedStartDate),
                                     p85Enabled
                                   )
                                 )
                               )
-                            case StartDateDecisionService.EarlyDateError  =>
+
+                            case StartDateDecisionService.EarlyDateError =>
                               Future.successful(
                                 BadRequest(
                                   cannotUpdateAddressEarlyDateView(
                                     typ,
-                                    languageUtils.Dates.formatDate(proposed),
+                                    languageUtils.Dates.formatDate(proposedStartDate),
                                     p85Enabled
                                   )
                                 )
