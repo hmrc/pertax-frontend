@@ -390,12 +390,12 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+
+      val domesticPersonDetails =
+        personDetails.copy(address = personDetails.address.map(_.copy(country = Some("England"))))
+
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
-        .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-            Future.successful(Right(Some(personDetails)))
-          )
-        )
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(domesticPersonDetails)))
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
         .thenReturn(Future.successful(Some("UK")))
@@ -424,12 +424,11 @@ class StartDateControllerSpec extends BaseSpec {
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      val domesticPersonDetails =
+        personDetails.copy(address = personDetails.address.map(_.copy(country = Some("England"))))
+
       when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
-        .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
-            Future.successful(Right(Some(personDetails)))
-          )
-        )
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(domesticPersonDetails)))
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
         .thenReturn(Future.successful(Some("UK")))
