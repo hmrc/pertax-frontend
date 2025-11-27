@@ -89,7 +89,7 @@
             
             @if(isRegisteredForHICBCWithCharge){
                 <ul class="govuk-list govuk-list--spaced">
-                    <li>@link(controllers.routes.InterstitialController.displayHICBCChargeInPAYEView.url, messageKey = "label.view_hicbc_taxfree", inParagraph = true)</li>
+                    <li>@link(controllers.interstitials.routes.InterstitialController.displayHICBCChargeInPAYEView.url, messageKey = "label.view_hicbc_taxfree", inParagraph = true)</li>
                 </ul>
             }else{
                 

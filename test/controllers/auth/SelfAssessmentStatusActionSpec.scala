@@ -28,7 +28,7 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{CitizenDetailsService, EnrolmentStoreCachingService}
+import services.{CitizenDetailsService, EnrolmentStoreProxyService}
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier}
@@ -40,11 +40,11 @@ import scala.concurrent.Future
 class SelfAssessmentStatusActionSpec extends BaseSpec {
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
   private val saUtr                                    = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-  private val enrolmentsCachingService                 = mock[EnrolmentStoreCachingService]
+  private val mockEnrolmentStoreProxyService           = mock[EnrolmentStoreProxyService]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
-    .overrides(bind[EnrolmentStoreCachingService].toInstance(enrolmentsCachingService))
+    .overrides(bind[EnrolmentStoreProxyService].toInstance(mockEnrolmentStoreProxyService))
     .configure(Map("metrics.enabled" -> false))
     .build()
 
@@ -72,7 +72,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
   ): AuthenticatedRequest[AnyContent] =
     AuthenticatedRequest(
       Nino("AB123456D"),
-      Credentials("", "GovernmentGateway"),
+      Credentials("credId", "GovernmentGateway"),
       ConfidenceLevel.L200,
       None,
       None,
@@ -108,33 +108,61 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
 
   "A user without an SA enrolment" when {
     "CitizenDetails has a matching SA account" must {
-
-      val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-
-      val userTypeList: List[(SelfAssessmentUserType, String)] = List(
-        (WrongCredentialsSelfAssessmentUser(saUtr), "a Wrong credentials SA user"),
-        (NotEnrolledSelfAssessmentUser(saUtr), "a Not Enrolled SA user"),
-        (NonFilerSelfAssessmentUser, "a Non Filer SA user")
-      )
-
+      val saUtr                                              = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
       implicit val request: AuthenticatedRequest[AnyContent] = createAuthenticatedRequest(Set.empty)
 
-      userTypeList.foreach { case (userType, key) =>
-        s"return $key when the enrolments caching service returns ${userType.toString}" in {
+      s"return WrongCredentialsSelfAssessmentUser when the enrolments store proxy service returns a different credId" in {
 
-          when(mockCitizenDetailsService.getSaUtrFromMatchingDetails(any())(any(), any()))
-            .thenReturn(
-              EitherT.rightT[Future, UpstreamErrorResponse](Some(saUtr))
+        when(mockCitizenDetailsService.getSaUtrFromMatchingDetails(any())(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, Option[SaUtr]](
+              Future.successful(Right(Some(saUtr)))
             )
+          )
 
-          when(enrolmentsCachingService.getSaUserTypeFromCache(any())(any(), any()))
-            .thenReturn(Future.successful(userType))
+        when(mockEnrolmentStoreProxyService.findCredentialsWithIrSaForUtr(any())(any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](Seq("wrongCredId"))
+        )
 
-          val result = harness()(request)
-          contentAsString(result) must include(s"${userType.toString}")
-          verify(mockCitizenDetailsService, times(1)).getSaUtrFromMatchingDetails(any())(any(), any())
-        }
+        val result = harness()(request)
+        contentAsString(result) must include(s"${WrongCredentialsSelfAssessmentUser(saUtr).toString}")
+        verify(mockCitizenDetailsService, times(1)).getSaUtrFromMatchingDetails(any())(any(), any())
       }
+
+      s"return NotEnrolledSelfAssessmentUser when the enrolments store proxy service returns a cred" in {
+
+        when(mockCitizenDetailsService.getSaUtrFromMatchingDetails(any())(any(), any()))
+          .thenReturn(
+            EitherT.rightT[Future, UpstreamErrorResponse](Some(saUtr))
+          )
+
+        when(mockEnrolmentStoreProxyService.findCredentialsWithIrSaForUtr(any())(any(), any())).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](Seq.empty)
+        )
+
+        val result = harness()(request)
+        contentAsString(result) must include(s"${NotEnrolledSelfAssessmentUser(saUtr).toString}")
+        verify(mockCitizenDetailsService, times(1)).getSaUtrFromMatchingDetails(any())(any(), any())
+      }
+
+      s"return NonFilerSelfAssessmentUser when the enrolments store proxy service returns a failure" in {
+
+        when(mockCitizenDetailsService.getSaUtrFromMatchingDetails(any())(any(), any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, Option[SaUtr]](
+              Future.successful(Right(Some(saUtr)))
+            )
+          )
+
+        when(mockEnrolmentStoreProxyService.findCredentialsWithIrSaForUtr(any())(any(), any())).thenReturn(
+          EitherT.leftT[Future, Seq[String]](UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
+        )
+
+        val result = harness()(request)
+        contentAsString(result) must include(s"${NonFilerSelfAssessmentUser.toString}")
+        verify(mockCitizenDetailsService, times(1)).getSaUtrFromMatchingDetails(any())(any(), any())
+      }
+
     }
   }
 

@@ -18,9 +18,10 @@ package controllers
 
 import cats.data.EitherT
 import connectors.PayApiConnector
-import controllers.auth._
+import controllers.auth.*
 import controllers.auth.requests.UserRequest
-import models._
+import controllers.interstitials.{InterstitialController, MtdAdvertInterstitialController}
+import models.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.any
@@ -31,7 +32,7 @@ import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NO
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, redirectLocation, _}
+import play.api.test.Helpers.{contentAsString, redirectLocation, *}
 import services.SelfAssessmentService
 import testUtils.Fixtures.buildFakeRequestWithAuth
 import testUtils.UserRequestFixture.buildUserRequest
@@ -53,12 +54,14 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockPayApiConnector: PayApiConnector                       = mock[PayApiConnector]
   val mockSelfAssessmentService: SelfAssessmentService           = mock[SelfAssessmentService]
 
-  val saUtr: SaUtr                                       = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-  val mockInterstitialController: InterstitialController = mock[InterstitialController]
+  val saUtr: SaUtr                                                         = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+  val mockInterstitialController: InterstitialController                   = mock[InterstitialController]
+  val mockMtdAdvertInterstitialController: MtdAdvertInterstitialController = mock[MtdAdvertInterstitialController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[MtdAdvertInterstitialController].toInstance(mockMtdAdvertInterstitialController),
       bind[AuthJourney].toInstance(mockAuthJourney),
       bind[AuditConnector].toInstance(mockAuditConnector),
       bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),

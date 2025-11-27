@@ -17,17 +17,18 @@
 package connectors
 
 import models.enrolments.EnrolmentEnum.IRSAKey
-import models.enrolments.{EACDEnrolment, IdentifiersOrVerifiers, KnownFactQueryForNINO, KnownFactResponseForNINO}
+import models.enrolments.{EACDEnrolment, IdentifiersOrVerifiers, KnownFactsRequest, KnownFactsResponse}
 import play.api.Application
 import play.api.libs.json.Json
-import play.api.test._
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.*
 import testUtils.WireMockHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.util.Random
 
-class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
+class DefaultEnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultAwaitTimeout with Injecting {
 
   val baseUrl: String = "/enrolment-store-proxy"
 
@@ -35,42 +36,19 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
     Map("microservice.services.enrolment-store-proxy.port" -> server.port())
   )
 
-  def connector: EnrolmentsConnector = app.injector.instanceOf[EnrolmentsConnector]
+  implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+  def connector: DefaultEnrolmentsConnector = app.injector.instanceOf[DefaultEnrolmentsConnector]
 
   "getUserIdsWithEnrolments" must {
     val utr = "1234500000"
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
-    "BAD_REQUEST response should return Left BAD_REQUEST status" in {
-
-      stubGet(url, BAD_REQUEST, None)
-      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
-
-      result.left.getOrElse(UpstreamErrorResponse("", OK)).statusCode mustBe BAD_REQUEST
-    }
-
     "NO_CONTENT response should return no enrolments" in {
       stubGet(url, NO_CONTENT, None)
-      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
+      val result = connector.getUserIdsWithEnrolments(s"IR-SA~UTR~$utr").value.futureValue
 
-      result mustBe a[Right[_, _]]
-      result.getOrElse(Seq("", "")) mustBe empty
-    }
-
-    "query users with no principal enrolment returns empty enrolments" in {
-      val json =
-        """
-          |{
-          |    "principalUserIds": [],
-          |     "delegatedUserIds": []
-          |}
-        """.stripMargin
-
-      stubGet(url, OK, Some(json))
-      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
-
-      result mustBe a[Right[_, _]]
-      result.getOrElse(Seq("", "")) mustBe empty
+      result mustBe Right(Seq.empty)
     }
 
     "query users with assigned enrolment return two principleIds" in {
@@ -92,10 +70,9 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       val expected = Seq("ABCEDEFGI1234567", "ABCEDEFGI1234568")
 
       stubGet(url, OK, Some(json))
-      val result = connector.getUserIdsWithEnrolments("IR-SA~UTR", utr).value.futureValue
+      val result = connector.getUserIdsWithEnrolments(s"IR-SA~UTR~$utr").value.futureValue
 
-      result mustBe a[Right[_, _]]
-      result.getOrElse(Seq("", "")) must contain.allElementsOf(expected)
+      result mustBe Right(expected)
     }
   }
 
@@ -126,7 +103,8 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
            |    }]
            |}""".stripMargin
 
-      lazy val expectedResult = KnownFactResponseForNINO(
+      val knownFactsRequest   = KnownFactsRequest("IR-SA", List(IdentifiersOrVerifiers("NINO", testNino.nino)))
+      lazy val expectedResult = KnownFactsResponse(
         "IR-SA",
         List(
           EACDEnrolment(
@@ -137,42 +115,30 @@ class EnrolmentsConnectorSpec extends ConnectorSpec with WireMockHelper with Def
       )
 
       val url         = "/enrolment-store-proxy/enrolment-store/enrolments"
-      val requestBody = Json.toJson(KnownFactQueryForNINO.apply(testNino, IRSAKey.toString)).toString()
+      val requestBody =
+        Json.toJson(KnownFactsRequest.apply("IR-SA", List(IdentifiersOrVerifiers("NINO", testNino.nino)))).toString()
 
       stubPost(url, OK, Some(requestBody), Some(expectedJson))
 
-      val result = connector.getKnownFacts(nino = testNino).value.futureValue
-      result mustBe a[Right[_, _]]
-      result.getOrElse(None) mustBe Some(expectedResult)
+      val result = connector.getKnownFacts(knownFactsRequest).value.futureValue
+      result mustBe Right(expectedResult)
     }
-    "return None when enrolment store gives no content" in {
+    "return empty response when enrolment store gives no content" in {
       val generator = new Generator(new Random())
 
       val testNino = generator.nextNino
 
       val url         = "/enrolment-store-proxy/enrolment-store/enrolments"
-      val requestBody = Json.toJson(KnownFactQueryForNINO.apply(testNino, IRSAKey.toString)).toString()
+      val requestBody =
+        Json.toJson(KnownFactsRequest.apply("IR-SA", List(IdentifiersOrVerifiers("NINO", testNino.nino)))).toString()
+
+      val knownFactsRequest = KnownFactsRequest("IR-SA", List(IdentifiersOrVerifiers("NINO", testNino.nino)))
 
       stubPost(url, NO_CONTENT, Some(requestBody), None)
 
-      val result = connector.getKnownFacts(nino = testNino).value.futureValue
-      result mustBe a[Right[_, _]]
-      result.getOrElse(Some("invalid result")) mustBe None
+      val result = connector.getKnownFacts(knownFactsRequest).value.futureValue
+      result mustBe Right(KnownFactsResponse(IRSAKey.toString, List.empty))
     }
 
-    "return None when enrolment store gives an unexpected response of status < 400" in {
-      val generator = new Generator(new Random())
-
-      val testNino = generator.nextNino
-
-      val url         = "/enrolment-store-proxy/enrolment-store/enrolments"
-      val requestBody = Json.toJson(KnownFactQueryForNINO.apply(testNino, IRSAKey.toString)).toString()
-
-      stubPost(url, 1, Some(requestBody), None)
-
-      val result = connector.getKnownFacts(nino = testNino).value.futureValue
-      result mustBe a[Right[_, _]]
-      result.getOrElse(Some("invalid result")) mustBe None
-    }
   }
 }

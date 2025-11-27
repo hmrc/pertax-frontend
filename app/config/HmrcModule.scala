@@ -16,7 +16,7 @@
 
 package config
 
-import connectors.{AgentClientAuthorisationConnector, CachingAgentClientAuthorisationConnector, CachingCitizenDetailsConnector, CachingTaiConnector, CitizenDetailsConnector, DefaultAgentClientAuthorisationConnector, DefaultCitizenDetailsConnector, DefaultTaiConnector, TaiConnector}
+import connectors._
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
@@ -24,8 +24,8 @@ import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import java.time.{Clock, ZoneId}
 
 class HmrcModule extends Module {
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
-    val defaultBindings: Seq[Binding[_]] = Seq(
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] =
+    Seq(
       bind[Clock].toInstance(Clock.systemDefaultZone.withZone(ZoneId.of("Europe/London"))),
       bind[ApplicationStartUp].toSelf.eagerly(),
       bind[CitizenDetailsConnector].qualifiedWith("default").to[DefaultCitizenDetailsConnector],
@@ -33,22 +33,10 @@ class HmrcModule extends Module {
         .to[CachingCitizenDetailsConnector], // do not disable caching. The address change relies on the cache
       bind[TaiConnector].qualifiedWith("default").to[DefaultTaiConnector],
       bind[TaiConnector].to[CachingTaiConnector],
-      bind[Encrypter with Decrypter].toProvider[CryptoProvider]
+      bind[EnrolmentsConnector].qualifiedWith("default").to[DefaultEnrolmentsConnector],
+      bind[EnrolmentsConnector].to[CachingEnrolmentsConnector],
+      bind[Encrypter with Decrypter].toProvider[CryptoProvider],
+      bind[AgentClientAuthorisationConnector].to[CachingAgentClientAuthorisationConnector],
+      bind[AgentClientAuthorisationConnector].qualifiedWith("default").to[DefaultAgentClientAuthorisationConnector]
     )
-
-    val useAgentClientAuthorisationCache = configuration
-      .getOptional[Boolean]("feature.agent-client-relationships.cached")
-      .getOrElse(true)
-
-    if (useAgentClientAuthorisationCache) {
-      Seq(
-        bind[AgentClientAuthorisationConnector].to[CachingAgentClientAuthorisationConnector],
-        bind[AgentClientAuthorisationConnector].qualifiedWith("default").to[DefaultAgentClientAuthorisationConnector]
-      ) ++ defaultBindings
-    } else {
-      Seq(
-        bind[AgentClientAuthorisationConnector].to[DefaultAgentClientAuthorisationConnector]
-      ) ++ defaultBindings
-    }
-  }
 }

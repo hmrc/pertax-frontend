@@ -49,7 +49,8 @@ class HomeControllerChildBenefitsISpec extends IntegrationSpec {
   }
 
   "personal-account" must {
-    val urlSingleChildBenefit = routes.InterstitialController.displayChildBenefitsSingleAccountView.url
+    val urlSingleChildBenefit =
+      controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url
     "show the the child benefit tile with the correct single account link" in {
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK

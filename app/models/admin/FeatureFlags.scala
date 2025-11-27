@@ -36,7 +36,9 @@ object AllFeatureFlags {
     PeakDemandBannerToggle,
     GetPersonFromCitizenDetailsToggle,
     PayeToPegaRedirectToggle,
-    MDTITAdvertToggle
+    MDTITAdvertToggle,
+    MTDUserStatusToggle,
+    GetMatchingFromCitizenDetailsToggle
   )
 }
 
@@ -61,6 +63,7 @@ case object RlsInterruptToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Show interrupt page if a residential or correspondence address has RLS status and has not been updated"
   )
+  override val defaultState: Boolean       = true
 }
 
 case object EnforcePaperlessPreferenceToggle extends FeatureFlagName {
@@ -68,6 +71,7 @@ case object EnforcePaperlessPreferenceToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Show an interrupt to prompt users to set or confirm their paperless communication preference"
   )
+  override val defaultState: Boolean       = true
 }
 
 case object TaxSummariesTileToggle extends FeatureFlagName {
@@ -75,13 +79,17 @@ case object TaxSummariesTileToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Enable/disable the display of the Annual Tax Summary tile on the home page"
   )
+  override val defaultState: Boolean       = true
 }
 
 case object ShowPlannedOutageBannerToggle extends FeatureFlagName {
   override val name: String                = "show-outage-banner-toggle"
   override val description: Option[String] = Some(
-    "Show or hide the planned outage banner on key pages. Banner content is configured via app-config"
+    "Show or hide the planned outage banner on the PTA home page. Banner content is configured via app-config and code changes"
   )
+  override val lockedEnvironments          =
+    Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
+  override val defaultState: Boolean       = false
 }
 
 case object AgentClientRelationshipsToggle extends FeatureFlagName {
@@ -89,6 +97,7 @@ case object AgentClientRelationshipsToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Enable/disable the check for agent-client relationships on the Profile and Settings page"
   )
+  override val defaultState: Boolean       = true
 }
 
 case object BreathingSpaceIndicatorToggle extends FeatureFlagName {
@@ -96,6 +105,7 @@ case object BreathingSpaceIndicatorToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Enable/disable the call to Breathing Space service to determine protected debt period status for the user"
   )
+  override val defaultState: Boolean       = true
 }
 
 case object DfsFormsFrontendAvailabilityToggle extends FeatureFlagName {
@@ -103,6 +113,7 @@ case object DfsFormsFrontendAvailabilityToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Enable/disable the use of DFS digital forms frontend partials for Self Assessment, NINO, and NISP pages"
   )
+  override val defaultState: Boolean       = true
 }
 
 case object AddressChangeAllowedToggle extends FeatureFlagName {
@@ -110,6 +121,7 @@ case object AddressChangeAllowedToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Enable or disable the ability to update residential and postal addresses via the Profile and Settings pages (NPS)"
   )
+  override val defaultState: Boolean       = true
 }
 
 case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
@@ -117,23 +129,23 @@ case object AlertBannerPaperlessStatusToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Enable or disable alert banners for users with bounced or unverified email addresses based on paperless preferences"
   )
+  override val defaultState: Boolean       = true
 }
 
 case object VoluntaryContributionsAlertToggle extends FeatureFlagName {
-  override val name: String = "voluntary-contributions-alert-toggle"
-
-  override val description: Option[String] = Some(
+  override val name: String                         = "voluntary-contributions-alert-toggle"
+  override val description: Option[String]          = Some(
     "Enable/disable the alert banner providing users with information about voluntary National Insurance contributions"
   )
-
   override val lockedEnvironments: Seq[Environment] = Seq(Environment.Production, Environment.Staging)
+  override val defaultState: Boolean                = true
 }
 
 case object PeakDemandBannerToggle extends FeatureFlagName {
   override val name: String = "peak-demand-banner-toggle"
 
   override val description: Option[String] = Some(
-    "Enable/disable the banner informing users about high-demand periods affecting service availability"
+    "Enable/disable the banner on PTA home page informing users about high-demand periods or failures affecting service availability"
   )
 }
 
@@ -141,6 +153,14 @@ case object GetPersonFromCitizenDetailsToggle extends FeatureFlagName {
   override val name: String                = "get-person-from-citizen-details-toggle"
   override val description: Option[String] = Some(
     "Enable/disable retrieving person details from designatory-details in Citizen Details (via NPS)"
+  )
+  override val defaultState: Boolean       = true
+}
+
+case object GetMatchingFromCitizenDetailsToggle extends FeatureFlagName {
+  override val name: String                = "get-matching-from-citizen-details-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable retrieving matching data from Citizen Details (via datacache/cid)"
   )
   override val defaultState: Boolean       = true
 }
@@ -158,6 +178,15 @@ case object MDTITAdvertToggle extends FeatureFlagName {
   override val name: String                         = "mdt-it-advert-toggle"
   override val description: Option[String]          = Some(
     "Enable/disable Making Tax Digital for Income Tax Advertisement tile"
+  )
+  override val lockedEnvironments: Seq[Environment] =
+    Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
+}
+
+case object MTDUserStatusToggle extends FeatureFlagName {
+  override val name: String                         = "mdt-user-status-toggle"
+  override val description: Option[String]          = Some(
+    "Enable/disable calls to EACD to determine MTD user status"
   )
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)

@@ -18,12 +18,13 @@ package controllers
 
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import controllers.interstitials.InterstitialController
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 

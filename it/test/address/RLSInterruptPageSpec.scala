@@ -19,7 +19,7 @@ package address
 import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, status as _, urlEqualTo}
 import config.{ApplicationStartUp, CryptoProvider}
-import connectors.{AgentClientAuthorisationConnector, CitizenDetailsConnector, DefaultAgentClientAuthorisationConnector, DefaultCitizenDetailsConnector, DefaultTaiConnector, TaiConnector}
+import connectors._
 import models.admin.*
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -48,6 +48,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
       inject.bind[ApplicationStartUp].toSelf.eagerly(),
       inject.bind[CitizenDetailsConnector].to[DefaultCitizenDetailsConnector],
       inject.bind[AgentClientAuthorisationConnector].to[DefaultAgentClientAuthorisationConnector],
+      inject.bind[EnrolmentsConnector].to[DefaultEnrolmentsConnector],
       inject.bind[Encrypter with Decrypter].toProvider[CryptoProvider],
       inject.bind[TaiConnector].to[DefaultTaiConnector]
     )
