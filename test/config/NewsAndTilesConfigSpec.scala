@@ -16,10 +16,13 @@
 
 package config
 
+import controllers.auth.requests.UserRequest
 import models.NewsAndContentModel
 import play.api.i18n.{Lang, Messages, MessagesImpl}
+import play.api.mvc.AnyContentAsEmpty
 import testUtils.BaseSpec
-
+import testUtils.UserRequestFixture.buildUserRequest
+import play.api.test.FakeRequest
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -27,7 +30,9 @@ class NewsAndTilesConfigSpec extends BaseSpec {
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  val formatter: DateTimeFormatter                              = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+    buildUserRequest(request = FakeRequest())
 
   "getNewsAndContentModelList" must {
     "read configuration and create a list ordered by recency, truncating after max items reached" in {
@@ -167,6 +172,34 @@ class NewsAndTilesConfigSpec extends BaseSpec {
       val sut = app.injector.instanceOf[NewsAndTilesConfig]
 
       sut.getNewsAndContentModelList() mustBe List.empty[NewsAndContentModel]
+    }
+    "read configuration and create a list without items requiring a certain enrolment the user does not have" in {
+      val app = localGuiceApplicationBuilder()
+        .configure(
+          "feature.news.max"                                  -> 3,
+          "feature.news.override-start-and-end-dates.enabled" -> true,
+          "feature.news.items.0.name"                         -> "childBenefits",
+          "feature.news.items.0.start-date"                   -> LocalDate.now().format(formatter),
+          "feature.news.items.0.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.0.dynamic-content"              -> true,
+          "feature.news.items.1.name"                         -> "hmrcApp",
+          "feature.news.items.1.start-date"                   -> LocalDate.now().minusWeeks(2).format(formatter),
+          "feature.news.items.1.dynamic-content"              -> true,
+          "feature.news.items.1.enrolment"                    -> "IR-SA",
+          "feature.news.items.2.name"                         -> "payeEmployments",
+          "feature.news.items.2.start-date"                   -> LocalDate.now().minusWeeks(1).format(formatter),
+          "feature.news.items.2.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.2.dynamic-content"              -> true,
+          "feature.news.items.2.enrolment"                    -> "Unassigned",
+          "play.cache.bindCaches"                             -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"                      -> false
+        )
+        .build()
+
+      val sut = app.injector.instanceOf[NewsAndTilesConfig]
+
+      sut.getNewsAndContentModelList().length mustBe 2
+
     }
   }
 }

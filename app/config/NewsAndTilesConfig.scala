@@ -17,9 +17,11 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
+import controllers.auth.requests.UserRequest
 import models.NewsAndContentModel
 import play.api.Configuration
 import play.api.i18n.Messages
+import play.api.mvc.AnyContent
 import util.LocalDateUtilities
 
 import java.time.LocalDate
@@ -30,7 +32,10 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
 
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(-_.toEpochDay)
 
-  def getNewsAndContentModelList()(implicit messages: Messages): List[NewsAndContentModel] = {
+  def getNewsAndContentModelList()(implicit
+    messages: Messages,
+    request: UserRequest[AnyContent]
+  ): List[NewsAndContentModel] = {
     val config = configuration.underlying
 
     val maxNewsItems: Int = configuration.getOptional[Int]("feature.news.max").getOrElse(10)
@@ -38,6 +43,7 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
     (0 until totalNewsItems)
       .map { i =>
         val newsSection                                          = configuration.get[String](s"feature.news.items.$i.name")
+        val enrolmentsNeeded                                     = configuration.getOptional[String](s"feature.news.items.$i.enrolment")
         val formatter                                            = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val localStartDate                                       =
           LocalDate.parse(configuration.get[String](s"feature.news.items.$i.start-date"), formatter)
@@ -50,12 +56,16 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
           .getOptional[String]("feature.news.override-start-and-end-dates.enabled")
           .getOrElse("false")
           .toBoolean
+        val displayedByEnrolment                                 =
+          request.enrolments.exists { enrolment =>
+            enrolmentsNeeded.contains(enrolment.key) || enrolmentsNeeded.isEmpty
+          }
         if (
-          overrideStartAndEndDatesForNewsItemsEnabled || localDateUtilities.isBetween(
+          (overrideStartAndEndDatesForNewsItemsEnabled || localDateUtilities.isBetween(
             LocalDate.now(),
             localStartDate,
             localEndDate
-          )
+          )) && displayedByEnrolment
         ) {
           configuration.getOptional[Boolean](s"feature.news.items.$i.dynamic-content") match {
             case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate))

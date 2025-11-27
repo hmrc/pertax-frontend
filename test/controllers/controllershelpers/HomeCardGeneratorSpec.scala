@@ -461,7 +461,12 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getLatestNewsAndUpdatesCard" must {
     "return News and Updates Card when toggled on and newsAndTilesModel contains elements" in {
 
-      when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          request = FakeRequest()
+        )
+
+      when(newsAndTilesConfig.getNewsAndContentModelList()(any(), any())).thenReturn(
         List[NewsAndContentModel](
           NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false, LocalDate.now)
         )
@@ -474,7 +479,12 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
     "return nothing when toggled on and newsAndTilesModel is empty" in {
 
-      when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(List[NewsAndContentModel]())
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          request = FakeRequest()
+        )
+
+      when(newsAndTilesConfig.getNewsAndContentModelList()(any(), any())).thenReturn(List[NewsAndContentModel]())
 
       lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard()
 
@@ -482,6 +492,10 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "return nothing when toggled off" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          request = FakeRequest()
+        )
 
       homeCardGenerator.getLatestNewsAndUpdatesCard() mustBe None
     }
@@ -496,7 +510,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(MDTITAdvertToggle)))
         .thenReturn(Future.successful(FeatureFlag(MDTITAdvertToggle, isEnabled = true)))
       when(mockConfigDecorator.taiHost).thenReturn("https://tai.host.test")
-      when(newsAndTilesConfig.getNewsAndContentModelList()).thenReturn(
+      when(newsAndTilesConfig.getNewsAndContentModelList()(any(), any())).thenReturn(
         List(NewsAndContentModel("newsSectionName", "desc", "content", isDynamic = false, LocalDate.now))
       )
       when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
