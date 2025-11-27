@@ -42,48 +42,45 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
     val totalNewsItems    = (0 until maxNewsItems).takeWhile(i => config.hasPathOrNull(s"feature.news.items.$i.name")).size
     (0 until totalNewsItems)
       .map { i =>
-        val newsSection                                          = configuration.get[String](s"feature.news.items.$i.name")
-        val enrolmentsNeeded                                     = configuration.getOptional[String](s"feature.news.items.$i.enrolment")
-        val formatter                                            = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val localStartDate                                       =
+        val newsSection = configuration.get[String](s"feature.news.items.$i.name")
+        val enrolmentsNeeded = configuration.getOptional[String](s"feature.news.items.$i.enrolment")
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val localStartDate =
           LocalDate.parse(configuration.get[String](s"feature.news.items.$i.start-date"), formatter)
-        val optionalEndDate                                      = configuration.getOptional[String](s"feature.news.items.$i.end-date")
-        val localEndDate                                         = optionalEndDate match {
+        val optionalEndDate = configuration.getOptional[String](s"feature.news.items.$i.end-date")
+        val localEndDate = optionalEndDate match {
           case Some(endDate) => LocalDate.parse(endDate, formatter)
-          case None          => LocalDate.MAX
+          case None => LocalDate.MAX
         }
         val overrideStartAndEndDatesForNewsItemsEnabled: Boolean = configuration
           .getOptional[String]("feature.news.override-start-and-end-dates.enabled")
           .getOrElse("false")
           .toBoolean
-        val displayedByEnrolment                                 =
+        val displayedByEnrolment =
           request.enrolments.exists { enrolment =>
             enrolmentsNeeded.contains(enrolment.key) || enrolmentsNeeded.isEmpty
           }
-        if (
-          (overrideStartAndEndDatesForNewsItemsEnabled || localDateUtilities.isBetween(
-            LocalDate.now(),
-            localStartDate,
-            localEndDate
-          )) && displayedByEnrolment
-        ) {
-          configuration.getOptional[Boolean](s"feature.news.items.$i.dynamic-content") match {
+        (overrideStartAndEndDatesForNewsItemsEnabled || localDateUtilities.isBetween(
+          LocalDate.now(),
+          localStartDate,
+          localEndDate
+        ), displayedByEnrolment) match {
+          case (true, true) => configuration.getOptional[Boolean](s"feature.news.items.$i.dynamic-content") match {
             case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate))
-            case None    =>
+            case None =>
               val shortDescription = if (messages.lang.code equals "en") {
                 configuration.get[String](s"feature.news.items.$i.short-description-en")
               } else {
                 configuration.get[String](s"feature.news.items.$i.short-description-cy")
               }
-              val content          = if (messages.lang.code equals "en") {
+              val content = if (messages.lang.code equals "en") {
                 configuration.get[String](s"feature.news.items.$i.content-en")
               } else {
                 configuration.get[String](s"feature.news.items.$i.content-cy")
               }
               Some(NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false, localStartDate))
           }
-        } else {
-          None
+          case _ => None
         }
       }
       .toList
