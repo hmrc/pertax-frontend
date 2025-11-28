@@ -242,7 +242,8 @@ class InterstitialControllerSpec extends BaseSpec {
             "1.25 percentage points uplift in National Insurance contributions (base64 encoded)",
             "<p id=\"paragraph\">base64 encoded content with html</p>",
             isDynamic = false,
-            LocalDate.now
+            LocalDate.now,
+            true
           )
         )
       )

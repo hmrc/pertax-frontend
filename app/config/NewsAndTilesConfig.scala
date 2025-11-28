@@ -60,35 +60,30 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
           request.enrolments.exists { enrolment =>
             enrolmentsNeeded.contains(enrolment.key) || enrolmentsNeeded.isEmpty
           }
-        (
-          overrideStartAndEndDatesForNewsItemsEnabled || localDateUtilities.isBetween(
-            LocalDate.now(),
-            localStartDate,
-            localEndDate
-          ),
-          displayedByEnrolment
-        ) match {
-          case (true, true) =>
-            configuration.getOptional[Boolean](s"feature.news.items.$i.dynamic-content") match {
-              case Some(_) => Some(NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate))
-              case None    =>
-                val shortDescription = if (messages.lang.code equals "en") {
-                  configuration.get[String](s"feature.news.items.$i.short-description-en")
-                } else {
-                  configuration.get[String](s"feature.news.items.$i.short-description-cy")
-                }
-                val content          = if (messages.lang.code equals "en") {
-                  configuration.get[String](s"feature.news.items.$i.content-en")
-                } else {
-                  configuration.get[String](s"feature.news.items.$i.content-cy")
-                }
-                Some(NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false, localStartDate))
+        val displayedByDate: Boolean                             = overrideStartAndEndDatesForNewsItemsEnabled || localDateUtilities.isBetween(
+          LocalDate.now(),
+          localStartDate,
+          localEndDate
+        )
+        val toDisplay                                            = displayedByEnrolment && displayedByDate
+        configuration.getOptional[Boolean](s"feature.news.items.$i.dynamic-content") match {
+          case Some(_) => NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate, toDisplay)
+          case None    =>
+            val shortDescription = if (messages.lang.code equals "en") {
+              configuration.get[String](s"feature.news.items.$i.short-description-en")
+            } else {
+              configuration.get[String](s"feature.news.items.$i.short-description-cy")
             }
-          case _            => None
+            val content          = if (messages.lang.code equals "en") {
+              configuration.get[String](s"feature.news.items.$i.content-en")
+            } else {
+              configuration.get[String](s"feature.news.items.$i.content-cy")
+            }
+            NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false, localStartDate, toDisplay)
         }
       }
       .toList
-      .flatten
+      .filter(_.toBeDisplayed)
       .sortBy(_.startDate)
   }
 }

@@ -68,21 +68,24 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "",
           "",
           isDynamic = true,
-          LocalDate.now()
+          LocalDate.now(),
+          true
         ),
         NewsAndContentModel(
           "payeEmployments",
           "",
           "",
           isDynamic = true,
-          LocalDate.now().minusWeeks(1)
+          LocalDate.now().minusWeeks(1),
+          true
         ),
         NewsAndContentModel(
           "hmrcApp",
           "",
           "",
           isDynamic = true,
-          LocalDate.now().minusWeeks(2)
+          LocalDate.now().minusWeeks(2),
+          true
         )
       )
     }
@@ -116,7 +119,8 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "",
           "",
           isDynamic = true,
-          LocalDate.now().minusWeeks(2)
+          LocalDate.now().minusWeeks(2),
+          true
         )
       )
     }

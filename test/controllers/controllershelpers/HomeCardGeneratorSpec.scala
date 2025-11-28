@@ -468,7 +468,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       when(newsAndTilesConfig.getNewsAndContentModelList()(any(), any())).thenReturn(
         List[NewsAndContentModel](
-          NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false, LocalDate.now)
+          NewsAndContentModel("newsSectionName", "shortDescription", "content", isDynamic = false, LocalDate.now, true)
         )
       )
 
@@ -511,7 +511,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         .thenReturn(Future.successful(FeatureFlag(MDTITAdvertToggle, isEnabled = true)))
       when(mockConfigDecorator.taiHost).thenReturn("https://tai.host.test")
       when(newsAndTilesConfig.getNewsAndContentModelList()(any(), any())).thenReturn(
-        List(NewsAndContentModel("newsSectionName", "desc", "content", isDynamic = false, LocalDate.now))
+        List(NewsAndContentModel("newsSectionName", "desc", "content", isDynamic = false, LocalDate.now, true))
       )
       when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
         Future.successful(
