@@ -22,7 +22,7 @@ import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import error.ErrorRenderer
 import models.*
 import models.dto.InternationalAddressChoiceDto.OutsideUK
-import models.dto.{AddressDto, DateDto, InternationalAddressChoiceDto}
+import models.dto.{AddressDto, DateDto}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}

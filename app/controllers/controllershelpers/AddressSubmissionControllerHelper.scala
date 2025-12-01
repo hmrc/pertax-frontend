@@ -23,7 +23,7 @@ import controllers.bindable.{AddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import error.ErrorRenderer
 import models.dto.InternationalAddressChoiceDto.isUk
-import models.dto.{AddressDto, DateDto, InternationalAddressChoiceDto}
+import models.dto.{AddressDto, DateDto}
 import models.{Address, AddressJourneyData, PersonDetails}
 import play.api.Logging
 import play.api.http.Status.INTERNAL_SERVER_ERROR

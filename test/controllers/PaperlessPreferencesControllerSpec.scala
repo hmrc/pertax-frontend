@@ -18,12 +18,13 @@ package controllers
 
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import controllers.interstitials.{InterstitialController, MtdAdvertInterstitialController}
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
 
@@ -32,10 +33,12 @@ import scala.concurrent.Future
 class PaperlessPreferencesControllerSpec extends BaseSpec {
   import testUtils.BetterOptionValues._
 
-  val mockInterstitialController: InterstitialController = mock[InterstitialController]
-  override implicit lazy val app: Application            = localGuiceApplicationBuilder()
+  val mockInterstitialController: InterstitialController                   = mock[InterstitialController]
+  val mockMtdAdvertInterstitialController: MtdAdvertInterstitialController = mock[MtdAdvertInterstitialController]
+  override implicit lazy val app: Application                              = localGuiceApplicationBuilder()
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[MtdAdvertInterstitialController].toInstance(mockMtdAdvertInterstitialController),
       bind[AuthJourney].toInstance(mockAuthJourney)
     )
     .build()

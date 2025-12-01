@@ -46,6 +46,6 @@
     @p(Text(messages("callback_preparation")))
 
     <p class="govuk-body">
-        @link(controllers.routes.InterstitialController.displayNISP.url, messageKey = messages("return_to_national_insurance"), id = Some("national-insurance-state-pension") )
+        @link(controllers.interstitials.routes.InterstitialController.displayNISP.url, messageKey = messages("return_to_national_insurance"), id = Some("national-insurance-state-pension") )
     </p>
 }

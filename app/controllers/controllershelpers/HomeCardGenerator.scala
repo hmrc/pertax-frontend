@@ -102,7 +102,7 @@ class HomeCardGenerator @Inject() (
       payAsYouEarnView(shouldUsePegaRouting = isEnabled)
     }
 
-  private def displaySACall: Call = routes.InterstitialController.displaySelfAssessment
+  private def displaySACall: Call = controllers.interstitials.routes.InterstitialController.displaySelfAssessment
 
   private def handleSACall: Call = routes.SelfAssessmentController.handleSelfAssessment
 

@@ -19,6 +19,7 @@ package controllers
 import connectors.CitizenDetailsConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import controllers.interstitials.{InterstitialController, MtdAdvertInterstitialController}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -39,12 +40,14 @@ import scala.concurrent.Future
 import scala.util.Random
 
 class MessageControllerSpec extends BaseSpec {
-  val mockInterstitialController: InterstitialController = mock[InterstitialController]
-  val mockMessageFrontendService: MessageFrontendService = mock[MessageFrontendService]
+  val mockInterstitialController: InterstitialController                   = mock[InterstitialController]
+  val mockMtdAdvertInterstitialController: MtdAdvertInterstitialController = mock[MtdAdvertInterstitialController]
+  val mockMessageFrontendService: MessageFrontendService                   = mock[MessageFrontendService]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
+      bind[MtdAdvertInterstitialController].toInstance(mockMtdAdvertInterstitialController),
       bind[MessageFrontendService].toInstance(mockMessageFrontendService),
       bind[AuthJourney].toInstance(mockAuthJourney)
     )
@@ -57,6 +60,8 @@ class MessageControllerSpec extends BaseSpec {
     reset(mockMessageFrontendService)
     reset(mock[CitizenDetailsConnector])
     reset(mockAuthJourney)
+    reset(mockInterstitialController)
+    reset(mockMtdAdvertInterstitialController)
 
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

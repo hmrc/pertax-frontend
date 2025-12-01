@@ -28,7 +28,6 @@ import error.ErrorRenderer
 import models.dto.ClosePostalAddressChoiceDto
 import models.{Address, EditCorrespondenceAddress, PersonDetails}
 import play.api.Logging
-import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
 import services.*

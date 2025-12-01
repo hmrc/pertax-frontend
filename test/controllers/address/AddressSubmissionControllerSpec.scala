@@ -38,7 +38,7 @@ import routePages.{SelectedAddressRecordPage, SubmittedAddressPage, SubmittedInt
 import services.CitizenDetailsService
 import testUtils.Fixtures.*
 import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.{BaseSpec, Fixtures}
+import testUtils.BaseSpec
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.model.DataEvent

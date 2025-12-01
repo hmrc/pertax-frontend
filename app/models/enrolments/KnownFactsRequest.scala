@@ -17,16 +17,10 @@
 package models.enrolments
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.domain.Nino
 
-case class KnownFactQueryForNINO(service: String, knownFacts: List[IdentifiersOrVerifiers])
+case class KnownFactsRequest(service: String, knownFacts: List[IdentifiersOrVerifiers])
 
-object KnownFactQueryForNINO {
-  def apply(nino: Nino, serviceKey: String): KnownFactQueryForNINO = KnownFactQueryForNINO(
-    service = serviceKey,
-    knownFacts = List(IdentifiersOrVerifiers("NINO", nino.nino))
-  )
-
-  implicit val format: Format[KnownFactQueryForNINO] =
-    Json.format[KnownFactQueryForNINO]
+object KnownFactsRequest {
+  implicit val format: Format[KnownFactsRequest] =
+    Json.format[KnownFactsRequest]
 }

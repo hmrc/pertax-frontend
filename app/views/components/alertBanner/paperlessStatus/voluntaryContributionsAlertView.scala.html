@@ -17,5 +17,5 @@
 @this()
 @()(implicit messages: Messages)
 <p class="govuk-notification-banner__heading">
-    <a href="@controllers.routes.InterstitialController.displayCheckYourStatePensionCallBackView.url" class="govuk-notification-banner__link">@messages("waiting_for_callback")</a>@messages("no_need_to_contact")<span> </span>@messages("voluntary_contributions_deadline")
+    <a href="@controllers.interstitials.routes.InterstitialController.displayCheckYourStatePensionCallBackView.url" class="govuk-notification-banner__link">@messages("waiting_for_callback")</a>@messages("no_need_to_contact")<span> </span>@messages("voluntary_contributions_deadline")
 </p>
