@@ -25,60 +25,35 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AddressCountryService @Inject() (
-  connector: AddressLookupConnector,
-  normalization: NormalizationUtils
-)(implicit ec: ExecutionContext)
-    extends Logging {
+class AddressCountryService @Inject()(
+                                       connector: AddressLookupConnector,
+                                       normalization: NormalizationUtils
+                                     )(implicit ec: ExecutionContext)
+  extends Logging {
 
   def deriveCountryForPostcode(
-    postcodeOpt: Option[String]
-  )(implicit hc: HeaderCarrier): Future[Option[String]] =
+                                postcodeOpt: Option[String]
+                              )(implicit hc: HeaderCarrier): Future[Option[String]] =
     postcodeOpt.filter(_.trim.nonEmpty) match {
       case None =>
-        logger.warn("[AddressCountryService] No postcode provided; cannot derive country")
         Future.successful(None)
 
       case Some(postcode) =>
         connector
           .lookup(postcode, filter = None)
           .value
-          .map {
-            case Right(recordSet: RecordSet) if recordSet.addresses.nonEmpty =>
+          .map(_.toOption.flatMap { recordSet =>
+            val codes: List[String] =
+              recordSet.addresses
+                .flatMap(_.address.subdivision.flatMap(sub => Option(sub.code)))
+                .distinct
+                .toList
 
-              val normalisedCountries: Set[String] =
-                recordSet.addresses
-                  .flatMap { record =>
-                    record.address.subdivision
-                      .map(_.name)
-                      .orElse(Some(record.address.country.name))
-                  }
-                  .map(name => normalization.normalizeCountryName(Some(name)))
-                  .filter(_.nonEmpty)
-                  .toSet
-
-              normalisedCountries.toList match {
-                case singleCountry :: Nil =>
-                  Some(singleCountry)
-
-                case _ =>
-                  logger.warn(
-                    s"[AddressCountryService] Multiple countries for postcode $postcode ($normalisedCountries); returning None"
-                  )
-                  None
-              }
-
-            case Right(_) =>
-              logger.warn(
-                s"[AddressCountryService] No addresses returned for postcode $postcode; returning None"
-              )
-              None
-
-            case Left(error) =>
-              logger.warn(
-                s"[AddressCountryService] Address lookup failed for postcode $postcode; returning None. Error: $error"
-              )
-              None
-          }
+            codes match {
+              case single :: Nil => Some(single)
+              case _ => None
+            }
+          })
     }
+
 }
