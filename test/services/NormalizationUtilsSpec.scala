@@ -1,0 +1,87 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package services
+
+import play.api.Application
+import play.api.inject.bind
+import testUtils.BaseSpec
+
+class NormalizationUtilsSpec extends BaseSpec {
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(
+      bind[NormalizationUtils].toInstance(new NormalizationUtils)
+    )
+    .build()
+
+  private lazy val utils: NormalizationUtils = app.injector.instanceOf[NormalizationUtils]
+
+  override def beforeEach(): Unit =
+    super.beforeEach()
+
+  "postcodesMatch" must {
+
+    "return true when postcodes are equal ignoring spaces and case" in {
+      utils.postcodesMatch(Some("EH1 1AA"), Some("eh11aa")) mustBe true
+      utils.postcodesMatch(Some(" SW1A  2AA "), Some("sw1a2aa")) mustBe true
+    }
+
+    "return false when postcodes differ after normalisation" in {
+      utils.postcodesMatch(Some("EH1 1AA"), Some("EH1 2AA")) mustBe false
+    }
+
+    "treat None as empty string for comparison" in {
+      utils.postcodesMatch(None, None) mustBe true
+      utils.postcodesMatch(None, Some("")) mustBe true
+      utils.postcodesMatch(Some("W1A1HQ"), None) mustBe false
+    }
+  }
+
+  "isNonUkSubdivision" must {
+
+    "return false for GB subdivisions (codes starting with GB-)" in {
+      utils.isNonUkSubdivision("GB-SCT") mustBe false
+      utils.isNonUkSubdivision("gb-eng") mustBe false
+      utils.isNonUkSubdivision(" GB-WLS ") mustBe false
+    }
+
+    "return true for non-GB subdivision or country codes" in {
+      utils.isNonUkSubdivision("FR") mustBe true
+      utils.isNonUkSubdivision("US-CA") mustBe true
+      utils.isNonUkSubdivision("DE-BE") mustBe true
+      utils.isNonUkSubdivision("") mustBe true
+    }
+  }
+
+  "movedAcrossScottishBorder" must {
+
+    "return true when moving into or out of Scottish subdivision (GB-SCT)" in {
+      utils.movedAcrossScottishBorder("GB-SCT", "GB-ENG") mustBe true
+      utils.movedAcrossScottishBorder("GB-ENG", "GB-SCT") mustBe true
+      utils.movedAcrossScottishBorder("GB-SCT", "FR") mustBe true
+      utils.movedAcrossScottishBorder("FR", "GB-SCT") mustBe true
+      utils.movedAcrossScottishBorder(" gb-sct ", "gb-wls ") mustBe true
+    }
+
+    "return false when both sides are Scottish or both are non-Scottish" in {
+      utils.movedAcrossScottishBorder("GB-SCT", "GB-SCT") mustBe false
+      utils.movedAcrossScottishBorder("GB-ENG", "GB-WLS") mustBe false
+      utils.movedAcrossScottishBorder("FR", "DE") mustBe false
+      utils.movedAcrossScottishBorder("", "") mustBe false
+    }
+  }
+}
