@@ -51,60 +51,37 @@ class NormalizationUtilsSpec extends BaseSpec {
     }
   }
 
-  "normalizeCountryName" must {
+  "isNonUkSubdivision" must {
 
-    "uppercase and strip all whitespace" in {
-      utils.normalizeCountryName(Some("  Scotland ")) mustBe "SCOTLAND"
-      utils.normalizeCountryName(Some("United   Kingdom")) mustBe "UNITEDKINGDOM"
-      utils.normalizeCountryName(Some(" GB-ENG ")) mustBe "GB-ENG".toUpperCase.replaceAll("\\s+", "")
+    "return false for GB subdivisions (codes starting with GB-)" in {
+      utils.isNonUkSubdivision("GB-SCT") mustBe false
+      utils.isNonUkSubdivision("gb-eng") mustBe false
+      utils.isNonUkSubdivision(" GB-WLS ") mustBe false
     }
 
-    "return empty string for None" in {
-      utils.normalizeCountryName(None) mustBe ""
+    "return true for non-GB subdivision or country codes" in {
+      utils.isNonUkSubdivision("FR") mustBe true
+      utils.isNonUkSubdivision("US-CA") mustBe true
+      utils.isNonUkSubdivision("DE-BE") mustBe true
+      utils.isNonUkSubdivision("") mustBe true
     }
   }
 
   "movedAcrossScottishBorder" must {
 
-    "return true when exactly one side is Scotland" in {
-      utils.movedAcrossScottishBorder("SCOTLAND", "ENGLAND") mustBe true
-      utils.movedAcrossScottishBorder("ENGLAND", "SCOTLAND") mustBe true
-      utils.movedAcrossScottishBorder("", "SCOTLAND") mustBe true
-      utils.movedAcrossScottishBorder("SCOTLAND", "") mustBe true
+    "return true when moving into or out of Scottish subdivision (GB-SCT)" in {
+      utils.movedAcrossScottishBorder("GB-SCT", "GB-ENG") mustBe true
+      utils.movedAcrossScottishBorder("GB-ENG", "GB-SCT") mustBe true
+      utils.movedAcrossScottishBorder("GB-SCT", "FR") mustBe true
+      utils.movedAcrossScottishBorder("FR", "GB-SCT") mustBe true
+      utils.movedAcrossScottishBorder(" gb-sct ", "gb-wls ") mustBe true
     }
 
-    "return false when both are Scotland or both are not Scotland" in {
-      utils.movedAcrossScottishBorder("SCOTLAND", "SCOTLAND") mustBe false
-      utils.movedAcrossScottishBorder("ENGLAND", "WALES") mustBe false
+    "return false when both sides are Scottish or both are non-Scottish" in {
+      utils.movedAcrossScottishBorder("GB-SCT", "GB-SCT") mustBe false
+      utils.movedAcrossScottishBorder("GB-ENG", "GB-WLS") mustBe false
+      utils.movedAcrossScottishBorder("FR", "DE") mustBe false
       utils.movedAcrossScottishBorder("", "") mustBe false
-    }
-  }
-
-  "isUkCountry" must {
-
-    "return true for recognised UK territories" in {
-      utils.isUkCountry("UNITEDKINGDOM") mustBe true
-      utils.isUkCountry("ENGLAND") mustBe true
-      utils.isUkCountry("SCOTLAND") mustBe true
-      utils.isUkCountry("WALES") mustBe true
-      utils.isUkCountry("CYMRU") mustBe true
-      utils.isUkCountry("NORTHERNIRELAND") mustBe true
-    }
-
-    "return false for anything else" in {
-      utils.isUkCountry("FRANCE") mustBe false
-      utils.isUkCountry("IRELAND") mustBe false
-      utils.isUkCountry("") mustBe false
-    }
-  }
-
-  "isNonUkCountry" must {
-
-    "be the negation of isUkCountry" in {
-      utils.isNonUkCountry("UNITEDKINGDOM") mustBe false
-      utils.isNonUkCountry("SCOTLAND") mustBe false
-      utils.isNonUkCountry("FRANCE") mustBe true
-      utils.isNonUkCountry("") mustBe true
     }
   }
 }

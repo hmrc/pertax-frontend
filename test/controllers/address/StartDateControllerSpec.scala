@@ -50,7 +50,7 @@ class StartDateControllerSpec extends BaseSpec {
   val mockJourneyCacheRepository: JourneyCacheRepository = mock[JourneyCacheRepository]
   val mockCitizenDetailsService: CitizenDetailsService   = mock[CitizenDetailsService]
   val mockAddressCountryService: AddressCountryService   = mock[AddressCountryService]
-  val mockNormalizationUtils: NormalizationUtils         = mock[NormalizationUtils]
+  val normalizationUtils: NormalizationUtils             = new NormalizationUtils
   val startDateDecisionService: StartDateDecisionService = new StartDateDecisionService
 
   class FakeAuthAction extends AuthJourney {
@@ -72,7 +72,7 @@ class StartDateControllerSpec extends BaseSpec {
       bind[JourneyCacheRepository].toInstance(mockJourneyCacheRepository),
       bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
       bind[AddressCountryService].toInstance(mockAddressCountryService),
-      bind[NormalizationUtils].toInstance(mockNormalizationUtils),
+      bind[NormalizationUtils].toInstance(normalizationUtils),
       bind[StartDateDecisionService].toInstance(startDateDecisionService)
     )
     .build()
@@ -84,10 +84,6 @@ class StartDateControllerSpec extends BaseSpec {
     reset(mockJourneyCacheRepository)
     reset(mockCitizenDetailsService)
     reset(mockAddressCountryService)
-    reset(mockNormalizationUtils)
-
-    when(mockNormalizationUtils.normalizeCountryName(any())).thenReturn("UK")
-    when(mockNormalizationUtils.postcodesMatch(any(), any())).thenReturn(false)
   }
 
   private lazy val controller: StartDateController = app.injector.instanceOf[StartDateController]
@@ -149,10 +145,7 @@ class StartDateControllerSpec extends BaseSpec {
         )
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("UK")))
-
-      when(mockNormalizationUtils.isNonUkCountry("UK")).thenReturn(false)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "UK")).thenReturn(false)
+        .thenReturn(Future.successful(Some("GB-ENG")))
 
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
@@ -181,10 +174,7 @@ class StartDateControllerSpec extends BaseSpec {
         )
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("UK")))
-
-      when(mockNormalizationUtils.isNonUkCountry("UK")).thenReturn(false)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "UK")).thenReturn(false)
+        .thenReturn(Future.successful(Some("GB-ENG")))
 
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
@@ -213,10 +203,7 @@ class StartDateControllerSpec extends BaseSpec {
         )
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("UK")))
-
-      when(mockNormalizationUtils.isNonUkCountry("UK")).thenReturn(false)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "UK")).thenReturn(false)
+        .thenReturn(Future.successful(Some("GB-ENG")))
 
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
@@ -334,10 +321,7 @@ class StartDateControllerSpec extends BaseSpec {
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("OVERSEAS")))
-
-      when(mockNormalizationUtils.isNonUkCountry("OVERSEAS")).thenReturn(true)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "OVERSEAS")).thenReturn(false)
+        .thenReturn(Future.successful(Some("FR")))
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")
@@ -364,10 +348,7 @@ class StartDateControllerSpec extends BaseSpec {
         )
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("OVERSEAS")))
-
-      when(mockNormalizationUtils.isNonUkCountry("OVERSEAS")).thenReturn(true)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "OVERSEAS")).thenReturn(false)
+        .thenReturn(Future.successful(Some("FR")))
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")
@@ -398,10 +379,7 @@ class StartDateControllerSpec extends BaseSpec {
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(domesticPersonDetails)))
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("UK")))
-
-      when(mockNormalizationUtils.isNonUkCountry("UK")).thenReturn(false)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "UK")).thenReturn(false)
+        .thenReturn(Future.successful(Some("GB-ENG")))
 
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
@@ -431,10 +409,7 @@ class StartDateControllerSpec extends BaseSpec {
         .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Some(domesticPersonDetails)))
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("UK")))
-
-      when(mockNormalizationUtils.isNonUkCountry("UK")).thenReturn(false)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "UK")).thenReturn(false)
+        .thenReturn(Future.successful(Some("GB-ENG")))
 
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
@@ -464,9 +439,8 @@ class StartDateControllerSpec extends BaseSpec {
         )
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("SCOTLAND")))
-      when(mockNormalizationUtils.isNonUkCountry("SCOTLAND")).thenReturn(false)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "SCOTLAND")).thenReturn(true)
+        .thenReturn(Future.successful(Some("GB-ENG")))
+        .thenReturn(Future.successful(Some("GB-SCT")))
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")
@@ -493,9 +467,8 @@ class StartDateControllerSpec extends BaseSpec {
         )
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("SCOTLAND")))
-      when(mockNormalizationUtils.isNonUkCountry("SCOTLAND")).thenReturn(false)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "SCOTLAND")).thenReturn(true)
+        .thenReturn(Future.successful(Some("GB-ENG")))
+        .thenReturn(Future.successful(Some("GB-SCT")))
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")
@@ -522,10 +495,7 @@ class StartDateControllerSpec extends BaseSpec {
         )
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("UK")))
-
-      when(mockNormalizationUtils.isNonUkCountry("UK")).thenReturn(false)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "UK")).thenReturn(false)
+        .thenReturn(Future.successful(Some("GB-ENG")))
 
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
@@ -555,10 +525,7 @@ class StartDateControllerSpec extends BaseSpec {
         )
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("UK")))
-
-      when(mockNormalizationUtils.isNonUkCountry("UK")).thenReturn(false)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "UK")).thenReturn(false)
+        .thenReturn(Future.successful(Some("GB-ENG")))
 
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
@@ -588,10 +555,7 @@ class StartDateControllerSpec extends BaseSpec {
         )
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("UK")))
-
-      when(mockNormalizationUtils.isNonUkCountry("UK")).thenReturn(false)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "UK")).thenReturn(false)
+        .thenReturn(Future.successful(Some("GB-ENG")))
 
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
@@ -625,10 +589,7 @@ class StartDateControllerSpec extends BaseSpec {
         )
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
-        .thenReturn(Future.successful(Some("UK")))
-
-      when(mockNormalizationUtils.isNonUkCountry("UK")).thenReturn(false)
-      when(mockNormalizationUtils.movedAcrossScottishBorder("UK", "UK")).thenReturn(false)
+        .thenReturn(Future.successful(Some("GB-ENG")))
 
       when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 

@@ -32,12 +32,10 @@ import scala.concurrent.Future
 class AddressCountryServiceSpec extends BaseSpec {
 
   private val mockConnector: AddressLookupConnector = mock[AddressLookupConnector]
-  private val normalizationUtils                    = new NormalizationUtils
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
-      bind[AddressLookupConnector].toInstance(mockConnector),
-      bind[NormalizationUtils].toInstance(normalizationUtils)
+      bind[AddressLookupConnector].toInstance(mockConnector)
     )
     .build()
 
@@ -78,7 +76,7 @@ class AddressCountryServiceSpec extends BaseSpec {
       result mustBe None
     }
 
-    "return a single normalised country when all addresses share the same country" in {
+    "return a single subdivision code when all addresses share the same subdivision" in {
       val recordSet = RecordSet(
         Seq(
           addressRecord(Country.Scotland),
@@ -91,13 +89,12 @@ class AddressCountryServiceSpec extends BaseSpec {
 
       val result = await(service.deriveCountryForPostcode(Some("EH1 1AA")))
 
-      val expected =
-        Some(normalizationUtils.normalizeCountryName(Some(Country.Scotland.name)))
+      val expected = Some(Country.Scotland.code)
 
       result mustBe expected
     }
 
-    "return None when multiple different countries are associated with the postcode" in {
+    "return None when multiple different subdivision codes are associated with the postcode" in {
       val scottish  = addressRecord(Country.Scotland)
       val english   = addressRecord(Country.England, Seq("2 TEST STREET"), "EH1 1AA")
       val recordSet = RecordSet(Seq(scottish, english))

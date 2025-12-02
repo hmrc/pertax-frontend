@@ -104,60 +104,51 @@ class StartDateController @Inject() (
               dateDto =>
                 cachingHelper.gettingCachedJourneyData(typ) { cache =>
                   val proposedStartDate: LocalDate         = dateDto.startDate
-                  val recordedStartDate: Option[LocalDate] =
-                    personDetails.address.flatMap(_.startDate)
+                  val existingStartDate: Option[LocalDate] = personDetails.address.flatMap(_.startDate)
                   val today: LocalDate                     = LocalDate.now()
 
-                  val currentCountryCodeOpt: Option[String] =
-                    personDetails.address
-                      .flatMap(_.country)
-                      .map(countryName => normalizationUtils.normalizeCountryName(Some(countryName)))
-
-                  val submittedPostcode: Option[String] =
-                    cache.submittedAddressDto.flatMap(_.postcode)
+                  val currentPostcode: Option[String] = personDetails.address.flatMap(_.postcode)
+                  val newPostcode: Option[String]     = cache.submittedAddressDto.flatMap(_.postcode)
 
                   implicit val hc: HeaderCarrier =
                     HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-                  addressCountryService
-                    .deriveCountryForPostcode(submittedPostcode)
-                    .flatMap { derivedCountryCodeOpt =>
-                      val (p85Enabled, isCrossBorderMove): (Boolean, Boolean) =
-                        derivedCountryCodeOpt match {
-                          case Some(newCountryCode) =>
-                            val newIsNonUk: Boolean =
-                              normalizationUtils.isNonUkCountry(newCountryCode)
+                  for {
+                    currentCountryCode <- addressCountryService.deriveCountryForPostcode(currentPostcode)
+                    newCountryCode     <- addressCountryService.deriveCountryForPostcode(newPostcode)
+                    result             <- {
+                      val (overseasMove, scotlandBorderChange) =
+                        (currentCountryCode, newCountryCode) match {
 
-                            val currentIsNonUk: Boolean =
-                              currentCountryCodeOpt.exists(normalizationUtils.isNonUkCountry)
+                          case (Some(current), Some(next)) =>
+                            val currentIsOverseas = normalizationUtils.isNonUkSubdivision(current)
+                            val nextIsOverseas    = normalizationUtils.isNonUkSubdivision(next)
+                            val overseas          = currentIsOverseas || nextIsOverseas
+                            val borderChange      =
+                              normalizationUtils.movedAcrossScottishBorder(current, next)
+                            (overseas, borderChange)
 
-                            val overseasMove: Boolean =
-                              newIsNonUk || currentIsNonUk
+                          case (None, Some(next)) =>
+                            val overseas     = normalizationUtils.isNonUkSubdivision(next)
+                            val borderChange = true
+                            (overseas, borderChange)
 
-                            val movedAcrossBorder: Boolean =
-                              currentCountryCodeOpt match {
-                                case Some(currentCountryCode) =>
-                                  normalizationUtils.movedAcrossScottishBorder(
-                                    currentCountryCode,
-                                    newCountryCode
-                                  )
-                                case None                     =>
-                                  true
-                              }
+                          case (Some(current), None) =>
+                            val overseas     = normalizationUtils.isNonUkSubdivision(current)
+                            val borderChange = true
+                            (overseas, borderChange)
 
-                            (overseasMove, movedAcrossBorder)
-
-                          case None =>
+                          case (None, None) =>
                             (false, true)
                         }
 
                       startDateDecisionService
                         .determineStartDate(
                           requestedDate = proposedStartDate,
-                          recordedStartDate = recordedStartDate,
+                          recordedStartDate = existingStartDate,
                           today = today,
-                          overseasMove = p85Enabled,
-                          scotlandBorderChange = isCrossBorderMove
+                          overseasMove = overseasMove,
+                          scotlandBorderChange = scotlandBorderChange
                         )
                         .fold(
                           {
@@ -167,7 +158,7 @@ class StartDateController @Inject() (
                                   cannotUpdateAddressFutureDateView(
                                     typ,
                                     languageUtils.Dates.formatDate(proposedStartDate),
-                                    p85Enabled
+                                    overseasMove
                                   )
                                 )
                               )
@@ -178,7 +169,7 @@ class StartDateController @Inject() (
                                   cannotUpdateAddressEarlyDateView(
                                     typ,
                                     languageUtils.Dates.formatDate(proposedStartDate),
-                                    p85Enabled
+                                    overseasMove
                                   )
                                 )
                               )
@@ -189,9 +180,7 @@ class StartDateController @Inject() (
                               .map(_ => Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
                         )
                     }
-                    .recoverWith { case _ =>
-                      errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-                    }
+                  } yield result
                 }
             )
         }

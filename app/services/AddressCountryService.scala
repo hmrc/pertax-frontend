@@ -17,23 +17,15 @@
 package services
 
 import connectors.AddressLookupConnector
-import models.addresslookup.RecordSet
-import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AddressCountryService @Inject()(
-                                       connector: AddressLookupConnector,
-                                       normalization: NormalizationUtils
-                                     )(implicit ec: ExecutionContext)
-  extends Logging {
+class AddressCountryService @Inject() (connector: AddressLookupConnector)(implicit ec: ExecutionContext) {
 
-  def deriveCountryForPostcode(
-                                postcodeOpt: Option[String]
-                              )(implicit hc: HeaderCarrier): Future[Option[String]] =
+  def deriveCountryForPostcode(postcodeOpt: Option[String])(implicit hc: HeaderCarrier): Future[Option[String]] =
     postcodeOpt.filter(_.trim.nonEmpty) match {
       case None =>
         Future.successful(None)
@@ -51,9 +43,8 @@ class AddressCountryService @Inject()(
 
             codes match {
               case single :: Nil => Some(single)
-              case _ => None
+              case _             => None
             }
           })
     }
-
 }

@@ -27,21 +27,18 @@ class NormalizationUtils @Inject() {
   def postcodesMatch(a: Option[String], b: Option[String]): Boolean =
     normalizePostcode(a) == normalizePostcode(b)
 
-  def normalizeCountryName(countryOpt: Option[String]): String =
-    countryOpt.getOrElse("").trim.toUpperCase.replaceAll("\\s+", "")
+  private def normalizeCode(code: String): String =
+    code.trim.toUpperCase
 
-  private def isScottishCountry(normalized: String): Boolean =
-    normalized == "SCOTLAND"
+  private def isUkSubdivision(code: String): Boolean =
+    normalizeCode(code).startsWith("GB-")
 
-  def movedAcrossScottishBorder(oldCountry: String, newCountry: String): Boolean =
-    isScottishCountry(oldCountry) ^ isScottishCountry(newCountry)
+  def isNonUkSubdivision(code: String): Boolean =
+    !isUkSubdivision(code)
 
-  def isUkCountry(normalized: String): Boolean =
-    normalized match {
-      case "UNITEDKINGDOM" | "ENGLAND" | "SCOTLAND" | "WALES" | "CYMRU" | "NORTHERNIRELAND" => true
-      case _                                                                                => false
-    }
+  private def isScottishSubdivision(code: String): Boolean =
+    normalizeCode(code) == "GB-SCT"
 
-  def isNonUkCountry(normalized: String): Boolean =
-    !isUkCountry(normalized)
+  def movedAcrossScottishBorder(fromCode: String, toCode: String): Boolean =
+    isScottishSubdivision(fromCode) ^ isScottishSubdivision(toCode)
 }
