@@ -17,9 +17,13 @@
 package views.html.cards
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import play.api.Application
 import play.api.i18n.Messages
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.home.LatestNewsAndUpdatesView
 
@@ -29,6 +33,9 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
   implicit val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
+
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+    buildUserRequest(request = FakeRequest())
 
   override protected def localGuiceApplicationBuilder(extraConfigValues: Map[String, Any]): GuiceApplicationBuilder =
     GuiceApplicationBuilder()

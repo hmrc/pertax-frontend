@@ -40,7 +40,8 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
       "1.25 percentage points uplift in National Insurance contributions (base64 encoded)",
       "<p>base64 encoded content with html example 1</p>",
       isDynamic = false,
-      LocalDate.now
+      LocalDate.now,
+      true
     )
 
     val secondNewsAndContentModel = NewsAndContentModel(
@@ -48,7 +49,8 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
       "This is an example News item",
       "<p>base64 encoded content with html example 2</p>",
       isDynamic = false,
-      LocalDate.now
+      LocalDate.now,
+      true
     )
 
     "show the select news item content and headlines for others" in {

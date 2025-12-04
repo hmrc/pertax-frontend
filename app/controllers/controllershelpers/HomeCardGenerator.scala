@@ -33,7 +33,6 @@ import uk.gov.hmrc.sca.logging.Logging
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import views.html.cards.home.*
-
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -170,7 +169,10 @@ class HomeCardGenerator @Inject() (
       case _                    => None
     }
 
-  def getLatestNewsAndUpdatesCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+  def getLatestNewsAndUpdatesCard()(implicit
+    messages: Messages,
+    request: UserRequest[AnyContent]
+  ): Option[HtmlFormat.Appendable] =
     if (configDecorator.isNewsAndUpdatesTileEnabled && newsAndTilesConfig.getNewsAndContentModelList().nonEmpty) {
       Some(latestNewsAndUpdatesView())
     } else {

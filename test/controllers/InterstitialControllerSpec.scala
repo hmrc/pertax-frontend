@@ -236,14 +236,15 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth()
-      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(
+      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any(), any())).thenReturn(
         List[NewsAndContentModel](
           NewsAndContentModel(
             "nicSection",
             "1.25 percentage points uplift in National Insurance contributions (base64 encoded)",
             "<p id=\"paragraph\">base64 encoded content with html</p>",
             isDynamic = false,
-            LocalDate.now
+            LocalDate.now,
+            true
           )
         )
       )
@@ -257,7 +258,7 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth()
-      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any(), any())).thenReturn(List[NewsAndContentModel]())
       val result = controller.displayNewsAndUpdates("nicSection")(fakeRequest)
 
       status(result) mustBe SEE_OTHER
@@ -268,7 +269,7 @@ class InterstitialControllerSpec extends BaseSpec {
       val app                                     = appn(extraConfigValues = Map("feature.news.enabled" -> false))
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
       setupAuth()
-      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any())).thenReturn(List[NewsAndContentModel]())
+      when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any(), any())).thenReturn(List[NewsAndContentModel]())
       val result                                  = controller.displayNewsAndUpdates("nicSection")(fakeRequest)
       status(result) mustBe UNAUTHORIZED
     }
