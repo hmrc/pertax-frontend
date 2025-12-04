@@ -56,7 +56,8 @@ class UpdateAddressController @Inject() (
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
-        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
+        val showEnterAddressHeader = journeyData.selectedAddressRecord.isEmpty
+
         addressJourneyEnforcer { _ => _ =>
           val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
           cachingHelper.enforceDisplayAddressPageVisited(
@@ -75,7 +76,7 @@ class UpdateAddressController @Inject() (
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
-        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
+        val showEnterAddressHeader = journeyData.selectedAddressRecord.isEmpty
         addressJourneyEnforcer { _ => personDetails =>
           AddressDto.ukForm
             .bindFromRequest()
