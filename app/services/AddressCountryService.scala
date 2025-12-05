@@ -16,6 +16,7 @@
 
 package services
 
+import cats.data.OptionT
 import connectors.AddressLookupConnector
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -26,15 +27,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class AddressCountryService @Inject() (connector: AddressLookupConnector)(implicit ec: ExecutionContext) {
 
   def deriveCountryForPostcode(postcodeOpt: Option[String])(implicit hc: HeaderCarrier): Future[Option[String]] =
-    postcodeOpt.filter(_.trim.nonEmpty) match {
-      case None =>
-        Future.successful(None)
-
-      case Some(postcode) =>
+    OptionT
+      .fromOption[Future](postcodeOpt.filter(_.trim.nonEmpty))
+      .flatMap { postcode =>
         connector
           .lookup(postcode, filter = None)
-          .value
-          .map(_.toOption.flatMap { recordSet =>
+          .toOption
+          .subflatMap { recordSet =>
             val codes: List[String] =
               recordSet.addresses
                 .flatMap(_.address.subdivision.flatMap(sub => Option(sub.code)))
@@ -45,6 +44,7 @@ class AddressCountryService @Inject() (connector: AddressLookupConnector)(implic
               case single :: Nil => Some(single)
               case _             => None
             }
-          })
-    }
+          }
+      }
+      .value
 }

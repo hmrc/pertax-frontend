@@ -23,6 +23,7 @@ import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.dto.DateDto
+import models.dto.InternationalAddressChoiceDto.OutsideUK
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import routePages.SubmittedStartDatePage
@@ -110,6 +111,9 @@ class StartDateController @Inject() (
                   val currentPostcode: Option[String] = personDetails.address.flatMap(_.postcode)
                   val newPostcode: Option[String]     = cache.submittedAddressDto.flatMap(_.postcode)
 
+                  val newAddressIsInternational: Boolean = cache.submittedInternationalAddressChoiceDto
+                    .exists(_.equals(OutsideUK))
+
                   implicit val hc: HeaderCarrier =
                     HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
@@ -117,29 +121,12 @@ class StartDateController @Inject() (
                     currentCountryCode <- addressCountryService.deriveCountryForPostcode(currentPostcode)
                     newCountryCode     <- addressCountryService.deriveCountryForPostcode(newPostcode)
                     result             <- {
-                      val (overseasMove, scotlandBorderChange) =
+                      val overseasMove: Boolean         = newAddressIsInternational
+                      val scotlandBorderChange: Boolean =
                         (currentCountryCode, newCountryCode) match {
-
                           case (Some(current), Some(next)) =>
-                            val currentIsOverseas = normalizationUtils.isNonUkSubdivision(current)
-                            val nextIsOverseas    = normalizationUtils.isNonUkSubdivision(next)
-                            val overseas          = currentIsOverseas || nextIsOverseas
-                            val borderChange      =
-                              normalizationUtils.movedAcrossScottishBorder(current, next)
-                            (overseas, borderChange)
-
-                          case (None, Some(next)) =>
-                            val overseas     = normalizationUtils.isNonUkSubdivision(next)
-                            val borderChange = true
-                            (overseas, borderChange)
-
-                          case (Some(current), None) =>
-                            val overseas     = normalizationUtils.isNonUkSubdivision(current)
-                            val borderChange = true
-                            (overseas, borderChange)
-
-                          case (None, None) =>
-                            (false, true)
+                            normalizationUtils.movedAcrossScottishBorder(current, next)
+                          case _                           => true
                         }
 
                       startDateDecisionService
