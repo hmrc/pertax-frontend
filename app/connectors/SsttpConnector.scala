@@ -50,21 +50,20 @@ class SsttpConnector @Inject() (val httpClientV2: HttpClientV2, appConfig: Confi
       }
   }
 
-  private def parseSsttpResponse(url: String, response: HttpResponse): Option[SsttpResponse] = {
+  private def parseSsttpResponse(url: String, response: HttpResponse): Option[SsttpResponse] =
     response.status match {
       case status if is2xx(status) =>
         Try(response.json.as[SsttpResponse](SsttpResponse.reads)) match {
           case Success(resp) => Some(resp)
-          case Failure(ex) =>
+          case Failure(ex)   =>
             logger.error("[SsttpConnector][parseSsttpResponse] Could not parse JSON", ex)
             None
         }
-      case unexpectedStatus =>
+      case unexpectedStatus        =>
         logger.error(
           s"[SsttpConnector][parseSsttpResponse] Unexpected status $unexpectedStatus from $url, body: ${response.body}"
         )
         None
     }
-  }
 
 }
