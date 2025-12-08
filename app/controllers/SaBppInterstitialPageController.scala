@@ -60,16 +60,16 @@ class SaBppInterstitialPageController @Inject() (
         success =>
           success.saBppWhatPaymentType match {
             case Some(SelectSABPPPaymentFormProvider.saBppOverduePayment) =>
-              ssttpConnector.startPtaJourney().flatMap {
-                case Some(ssttpResponse) if ssttpResponse.nextUrl.nonEmpty =>
-                  logger
-                    .info(
-                      s"[SaBppInterstitialPageController][onSubmit] ssttpResponse nextUrl: ${ssttpResponse.nextUrl}"
-                    )
+              ssttpConnector.startPtaJourney().value.flatMap {
+                case Right(ssttpResponse) =>
+                  logger.info(
+                    s"[SaBppInterstitialPageController][onSubmit] ssttpResponse nextUrl: ${ssttpResponse.nextUrl}"
+                  )
                   Future.successful(Redirect(ssttpResponse.nextUrl))
-                case _                                                     =>
+
+                case Left(upstreamError) =>
                   logger.error(
-                    "[SaBppInterstitialPageController][onSubmit] ssttpResponse returned None. Rendering ServiceUnavailable."
+                    s"[SaBppInterstitialPageController][onSubmit] startPtaJourney returned upstream error: ${upstreamError.message}"
                   )
                   errorHandler.badRequestTemplate.map(ServiceUnavailable(_))
               }

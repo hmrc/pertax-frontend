@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.SsttpConnector
 import error.LocalErrorHandler
@@ -29,6 +30,7 @@ import play.api.test.FakeRequest
 import testUtils.fakes.FakeAuthJourney
 import views.html.interstitial.SPPInterstitialView
 import testUtils.BaseSpec
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
 
@@ -105,39 +107,22 @@ class SaBppInterstitialPageControllerSpec extends BaseSpec {
         val nextUrl                  = "http://localhost:9056/setup-a-payment-plan/start?traceId=12345678"
 
         when(mockSsttpConnector.startPtaJourney()(any(), any()))
-          .thenReturn(Future.successful(Some(SsttpResponse("journey-1", nextUrl))))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](SsttpResponse("journey-1", nextUrl)))
 
         val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit(
-          FakeRequest()
-            .withFormUrlEncodedBody(answer)
-            .withMethod("POST")
+          FakeRequest().withFormUrlEncodedBody(answer).withMethod("POST")
         )
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get mustBe nextUrl
       }
 
-      "return ServiceUnavailable when startPtaJourney returns None" in {
-
-        val answer: (String, String) = "saBppWhatPaymentType" -> "saBppOverduePayment"
-
-        when(mockSsttpConnector.startPtaJourney()(any(), any())).thenReturn(Future.successful(None))
-
-        val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit(
-          FakeRequest()
-            .withFormUrlEncodedBody(answer)
-            .withMethod("POST")
-        )
-
-        status(result) mustBe SERVICE_UNAVAILABLE
-      }
-
-      "return ServiceUnavailable when startPtaJourney returns Some(...) with an empty nextUrl" in {
+      "return ServiceUnavailable when startPtaJourney returns Left(UpstreamErrorResponse)" in {
 
         val answer: (String, String) = "saBppWhatPaymentType" -> "saBppOverduePayment"
 
         when(mockSsttpConnector.startPtaJourney()(any(), any()))
-          .thenReturn(Future.successful(Some(SsttpResponse("journey-xyz", ""))))
+          .thenReturn(EitherT.leftT[Future, SsttpResponse](UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
 
         val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit(
           FakeRequest()

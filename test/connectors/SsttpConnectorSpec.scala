@@ -16,15 +16,15 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.*
 import config.ConfigDecorator
 import models.sa.SsttpResponse
 import play.api.Application
-import play.api.libs.json.Json
+import play.api.libs.json.{JsResultException, Json}
 import play.api.test.{DefaultAwaitTimeout, Injecting}
+import play.api.test.Helpers.await
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.ExecutionContext
 
@@ -42,9 +42,11 @@ class SsttpConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
   private implicit val ec: ExecutionContext = inject[ExecutionContext]
 
   lazy val connector: SsttpConnector = {
-    val httpClient      = app.injector.instanceOf[HttpClientV2]
-    val configDecorator = app.injector.instanceOf[ConfigDecorator]
-    new SsttpConnector(httpClient, configDecorator)
+    val httpClient                             = inject[HttpClientV2]
+    val configDecorator                        = inject[ConfigDecorator]
+    val httpClientResponse: HttpClientResponse = inject[HttpClientResponse]
+
+    new SsttpConnector(httpClient, httpClientResponse, configDecorator)
   }
 
   private val url = "/essttp-backend/sa/pta/journey/start"
@@ -53,37 +55,36 @@ class SsttpConnectorSpec extends ConnectorSpec with WireMockHelper with DefaultA
 
   "SsttpConnector.startPtaJourney" should {
 
-    "return Some(SsttpResponse) when essttp-backend returns 201 with valid JSON" in {
+    "return Right(SsttpResponse) when essttp-backend returns 201 with valid JSON" in {
       val respJson = Json.obj("journeyId" -> "journey-123", "nextUrl" -> "/setup-a-payment-plan/pta")
 
       stubPost(url, CREATED, Some(requestBodyJson.toString()), Some(respJson.toString()))
 
-      val result = connector.startPtaJourney().futureValue
+      val result = connector.startPtaJourney().value.futureValue
 
-      result mustBe Some(SsttpResponse("journey-123", "/setup-a-payment-plan/pta"))
-      server.verify(postRequestedFor(urlEqualTo(url)).withRequestBody(equalToJson(requestBodyJson.toString())))
+      result mustBe a[Right[_, _]]
+      val expectedResponse = SsttpResponse("journey-123", "/setup-a-payment-plan/pta")
+      result.getOrElse(None) mustBe expectedResponse
     }
 
-    "return None when backend returns 201 but JSON is missing fields" in {
-      val badJson = Json.obj("unexpected" -> "value")
+    "throw a JsResultException when the response body is invalid" in {
+      val badJson = Json.obj("invalid" -> "invalid")
+      stubPost(url, OK, Some(requestBodyJson.toString()), Some(badJson.toString()))
 
-      stubPost(url, CREATED, Some(requestBodyJson.toString()), Some(badJson.toString()))
-
-      val result = connector.startPtaJourney().futureValue
-
-      result mustBe None
-      server.verify(postRequestedFor(urlEqualTo(url)).withRequestBody(equalToJson(requestBodyJson.toString())))
+      lazy val result = await(connector.startPtaJourney().value)
+      a[JsResultException] mustBe thrownBy(result)
     }
 
-    "return None when backend returns INTERNAL_SERVER_ERROR" in {
-      val respJson = Json.obj("journeyId" -> "journey-123", "nextUrl" -> "/setup-a-payment-plan/pta")
+    "return an UpstreamErrorResponse" when
+      List(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND).foreach(statusCode =>
+        s"a status $statusCode is returned by the essttp-backend" in {
+          stubPost(url, statusCode, Some(requestBodyJson.toString()), None)
 
-      stubPost(url, INTERNAL_SERVER_ERROR, Some(requestBodyJson.toString()), Some(respJson.toString()))
+          val result = connector.startPtaJourney().value.futureValue
 
-      val result = connector.startPtaJourney().futureValue
-
-      result mustBe None
-      server.verify(postRequestedFor(urlEqualTo(url)).withRequestBody(equalToJson(requestBodyJson.toString())))
-    }
+          result mustBe a[Left[_, _]]
+          result.swap.getOrElse(SsttpResponse("", "")) mustBe UpstreamErrorResponse(_: String, statusCode)
+        }
+      )
   }
 }
