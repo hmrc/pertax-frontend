@@ -288,4 +288,6 @@ class ConfigDecorator @Inject() (
   val bppSpreadTheCostAdvancePaymentUrl: String =
     getExternalUrl("bppSpreadTheCostAdvancePaymentUrl").getOrElse("")
 
+  def ssttpPtaStartUrl: String =
+    servicesConfig.baseUrl("essttp-backend") + getExternalUrl("self-service-time-to-pay-pta-start.url").getOrElse("")
 }
