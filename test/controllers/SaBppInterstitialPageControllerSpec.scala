@@ -17,6 +17,11 @@
 package controllers
 
 import config.ConfigDecorator
+import connectors.SsttpConnector
+import error.LocalErrorHandler
+import models.sa.SsttpResponse
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.http.Status.OK
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
 import play.api.test.Helpers.*
@@ -34,13 +39,16 @@ class SaBppInterstitialPageControllerSpec extends BaseSpec {
   private lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
 
   val saBppInterstitialPage: SPPInterstitialView = inject[SPPInterstitialView]
+  val mockSsttpConnector: SsttpConnector         = mock[SsttpConnector]
 
   object TestSaBppInterstitialPageController
       extends SaBppInterstitialPageController(
         fakeAuthJourney,
         cc = inject[MessagesControllerComponents],
         saBppInterstitialPage,
-        inject[ConfigDecorator]
+        inject[ConfigDecorator],
+        mockSsttpConnector,
+        inject[LocalErrorHandler]
       )
 
   "SaBppInterstitialPageController" when {
@@ -91,10 +99,13 @@ class SaBppInterstitialPageControllerSpec extends BaseSpec {
       }
     }
 
-    "saBppInterstitialPageController.onSubmit called with form parameters - saBppOverduePayment with pta origin" must {
-      "return SA BPP redirect url for overdue payment with origin as pta-sa" in {
-
+    "saBppInterstitialPageController.onSubmit called with form parameters - saBppOverduePayment" must {
+      "redirect to nextUrl returned by ssttp backend" in {
         val answer: (String, String) = "saBppWhatPaymentType" -> "saBppOverduePayment"
+        val nextUrl                  = "http://localhost:9056/setup-a-payment-plan/start?traceId=12345678"
+
+        when(mockSsttpConnector.startPtaJourney()(any(), any()))
+          .thenReturn(Future.successful(Some(SsttpResponse("journey-1", nextUrl))))
 
         val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit(
           FakeRequest()
@@ -103,10 +114,38 @@ class SaBppInterstitialPageControllerSpec extends BaseSpec {
         )
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(
-          result
-        ).get mustBe "http://localhost:9063/pay-what-you-owe-in-instalments?calledFrom=pta-sa"
+        redirectLocation(result).get mustBe nextUrl
+      }
 
+      "return ServiceUnavailable when startPtaJourney returns None" in {
+
+        val answer: (String, String) = "saBppWhatPaymentType" -> "saBppOverduePayment"
+
+        when(mockSsttpConnector.startPtaJourney()(any(), any())).thenReturn(Future.successful(None))
+
+        val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit(
+          FakeRequest()
+            .withFormUrlEncodedBody(answer)
+            .withMethod("POST")
+        )
+
+        status(result) mustBe SERVICE_UNAVAILABLE
+      }
+
+      "return ServiceUnavailable when startPtaJourney returns Some(...) with an empty nextUrl" in {
+
+        val answer: (String, String) = "saBppWhatPaymentType" -> "saBppOverduePayment"
+
+        when(mockSsttpConnector.startPtaJourney()(any(), any()))
+          .thenReturn(Future.successful(Some(SsttpResponse("journey-xyz", ""))))
+
+        val result: Future[Result] = TestSaBppInterstitialPageController.onSubmit(
+          FakeRequest()
+            .withFormUrlEncodedBody(answer)
+            .withMethod("POST")
+        )
+
+        status(result) mustBe SERVICE_UNAVAILABLE
       }
     }
   }
