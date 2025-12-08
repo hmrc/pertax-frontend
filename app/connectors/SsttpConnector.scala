@@ -43,29 +43,28 @@ class SsttpConnector @Inject() (val httpClientV2: HttpClientV2, appConfig: Confi
       .post(url"$url")
       .withBody(Json.toJson(postBody))
       .execute[HttpResponse]
-      .map { response =>
-        response.status match {
-          case status if is2xx(status) =>
-            Try(response.json.as[SsttpResponse](SsttpResponse.reads)) match {
-              case Success(sstpResponse) => Some(sstpResponse)
-              case Failure(ex)           =>
-                logger.error(
-                  "[SsttpConnector][startPtaJourney] Ssttp Http Response could not be parsed to SsttpResponse",
-                  ex
-                )
-                None
-            }
-          case status                  =>
-            logger.error(
-              s"[SsttpConnector][startPtaJourney] Calling url: '$url' returned unexpected status: '$status' and body: '${response.body}'"
-            )
-            None
-        }
-      }
+      .map(parseSsttpResponse(url, _))
       .recover { case ex =>
         logger.error(s"[SsttpConnector][startPtaJourney] HTTP call to $url failed", ex)
         None
       }
+  }
+
+  private def parseSsttpResponse(url: String, response: HttpResponse): Option[SsttpResponse] = {
+    response.status match {
+      case status if is2xx(status) =>
+        Try(response.json.as[SsttpResponse](SsttpResponse.reads)) match {
+          case Success(resp) => Some(resp)
+          case Failure(ex) =>
+            logger.error("[SsttpConnector][parseSsttpResponse] Could not parse JSON", ex)
+            None
+        }
+      case unexpectedStatus =>
+        logger.error(
+          s"[SsttpConnector][parseSsttpResponse] Unexpected status $unexpectedStatus from $url, body: ${response.body}"
+        )
+        None
+    }
   }
 
 }
