@@ -283,8 +283,6 @@ class ConfigDecorator @Inject() (
   val payeToPegaRedirectList: Seq[Int] = runModeConfiguration.get[Seq[Int]]("paye.to.pega.redirect.list")
   val payeToPegaRedirectUrl: String    = runModeConfiguration.get[String]("paye.to.pega.redirect.url")
 
-  val ssttfHost: String                         = getExternalUrl("self-service-time-to-pay-frontend.host").getOrElse("")
-  val bppSpreadTheCostOverduePaymentUrl         = s"$ssttfHost/pay-what-you-owe-in-instalments"
   val bppSpreadTheCostAdvancePaymentUrl: String =
     getExternalUrl("bppSpreadTheCostAdvancePaymentUrl").getOrElse("")
 
