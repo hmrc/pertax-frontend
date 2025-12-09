@@ -18,20 +18,30 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import connectors.SsttpConnector
 import controllers.auth.AuthJourney
+import error.LocalErrorHandler
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.interstitial.SPPInterstitialView
 import models.SelectSABPPPaymentFormProvider
 import play.api.data.FormError
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class SaBppInterstitialPageController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   view: SPPInterstitialView,
-  appConfig: ConfigDecorator
+  appConfig: ConfigDecorator,
+  ssttpConnector: SsttpConnector,
+  errorHandler: LocalErrorHandler
 ) extends PertaxBaseController(cc)
     with Logging {
+
+  implicit val ec: ExecutionContext = cc.executionContext
 
   def onPageLoad: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
     Ok(
@@ -39,26 +49,44 @@ class SaBppInterstitialPageController @Inject() (
     )
   }
 
-  def onSubmit: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
+  def onSubmit: Action[AnyContent] = authJourney.authWithPersonalDetails.async { implicit request =>
+
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
     SelectSABPPPaymentFormProvider.form
       .bindFromRequest()
       .fold(
-        hasErrors => BadRequest(view(hasErrors)),
+        hasErrors => Future.successful(BadRequest(view(hasErrors))),
         success =>
           success.saBppWhatPaymentType match {
             case Some(SelectSABPPPaymentFormProvider.saBppOverduePayment) =>
-              Redirect(
-                s"${appConfig.bppSpreadTheCostOverduePaymentUrl}?calledFrom=pta-sa"
-              )
+              ssttpConnector.startPtaJourney().value.flatMap {
+                case Right(ssttpResponse) =>
+                  logger.info(
+                    s"[SaBppInterstitialPageController][onSubmit] ssttpResponse nextUrl: ${ssttpResponse.nextUrl}"
+                  )
+                  Future.successful(Redirect(ssttpResponse.nextUrl))
+
+                case Left(upstreamError) =>
+                  logger.error(
+                    s"[SaBppInterstitialPageController][onSubmit] startPtaJourney returned upstream error: ${upstreamError.message}"
+                  )
+                  errorHandler.badRequestTemplate.map(ServiceUnavailable(_))
+              }
+
             case Some(SelectSABPPPaymentFormProvider.saBppAdvancePayment) =>
-              Redirect(
-                s"${appConfig.bppSpreadTheCostAdvancePaymentUrl}?calledFrom=pta-web&lang=${messagesApi.preferred(request).lang.code}"
+              Future.successful(
+                Redirect(
+                  s"${appConfig.bppSpreadTheCostAdvancePaymentUrl}?calledFrom=pta-web&lang=${messagesApi.preferred(request).lang.code}"
+                )
               )
             case _                                                        =>
-              BadRequest(
-                view(
-                  SelectSABPPPaymentFormProvider.form
-                    .withError(FormError("saBppWhatPaymentType", "sa.message.selectSABPPPaymentType.error.required"))
+              Future.successful(
+                BadRequest(
+                  view(
+                    SelectSABPPPaymentFormProvider.form
+                      .withError(FormError("saBppWhatPaymentType", "sa.message.selectSABPPPaymentType.error.required"))
+                  )
                 )
               )
           }
