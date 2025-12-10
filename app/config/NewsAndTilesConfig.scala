@@ -57,9 +57,7 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
           .getOrElse("false")
           .toBoolean
         val displayedByEnrolment                                 =
-          request.enrolments.exists { enrolment =>
-            enrolmentsNeeded.contains(enrolment.key) || enrolmentsNeeded.isEmpty
-          }
+          enrolmentsNeeded.isEmpty || request.enrolments.exists(enrolment => enrolmentsNeeded.contains(enrolment.key))
         val displayedByDate: Boolean                             = overrideStartAndEndDatesForNewsItemsEnabled || localDateUtilities.isBetween(
           LocalDate.now(),
           localStartDate,
