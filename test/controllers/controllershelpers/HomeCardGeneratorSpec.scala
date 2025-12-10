@@ -200,39 +200,23 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getAnnualTaxSummaryCard" when {
 
     "the tax summaries card is enabled" must {
-      "always return the same markup for a SA user" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
-          .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
-
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(
-            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-            request = FakeRequest()
-          )
-
-        lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.futureValue
-
-        cardBody mustBe Some(taxSummaries(configDecorator.annualTaxSaSummariesTileLink))
-      }
-
-      val saUtr: SaUtr     = SaUtr("test utr")
-      val incorrectSaUsers = List(
+      val saUtr: SaUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+      val saUserTypes  = List(
+        ActivatedOnlineFilerSelfAssessmentUser(saUtr),
         NonFilerSelfAssessmentUser,
         NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
         WrongCredentialsSelfAssessmentUser(saUtr),
         NotEnrolledSelfAssessmentUser(saUtr)
       )
 
-      incorrectSaUsers.foreach { saType =>
+      saUserTypes.foreach { saType =>
         s"always return the same markup for a $saType user" in {
           when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
             .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = true)))
 
-          implicit val payeRequest: UserRequest[AnyContentAsEmpty.type] =
-            buildUserRequest(saUser = saType, request = FakeRequest())
-
           lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.futureValue
-          cardBody mustBe Some(taxSummaries(configDecorator.annualTaxPayeSummariesTileLink))
+
+          cardBody mustBe Some(taxSummaries(configDecorator.annualTaxSaSummariesTileLinkShow))
         }
       }
     }
@@ -242,9 +226,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TaxSummariesTileToggle)))
           .thenReturn(Future.successful(FeatureFlag(TaxSummariesTileToggle, isEnabled = false)))
-
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(request = FakeRequest())
 
         lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard.futureValue
 
