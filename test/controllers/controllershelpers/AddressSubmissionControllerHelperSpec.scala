@@ -113,8 +113,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
           None,
           None,
           None,
-          None,
-          false
+          None
         )
 
         val address: AddressDto =
@@ -165,8 +164,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
           None,
           None,
           None,
-          None,
-          false
+          None
         )
 
         val address: AddressDto =
@@ -217,8 +215,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
           None,
           None,
           Some(OutsideUK),
-          None,
-          false
+          None
         )
 
         val address: AddressDto =
@@ -278,8 +275,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         None,
         None,
         Some(OutsideUK),
-        Some(DateDto(LocalDate.of(2000, 1, 1))),
-        false
+        Some(DateDto(LocalDate.of(2000, 1, 1)))
       )
 
       val address: AddressDto =
@@ -337,8 +333,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         None,
         None,
         Some(OutsideUK),
-        Some(DateDto(LocalDate.of(2000, 1, 1))),
-        false
+        Some(DateDto(LocalDate.of(2000, 1, 1)))
       )
 
       val address: AddressDto =

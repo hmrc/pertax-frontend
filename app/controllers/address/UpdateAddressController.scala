@@ -35,28 +35,28 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class UpdateAddressController @Inject() (
-  cachingHelper: AddressJourneyCachingHelper,
-  authJourney: AuthJourney,
-  cc: MessagesControllerComponents,
-  updateAddressView: UpdateAddressView,
-  errorRenderer: ErrorRenderer,
-  featureFlagService: FeatureFlagService,
-  citizenDetailsService: CitizenDetailsService,
-  internalServerErrorView: InternalServerErrorView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-    extends AddressController(
-      authJourney,
-      cc,
-      featureFlagService,
-      errorRenderer,
-      citizenDetailsService,
-      internalServerErrorView
-    ) {
+                                          cachingHelper: AddressJourneyCachingHelper,
+                                          authJourney: AuthJourney,
+                                          cc: MessagesControllerComponents,
+                                          updateAddressView: UpdateAddressView,
+                                          errorRenderer: ErrorRenderer,
+                                          featureFlagService: FeatureFlagService,
+                                          citizenDetailsService: CitizenDetailsService,
+                                          internalServerErrorView: InternalServerErrorView
+                                        )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+  extends AddressController(
+    authJourney,
+    cc,
+    featureFlagService,
+    errorRenderer,
+    citizenDetailsService,
+    internalServerErrorView
+  ) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
-        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
+        val showEnterAddressHeader = journeyData.selectedAddressRecord.isEmpty
 
         addressJourneyEnforcer { _ => _ =>
           val form = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
@@ -70,7 +70,7 @@ class UpdateAddressController @Inject() (
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
-        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
+        val showEnterAddressHeader = journeyData.selectedAddressRecord.isEmpty
         addressJourneyEnforcer { _ => personDetails =>
           AddressDto.ukForm
             .bindFromRequest()
@@ -90,10 +90,11 @@ class UpdateAddressController @Inject() (
                 for {
                   _   <- cachingHelper.addToCache(SubmittedAddressPage(typ), addressDto)
                   res <-
-                    if (needsStartDate)
+                    if (needsStartDate) {
                       Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
-                    else
+                    } else {
                       cacheStartDate(typ, Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
+                    }
                 } yield res
               }
             )
