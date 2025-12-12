@@ -44,6 +44,9 @@ class StartDateControllerSpec extends BaseSpec {
 
   def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
 
+  def asAddressDtoWithSubdivision(l: List[(String, String)], subdivision: String): AddressDto =
+    AddressDto.ukForm.bind(l.toMap).get.copy(subdivision = Some(subdivision))
+
   val thisYearStr: String          = "2019"
   val personDetails: PersonDetails = buildPersonDetailsWithPersonalAndCorrespondenceAddress
 
@@ -333,7 +336,7 @@ class StartDateControllerSpec extends BaseSpec {
       contentAsString(result) must include("Complete a P85 form (opens in new tab)")
     }
 
-    "return 400 with P85 messaging when passed ResidentialAddrType and the start date is after todays date (international address)" in {
+    "return 400 with P85 messaging when passed ResidentialAddrType and the start date is after today's date (international address)" in {
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
@@ -365,10 +368,14 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "redirect (no P85 messaging) when startDate is earlier than recorded with residential address type (domestic, non cross-border)" in {
+      val submittedAddress: AddressDto =
+        asAddressDtoWithSubdivision(fakeStreetTupleListAddressForUnmodified, "GB-ENG")
+
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
+        .setOrException(SubmittedAddressPage(ResidentialAddrType), submittedAddress)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
 
@@ -396,10 +403,14 @@ class StartDateControllerSpec extends BaseSpec {
     }
 
     "redirect when startDate is the same as recorded with residential address type (domestic, non cross-border)" in {
+      val submittedAddress: AddressDto =
+        asAddressDtoWithSubdivision(fakeStreetTupleListAddressForUnmodified, "GB-ENG")
+
       val userAnswers: UserAnswers = UserAnswers
         .empty("id")
         .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
         .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
+        .setOrException(SubmittedAddressPage(ResidentialAddrType), submittedAddress)
 
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
       val domesticPersonDetails =
@@ -440,7 +451,6 @@ class StartDateControllerSpec extends BaseSpec {
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
         .thenReturn(Future.successful(Some("GB-ENG")))
-        .thenReturn(Future.successful(Some("GB-SCT")))
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")
@@ -468,7 +478,6 @@ class StartDateControllerSpec extends BaseSpec {
 
       when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
         .thenReturn(Future.successful(Some("GB-ENG")))
-        .thenReturn(Future.successful(Some("GB-SCT")))
 
       def postReq[A]: Request[A] =
         FakeRequest("POST", "")

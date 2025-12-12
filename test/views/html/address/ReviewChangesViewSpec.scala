@@ -38,7 +38,7 @@ class ReviewChangesViewSpec extends ViewSpec {
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(request = FakeRequest())
   val address: AddressDto                                       =
-    AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None)
+    AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
 
   def result(addressType: AddrType): Document = asDocument(
     view(addressType, address, "yes.label", isUkAddress = true, None, displayDateAddressChanged = false).toString

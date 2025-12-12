@@ -35,23 +35,23 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class UpdateAddressController @Inject() (
-                                          cachingHelper: AddressJourneyCachingHelper,
-                                          authJourney: AuthJourney,
-                                          cc: MessagesControllerComponents,
-                                          updateAddressView: UpdateAddressView,
-                                          errorRenderer: ErrorRenderer,
-                                          featureFlagService: FeatureFlagService,
-                                          citizenDetailsService: CitizenDetailsService,
-                                          internalServerErrorView: InternalServerErrorView
-                                        )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
-  extends AddressController(
-    authJourney,
-    cc,
-    featureFlagService,
-    errorRenderer,
-    citizenDetailsService,
-    internalServerErrorView
-  ) {
+  cachingHelper: AddressJourneyCachingHelper,
+  authJourney: AuthJourney,
+  cc: MessagesControllerComponents,
+  updateAddressView: UpdateAddressView,
+  errorRenderer: ErrorRenderer,
+  featureFlagService: FeatureFlagService,
+  citizenDetailsService: CitizenDetailsService,
+  internalServerErrorView: InternalServerErrorView
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+    extends AddressController(
+      authJourney,
+      cc,
+      featureFlagService,
+      errorRenderer,
+      citizenDetailsService,
+      internalServerErrorView
+    ) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

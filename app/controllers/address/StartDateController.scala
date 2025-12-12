@@ -79,10 +79,11 @@ class StartDateController @Inject() (
                 val existingPostcode  = personDetails.address.flatMap(_.postcode)
 
                 val formToShow =
-                  if (normalizationUtils.postcodesMatch(submittedPostcode, existingPostcode))
+                  if (normalizationUtils.postcodesMatch(submittedPostcode, existingPostcode)) {
                     journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
-                  else
+                  } else {
                     dateDtoForm
+                  }
 
                 Future.successful(Ok(enterStartDateView(formToShow, typ)))
 
@@ -109,21 +110,22 @@ class StartDateController @Inject() (
                   val today: LocalDate                     = LocalDate.now()
 
                   val currentPostcode: Option[String] = personDetails.address.flatMap(_.postcode)
-                  val newPostcode: Option[String]     = cache.submittedAddressDto.flatMap(_.postcode)
 
                   val newAddressIsInternational: Boolean = cache.submittedInternationalAddressChoiceDto
                     .exists(_.equals(OutsideUK))
+
+                  val newCountryCodeFromAddress: Option[String] = cache.submittedAddressDto.flatMap(_.subdivision)
 
                   implicit val hc: HeaderCarrier =
                     HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
                   for {
                     currentCountryCode <- addressCountryService.deriveCountryForPostcode(currentPostcode)
-                    newCountryCode     <- addressCountryService.deriveCountryForPostcode(newPostcode)
                     result             <- {
-                      val overseasMove: Boolean         = newAddressIsInternational
+                      val overseasMove: Boolean = newAddressIsInternational
+
                       val scotlandBorderChange: Boolean =
-                        (currentCountryCode, newCountryCode) match {
+                        (currentCountryCode, newCountryCodeFromAddress) match {
                           case (Some(current), Some(next)) =>
                             normalizationUtils.movedAcrossScottishBorder(current, next)
                           case _                           => true

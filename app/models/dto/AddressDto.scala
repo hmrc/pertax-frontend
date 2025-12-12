@@ -35,6 +35,7 @@ case class AddressDto(
   line5OrCounty: Option[String],
   postcode: Option[String],
   country: Option[String],
+  subdivision: Option[String],
   propertyRefNo: Option[String]
 ) extends Dto {
   def toAddress(`type`: String, startDate: LocalDate): Address = {
@@ -86,23 +87,24 @@ case class AddressDto(
 }
 
 object AddressDto extends CountryHelper {
-  def unapplyFromInternationalForm(obj: AddressDto): Some[
+  private def unapplyFromInternationalForm(obj: AddressDto): Some[
     (String, String, Option[String], Option[String], Option[String], Option[String], Option[String], Option[String])
-  ] = Some(
-    (
-      obj.line1,
-      obj.line2.getOrElse(""),
-      obj.line3,
-      obj.line4OrTown,
-      obj.line5OrCounty,
-      obj.postcode,
-      obj.country,
-      obj.propertyRefNo
+  ] =
+    Some(
+      (
+        obj.line1,
+        obj.line2.getOrElse(""),
+        obj.line3,
+        obj.line4OrTown,
+        obj.line5OrCounty,
+        obj.postcode,
+        obj.country,
+        obj.propertyRefNo
+      )
     )
-  )
 
   @nowarn("msg=match may not be exhaustive.")
-  def applyFromInternationalForm(
+  private def applyFromInternationalForm(
     line1: String,
     line2: String,
     line3: Option[String],
@@ -114,7 +116,17 @@ object AddressDto extends CountryHelper {
   ): AddressDto =
     List(line3, line4).filter(op => op.exists(line => line.nonEmpty)).padTo(2, None) match {
       case List(newLine3, newLine4) =>
-        new AddressDto(line1, Some(line2), newLine3, newLine4, line5orTown, postcode, country, propertyRefNo)
+        new AddressDto(
+          line1,
+          Some(line2),
+          newLine3,
+          newLine4,
+          line5orTown,
+          postcode,
+          country,
+          subdivision = None,
+          propertyRefNo
+        )
     }
 
   private def applyFromUkForm(
@@ -134,22 +146,24 @@ object AddressDto extends CountryHelper {
       line5OrCounty,
       postcode,
       country,
+      subdivision = None,
       propertyRefNo
     )
 
   private def unapplyFromUkForm(obj: AddressDto): Some[
     (String, Option[String], String, Option[String], Option[String], Option[String], Option[String])
-  ] = Some(
-    (
-      obj.line1,
-      obj.line2,
-      obj.line4OrTown.getOrElse(""),
-      obj.line5OrCounty,
-      obj.postcode,
-      obj.country,
-      obj.propertyRefNo
+  ] =
+    Some(
+      (
+        obj.line1,
+        obj.line2,
+        obj.line4OrTown.getOrElse(""),
+        obj.line5OrCounty,
+        obj.postcode,
+        obj.country,
+        obj.propertyRefNo
+      )
     )
-  )
 
   implicit val formats: OFormat[AddressDto] = Json.format[AddressDto]
 
@@ -168,6 +182,7 @@ object AddressDto extends CountryHelper {
           None,
           Some(addressRecord.address.postcode),
           Some(addressRecord.address.country.toString),
+          addressRecord.address.subdivision.map(_.toString),
           Some(addressRecord.id)
         )
     }
