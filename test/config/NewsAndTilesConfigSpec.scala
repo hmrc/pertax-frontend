@@ -16,9 +16,15 @@
 
 package config
 
+import controllers.auth.requests.UserRequest
 import models.NewsAndContentModel
 import play.api.i18n.{Lang, Messages, MessagesImpl}
+import play.api.mvc.AnyContentAsEmpty
 import testUtils.BaseSpec
+import testUtils.UserRequestFixture.buildUserRequest
+import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier}
+import uk.gov.hmrc.domain.SaUtrGenerator
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -27,7 +33,9 @@ class NewsAndTilesConfigSpec extends BaseSpec {
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  val formatter: DateTimeFormatter                              = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+    buildUserRequest(request = FakeRequest())
 
   "getNewsAndContentModelList" must {
     "read configuration and create a list ordered by recency, truncating after max items reached" in {
@@ -63,21 +71,24 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "",
           "",
           isDynamic = true,
-          LocalDate.now()
+          LocalDate.now(),
+          true
         ),
         NewsAndContentModel(
           "payeEmployments",
           "",
           "",
           isDynamic = true,
-          LocalDate.now().minusWeeks(1)
+          LocalDate.now().minusWeeks(1),
+          true
         ),
         NewsAndContentModel(
           "hmrcApp",
           "",
           "",
           isDynamic = true,
-          LocalDate.now().minusWeeks(2)
+          LocalDate.now().minusWeeks(2),
+          true
         )
       )
     }
@@ -111,7 +122,8 @@ class NewsAndTilesConfigSpec extends BaseSpec {
           "",
           "",
           isDynamic = true,
-          LocalDate.now().minusWeeks(2)
+          LocalDate.now().minusWeeks(2),
+          true
         )
       )
     }
@@ -167,6 +179,73 @@ class NewsAndTilesConfigSpec extends BaseSpec {
       val sut = app.injector.instanceOf[NewsAndTilesConfig]
 
       sut.getNewsAndContentModelList() mustBe List.empty[NewsAndContentModel]
+    }
+    "read configuration and create a list without items requiring a certain enrolment the user does not have" in {
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest()).copy(enrolments = Set.empty)
+      val app                                                       = localGuiceApplicationBuilder()
+        .configure(
+          "feature.news.max"                                  -> 3,
+          "feature.news.override-start-and-end-dates.enabled" -> true,
+          "feature.news.items.0.name"                         -> "childBenefits",
+          "feature.news.items.0.start-date"                   -> LocalDate.now().format(formatter),
+          "feature.news.items.0.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.0.dynamic-content"              -> true,
+          "feature.news.items.1.name"                         -> "hmrcApp",
+          "feature.news.items.1.start-date"                   -> LocalDate.now().minusWeeks(2).format(formatter),
+          "feature.news.items.1.dynamic-content"              -> true,
+          "feature.news.items.1.enrolment"                    -> "IR-SA",
+          "feature.news.items.2.name"                         -> "payeEmployments",
+          "feature.news.items.2.start-date"                   -> LocalDate.now().minusWeeks(1).format(formatter),
+          "feature.news.items.2.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.2.dynamic-content"              -> true,
+          "feature.news.items.2.enrolment"                    -> "Unassigned",
+          "play.cache.bindCaches"                             -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"                      -> false
+        )
+        .build()
+
+      val sut = app.injector.instanceOf[NewsAndTilesConfig]
+
+      sut.getNewsAndContentModelList().length mustBe 1
+
+    }
+    "read configuration and create a list with items requiring a certain enrolment the user does have" in {
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest()).copy(enrolments =
+          Set(
+            Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated"),
+            Enrolment("HMRC-PT", Seq(EnrolmentIdentifier("NINO", generatedNino.nino)), "Activated")
+          )
+        )
+      val app                                                       = localGuiceApplicationBuilder()
+        .configure(
+          "feature.news.max"                                  -> 3,
+          "feature.news.override-start-and-end-dates.enabled" -> true,
+          "feature.news.items.0.name"                         -> "childBenefits",
+          "feature.news.items.0.start-date"                   -> LocalDate.now().format(formatter),
+          "feature.news.items.0.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.0.dynamic-content"              -> true,
+          "feature.news.items.1.name"                         -> "hmrcApp",
+          "feature.news.items.1.start-date"                   -> LocalDate.now().minusWeeks(2).format(formatter),
+          "feature.news.items.1.dynamic-content"              -> true,
+          "feature.news.items.1.enrolment"                    -> "IR-SA",
+          "feature.news.items.2.name"                         -> "payeEmployments",
+          "feature.news.items.2.start-date"                   -> LocalDate.now().minusWeeks(1).format(formatter),
+          "feature.news.items.2.end-date"                     -> LocalDate.now().minusDays(1).format(formatter),
+          "feature.news.items.2.dynamic-content"              -> true,
+          "feature.news.items.2.enrolment"                    -> "HMRC-PT",
+          "play.cache.bindCaches"                             -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"                      -> false
+        )
+        .build()
+
+      val sut = app.injector.instanceOf[NewsAndTilesConfig]
+
+      sut.getNewsAndContentModelList().length mustBe 3
+
     }
   }
 }
