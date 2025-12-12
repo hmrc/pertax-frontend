@@ -153,19 +153,9 @@ class HomeCardGenerator @Inject() (
       }
   }
 
-  def getAnnualTaxSummaryCard(implicit
-    request: UserRequest[AnyContent],
-    messages: Messages
-  ): Future[Option[HtmlFormat.Appendable]] =
+  def getAnnualTaxSummaryCard(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
     featureFlagService.get(TaxSummariesTileToggle).map {
-      case FeatureFlag(_, true) =>
-        val url = if (request.isSaUserLoggedIntoCorrectAccount) {
-          configDecorator.annualTaxSaSummariesTileLink
-        } else {
-          configDecorator.annualTaxPayeSummariesTileLink
-        }
-
-        Some(taxSummariesView(url))
+      case FeatureFlag(_, true) => Some(taxSummariesView(configDecorator.annualTaxSaSummariesTileLinkShow))
       case _                    => None
     }
 
