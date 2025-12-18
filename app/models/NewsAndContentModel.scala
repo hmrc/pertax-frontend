@@ -23,5 +23,6 @@ case class NewsAndContentModel(
   shortDescription: String,
   content: String,
   isDynamic: Boolean,
-  startDate: LocalDate
+  startDate: LocalDate,
+  toBeDisplayed: Boolean
 )

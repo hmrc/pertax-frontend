@@ -17,10 +17,12 @@
 @import config.NewsAndTilesConfig
 @import tags._
 @import config.ConfigDecorator
+@import play.api.mvc.AnyContent
+@import controllers.auth.requests.UserRequest
 
 @this(newsAndTilesConfig: NewsAndTilesConfig)
 
-@()(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
+@()(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator, request: UserRequest[AnyContent])
 
 @cardNewsAndUpdates(
     id = Some("news-card"),

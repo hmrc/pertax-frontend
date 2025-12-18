@@ -100,8 +100,7 @@ class ConfigDecorator @Inject() (
   private lazy val annualTaxSummariesUrl: String           = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
   lazy val isNewsAndUpdatesTileEnabled: Boolean            =
     runModeConfiguration.get[String]("feature.news.enabled").toBoolean
-  lazy val annualTaxSaSummariesTileLink                    = s"$annualTaxSummariesUrl/annual-tax-summary"
-  lazy val annualTaxPayeSummariesTileLink                  = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
+  lazy val annualTaxSaSummariesTileLinkShow                = s"$annualTaxSummariesUrl/annual-tax-summary"
 
   lazy val isSeissTileEnabled: Boolean =
     runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean

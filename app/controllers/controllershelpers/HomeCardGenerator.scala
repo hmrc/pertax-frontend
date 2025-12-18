@@ -33,7 +33,6 @@ import uk.gov.hmrc.sca.logging.Logging
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import views.html.cards.home.*
-
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -154,23 +153,16 @@ class HomeCardGenerator @Inject() (
       }
   }
 
-  def getAnnualTaxSummaryCard(implicit
-    request: UserRequest[AnyContent],
-    messages: Messages
-  ): Future[Option[HtmlFormat.Appendable]] =
+  def getAnnualTaxSummaryCard(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
     featureFlagService.get(TaxSummariesTileToggle).map {
-      case FeatureFlag(_, true) =>
-        val url = if (request.isSaUserLoggedIntoCorrectAccount) {
-          configDecorator.annualTaxSaSummariesTileLink
-        } else {
-          configDecorator.annualTaxPayeSummariesTileLink
-        }
-
-        Some(taxSummariesView(url))
+      case FeatureFlag(_, true) => Some(taxSummariesView(configDecorator.annualTaxSaSummariesTileLinkShow))
       case _                    => None
     }
 
-  def getLatestNewsAndUpdatesCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+  def getLatestNewsAndUpdatesCard()(implicit
+    messages: Messages,
+    request: UserRequest[AnyContent]
+  ): Option[HtmlFormat.Appendable] =
     if (configDecorator.isNewsAndUpdatesTileEnabled && newsAndTilesConfig.getNewsAndContentModelList().nonEmpty) {
       Some(latestNewsAndUpdatesView())
     } else {
