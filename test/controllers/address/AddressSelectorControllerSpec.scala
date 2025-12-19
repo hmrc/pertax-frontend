@@ -122,6 +122,26 @@ class AddressSelectorControllerSpec extends BaseSpec {
         verify(mockJourneyCacheRepository, times(1)).get(any())
       }
     }
+
+    "use postcode from session when request body does not contain it" in {
+      val recordSet: RecordSet =
+        RecordSet(Seq(AddressRecord("id", Address(List("line"), None, None, "AA1 1AA", None, Country.UK), "en")))
+
+      val userAnswers: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(SelectedRecordSetPage(ResidentialAddrType), recordSet)
+
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+
+      val result =
+        controller.onPageLoad(ResidentialAddrType)(
+          FakeRequest("GET", "/address-selector").withSession("postcode" -> "AA1 1AA")
+        )
+
+      status(result) mustBe OK
+      verify(mockJourneyCacheRepository, times(1)).get(any())
+    }
+
   }
 
   "onSubmit" must {
@@ -149,10 +169,11 @@ class AddressSelectorControllerSpec extends BaseSpec {
         when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
         when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
 
-        val result: Future[Result] = controller.onSubmit(PostalAddrType)(FakeRequest())
+        val result: Future[Result] = controller.onSubmit(PostalAddrType)(
+          FakeRequest("POST", "").withFormUrlEncodedBody("filter" -> "some-filter")
+        )
 
         status(result) mustBe BAD_REQUEST
-
         verify(mockJourneyCacheRepository, times(1)).get(any())
       }
     }

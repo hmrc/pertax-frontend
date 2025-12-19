@@ -145,9 +145,14 @@ class AddressSelectorController @Inject() (
     }
 
   private def postcodeFromRequest(implicit request: UserRequest[AnyContent]): String =
-    request.body.asFormUrlEncoded.flatMap(_.get(postcode).flatMap(_.headOption)).getOrElse("")
+    request.body.asFormUrlEncoded
+      .flatMap(_.get(postcode).flatMap(_.headOption))
+      .orElse(request.session.get(postcode))
+      .getOrElse("")
 
   private def filterFromRequest(implicit request: UserRequest[AnyContent]): Option[String] =
-    request.body.asFormUrlEncoded.flatMap(_.get(filter).flatMap(_.headOption))
+    request.body.asFormUrlEncoded
+      .flatMap(_.get(filter).flatMap(_.headOption))
+      .orElse(request.session.get(filter))
 
 }
