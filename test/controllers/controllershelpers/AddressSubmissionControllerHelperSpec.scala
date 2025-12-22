@@ -61,7 +61,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
   implicit lazy val messages: Messages                = MessagesImpl(Lang("en"), messagesApi)
 
   val fakeRequest: Request[Any] =
-    fakeScaRequest("GET", "")
+    fakeScaRequest()
       .asInstanceOf[Request[Any]]
 
   override def beforeEach(): Unit = {
@@ -117,7 +117,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         )
 
         val address: AddressDto =
-          AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None)
+          AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
 
         val result = sut.updateCitizenDetailsAddress(
           generatedNino,
@@ -168,7 +168,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         )
 
         val address: AddressDto =
-          AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None)
+          AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
 
         val result = sut.updateCitizenDetailsAddress(
           generatedNino,
@@ -219,7 +219,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         )
 
         val address: AddressDto =
-          AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None)
+          AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
 
         val result = sut.updateCitizenDetailsAddress(
           generatedNino,
@@ -279,7 +279,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       )
 
       val address: AddressDto =
-        AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None)
+        AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
 
       val result = sut.updateCitizenDetailsAddress(
         generatedNino,
@@ -337,7 +337,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       )
 
       val address: AddressDto =
-        AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None)
+        AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
 
       val result = sut.updateCitizenDetailsAddress(
         generatedNino,
@@ -364,7 +364,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       )
 
       val addressDto: AddressDto =
-        AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None)
+        AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
 
       val result = sut
         .handleAddressChangeAuditing(
@@ -389,10 +389,10 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       )
 
       val addressDto: AddressDto =
-        AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None)
+        AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
 
       val addressTwoDto: AddressDto =
-        AddressDto("AddressLine2", Some("AddressLine3"), None, None, None, Some("OtherPostcode"), None, None)
+        AddressDto("AddressLine2", Some("AddressLine3"), None, None, None, Some("OtherPostcode"), None, None, None)
 
       val result = sut
         .handleAddressChangeAuditing(
@@ -417,10 +417,10 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       )
 
       val addressDto: AddressDto =
-        AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None)
+        AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
 
       val addressTwoDto: AddressDto =
-        AddressDto("AddressLine2", Some("AddressLine3"), None, None, None, Some("TestPostcode"), None, None)
+        AddressDto("AddressLine2", Some("AddressLine3"), None, None, None, Some("TestPostcode"), None, None, None)
 
       val result = sut
         .handleAddressChangeAuditing(

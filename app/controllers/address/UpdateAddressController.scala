@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,15 +59,9 @@ class UpdateAddressController @Inject() (
         val showEnterAddressHeader = journeyData.selectedAddressRecord.isEmpty
 
         addressJourneyEnforcer { _ => _ =>
-          val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
+          val form = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
           cachingHelper.enforceDisplayAddressPageVisited(
-            Ok(
-              updateAddressView(
-                addressForm.discardingErrors,
-                typ,
-                showEnterAddressHeader
-              )
-            )
+            Ok(updateAddressView(form.discardingErrors, typ, showEnterAddressHeader))
           )
         }
       }
@@ -82,36 +76,27 @@ class UpdateAddressController @Inject() (
             .bindFromRequest()
             .fold(
               formWithErrors =>
-                Future.successful(
-                  BadRequest(
-                    updateAddressView(
-                      formWithErrors,
-                      typ,
-                      showEnterAddressHeader
-                    )
-                  )
-                ),
-              addressDto =>
-                cachingHelper.addToCache(SubmittedAddressPage(typ), addressDto) flatMap { _ =>
-                  val postCodeHasChanged = !addressDto.postcode
-                    .getOrElse("")
-                    .replace(" ", "")
-                    .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
-                  (typ, postCodeHasChanged) match {
-                    case (PostalAddrType, _) =>
-                      cacheStartDate(
-                        typ,
-                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                      )
-                    case (_, false)          =>
-                      cacheStartDate(
-                        typ,
-                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                      )
-                    case (_, true)           =>
+                Future.successful(BadRequest(updateAddressView(formWithErrors, typ, showEnterAddressHeader))),
+              addressDto => {
+                def normalisePostcode(p: Option[String]): String =
+                  p.getOrElse("").toUpperCase.replaceAll("\\s+", "")
+
+                val newPc = normalisePostcode(addressDto.postcode)
+                val oldPc = normalisePostcode(personDetails.address.flatMap(_.postcode))
+
+                val needsStartDate =
+                  typ != PostalAddrType && newPc != oldPc
+
+                for {
+                  _   <- cachingHelper.addToCache(SubmittedAddressPage(typ), addressDto)
+                  res <-
+                    if (needsStartDate) {
                       Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
-                  }
-                }
+                    } else {
+                      cacheStartDate(typ, Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
+                    }
+                } yield res
+              }
             )
         }
       }

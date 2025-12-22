@@ -39,7 +39,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           _ => {},
-          success => success mustBe AddressDto("Line 1", Some("Line 2"), None, None, None, Some("AA1 1AA"), None, None)
+          success =>
+            success mustBe AddressDto("Line 1", Some("Line 2"), None, None, None, Some("AA1 1AA"), None, None, None)
         )
     }
 
@@ -57,7 +58,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           _ => {},
-          success => success mustBe AddressDto("Line 1", Some("Line 2"), None, None, None, Some("AA11AA"), None, None)
+          success =>
+            success mustBe AddressDto("Line 1", Some("Line 2"), None, None, None, Some("AA11AA"), None, None, None)
         )
     }
 
@@ -82,6 +84,7 @@ class AddressDtoSpec extends BaseSpec {
               Some("Town"),
               None,
               Some("AA1 1AA"),
+              None,
               None,
               None
             )
@@ -411,7 +414,7 @@ class AddressDtoSpec extends BaseSpec {
         .fold(
           _ => {},
           success =>
-            success mustBe AddressDto("Line 1", Some("Line 2"), None, None, None, None, Some("Gibraltar"), None)
+            success mustBe AddressDto("Line 1", Some("Line 2"), None, None, None, None, Some("Gibraltar"), None, None)
         )
     }
 
@@ -440,6 +443,7 @@ class AddressDtoSpec extends BaseSpec {
               None,
               None,
               Some("Gibraltar"),
+              None,
               None
             )
         )
@@ -731,7 +735,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return address with postcode and not country" in {
       val addressDto =
-        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
+        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None, None)
 
       addressDto.toList mustBe Seq("Line 1", "Line 2", "Line 3", "AA1 1AA")
     }
@@ -741,7 +745,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return address with country and not postcode" in {
       val addressDto =
-        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
+        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None, None)
 
       addressDto.toListWithCountry mustBe Seq("Line 1", "Line 2", "Line 3", "UK")
     }
@@ -759,6 +763,7 @@ class AddressDtoSpec extends BaseSpec {
           Some("Line 5"),
           Some("AA1 1AA"),
           Some("UK"),
+          None,
           None
         )
       val addressTye = "residential"
@@ -780,7 +785,7 @@ class AddressDtoSpec extends BaseSpec {
     }
 
     "return address with country when postcode does not exist" in {
-      val addressDto = AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, None, Some("UK"), None)
+      val addressDto = AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, None, Some("UK"), None, None)
       val addressTye = "residential"
       val startDate  = LocalDate.of(2019, 1, 1)
 
@@ -804,7 +809,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return formatted postcode when it contains 7 characters" in {
       val addressDto =
-        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, Some("AA9A9AA"), Some("UK"), None)
+        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, Some("AA9A9AA"), Some("UK"), None, None)
       val addressTye = "residential"
       val startDate  = LocalDate.of(2019, 1, 1)
 
@@ -825,7 +830,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return formatted postcode when it contains 6 characters" in {
       val addressDto =
-        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, Some("A9A9AA"), Some("UK"), None)
+        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, Some("A9A9AA"), Some("UK"), None, None)
       val addressTye = "residential"
       val startDate  = LocalDate.of(2019, 1, 1)
 
@@ -846,7 +851,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return formatted postcode when it contains 5 characters" in {
       val addressDto =
-        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, Some("A99AA"), Some("UK"), None)
+        AddressDto("Line 1", Some("Line 2"), Some("Line 3"), None, None, Some("A99AA"), Some("UK"), None, None)
       val addressTye = "residential"
       val startDate  = LocalDate.of(2019, 1, 1)
 

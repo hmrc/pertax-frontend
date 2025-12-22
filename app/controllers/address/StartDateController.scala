@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,23 @@ import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.dto.DateDto
-import models.Address
 import models.dto.InternationalAddressChoiceDto.OutsideUK
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import routePages.SubmittedStartDatePage
-import services.CitizenDetailsService
+import services.{AddressCountryService, CitizenDetailsService, NormalizationUtils, StartDateDecisionService}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.language.LanguageUtils
 import views.html.InternalServerErrorView
 import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, CannotUpdateAddressFutureDateView, EnterStartDateView}
 
 import java.time.LocalDate
+import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
 
+@Singleton
 class StartDateController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
@@ -48,7 +51,10 @@ class StartDateController @Inject() (
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
   errorRenderer: ErrorRenderer,
-  internalServerErrorView: InternalServerErrorView
+  internalServerErrorView: InternalServerErrorView,
+  startDateDecisionService: StartDateDecisionService,
+  addressCountryService: AddressCountryService,
+  normalizationUtils: NormalizationUtils
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
@@ -59,24 +65,31 @@ class StartDateController @Inject() (
       internalServerErrorView
     ) {
 
+  private def dateDtoForm: Form[DateDto] =
+    DateDto.form(configDecorator.currentLocalDate)
+
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-            val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("").toString
-            val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
-            journeyData.submittedAddressDto map { _ =>
-              val postcodesMatch =
-                if (newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))) {
-                  journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
-                } else {
-                  dateDtoForm
-                }
+            journeyData.submittedAddressDto match {
+              case Some(_) =>
+                val submittedPostcode = journeyData.submittedAddressDto.flatMap(_.postcode)
+                val existingPostcode  = personDetails.address.flatMap(_.postcode)
 
-              Future.successful(Ok(enterStartDateView(postcodesMatch, typ)))
-            } getOrElse
-              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
+                val formToShow =
+                  if (normalizationUtils.postcodesMatch(submittedPostcode, existingPostcode)) {
+                    journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
+                  } else {
+                    dateDtoForm
+                  }
+
+                Future.successful(Ok(enterStartDateView(formToShow, typ)))
+
+              case None =>
+                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
+            }
           }
         }
       }
@@ -92,49 +105,76 @@ class StartDateController @Inject() (
               formWithErrors => Future.successful(BadRequest(enterStartDateView(formWithErrors, typ))),
               dateDto =>
                 cachingHelper.gettingCachedJourneyData(typ) { cache =>
-                  val proposedStartDate = dateDto.startDate
-                  val p85Enabled        = cache.submittedInternationalAddressChoiceDto
+                  val proposedStartDate: LocalDate         = dateDto.startDate
+                  val existingStartDate: Option[LocalDate] = personDetails.address.flatMap(_.startDate)
+                  val today: LocalDate                     = LocalDate.now()
+
+                  val currentPostcode: Option[String] = personDetails.address.flatMap(_.postcode)
+
+                  val newAddressIsInternational: Boolean = cache.submittedInternationalAddressChoiceDto
                     .exists(_.equals(OutsideUK))
 
-                  personDetails.address match {
-                    case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, _)) =>
-                      if (!currentStartDate.isBefore(proposedStartDate)) {
-                        Future.successful(
-                          BadRequest(
-                            cannotUpdateAddressEarlyDateView(
-                              typ,
-                              languageUtils.Dates.formatDate(proposedStartDate),
-                              p85Enabled
-                            )
-                          )
+                  val newCountryCodeFromAddress: Option[String] = cache.submittedAddressDto.flatMap(_.subdivision)
+
+                  implicit val hc: HeaderCarrier =
+                    HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+                  for {
+                    currentCountryCode <- addressCountryService.deriveCountryForPostcode(currentPostcode)
+                    result             <- {
+                      val overseasMove: Boolean = newAddressIsInternational
+
+                      val scotlandBorderChange: Boolean =
+                        (currentCountryCode, newCountryCodeFromAddress) match {
+                          case (Some(current), Some(next)) =>
+                            normalizationUtils.movedAcrossScottishBorder(current, next)
+                          case _                           => true
+                        }
+
+                      startDateDecisionService
+                        .determineStartDate(
+                          requestedDate = proposedStartDate,
+                          recordedStartDate = existingStartDate,
+                          today = today,
+                          overseasMove = overseasMove,
+                          scotlandBorderChange = scotlandBorderChange
                         )
-                      } else if (proposedStartDate.isAfter(LocalDate.now())) {
-                        Future.successful(
-                          BadRequest(
-                            cannotUpdateAddressFutureDateView(
-                              typ,
-                              languageUtils.Dates.formatDate(proposedStartDate),
-                              p85Enabled
-                            )
-                          )
+                        .fold(
+                          {
+                            case StartDateDecisionService.FutureDateError =>
+                              Future.successful(
+                                BadRequest(
+                                  cannotUpdateAddressFutureDateView(
+                                    typ,
+                                    languageUtils.Dates.formatDate(proposedStartDate),
+                                    overseasMove
+                                  )
+                                )
+                              )
+
+                            case StartDateDecisionService.EarlyDateError =>
+                              Future.successful(
+                                BadRequest(
+                                  cannotUpdateAddressEarlyDateView(
+                                    typ,
+                                    languageUtils.Dates.formatDate(proposedStartDate),
+                                    overseasMove
+                                  )
+                                )
+                              )
+                          },
+                          dateToPersist =>
+                            cachingHelper
+                              .addToCache(SubmittedStartDatePage(typ), DateDto(dateToPersist))
+                              .map(_ => Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
                         )
-                      } else {
-                        for {
-                          _ <- cachingHelper.addToCache(SubmittedStartDatePage(typ), dateDto)
-                        } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                      }
-                    case _                                                                   =>
-                      for {
-                        _ <- cachingHelper.addToCache(SubmittedStartDatePage(typ), dateDto)
-                      } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                  }
+                    }
+                  } yield result
                 }
             )
         }
       }
     }
-
-  private def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
 
   private def nonPostalJourneyEnforcer(typ: AddrType)(block: => Future[Result]): Future[Result] =
     typ match {
