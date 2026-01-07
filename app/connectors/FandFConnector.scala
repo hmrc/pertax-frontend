@@ -44,7 +44,7 @@ class FandFConnector @Inject() (
       .get(url"$url")(hc)
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
     httpClientResponse
-      .readLogForbiddenAsWarning(apiResponse)
+      .read(apiResponse)
       .map(response => response.json.as[Boolean])
   }
 }

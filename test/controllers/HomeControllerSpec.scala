@@ -16,6 +16,8 @@
 
 package controllers
 
+import cats.data.EitherT
+import connectors.FandFConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
@@ -38,7 +40,7 @@ import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsIn
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import util.AlertBannerHelper
 
@@ -53,6 +55,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   val mockHomeCardGenerator: HomeCardGenerator         = mock[HomeCardGenerator]
   val mockAlertBannerHelper: AlertBannerHelper         = mock[AlertBannerHelper]
   val mockTaiService: TaiService                       = mock[TaiService]
+  val mockFandfConnector: FandFConnector               = mock[FandFConnector]
 
   lazy val appBuilder: GuiceApplicationBuilder = localGuiceApplicationBuilder()
     .overrides(
@@ -62,7 +65,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
       bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
       bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-      bind[TaiService].toInstance(mockTaiService)
+      bind[TaiService].toInstance(mockTaiService),
+      bind[FandFConnector].toInstance(mockFandfConnector)
     )
 
   private val taxComponents = List("EmployerProvidedServices", "PersonalPensionPayments")
@@ -105,6 +109,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
     when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
+    when(mockFandfConnector.showFandfBanner(any())).thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](false))
   }
 
   def currentRequest[A]: Request[A] =
@@ -287,5 +293,15 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     val result: Future[Result]     = controller.index()(currentRequest)
     status(result) mustBe OK
     assert(!contentAsString(result).contains("alertBannerContent"))
+  }
+
+  "Fandf Banner content is displayed if connector returns true" in {
+    when(mockFandfConnector.showFandfBanner(any())).thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](false))
+
+    val appLocal: Application      = appBuilder.build()
+    val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+    val result: Future[Result]     = controller.index()(currentRequest)
+    status(result) mustBe OK
+    assert(contentAsString(result).contains("Your trusted helper relationship ends at midnight"))
   }
 }
