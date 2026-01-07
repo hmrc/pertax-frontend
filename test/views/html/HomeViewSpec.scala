@@ -58,7 +58,7 @@ class HomeViewSpec extends ViewSpec {
     when(mockConfigDecorator.personalAccount).thenReturn("/personal-account")
     when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/feedback/url")
     when(mockConfigDecorator.fandfBannerLink).thenReturn("/trusted-helpers")
-    when(mockConfigDecorator.fandfBannerDate).thenReturn(LocalDate.of(1, 1, 2026))
+    when(mockConfigDecorator.fandfBannerDate).thenReturn(LocalDate.of(2026, 1, 1))
   }
 
   val homeViewModel: HomeViewModel =
