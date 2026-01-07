@@ -850,3 +850,6 @@ personal_details.try_again.try.again.to.update = rhowch gynnig arall arni i ddiw
 
 label.trusted_helpers_heading=Cynorthwywyr dibynadwy
 label.trusted_helpers_content=Cael help gyda’ch treth ar-lein gan rywun dibynadwy, neu helpwch rywun rydych yn ei adnabod.
+
+fandf.banner.text=Mae’ch perthynas â’ch cynorthwyydd dibynadwy yn dod i ben am hanner nos ar {0}.
+fandf.banner.linkText=Dysgwch sut mae cynorthwywyr dibynadwy yn newid.
