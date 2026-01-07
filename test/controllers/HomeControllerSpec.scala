@@ -110,7 +110,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
-    when(mockFandfConnector.showFandfBanner(any())).thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](false))
+    when(mockFandfConnector.showFandfBanner(any())(any(), any()))
+      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](false))
   }
 
   def currentRequest[A]: Request[A] =
@@ -296,7 +297,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   }
 
   "Fandf Banner content is displayed if connector returns true" in {
-    when(mockFandfConnector.showFandfBanner(any())).thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](false))
+    when(mockFandfConnector.showFandfBanner(any())(any(), any()))
+      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](true))
 
     val appLocal: Application      = appBuilder.build()
     val controller: HomeController = appLocal.injector.instanceOf[HomeController]
