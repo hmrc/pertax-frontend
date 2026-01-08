@@ -1,0 +1,46 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import tags._
+@import models.TaxComponents._
+@this()
+@(taxComponents: List[String])(implicit messages: play.api.i18n.Messages)
+
+    @cardContent = @{
+        taxComponents match {
+            case tc if isMarriageAllowanceRecipient(tc) => messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you")
+            case tc if isMarriageAllowanceTransferor(tc) => messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner")
+            case _ => messages("label.transfer_part_of_your_personal_allowance_to_your_partner_")
+        }
+    }
+
+    @card(
+        id = Some("marriage-allowance-card"),
+        url = Some("/marriage-allowance-application/history"),
+        gaAction = Some("Benefits"),
+        gaLabel = Some("Marriage Allowance"),
+        heading = messages("title.marriage_allowance"),
+        headingTag = "h2",
+        bodyContent = Some(Html("<p class=\"govuk-body\">" + cardContent + "</p>"))
+    ) {
+        <ul class="govuk-list">
+        @if(notMarriageAllowanceCustomer(taxComponents)) {
+            <li><a class="govuk-link ga-track-anchor-click" href="/marriage-allowance-application/how-it-works" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Find out if you qualify for Marriage Allowance">@messages("label.find_out_if_you_qualify_for_marriage_allowance")</a></li>
+        } else {
+            <li><a class="govuk-link ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Manage your Marriage Allowance">@messages("label.manage_your_marriage_allowance")</a></li>
+        }
+        </ul>
+    }

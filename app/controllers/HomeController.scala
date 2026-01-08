@@ -19,17 +19,17 @@ package controllers
 import com.google.inject.Inject
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
+import controllers.controllershelpers.{HomeCardGenerator, NewHomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.admin.ShowPlannedOutageBannerToggle
-import play.api.mvc._
-import services._
+import models.admin.{HomePageNewLayoutToggle, ShowPlannedOutageBannerToggle}
+import play.api.mvc.*
+import services.*
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
 import viewmodels.HomeViewModel
-import views.html.HomeView
+import views.html.{HomeView, NewHomeView}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,9 +41,11 @@ class HomeController @Inject() (
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
   homeCardGenerator: HomeCardGenerator,
+  newHomeOptionsGenerator: NewHomeOptionsGenerator,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
+  newHomeView: NewHomeView,
   rlsInterruptHelper: RlsInterruptHelper,
   alertBannerHelper: AlertBannerHelper
 )(implicit ec: ExecutionContext)
@@ -55,7 +57,61 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  def index: Action[AnyContent] = authenticate.async { implicit request =>
+  def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
+    val saUserType = request.saUserType
+
+    val nino: Nino   = request.helpeeNinoOrElse
+    val taxYear: Int = current.currentYear
+
+    enforceInterrupts {
+      val fTaxComponents           = taiService.getTaxComponentsList(nino, taxYear)
+      val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
+      val fCurrentTaxesAndBenefits = newHomeOptionsGenerator.getCurrentTaxesAndBenefits
+      val fAtsCard                 = newHomeOptionsGenerator.getATSCard()
+      val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
+      val fAlertBannerContent      = alertBannerHelper.getContent
+      val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
+
+      for {
+        taxComponents           <- fTaxComponents
+        breathingSpaceIndicator <- fBreathingSpaceIndicator
+        incomeCards             <- fCurrentTaxesAndBenefits
+        atsCard                 <- fAtsCard
+        shutteringMessaging     <- fShutteringMessaging
+        alertBannerContent      <- fAlertBannerContent
+        eitherPersonDetails     <- fEitherPersonDetails
+      } yield {
+        val personDetailsOpt = eitherPersonDetails.toOption.flatten
+        val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
+
+        val benefitCards       = newHomeOptionsGenerator.getBenefitCards(taxComponents, request.trustedHelper)
+        val trustedHelpersCard = if (request.trustedHelper.isDefined) {
+          None
+        } else {
+          Some(newHomeOptionsGenerator.getTrustedHelpersCard())
+        }
+
+        Ok(
+          newHomeView(
+            HomeViewModel(
+              incomeCards,
+              benefitCards,
+              atsCard,
+              showUserResearchBanner = false,
+              saUserType,
+              breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
+              alertBannerContent,
+              nameToDisplay,
+              trustedHelpersCard
+            ),
+            shutteringMessaging.isEnabled
+          )
+        )
+      }
+    }
+  }
+
+  def oldHomePage(implicit request: UserRequest[AnyContent]) = {
     val saUserType = request.saUserType
 
     val nino: Nino   = request.helpeeNinoOrElse
@@ -88,7 +144,6 @@ class HomeController @Inject() (
         } else {
           Some(homeCardGenerator.getTrustedHelpersCard())
         }
-
         Ok(
           homeView(
             HomeViewModel(
@@ -106,6 +161,13 @@ class HomeController @Inject() (
           )
         )
       }
+    }
+  }
+
+  def index: Action[AnyContent] = authenticate.async { implicit request =>
+    featureFlagService.get(HomePageNewLayoutToggle).flatMap { toggle =>
+      if (toggle.isEnabled) newHomePage
+      else oldHomePage
     }
   }
 
