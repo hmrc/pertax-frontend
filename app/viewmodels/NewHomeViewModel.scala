@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,23 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import components.P
-@import tags._
-@this(p: P)
-@()(implicit messages: play.api.i18n.Messages)
+package viewmodels
 
-@cardContent = {
-@p(Text(messages("selfAssessment.register.findout")))
-}
+import play.twirl.api.Html
 
-@card(
-    id = Some("sa-non-utr-card"),
-    url = Some(controllers.interstitials.routes.InterstitialController.displaySaRegistrationPage.url),
-    gaAction = None,
-    gaLabel = Some("Self Assessment who needs to register"),
-    heading = messages("selfAssessment.whoNeedsToRegister"),
-    bodyContent = Some(cardContent)
-) {
-}
+final case class NewHomeViewModel(
+  listOfTasks: Seq[Html],
+  currentTaxesAndBenefits: Seq[Html],
+  otherTaxesAndBenefits: Seq[Html],
+  newsAndUpdates: Option[Html],
+  showUserResearchBanner: Boolean,
+  saUtr: Option[String],
+  breathingSpaceIndicator: Boolean,
+  alertBannerContent: List[Html],
+  name: Option[String]
+)

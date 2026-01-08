@@ -21,13 +21,12 @@
 @(taxSummariesUrl: String)(implicit messages: play.api.i18n.Messages)
 
 
-@card(
+@homePageOption(
     id = Some("ats-card"),
     url = Some(taxSummariesUrl),
     gaAction = Some("Tax Summaries"),
     gaLabel = Some("Annual Tax Summary"),
     heading = messages("card.ats.heading"),
-    headingTag = "h2",
-    bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("card.ats.text") + "</p>"))
+    headingTag = "h2"
 ) {
 }

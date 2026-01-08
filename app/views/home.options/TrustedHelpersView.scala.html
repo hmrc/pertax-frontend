@@ -21,7 +21,7 @@
 @this(configDecorator: ConfigDecorator)
 @()(implicit messages: play.api.i18n.Messages)
 
-@card(
+@homePageOption(
     id = Some("trusted-helpers-card"),
     url = Some(configDecorator.manageTrustedHelpersUrl),
     gaAction = Some("Account"),

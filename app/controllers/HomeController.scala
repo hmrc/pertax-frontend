@@ -21,6 +21,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, NewHomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
+import models.SelfAssessmentUser
 import models.admin.{HomePageNewLayoutToggle, ShowPlannedOutageBannerToggle}
 import play.api.mvc.*
 import services.*
@@ -28,7 +29,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.HomeViewModel
+import viewmodels.{HomeViewModel, NewHomeViewModel}
 import views.html.{HomeView, NewHomeView}
 
 import java.time.LocalDate
@@ -58,25 +59,28 @@ class HomeController @Inject() (
     authJourney.authWithPersonalDetails
 
   def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
-    val saUserType = request.saUserType
 
-    val nino: Nino   = request.helpeeNinoOrElse
-    val taxYear: Int = current.currentYear
+    val nino: Nino = request.helpeeNinoOrElse
+
+    val utr: Option[String] = request.saUserType match {
+      case saUser: SelfAssessmentUser => Some(saUser.saUtr.toString())
+      case _                          => None
+    }
 
     enforceInterrupts {
-      val fTaxComponents           = taiService.getTaxComponentsList(nino, taxYear)
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
+      val fListOfTasks             = newHomeOptionsGenerator.getListOfTasks
       val fCurrentTaxesAndBenefits = newHomeOptionsGenerator.getCurrentTaxesAndBenefits
-      val fAtsCard                 = newHomeOptionsGenerator.getATSCard()
+      val fOtherTaxesAndBenefits   = newHomeOptionsGenerator.getOtherTaxesAndBenefits
       val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
       val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
 
       for {
-        taxComponents           <- fTaxComponents
         breathingSpaceIndicator <- fBreathingSpaceIndicator
-        incomeCards             <- fCurrentTaxesAndBenefits
-        atsCard                 <- fAtsCard
+        listOfTasks             <- fListOfTasks
+        currentTaxesAndBenefit  <- fCurrentTaxesAndBenefits
+        otherTaxesAndBenefits   <- fOtherTaxesAndBenefits
         shutteringMessaging     <- fShutteringMessaging
         alertBannerContent      <- fAlertBannerContent
         eitherPersonDetails     <- fEitherPersonDetails
@@ -84,25 +88,18 @@ class HomeController @Inject() (
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
-        val benefitCards       = newHomeOptionsGenerator.getBenefitCards(taxComponents, request.trustedHelper)
-        val trustedHelpersCard = if (request.trustedHelper.isDefined) {
-          None
-        } else {
-          Some(newHomeOptionsGenerator.getTrustedHelpersCard())
-        }
-
         Ok(
           newHomeView(
-            HomeViewModel(
-              incomeCards,
-              benefitCards,
-              atsCard,
+            NewHomeViewModel(
+              listOfTasks,
+              currentTaxesAndBenefit,
+              otherTaxesAndBenefits,
+              newHomeOptionsGenerator.getLatestNewsAndUpdatesCard(),
               showUserResearchBanner = false,
-              saUserType,
+              utr,
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
-              alertBannerContent,
-              nameToDisplay,
-              trustedHelpersCard
+              alertBannerContent = alertBannerContent,
+              name = nameToDisplay
             ),
             shutteringMessaging.isEnabled
           )

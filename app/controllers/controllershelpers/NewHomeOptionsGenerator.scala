@@ -31,8 +31,7 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.sca.logging.Logging
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
-import views.html.cards.home.*
-import views.html.home.options.{IncomeAndBenefitsHeadingView, NewItsaMergeView, NewNISPView, NewPayAsYouEarnView, NewSaMergeView, TaxCalcView}
+import views.html.home.options.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,16 +44,18 @@ class NewHomeOptionsGenerator @Inject() (
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
   enrolmentsHelper: EnrolmentsHelper,
   newsAndTilesConfig: NewsAndTilesConfig,
-  newNispView: NewNISPView,
-  newItsaMergeView: NewItsaMergeView,
-  newPayAsYouEarnView: NewPayAsYouEarnView,
-  newSaMergeView: NewSaMergeView,
+  nispView: NISPView,
+  itsaMergeView: ItsaMergeView,
+  payAsYouEarnView: PayAsYouEarnView,
+  saMergeView: SaMergeView,
   taxCalcView: TaxCalcView,
-  incomeAndBenefitsHeadingView: IncomeAndBenefitsHeadingView,
-  selfAssessmentRegistrationView: SelfAssessmentRegistrationView,
+  mtditAdvertView: MTDITAdvertView,
   trustedHelpersView: TrustedHelpersView
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
     extends Logging {
+
+  val getListOfTasks: Future[Seq[Html]] =
+    Future.successful(Nil)
 
   def getCurrentTaxesAndBenefits(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
 
@@ -68,12 +69,29 @@ class NewHomeOptionsGenerator @Inject() (
       val additionalCards =
         getSelfAssessmentCards :+ getNationalInsuranceCard
 
-      Seq(incomeAndBenefitsHeadingView()) ++ Seq(payeCard) ++ taxCalcCards ++ additionalCards
+      Seq(payeCard) ++ taxCalcCards ++ additionalCards
     }
   }
 
-  def getTrustedHelpersCard()(implicit messages: Messages): HtmlFormat.Appendable =
-    trustedHelpersView()
+  def getOtherTaxesAndBenefits(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
+
+    val mtditAdvertFlagF = featureFlagService.get(MDTITAdvertToggle)
+
+    for {
+      mtditAdvertToggle <- mtditAdvertFlagF
+      atsCard           <- getAnnualTaxSummaryCard
+    } yield getMtditCard(
+      mtditAdvertToggle.isEnabled
+    ) ++ atsCard ++ getTrustedHelpersCard()
+  }
+
+  def getTrustedHelpersCard()(implicit
+    request: UserRequest[AnyContent],
+    messages: Messages
+  ): Seq[HtmlFormat.Appendable] =
+    if (request.trustedHelper.isEmpty)
+      Seq(trustedHelpersView())
+    else Nil
 
   private def getDynamicTaxCalcCards(implicit request: UserRequest[_], messages: Messages): Future[Seq[Html]] =
     if (request.trustedHelper.isDefined) {
@@ -91,7 +109,7 @@ class NewHomeOptionsGenerator @Inject() (
 
   def getPayAsYouEarnCard(implicit request: UserRequest[_], messages: Messages): Future[HtmlFormat.Appendable] =
     featureFlagService.get(PayeToPegaRedirectToggle).map { case FeatureFlag(_, isEnabled) =>
-      newPayAsYouEarnView(shouldUsePegaRouting = isEnabled)
+      payAsYouEarnView(shouldUsePegaRouting = isEnabled)
     }
 
   private def displaySACall: Call = controllers.interstitials.routes.InterstitialController.displaySelfAssessment
@@ -125,25 +143,41 @@ class NewHomeOptionsGenerator @Inject() (
         request.isSa,
         configDecorator.pegaSaRegistrationEnabled
       ) match {
-        case (true, _, _)         =>
-          Seq(newItsaMergeView((current.currentYear + 1).toString))
-        case (false, true, _)     =>
+        case (true, _, _)     =>
+          Seq(itsaMergeView((current.currentYear + 1).toString))
+        case (false, true, _) =>
           callAndContent
             .map { case (redirectUrl, paragraphMessageKey) =>
               Seq(
-                newSaMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey)
+                saMergeView((current.currentYear + 1).toString, redirectUrl.url, paragraphMessageKey)
               )
             }
             .getOrElse(Nil)
-        case (false, false, true) => Seq(selfAssessmentRegistrationView())
-        case _                    => Nil
+        case _                => Nil
       }
   }
 
-  def getAnnualTaxSummaryCard(implicit messages: Messages): Future[Option[HtmlFormat.Appendable]] =
+  private def getMtditCard(includeMTDITAdvert: Boolean)(implicit
+    messages: Messages,
+    request: UserRequest[?]
+  ): Seq[HtmlFormat.Appendable] = request.trustedHelper match {
+    case Some(_) => Nil
+    case None    =>
+      (
+        enrolmentsHelper.mtdEnrolmentStatus(request.enrolments).isDefined,
+        request.isSa,
+        includeMTDITAdvert
+      ) match {
+        case (false, true, true) =>
+          Seq(mtditAdvertView())
+        case _                   => Nil
+      }
+  }
+
+  def getAnnualTaxSummaryCard(implicit messages: Messages): Future[Seq[HtmlFormat.Appendable]] =
     featureFlagService.get(TaxSummariesTileToggle).map {
-      case FeatureFlag(_, true) => Some(taxSummariesView(configDecorator.annualTaxSaSummariesTileLinkShow))
-      case _                    => None
+      case FeatureFlag(_, true) => Seq(taxSummariesView(configDecorator.annualTaxSaSummariesTileLinkShow))
+      case _                    => Nil
     }
 
   def getLatestNewsAndUpdatesCard()(implicit
@@ -157,7 +191,7 @@ class NewHomeOptionsGenerator @Inject() (
     }
 
   def getNationalInsuranceCard(implicit messages: Messages): HtmlFormat.Appendable =
-    newNispView()
+    nispView()
 
   def getBenefitCards(
     taxComponents: List[String],

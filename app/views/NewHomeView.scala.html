@@ -14,20 +14,24 @@
  * limitations under the License.
  *@
 
-@import components.H2
+@import components.{H2, H3, P}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import viewmodels.HomeViewModel
+@import viewmodels.NewHomeViewModel
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 @this(
         main: MainView,
         govukNotificationBanner : GovukNotificationBanner,
         alertBanner: AlertBanner,
-        configDecorator: ConfigDecorator
+        configDecorator: ConfigDecorator,
+        h2: H2,
+        h3: H3,
+        p: P,
+        govukInsetText: GovukInsetText
 )
 
-@(viewModel: HomeViewModel, shutteringMessaging: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(viewModel: NewHomeViewModel, shutteringMessaging: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @bannerHtml = {
     <p class="govuk-notification-banner__heading">
@@ -36,9 +40,15 @@
     </p>
 }
 
+@noTasksContent = {
+    @govukInsetText(InsetText(
+        content = Text("You do not have any payment or refunds tasks for PAYE tax years 2021 to 2025. Check your taxes and benefits to find out if there’s anything else you need to do.")
+    ))
+}
+
 @main(
     pageTitle = messages("label.account_home"),
-    fullWidth = true,
+    fullWidth = false,
     showUserResearchBanner = viewModel.showUserResearchBanner,
     accountHome = true
 ) {
@@ -74,13 +84,26 @@
         @messages("label.view_and_save_your_national_insurance_number")</a></p>
 
     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+            @h2("Your tasks")
+            @if(viewModel.listOfTasks.isEmpty){
+                @noTasksContent
+            } else {
+                @p(Text("You do not have any payment or refunds tasks for PAYE tax years 2021 to 2025. Check your taxes and benefits to find out if there’s anything else you need to do."))
+                @viewModel.listOfTasks
+                @govukInsetText(InsetText(
+                    content = Text("Check your taxes and benefits to find out if there’s anything else you need to do.")
+                ))
+            }
 
-    <div class="pertax-home">
-        <div class="flex-container">
-            @viewModel.incomeCards
-            @viewModel.benefitCards
-            @viewModel.atsCard
-            @viewModel.trustedHelpersCard.toSeq
-        </div>
-    </div>
+            <div class="govuk-!-padding-bottom-6"></div>
+
+            @h2("Taxes and benefits")
+            @h3("Your current HMRC online taxes and benefits")
+            @viewModel.currentTaxesAndBenefits
+
+            @h3("Other taxes and benefits that may be relevant to you")
+            @viewModel.otherTaxesAndBenefits
+
+            @viewModel.newsAndUpdates
+
 }

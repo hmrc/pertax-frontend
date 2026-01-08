@@ -15,23 +15,17 @@
  *@
 
 @import tags._
-@import components.P
 
-@this(p: P)
+@this()
 
 @()(implicit messages: play.api.i18n.Messages)
 
-@cardContent = {
-    @p(Text(messages("label.mtdit.p1")))
-}
-
-@card(
+@homePageOption(
     id = Some("mtdit-card"),
     url = Some(controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url),
     gaAction = Some("MTDIT"),
     gaLabel = Some("Making Tax Digital for Income Tax"),
     heading = messages("label.mtdit.heading"),
-    headingTag = "h2",
-    bodyContent = Some(cardContent)
+    headingTag = "h2"
 ) {
 }
