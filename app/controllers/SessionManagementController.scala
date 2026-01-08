@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,34 @@
 package controllers
 
 import com.google.inject.Inject
+import config.ConfigDecorator
+import controllers.auth.AuthJourney
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.JourneyCacheRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-class SessionManagementController @Inject() (mcc: MessagesControllerComponents) extends FrontendController(mcc) {
+import scala.concurrent.ExecutionContext
 
-  def keepAlive: Action[AnyContent] = Action {
-    Ok("")
+class SessionManagementController @Inject() (
+  authJourney: AuthJourney,
+  mcc: MessagesControllerComponents,
+  journeyCacheRepository: JourneyCacheRepository
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+    extends FrontendController(mcc) {
+
+  def keepAlive: Action[AnyContent] = authJourney.authWithPersonalDetails.async { implicit request =>
+    journeyCacheRepository.keepAlive.map { _ =>
+      Ok("")
+    }
   }
 
-  def timeOut: Action[AnyContent] = Action {
-    Redirect(routes.PublicController.sessionTimeout).withNewSession
+  def timeOut: Action[AnyContent] = Action.async { implicit request =>
+    journeyCacheRepository.clear.map { _ =>
+      Redirect(
+        configDecorator.getBasGatewayFrontendSignOutUrl(
+          configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin)
+        )
+      )
+    }
   }
 }
