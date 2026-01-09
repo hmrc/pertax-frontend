@@ -16,7 +16,6 @@
 
 package controllers
 
-import cats.data.EitherT
 import connectors.FandFConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
@@ -40,7 +39,7 @@ import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsIn
 import testUtils.{BaseSpec, WireMockHelper}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import util.AlertBannerHelper
 
@@ -111,7 +110,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
     when(mockFandfConnector.showFandfBanner(any())(any(), any()))
-      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](false))
+      .thenReturn(Future.successful(false))
   }
 
   def currentRequest[A]: Request[A] =
@@ -298,7 +297,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
   "Fandf Banner content is displayed if connector returns true" in {
     when(mockFandfConnector.showFandfBanner(any())(any(), any()))
-      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](true))
+      .thenReturn(Future.successful(true))
 
     val appLocal: Application      = appBuilder.build()
     val controller: HomeController = appLocal.injector.instanceOf[HomeController]

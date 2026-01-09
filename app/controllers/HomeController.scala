@@ -71,7 +71,7 @@ class HomeController @Inject() (
       val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
       val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
-      val fShowFandfBanner         = fandFConnector.showFandfBanner(nino).value
+      val fShowFandfBanner         = fandFConnector.showFandfBanner(nino)
 
       for {
         taxComponents           <- fTaxComponents
@@ -85,8 +85,6 @@ class HomeController @Inject() (
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
-
-        val fandfBanner = showFandfBanner.contains(true)
 
         val benefitCards       = homeCardGenerator.getBenefitCards(taxComponents, request.trustedHelper)
         val trustedHelpersCard = if (request.trustedHelper.isDefined) {
@@ -109,7 +107,7 @@ class HomeController @Inject() (
               trustedHelpersCard
             ),
             shutteringMessaging.isEnabled,
-            fandfBanner
+            showFandfBanner
           )
         )
       }

@@ -16,7 +16,6 @@
 
 package connectors
 
-import cats.data.EitherT
 import com.google.inject.Inject
 import config.ConfigDecorator
 import play.api.Logging
@@ -37,7 +36,7 @@ class FandFConnector @Inject() (
 
   def showFandfBanner(
     nino: Nino
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Boolean] = {
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     val url = s"$baseUrl/fandf/$nino/showBanner"
 
     val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
@@ -45,6 +44,6 @@ class FandFConnector @Inject() (
       .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
     httpClientResponse
       .read(apiResponse)
-      .map(response => response.json.as[Boolean])
+      .fold(_ => false, _.json.as[Boolean])
   }
 }
