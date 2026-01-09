@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,8 @@ class ContentsCheckSpec extends IntegrationSpec {
     key match {
       case "id-check-complete"                     =>
         ExpectedData("Service unavailable - Personal tax account - GOV.UK", signOutInHeader = true)
+      case "sign-in"                               =>
+        ExpectedData("Sign in - Personal tax account - GOV.UK")
       case "sa-home"                               =>
         ExpectedData("Your Self Assessment - Personal tax account - GOV.UK", attorneyBannerPresent = false)
       case "sa-reset-password"                     =>
@@ -127,6 +129,7 @@ class ContentsCheckSpec extends IntegrationSpec {
   )
 
   val unauthUrls: Map[String, ExpectedData] = Map(
+    "/personal-account/signin"                  -> getExpectedData("sign-in"),
     "/personal-account/identity-check-complete" -> getExpectedData("id-check-complete")
   )
 

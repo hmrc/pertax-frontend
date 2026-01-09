@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,11 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.bindable.Origin
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import views.html.public.SessionTimeoutView
 
 import scala.concurrent.Future
 
-class PublicController @Inject() (cc: MessagesControllerComponents)(implicit
+class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeoutView: SessionTimeoutView)(implicit
   configDecorator: ConfigDecorator
 ) extends PertaxBaseController(cc) {
 
@@ -32,6 +33,12 @@ class PublicController @Inject() (cc: MessagesControllerComponents)(implicit
       Redirect(routes.HomeController.index).withNewSession.addingToSession(
         configDecorator.authProviderKey -> configDecorator.authProviderGG
       )
+    }
+  }
+
+  def sessionTimeout: Action[AnyContent] = Action.async { implicit request =>
+    Future.successful {
+      Ok(sessionTimeoutView())
     }
   }
 
