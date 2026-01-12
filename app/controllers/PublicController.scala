@@ -36,6 +36,9 @@ class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeo
     }
   }
 
+  // TODO: SessionManagementController.timeOut now redirects via BAS Gateway.
+  //  This endpoint is no longer part of the pertax timeout flow.
+  //  Verify Kibana logs after deployment of DDCNL-11341 and remove if no longer in use.
   def sessionTimeout: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Ok(sessionTimeoutView())
