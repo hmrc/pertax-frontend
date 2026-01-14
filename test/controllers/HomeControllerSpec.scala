@@ -103,8 +103,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       Future.successful(Seq.empty)
     )
 
-    when(mockHomeOptionsGenerator.getListOfTasks).thenReturn(
-      Future.successful(Seq.empty)
+    when(mockHomeOptionsGenerator.getListOfTasks(any())).thenReturn(
+      Future.successful(Html(""))
     )
 
     when(mockAlertBannerHelper.getContent(any(), any(), any())).thenReturn(

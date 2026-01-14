@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import components.{H2, H3, P}
+@import components.{H2, H3}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import viewmodels.NewHomeViewModel
@@ -26,9 +26,7 @@
         alertBanner: AlertBanner,
         configDecorator: ConfigDecorator,
         h2: H2,
-        h3: H3,
-        p: P,
-        govukInsetText: GovukInsetText
+        h3: H3
 )
 
 @(viewModel: NewHomeViewModel, shutteringMessaging: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
@@ -38,12 +36,6 @@
         @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerParagraphCy }else {@configDecorator.shutterBannerParagraphEn}<br/>
         <a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
     </p>
-}
-
-@noTasksContent = {
-    @govukInsetText(InsetText(
-        content = Text("You do not have any payment or refunds tasks for PAYE tax years 2021 to 2025. Check your taxes and benefits to find out if there’s anything else you need to do.")
-    ))
 }
 
 @main(
@@ -84,17 +76,7 @@
         @messages("label.view_and_save_your_national_insurance_number")</a></p>
 
     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-            @h2("Your tasks")
-            @if(viewModel.listOfTasks.isEmpty){
-                @noTasksContent
-            } else {
-                @p(Text("You do not have any payment or refunds tasks for PAYE tax years 2021 to 2025. Check your taxes and benefits to find out if there’s anything else you need to do."))
-                @viewModel.listOfTasks
-                @govukInsetText(InsetText(
-                    content = Text("Check your taxes and benefits to find out if there’s anything else you need to do.")
-                ))
-            }
-
+            @viewModel.listOfTasks
             <div class="govuk-!-padding-bottom-6"></div>
 
             @h2("Taxes and benefits")

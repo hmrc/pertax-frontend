@@ -16,16 +16,9 @@
 
 package viewmodels
 
-import play.twirl.api.Html
-
-final case class NewHomeViewModel(
-  listOfTasks: Html,
-  currentTaxesAndBenefits: Seq[Html],
-  otherTaxesAndBenefits: Seq[Html],
-  newsAndUpdates: Option[Html],
-  showUserResearchBanner: Boolean,
-  saUtr: Option[String],
-  breathingSpaceIndicator: Boolean,
-  alertBannerContent: List[Html],
-  name: Option[String]
+final case class Task(
+  title: String,
+  isCompleted: Boolean,
+  href: String,
+  hintText: Option[String] = None
 )

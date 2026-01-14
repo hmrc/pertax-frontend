@@ -67,6 +67,7 @@ class HomeOptionsGeneratorSpec extends ViewSpec with MockitoSugar {
   private val taxCalcView               = inject[TaxCalcView]
   private val enrolmentsHelper          = inject[EnrolmentsHelper]
   private val mockConfigDecorator       = mock[ConfigDecorator]
+  private val taskListView              = inject[TaskListView]
 
   private val newsAndTilesConfig  = mock[NewsAndTilesConfig]
   private val stubConfigDecorator = new ConfigDecorator(
@@ -91,7 +92,8 @@ class HomeOptionsGeneratorSpec extends ViewSpec with MockitoSugar {
       saMergeView,
       taxCalcView,
       mtditAdvertTileView,
-      trustedHelpersView
+      trustedHelpersView,
+      taskListView
     )(usedConfigDecorator, ec)
 
   private lazy val homeOptionsGenerator = createHomeOptionsGenerator(stubConfigDecorator)
@@ -519,6 +521,13 @@ class HomeOptionsGeneratorSpec extends ViewSpec with MockitoSugar {
     }
   }
 
+  "Calling listOfTasks" must {
+    "return listOfTasks markup" in {
+      val result = homeOptionsGenerator.getListOfTasks().futureValue
+      result mustBe taskListView(Nil)
+    }
+  }
+
   "return PAYE card pointing to PEGA when toggle is enabled and NINO matches the redirect list" in {
     val matchingNino = "AA000055A"
 
@@ -553,7 +562,8 @@ class HomeOptionsGeneratorSpec extends ViewSpec with MockitoSugar {
       saMergeView,
       taxCalcView,
       mtditAdvertTileView,
-      trustedHelpersView
+      trustedHelpersView,
+      taskListView
     )(injectedMockConfigDecorator, ec)
 
     implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =

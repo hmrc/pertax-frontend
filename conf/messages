@@ -462,6 +462,7 @@ label.no_record_of_employment=HMRC has no record of you being employed in this t
 label.not_enrolled.content=You are registered for Self Assessment. To use your Self Assessment online, you need to request access.
 label.not_enrolled.link.text=Request access to your Self Assessment
 label.national_insurance_and_state_pension=Your National Insurance and State Pension
+label.new_national_insurance_and_state_pension=National Insurance and State Pension
 label.view_national_insurance=View your National Insurance record, and view and save your National Insurance number.
 label.view_state_pension=View your State Pension Summary, and pay for gaps in your National Insurance record.
 

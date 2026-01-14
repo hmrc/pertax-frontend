@@ -479,6 +479,7 @@ label.view_gaps_in_your_record=Bwrw golwg ar fylchau yn eich cofnodion
 label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 
 label.national_insurance_and_state_pension=Eich Yswiriant Gwladol a’ch Pensiwn y Wladwriaeth
+label.new_national_insurance_and_state_pension=Yswiriant Gwladol a’ch Pensiwn y Wladwriaeth
 label.view_national_insurance=Bwrw golwg dros eich cofnod Yswiriant Gwladol, a bwrw golwg dros eich rhif Yswiriant Gwladol a’i gadw.
 label.view_state_pension=Bwrw golwg dros Grynodeb o’ch Pensiwn y Wladwriaeth, a thalu am y bylchau yn eich cofnod Yswiriant Gwladol.
 

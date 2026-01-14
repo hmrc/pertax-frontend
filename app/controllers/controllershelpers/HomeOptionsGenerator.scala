@@ -50,12 +50,13 @@ class HomeOptionsGenerator @Inject() (
   saMergeView: SaMergeView,
   taxCalcView: TaxCalcView,
   mtditAdvertView: MTDITAdvertView,
-  trustedHelpersView: TrustedHelpersView
+  trustedHelpersView: TrustedHelpersView,
+  taskListView: TaskListView
 )(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
     extends Logging {
 
-  val getListOfTasks: Future[Seq[Html]] =
-    Future.successful(Nil)
+  def getListOfTasks(implicit messages: Messages): Future[Html] =
+    Future.successful(taskListView(Nil)(messages))
 
   def getCurrentTaxesAndBenefits(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] = {
 
