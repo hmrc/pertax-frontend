@@ -28,14 +28,14 @@ govukTaskList: GovukTaskList)
 
 @(listOfTasks: Seq[Task])(implicit messages: play.api.i18n.Messages)
 
-@h2("Your tasks")
+@h2("label.task_heading")
 
 @if(listOfTasks.isEmpty){
     @govukInsetText(InsetText(
-       content = Text("You do not have any payment or refunds tasks for PAYE tax years 2021 to 2025. Check your taxes and benefits to find out if there’s anything else you need to do.")
+       content = Text(messages("label.task_no_tasks"))
     ))
 } else {
-    @p(Text("Use this task list to see if you owe tax or are due a refund for Pay As You Earn (PAYE). It can take up to 5 days for tasks to show as complete."))
+    @p(Text(messages("label.task_paragraph")))
     @govukTaskList(TaskList(
         items = listOfTasks.map{ task =>
                TaskListItem(
@@ -48,10 +48,10 @@ govukTaskList: GovukTaskList)
                     )
                 },
                  status = if(task.isCompleted) TaskListItemStatus(
-                   content = Text("Completed")
+                   content = Text(messages("label.task_incomplete"))
                  ) else TaskListItemStatus(
                     tag = Some(Tag(
-                        content = Text("Incomplete"),
+                        content = Text(messages("label.task_incomplete")),
                         classes = "govuk-tag--blue"
                     ))
                  ),
@@ -61,6 +61,6 @@ govukTaskList: GovukTaskList)
         idPrefix = "task-list"
         ))
     @govukInsetText(InsetText(
-      content = Text("Check your taxes and benefits to find out if there’s anything else you need to do.")
+      content = Text(messages("label.task_after_tasks"))
     ))
 }
