@@ -257,7 +257,7 @@ class HomeOptionsGeneratorSpec extends ViewSpec with MockitoSugar {
         saMergeView(
           (current.currentYear + 1).toString,
           controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-          "label.viewAndManageSA"
+          "label.newViewAndManageSA"
         )
       )
     }
@@ -476,7 +476,6 @@ class HomeOptionsGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     def checkOptionsPresent(cards: Seq[Html]) = {
-      println("aaaa " + cards)
       cards.map(_.toString).exists(_.contains("ats-card")) mustBe true
       cards.map(_.toString).exists(_.contains("marriage-allowance-card")) mustBe true
       cards.map(_.toString).exists(_.contains("trusted-helpers-card")) mustBe true
