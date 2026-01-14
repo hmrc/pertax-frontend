@@ -445,7 +445,7 @@ label.check_if_you_need_to_fill_in_a_tax_return=Check if you need to fill in a t
 label.find_out_how_to_access_self_assessment=Find out how to access Self Assessment
 label.request_access_to_your_sa=Request access to your Self Assessment.
 label.viewAndManageSA=View and manage your Self Assessment tax return. The deadline for online returns is 31 January {0}.
-label.newViewAndManageSA=View and manage your Self Assessment tax return. The deadline for online returns is 31 January {0}.
+label.newViewAndManageSA=The deadline for online returns is 31 January {0}.
 
 label.national_insurance=National Insurance
 label.check_your_national_insurance_contributions_and_view_and_save_=Check your National Insurance contributions and view and save your National Insurance number.

@@ -308,11 +308,13 @@ label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os by
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.this.section.is=Dyma’r adran ynghylch
 label.remove=Dileu
+label.tax_calc_heading=Your tax calculation
 
 #
 # News
 #
 label.latest_news_and_updates=Y newyddion diweddaraf a diweddariadau
+label.hmrc_news=HMRC News
 label.other_news_and_updates=Newyddion a diweddariadau eraill
 label.news_and_updates=Newyddion a Diweddariadau
 label.percentage_points_uplift_in_NIC=Cynnydd o 1.25 pwynt canrannol yng nghyfraniadau Yswiriant Gwladol
@@ -458,6 +460,7 @@ label.no_need_to_contact_hmrc=Does dim angen i chi gysylltu â CThEM ynglŷn â 
 label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
 
 label.viewAndManageSA=Bwrw golwg dros eich Ffurflen Dreth Hunanasesiad a’i rheoli. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.newViewAndManageSA=The deadline for online returns is 31 January {0}.
 
 label.self_assessment=Hunanasesiad
 label.make_a_payment=Gwneud taliad

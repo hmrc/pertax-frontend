@@ -18,10 +18,10 @@ package controllers
 
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
+import controllers.controllershelpers.{HomeCardGenerator, HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.admin.{GetPersonFromCitizenDetailsToggle, ShowPlannedOutageBannerToggle}
+import models.admin.{GetPersonFromCitizenDetailsToggle, HomePageNewLayoutToggle, ShowPlannedOutageBannerToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -51,6 +51,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
   val mockBreathingSpaceService: BreathingSpaceService = mock[BreathingSpaceService]
   val mockHomeCardGenerator: HomeCardGenerator         = mock[HomeCardGenerator]
+  val mockHomeOptionsGenerator: HomeOptionsGenerator   = mock[HomeOptionsGenerator]
   val mockAlertBannerHelper: AlertBannerHelper         = mock[AlertBannerHelper]
   val mockTaiService: TaiService                       = mock[TaiService]
 
@@ -61,6 +62,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
       bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
       bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+      bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
       bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
       bind[TaiService].toInstance(mockTaiService)
     )
@@ -93,6 +95,18 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       Html("<div class='trusted-helpers-card'></div>")
     )
 
+    when(mockHomeOptionsGenerator.getCurrentTaxesAndBenefits(any(), any())).thenReturn(
+      Future.successful(Seq.empty)
+    )
+
+    when(mockHomeOptionsGenerator.getOtherTaxesAndBenefits(any(), any())).thenReturn(
+      Future.successful(Seq.empty)
+    )
+
+    when(mockHomeOptionsGenerator.getListOfTasks).thenReturn(
+      Future.successful(Seq.empty)
+    )
+
     when(mockAlertBannerHelper.getContent(any(), any(), any())).thenReturn(
       Future.successful(List.empty)
     )
@@ -105,6 +119,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
     when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+    when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+      .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
   }
 
   def currentRequest[A]: Request[A] =
@@ -112,7 +128,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
       .asInstanceOf[Request[A]]
 
-  "Calling HomeController.index" must {
+  "Calling HomeController.index with feature toggle on" must {
     "Return a Html that is returned as part of Benefit Cards incl tax components" in {
       val expectedHtmlString = "<div class='TestingForBenefitCards'></div>"
       val expectedHtml: Html = Html(expectedHtmlString)
@@ -261,6 +277,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
             bind[TaiService].toInstance(mockTaiService),
             bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
             bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+            bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
             bind[AlertBannerHelper].toInstance(mockAlertBannerHelper)
           )
           .build()
@@ -275,7 +292,121 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
       verify(mockHomeCardGenerator, times(0)).getTrustedHelpersCard()(any())
     }
+  }
 
+  "Calling HomeController.index with layout toggle on" must {
+
+    "Return a Breathing space if that is returned within period" in {
+      val expectedHtmlString =
+        "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
+      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
+        Future.successful(BreathingSpaceIndicatorResponse.WithinPeriod)
+      )
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(currentRequest)
+      status(result) mustBe OK
+      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+    }
+
+    "Does not return a Breathing space if that is returned within period" in {
+      val expectedHtmlString =
+        "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
+      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
+        Future.successful(BreathingSpaceIndicatorResponse.OutOfPeriod)
+      )
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(currentRequest)
+      status(result) mustBe OK
+      assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+    }
+
+    List(
+      BreathingSpaceIndicatorResponse.OutOfPeriod,
+      BreathingSpaceIndicatorResponse.NotFound,
+      BreathingSpaceIndicatorResponse.StatusUnknown
+    ).foreach { breathingSpaceResponse =>
+      s"Does not return a Breathing space if that is returned $breathingSpaceResponse" in {
+        val expectedHtmlString =
+          "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
+        when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
+          Future.successful(breathingSpaceResponse)
+        )
+        when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+          .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+        val appLocal: Application = appBuilder.build()
+
+        val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+        val result: Future[Result]     = controller.index()(currentRequest)
+        status(result) mustBe OK
+        assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+      }
+    }
+
+    "Shuttering is displayed if toggled on" in {
+      val expectedHtmlString =
+        "A number of services will be unavailable from"
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
+
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(currentRequest)
+      status(result) mustBe OK
+      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+    }
+
+    "Shuttering is not displayed if toggled off" in {
+      val expectedHtmlString =
+        "A number of services will be unavailable from"
+
+      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(currentRequest)
+      status(result) mustBe OK
+      assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+    }
+
+    "Alert Banner content is displayed as returned from the alertBannerContent" in {
+      val expectedHtmlString = "<div class='alertBannerContent'></div>"
+      val expectedHtml: Html = Html(expectedHtmlString)
+
+      when(mockAlertBannerHelper.getContent(any(), any(), any()))
+        .thenReturn(Future.successful(List(expectedHtml)))
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(currentRequest)
+      status(result) mustBe OK
+      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+    }
   }
 
   "Alert Banner content is not displayed if empty" in {

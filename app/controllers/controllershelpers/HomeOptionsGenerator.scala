@@ -36,7 +36,7 @@ import views.html.home.options.*
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class NewHomeOptionsGenerator @Inject() (
+class HomeOptionsGenerator @Inject() (
   featureFlagService: FeatureFlagService,
   childBenefitSingleAccountView: ChildBenefitSingleAccountView,
   marriageAllowanceView: MarriageAllowanceView,
@@ -82,7 +82,7 @@ class NewHomeOptionsGenerator @Inject() (
       atsCard           <- getAnnualTaxSummaryCard
     } yield getMtditCard(
       mtditAdvertToggle.isEnabled
-    ) ++ atsCard ++ getTrustedHelpersCard()
+    ) ++ getBenefitCards(request.trustedHelper) ++ atsCard ++ getTrustedHelpersCard()
   }
 
   def getTrustedHelpersCard()(implicit
@@ -194,19 +194,18 @@ class NewHomeOptionsGenerator @Inject() (
     nispView()
 
   def getBenefitCards(
-    taxComponents: List[String],
     trustedHelper: Option[TrustedHelper]
   )(implicit messages: Messages): List[Html] =
     if (trustedHelper.isEmpty) {
-      List(getChildBenefitCard(), getMarriageAllowanceCard(taxComponents))
+      List(getChildBenefitCard(), getMarriageAllowanceCard())
     } else {
       List.empty
     }
 
   def getChildBenefitCard()(implicit messages: Messages): HtmlFormat.Appendable = childBenefitSingleAccountView()
 
-  def getMarriageAllowanceCard(taxComponents: List[String])(implicit
+  def getMarriageAllowanceCard()(implicit
     messages: Messages
   ): HtmlFormat.Appendable =
-    marriageAllowanceView(taxComponents)
+    marriageAllowanceView()
 }

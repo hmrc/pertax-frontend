@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.controllershelpers.{HomeCardGenerator, NewHomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
+import controllers.controllershelpers.{HomeCardGenerator, HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.SelfAssessmentUser
 import models.admin.{HomePageNewLayoutToggle, ShowPlannedOutageBannerToggle}
@@ -42,7 +42,7 @@ class HomeController @Inject() (
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
   homeCardGenerator: HomeCardGenerator,
-  newHomeOptionsGenerator: NewHomeOptionsGenerator,
+  homeOptionsGenerator: HomeOptionsGenerator,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
@@ -69,9 +69,9 @@ class HomeController @Inject() (
 
     enforceInterrupts {
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
-      val fListOfTasks             = newHomeOptionsGenerator.getListOfTasks
-      val fCurrentTaxesAndBenefits = newHomeOptionsGenerator.getCurrentTaxesAndBenefits
-      val fOtherTaxesAndBenefits   = newHomeOptionsGenerator.getOtherTaxesAndBenefits
+      val fListOfTasks             = homeOptionsGenerator.getListOfTasks
+      val fCurrentTaxesAndBenefits = homeOptionsGenerator.getCurrentTaxesAndBenefits
+      val fOtherTaxesAndBenefits   = homeOptionsGenerator.getOtherTaxesAndBenefits
       val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
       val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
@@ -94,7 +94,7 @@ class HomeController @Inject() (
               listOfTasks,
               currentTaxesAndBenefit,
               otherTaxesAndBenefits,
-              newHomeOptionsGenerator.getLatestNewsAndUpdatesCard(),
+              homeOptionsGenerator.getLatestNewsAndUpdatesCard(),
               showUserResearchBanner = false,
               utr,
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
