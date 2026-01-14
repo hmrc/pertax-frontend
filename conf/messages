@@ -837,3 +837,6 @@ personal_details.try_again.try.again.to.update = try again to update your detail
 
 label.trusted_helpers_heading=Trusted helpers
 label.trusted_helpers_content=Get help with your tax online from someone you trust, or help someone you know.
+
+fandf.banner.text=Your trusted helper relationship ends at midnight on {0}.
+fandf.banner.linkText=Find out how trusted helpers is changing
