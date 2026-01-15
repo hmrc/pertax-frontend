@@ -98,7 +98,13 @@ class HomeOptionsGenerator @Inject() (
     if (request.trustedHelper.isDefined) {
       Future.successful(Seq.empty)
     } else {
-      Future.successful(Seq(taxCalcView()))
+      featureFlagService.get(ShowTaxCalcTileToggle).flatMap { taxCalcTileFlag =>
+        if (taxCalcTileFlag.isEnabled) {
+          Future.successful(Seq(taxCalcView()))
+        } else {
+          Future.successful(Nil)
+        }
+      }
     }
 
   def getATSCard()(implicit request: UserRequest[AnyContent], messages: Messages): Future[Seq[Html]] =

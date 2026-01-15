@@ -24,14 +24,14 @@
         divAttr: Map[String, String] = Map.empty
 )(actionContent: Html)
 
-<div class="option" @id.map { i => id="@i" } @divAttr.map{attr => @attr._1="@attr._2"} >
+<div class="pta-home-option" @id.map { i => id="@i" } @divAttr.map{attr => @attr._1="@attr._2"} >
 
     <div class="@if(url) {active}" @if(url) {
         data-journey-click="link - click:@gaAction:@gaLabel"}>
 
-        <@headingTag class="govuk-heading-s card-heading">
+        <@headingTag class="govuk-heading-s pta-home-option-heading">
             @if(url) {
-                <a class="govuk-link card-link" href="@url">
+                <a class="govuk-link pta-home-option-link" href="@url">
                 @heading
                 </a>
             } else {

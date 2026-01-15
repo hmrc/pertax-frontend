@@ -1,4 +1,4 @@
-.option {
+.pta-home-option {
   flex-basis: 100%;
   flex-grow: 0;
   margin-bottom: 2em;
@@ -9,11 +9,11 @@
       color: $secondary-text-colour;
     }
 
-    .card-heading {
+    .pta-home-option-heading {
       margin-top: 0;
     }
 
-    .card-body {
+    .pta-home-option-body {
       border-bottom: 1px solid $panel-colour;
       padding: 12px;
 
@@ -25,7 +25,7 @@
         background-color: $grey-4;
         transition: 0.1s ease-in-out;
 
-        .card-heading a {
+        .pta-home-option-heading a {
           color: $link-colour;
           margin-top: 0;
 
@@ -51,7 +51,7 @@
 
     }
 
-    .card-action {
+    .pta-home-option-action {
       border-top: 0;
       padding: 8px;
 

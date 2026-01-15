@@ -63,7 +63,7 @@ class HomeController @Inject() (
     val nino: Nino = request.helpeeNinoOrElse
 
     val utr: Option[String] = request.saUserType match {
-      case saUser: SelfAssessmentUser => Some(saUser.saUtr.toString())
+      case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
       case _                          => None
     }
 

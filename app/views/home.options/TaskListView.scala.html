@@ -48,7 +48,7 @@ govukTaskList: GovukTaskList)
                     )
                 },
                  status = if(task.isCompleted) TaskListItemStatus(
-                   content = Text(messages("label.task_incomplete"))
+                   content = Text(messages("label.task_complete"))
                  ) else TaskListItemStatus(
                     tag = Some(Tag(
                         content = Text(messages("label.task_incomplete")),
