@@ -155,6 +155,7 @@ class ConfigDecorator @Inject() (
   lazy val selfAssessmentFormPartialLinkUrl    =
     s"$formFrontendService/digital-forms/forms/personal-tax/self-assessment/catalogue"
   lazy val taxCalcPartialLinkUrl               = s"$taxCalcFrontendService/tax-you-paid/summary-card-partials"
+  lazy val taxCalcHomePageUrl                  = s"$taxCalcFrontendService/tax-you-paid"
 
   lazy val updateAddressShortFormUrl = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
   lazy val changeNameLinkUrl         =
