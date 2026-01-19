@@ -837,3 +837,8 @@ personal_details.try_again.try.again.to.update = try again to update your detail
 
 label.trusted_helpers_heading=Trusted helpers
 label.trusted_helpers_content=Get help with your tax online from someone you trust, or help someone you know.
+
+label.mtdit.claim.p1.prefix=You are signed up for
+label.mtdit.claim.p1.linkText=Making Tax Digital for Income Tax
+label.mtdit.claim.p1.suffix=(opens in new tab). You need to add the service to your personal tax account before you can access it.
+label.mtdit.claim.question=Do you want to add Making Tax Digital for Income Tax to your personal tax account now?

@@ -1,0 +1,96 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers
+
+import cats.data.EitherT
+import config.ConfigDecorator
+import controllers.PertaxBaseController
+import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import models.ClaimMtdFromPtaChoiceFormProvider
+import models.MtdUserType.*
+import models.admin.{ClaimMtdFromPtaToggle, MTDUserStatusToggle}
+import play.api.mvc.*
+import services.EnrolmentStoreProxyService
+import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import views.html.interstitial.MTDITClaimChoiceView
+
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+class ClaimMtdFromPtaController @Inject() (
+  authJourney: AuthJourney,
+  withBreadcrumbAction: WithBreadcrumbAction,
+  cc: MessagesControllerComponents,
+  featureFlagService: FeatureFlagService,
+  enrolmentStoreProxyService: EnrolmentStoreProxyService,
+  mtditClaimChoiceView: MTDITClaimChoiceView,
+  configDecorator: ConfigDecorator
+)(implicit ec: ExecutionContext)
+    extends PertaxBaseController(cc) {
+
+  private def authenticate: ActionBuilder[UserRequest, AnyContent] =
+    authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)
+
+  def start: Action[AnyContent] = authenticate.async { implicit request =>
+    if (!request.isSaUserLoggedIntoCorrectAccount) {
+      Future.successful(NotFound)
+    } else {
+      val eitherResult: EitherT[Future, UpstreamErrorResponse, Result] =
+        for {
+          mtdStatusToggle <- featureFlagService.getAsEitherT(MTDUserStatusToggle)
+          claimToggle     <- featureFlagService.getAsEitherT(ClaimMtdFromPtaToggle)
+          _               <- EitherT.cond[Future](
+                               mtdStatusToggle.isEnabled && claimToggle.isEnabled,
+                               (),
+                               UpstreamErrorResponse("Claim MTD journey toggle disabled", 404)
+                             )
+          mtdUserType     <- enrolmentStoreProxyService.getMtdUserType(request.authNino)
+        } yield mtdUserType match {
+          case NotEnrolledMtdUser =>
+            Ok(
+              mtditClaimChoiceView(
+                postAction = routes.ClaimMtdFromPtaController.submit
+              )
+            )
+          case _                  =>
+            Redirect(controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage)
+        }
+
+      eitherResult.fold(
+        _ => NotFound,
+        identity
+      )
+    }
+  }
+
+  def submit: Action[AnyContent] = authenticate.async { implicit request =>
+    val model = ClaimMtdFromPtaChoiceFormProvider.form.bindFromRequest().value
+
+    model.flatMap(_.choice) match {
+      case Some(ClaimMtdFromPtaChoiceFormProvider.yes) =>
+        Future.successful(Redirect(configDecorator.mtdClaimFromPtaHandoffUrl))
+
+      case Some(ClaimMtdFromPtaChoiceFormProvider.no) =>
+        Future.successful(Redirect(routes.HomeController.index))
+
+      case _ =>
+        Future.successful(NotFound)
+    }
+  }
+}

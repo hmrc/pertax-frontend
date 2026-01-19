@@ -850,3 +850,8 @@ personal_details.try_again.try.again.to.update = rhowch gynnig arall arni i ddiw
 
 label.trusted_helpers_heading=Cynorthwywyr dibynadwy
 label.trusted_helpers_content=Cael help gyda’ch treth ar-lein gan rywun dibynadwy, neu helpwch rywun rydych yn ei adnabod.
+
+label.mtdit.claim.p1.prefix=Rydych wedi’ch cofrestru ar gyfer y cynllun
+label.mtdit.claim.p1.linkText=Troi Treth yn Ddigidol ar gyfer Treth Incwm
+label.mtdit.claim.p1.suffix=(yn agor tab newydd). Mae angen i chi ychwanegu’r gwasanaeth at eich Cyfrif Treth Personol cyn y cewch fynediad ato.
+label.mtdit.claim.question=A ydych am ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch Cyfrif Treth Personol nawr?

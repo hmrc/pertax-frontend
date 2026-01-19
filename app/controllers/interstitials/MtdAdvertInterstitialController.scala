@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.MtdUserType.*
-import models.admin.MTDUserStatusToggle
+import models.admin.{ClaimMtdFromPtaToggle, MTDUserStatusToggle}
 import play.api.Logging
 import play.api.mvc.*
-import services.partials.{FormPartialService, SaPartialService}
 import services.EnrolmentStoreProxyService
+import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -61,39 +61,63 @@ class MtdAdvertInterstitialController @Inject() (
       .addBreadcrumb(baseBreadcrumb)
 
   def displayMTDITPage: Action[AnyContent] = authenticate.async { implicit request =>
+    val advertOk: Result = Ok(mtditAdvertPageView())
+
     if (request.trustedHelper.nonEmpty || enrolmentsHelper.mtdEnrolmentStatus(request.enrolments).nonEmpty) {
       errorRenderer.futureError(FORBIDDEN)
     } else {
-      featureFlagService
-        .getAsEitherT(MTDUserStatusToggle)
-        .flatMap { toggle =>
-          if (toggle.isEnabled) {
-            enrolmentStoreProxyService
-              .getMtdUserType(request.authNino)
-              .map {
-                case NonFilerMtdUser                          =>
-                  logger.info(s"The user is not registered with MTD")
-                  Ok(mtditAdvertPageView())
-                case NotEnrolledMtdUser                       =>
-                  logger.info(s"The user is registered but not enrolled with MTD")
-                  Ok(mtditAdvertPageView())
-                case WrongCredentialsMtdUser(mtdItid, credId) =>
-                  logger.info(
-                    s"Wrong account for MTD. Current cred is ${request.credentials.providerId} and MTD is on credential $credId}"
-                  )
-                  Ok(mtditAdvertPageView())
-                case EnrolledMtdUser(mtdItId: String)         =>
-                  Redirect(controllers.interstitials.routes.InterstitialController.displayItsaMergePage)
-                case _                                        =>
-                  logger.info(s"Could not determine Mtd user type")
-                  Ok(mtditAdvertPageView())
-              }
+
+      val eitherResult: EitherT[Future, UpstreamErrorResponse, Result] =
+        featureFlagService.getAsEitherT(MTDUserStatusToggle).flatMap { statusToggle =>
+          if (!statusToggle.isEnabled) {
+            logger.warn("MTDUserStatusToggle is disabled")
+            EitherT.rightT(advertOk)
           } else {
-            logger.warn(s"MTDUserStatusToggle toggle is disabled")
-            EitherT.rightT[Future, UpstreamErrorResponse](Ok(mtditAdvertPageView()))
+            enrolmentStoreProxyService.getMtdUserType(request.authNino).flatMap {
+              case NonFilerMtdUser =>
+                logger.info("User is not registered with MTD")
+                EitherT.rightT(advertOk)
+
+              case NotEnrolledMtdUser =>
+                logger.info("User is registered but not enrolled with MTD")
+
+                if (!request.isSaUserLoggedIntoCorrectAccount) {
+                  logger.info("User is NOT logged into the correct SA account")
+                  EitherT.rightT(advertOk)
+                } else {
+                  EitherT
+                    .liftF(featureFlagService.get(ClaimMtdFromPtaToggle))
+                    .map { claimToggle =>
+                      if (claimToggle.isEnabled) {
+                        Redirect(controllers.routes.ClaimMtdFromPtaController.start)
+                      } else {
+                        advertOk
+                      }
+                    }
+                }
+
+              case WrongCredentialsMtdUser(_, mtdCredId) =>
+                logger.info(
+                  s"Wrong account for MTD. Current cred is ${request.credentials.providerId} and MTD is on credential $mtdCredId}"
+                )
+                EitherT.rightT(advertOk)
+
+              case EnrolledMtdUser(_) =>
+                EitherT.rightT(
+                  Redirect(controllers.interstitials.routes.InterstitialController.displayItsaMergePage)
+                )
+
+              case _ =>
+                logger.info("Could not determine MTD user type")
+                EitherT.rightT(advertOk)
+            }
           }
         }
-        .fold(_ => Ok(mtditAdvertPageView()), identity)
+
+      eitherResult.fold(
+        _ => advertOk,
+        identity
+      )
     }
   }
 }

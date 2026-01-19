@@ -287,4 +287,7 @@ class ConfigDecorator @Inject() (
 
   def ssttpPtaStartUrl: String =
     servicesConfig.baseUrl("essttp-backend") + getExternalUrl("self-service-time-to-pay-pta-start.url").getOrElse("")
+
+  lazy val mtdClaimFromPtaHandoffUrl: String =
+    runModeConfiguration.get[String]("external-url.mtd-claim-from-pta.url")
 }
