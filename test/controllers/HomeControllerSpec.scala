@@ -267,7 +267,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
             bind[TaiService].toInstance(mockTaiService),
             bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
             bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper)
+            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
+            bind[FandFConnector].toInstance(mockFandfConnector)
           )
           .build()
 
