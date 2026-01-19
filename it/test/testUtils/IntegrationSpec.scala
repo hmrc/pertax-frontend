@@ -391,6 +391,9 @@ trait IntegrationSpec
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(FandFBannerToggle)))
+      .thenReturn(Future.successful(FeatureFlag(FandFBannerToggle, isEnabled = false)))
+
     server.stubFor(
       post(urlEqualTo("/auth/authorise"))
         .willReturn(aResponse().withBody(authResponse))

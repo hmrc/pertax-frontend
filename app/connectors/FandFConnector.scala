@@ -18,18 +18,21 @@ package connectors
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import models.admin.FandFBannerToggle
 import play.api.Logging
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.HttpReads.Implicits.{readEitherOf, readRaw}
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class FandFConnector @Inject() (
   val httpClientV2: HttpClientV2,
   httpClientResponse: HttpClientResponse,
-  configDecorator: ConfigDecorator
+  configDecorator: ConfigDecorator,
+  featureFlagService: FeatureFlagService
 ) extends Logging {
 
   private lazy val baseUrl: String = configDecorator.fandfHost
@@ -39,11 +42,17 @@ class FandFConnector @Inject() (
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     val url = s"$baseUrl/fandf/$nino/showBanner"
 
-    val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
-      .get(url"$url")(hc)
-      .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-    httpClientResponse
-      .read(apiResponse)
-      .fold(_ => false, _.json.as[Boolean])
+    featureFlagService.get(FandFBannerToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        val apiResponse: Future[Either[UpstreamErrorResponse, HttpResponse]] = httpClientV2
+          .get(url"$url")(hc)
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+        httpClientResponse
+          .read(apiResponse)
+          .fold(_ => false, _.json.as[Boolean])
+      } else {
+        Future.successful(false)
+      }
+    }
   }
 }

@@ -191,3 +191,12 @@ case object MTDUserStatusToggle extends FeatureFlagName {
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
 }
+
+case object FandFBannerToggle extends FeatureFlagName {
+  override val name: String                         = "fandf-banner-toggle"
+  override val description: Option[String]          = Some(
+    "Enable/disable the fandf expiry banner"
+  )
+  override val lockedEnvironments: Seq[Environment] =
+    Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
+}
