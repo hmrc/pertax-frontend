@@ -18,7 +18,6 @@ package controllers
 
 import cats.data.EitherT
 import config.ConfigDecorator
-import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import models.ClaimMtdFromPtaChoiceFormProvider
@@ -29,6 +28,7 @@ import services.EnrolmentStoreProxyService
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.interstitial.MTDITClaimChoiceView
+import views.html.iv.failure.TechnicalIssuesView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,49 +40,57 @@ class ClaimMtdFromPtaController @Inject() (
   featureFlagService: FeatureFlagService,
   enrolmentStoreProxyService: EnrolmentStoreProxyService,
   mtditClaimChoiceView: MTDITClaimChoiceView,
-  configDecorator: ConfigDecorator
+  configDecorator: ConfigDecorator,
+  technicalIssuesView: TechnicalIssuesView
 )(implicit ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   private def authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)
 
+  private def serviceUnavailableResult()(implicit request: Request[_]): Result =
+    ServiceUnavailable(
+      technicalIssuesView(routes.HomeController.index.url)(request, configDecorator)
+    )
+
+  private def ensureClaimMtdJourneyEnabled: EitherT[Future, UpstreamErrorResponse, Unit] =
+    for {
+      mtdStatusToggle <- featureFlagService.getAsEitherT(MTDUserStatusToggle)
+      claimToggle     <- featureFlagService.getAsEitherT(ClaimMtdFromPtaToggle)
+      _               <- EitherT.cond[Future](
+                           mtdStatusToggle.isEnabled && claimToggle.isEnabled,
+                           (),
+                           UpstreamErrorResponse("Claim MTD journey toggle disabled", 404)
+                         )
+    } yield ()
+
   def start: Action[AnyContent] = authenticate.async { implicit request =>
     if (!request.isSaUserLoggedIntoCorrectAccount) {
       Future.successful(NotFound)
     } else {
-      val eitherResult: EitherT[Future, UpstreamErrorResponse, Result] =
+      val action: EitherT[Future, UpstreamErrorResponse, Result] =
         for {
-          mtdStatusToggle <- featureFlagService.getAsEitherT(MTDUserStatusToggle)
-          claimToggle     <- featureFlagService.getAsEitherT(ClaimMtdFromPtaToggle)
-          _               <- EitherT.cond[Future](
-                               mtdStatusToggle.isEnabled && claimToggle.isEnabled,
-                               (),
-                               UpstreamErrorResponse("Claim MTD journey toggle disabled", 404)
-                             )
-          mtdUserType     <- enrolmentStoreProxyService.getMtdUserType(request.authNino)
+          _           <- ensureClaimMtdJourneyEnabled
+          mtdUserType <- enrolmentStoreProxyService.getMtdUserType(request.authNino)
         } yield mtdUserType match {
           case NotEnrolledMtdUser =>
-            Ok(
-              mtditClaimChoiceView(
-                postAction = routes.ClaimMtdFromPtaController.submit
-              )
-            )
+            Ok(mtditClaimChoiceView(postAction = routes.ClaimMtdFromPtaController.submit))
           case _                  =>
             Redirect(controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage)
         }
 
-      eitherResult.fold(
-        _ => NotFound,
+      action.fold(
+        _ => serviceUnavailableResult(),
         identity
       )
     }
   }
 
   def submit: Action[AnyContent] = authenticate.async { implicit request =>
-    val model = ClaimMtdFromPtaChoiceFormProvider.form.bindFromRequest().value
-
-    model.flatMap(_.choice) match {
+    ClaimMtdFromPtaChoiceFormProvider.form
+      .bindFromRequest()
+      .value
+      .flatMap(_.choice) match {
       case Some(ClaimMtdFromPtaChoiceFormProvider.yes) =>
         Future.successful(Redirect(configDecorator.mtdClaimFromPtaHandoffUrl))
 

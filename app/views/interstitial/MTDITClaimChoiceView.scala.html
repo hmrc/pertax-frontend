@@ -1,25 +1,26 @@
 @*
-* Copyright 2026 HM Revenue & Customs
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*@
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.govukfrontend.views.html.components.*
+@import models.ClaimMtdFromPtaChoiceFormProvider
+@import play.api.mvc.Call
+@import uk.gov.hmrc.govukfrontend.views.html.components.{FormWithCSRF, *}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.button.*
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.*
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.*
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.*
-@import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 @import views.MainView
 
 @this(
@@ -31,48 +32,55 @@
 
 @(postAction: Call)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
-@mainView(
-    pageTitle = messages("label.mtdit.heading"),
-    showBackLink = true
-) {
+@defining("https://www.gov.uk/government/publications/extension-of-making-tax-digital-for-income-tax-self-assessment-to-sole-traders-and-landlords/making-tax-digital-for-income-tax-self-assessment-for-sole-traders-and-landlords") { mtdGuidanceUrl =>
 
-    <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
-    @messages("label.mtdit.heading")
-    </h1>
+    @mainView(
+        pageTitle    = messages("label.mtdit.heading"),
+        showBackLink = true
+    ) {
 
-    <p class="govuk-body">
-        @messages("label.mtdit.claim.p1.prefix")
-        <a class="govuk-link govuk-link--no-visited-state" href="https://www.gov.uk/government/publications/extension-of-making-tax-digital-for-income-tax-self-assessment-to-sole-traders-and-landlords/making-tax-digital-for-income-tax-self-assessment-for-sole-traders-and-landlords" target="_blank" rel="noreferrer noopener">
-        @messages("label.mtdit.claim.p1.linkText")
-        </a>
-        @messages("label.mtdit.claim.p1.suffix")
-    </p>
+        <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
+        @messages("label.mtdit.heading")
+        </h1>
 
-    @form(action = postAction) {
-        @govukRadios(Radios(
-            name = "mtd-choice",
-            fieldset = Some(Fieldset(
-                legend = Some(Legend(
-                    content = Text(messages("label.mtdit.claim.question")),
-                    classes = "govuk-fieldset__legend--m"
-                ))
-            )),
-            items = Seq(
-                RadioItem(
-                    value = Some("yes"),
-                    content = Text(messages("label.yes")),
-                    id = Some("mtd-choice-1")
-                ),
-                RadioItem(
-                    value = Some("no"),
-                    content = Text(messages("label.no")),
-                    id = Some("mtd-choice-2")
+        <p class="govuk-body">
+            @messages("label.mtdit.claim.p1.prefix")
+            <a class="govuk-link govuk-link--no-visited-state"
+            href="@mtdGuidanceUrl"
+            target="_blank"
+            rel="noreferrer noopener">
+            @messages("label.mtdit.claim.p1.linkText")
+            </a>
+            @messages("label.mtdit.claim.p1.suffix")
+        </p>
+
+        @form(action = postAction) {
+
+            @govukRadios(Radios(
+                name = "mtd-choice",
+                fieldset = Some(Fieldset(
+                    legend = Some(Legend(
+                        content = Text(messages("label.mtdit.claim.question")),
+                        classes = "govuk-fieldset__legend--m"
+                    ))
+                )),
+                items = Seq(
+                    RadioItem(
+                        value = Some(ClaimMtdFromPtaChoiceFormProvider.yes),
+                        content = Text(messages("label.yes")),
+                        id = Some("mtd-choice-1")
+                    ),
+                    RadioItem(
+                        value = Some(ClaimMtdFromPtaChoiceFormProvider.no),
+                        content = Text(messages("label.no")),
+                        id = Some("mtd-choice-2")
+                    )
                 )
-            )
-        ))
+            ))
 
-        @govukButton(Button(
-            content = Text(messages("label.continue"))
-        ))
+            @govukButton(Button(
+                content = Text(messages("label.continue"))
+            ))
+        }
     }
 }
