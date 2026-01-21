@@ -865,3 +865,6 @@ label.task_incomplete=Incomplete
 label.task_complete=Complete
 label.task_after_tasks=Check your taxes and benefits to find out if there’s anything else you need to do.
 label.task_no_tasks=You do not have any payment or refunds tasks for PAYE tax years 2021 to 2025. Check your taxes and benefits to find out if there’s anything else you need to do.
+
+fandf.banner.text=Mae’ch perthynas â’ch cynorthwyydd dibynadwy yn dod i ben am hanner nos ar {0}.
+fandf.banner.linkText=Dysgwch sut mae cynorthwywyr dibynadwy yn newid.

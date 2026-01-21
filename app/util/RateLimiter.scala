@@ -41,10 +41,7 @@ trait Throttle extends Logging {
     if (rateLimiter.tryAcquire()) {
       block
     } else {
-      val exception = new RuntimeException(
-        s"Request failed to acquire a permit at a tps of ${rateLimiter.getRate}"
-      )
-      logger.error(exception.getMessage + "\n" + exception.getStackTrace.mkString("\n"))
+      logger.error(s"Request failed to acquire a permit at a tps of ${rateLimiter.getRate}")
       Future.failed(RateLimitedException)
     }
 }

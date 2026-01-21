@@ -288,4 +288,7 @@ class ConfigDecorator @Inject() (
 
   def ssttpPtaStartUrl: String =
     servicesConfig.baseUrl("essttp-backend") + getExternalUrl("self-service-time-to-pay-pta-start.url").getOrElse("")
+
+  lazy val fandfBannerLink: String    = s"$fandfFrontendHost/trusted-helpers/trusted-helpers-interstitial"
+  lazy val fandfBannerDate: LocalDate = LocalDate.parse(runModeConfiguration.get[String]("feature.fandfBannerDate"))
 }

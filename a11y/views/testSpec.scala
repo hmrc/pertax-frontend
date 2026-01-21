@@ -17,8 +17,8 @@
 package views
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock._
-import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle}
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle, FandFBannerToggle, GetPersonFromCitizenDetailsToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -200,6 +200,9 @@ class testSpec extends A11ySpec {
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(FandFBannerToggle)))
+      .thenReturn(Future.successful(FeatureFlag(FandFBannerToggle, isEnabled = false)))
 
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
