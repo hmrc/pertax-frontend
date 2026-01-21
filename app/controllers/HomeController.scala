@@ -17,13 +17,14 @@
 package controllers
 
 import com.google.inject.Inject
+import connectors.FandFConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.ShowPlannedOutageBannerToggle
-import play.api.mvc._
-import services._
+import play.api.mvc.*
+import services.*
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -45,7 +46,8 @@ class HomeController @Inject() (
   cc: MessagesControllerComponents,
   homeView: HomeView,
   rlsInterruptHelper: RlsInterruptHelper,
-  alertBannerHelper: AlertBannerHelper
+  alertBannerHelper: AlertBannerHelper,
+  fandFConnector: FandFConnector
 )(implicit ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
@@ -69,6 +71,7 @@ class HomeController @Inject() (
       val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
       val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
+      val fShowFandfBanner         = fandFConnector.showFandfBanner(nino)
 
       for {
         taxComponents           <- fTaxComponents
@@ -78,6 +81,7 @@ class HomeController @Inject() (
         shutteringMessaging     <- fShutteringMessaging
         alertBannerContent      <- fAlertBannerContent
         eitherPersonDetails     <- fEitherPersonDetails
+        showFandfBanner         <- fShowFandfBanner
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
@@ -102,7 +106,8 @@ class HomeController @Inject() (
               nameToDisplay,
               trustedHelpersCard
             ),
-            shutteringMessaging.isEnabled
+            shutteringMessaging.isEnabled,
+            showFandfBanner
           )
         )
       }
