@@ -122,7 +122,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
     when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
-    
+
     when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
       .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
 

@@ -20,21 +20,31 @@
 @import viewmodels.NewHomeViewModel
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
+@import uk.gov.hmrc.play.language.LanguageUtils
+
 @this(
         main: MainView,
         govukNotificationBanner : GovukNotificationBanner,
         alertBanner: AlertBanner,
         configDecorator: ConfigDecorator,
         h2: H2,
-        h3: H3
+        h3: H3,
+        languageUtils: LanguageUtils
 )
 
-@(viewModel: NewHomeViewModel, shutteringMessaging: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(viewModel: NewHomeViewModel, shutteringMessaging: Boolean, fandfBanner: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @bannerHtml = {
     <p class="govuk-notification-banner__heading">
         @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerParagraphCy }else {@configDecorator.shutterBannerParagraphEn}<br/>
         <a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
+    </p>
+}
+
+@fandfBannerHtml = {
+    <p class="govuk-notification-banner__heading">
+        @messages("fandf.banner.text", languageUtils.Dates.formatDate(configDecorator.fandfBannerDate))
+        <a class="govuk-notification-banner__link" href="@configDecorator.fandfBannerLink"> @messages("fandf.banner.linkText").</a>.
     </p>
 }
 
@@ -47,6 +57,12 @@
     @if(shutteringMessaging) {
         @govukNotificationBanner(NotificationBanner(
             content = HtmlContent(bannerHtml)
+        ))
+    }
+
+    @if(fandfBanner){
+        @govukNotificationBanner(NotificationBanner(
+            content = HtmlContent(fandfBannerHtml)
         ))
     }
 

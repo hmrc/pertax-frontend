@@ -78,7 +78,13 @@ class NewHomeViewSpec extends ViewSpec {
         buildUserRequest(request = FakeRequest())
 
       lazy val document: Document =
-        asDocument(home(homeViewModel.copy(name = Some("Firstname Lastname")), shutteringMessaging = false).toString)
+        asDocument(
+          home(
+            homeViewModel.copy(name = Some("Firstname Lastname")),
+            shutteringMessaging = false,
+            fandfBanner = false
+          ).toString
+        )
 
       document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
       document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false
@@ -90,7 +96,13 @@ class NewHomeViewSpec extends ViewSpec {
       )
 
       lazy val document: Document =
-        asDocument(home(homeViewModel.copy(name = Some("Firstname Lastname")), shutteringMessaging = false).toString)
+        asDocument(
+          home(
+            homeViewModel.copy(name = Some("Firstname Lastname")),
+            shutteringMessaging = false,
+            fandfBanner = false
+          ).toString
+        )
 
       document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
       document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false
@@ -100,7 +112,8 @@ class NewHomeViewSpec extends ViewSpec {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(request = FakeRequest())
 
-      lazy val document: Document = asDocument(home(homeViewModel, shutteringMessaging = false).toString)
+      lazy val document: Document =
+        asDocument(home(homeViewModel, shutteringMessaging = false, fandfBanner = false).toString)
 
       document.select("h1").asScala.exists(e => e.text == "Your account") mustBe true
     }
@@ -108,7 +121,7 @@ class NewHomeViewSpec extends ViewSpec {
     "must not show the UTR if the user is not a self assessment user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
-      val view = home(homeViewModel, shutteringMessaging = false).toString
+      val view = home(homeViewModel, shutteringMessaging = false, fandfBanner = false).toString
 
       view must not contain messages("label.home_page.utr")
     }
@@ -116,7 +129,7 @@ class NewHomeViewSpec extends ViewSpec {
     "must show the UTR if the user is a self assessment user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val utr                                                       = new SaUtrGenerator().nextSaUtr.utr
-      val view                                                      = home(homeViewModel.copy(saUtr = Some(utr)), shutteringMessaging = false).toString
+      val view                                                      = home(homeViewModel.copy(saUtr = Some(utr)), shutteringMessaging = false, fandfBanner = false).toString
 
       view must include(messages("label.home_page.utr"))
       view must include(utr)
@@ -129,7 +142,7 @@ class NewHomeViewSpec extends ViewSpec {
       )
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = home(homeViewModel, shutteringMessaging = true).toString
+      val view                                                      = home(homeViewModel, shutteringMessaging = true, fandfBanner = false).toString
 
       view must include(
         "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
@@ -138,7 +151,7 @@ class NewHomeViewSpec extends ViewSpec {
 
     "not show the Nps Shutter Banner when boolean is set to false" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = home(homeViewModel, shutteringMessaging = false).toString
+      val view                                                      = home(homeViewModel, shutteringMessaging = false, fandfBanner = false).toString
 
       view mustNot include(
         "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
@@ -150,7 +163,8 @@ class NewHomeViewSpec extends ViewSpec {
       val view                                                      = Jsoup.parse(
         home(
           homeViewModel.copy(alertBannerContent = List(Html("something to alert"))),
-          shutteringMessaging = true
+          shutteringMessaging = true,
+          fandfBanner = false
         ).toString
       )
 
@@ -160,7 +174,7 @@ class NewHomeViewSpec extends ViewSpec {
 
     "not show the alert banner if no alert content" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = Jsoup.parse(home(homeViewModel, shutteringMessaging = true).toString)
+      val view                                                      = Jsoup.parse(home(homeViewModel, shutteringMessaging = true, fandfBanner = false).toString)
 
       view.getElementById("alert-banner") mustBe null
     }
