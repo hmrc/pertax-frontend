@@ -27,9 +27,9 @@ import java.time.LocalDate
 
 @Singleton
 class ConfigDecorator @Inject() (
-  runModeConfiguration: Configuration,
-  servicesConfig: ServicesConfig
-) {
+                                  runModeConfiguration: Configuration,
+                                  servicesConfig: ServicesConfig
+                                ) {
 
   val runMode: Option[String] = runModeConfiguration.getOptional[String]("run.mode")
 
@@ -287,6 +287,9 @@ class ConfigDecorator @Inject() (
 
   def ssttpPtaStartUrl: String =
     servicesConfig.baseUrl("essttp-backend") + getExternalUrl("self-service-time-to-pay-pta-start.url").getOrElse("")
+
+  lazy val fandfBannerLink: String    = s"$fandfFrontendHost/trusted-helpers/trusted-helpers-interstitial"
+  lazy val fandfBannerDate: LocalDate = LocalDate.parse(runModeConfiguration.get[String]("feature.fandfBannerDate"))
 
   lazy val mtdClaimFromPtaHandoffUrl: String =
     runModeConfiguration.get[String]("external-url.mtd-claim-from-pta.url")
