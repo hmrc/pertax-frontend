@@ -38,7 +38,8 @@ object AllFeatureFlags {
     PayeToPegaRedirectToggle,
     MDTITAdvertToggle,
     MTDUserStatusToggle,
-    GetMatchingFromCitizenDetailsToggle
+    GetMatchingFromCitizenDetailsToggle,
+    FandFBannerToggle
   )
 }
 
