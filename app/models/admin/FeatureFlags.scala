@@ -39,7 +39,8 @@ object AllFeatureFlags {
     MDTITAdvertToggle,
     MTDUserStatusToggle,
     GetMatchingFromCitizenDetailsToggle,
-    HomePageNewLayoutToggle
+    HomePageNewLayoutToggle,
+    FandFBannerToggle
   )
 }
 
