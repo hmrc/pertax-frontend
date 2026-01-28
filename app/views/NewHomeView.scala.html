@@ -44,7 +44,7 @@
 @fandfBannerHtml = {
     <p class="govuk-notification-banner__heading">
         @messages("fandf.banner.text", languageUtils.Dates.formatDate(configDecorator.fandfBannerDate))
-        <a class="govuk-notification-banner__link" href="@configDecorator.fandfBannerLink"> @messages("fandf.banner.linkText").</a>.
+        <a class="govuk-notification-banner__link" href="@configDecorator.fandfBannerLink"> @messages("fandf.banner.linkText").</a>
     </p>
 }
 
@@ -97,10 +97,27 @@
 
             @h2("label.taxes_and_benefits_heading")
             @h3("label.taxes_and_benefits_subheading")
-            @viewModel.currentTaxesAndBenefits
+            <dl>
+                @for(myService <- viewModel.myServices) {
+                    @* todo use an html view for this? *@
+                    <dt style="background-color: #f8f8f8; padding: 1em; margin-bottom: 0.5em;">
+                        <a class="govuk-link govuk-link--no-visited-state" href="@{myService.link}">@messages(myService.titleMessage)</a>
+                    </dt>
+                    <dd style="background-color: #f8f8f8; padding: 1em; margin-bottom: 0.5em;">
+                    @messages(myService.hintMessage)
+                    </dd>
+                }
+            </dl>
 
             @h3("label.other_taxes_and_benefits_heading")
-            @viewModel.otherTaxesAndBenefits
+            <ul>
+            @for(otherService <- viewModel.otherServices) {
+                @* todo use an html view for this? *@
+                <li style="background-color: #f8f8f8; padding: 1em; margin-bottom: 0.5em;">
+                    <a class="govuk-link govuk-link--no-visited-state" href="@{otherService.link}">@messages(otherService.titleMessage)</a>
+                </li>
+            }
+            </dl>
 
             @viewModel.newsAndUpdates
 

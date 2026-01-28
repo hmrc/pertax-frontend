@@ -61,14 +61,14 @@ class NewHomeViewSpec extends ViewSpec {
   val homeViewModel: NewHomeViewModel =
     NewHomeViewModel(
       Html("tasks"),
-      Nil,
-      Nil,
       None,
       showUserResearchBanner = true,
       None,
       breathingSpaceIndicator = true,
       List.empty,
-      None
+      None,
+      Seq.empty,
+      Seq.empty
     )
 
   "Rendering HomeView.scala.html" must {

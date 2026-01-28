@@ -56,6 +56,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   val mockAlertBannerHelper: AlertBannerHelper         = mock[AlertBannerHelper]
   val mockTaiService: TaiService                       = mock[TaiService]
   val mockFandfConnector: FandFConnector               = mock[FandFConnector]
+  val mockMyServices: MyServices                       = mock[MyServices]
+  val mockOtherServices: OtherServices                 = mock[OtherServices]
 
   lazy val appBuilder: GuiceApplicationBuilder = localGuiceApplicationBuilder()
     .overrides(
@@ -67,7 +69,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
       bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
       bind[TaiService].toInstance(mockTaiService),
-      bind[FandFConnector].toInstance(mockFandfConnector)
+      bind[FandFConnector].toInstance(mockFandfConnector),
+      bind[MyServices].toInstance(mockMyServices),
+      bind[OtherServices].toInstance(mockOtherServices)
     )
 
   private val taxComponents = List("EmployerProvidedServices", "PersonalPensionPayments")
@@ -82,6 +86,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     reset(mockHomeCardGenerator)
     reset(mockAlertBannerHelper)
     reset(mockFeatureFlagService)
+    reset(mockMyServices)
+    reset(mockOtherServices)
 
     when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
       .thenReturn(Future.successful(WithinPeriod))
@@ -96,14 +102,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     )
     when(mockHomeCardGenerator.getTrustedHelpersCard()(any())).thenReturn(
       Html("<div class='trusted-helpers-card'></div>")
-    )
-
-    when(mockHomeOptionsGenerator.getCurrentTaxesAndBenefits(any(), any())).thenReturn(
-      Future.successful(Seq.empty)
-    )
-
-    when(mockHomeOptionsGenerator.getOtherTaxesAndBenefits(any(), any())).thenReturn(
-      Future.successful(Seq.empty)
     )
 
     when(mockHomeOptionsGenerator.getListOfTasks(any())).thenReturn(
@@ -128,6 +126,14 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
     when(mockFandfConnector.showFandfBanner(any())(any(), any()))
       .thenReturn(Future.successful(false))
+
+    when(mockMyServices.getMyServices(any())).thenReturn(
+      Future.successful(Seq.empty)
+    )
+
+    when(mockOtherServices.getOtherServices(any())).thenReturn(
+      Future.successful(Seq.empty)
+    )
   }
 
   def currentRequest[A]: Request[A] =

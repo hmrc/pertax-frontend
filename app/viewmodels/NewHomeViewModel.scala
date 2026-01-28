@@ -16,16 +16,18 @@
 
 package viewmodels
 
+import models.{MyService, OtherService}
 import play.twirl.api.Html
 
+// todo: refactor Html type into meaningful type
 final case class NewHomeViewModel(
   listOfTasks: Html,
-  currentTaxesAndBenefits: Seq[Html],
-  otherTaxesAndBenefits: Seq[Html],
   newsAndUpdates: Option[Html],
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
   alertBannerContent: List[Html],
-  name: Option[String]
+  name: Option[String],
+  myServices: Seq[MyService],
+  otherServices: Seq[OtherService]
 )
