@@ -21,6 +21,7 @@ import models.*
 import com.google.inject.Inject
 import config.ConfigDecorator
 import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,7 +34,7 @@ class MyServices @Inject() (
   def getMyServices(implicit request: UserRequest[?]): Future[Seq[MyService]] = {
 
     val selfAssessmentF = getSelAssessment(request.saUserType)
-    val payAsYouEarnF   = getPayAsYouEarn
+    val payAsYouEarnF   = getPayAsYouEarn(request.authNino, request.trustedHelper.isDefined)
     val taxCalcCardsF   = getTaxcalc(request.trustedHelper.isDefined)
 
     Future.sequence(Seq(payAsYouEarnF, taxCalcCardsF, selfAssessmentF)).map(_.flatten)
@@ -76,20 +77,32 @@ class MyServices @Inject() (
       case NonFilerSelfAssessmentUser                      => None
     })
 
-  def getPayAsYouEarn: Future[Option[MyService]] =
+  def getPayAsYouEarn(nino: Nino, isTrustedHelper: Boolean): Future[Option[MyService]] = {
+    val mdtpPaye = MyService(
+      "label.pay_as_you_earn_paye",
+      s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do",
+      ""
+    )
+
     featureFlagService.get(PayeToPegaRedirectToggle).map { toggle =>
       if (toggle.isEnabled) {
-        Some(
-          MyService(
-            "label.pay_as_you_earn_paye",
-            s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do",
-            ""
+        val penultimateDigit = nino.nino.charAt(6).asDigit
+        if (configDecorator.payeToPegaRedirectList.contains(penultimateDigit) && !isTrustedHelper) {
+          Some(
+            MyService(
+              "label.pay_as_you_earn_paye",
+              configDecorator.payeToPegaRedirectUrl,
+              ""
+            )
           )
-        )
+        } else {
+          Some(mdtpPaye)
+        }
       } else {
-        None
+        Some(mdtpPaye)
       }
     }
+  }
 
   def getTaxcalc(trustedHelperEnabled: Boolean): Future[Option[MyService]] =
     if (trustedHelperEnabled) {
@@ -100,7 +113,7 @@ class MyServices @Inject() (
           Some(
             MyService(
               "alertBannerShuttering.taxcalc",
-              "/tax-you-paid/",
+              configDecorator.taxCalcHomePageUrl,
               ""
             )
           )
