@@ -17,11 +17,15 @@
 package services
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, MyService, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, UserAnswers, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers
 import testUtils.BaseSpec
 import org.mockito.Mockito.{reset, when}
+import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -41,7 +45,7 @@ class MyServicesSpec extends BaseSpec {
     reset(mockFeatureFlagService)
   }
 
-  "getSelAssessment" must {
+  "getSelfAssessment" must {
     val statuses = Map(
       ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11"))       -> Some("/personal-account/self-assessment-summary"),
       NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")) -> Some("a/url"),
@@ -56,7 +60,7 @@ class MyServicesSpec extends BaseSpec {
       s"return an item for $saStatus" in {
         when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("a/url")
 
-        val result = service.getSelAssessment(saStatus).futureValue
+        val result = service.getSelfAssessment(saStatus).futureValue
         result.map(_.link) mustBe expected
       }
     }
@@ -166,6 +170,41 @@ class MyServicesSpec extends BaseSpec {
     "return an item" in {
       val result = service.getNationalInsuranceCard.futureValue
       result.map(_.link) mustBe Some("/personal-account/your-national-insurance-state-pension")
+    }
+  }
+
+  "getMyServices" must {
+    "return a list of items" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
+        .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
+      when(mockConfigDecorator.taiHost).thenReturn("tai/")
+      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(
+        Seq.empty
+      )
+      when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("pega")
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
+      when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("taxcalc/")
+
+      val request = UserRequest(
+        generatedNino,
+        ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")),
+        Credentials("test", "test"),
+        ConfidenceLevel.L200,
+        None,
+        Set.empty,
+        None,
+        None,
+        FakeRequest(),
+        UserAnswers("id")
+      )
+      val result  = service.getMyServices(request).futureValue
+
+      result mustBe Seq(
+        MyService("label.pay_as_you_earn_paye", "tai//check-income-tax/what-do-you-want-to-do", ""),
+        MyService("alertBannerShuttering.taxcalc", "taxcalc/", ""),
+        MyService("label.self_assessment", "/personal-account/self-assessment-summary", "label.newViewAndManageSA")
+      )
     }
   }
 }

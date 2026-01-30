@@ -33,14 +33,14 @@ class MyServices @Inject() (
 
   def getMyServices(implicit request: UserRequest[?]): Future[Seq[MyService]] = {
 
-    val selfAssessmentF = getSelAssessment(request.saUserType)
+    val selfAssessmentF = getSelfAssessment(request.saUserType)
     val payAsYouEarnF   = getPayAsYouEarn(request.authNino, request.trustedHelper.isDefined)
     val taxCalcCardsF   = getTaxcalc(request.trustedHelper.isDefined)
 
     Future.sequence(Seq(payAsYouEarnF, taxCalcCardsF, selfAssessmentF)).map(_.flatten)
   }
 
-  def getSelAssessment(saUserType: SelfAssessmentUserType): Future[Option[MyService]] =
+  def getSelfAssessment(saUserType: SelfAssessmentUserType): Future[Option[MyService]] =
     Future.successful(saUserType match {
       case _: ActivatedOnlineFilerSelfAssessmentUser       =>
         Some(
