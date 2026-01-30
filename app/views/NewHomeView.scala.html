@@ -97,14 +97,14 @@
 
             @h2("label.taxes_and_benefits_heading")
             @h3("label.taxes_and_benefits_subheading")
-            <dl>
+            <dl class="list-with-description">
                 @for(myService <- viewModel.myServices) {
                     @* todo use an html view for this? *@
-                    <dt style="background-color: #f8f8f8; padding: 1em; margin-bottom: 0.5em;">
-                        <a class="govuk-link govuk-link--no-visited-state" href="@{myService.link}">@messages(myService.titleMessage)</a>
+                    <dt>
+                        <h3 class="govuk-heading-s govuk-!-margin-0"><a class="govuk-link govuk-link--no-visited-state" href="@{myService.link}">@messages(myService.titleMessage)</a></h3>
                     </dt>
-                    <dd style="background-color: #f8f8f8; padding: 1em; margin-bottom: 0.5em;">
-                    @messages(myService.hintMessage)
+                    <dd>
+                        <p class="govuk-body govuk-!-margin-0">@messages(myService.hintMessage)</p>
                     </dd>
                 }
             </dl>
@@ -113,11 +113,11 @@
             <ul>
             @for(otherService <- viewModel.otherServices) {
                 @* todo use an html view for this? *@
-                <li style="background-color: #f8f8f8; padding: 1em; margin-bottom: 0.5em;">
-                    <a class="govuk-link govuk-link--no-visited-state" href="@{otherService.link}">@messages(otherService.titleMessage)</a>
+                <li class="govuk-list">
+                    <h3 class="govuk-heading-s"><a class="govuk-link govuk-link--no-visited-state" href="@{otherService.link}">@messages(otherService.titleMessage)</a></h3>
                 </li>
             }
-            </dl>
+            </ul>
 
             @viewModel.newsAndUpdates
 
