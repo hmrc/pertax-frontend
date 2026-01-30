@@ -42,14 +42,21 @@ class OtherServices @Inject() (
 
   def getSelfAssessment(saUserType: SelfAssessmentUserType): Future[Option[OtherService]] =
     Future.successful(saUserType match {
-      case NonFilerSelfAssessmentUser =>
+      case NonFilerSelfAssessmentUser       =>
         Some(
           OtherService(
             "label.self_assessment",
             "https://www.gov.uk/self-assessment-tax-returns"
           )
         )
-      case _                          => None
+      case NotEnrolledSelfAssessmentUser(_) =>
+        Some(
+          OtherService(
+            "label.activate_your_self_assessment_registration",
+            controllers.routes.SelfAssessmentController.requestAccess.url
+          )
+        )
+      case _                                => None
     })
 
   def getChildBenefit(trustedHelperEnabled: Boolean): Future[Option[OtherService]] =

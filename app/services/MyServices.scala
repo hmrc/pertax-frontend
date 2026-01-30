@@ -66,15 +66,7 @@ class MyServices @Inject() (
             "label.activate_your_self_assessment_registration"
           )
         )
-      case NotEnrolledSelfAssessmentUser(_)                =>
-        Some(
-          MyService(
-            "label.self_assessment",
-            controllers.routes.SelfAssessmentController.requestAccess.url,
-            "label.activate_your_self_assessment_registration"
-          )
-        )
-      case NonFilerSelfAssessmentUser                      => None
+      case _                                               => None
     })
 
   def getPayAsYouEarn(nino: Nino, isTrustedHelper: Boolean): Future[Option[MyService]] = {

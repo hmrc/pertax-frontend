@@ -52,12 +52,12 @@ class MyServicesSpec extends BaseSpec {
       WrongCredentialsSelfAssessmentUser(SaUtr("11"))           -> Some(
         "/personal-account/self-assessment/signed-in-wrong-account"
       ),
-      NotEnrolledSelfAssessmentUser(SaUtr("11"))                -> Some("/personal-account/self-assessment/request-access"),
+      NotEnrolledSelfAssessmentUser(SaUtr("11"))                -> None,
       NonFilerSelfAssessmentUser                                -> None
     )
 
     statuses.foreach { case (saStatus, expected) =>
-      s"return an item for $saStatus" in {
+      s"return an item or None for $saStatus" in {
         when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("a/url")
 
         val result = service.getSelfAssessment(saStatus).futureValue

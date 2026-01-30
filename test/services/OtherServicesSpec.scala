@@ -42,12 +42,12 @@ class OtherServicesSpec extends BaseSpec {
       ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11"))       -> None,
       NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")) -> None,
       WrongCredentialsSelfAssessmentUser(SaUtr("11"))           -> None,
-      NotEnrolledSelfAssessmentUser(SaUtr("11"))                -> None,
+      NotEnrolledSelfAssessmentUser(SaUtr("11"))                -> Some("/personal-account/self-assessment/request-access"),
       NonFilerSelfAssessmentUser                                -> Some("https://www.gov.uk/self-assessment-tax-returns")
     )
 
     statuses.foreach { case (saStatus, expected) =>
-      s"return an item for $saStatus" in {
+      s"return an item or None for $saStatus" in {
         val result = service.getSelfAssessment(saStatus).futureValue
         result.map(_.link) mustBe expected
       }
