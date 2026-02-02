@@ -144,10 +144,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       .asInstanceOf[Request[A]]
 
   "Calling HomeController.index with feature toggle on" must {
-    "Return the new home page design when newDesign parameter is true " in {
-
-    }
-
     "Return a Html that is returned as part of Benefit Cards incl tax components" in {
       val expectedHtmlString = "<div class='TestingForBenefitCards'></div>"
       val expectedHtml: Html = Html(expectedHtmlString)
@@ -315,6 +311,21 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   }
 
   "Calling HomeController.index with layout toggle on" must {
+
+    "Return the new home page design when newDesign parameter is true " in {
+      val newDesignRequest = FakeRequest("GET", "/personal-account/home?newDesign=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result] = controller.index()(newDesignRequest)
+      status(result) mustBe OK
+    }
 
     "Return a Breathing space if that is returned within period" in {
       val expectedHtmlString =
