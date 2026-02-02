@@ -144,6 +144,10 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       .asInstanceOf[Request[A]]
 
   "Calling HomeController.index with feature toggle on" must {
+    "Return the new home page design when newDesign parameter is true " in {
+
+    }
+
     "Return a Html that is returned as part of Benefit Cards incl tax components" in {
       val expectedHtmlString = "<div class='TestingForBenefitCards'></div>"
       val expectedHtml: Html = Html(expectedHtmlString)
