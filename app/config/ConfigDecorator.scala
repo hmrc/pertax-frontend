@@ -27,9 +27,9 @@ import java.time.LocalDate
 
 @Singleton
 class ConfigDecorator @Inject() (
-                                  runModeConfiguration: Configuration,
-                                  servicesConfig: ServicesConfig
-                                ) {
+  runModeConfiguration: Configuration,
+  servicesConfig: ServicesConfig
+) {
 
   val runMode: Option[String] = runModeConfiguration.getOptional[String]("run.mode")
 

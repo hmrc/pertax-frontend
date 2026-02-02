@@ -53,16 +53,11 @@ class ClaimMtdFromPtaController @Inject() (
       technicalIssuesView(routes.HomeController.index.url)(request, configDecorator)
     )
 
-  private def ensureClaimMtdJourneyEnabled: EitherT[Future, UpstreamErrorResponse, Unit] =
+  private def ensureClaimMtdJourneyEnabled: EitherT[Future, UpstreamErrorResponse, Boolean] =
     for {
       mtdStatusToggle <- featureFlagService.getAsEitherT(MTDUserStatusToggle)
       claimToggle     <- featureFlagService.getAsEitherT(ClaimMtdFromPtaToggle)
-      _               <- EitherT.cond[Future](
-                           mtdStatusToggle.isEnabled && claimToggle.isEnabled,
-                           (),
-                           UpstreamErrorResponse("Claim MTD journey toggle disabled", 404)
-                         )
-    } yield ()
+    } yield mtdStatusToggle.isEnabled && claimToggle.isEnabled
 
   def start: Action[AnyContent] = authenticate.async { implicit request =>
     if (!request.isSaUserLoggedIntoCorrectAccount) {
@@ -70,12 +65,17 @@ class ClaimMtdFromPtaController @Inject() (
     } else {
       val action: EitherT[Future, UpstreamErrorResponse, Result] =
         for {
-          _           <- ensureClaimMtdJourneyEnabled
+          enabled     <- ensureClaimMtdJourneyEnabled
           mtdUserType <- enrolmentStoreProxyService.getMtdUserType(request.authNino)
-        } yield mtdUserType match {
-          case NotEnrolledMtdUser =>
-            Ok(mtditClaimChoiceView(postAction = routes.ClaimMtdFromPtaController.submit))
-          case _                  =>
+        } yield (enabled, mtdUserType) match {
+          case (true, NotEnrolledMtdUser) =>
+            Ok(
+              mtditClaimChoiceView(
+                postAction = routes.ClaimMtdFromPtaController.submit,
+                ClaimMtdFromPtaChoiceFormProvider.form
+              )
+            )
+          case _                          =>
             Redirect(controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage)
         }
 
@@ -86,19 +86,20 @@ class ClaimMtdFromPtaController @Inject() (
     }
   }
 
-  def submit: Action[AnyContent] = authenticate.async { implicit request =>
+  def submit: Action[AnyContent] = authenticate { implicit request =>
     ClaimMtdFromPtaChoiceFormProvider.form
       .bindFromRequest()
-      .value
-      .flatMap(_.choice) match {
-      case Some(ClaimMtdFromPtaChoiceFormProvider.yes) =>
-        Future.successful(Redirect(configDecorator.mtdClaimFromPtaHandoffUrl))
-
-      case Some(ClaimMtdFromPtaChoiceFormProvider.no) =>
-        Future.successful(Redirect(routes.HomeController.index))
-
-      case _ =>
-        Future.successful(NotFound)
-    }
+      .fold(
+        formWithErrors =>
+          BadRequest(
+            mtditClaimChoiceView(postAction = routes.ClaimMtdFromPtaController.submit, claimMtdForm = formWithErrors)
+          ),
+        success =>
+          if (success.choice) {
+            Redirect(configDecorator.mtdClaimFromPtaHandoffUrl)
+          } else {
+            Redirect(routes.HomeController.index)
+          }
+      )
   }
 }

@@ -17,14 +17,18 @@
 package views.html.interstitial
 
 import controllers.auth.requests.UserRequest
-import play.api.mvc.AnyContentAsEmpty
+import models.{ClaimMtdFromPtaChoiceFormProvider, ClaimMtdFromPtaChoiceModel}
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
+import models.ClaimMtdFromPtaChoiceFormProvider
+import play.api.data.Form
+import play.api.mvc.AnyContentAsEmpty
 
 class MTDITClaimChoiceViewSpec extends ViewSpec {
 
-  lazy val view: MTDITClaimChoiceView = inject[MTDITClaimChoiceView]
+  lazy val view: MTDITClaimChoiceView             = inject[MTDITClaimChoiceView]
+  lazy val form: Form[ClaimMtdFromPtaChoiceModel] = ClaimMtdFromPtaChoiceFormProvider.form
 
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(request = FakeRequest())
@@ -32,12 +36,12 @@ class MTDITClaimChoiceViewSpec extends ViewSpec {
   "Rendering MTDITClaimChoiceView.scala.html" must {
 
     "display the expected page header" in {
-      val document = asDocument(view(controllers.routes.ClaimMtdFromPtaController.submit).toString)
+      val document = asDocument(view(controllers.routes.ClaimMtdFromPtaController.submit, form).toString)
       document.body().toString must include("Making Tax Digital for Income Tax")
     }
 
     "display the expected paragraph content with link" in {
-      val document = asDocument(view(controllers.routes.ClaimMtdFromPtaController.submit).toString)
+      val document = asDocument(view(controllers.routes.ClaimMtdFromPtaController.submit, form).toString)
 
       document.body().toString must include("You are signed up for")
       document.body().toString must include("Making Tax Digital for Income Tax")
@@ -55,37 +59,37 @@ class MTDITClaimChoiceViewSpec extends ViewSpec {
     }
 
     "display the expected question" in {
-      val document = asDocument(view(controllers.routes.ClaimMtdFromPtaController.submit).toString)
+      val document = asDocument(view(controllers.routes.ClaimMtdFromPtaController.submit, form).toString)
       document.body().toString must include(
         "Do you want to add Making Tax Digital for Income Tax to your personal tax account now?"
       )
     }
 
     "display yes and no radio options" in {
-      val document = asDocument(view(controllers.routes.ClaimMtdFromPtaController.submit).toString)
+      val document = asDocument(view(controllers.routes.ClaimMtdFromPtaController.submit, form).toString)
 
-      val yesRadio = document.select("#mtd-choice-1")
+      val yesRadio = document.select("#mtd-choice-yes")
       yesRadio.size() mustBe 1
-      yesRadio.attr("value") mustBe "yes"
+      yesRadio.attr("value") mustBe "true"
 
-      val noRadio = document.select("#mtd-choice-2")
+      val noRadio = document.select("#mtd-choice-no")
       noRadio.size() mustBe 1
-      noRadio.attr("value") mustBe "no"
+      noRadio.attr("value") mustBe "false"
     }
 
     "display continue button" in {
-      val document = asDocument(view(controllers.routes.ClaimMtdFromPtaController.submit).toString)
+      val document = asDocument(view(controllers.routes.ClaimMtdFromPtaController.submit, form).toString)
       document.select("button.govuk-button").text() mustBe "Continue"
     }
 
     "render a form posting to the expected action" in {
       val postAction = controllers.routes.ClaimMtdFromPtaController.submit
-      val document   = asDocument(view(postAction).toString)
+      val document   = asDocument(view(postAction, form).toString)
 
-      val form = document.select("form")
-      form.size() mustBe 1
-      form.attr("action") mustBe postAction.url
-      form.attr("method") mustBe "POST"
+      val formHtml = document.select("form")
+      formHtml.size() mustBe 1
+      formHtml.attr("action") mustBe postAction.url
+      formHtml.attr("method") mustBe "POST"
     }
   }
 }

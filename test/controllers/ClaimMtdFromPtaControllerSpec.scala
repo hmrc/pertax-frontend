@@ -77,7 +77,7 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
     )
 
     when(mockConfigDecorator.mtdClaimFromPtaHandoffUrl).thenReturn(handoffUrl)
-    when(mockView.apply(any())(any(), any())).thenReturn(HtmlFormat.empty)
+    when(mockView.apply(any(), any())(any(), any())).thenReturn(HtmlFormat.empty)
     when(mockTechnicalIssuesView.apply(anyString())(any(), any(), any()))
       .thenReturn(HtmlFormat.empty)
 
@@ -135,7 +135,7 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
           method = POST,
           uri = submitUrl,
           headers = FakeHeaders(),
-          body = AnyContentAsEmpty
+          body = AnyContentAsFormUrlEncoded(Map("mtd-choice" -> Seq.empty))
         )
     }
 
@@ -162,6 +162,8 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
 
     "return ServiceUnavailable when toggles are disabled" in {
       stubMtdStatusToggle(enabled = false) // fails ensureClaimMtdJourneyEnabled
+      stubClaimToggle(enabled = false)
+      stubMtdUserType(NotEnrolledMtdUser)
 
       val controller = controllerFor(correctSaUser)
 
@@ -195,7 +197,7 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
     "redirect to handoff url when yes is selected" in {
       val controller = controllerFor(correctSaUser)
 
-      val result = controller.submit()(submitRequest(Some(ClaimMtdFromPtaChoiceFormProvider.yes)))
+      val result = controller.submit()(submitRequest(Some("true")))
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result).value mustBe handoffUrl
@@ -204,24 +206,24 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
     "redirect to PTA home when no is selected" in {
       val controller = controllerFor(correctSaUser)
 
-      val result = controller.submit()(submitRequest(Some(ClaimMtdFromPtaChoiceFormProvider.no)))
+      val result = controller.submit()(submitRequest(Some("false")))
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result).value mustBe controllers.routes.HomeController.index.url
     }
 
-    "return NotFound when nothing is posted" in {
+    "return BAD_REQUEST when nothing is posted" in {
       val controller = controllerFor(correctSaUser)
 
       val result = controller.submit()(submitRequest())
-      status(result) mustBe NOT_FOUND
+      status(result) mustBe BAD_REQUEST
     }
 
-    "return NotFound when unexpected value is posted" in {
+    "return BAD_REQUEST when unexpected value is posted" in {
       val controller = controllerFor(correctSaUser)
 
       val result = controller.submit()(submitRequest(Some("unexpected")))
-      status(result) mustBe NOT_FOUND
+      status(result) mustBe BAD_REQUEST
     }
   }
 }

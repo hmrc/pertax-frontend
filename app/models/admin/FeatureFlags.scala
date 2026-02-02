@@ -85,13 +85,13 @@ case object TaxSummariesTileToggle extends FeatureFlagName {
 }
 
 case object ShowPlannedOutageBannerToggle extends FeatureFlagName {
-  override val name: String                = "show-outage-banner-toggle"
-  override val description: Option[String] = Some(
+  override val name: String                         = "show-outage-banner-toggle"
+  override val description: Option[String]          = Some(
     "Show or hide the planned outage banner on the PTA home page. Banner content is configured via app-config and code changes"
   )
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
-  override val defaultState: Boolean       = false
+  override val defaultState: Boolean                = false
 }
 
 case object AgentClientRelationshipsToggle extends FeatureFlagName {

@@ -18,19 +18,17 @@
 @import models.ClaimMtdFromPtaChoiceFormProvider
 @import play.api.mvc.Call
 @import uk.gov.hmrc.govukfrontend.views.html.components.{FormWithCSRF, *}
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.button.*
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.*
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.*
+@import views.html.components.{Button, InputYesNo}
 @import views.MainView
 
 @this(
         mainView: MainView,
-        govukRadios: GovukRadios,
-        govukButton: GovukButton,
+        button: Button,
+        inputYesNo: InputYesNo,
         form: FormWithCSRF
 )
 
-@(postAction: Call)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(postAction: Call, claimMtdForm: Form[ClaimMtdFromPtaChoiceModel])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @defining("https://www.gov.uk/government/publications/extension-of-making-tax-digital-for-income-tax-self-assessment-to-sole-traders-and-landlords/making-tax-digital-for-income-tax-self-assessment-for-sole-traders-and-landlords") { mtdGuidanceUrl =>
 
@@ -55,32 +53,14 @@
         </p>
 
         @form(action = postAction) {
-
-            @govukRadios(Radios(
+            @inputYesNo(
+                form = claimMtdForm,
+                legend = "label.mtdit.claim.question",
+                legendClasses = "govuk-fieldset__legend--m",
                 name = "mtd-choice",
-                fieldset = Some(Fieldset(
-                    legend = Some(Legend(
-                        content = Text(messages("label.mtdit.claim.question")),
-                        classes = "govuk-fieldset__legend--m"
-                    ))
-                )),
-                items = Seq(
-                    RadioItem(
-                        value = Some(ClaimMtdFromPtaChoiceFormProvider.yes),
-                        content = Text(messages("label.yes")),
-                        id = Some("mtd-choice-1")
-                    ),
-                    RadioItem(
-                        value = Some(ClaimMtdFromPtaChoiceFormProvider.no),
-                        content = Text(messages("label.no")),
-                        id = Some("mtd-choice-2")
-                    )
-                )
-            ))
-
-            @govukButton(Button(
-                content = Text(messages("label.continue"))
-            ))
+                inline = false
+            )
+            @button(msg="label.continue")
         }
     }
 }

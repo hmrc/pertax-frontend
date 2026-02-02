@@ -17,25 +17,22 @@
 package models
 
 import play.api.data.Form
-import play.api.data.Forms.{mapping, optional, text}
+import play.api.data.Forms.{boolean, mapping}
 import play.api.libs.json.{Json, OFormat}
 
-final case class ClaimMtdFromPtaChoiceModel(choice: Option[String])
+final case class ClaimMtdFromPtaChoiceModel(choice: Boolean)
 
 object ClaimMtdFromPtaChoiceModel {
-  def unapply(model: ClaimMtdFromPtaChoiceModel): Option[Option[String]] =
+  def unapply(model: ClaimMtdFromPtaChoiceModel): Option[Boolean] =
     Some(model.choice)
 }
 
 object ClaimMtdFromPtaChoiceFormProvider {
 
-  val yes = "yes"
-  val no  = "no"
-
   def form: Form[ClaimMtdFromPtaChoiceModel] =
     Form(
       mapping(
-        "mtd-choice" -> optional(text)
+        "mtd-choice" -> boolean
       )(ClaimMtdFromPtaChoiceModel.apply)(ClaimMtdFromPtaChoiceModel.unapply)
     )
 
