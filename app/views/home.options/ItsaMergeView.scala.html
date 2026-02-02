@@ -15,15 +15,9 @@
  *@
 
 @import tags._
-@import components.P
-
-@this(p: P)
+@this()
 
 @(nextDeadlineTaxYear: String)(implicit messages: play.api.i18n.Messages)
-
-@cardContent = {
-    @p(Text(messages("label.online_deadline_tax_returns", nextDeadlineTaxYear)))
-}
 
 @homePageOption(
     id = Some("sa-card"),
@@ -31,7 +25,6 @@
     gaAction = Some("Income"),
     gaLabel = Some("Self Assessment"),
     heading = messages("label.mtd_for_itsa"),
-    headingTag = "h2",
-    bodyContent = Some(cardContent)
+    bodyContent = Some(messages("label.online_deadline_tax_returns", nextDeadlineTaxYear))
 ) {
 }

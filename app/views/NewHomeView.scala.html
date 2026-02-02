@@ -44,7 +44,7 @@
 @fandfBannerHtml = {
     <p class="govuk-notification-banner__heading">
         @messages("fandf.banner.text", languageUtils.Dates.formatDate(configDecorator.fandfBannerDate))
-        <a class="govuk-notification-banner__link" href="@configDecorator.fandfBannerLink"> @messages("fandf.banner.linkText").</a>.
+        <a class="govuk-notification-banner__link" href="@configDecorator.fandfBannerLink"> @messages("fandf.banner.linkText")</a>.
     </p>
 }
 
@@ -69,7 +69,7 @@
     @alertBanner(viewModel.alertBannerContent)
 
     <header class="hmrc-page-heading">
-        <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
         <p class="hmrc-caption govuk-caption-xl"><span class="govuk-visually-hidden">@messages("label.this.section.is") </span>@messages("label.account_home")</p>
     </header>
 
@@ -86,21 +86,24 @@
         </div>
     }
     @viewModel.saUtr.map { utr =>
-        <p class="govuk-body" id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong></p>
+        <p class="govuk-body govuk-!-margin-bottom-2" id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong></p>
     }
     <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state" href="@configDecorator.ptaNinoSaveUrl">
         @messages("label.view_and_save_your_national_insurance_number")</a></p>
 
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
             @viewModel.listOfTasks
-            <div class="govuk-!-padding-bottom-6"></div>
 
-            @h2("label.taxes_and_benefits_heading")
+            @h2("label.taxes_and_benefits_heading", classes = Some("govuk-heading-m govuk-!-margin-top-9"))
             @h3("label.taxes_and_benefits_subheading")
-            @viewModel.currentTaxesAndBenefits
+            <ul class="govuk-list">
+                @viewModel.currentTaxesAndBenefits
+            </ul>
 
-            @h3("label.other_taxes_and_benefits_heading")
-            @viewModel.otherTaxesAndBenefits
+            @h3("label.other_taxes_and_benefits_heading", classes = Some("govuk-!-margin-top-6"))
+            <ul class="govuk-list">
+                @viewModel.otherTaxesAndBenefits
+            </ul>
 
             @viewModel.newsAndUpdates
 

@@ -1,9 +1,17 @@
 $govuk-include-default-font-face: false;
+@import "lib/govuk-frontend/dist/govuk/settings/index";
+
 @import "modules/colors";
 @import "card";
 @import "flexbox";
-@import "partials/home";
-@import "pta-home-option";
+
+.pta-home-option {
+  background-color: govuk-tint(govuk-colour("light-grey"), 50%);
+
+  > :not(:only-child) {
+    margin-bottom: 5px;
+  }
+}
 
 address {
   font-style: normal;

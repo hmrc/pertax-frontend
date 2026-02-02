@@ -16,19 +16,15 @@
 
 @import tags._
 @import components.P
-@this(p: P)
+@this()
 @(nextDeadlineTaxYear: String, redirectUrl: String, paragraphMessageKey: String)(implicit messages: play.api.i18n.Messages)
 
-@cardContent = {
-    @p(Text(messages(paragraphMessageKey, nextDeadlineTaxYear)))
-}
 @homePageOption(
     id = Some("sa-card"),
     url = Some(redirectUrl),
     gaAction = Some("Income"),
     gaLabel = Some("Self Assessment"),
     heading = messages("label.self_assessment"),
-    headingTag = "h2",
-    bodyContent = Some(cardContent)
+    bodyContent = Some(messages(paragraphMessageKey, nextDeadlineTaxYear))
 ) {
 }

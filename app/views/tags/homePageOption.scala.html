@@ -19,28 +19,30 @@
         gaAction: Option[String] = None,
         gaLabel: Option[String] = None,
         heading: String,
-        headingTag: String = "h2",
-        bodyContent: Option[Html] = None,
+        bodyContent: Option[String] = None,
         divAttr: Map[String, String] = Map.empty
 )(actionContent: Html)
 
-<div class="pta-home-option" @id.map { i => id="@i" } @divAttr.map{attr => @attr._1="@attr._2"} >
 
-    <div class="@if(url) {active}" @if(url) {
-        data-journey-click="link - click:@gaAction:@gaLabel"}>
 
-        <@headingTag class="govuk-heading-s pta-home-option-heading">
-            @if(url) {
-                <a class="govuk-link pta-home-option-link" href="@url">
-                @heading
-                </a>
-            } else {
-                @heading
-            }
-        </@headingTag>
+    <li class="pta-home-option govuk-!-margin-bottom-2 govuk-!-padding-3 @if(url) {active}"
+        @id.map { i => id="@i" }
+        @divAttr.map{attr => @attr._1="@attr._2"}
+        @if(url) { data-journey-click="link - click:@gaAction:@gaLabel"}>
 
-        @bodyContent
+        @if(url) {
+            <a class="govuk-link govuk-!-font-weight-bold govuk-!-font-size-19 govuk-link--no-visited-state govuk-!-display-inline-block" href="@url">
+            @heading
+            </a>
+        } else {
+            @heading
+        }
+
+        @if(bodyContent) {
+            <p class="govuk-body govuk-!-margin-bottom-0">
+                @bodyContent
+            </p>
+        }
 
         @actionContent
-    </div>
-</div>
+    </li>
