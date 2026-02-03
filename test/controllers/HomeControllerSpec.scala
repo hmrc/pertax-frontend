@@ -313,7 +313,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   "Calling HomeController.index with layout toggle on" must {
 
     "Return the new home page design when newDesign parameter is true " in {
-      val path = "/personal-account/home?newDesign=true"
+      val path             = "/personal-account?newDesign=true"
       val newDesignRequest = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -321,18 +321,19 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
 
-      val newLayoutHtmlString = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
+      val newLayoutHtmlString   = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
       val appLocal: Application = appBuilder.build()
 
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result] = controller.index()(newDesignRequest)
+      val controller: HomeController  = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]      = controller.index()(newDesignRequest)
       status(result) mustBe OK
-      val containsNewLayoutHtmlString = contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
+      val containsNewLayoutHtmlString =
+        contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
       assert(containsNewLayoutHtmlString)
     }
 
     "Return the old home page design when newDesign parameter is false " in {
-      val path = "/personal-account/home?newDesign=false"
+      val path             = "/personal-account?newDesign=false"
       val newDesignRequest = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -340,18 +341,19 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
 
-      val newLayoutHtmlString = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
+      val newLayoutHtmlString   = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
       val appLocal: Application = appBuilder.build()
 
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result] = controller.index()(newDesignRequest)
+      val controller: HomeController  = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]      = controller.index()(newDesignRequest)
       status(result) mustBe OK
-      val containsNewLayoutHtmlString = contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
+      val containsNewLayoutHtmlString =
+        contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
       assert(!containsNewLayoutHtmlString)
     }
 
     "Return the old home page design when HomePageNewLayoutToggle is false " in {
-      val path = "/personal-account/home?newDesign=true"
+      val path             = "/personal-account?newDesign=true"
       val newDesignRequest = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -359,13 +361,14 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
 
-      val newLayoutHtmlString = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
+      val newLayoutHtmlString   = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
       val appLocal: Application = appBuilder.build()
 
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result] = controller.index()(newDesignRequest)
+      val controller: HomeController  = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]      = controller.index()(newDesignRequest)
       status(result) mustBe OK
-      val containsNewLayoutHtmlString = contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
+      val containsNewLayoutHtmlString =
+        contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
       assert(!containsNewLayoutHtmlString)
     }
 
