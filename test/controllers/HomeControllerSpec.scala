@@ -313,18 +313,40 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   "Calling HomeController.index with layout toggle on" must {
 
     "Return the new home page design when newDesign parameter is true " in {
-      val newDesignRequest = FakeRequest("GET", "/personal-account/home?newDesign=true")
+      val path = "/personal-account/home?newDesign=true"
+      val newDesignRequest = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
       when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
 
+      val newLayoutHtmlString = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
       val appLocal: Application = appBuilder.build()
 
       val controller: HomeController = appLocal.injector.instanceOf[HomeController]
       val result: Future[Result] = controller.index()(newDesignRequest)
       status(result) mustBe OK
+      assert(contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", "")))
+    }
+
+    "Return the old home page design when newDesign parameter is false " in {
+      val path = "/personal-account/home?newDesign=false"
+      val newDesignRequest = FakeRequest("GET", path)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val newLayoutHtmlString = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result] = controller.index()(newDesignRequest)
+      status(result) mustBe OK
+      val resultAsHtml = contentAsString(result).replaceAll("\\s", "")
+      assert(!resultAsHtml.contains(newLayoutHtmlString.replaceAll("\\s", "")))
     }
 
     "Return a Breathing space if that is returned within period" in {
