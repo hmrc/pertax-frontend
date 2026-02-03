@@ -308,11 +308,13 @@ label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os by
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.this.section.is=Dyma’r adran ynghylch
 label.remove=Dileu
+label.tax_calc_heading=Your tax calculation
 
 #
 # News
 #
 label.latest_news_and_updates=Y newyddion diweddaraf a diweddariadau
+label.hmrc_news=HMRC News
 label.other_news_and_updates=Newyddion a diweddariadau eraill
 label.news_and_updates=Newyddion a Diweddariadau
 label.percentage_points_uplift_in_NIC=Cynnydd o 1.25 pwynt canrannol yng nghyfraniadau Yswiriant Gwladol
@@ -458,6 +460,7 @@ label.no_need_to_contact_hmrc=Does dim angen i chi gysylltu â CThEM ynglŷn â 
 label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
 
 label.viewAndManageSA=Bwrw golwg dros eich Ffurflen Dreth Hunanasesiad a’i rheoli. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.newViewAndManageSA=The deadline for online returns is 31 January {0}.
 
 label.self_assessment=Hunanasesiad
 label.make_a_payment=Gwneud taliad
@@ -476,6 +479,7 @@ label.view_gaps_in_your_record=Bwrw golwg ar fylchau yn eich cofnodion
 label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 
 label.national_insurance_and_state_pension=Eich Yswiriant Gwladol a’ch Pensiwn y Wladwriaeth
+label.new_national_insurance_and_state_pension=Yswiriant Gwladol a’ch Pensiwn y Wladwriaeth
 label.view_national_insurance=Bwrw golwg dros eich cofnod Yswiriant Gwladol, a bwrw golwg dros eich rhif Yswiriant Gwladol a’i gadw.
 label.view_state_pension=Bwrw golwg dros Grynodeb o’ch Pensiwn y Wladwriaeth, a thalu am y bylchau yn eich cofnod Yswiriant Gwladol.
 
@@ -850,6 +854,17 @@ personal_details.try_again.try.again.to.update = rhowch gynnig arall arni i ddiw
 
 label.trusted_helpers_heading=Cynorthwywyr dibynadwy
 label.trusted_helpers_content=Cael help gyda’ch treth ar-lein gan rywun dibynadwy, neu helpwch rywun rydych yn ei adnabod.
+
+label.taxes_and_benefits_heading=Taxes and benefits
+label.taxes_and_benefits_subheading=Your current HMRC online taxes and benefits
+label.other_taxes_and_benefits_heading=Other taxes and benefits that may be relevant to you
+
+label.task_heading=Your tasks
+label.task_paragraph=Use this task list to see if you owe tax or are due a refund for Pay As You Earn (PAYE). It can take up to 5 days for tasks to show as complete.
+label.task_incomplete=Incomplete
+label.task_complete=Complete
+label.task_after_tasks=Check your taxes and benefits to find out if there’s anything else you need to do.
+label.task_no_tasks=You do not have any payment or refunds tasks for PAYE tax years 2021 to 2025. Check your taxes and benefits to find out if there’s anything else you need to do.
 
 fandf.banner.text=Mae’ch perthynas â’ch cynorthwyydd dibynadwy yn dod i ben am hanner nos ar {0}.
 fandf.banner.linkText=Dysgwch sut mae cynorthwywyr dibynadwy yn newid.

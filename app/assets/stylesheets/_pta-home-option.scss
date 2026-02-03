@@ -1,0 +1,85 @@
+.pta-home-option {
+  flex-basis: 100%;
+  flex-grow: 0;
+  margin-bottom: 2em;
+  border: 1px solid $panel-colour;
+  font-size: 16px;
+
+  &.inactive {
+      color: $secondary-text-colour;
+    }
+
+    .pta-home-option-heading {
+      margin-top: 0;
+    }
+
+    .pta-home-option-body {
+      border-bottom: 1px solid $panel-colour;
+      padding: 12px;
+
+      *:last-child {
+        margin-bottom: 0;
+      }
+
+      &.active {
+        background-color: $grey-4;
+        transition: 0.1s ease-in-out;
+
+        .pta-home-option-heading a {
+          color: $link-colour;
+          margin-top: 0;
+
+          &:focus {
+            box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+            color: $black;
+            outline: 3px solid transparent;
+          }
+        }
+      }
+
+      .detail-large {
+        color: $secondary-text-colour;
+        font-size: 32px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .detail {
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+    }
+
+    .pta-home-option-action {
+      border-top: 0;
+      padding: 8px;
+
+      a {
+        display: inline;
+        line-height: 1.5em;
+
+        &:link,
+        &:visited {
+          color: $link-colour;
+        }
+
+        &:focus {
+          color: $black;
+        }
+      }
+
+      ul {
+        margin: 0;
+
+        li {
+          margin: 0 0 1em;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+
+}

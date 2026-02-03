@@ -1,0 +1,107 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import components.{H2, H3}
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import viewmodels.NewHomeViewModel
+@import views.MainView
+@import views.html.components.alertBanner.AlertBanner
+@import uk.gov.hmrc.play.language.LanguageUtils
+
+@this(
+        main: MainView,
+        govukNotificationBanner : GovukNotificationBanner,
+        alertBanner: AlertBanner,
+        configDecorator: ConfigDecorator,
+        h2: H2,
+        h3: H3,
+        languageUtils: LanguageUtils
+)
+
+@(viewModel: NewHomeViewModel, shutteringMessaging: Boolean, fandfBanner: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+
+@bannerHtml = {
+    <p class="govuk-notification-banner__heading">
+        @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerParagraphCy }else {@configDecorator.shutterBannerParagraphEn}<br/>
+        <a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
+    </p>
+}
+
+@fandfBannerHtml = {
+    <p class="govuk-notification-banner__heading">
+        @messages("fandf.banner.text", languageUtils.Dates.formatDate(configDecorator.fandfBannerDate))
+        <a class="govuk-notification-banner__link" href="@configDecorator.fandfBannerLink"> @messages("fandf.banner.linkText").</a>.
+    </p>
+}
+
+@main(
+    pageTitle = messages("label.account_home"),
+    fullWidth = false,
+    showUserResearchBanner = viewModel.showUserResearchBanner,
+    accountHome = true
+) {
+    @if(shutteringMessaging) {
+        @govukNotificationBanner(NotificationBanner(
+            content = HtmlContent(bannerHtml)
+        ))
+    }
+
+    @if(fandfBanner){
+        @govukNotificationBanner(NotificationBanner(
+            content = HtmlContent(fandfBannerHtml)
+        ))
+    }
+
+    @alertBanner(viewModel.alertBannerContent)
+
+    <header class="hmrc-page-heading">
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
+        <p class="hmrc-caption govuk-caption-xl"><span class="govuk-visually-hidden">@messages("label.this.section.is") </span>@messages("label.account_home")</p>
+    </header>
+
+    @if(viewModel.breathingSpaceIndicator) {
+        <div class="govuk-!-padding-bottom-6 govuk-!-padding-top-2">
+            <p class="govuk-phase-banner__content">
+                <strong class="govuk-tag govuk-phase-banner__content__tag">
+                @messages("label.breathing_space")
+                </strong>
+                <span class="govuk-phase-banner__text">
+                    <a class="govuk-link govuk-link--no-visited-state" href="@controllers.interstitials.routes.InterstitialController.displayBreathingSpaceDetails">@messages("label.find_out_what_it_means_to_be_in_breathing_space")</a>
+                </span>
+            </p>
+        </div>
+    }
+    @viewModel.saUtr.map { utr =>
+        <p class="govuk-body" id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong></p>
+    }
+    <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state" href="@configDecorator.ptaNinoSaveUrl">
+        @messages("label.view_and_save_your_national_insurance_number")</a></p>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+            @viewModel.listOfTasks
+            <div class="govuk-!-padding-bottom-6"></div>
+
+            @h2("label.taxes_and_benefits_heading")
+            @h3("label.taxes_and_benefits_subheading")
+            @viewModel.currentTaxesAndBenefits
+
+            @h3("label.other_taxes_and_benefits_heading")
+            @viewModel.otherTaxesAndBenefits
+
+            @viewModel.newsAndUpdates
+
+}

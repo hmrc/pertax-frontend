@@ -1,0 +1,66 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import tags._
+@import config.ConfigDecorator
+@import play.api.mvc.AnyContent
+@import controllers.auth.requests.UserRequest
+@import components.{H2, P}
+@import viewmodels.Task
+
+@this(h2: H2,
+p: P,
+govukInsetText: GovukInsetText,
+govukTaskList: GovukTaskList)
+
+@(listOfTasks: Seq[Task])(implicit messages: play.api.i18n.Messages)
+
+@h2("label.task_heading")
+
+@if(listOfTasks.isEmpty){
+    @govukInsetText(InsetText(
+       content = Text(messages("label.task_no_tasks"))
+    ))
+} else {
+    @p(Text(messages("label.task_paragraph")))
+    @govukTaskList(TaskList(
+        items = listOfTasks.map{ task =>
+               TaskListItem(
+                 title = TaskListItemTitle(
+                   content = Text(task.title)
+                 ),
+                hint = task.hintText.map{ hintText =>
+                    Hint(
+                    content = Text(hintText)
+                    )
+                },
+                 status = if(task.isCompleted) TaskListItemStatus(
+                   content = Text(messages("label.task_complete"))
+                 ) else TaskListItemStatus(
+                    tag = Some(Tag(
+                        content = Text(messages("label.task_incomplete")),
+                        classes = "govuk-tag--blue"
+                    ))
+                 ),
+                 href = Some(task.href)
+               )
+         },
+        idPrefix = "task-list"
+        ))
+    @govukInsetText(InsetText(
+      content = Text(messages("label.task_after_tasks"))
+    ))
+}

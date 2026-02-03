@@ -40,6 +40,7 @@ object AllFeatureFlags {
     MTDUserStatusToggle,
     GetMatchingFromCitizenDetailsToggle,
     ClaimMtdFromPtaToggle,
+    HomePageNewLayoutToggle,
     FandFBannerToggle
   )
 }
@@ -189,6 +190,15 @@ case object MTDUserStatusToggle extends FeatureFlagName {
   override val name: String                         = "mdt-user-status-toggle"
   override val description: Option[String]          = Some(
     "Enable/disable calls to EACD to determine MTD user status"
+  )
+  override val lockedEnvironments: Seq[Environment] =
+    Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
+}
+
+case object HomePageNewLayoutToggle extends FeatureFlagName {
+  override val name: String                         = "home-page-layout-toggle"
+  override val description: Option[String]          = Some(
+    "Enable/disable the new PTA home page layout"
   )
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
