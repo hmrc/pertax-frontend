@@ -49,7 +49,9 @@ class MyServices @Inject() (
           MyService(
             messages("label.self_assessment"),
             controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-            messages("label.newViewAndManageSA", s"${current.currentYear + 1}")
+            messages("label.newViewAndManageSA", s"${current.currentYear + 1}"),
+            gaAction = Some("Income"),
+            gaLabel = Some("Self Assessment")
           )
         )
       case WrongCredentialsSelfAssessmentUser(_)           =>
@@ -57,7 +59,9 @@ class MyServices @Inject() (
           MyService(
             "label.self_assessment",
             controllers.routes.SaWrongCredentialsController.landingPage().url,
-            messages("title.signed_in_wrong_account.h1")
+            messages("title.signed_in_wrong_account.h1"),
+            gaAction = Some("Income"),
+            gaLabel = Some("Self Assessment")
           )
         )
       case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
@@ -65,7 +69,9 @@ class MyServices @Inject() (
           MyService(
             messages("label.self_assessment"),
             configDecorator.ssoToActivateSaEnrolmentPinUrl,
-            messages("label.activate_your_self_assessment_registration")
+            messages("label.activate_your_self_assessment_registration"),
+            gaAction = Some("Income"),
+            gaLabel = Some("Self Assessment")
           )
         )
       case _                                               => None
@@ -75,7 +81,9 @@ class MyServices @Inject() (
     val mdtpPaye = MyService(
       messages("label.pay_as_you_earn_paye"),
       s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do",
-      ""
+      "",
+      gaAction = Some("Income"),
+      gaLabel = Some("Pay As You Earn (PAYE)")
     )
 
     featureFlagService.get(PayeToPegaRedirectToggle).map { toggle =>
@@ -86,7 +94,9 @@ class MyServices @Inject() (
             MyService(
               messages("label.pay_as_you_earn_paye"),
               configDecorator.payeToPegaRedirectUrl,
-              ""
+              "",
+              gaAction = Some("Income"),
+              gaLabel = Some("Pay As You Earn (PAYE)")
             )
           )
         } else {
@@ -108,7 +118,9 @@ class MyServices @Inject() (
             MyService(
               messages("alertBannerShuttering.taxcalc"),
               configDecorator.taxCalcHomePageUrl,
-              ""
+              "",
+              gaAction = Some("Income"),
+              gaLabel = Some("Tax Calculation")
             )
           )
         } else {
@@ -123,7 +135,9 @@ class MyServices @Inject() (
         MyService(
           messages("label.your_national_insurance_and_state_pension"),
           controllers.interstitials.routes.InterstitialController.displayNISP.url,
-          ""
+          "",
+          gaAction = Some("Income"),
+          gaLabel = Some("National Insurance and State Pension")
         )
       )
     )
