@@ -873,3 +873,5 @@ label.mtdit.claim.p1.prefix=Rydych wedi’ch cofrestru ar gyfer y cynllun
 label.mtdit.claim.p1.linkText=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtdit.claim.p1.suffix=(yn agor tab newydd). Mae angen i chi ychwanegu’r gwasanaeth at eich Cyfrif Treth Personol cyn y cewch fynediad ato.
 label.mtdit.claim.question=A ydych am ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch Cyfrif Treth Personol nawr?
+label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch cyfrif treth personol
+head.label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch cyfrif treth personol

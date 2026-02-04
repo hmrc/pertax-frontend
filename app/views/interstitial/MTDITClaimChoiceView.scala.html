@@ -18,12 +18,13 @@
 @import models.ClaimMtdFromPtaChoiceFormProvider
 @import play.api.mvc.Call
 @import uk.gov.hmrc.govukfrontend.views.html.components.{FormWithCSRF, *}
-@import views.html.components.{Button, InputYesNo}
+@import views.html.components.{Button, ErrorSummary, InputYesNo}
 @import views.MainView
 
 @this(
         mainView: MainView,
         button: Button,
+        errorSummary: ErrorSummary,
         inputYesNo: InputYesNo,
         form: FormWithCSRF
 )
@@ -36,6 +37,8 @@
         pageTitle    = messages("label.mtdit.heading"),
         showBackLink = true
     ) {
+
+        @errorSummary(claimMtdForm, Some("mtd-choice-yes"))
 
         <h1 class="govuk-heading-l govuk-!-margin-bottom-8">
         @messages("label.mtdit.heading")

@@ -17,7 +17,7 @@
 package models
 
 import play.api.data.Form
-import play.api.data.Forms.{boolean, mapping}
+import play.api.data.Forms.{boolean, mapping, optional}
 import play.api.libs.json.{Json, OFormat}
 
 final case class ClaimMtdFromPtaChoiceModel(choice: Boolean)
@@ -32,7 +32,9 @@ object ClaimMtdFromPtaChoiceFormProvider {
   def form: Form[ClaimMtdFromPtaChoiceModel] =
     Form(
       mapping(
-        "mtd-choice" -> boolean
+        "mtd-choice" -> optional(boolean)
+          .verifying("label.mtdit.claim.error", _.isDefined)
+          .transform[Boolean](_.getOrElse(false), Some(_))
       )(ClaimMtdFromPtaChoiceModel.apply)(ClaimMtdFromPtaChoiceModel.unapply)
     )
 
