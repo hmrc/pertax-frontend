@@ -160,7 +160,7 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
       status(result) mustBe NOT_FOUND
     }
 
-    "return ServiceUnavailable when toggles are disabled" in {
+    "redirect to advert when toggles are disabled" in {
       stubMtdStatusToggle(enabled = false) // fails ensureClaimMtdJourneyEnabled
       stubClaimToggle(enabled = false)
       stubMtdUserType(NotEnrolledMtdUser)
@@ -168,7 +168,10 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
       val controller = controllerFor(correctSaUser)
 
       val result = controller.start()(startRequest)
-      status(result) mustBe SERVICE_UNAVAILABLE
+      status(result) mustBe SEE_OTHER
+      redirectLocation(
+        result
+      ) mustBe Some(controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url)
     }
 
     "return OK when enrolment-store returns NotEnrolledMtdUser" in {
