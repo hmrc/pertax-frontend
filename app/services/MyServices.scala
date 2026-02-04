@@ -21,17 +21,19 @@ import models.*
 import com.google.inject.Inject
 import config.ConfigDecorator
 import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
+import play.api.i18n.Messages
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
+import util.DateTimeTools.current
 
 class MyServices @Inject() (
   configDecorator: ConfigDecorator,
   featureFlagService: FeatureFlagService
 )(implicit ec: ExecutionContext) {
 
-  def getMyServices(implicit request: UserRequest[?]): Future[Seq[MyService]] = {
+  def getMyServices(implicit request: UserRequest[?], messages: Messages): Future[Seq[MyService]] = {
 
     val selfAssessmentF = getSelfAssessment(request.saUserType)
     val payAsYouEarnF   = getPayAsYouEarn(request.authNino, request.trustedHelper.isDefined)
@@ -40,14 +42,14 @@ class MyServices @Inject() (
     Future.sequence(Seq(payAsYouEarnF, taxCalcCardsF, selfAssessmentF)).map(_.flatten)
   }
 
-  def getSelfAssessment(saUserType: SelfAssessmentUserType): Future[Option[MyService]] =
+  def getSelfAssessment(saUserType: SelfAssessmentUserType)(implicit messages: Messages): Future[Option[MyService]] =
     Future.successful(saUserType match {
       case _: ActivatedOnlineFilerSelfAssessmentUser       =>
         Some(
           MyService(
-            "label.self_assessment",
+            messages("label.self_assessment"),
             controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-            "label.newViewAndManageSA"
+            messages("label.newViewAndManageSA", s"${current.currentYear + 1}")
           )
         )
       case WrongCredentialsSelfAssessmentUser(_)           =>
@@ -55,23 +57,23 @@ class MyServices @Inject() (
           MyService(
             "label.self_assessment",
             controllers.routes.SaWrongCredentialsController.landingPage().url,
-            "title.signed_in_wrong_account.h1"
+            messages("title.signed_in_wrong_account.h1")
           )
         )
       case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
         Some(
           MyService(
-            "label.self_assessment",
+            messages("label.self_assessment"),
             configDecorator.ssoToActivateSaEnrolmentPinUrl,
-            "label.activate_your_self_assessment_registration"
+            messages("label.activate_your_self_assessment_registration")
           )
         )
       case _                                               => None
     })
 
-  def getPayAsYouEarn(nino: Nino, isTrustedHelper: Boolean): Future[Option[MyService]] = {
+  def getPayAsYouEarn(nino: Nino, isTrustedHelper: Boolean)(implicit messages: Messages): Future[Option[MyService]] = {
     val mdtpPaye = MyService(
-      "label.pay_as_you_earn_paye",
+      messages("label.pay_as_you_earn_paye"),
       s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do",
       ""
     )
@@ -82,7 +84,7 @@ class MyServices @Inject() (
         if (configDecorator.payeToPegaRedirectList.contains(penultimateDigit) && !isTrustedHelper) {
           Some(
             MyService(
-              "label.pay_as_you_earn_paye",
+              messages("label.pay_as_you_earn_paye"),
               configDecorator.payeToPegaRedirectUrl,
               ""
             )
@@ -96,7 +98,7 @@ class MyServices @Inject() (
     }
   }
 
-  def getTaxcalc(trustedHelperEnabled: Boolean): Future[Option[MyService]] =
+  def getTaxcalc(trustedHelperEnabled: Boolean)(implicit messages: Messages): Future[Option[MyService]] =
     if (trustedHelperEnabled) {
       Future.successful(None)
     } else {
@@ -104,7 +106,7 @@ class MyServices @Inject() (
         if (taxCalcTileFlag.isEnabled) {
           Some(
             MyService(
-              "alertBannerShuttering.taxcalc",
+              messages("alertBannerShuttering.taxcalc"),
               configDecorator.taxCalcHomePageUrl,
               ""
             )
@@ -115,11 +117,11 @@ class MyServices @Inject() (
       }
     }
 
-  def getNationalInsuranceCard: Future[Option[MyService]] =
+  def getNationalInsuranceCard(implicit messages: Messages): Future[Option[MyService]] =
     Future.successful(
       Some(
         MyService(
-          "label.your_national_insurance_and_state_pension",
+          messages("label.your_national_insurance_and_state_pension"),
           controllers.interstitials.routes.InterstitialController.displayNISP.url,
           ""
         )

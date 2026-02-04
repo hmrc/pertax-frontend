@@ -16,4 +16,11 @@
 
 package models
 
-final case class OtherService(titleMessage: String, link: String)
+final case class OtherService(
+  title: String,
+  link: String,
+  divAttr: Map[String, String] = Map.empty,
+  gaAction: Option[String] = None,
+  gaLabel: Option[String] = None,
+  id: Option[String] = None
+)

@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package models
+@import models.MyService
 
-//todo: change link to an Option so we can disable an access
-//todo: change hintMessage to an Option as well
-final case class MyService(
-  title: String,
-  link: String,
-  hintText: String,
-  divAttr: Map[String, String] = Map.empty,
-  gaAction: Option[String] = None,
-  gaLabel: Option[String] = None,
-  id: Option[String] = None
-)
+@this()
+
+@(otherService: OtherService)
+
+<li class="pta-home-option govuk-!-margin-bottom-2 govuk-!-padding-3 active"
+    @otherService.id.map { i => id="@i" }
+    @otherService.divAttr.map{ attr => @attr._1="@attr._2" }
+    data-journey-click="link - click:@otherService.gaAction:@otherService.gaLabel">
+
+    <a class="govuk-link govuk-!-font-weight-bold govuk-!-font-size-19 govuk-link--no-visited-state govuk-!-display-inline-block" href="@otherService.link">
+    @otherService.title
+    </a>
+</li>
