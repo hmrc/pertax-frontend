@@ -1,5 +1,5 @@
-@*
- * Copyright 2023 HM Revenue & Customs
+/*
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,21 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import config.ConfigDecorator
-@import tags._
-@this()
+package models
 
-@(taxSummariesUrl: String)(implicit messages: play.api.i18n.Messages)
-
-
-@homePageOption(
-    id = Some("ats-card"),
-    url = Some(taxSummariesUrl),
-    gaAction = Some("Tax Summaries"),
-    gaLabel = Some("Annual Tax Summary"),
-    heading = messages("card.ats.heading"),
-    headingTag = "h2"
-) {
-}
+//todo: change link to an Option so we can disable an access
+//todo: change hintMessage to an Option as well
+final case class MyService(titleMessage: String, link: String, hintMessage: String)

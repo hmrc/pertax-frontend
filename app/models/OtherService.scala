@@ -1,5 +1,5 @@
-@*
- * Copyright 2023 HM Revenue & Customs
+/*
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,23 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import tags._
-@import components.P
-@this(p: P)
-@(nextDeadlineTaxYear: String, redirectUrl: String, paragraphMessageKey: String)(implicit messages: play.api.i18n.Messages)
+package models
 
-@cardContent = {
-    @p(Text(messages(paragraphMessageKey, nextDeadlineTaxYear)))
-}
-@homePageOption(
-    id = Some("sa-card"),
-    url = Some(redirectUrl),
-    gaAction = Some("Income"),
-    gaLabel = Some("Self Assessment"),
-    heading = messages("label.self_assessment"),
-    headingTag = "h2",
-    bodyContent = Some(cardContent)
-) {
-}
+final case class OtherService(titleMessage: String, link: String)

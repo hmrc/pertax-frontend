@@ -42,6 +42,8 @@ class HomeController @Inject() (
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
+  myServices: MyServices,
+  otherServices: OtherServices,
   homeCardGenerator: HomeCardGenerator,
   homeOptionsGenerator: HomeOptionsGenerator,
   authJourney: AuthJourney,
@@ -72,8 +74,6 @@ class HomeController @Inject() (
     enforceInterrupts {
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
       val fListOfTasks             = homeOptionsGenerator.getListOfTasks
-      val fCurrentTaxesAndBenefits = homeOptionsGenerator.getCurrentTaxesAndBenefits
-      val fOtherTaxesAndBenefits   = homeOptionsGenerator.getOtherTaxesAndBenefits
       val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
       val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
@@ -82,12 +82,12 @@ class HomeController @Inject() (
       for {
         breathingSpaceIndicator <- fBreathingSpaceIndicator
         listOfTasks             <- fListOfTasks
-        currentTaxesAndBenefit  <- fCurrentTaxesAndBenefits
-        otherTaxesAndBenefits   <- fOtherTaxesAndBenefits
         shutteringMessaging     <- fShutteringMessaging
         alertBannerContent      <- fAlertBannerContent
         eitherPersonDetails     <- fEitherPersonDetails
         showFandfBanner         <- fShowFandfBanner
+        myServices              <- myServices.getMyServices
+        otherServices           <- otherServices.getOtherServices
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
@@ -96,14 +96,14 @@ class HomeController @Inject() (
           newHomeView(
             NewHomeViewModel(
               listOfTasks,
-              currentTaxesAndBenefit,
-              otherTaxesAndBenefits,
               homeOptionsGenerator.getLatestNewsAndUpdatesCard(),
               showUserResearchBanner = false,
               utr,
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
               alertBannerContent = alertBannerContent,
-              name = nameToDisplay
+              name = nameToDisplay,
+              myServices = myServices,
+              otherServices = otherServices
             ),
             shutteringMessaging.isEnabled,
             showFandfBanner
