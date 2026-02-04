@@ -98,11 +98,26 @@
             @h3("label.taxes_and_benefits_subheading")
             <ul class="govuk-list">
                 @viewModel.currentTaxesAndBenefits
+                @for(myService <- viewModel.myServices) {
+                    @* todo use an html view for this? *@
+                    <dt>
+                        <h3 class="govuk-heading-s govuk-!-margin-0"><a class="govuk-link govuk-link--no-visited-state" href="@{myService.link}">@messages(myService.titleMessage)</a></h3>
+                    </dt>
+                    <dd>
+                        <p class="govuk-body govuk-!-margin-0">@messages(myService.hintMessage)</p>
+                    </dd>
+                }
             </ul>
 
             @h3("label.other_taxes_and_benefits_heading", classes = Some("govuk-!-margin-top-6"))
             <ul class="govuk-list">
                 @viewModel.otherTaxesAndBenefits
+                @for(otherService <- viewModel.otherServices) {
+                    @* todo use an html view for this? *@
+                    <li class="govuk-list">
+                        <h3 class="govuk-heading-s"><a class="govuk-link govuk-link--no-visited-state" href="@{otherService.link}">@messages(otherService.titleMessage)</a></h3>
+                    </li>
+                }
             </ul>
 
             @viewModel.newsAndUpdates

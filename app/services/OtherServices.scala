@@ -1,0 +1,107 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package services
+
+import com.google.inject.Inject
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import models.*
+
+import scala.concurrent.{ExecutionContext, Future}
+
+class OtherServices @Inject() (
+  configDecorator: ConfigDecorator
+)(implicit ec: ExecutionContext) {
+
+  def getOtherServices(implicit request: UserRequest[?]): Future[Seq[OtherService]] = {
+    // todo MTD is missing
+    val selfAssessment    = getSelfAssessment(request.saUserType)
+    val childBenefits     = getChildBenefit(request.trustedHelper.isDefined)
+    val marriageAllowance = getMarriageAllowance(request.trustedHelper.isDefined)
+    val annualTaxSummary  = getAnnualTaxSummaries
+    val trustedHelper     = getTrustedHelper
+
+    Future
+      .sequence(Seq(selfAssessment, childBenefits, marriageAllowance, annualTaxSummary, trustedHelper))
+      .map(_.flatten)
+  }
+
+  def getSelfAssessment(saUserType: SelfAssessmentUserType): Future[Option[OtherService]] =
+    Future.successful(saUserType match {
+      case NonFilerSelfAssessmentUser       =>
+        Some(
+          OtherService(
+            "label.self_assessment",
+            "https://www.gov.uk/self-assessment-tax-returns"
+          )
+        )
+      case NotEnrolledSelfAssessmentUser(_) =>
+        Some(
+          OtherService(
+            "label.activate_your_self_assessment_registration",
+            controllers.routes.SelfAssessmentController.requestAccess.url
+          )
+        )
+      case _                                => None
+    })
+
+  def getChildBenefit(trustedHelperEnabled: Boolean): Future[Option[OtherService]] =
+    Future.successful(if (trustedHelperEnabled) {
+      None
+    } else {
+      Some(
+        OtherService(
+          "label.child_benefit",
+          controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url
+        )
+      )
+    })
+
+  // todo add check from tai and move to myService if transferee or transferor
+  def getMarriageAllowance(trustedHelperEnabled: Boolean): Future[Option[OtherService]] =
+    Future.successful(if (trustedHelperEnabled) {
+      None
+    } else {
+      Some(
+        OtherService(
+          "title.marriage_allowance",
+          "/marriage-allowance-application/history"
+        )
+      )
+    })
+
+  def getAnnualTaxSummaries: Future[Option[OtherService]] =
+    Future.successful(
+      Some(
+        OtherService(
+          "card.ats.heading",
+          configDecorator.annualTaxSaSummariesTileLinkShow
+        )
+      )
+    )
+
+  def getTrustedHelper: Future[Option[OtherService]] =
+    Future.successful(
+      Some(
+        OtherService(
+          "label.trusted_helpers_heading",
+          configDecorator.manageTrustedHelpersUrl
+        )
+      )
+    )
+
+}

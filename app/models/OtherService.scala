@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,6 @@
  * limitations under the License.
  */
 
-package viewmodels
+package models
 
-import models.{MyService, OtherService}
-import play.twirl.api.Html
-
-// todo: refactor Html type into meaningful type
-final case class NewHomeViewModel(
-  listOfTasks: Html,
-  newsAndUpdates: Option[Html],
-  showUserResearchBanner: Boolean,
-  saUtr: Option[String],
-  breathingSpaceIndicator: Boolean,
-  alertBannerContent: List[Html],
-  name: Option[String],
-  myServices: Seq[MyService],
-  otherServices: Seq[OtherService]
-)
+final case class OtherService(titleMessage: String, link: String)

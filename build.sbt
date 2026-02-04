@@ -28,7 +28,7 @@ ThisBuild / scalafmtOnCompile := true
 lazy val scoverageSettings =
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;.*Routes.*;view.*",
-    ScoverageKeys.coverageMinimumStmtTotal := 82,
+    ScoverageKeys.coverageMinimumStmtTotal := 83,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )
