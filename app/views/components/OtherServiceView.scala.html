@@ -1,5 +1,5 @@
 @*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,18 @@
  * limitations under the License.
  *@
 
+@import models.MyService
+
 @this()
 
-@(msg: String, classes: Option[String] = None, elmId: Option[String] = None, args: Seq[String] = Seq.empty)(implicit messages: Messages)
+@(otherService: OtherService)
 
-<h3 @elmId.map { i => id="@{i}"} class="govuk-heading-s @classes.getOrElse("")">@Html(messages(msg, args))</h3>
+<li class="pta-home-option govuk-!-margin-bottom-2 govuk-!-padding-3 active"
+    @otherService.id.map { i => id="@i" }
+    @otherService.divAttr.map{ attr => @attr._1="@attr._2" }
+    data-journey-click="link - click:@otherService.gaAction:@otherService.gaLabel">
+
+    <a class="govuk-link govuk-!-font-weight-bold govuk-!-font-size-19 govuk-link--no-visited-state govuk-!-display-inline-block" href="@otherService.link">
+    @otherService.title
+    </a>
+</li>

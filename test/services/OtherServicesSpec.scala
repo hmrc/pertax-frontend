@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, OtherService, UserAnswers, WrongCredentialsSelfAssessmentUser}
 import org.mockito.Mockito.{reset, when}
+import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -31,6 +32,7 @@ class OtherServicesSpec extends BaseSpec {
   private val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   private lazy val service: OtherServices = new OtherServices(mockConfigDecorator)
+  implicit lazy val messages: Messages    = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -43,7 +45,7 @@ class OtherServicesSpec extends BaseSpec {
       NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")) -> None,
       WrongCredentialsSelfAssessmentUser(SaUtr("11"))           -> None,
       NotEnrolledSelfAssessmentUser(SaUtr("11"))                -> Some("/personal-account/self-assessment/request-access"),
-      NonFilerSelfAssessmentUser                                -> Some("https://www.gov.uk/self-assessment-tax-returns")
+      NonFilerSelfAssessmentUser                                -> None
     )
 
     statuses.foreach { case (saStatus, expected) =>
@@ -74,10 +76,22 @@ class OtherServicesSpec extends BaseSpec {
       val result  = service.getOtherServices(request).futureValue
 
       result mustBe Seq(
-        OtherService("label.child_benefit", "/personal-account/child-benefit/home"),
-        OtherService("title.marriage_allowance", "/marriage-allowance-application/history"),
-        OtherService("card.ats.heading", "ats/"),
-        OtherService("label.trusted_helpers_heading", "trustedHelper/")
+        OtherService(
+          "Child Benefit",
+          "/personal-account/child-benefit/home",
+          Map(),
+          Some("Benefits"),
+          Some("Child Benefit")
+        ),
+        OtherService(
+          "Marriage Allowance",
+          "/marriage-allowance-application/history",
+          Map(),
+          Some("Benefits"),
+          Some("Marriage Allowance")
+        ),
+        OtherService("Annual Tax Summary", "ats/", Map(), Some("Tax Summaries"), Some("Annual Tax Summary")),
+        OtherService("Trusted helpers", "trustedHelper/", Map(), Some("Account"), Some("Trusted helpers"))
       )
     }
   }

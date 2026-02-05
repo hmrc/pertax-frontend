@@ -27,6 +27,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
+import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.*
@@ -78,6 +79,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
   override implicit lazy val app: Application =
     appBuilder.build()
+  implicit lazy val messages: Messages        = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -127,11 +129,11 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     when(mockFandfConnector.showFandfBanner(any())(any(), any()))
       .thenReturn(Future.successful(false))
 
-    when(mockMyServices.getMyServices(any())).thenReturn(
+    when(mockMyServices.getMyServices(any(), any())).thenReturn(
       Future.successful(Seq.empty)
     )
 
-    when(mockOtherServices.getOtherServices(any())).thenReturn(
+    when(mockOtherServices.getOtherServices(any(), any())).thenReturn(
       Future.successful(Seq.empty)
     )
   }
