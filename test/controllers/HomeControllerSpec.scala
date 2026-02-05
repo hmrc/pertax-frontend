@@ -58,6 +58,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   val mockFandfConnector: FandFConnector               = mock[FandFConnector]
   val mockMyServices: MyServices                       = mock[MyServices]
   val mockOtherServices: OtherServices                 = mock[OtherServices]
+  val mockTasksService: TasksService                   = mock[TasksService]
 
   lazy val appBuilder: GuiceApplicationBuilder = localGuiceApplicationBuilder()
     .overrides(
@@ -71,7 +72,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       bind[TaiService].toInstance(mockTaiService),
       bind[FandFConnector].toInstance(mockFandfConnector),
       bind[MyServices].toInstance(mockMyServices),
-      bind[OtherServices].toInstance(mockOtherServices)
+      bind[OtherServices].toInstance(mockOtherServices),
+      bind[TasksService].toInstance(mockTasksService)
     )
 
   private val taxComponents = List("EmployerProvidedServices", "PersonalPensionPayments")
@@ -104,8 +106,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       Html("<div class='trusted-helpers-card'></div>")
     )
 
-    when(mockHomeOptionsGenerator.getListOfTasks(any())).thenReturn(
-      Future.successful(Html(""))
+    when(mockTasksService.getListOfTasks(any(), any())).thenReturn(
+      Future.successful(Seq.empty)
     )
 
     when(mockAlertBannerHelper.getContent(any(), any(), any())).thenReturn(
@@ -131,7 +133,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       Future.successful(Seq.empty)
     )
 
-    when(mockOtherServices.getOtherServices(any())).thenReturn(
+    when(mockOtherServices.getOtherServices(any(), any())).thenReturn(
       Future.successful(Seq.empty)
     )
   }

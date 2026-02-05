@@ -41,7 +41,6 @@ class HomeOptionsGeneratorSpec extends ViewSpec with MockitoSugar {
   implicit val configDecorator: ConfigDecorator = config
 
   private val latestNewsAndUpdatesView = inject[LatestNewsAndUpdatesView]
-  private val taskListView             = inject[TaskListView]
 
   private val newsAndTilesConfig  = mock[NewsAndTilesConfig]
   private val stubConfigDecorator = new ConfigDecorator(
@@ -52,8 +51,7 @@ class HomeOptionsGeneratorSpec extends ViewSpec with MockitoSugar {
   private def createHomeOptionsGenerator(usedConfigDecorator: ConfigDecorator): HomeOptionsGenerator =
     new HomeOptionsGenerator(
       latestNewsAndUpdatesView,
-      newsAndTilesConfig,
-      taskListView
+      newsAndTilesConfig
     )(usedConfigDecorator)
 
   private lazy val homeOptionsGenerator = createHomeOptionsGenerator(stubConfigDecorator)
@@ -108,10 +106,4 @@ class HomeOptionsGeneratorSpec extends ViewSpec with MockitoSugar {
     }
   }
 
-  "Calling listOfTasks" must {
-    "return listOfTasks markup" in {
-      val result = homeOptionsGenerator.getListOfTasks().futureValue
-      result mustBe taskListView(Nil)
-    }
-  }
 }

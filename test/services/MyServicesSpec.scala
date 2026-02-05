@@ -23,6 +23,7 @@ import models.{ActivatedOnlineFilerSelfAssessmentUser, MyService, NonFilerSelfAs
 import org.mockito.ArgumentMatchers
 import testUtils.BaseSpec
 import org.mockito.Mockito.{reset, when}
+import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -38,6 +39,7 @@ class MyServicesSpec extends BaseSpec {
   private val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   private lazy val service: MyServices = new MyServices(mockConfigDecorator, mockFeatureFlagService)
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach(): Unit = {
     super.beforeEach()

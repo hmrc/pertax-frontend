@@ -29,7 +29,8 @@ class SummaryCardPartialSpec extends BaseSpec {
         "partialReconciliationStatus" -> Json.obj(
           "code" -> 5,
           "name" -> "Underpaid"
-        )
+        ),
+        "startTaxYear"                -> 2026
       )
       val actual = json.as[SummaryCardPartial]
       actual.partialName mustBe "card1"
