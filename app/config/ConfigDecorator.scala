@@ -294,4 +294,6 @@ class ConfigDecorator @Inject() (
 
   lazy val mtdClaimFromPtaHandoffUrl: String =
     runModeConfiguration.get[String]("external-url.mtd-claim-from-pta.url")
+
+  lazy val mtdGuidanceUrl: String = runModeConfiguration.get[String]("external-url.mtd-guidance.url")
 }

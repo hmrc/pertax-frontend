@@ -20,20 +20,20 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.{FormWithCSRF, *}
 @import views.html.components.{Button, ErrorSummary, InputYesNo}
 @import views.MainView
+@import config.ConfigDecorator
 
 @this(
         mainView: MainView,
         button: Button,
         errorSummary: ErrorSummary,
         inputYesNo: InputYesNo,
-        form: FormWithCSRF
+        form: FormWithCSRF,
+        appConfig: ConfigDecorator
 )
 
 @(postAction: Call, claimMtdForm: Form[ClaimMtdFromPtaChoiceModel])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
-@defining("https://www.gov.uk/government/publications/extension-of-making-tax-digital-for-income-tax-self-assessment-to-sole-traders-and-landlords/making-tax-digital-for-income-tax-self-assessment-for-sole-traders-and-landlords") { mtdGuidanceUrl =>
-
-    @mainView(
+ @mainView(
         pageTitle    = messages("label.mtdit.heading"),
         showBackLink = true
     ) {
@@ -47,7 +47,7 @@
         <p class="govuk-body">
             @messages("label.mtdit.claim.p1.prefix")
             <a class="govuk-link govuk-link--no-visited-state"
-            href="@mtdGuidanceUrl"
+            href="@{appConfig.mtdGuidanceUrl}"
             target="_blank"
             rel="noreferrer noopener">
             @messages("label.mtdit.claim.p1.linkText")
@@ -65,5 +65,5 @@
             )
             @button(msg="label.continue")
         }
-    }
 }
+
