@@ -203,9 +203,23 @@ class MyServicesSpec extends BaseSpec {
       val result  = service.getMyServices(request).futureValue
 
       result mustBe Seq(
-        MyService("label.pay_as_you_earn_paye", "tai//check-income-tax/what-do-you-want-to-do", ""),
-        MyService("alertBannerShuttering.taxcalc", "taxcalc/", ""),
-        MyService("label.self_assessment", "/personal-account/self-assessment-summary", "label.newViewAndManageSA")
+        MyService(
+          "Pay As You Earn (PAYE)",
+          "tai//check-income-tax/what-do-you-want-to-do",
+          "",
+          Map(),
+          Some("Income"),
+          Some("Pay As You Earn (PAYE)")
+        ),
+        MyService("Tax Calculation", "taxcalc/", "", Map(), Some("Income"), Some("Tax Calculation")),
+        MyService(
+          "Self Assessment",
+          "/personal-account/self-assessment-summary",
+          "The deadline for online returns is 31 January 2026.",
+          Map(),
+          Some("Income"),
+          Some("Self Assessment")
+        )
       )
     }
   }

@@ -1,9 +1,17 @@
 $govuk-include-default-font-face: false;
+@import "lib/govuk-frontend/dist/govuk/settings/index";
+
 @import "modules/colors";
 @import "card";
 @import "flexbox";
-@import "partials/home";
-@import "pta-home-option";
+
+.pta-home-option {
+  background-color: govuk-tint(govuk-colour("light-grey"), 50%);
+
+  > :not(:only-child) {
+    margin-bottom: 5px;
+  }
+}
 
 address {
   font-style: normal;
@@ -16,33 +24,4 @@ address {
 .yourProfileExtraLink {
     display: block;
     margin-top: 1em;
-}
-
-
-.list-with-description {
-  margin: 0;
-  padding: 0;
-}
-
-.list-with-description dt,
-.list-with-description dd {
-  margin: 0;
-  padding: 20px 24px;
-  background: #f8f8f8;
-}
-
-.list-with-description dt {
-  padding-bottom: 0;
-  margin-top: 0;
-}
-
-.list-with-description dd {
-  color: #0b0c0c;
-  padding-top: 0;
-  margin-top: 0;
-}
-
-/* spacing between sections */
-.list-with-description dt:not(:first-of-type) {
-  margin-top: 20px;
 }

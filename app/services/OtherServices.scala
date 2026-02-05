@@ -47,14 +47,18 @@ class OtherServices @Inject() (
         Some(
           OtherService(
             messages("label.self_assessment"),
-            "https://www.gov.uk/self-assessment-tax-returns"
+            "https://www.gov.uk/self-assessment-tax-returns",
+            gaAction = Some("Income"),
+            gaLabel = Some("Self Assessment")
           )
         )
       case NotEnrolledSelfAssessmentUser(_) =>
         Some(
           OtherService(
             messages("label.activate_your_self_assessment_registration"),
-            controllers.routes.SelfAssessmentController.requestAccess.url
+            controllers.routes.SelfAssessmentController.requestAccess.url,
+            gaAction = Some("Income"),
+            gaLabel = Some("Self Assessment")
           )
         )
       case _                                => None
@@ -67,7 +71,9 @@ class OtherServices @Inject() (
       Some(
         OtherService(
           messages("label.child_benefit"),
-          controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url
+          controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url,
+          gaAction = Some("Benefits"),
+          gaLabel = Some("Child Benefit")
         )
       )
     })
@@ -80,7 +86,9 @@ class OtherServices @Inject() (
       Some(
         OtherService(
           messages("title.marriage_allowance"),
-          "/marriage-allowance-application/history"
+          "/marriage-allowance-application/history",
+          gaAction = Some("Benefits"),
+          gaLabel = Some("Marriage Allowance")
         )
       )
     })
@@ -89,6 +97,10 @@ class OtherServices @Inject() (
     Future.successful(
       Some(
         OtherService(
+          messages("card.ats.heading"),
+          configDecorator.annualTaxSaSummariesTileLinkShow,
+          gaAction = Some("Tax Summaries"),
+          gaLabel = Some("Annual Tax Summary")
           messages("card.ats.heading"),
           configDecorator.annualTaxSaSummariesTileLinkShow
         )
@@ -100,9 +112,16 @@ class OtherServices @Inject() (
       Some(
         OtherService(
           messages("label.trusted_helpers_heading"),
-          configDecorator.manageTrustedHelpersUrl
+          configDecorator.manageTrustedHelpersUrl,
+          gaAction = Some("Account"),
+          gaLabel = Some("Trusted helpers")
         )
       )
     )
+
+    /* todo implement MTD
+    gaAction = Some("MTDIT"),
+    gaLabel = Some("Making Tax Digital for Income Tax"),
+     */
 
 }

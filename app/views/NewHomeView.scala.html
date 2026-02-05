@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import components.{H2, H3}
+@import components.{H2, H3, MyServiceView, OtherServiceView}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import viewmodels.NewHomeViewModel
@@ -25,6 +25,8 @@
 
 @this(
         main: MainView,
+        myServiceView: MyServiceView,
+        otherServiceView: OtherServiceView,
         govukNotificationBanner : GovukNotificationBanner,
         taskListView: TaskListView,
         alertBanner: AlertBanner,
@@ -46,7 +48,7 @@
 @fandfBannerHtml = {
     <p class="govuk-notification-banner__heading">
         @messages("fandf.banner.text", languageUtils.Dates.formatDate(configDecorator.fandfBannerDate))
-        <a class="govuk-notification-banner__link" href="@configDecorator.fandfBannerLink"> @messages("fandf.banner.linkText").</a>
+        <a class="govuk-notification-banner__link" href="@configDecorator.fandfBannerLink"> @messages("fandf.banner.linkText")</a>.
     </p>
 }
 
@@ -71,7 +73,7 @@
     @alertBanner(viewModel.alertBannerContent)
 
     <header class="hmrc-page-heading">
-        <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
         <p class="hmrc-caption govuk-caption-xl"><span class="govuk-visually-hidden">@messages("label.this.section.is") </span>@messages("label.account_home")</p>
     </header>
 
@@ -88,36 +90,27 @@
         </div>
     }
     @viewModel.saUtr.map { utr =>
-        <p class="govuk-body" id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong></p>
+        <p class="govuk-body govuk-!-margin-bottom-2" id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong></p>
     }
     <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state" href="@configDecorator.ptaNinoSaveUrl">
         @messages("label.view_and_save_your_national_insurance_number")</a></p>
 
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
             @taskListView(viewModel.tasks)
 
-            @h2("label.taxes_and_benefits_heading")
+            @h2("label.taxes_and_benefits_heading", classes = Some("govuk-heading-m govuk-!-margin-top-9"))
             @h3("label.taxes_and_benefits_subheading")
-            <dl class="list-with-description">
+            <ul class="govuk-list">
                 @for(myService <- viewModel.myServices) {
-                    @* todo use an html view for this? *@
-                    <dt>
-                        <h3 class="govuk-heading-s govuk-!-margin-0"><a class="govuk-link govuk-link--no-visited-state" href="@{myService.link}">@messages(myService.titleMessage)</a></h3>
-                    </dt>
-                    <dd>
-                        <p class="govuk-body govuk-!-margin-0">@messages(myService.hintMessage)</p>
-                    </dd>
+                    @myServiceView(myService)
                 }
-            </dl>
+            </ul>
 
-            @h3("label.other_taxes_and_benefits_heading")
-            <ul>
-            @for(otherService <- viewModel.otherServices) {
-                @* todo use an html view for this? *@
-                <li class="govuk-list">
-                    <h3 class="govuk-heading-s"><a class="govuk-link govuk-link--no-visited-state" href="@{otherService.link}">@messages(otherService.titleMessage)</a></h3>
-                </li>
-            }
+            @h3("label.other_taxes_and_benefits_heading", classes = Some("govuk-!-margin-top-6"))
+            <ul class="govuk-list">
+                @for(otherService <- viewModel.otherServices) {
+                    @otherServiceView(otherService)
+                }
             </ul>
 
             @viewModel.newsAndUpdates

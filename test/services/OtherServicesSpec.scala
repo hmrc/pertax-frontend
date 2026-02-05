@@ -45,7 +45,7 @@ class OtherServicesSpec extends BaseSpec {
       NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")) -> None,
       WrongCredentialsSelfAssessmentUser(SaUtr("11"))           -> None,
       NotEnrolledSelfAssessmentUser(SaUtr("11"))                -> Some("/personal-account/self-assessment/request-access"),
-      NonFilerSelfAssessmentUser                                -> Some("https://www.gov.uk/self-assessment-tax-returns")
+      NonFilerSelfAssessmentUser                                -> None
     )
 
     statuses.foreach { case (saStatus, expected) =>
@@ -76,10 +76,22 @@ class OtherServicesSpec extends BaseSpec {
       val result  = service.getOtherServices(request).futureValue
 
       result mustBe Seq(
-        OtherService("Child Benefit", "/personal-account/child-benefit/home"),
-        OtherService("Marriage Allowance", "/marriage-allowance-application/history"),
-        OtherService("Annual Tax Summary", "ats/"),
-        OtherService("Trusted helpers", "trustedHelper/")
+        OtherService(
+          "Child Benefit",
+          "/personal-account/child-benefit/home",
+          Map(),
+          Some("Benefits"),
+          Some("Child Benefit")
+        ),
+        OtherService(
+          "Marriage Allowance",
+          "/marriage-allowance-application/history",
+          Map(),
+          Some("Benefits"),
+          Some("Marriage Allowance")
+        ),
+        OtherService("Annual Tax Summary", "ats/", Map(), Some("Tax Summaries"), Some("Annual Tax Summary")),
+        OtherService("Trusted helpers", "trustedHelper/", Map(), Some("Account"), Some("Trusted helpers"))
       )
     }
   }

@@ -149,6 +149,7 @@ class HomeController @Inject() (
         } else {
           Some(homeCardGenerator.getTrustedHelpersCard())
         }
+
         Ok(
           homeView(
             HomeViewModel(
