@@ -47,12 +47,10 @@ govukTaskList: GovukTaskList)
                     content = Text(hintText)
                     )
                 },
-                 status = if(task.isCompleted) TaskListItemStatus(
-                   content = Text(messages("label.task_complete"))
-                 ) else TaskListItemStatus(
+                 status = TaskListItemStatus(
                     tag = Some(Tag(
-                        content = Text(messages("label.task_incomplete")),
-                        classes = "govuk-tag--blue"
+                        content = Text(task.status.toString),
+                        classes = task.status.classes
                     ))
                  ),
                  href = Some(task.href)

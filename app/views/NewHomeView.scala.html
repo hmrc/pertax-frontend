@@ -20,11 +20,13 @@
 @import viewmodels.NewHomeViewModel
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
+@import views.html.home.options.TaskListView
 @import uk.gov.hmrc.play.language.LanguageUtils
 
 @this(
         main: MainView,
         govukNotificationBanner : GovukNotificationBanner,
+        taskListView: TaskListView,
         alertBanner: AlertBanner,
         configDecorator: ConfigDecorator,
         h2: H2,
@@ -32,7 +34,7 @@
         languageUtils: LanguageUtils
 )
 
-@(viewModel: NewHomeViewModel, shutteringMessaging: Boolean, fandfBanner: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(viewModel: NewHomeViewModel, shutteringMessaging: Boolean, fandfBanner: Boolean)(implicit request: UserRequest[_], messages: Messages)
 
 @bannerHtml = {
     <p class="govuk-notification-banner__heading">
@@ -92,8 +94,7 @@
         @messages("label.view_and_save_your_national_insurance_number")</a></p>
 
     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-            @viewModel.listOfTasks
-            <div class="govuk-!-padding-bottom-6"></div>
+            @taskListView(viewModel.tasks)
 
             @h2("label.taxes_and_benefits_heading")
             @h3("label.taxes_and_benefits_subheading")

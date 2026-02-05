@@ -44,6 +44,7 @@ class HomeController @Inject() (
   citizenDetailsService: CitizenDetailsService,
   myServices: MyServices,
   otherServices: OtherServices,
+  tasksService: TasksService,
   homeCardGenerator: HomeCardGenerator,
   homeOptionsGenerator: HomeOptionsGenerator,
   authJourney: AuthJourney,
@@ -73,7 +74,7 @@ class HomeController @Inject() (
 
     enforceInterrupts {
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
-      val fListOfTasks             = homeOptionsGenerator.getListOfTasks
+      val fListOfTasks             = tasksService.getListOfTasks
       val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
       val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value

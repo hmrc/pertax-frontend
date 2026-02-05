@@ -18,7 +18,16 @@ package viewmodels
 
 final case class Task(
   title: String,
-  isCompleted: Boolean,
+  status: TaskStatus,
   href: String,
   hintText: Option[String] = None
 )
+
+enum TaskStatus(
+  val classes: String = ""
+) {
+
+  case Incomplete extends TaskStatus(classes = "govuk-tag--red")
+  case Completed extends TaskStatus(classes = "govuk-tag--blue")
+
+}
