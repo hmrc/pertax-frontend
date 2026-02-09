@@ -19,8 +19,8 @@ package services
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.Execution.trampoline
-import controllers.auth.requests.UserRequest
 import models.admin.ShowTaxCalcTileToggle
+import controllers.auth.requests.UserRequest
 import play.api.i18n.Messages
 import services.partials.TaxCalcPartialService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -37,12 +37,14 @@ class TasksService @Inject() (
 ) extends Logging {
 
   def getListOfTasks(implicit request: UserRequest[?], messages: Messages): Future[Seq[Task]] = {
-    val taxcalcF = getTaxCalcTasks
+    val taxcalcF = getTaxCalcTasks(request.trustedHelper.isDefined)
     Future.sequence(Seq(taxcalcF)).map(_.flatten)
   }
 
-  def getTaxCalcTasks(implicit request: UserRequest[?], messages: Messages): Future[Seq[Task]] =
-    if (request.trustedHelper.isDefined) {
+  def getTaxCalcTasks(
+    isTrustedHelper: Boolean
+  )(implicit request: UserRequest[?], messages: Messages): Future[Seq[Task]] =
+    if (isTrustedHelper) {
       Future.successful(Seq.empty)
     } else {
       featureFlagService.get(ShowTaxCalcTileToggle).flatMap { taxCalcTileFlag =>

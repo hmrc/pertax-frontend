@@ -43,15 +43,6 @@ class OtherServices @Inject() (
 
   def getSelfAssessment(saUserType: SelfAssessmentUserType)(implicit messages: Messages): Future[Option[OtherService]] =
     Future.successful(saUserType match {
-      case NonFilerSelfAssessmentUser       =>
-        Some(
-          OtherService(
-            messages("label.self_assessment"),
-            "https://www.gov.uk/self-assessment-tax-returns",
-            gaAction = Some("Income"),
-            gaLabel = Some("Self Assessment")
-          )
-        )
       case NotEnrolledSelfAssessmentUser(_) =>
         Some(
           OtherService(
@@ -101,8 +92,6 @@ class OtherServices @Inject() (
           configDecorator.annualTaxSaSummariesTileLinkShow,
           gaAction = Some("Tax Summaries"),
           gaLabel = Some("Annual Tax Summary")
-          messages("card.ats.heading"),
-          configDecorator.annualTaxSaSummariesTileLinkShow
         )
       )
     )
