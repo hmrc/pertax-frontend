@@ -29,7 +29,7 @@ import models.dto.AddressFinderDto
 import play.api.Logging
 import play.api.data.FormError
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import routePages.{AddressFinderPage, SelectedAddressRecordPage, SelectedRecordSetPage}
+import routePages.{AddressFinderPage, SelectedRecordSetPage}
 import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -82,7 +82,7 @@ class PostcodeLookupController @Inject() (
       }
     }
 
-  def onSubmit(typ: AddrType, back: Option[Boolean] = None): Action[AnyContent] =
+  def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         AddressFinderDto.form
@@ -102,7 +102,7 @@ class PostcodeLookupController @Inject() (
                             addressFinderDto.postcode,
                             addressFinderDto.filter
                           ) {
-                            case addressList if addressList.addresses.isEmpty     =>
+                            case addressList if addressList.addresses.isEmpty =>
                               auditConnector.sendEvent(
                                 buildEvent(
                                   "addressLookupNotFound",
@@ -126,26 +126,7 @@ class PostcodeLookupController @Inject() (
                                   )
                                 )
                               )
-                            case addressList if addressList.addresses.length == 1 =>
-                              if (back.getOrElse(false)) {
-                                Future.successful(Redirect(routes.PostcodeLookupController.onPageLoad(typ)))
-                              } else {
-                                auditConnector.sendEvent(
-                                  buildEvent(
-                                    "addressLookupResults",
-                                    "find_address",
-                                    Map(
-                                      postcode -> Some(addressList.addresses.head.address.postcode),
-                                      filter   -> addressFinderDto.filter
-                                    )
-                                  )
-                                )
-                                cachingHelper
-                                  .addToCache(SelectedAddressRecordPage(typ), addressList.addresses.head) map { _ =>
-                                  Redirect(routes.UpdateAddressController.onPageLoad(typ))
-                                }
-                              }
-                            case addressList                                      =>
+                            case addressList                                  =>
                               auditConnector.sendEvent(
                                 buildEvent(
                                   "addressLookupResults",

@@ -276,7 +276,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       }
     }
 
-    "redirect to the edit address page for a postal address type and log an addressLookupResults audit event when a single record is returned by the address lookup service" in {
+    "redirect to the select address page for a postal address type and log an addressLookupResults audit event when a single record is returned by the address lookup service" in {
       def addressLookupResponse: RecordSet = RecordSet(List(fakeStreetPafAddressRecord))
 
       when(mockAddressLookupConnector.lookup(any(), any())(any(), any()))
@@ -293,10 +293,10 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(PostalAddrType, None)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(PostalAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/edit-address")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/select-address")
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
@@ -307,7 +307,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
       )
     }
 
-    "redirect to the edit-address page for a non postal address type and log an addressLookupResults audit event when a single record is returned by the address lookup service" in {
+    "redirect to the showAddressSelectorForm for a non postal address type and log an addressLookupResults audit event when a single record is returned by the address lookup service" in {
       def addressLookupResponse: RecordSet = RecordSet(List(fakeStreetPafAddressRecord))
 
       when(mockAddressLookupConnector.lookup(any(), any())(any(), any()))
@@ -331,10 +331,10 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(ResidentialAddrType, None)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/edit-address")
+      redirectLocation(result).exists(_.contains("/select-address")) mustBe true
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
@@ -369,7 +369,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(PostalAddrType, None)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(PostalAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result).exists(_.contains("/select-address")) mustBe true
@@ -405,37 +405,9 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(PostalAddrType, Some(true))(currentRequest)
+      val result: Future[Result] = controller.onSubmit(PostalAddrType)(currentRequest)
 
       status(result) mustBe NOT_FOUND
-    }
-
-    "redirect to the postcodeLookupForm when a single record is returned by the address lookup service and back = true" in {
-      def addressLookupResponse: RecordSet = RecordSet(List(fakeStreetPafAddressRecord))
-
-      when(mockAddressLookupConnector.lookup(any(), any())(any(), any()))
-        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](addressLookupResponse))
-      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
-        Future.successful(
-          UserAnswers.empty("id").setOrException(AddressFinderPage(PostalAddrType), AddressFinderDto("AA1 1AA", None))
-        )
-      )
-      when(mockJourneyCacheRepository.set(any[UserAnswers])).thenReturn(Future.successful((): Unit))
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
-        EitherT.rightT[Future, UpstreamErrorResponse](
-          Some(personDetails)
-        )
-      )
-
-      def currentRequest[A]: Request[A] =
-        FakeRequest("POST", "/test")
-          .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-          .asInstanceOf[Request[A]]
-
-      val result: Future[Result] = controller.onSubmit(PostalAddrType, Some(true))(currentRequest)
-
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/find-address")
     }
 
     "redirect to showAddressSelectorForm and display the select-address page when multiple records are returned by the address lookup service" in {
@@ -460,7 +432,7 @@ class PostcodeLookupControllerSpec extends BaseSpec {
           .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(PostalAddrType, None)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(PostalAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result).exists(_.contains("/select-address")) mustBe true
