@@ -77,7 +77,7 @@ class HomeController @Inject() (
       val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
       val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
-      val fShowFandfBanner         = fandFConnector.showFandfBanner(nino)
+      val fShowFandfBanner         = fandFConnector.showFandfBanner(request.authNino)
 
       for {
         breathingSpaceIndicator <- fBreathingSpaceIndicator
@@ -127,7 +127,7 @@ class HomeController @Inject() (
       val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
       val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
-      val fShowFandfBanner         = fandFConnector.showFandfBanner(nino)
+      val fShowFandfBanner         = fandFConnector.showFandfBanner(request.authNino)
 
       for {
         taxComponents           <- fTaxComponents

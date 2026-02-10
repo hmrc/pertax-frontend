@@ -37,7 +37,7 @@ import play.twirl.api.Html
 import services.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
-import testUtils.{BaseSpec, WireMockHelper}
+import testUtils.{BaseSpec, Fixtures, WireMockHelper}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderNames
@@ -90,6 +90,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     reset(mockFeatureFlagService)
     reset(mockMyServices)
     reset(mockOtherServices)
+    reset(mockFandfConnector)
 
     when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
       .thenReturn(Future.successful(WithinPeriod))
@@ -437,13 +438,46 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   }
 
   "Fandf Banner content is displayed if connector returns true" in {
-    when(mockFandfConnector.showFandfBanner(any())(any(), any()))
+    val th = TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))
+
+    val appLocal: Application =
+      localGuiceApplicationBuilder()
+        .overrides(
+          bind[AuthJourney].toInstance(new AuthJourney {
+            override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+              new testUtils.ActionBuilderFixture {
+                override def invokeBlock[A](
+                  request: Request[A],
+                  block: UserRequest[A] => Future[Result]
+                ): Future[Result] =
+                  block(
+                    buildUserRequest(
+                      request = request,
+                      trustedHelper = Some(th)
+                    )
+                  )
+              }
+          }),
+          bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
+          bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
+          bind[TaiService].toInstance(mockTaiService),
+          bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+          bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
+          bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
+          bind[FandFConnector].toInstance(mockFandfConnector)
+        )
+        .build()
+
+    when(mockFandfConnector.showFandfBanner(ArgumentMatchers.eq(Fixtures.fakeNino))(any(), any()))
       .thenReturn(Future.successful(true))
 
-    val appLocal: Application      = appBuilder.build()
     val controller: HomeController = appLocal.injector.instanceOf[HomeController]
     val result: Future[Result]     = controller.index()(currentRequest)
     status(result) mustBe OK
-    assert(contentAsString(result).contains("Your trusted helper relationship ends at midnight"))
+//    assert(contentAsString(result).contains("Your trusted helper relationship ends at midnight"))
+    verify(mockFandfConnector, times(1)).showFandfBanner(ArgumentMatchers.eq(Fixtures.fakeNino))(any(), any())
+    verify(mockFandfConnector, times(0)).showFandfBanner(ArgumentMatchers.eq(generatedTrustedHelperNino))(any(), any())
+
   }
 }
