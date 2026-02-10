@@ -23,6 +23,7 @@ import controllers.controllershelpers.{HomeCardGenerator, HomeOptionsGenerator, 
 import models.BreathingSpaceIndicatorResponse
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePageNewLayoutToggle, ShowPlannedOutageBannerToggle}
+import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -312,6 +313,69 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   }
 
   "Calling HomeController.index with layout toggle on" must {
+
+    "Return the new home page design when newDesign parameter is true " in {
+      val path             = "/personal-account?newDesign=true"
+      val newDesignRequest = FakeRequest("GET", path)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(newDesignRequest)
+      status(result) mustBe OK
+
+      val htmlContent = contentAsString(result)
+      htmlContent must include("""id="taxes-and-benefits-heading""")
+
+      val content                 = Jsoup.parse(htmlContent)
+      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
+      taxesAndBenefitsElement must not be null
+    }
+
+    "Return the old home page design when newDesign parameter is false " in {
+      val path             = "/personal-account?newDesign=false"
+      val newDesignRequest = FakeRequest("GET", path)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val newLayoutHtmlString   = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController  = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]      = controller.index()(newDesignRequest)
+      status(result) mustBe OK
+      val containsNewLayoutHtmlString =
+        contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
+      assert(!containsNewLayoutHtmlString)
+    }
+
+    "Return the old home page design when HomePageNewLayoutToggle is false " in {
+      val path             = "/personal-account?newDesign=true"
+      val newDesignRequest = FakeRequest("GET", path)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
+
+      val newLayoutHtmlString   = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController  = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]      = controller.index()(newDesignRequest)
+      status(result) mustBe OK
+      val containsNewLayoutHtmlString =
+        contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
+      assert(!containsNewLayoutHtmlString)
+    }
 
     "Return a Breathing space if that is returned within period" in {
       val expectedHtmlString =

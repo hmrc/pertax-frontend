@@ -171,9 +171,17 @@ class HomeController @Inject() (
   }
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
+    val isNewDesign: Boolean = request.queryString.get("newDesign").flatMap(_.headOption).contains("true")
     featureFlagService.get(HomePageNewLayoutToggle).flatMap { toggle =>
-      if (toggle.isEnabled) newHomePage
-      else oldHomePage
+      if (!toggle.isEnabled) {
+        oldHomePage
+      } else {
+        if (!isNewDesign) {
+          oldHomePage
+        } else {
+          newHomePage
+        }
+      }
     }
   }
 

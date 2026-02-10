@@ -16,8 +16,8 @@ cd $WORKSPACE
 git clone git@github.com:hmrc/pertax-frontend.git
 
 ## Start the services and stop the frontend.
-sm --start PTA_ALL -r
-sm --stop PERTAX_FRONTEND
+sm2 --start PTA_ALL -r
+sm2 --stop PERTAX_FRONTEND
 
 ## Run tests and then run the service.
 cd $WORKSPACE/pertax-frontend

@@ -18,4 +18,4 @@
 
 @(msg: String, classes: Option[String] = None, elmId: Option[String] = None, args: Seq[String] = Seq.empty)(implicit messages: Messages)
 
-<h3 @elmId.map { i => id="@{i}"} class="govuk-heading-s @classes.getOrElse("")">@Html(messages(msg, args))</h3>
+<h3 @elmId.map { i => id="@i" } class="govuk-heading-s @classes.getOrElse("")">@Html(messages(msg, args))</h3>

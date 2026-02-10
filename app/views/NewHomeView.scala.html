@@ -71,6 +71,7 @@
     @alertBanner(viewModel.alertBannerContent)
 
     <header class="hmrc-page-heading">
+
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
         <p class="hmrc-caption govuk-caption-xl"><span class="govuk-visually-hidden">@messages("label.this.section.is") </span>@messages("label.account_home")</p>
     </header>
@@ -96,7 +97,7 @@
     <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
             @viewModel.listOfTasks
 
-            @h2("label.taxes_and_benefits_heading", classes = Some("govuk-heading-m govuk-!-margin-top-9"))
+            @h2("label.taxes_and_benefits_heading", classes = Some("govuk-heading-m govuk-!-margin-top-9"), elmId = Some("taxes-and-benefits-heading"))
             @h3("label.taxes_and_benefits_subheading")
             <ul class="govuk-list">
                 @for(myService <- viewModel.myServices) {
