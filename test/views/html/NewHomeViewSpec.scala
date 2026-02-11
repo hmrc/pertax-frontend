@@ -60,7 +60,7 @@ class NewHomeViewSpec extends ViewSpec {
 
   val homeViewModel: NewHomeViewModel =
     NewHomeViewModel(
-      Html("tasks"),
+      Seq.empty,
       None,
       showUserResearchBanner = true,
       None,

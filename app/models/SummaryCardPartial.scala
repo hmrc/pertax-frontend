@@ -22,7 +22,8 @@ import play.twirl.api.HtmlFormat
 case class SummaryCardPartial(
   partialName: String,
   partialContent: HtmlFormat.Appendable,
-  partialReconciliationStatus: ReconciliationStatus
+  partialReconciliationStatus: ReconciliationStatus,
+  startTaxYear: Int
 )
 
 object SummaryCardPartial {

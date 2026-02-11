@@ -44,6 +44,7 @@ class HomeController @Inject() (
   citizenDetailsService: CitizenDetailsService,
   myServices: MyServices,
   otherServices: OtherServices,
+  tasksService: TasksService,
   homeCardGenerator: HomeCardGenerator,
   homeOptionsGenerator: HomeOptionsGenerator,
   authJourney: AuthJourney,
@@ -72,8 +73,11 @@ class HomeController @Inject() (
     }
 
     enforceInterrupts {
+      // All elements assigned to a val first before using them in a for comprehension to allow them to run in parallel
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
-      val fListOfTasks             = homeOptionsGenerator.getListOfTasks
+      val fListOfTasks             = tasksService.getListOfTasks
+      val fMyServices              = myServices.getMyServices
+      val fOtherServices           = otherServices.getOtherServices
       val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
       val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
@@ -86,8 +90,8 @@ class HomeController @Inject() (
         alertBannerContent      <- fAlertBannerContent
         eitherPersonDetails     <- fEitherPersonDetails
         showFandfBanner         <- fShowFandfBanner
-        myServices              <- myServices.getMyServices
-        otherServices           <- otherServices.getOtherServices
+        myServices              <- fMyServices
+        otherServices           <- fOtherServices
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))

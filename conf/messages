@@ -428,10 +428,12 @@ label.you_missed_the_deadline_to_pay_your_tax=You missed the deadline to pay you
 label.you_do_not_owe_any_more_tax=You do not owe any more tax in the {0} to {1} tax year
 
 label.hmrc_owes_you_a_refund=HMRC owes you a £{0} refund.
+newLabel.hmrc_owes_you_a_refund=HMRC owes you a £{0} refund for year {1} to {2}.
 label.hmrc_is_processing_your_refund=HMRC is processing your £{0} refund.
 label.hmrc_has_paid_your_refund=HMRC has paid your £{0} refund.
 label.hmrc_sent_you_a_cheque_for=HMRC sent you a cheque for £{0}.
 label.you_owe_hmrc=You owe HMRC £{0}.
+newLabel.you_owe_hmrc=You owe HMRC £{0} for tax year {1} to {2}.
 label.you_owe_hmrc_you_should_have_paid_=You owe HMRC £{0}. You should have paid by {1} but you can still make a payment now.
 label.you_still_owe_hmrc_you_should_have_paid_=You still owe HMRC £{0}. You should have paid by {1} but you can still make a payment now.
 label.you_still_owe_hmrc_you_must_pay_by_=You still owe HMRC £{0}. You must pay by {1}.

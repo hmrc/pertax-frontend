@@ -54,12 +54,14 @@ class TaxCalcPartialServiceSpec extends BaseSpec {
         SummaryCardPartial(
           partialName = "Title",
           partialContent = Html("<title/>"),
-          partialReconciliationStatus = Overpaid
+          partialReconciliationStatus = Overpaid,
+          startTaxYear = 2026
         ),
         SummaryCardPartial(
           partialName = "Title",
           partialContent = Html("<title/>"),
-          partialReconciliationStatus = BalancedSA
+          partialReconciliationStatus = BalancedSA,
+          startTaxYear = 2026
         )
       )
       when(mockConfigDecorator.taxCalcPartialLinkUrl).thenReturn("test-url")

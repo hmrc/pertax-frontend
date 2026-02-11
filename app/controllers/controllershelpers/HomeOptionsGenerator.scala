@@ -21,22 +21,16 @@ import config.{ConfigDecorator, NewsAndTilesConfig}
 import controllers.auth.requests.UserRequest
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
-import play.twirl.api.{Html, HtmlFormat}
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.sca.logging.Logging
 import views.html.home.options.*
-
-import scala.concurrent.Future
 
 @Singleton
 class HomeOptionsGenerator @Inject() (
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
-  newsAndTilesConfig: NewsAndTilesConfig,
-  taskListView: TaskListView
+  newsAndTilesConfig: NewsAndTilesConfig
 )(implicit configDecorator: ConfigDecorator)
     extends Logging {
-
-  def getListOfTasks(implicit messages: Messages): Future[Html] =
-    Future.successful(taskListView(Nil)(messages))
 
   def getLatestNewsAndUpdatesCard()(implicit
     messages: Messages,

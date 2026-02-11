@@ -21,7 +21,7 @@ import play.twirl.api.Html
 
 // todo: refactor Html type into meaningful type
 final case class NewHomeViewModel(
-  listOfTasks: Html,
+  tasks: Seq[Task],
   newsAndUpdates: Option[Html],
   showUserResearchBanner: Boolean,
   saUtr: Option[String],

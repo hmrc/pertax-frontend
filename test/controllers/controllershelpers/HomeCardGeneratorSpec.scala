@@ -497,8 +497,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
         Future.successful(
           Seq(
-            SummaryCardPartial("tc1", Html("<p>tc1</p>"), Overpaid),
-            SummaryCardPartial("tc2", Html("<p>tc2</p>"), Underpaid)
+            SummaryCardPartial("tc1", Html("<p>tc1</p>"), Overpaid, 2026),
+            SummaryCardPartial("tc2", Html("<p>tc2</p>"), Underpaid, 2026)
           )
         )
       )
