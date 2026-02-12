@@ -16,6 +16,7 @@
 
 package connectors
 
+import cats.data.EitherT
 import com.google.inject.Inject
 import config.ConfigDecorator
 import models.admin.FandFBannerToggle
@@ -54,5 +55,18 @@ class FandFConnector @Inject() (
         Future.successful(false)
       }
     }
+  }
+
+  def getFandFAccountDetails(
+    nino: Nino
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    val url = s"$baseUrl/fandf/$nino"
+
+    httpClientResponse
+      .read(
+        httpClientV2
+          .get(url"$url")(hc)
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      )
   }
 }

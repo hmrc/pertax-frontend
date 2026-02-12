@@ -16,9 +16,11 @@
 
 package services
 
+import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, OtherService, UserAnswers, WrongCredentialsSelfAssessmentUser}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.test.FakeRequest
@@ -26,12 +28,17 @@ import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.http.UpstreamErrorResponse
+
+import scala.concurrent.Future
 
 class OtherServicesSpec extends BaseSpec {
 
   private val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+  private val mockFandFService: FandFService       = mock[FandFService]
+  private val mockTaiService: TaiService           = mock[TaiService]
 
-  private lazy val service: OtherServices = new OtherServices(mockConfigDecorator)
+  private lazy val service: OtherServices = new OtherServices(mockConfigDecorator, mockFandFService, mockTaiService)
   implicit lazy val messages: Messages    = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach(): Unit = {
@@ -49,9 +56,16 @@ class OtherServicesSpec extends BaseSpec {
     )
 
     statuses.foreach { case (saStatus, expected) =>
-      s"return an item or None for $saStatus" in {
-        val result = service.getSelfAssessment(saStatus).futureValue
+      s"return an item or None when trusted helper is disabled for $saStatus" in {
+        val result = service.getSelfAssessment(saStatus, false).futureValue
         result.map(_.link) mustBe expected
+      }
+    }
+
+    statuses.foreach { case (saStatus, _) =>
+      s"return None when trusted helper is enabled for $saStatus" in {
+        val result = service.getSelfAssessment(saStatus, true).futureValue
+        result.map(_.link) mustBe None
       }
     }
   }
@@ -60,6 +74,12 @@ class OtherServicesSpec extends BaseSpec {
     "return a list of items" in {
       when(mockConfigDecorator.annualTaxSaSummariesTileLinkShow).thenReturn("ats/")
       when(mockConfigDecorator.manageTrustedHelpersUrl).thenReturn("trustedHelper/")
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
+        Future.successful(List.empty)
+      )
+      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](false)
+      )
 
       val request = UserRequest(
         generatedNino,

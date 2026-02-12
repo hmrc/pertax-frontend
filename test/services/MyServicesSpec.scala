@@ -16,11 +16,13 @@
 
 package services
 
+import cats.data.EitherT
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
 import models.{ActivatedOnlineFilerSelfAssessmentUser, MyService, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, UserAnswers, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import testUtils.BaseSpec
 import org.mockito.Mockito.{reset, when}
 import play.api.i18n.{Lang, Messages, MessagesImpl}
@@ -28,6 +30,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
@@ -37,8 +40,11 @@ class MyServicesSpec extends BaseSpec {
 
   private val mockConfigDecorator: ConfigDecorator       = mock[ConfigDecorator]
   private val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+  private val mockFandFService: FandFService             = mock[FandFService]
+  private val mockTaiService: TaiService                 = mock[TaiService]
 
-  private lazy val service: MyServices = new MyServices(mockConfigDecorator, mockFeatureFlagService)
+  private lazy val service: MyServices =
+    new MyServices(mockConfigDecorator, mockFeatureFlagService, mockFandFService, mockTaiService)
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach(): Unit = {
@@ -62,8 +68,17 @@ class MyServicesSpec extends BaseSpec {
       s"return an item or None for $saStatus" in {
         when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("a/url")
 
-        val result = service.getSelfAssessment(saStatus).futureValue
+        val result = service.getSelfAssessment(saStatus, false).futureValue
         result.map(_.link) mustBe expected
+      }
+    }
+
+    statuses.foreach { case (saStatus, _) =>
+      s"return None when trustHelper is enabled for $saStatus" in {
+        when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("a/url")
+
+        val result = service.getSelfAssessment(saStatus, true).futureValue
+        result.map(_.link) mustBe None
       }
     }
   }
@@ -187,6 +202,13 @@ class MyServicesSpec extends BaseSpec {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
       when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("taxcalc/")
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
+        Future.successful(List.empty)
+      )
+      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](true)
+      )
+      when(mockConfigDecorator.manageTrustedHelpersUrl).thenReturn("/fandf")
 
       val request = UserRequest(
         generatedNino,
@@ -219,7 +241,8 @@ class MyServicesSpec extends BaseSpec {
           Map(),
           Some("Income"),
           Some("Self Assessment")
-        )
+        ),
+        MyService("Trusted helpers", "/fandf", "", Map(), Some("Account"), Some("Trusted helpers"), None)
       )
     }
   }
