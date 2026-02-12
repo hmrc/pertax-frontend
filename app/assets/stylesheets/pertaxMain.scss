@@ -3,7 +3,6 @@ $govuk-include-default-font-face: false;
 
 @import "modules/colors";
 @import "card";
-@import "flexbox";
 
 .pta-home-option {
   background-color: govuk-tint(govuk-colour("light-grey"), 50%);
