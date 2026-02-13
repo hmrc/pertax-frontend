@@ -405,7 +405,8 @@ class ContentsCheckSpec extends IntegrationSpec {
           govUkBanner.get(0).getElementsByClass("govuk-link").get(0).attr("href") must include(
             "http://localhost:9250/contact/beta-feedback?service=PTA"
           )
-          govUkBanner.text() mustBe "Beta This is a new service – your feedback will help us to improve it."
+          govUkBanner
+            .text() mustBe "Beta This is a new service. Help us improve it and give your feedback (opens in new tab)."
 
           val accessibilityStatement = content
             .getElementsByClass("govuk-footer__link")

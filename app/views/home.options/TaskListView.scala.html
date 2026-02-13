@@ -48,10 +48,7 @@ govukTaskList: GovukTaskList)
                     )
                 },
                  status = TaskListItemStatus(
-                    tag = Some(Tag(
-                        content = Text(task.status.toString),
-                        classes = task.status.classes
-                    ))
+                    tag = None
                  ),
                  href = Some(task.href)
                )

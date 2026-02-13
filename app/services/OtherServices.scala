@@ -21,38 +21,56 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.*
 import play.api.i18n.Messages
+import uk.gov.hmrc.http.HeaderCarrier
+import services.FandFService
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.time.CurrentTaxYear
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class OtherServices @Inject() (
-  configDecorator: ConfigDecorator
-)(implicit ec: ExecutionContext) {
+  configDecorator: ConfigDecorator,
+  fandFService: FandFService,
+  taiService: TaiService
+)(implicit ec: ExecutionContext)
+    extends CurrentTaxYear {
 
-  def getOtherServices(implicit request: UserRequest[?], messages: Messages): Future[Seq[OtherService]] = {
+  def getOtherServices(implicit
+    request: UserRequest[?],
+    hc: HeaderCarrier,
+    messages: Messages
+  ): Future[Seq[OtherService]] = {
     // todo MTD is missing
-    val selfAssessment    = getSelfAssessment(request.saUserType)
+    val selfAssessment    = getSelfAssessment(request.saUserType, request.trustedHelper.isDefined)
     val childBenefits     = getChildBenefit(request.trustedHelper.isDefined)
-    val marriageAllowance = getMarriageAllowance(request.trustedHelper.isDefined)
-    val annualTaxSummary  = getAnnualTaxSummaries
-    val trustedHelper     = getTrustedHelper
+    val marriageAllowance = getMarriageAllowance(request.authNino, request.trustedHelper.isDefined)
+    val annualTaxSummary  = getAnnualTaxSummaries(request.trustedHelper.isDefined)
+    val trustedHelper     = getTrustedHelper(request.authNino, request.trustedHelper.isDefined)
 
     Future
       .sequence(Seq(selfAssessment, childBenefits, marriageAllowance, annualTaxSummary, trustedHelper))
       .map(_.flatten)
   }
 
-  def getSelfAssessment(saUserType: SelfAssessmentUserType)(implicit messages: Messages): Future[Option[OtherService]] =
-    Future.successful(saUserType match {
-      case NotEnrolledSelfAssessmentUser(_) =>
-        Some(
-          OtherService(
-            messages("label.activate_your_self_assessment_registration"),
-            controllers.routes.SelfAssessmentController.requestAccess.url,
-            gaAction = Some("Income"),
-            gaLabel = Some("Self Assessment")
+  def getSelfAssessment(saUserType: SelfAssessmentUserType, trustedHelperEnabled: Boolean)(implicit
+    messages: Messages
+  ): Future[Option[OtherService]] =
+    Future.successful(if (trustedHelperEnabled) {
+      None
+    } else {
+      saUserType match {
+        case NotEnrolledSelfAssessmentUser(_) =>
+          Some(
+            OtherService(
+              messages("label.activate_your_self_assessment_registration"),
+              controllers.routes.SelfAssessmentController.requestAccess.url,
+              gaAction = Some("Income"),
+              gaLabel = Some("Self Assessment")
+            )
           )
-        )
-      case _                                => None
+        case _                                => None
+      }
     })
 
   def getChildBenefit(trustedHelperEnabled: Boolean)(implicit messages: Messages): Future[Option[OtherService]] =
@@ -69,23 +87,35 @@ class OtherServices @Inject() (
       )
     })
 
-  // todo add check from tai and move to myService if transferee or transferor
-  def getMarriageAllowance(trustedHelperEnabled: Boolean)(implicit messages: Messages): Future[Option[OtherService]] =
+  def getMarriageAllowance(nino: Nino, isTrustedHelper: Boolean)(implicit
+    hc: HeaderCarrier,
+    request: UserRequest[?],
+    messages: Messages
+  ) =
+    if (isTrustedHelper) {
+      Future.successful(None)
+    } else {
+      taiService.getTaxComponentsList(nino, current.currentYear).map {
+        case taxComponents
+            if taxComponents
+              .contains("MarriageAllowanceReceived") || taxComponents.contains("MarriageAllowanceTransferred") =>
+          None
+        case _ =>
+          Some(
+            OtherService(
+              messages("title.marriage_allowance"),
+              "/marriage-allowance-application/history",
+              gaAction = Some("Benefits"),
+              gaLabel = Some("Marriage Allowance")
+            )
+          )
+      }
+    }
+
+  def getAnnualTaxSummaries(trustedHelperEnabled: Boolean)(implicit messages: Messages): Future[Option[OtherService]] =
     Future.successful(if (trustedHelperEnabled) {
       None
     } else {
-      Some(
-        OtherService(
-          messages("title.marriage_allowance"),
-          "/marriage-allowance-application/history",
-          gaAction = Some("Benefits"),
-          gaLabel = Some("Marriage Allowance")
-        )
-      )
-    })
-
-  def getAnnualTaxSummaries(implicit messages: Messages): Future[Option[OtherService]] =
-    Future.successful(
       Some(
         OtherService(
           messages("card.ats.heading"),
@@ -94,23 +124,36 @@ class OtherServices @Inject() (
           gaLabel = Some("Annual Tax Summary")
         )
       )
-    )
+    })
 
-  def getTrustedHelper(implicit messages: Messages): Future[Option[OtherService]] =
-    Future.successful(
-      Some(
-        OtherService(
-          messages("label.trusted_helpers_heading"),
-          configDecorator.manageTrustedHelpersUrl,
-          gaAction = Some("Account"),
-          gaLabel = Some("Trusted helpers")
-        )
-      )
-    )
+  def getTrustedHelper(nino: Nino, isTrustedHelper: Boolean)(implicit
+    hc: HeaderCarrier,
+    messages: Messages
+  ): Future[Option[OtherService]] =
+    if (isTrustedHelper) {
+      Future.successful(None)
+    } else {
+      fandFService
+        .isAnyFandFRelationships(nino)
+        .map {
+          case false =>
+            Some(
+              OtherService(
+                messages("label.trusted_helpers_heading"),
+                configDecorator.manageTrustedHelpersUrl,
+                gaAction = Some("Account"),
+                gaLabel = Some("Trusted helpers")
+              )
+            )
+          case true  => None
+        }
+    }
 
     /* todo implement MTD
     gaAction = Some("MTDIT"),
     gaLabel = Some("Making Tax Digital for Income Tax"),
      */
+
+  override def now: () => LocalDate = LocalDate.now
 
 }
