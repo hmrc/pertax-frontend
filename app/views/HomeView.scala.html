@@ -95,12 +95,10 @@
         </ul>
     </div>
 
-    <div class="pertax-home">
-        <div class="flex-container">
-            @viewModel.incomeCards
-            @viewModel.benefitCards
-            @viewModel.atsCard
-            @viewModel.trustedHelpersCard.toSeq
-        </div>
+    <div class="card-container">
+        @viewModel.incomeCards
+        @viewModel.benefitCards
+        @viewModel.atsCard
+        @viewModel.trustedHelpersCard.toSeq
     </div>
 }

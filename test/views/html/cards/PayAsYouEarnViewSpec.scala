@@ -62,7 +62,7 @@ class PayAsYouEarnViewSpec extends ViewSpec {
 
       doc
         .getElementById("paye-card")
-        .getElementsByClass("card-link")
+        .getElementsByClass("card__link")
         .attr("href") mustBe "/check-income-tax/what-do-you-want-to-do"
     }
 
@@ -77,7 +77,7 @@ class PayAsYouEarnViewSpec extends ViewSpec {
 
       doc
         .getElementById("paye-card")
-        .getElementsByClass("card-link")
+        .getElementsByClass("card__link")
         .attr("href") mustBe "/check-income-tax/what-do-you-want-to-do"
     }
 
@@ -92,7 +92,7 @@ class PayAsYouEarnViewSpec extends ViewSpec {
 
       doc
         .getElementById("paye-card")
-        .getElementsByClass("card-link")
+        .getElementsByClass("card__link")
         .attr("href") mustBe "http://paye-to-pega-redirect-url"
     }
     "point to check-income-tax when toggle is ON and NINO matches but user helping (trusted helpers)" in {
@@ -110,7 +110,7 @@ class PayAsYouEarnViewSpec extends ViewSpec {
 
       doc
         .getElementById("paye-card")
-        .getElementsByClass("card-link")
+        .getElementsByClass("card__link")
         .attr("href") mustBe "/check-income-tax/what-do-you-want-to-do"
     }
   }
