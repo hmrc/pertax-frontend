@@ -14,26 +14,16 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import tags.*
 
-@this(configDecorator: ConfigDecorator)
+@this()
 
-@(shouldUsePegaRouting: Boolean)(implicit messages: Messages, request: UserRequest[_])
-
-@urlToPaye() = @{
-    val penultimateDigit = request.authNino.nino.charAt(6).asDigit
-    if (shouldUsePegaRouting && configDecorator.payeToPegaRedirectList.contains(penultimateDigit) && request.trustedHelper.isEmpty) {
-        configDecorator.payeToPegaRedirectUrl
-    } else {
-        s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do"
-    }
-}
+@()(implicit messages: Messages)
 
 @card(
     id = Some("paye-card"),
-    url = Some(urlToPaye()),
+    url = Some(routes.RedirectToPayeController.redirectToPaye.url),
     gaAction = Some("Income"),
     gaLabel = Some("Pay As You Earn (PAYE)"),
     heading = messages("label.pay_as_you_earn_paye"),

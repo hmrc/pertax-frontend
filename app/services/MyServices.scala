@@ -20,9 +20,8 @@ import controllers.auth.requests.UserRequest
 import models.*
 import com.google.inject.Inject
 import config.ConfigDecorator
-import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
+import models.admin.ShowTaxCalcTileToggle
 import play.api.i18n.Messages
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,7 +35,7 @@ class MyServices @Inject() (
   def getMyServices(implicit request: UserRequest[?], messages: Messages): Future[Seq[MyService]] = {
 
     val selfAssessmentF = getSelfAssessment(request.saUserType)
-    val payAsYouEarnF   = getPayAsYouEarn(request.authNino, request.trustedHelper.isDefined)
+    val payAsYouEarnF   = getPayAsYouEarn()
     val taxCalcCardsF   = getTaxcalc(request.trustedHelper.isDefined)
 
     Future.sequence(Seq(payAsYouEarnF, taxCalcCardsF, selfAssessmentF)).map(_.flatten)
@@ -77,36 +76,19 @@ class MyServices @Inject() (
       case _                                               => None
     })
 
-  def getPayAsYouEarn(nino: Nino, isTrustedHelper: Boolean)(implicit messages: Messages): Future[Option[MyService]] = {
-    val mdtpPaye = MyService(
-      messages("label.pay_as_you_earn_paye"),
-      s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do",
-      "",
-      gaAction = Some("Income"),
-      gaLabel = Some("Pay As You Earn (PAYE)")
-    )
+  def getPayAsYouEarn()(implicit messages: Messages): Future[Option[MyService]] =
 
-    featureFlagService.get(PayeToPegaRedirectToggle).map { toggle =>
-      if (toggle.isEnabled) {
-        val penultimateDigit = nino.nino.charAt(6).asDigit
-        if (configDecorator.payeToPegaRedirectList.contains(penultimateDigit) && !isTrustedHelper) {
-          Some(
-            MyService(
-              messages("label.pay_as_you_earn_paye"),
-              configDecorator.payeToPegaRedirectUrl,
-              "",
-              gaAction = Some("Income"),
-              gaLabel = Some("Pay As You Earn (PAYE)")
-            )
-          )
-        } else {
-          Some(mdtpPaye)
-        }
-      } else {
-        Some(mdtpPaye)
-      }
-    }
-  }
+    Future.successful(
+      Some(
+        MyService(
+          messages("label.pay_as_you_earn_paye"),
+          controllers.routes.RedirectToPayeController.redirectToPaye.url,
+          "",
+          gaAction = Some("Income"),
+          gaLabel = Some("Pay As You Earn (PAYE)")
+        )
+      )
+    )
 
   def getTaxcalc(trustedHelperEnabled: Boolean)(implicit messages: Messages): Future[Option[MyService]] =
     if (trustedHelperEnabled) {
