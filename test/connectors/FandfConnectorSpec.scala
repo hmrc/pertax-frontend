@@ -40,8 +40,9 @@ class FandfConnectorSpec extends ConnectorSpec with WireMockHelper with MockitoS
     .overrides(api.inject.bind[FeatureFlagService].toInstance(mockFeatureFlagService))
     .build()
 
-  private val nino: Nino = Nino(new Generator(new Random()).nextNino.nino)
-  private val url        = s"/fandf/$nino/showBanner"
+  private val nino: Nino             = Nino(new Generator(new Random()).nextNino.nino)
+  private val url                    = s"/fandf/$nino/showBanner"
+  private val detailsRelationshipUrl = s"/fandf/$nino"
 
   private def connector: FandFConnector = app.injector.instanceOf[FandFConnector]
 
@@ -89,6 +90,25 @@ class FandfConnectorSpec extends ConnectorSpec with WireMockHelper with MockitoS
         val result = connector.showFandfBanner(nino).futureValue
         result mustBe false
       }
+    }
+  }
+
+  "getFandFAccountDetails" must {
+    "return the list of relationships for a given state" in {
+      val stubResponse = Json.obj(
+        "key" -> Json.obj(
+          "principal"     -> "principal",
+          "attorney"      -> "attorney",
+          "serviceScopes" -> Json.arr(
+            Json.obj("scope" -> "scope", "status" -> "status")
+          )
+        )
+      )
+      stubGet(detailsRelationshipUrl, OK, Some(Json.toJson(stubResponse).toString))
+
+      val result = connector.getFandFAccountDetails(nino).value.futureValue
+
+      result mustBe Right(stubResponse)
     }
   }
 }

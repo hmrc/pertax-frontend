@@ -135,22 +135,18 @@ class OtherServices @Inject() (
     } else {
       fandFService
         .isAnyFandFRelationships(nino)
-        .fold[Option[OtherService]](
-          _ => None,
-          isAnyRelationship =>
-            if (isAnyRelationship) {
-              None
-            } else {
-              Some(
-                OtherService(
-                  messages("label.trusted_helpers_heading"),
-                  configDecorator.manageTrustedHelpersUrl,
-                  gaAction = Some("Account"),
-                  gaLabel = Some("Trusted helpers")
-                )
+        .map {
+          case false =>
+            Some(
+              OtherService(
+                messages("label.trusted_helpers_heading"),
+                configDecorator.manageTrustedHelpersUrl,
+                gaAction = Some("Account"),
+                gaLabel = Some("Trusted helpers")
               )
-            }
-        )
+            )
+          case true  => None
+        }
     }
 
     /* todo implement MTD

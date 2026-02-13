@@ -166,23 +166,19 @@ class MyServices @Inject() (
     } else {
       fandFService
         .isAnyFandFRelationships(nino)
-        .fold[Option[MyService]](
-          _ => None,
-          isAnyRelationship =>
-            if (isAnyRelationship) {
-              Some(
-                MyService(
-                  messages("label.trusted_helpers_heading"),
-                  configDecorator.manageTrustedHelpersUrl,
-                  "",
-                  gaAction = Some("Account"),
-                  gaLabel = Some("Trusted helpers")
-                )
+        .map {
+          case false => None
+          case true  =>
+            Some(
+              MyService(
+                messages("label.trusted_helpers_heading"),
+                configDecorator.manageTrustedHelpersUrl,
+                "",
+                gaAction = Some("Account"),
+                gaLabel = Some("Trusted helpers")
               )
-            } else {
-              None
-            }
-        )
+            )
+        }
     }
 
   def getMarriageAllowance(nino: Nino, isTrustedHelper: Boolean)(implicit
@@ -191,6 +187,8 @@ class MyServices @Inject() (
     messages: Messages
   ) =
     if (isTrustedHelper) {
+      Future.successful(None)
+    } else {
       taiService.getTaxComponentsList(nino, current.currentYear).map {
         case taxComponents if taxComponents.contains("MarriageAllowanceReceived")    =>
           Some(
@@ -214,8 +212,6 @@ class MyServices @Inject() (
           )
         case _                                                                       => None
       }
-    } else {
-      Future.successful(None)
     }
 
   override def now: () => LocalDate = LocalDate.now

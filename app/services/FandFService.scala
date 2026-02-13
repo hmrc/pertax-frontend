@@ -16,19 +16,20 @@
 
 package services
 
-import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.FandFConnector
 import models.AttorneyRelationshipResponse
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class FandFService @Inject() (fandfConnector: FandFConnector)(implicit ec: ExecutionContext) {
-  def isAnyFandFRelationships(nino: Nino)(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, Boolean] =
-    fandfConnector.getFandFAccountDetails(nino).map { response =>
-      val relationships = response.json.as[Map[String, List[AttorneyRelationshipResponse]]]
-      relationships.values.flatten.nonEmpty
-    }
+  def isAnyFandFRelationships(nino: Nino)(implicit hc: HeaderCarrier): Future[Boolean] =
+    fandfConnector
+      .getFandFAccountDetails(nino)
+      .fold(
+        _ => false,
+        response => response.as[Map[String, List[AttorneyRelationshipResponse]]].values.flatten.nonEmpty
+      )
 }
