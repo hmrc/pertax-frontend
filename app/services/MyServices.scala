@@ -47,7 +47,9 @@ class MyServices @Inject() (
     val marriageAllowanceF = getMarriageAllowance(request.authNino, request.trustedHelper.isDefined)
 
     Future
-      .sequence(Seq(payAsYouEarnF, taxCalcCardsF, selfAssessmentF, marriageAllowanceF, trustedHelperF))
+      .sequence(
+        Seq(payAsYouEarnF, taxCalcCardsF, selfAssessmentF, marriageAllowanceF, getNationalInsuranceCard, trustedHelperF)
+      )
       .map(_.flatten)
   }
 

@@ -313,6 +313,15 @@ class MyServicesSpec extends BaseSpec {
           Some("Income"),
           Some("Self Assessment")
         ),
+        MyService(
+          "Your National Insurance and State Pension",
+          "/personal-account/your-national-insurance-state-pension",
+          "",
+          Map(),
+          Some("Income"),
+          Some("National Insurance and State Pension"),
+          None
+        ),
         MyService("Trusted helpers", "/fandf", "", Map(), Some("Account"), Some("Trusted helpers"), None)
       )
     }
