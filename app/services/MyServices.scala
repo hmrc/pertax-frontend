@@ -20,9 +20,6 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.*
-import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
-import com.google.inject.Inject
-import config.ConfigDecorator
 import models.admin.ShowTaxCalcTileToggle
 import play.api.i18n.Messages
 import uk.gov.hmrc.domain.Nino
