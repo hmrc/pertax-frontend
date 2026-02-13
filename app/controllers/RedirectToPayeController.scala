@@ -35,19 +35,24 @@ class RedirectToPayeController @Inject() (
 
   def redirectToPaye: Action[AnyContent] =
     authJourney.authWithPersonalDetails.async { implicit request: UserRequest[AnyContent] =>
-      featureFlagService.get(PayeToPegaRedirectToggle).map { usePegaRoutingToggle =>
-        val penultimateDigit = request.authNino.nino.charAt(6).asDigit
-        val destinationUrl   =
-          if (
-            usePegaRoutingToggle.isEnabled && configDecorator.payeToPegaRedirectList.contains(penultimateDigit) &&
-            request.trustedHelper.isEmpty
-          ) {
-            configDecorator.payeToPegaRedirectUrl
-          } else {
-            s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do"
-          }
-
+      featureFlagService.get(PayeToPegaRedirectToggle).map { toggle =>
+        val destinationUrl = resolvePayeDestination(toggle.isEnabled)
         Redirect(destinationUrl)
       }
     }
+
+  private def resolvePayeDestination(
+    isPayeToPegaRedirectEnabled: Boolean
+  )(implicit request: UserRequest[AnyContent]): String = {
+    val penultimateDigit = request.authNino.nino.charAt(6).asDigit
+
+    if (
+      isPayeToPegaRedirectEnabled && configDecorator.payeToPegaRedirectList.contains(penultimateDigit) &&
+      request.trustedHelper.isEmpty
+    ) {
+      configDecorator.payeToPegaRedirectUrl
+    } else {
+      s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do"
+    }
+  }
 }
