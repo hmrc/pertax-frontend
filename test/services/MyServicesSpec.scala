@@ -19,11 +19,13 @@ package services
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
-import models.{ActivatedOnlineFilerSelfAssessmentUser, MyService, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, UserAnswers, WrongCredentialsSelfAssessmentUser}
+import models.*
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import testUtils.BaseSpec
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.i18n.{Lang, Messages, MessagesImpl}
+import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -37,9 +39,24 @@ class MyServicesSpec extends BaseSpec {
 
   private val mockConfigDecorator: ConfigDecorator       = mock[ConfigDecorator]
   private val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+  private val mockFandFService: FandFService             = mock[FandFService]
+  private val mockTaiService: TaiService                 = mock[TaiService]
 
-  private lazy val service: MyServices = new MyServices(mockConfigDecorator, mockFeatureFlagService)
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  private lazy val service: MyServices          =
+    new MyServices(mockConfigDecorator, mockFeatureFlagService, mockFandFService, mockTaiService)
+  implicit lazy val messages: Messages          = MessagesImpl(Lang("en"), messagesApi)
+  implicit val request: UserRequest[AnyContent] = UserRequest(
+    generatedNino,
+    NonFilerSelfAssessmentUser,
+    Credentials("credId", "GovernmentGateway"),
+    ConfidenceLevel.L200,
+    None,
+    Set.empty,
+    None,
+    None,
+    FakeRequest(),
+    UserAnswers.empty
+  )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -62,8 +79,17 @@ class MyServicesSpec extends BaseSpec {
       s"return an item or None for $saStatus" in {
         when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("a/url")
 
-        val result = service.getSelfAssessment(saStatus).futureValue
+        val result = service.getSelfAssessment(saStatus, false).futureValue
         result.map(_.link) mustBe expected
+      }
+    }
+
+    statuses.foreach { case (saStatus, _) =>
+      s"return None when trustHelper is enabled for $saStatus" in {
+        when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("a/url")
+
+        val result = service.getSelfAssessment(saStatus, true).futureValue
+        result.map(_.link) mustBe None
       }
     }
   }
@@ -175,6 +201,66 @@ class MyServicesSpec extends BaseSpec {
     }
   }
 
+  "getMarriageAllowance" must {
+    "return None" when {
+      "trusted helper is active" in {
+        val result = service.getMarriageAllowance(generatedNino, true).futureValue
+
+        result mustBe None
+        verify(mockTaiService, times(0)).getTaxComponentsList(any(), any())(any(), any())
+      }
+
+      "trusted helper is not active and there is no tax component for marriage allowance" in {
+        when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
+          Future.successful(List.empty)
+        )
+        val result = service.getMarriageAllowance(generatedNino, false).futureValue
+
+        result mustBe None
+      }
+    }
+
+    "return an item with MarriageAllowanceTransferred" in {
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
+        Future.successful(List("MarriageAllowanceTransferred"))
+      )
+
+      val result = service.getMarriageAllowance(generatedNino, false).futureValue
+
+      result mustBe Some(
+        MyService(
+          "Marriage Allowance",
+          "You currently transfer part of your Personal Allowance to your partner.",
+          "/marriage-allowance-application/history",
+          Map(),
+          Some("Benefits"),
+          Some("Marriage Allowance"),
+          None
+        )
+      )
+    }
+
+    "return an item with MarriageAllowanceReceived" in {
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
+        Future.successful(List("MarriageAllowanceReceived"))
+      )
+
+      val result = service.getMarriageAllowance(generatedNino, false).futureValue
+
+      result mustBe Some(
+        MyService(
+          "Marriage Allowance",
+          "Your partner currently transfers part of their Personal Allowance to you.",
+          "/marriage-allowance-application/history",
+          Map(),
+          Some("Benefits"),
+          Some("Marriage Allowance"),
+          None
+        )
+      )
+    }
+  }
+
   "getMyServices" must {
     "return a list of items" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
@@ -187,6 +273,13 @@ class MyServicesSpec extends BaseSpec {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
       when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("taxcalc/")
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
+        Future.successful(List.empty)
+      )
+      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(
+        Future.successful(true)
+      )
+      when(mockConfigDecorator.manageTrustedHelpersUrl).thenReturn("/fandf")
 
       val request = UserRequest(
         generatedNino,
@@ -219,7 +312,17 @@ class MyServicesSpec extends BaseSpec {
           Map(),
           Some("Income"),
           Some("Self Assessment")
-        )
+        ),
+        MyService(
+          "Your National Insurance and State Pension",
+          "/personal-account/your-national-insurance-state-pension",
+          "",
+          Map(),
+          Some("Income"),
+          Some("National Insurance and State Pension"),
+          None
+        ),
+        MyService("Trusted helpers", "/fandf", "", Map(), Some("Account"), Some("Trusted helpers"), None)
       )
     }
   }

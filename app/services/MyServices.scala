@@ -16,65 +16,82 @@
 
 package services
 
-import controllers.auth.requests.UserRequest
-import models.*
 import com.google.inject.Inject
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import models.*
 import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
 import play.api.i18n.Messages
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.time.CurrentTaxYear
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
-import util.DateTimeTools.current
 
 class MyServices @Inject() (
   configDecorator: ConfigDecorator,
-  featureFlagService: FeatureFlagService
-)(implicit ec: ExecutionContext) {
+  featureFlagService: FeatureFlagService,
+  fandFService: FandFService,
+  taiService: TaiService
+)(implicit ec: ExecutionContext)
+    extends CurrentTaxYear {
 
-  def getMyServices(implicit request: UserRequest[?], messages: Messages): Future[Seq[MyService]] = {
+  def getMyServices(implicit request: UserRequest[?], hc: HeaderCarrier, messages: Messages): Future[Seq[MyService]] = {
 
-    val selfAssessmentF = getSelfAssessment(request.saUserType)
-    val payAsYouEarnF   = getPayAsYouEarn(request.authNino, request.trustedHelper.isDefined)
-    val taxCalcCardsF   = getTaxcalc(request.trustedHelper.isDefined)
+    val selfAssessmentF    = getSelfAssessment(request.saUserType, request.trustedHelper.isDefined)
+    val payAsYouEarnF      = getPayAsYouEarn(request.authNino, request.trustedHelper.isDefined)
+    val taxCalcCardsF      = getTaxcalc(request.trustedHelper.isDefined)
+    val trustedHelperF     = getTrustedHelper(request.authNino, request.trustedHelper.isDefined)
+    val marriageAllowanceF = getMarriageAllowance(request.authNino, request.trustedHelper.isDefined)
 
-    Future.sequence(Seq(payAsYouEarnF, taxCalcCardsF, selfAssessmentF)).map(_.flatten)
+    Future
+      .sequence(
+        Seq(payAsYouEarnF, taxCalcCardsF, selfAssessmentF, marriageAllowanceF, getNationalInsuranceCard, trustedHelperF)
+      )
+      .map(_.flatten)
   }
 
-  def getSelfAssessment(saUserType: SelfAssessmentUserType)(implicit messages: Messages): Future[Option[MyService]] =
-    Future.successful(saUserType match {
-      case _: ActivatedOnlineFilerSelfAssessmentUser       =>
-        Some(
-          MyService(
-            messages("label.self_assessment"),
-            controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-            messages("label.newViewAndManageSA", s"${current.currentYear + 1}"),
-            gaAction = Some("Income"),
-            gaLabel = Some("Self Assessment")
+  def getSelfAssessment(saUserType: SelfAssessmentUserType, isTrustedHelper: Boolean)(implicit
+    messages: Messages
+  ): Future[Option[MyService]] =
+    Future.successful(if (isTrustedHelper) {
+      None
+    } else {
+      saUserType match {
+        case _: ActivatedOnlineFilerSelfAssessmentUser       =>
+          Some(
+            MyService(
+              messages("label.self_assessment"),
+              controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
+              messages("label.newViewAndManageSA", s"${current.currentYear + 1}"),
+              gaAction = Some("Income"),
+              gaLabel = Some("Self Assessment")
+            )
           )
-        )
-      case WrongCredentialsSelfAssessmentUser(_)           =>
-        Some(
-          MyService(
-            "label.self_assessment",
-            controllers.routes.SaWrongCredentialsController.landingPage().url,
-            messages("title.signed_in_wrong_account.h1"),
-            gaAction = Some("Income"),
-            gaLabel = Some("Self Assessment")
+        case WrongCredentialsSelfAssessmentUser(_)           =>
+          Some(
+            MyService(
+              messages("label.self_assessment"),
+              controllers.routes.SaWrongCredentialsController.landingPage().url,
+              messages("title.signed_in_wrong_account.h1"),
+              gaAction = Some("Income"),
+              gaLabel = Some("Self Assessment")
+            )
           )
-        )
-      case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-        Some(
-          MyService(
-            messages("label.self_assessment"),
-            configDecorator.ssoToActivateSaEnrolmentPinUrl,
-            messages("label.activate_your_self_assessment_registration"),
-            gaAction = Some("Income"),
-            gaLabel = Some("Self Assessment")
+        case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
+          Some(
+            MyService(
+              messages("label.self_assessment"),
+              configDecorator.ssoToActivateSaEnrolmentPinUrl,
+              messages("label.activate_your_self_assessment_registration"),
+              gaAction = Some("Income"),
+              gaLabel = Some("Self Assessment")
+            )
           )
-        )
-      case _                                               => None
+        case _                                               => None
+      }
     })
 
   def getPayAsYouEarn(nino: Nino, isTrustedHelper: Boolean)(implicit messages: Messages): Future[Option[MyService]] = {
@@ -141,4 +158,63 @@ class MyServices @Inject() (
         )
       )
     )
+
+  def getTrustedHelper(nino: Nino, isTrustedHelper: Boolean)(implicit
+    hc: HeaderCarrier,
+    messages: Messages
+  ): Future[Option[MyService]] =
+    if (isTrustedHelper) {
+      Future.successful(None)
+    } else {
+      fandFService
+        .isAnyFandFRelationships(nino)
+        .map {
+          case false => None
+          case true  =>
+            Some(
+              MyService(
+                messages("label.trusted_helpers_heading"),
+                configDecorator.manageTrustedHelpersUrl,
+                "",
+                gaAction = Some("Account"),
+                gaLabel = Some("Trusted helpers")
+              )
+            )
+        }
+    }
+
+  def getMarriageAllowance(nino: Nino, isTrustedHelper: Boolean)(implicit
+    hc: HeaderCarrier,
+    request: UserRequest[?],
+    messages: Messages
+  ) =
+    if (isTrustedHelper) {
+      Future.successful(None)
+    } else {
+      taiService.getTaxComponentsList(nino, current.currentYear).map {
+        case taxComponents if taxComponents.contains("MarriageAllowanceReceived")    =>
+          Some(
+            MyService(
+              messages("title.marriage_allowance"),
+              messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you"),
+              "/marriage-allowance-application/history",
+              gaAction = Some("Benefits"),
+              gaLabel = Some("Marriage Allowance")
+            )
+          )
+        case taxComponents if taxComponents.contains("MarriageAllowanceTransferred") =>
+          Some(
+            MyService(
+              messages("title.marriage_allowance"),
+              messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner"),
+              "/marriage-allowance-application/history",
+              gaAction = Some("Benefits"),
+              gaLabel = Some("Marriage Allowance")
+            )
+          )
+        case _                                                                       => None
+      }
+    }
+
+  override def now: () => LocalDate = LocalDate.now
 }

@@ -133,11 +133,11 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     when(mockFandfConnector.showFandfBanner(any())(any(), any()))
       .thenReturn(Future.successful(false))
 
-    when(mockMyServices.getMyServices(any(), any())).thenReturn(
+    when(mockMyServices.getMyServices(any(), any(), any())).thenReturn(
       Future.successful(Seq.empty)
     )
 
-    when(mockOtherServices.getOtherServices(any(), any())).thenReturn(
+    when(mockOtherServices.getOtherServices(any(), any(), any())).thenReturn(
       Future.successful(Seq.empty)
     )
   }
