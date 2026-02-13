@@ -39,6 +39,7 @@ object AllFeatureFlags {
     MDTITAdvertToggle,
     MTDUserStatusToggle,
     GetMatchingFromCitizenDetailsToggle,
+    ClaimMtdFromPtaToggle,
     HomePageNewLayoutToggle,
     FandFBannerToggle
   )
@@ -85,13 +86,13 @@ case object TaxSummariesTileToggle extends FeatureFlagName {
 }
 
 case object ShowPlannedOutageBannerToggle extends FeatureFlagName {
-  override val name: String                = "show-outage-banner-toggle"
-  override val description: Option[String] = Some(
+  override val name: String                         = "show-outage-banner-toggle"
+  override val description: Option[String]          = Some(
     "Show or hide the planned outage banner on the PTA home page. Banner content is configured via app-config and code changes"
   )
-  override val lockedEnvironments          =
+  override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
-  override val defaultState: Boolean       = false
+  override val defaultState: Boolean                = false
 }
 
 case object AgentClientRelationshipsToggle extends FeatureFlagName {
@@ -210,4 +211,15 @@ case object FandFBannerToggle extends FeatureFlagName {
   )
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
+}
+
+case object ClaimMtdFromPtaToggle extends FeatureFlagName {
+  override val name: String = "claim-mtd-from-pta-toggle"
+
+  override val description: Option[String] = Some(
+    "Enable/disable Claim MTD from PTA journey"
+  )
+
+  override val lockedEnvironments: Seq[Environment] =
+    Seq(Environment.Staging, Environment.Qa, Environment.Production)
 }
