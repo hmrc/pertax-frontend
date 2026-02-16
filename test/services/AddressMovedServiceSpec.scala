@@ -34,7 +34,7 @@ class AddressMovedServiceSpec extends BaseSpec {
   val fromPostcode                                 = "AA1 1AA"
   val toPostcode                                   = "AA1 2AA"
 
-  val englandRecordSet: RecordSet  = RecordSet(
+  val englandRecordSet: RecordSet = RecordSet(
     Seq(
       AddressRecord(
         "some id",
@@ -43,6 +43,7 @@ class AddressMovedServiceSpec extends BaseSpec {
       )
     )
   )
+
   val scotlandRecordSet: RecordSet = RecordSet(
     Seq(
       AddressRecord(
@@ -57,6 +58,7 @@ class AddressMovedServiceSpec extends BaseSpec {
 
   "moved" must {
     "be AnyOtherMove" when {
+
       "the post code is the same" in {
         when(addressLookupService.lookup(fromPostcode))
           .thenReturn(
@@ -78,7 +80,6 @@ class AddressMovedServiceSpec extends BaseSpec {
       }
 
       "there are no addresses returned for the new address" in {
-
         when(addressLookupService.lookup(fromPostcode))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, RecordSet](
@@ -105,6 +106,12 @@ class AddressMovedServiceSpec extends BaseSpec {
 
       "there is no postcode for both the moving to and moving from address" in {
         service.moved("", "", false).futureValue mustBe AnyOtherMove
+      }
+
+      "either postcode is not a valid UK postcode" in {
+        service.moved("75001", "AA1 1AA", false).futureValue mustBe AnyOtherMove
+        service.moved("AA1 1AA", "75001", false).futureValue mustBe AnyOtherMove
+        service.moved("75001", "75001", false).futureValue mustBe AnyOtherMove
       }
 
       List(
