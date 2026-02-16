@@ -49,8 +49,6 @@ case class AddressDto(
       country.exists(_.trim.nonEmpty)
 
     if (isInternational) {
-      // INTERNATIONAL ADDRESS:
-      // Citizen-details does NOT allow postcode unless country is UK/IoM
       Address(
         Some(line1),
         newLine2,
@@ -65,7 +63,6 @@ case class AddressDto(
         isRls = false
       )
     } else {
-      // UK ADDRESS:
       Address(
         Some(line1),
         newLine2,
