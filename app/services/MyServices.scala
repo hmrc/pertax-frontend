@@ -95,7 +95,6 @@ class MyServices @Inject() (
     })
 
   def getPayAsYouEarn()(implicit messages: Messages): Future[Option[MyService]] =
-
     Future.successful(
       Some(
         MyService(
