@@ -26,12 +26,10 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatestplus.mockito.MockitoSugar
-import play.api
+import play.api.Configuration
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.api.{Application, Configuration}
 import play.twirl.api.{Html, HtmlFormat}
-import repositories.JourneyCacheRepository
 import services.partials.TaxCalcPartialService
 import testUtils.Fixtures
 import testUtils.UserRequestFixture.buildUserRequest
@@ -102,18 +100,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   private val saUtr: SaUtr = SaUtr("test utr")
 
   "Calling getPayAsYouEarnCard" must {
-    "return PAYE card pointing to TAI when toggle is disabled" in {
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
-        .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = false)))
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        request = FakeRequest()
-      )
-
+    "return PAYE card pointing to redirect-to-paye endpoint" in {
       val result = homeCardGenerator.getPayAsYouEarnCard.futureValue
-
-      result.toString must include("check-income-tax/what-do-you-want-to-do")
+      result.toString must include(controllers.routes.RedirectToPayeController.redirectToPaye.url)
     }
   }
 
@@ -570,57 +559,5 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       val result = homeCardGenerator.getTrustedHelpersCard()
       result mustBe trustedHelpersView()
     }
-  }
-
-  "return PAYE card pointing to PEGA when toggle is enabled and NINO matches the redirect list" in {
-    val matchingNino = "AA000055A"
-
-    val injectedMockConfigDecorator = mock[ConfigDecorator]
-    when(injectedMockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
-    when(injectedMockConfigDecorator.payeToPegaRedirectUrl).thenReturn("https://pega.test.redirect")
-    when(injectedMockConfigDecorator.taiHost).thenReturn("https://tai.test")
-
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
-      .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
-
-    val app: Application = localGuiceApplicationBuilder()
-      .overrides(
-        api.inject.bind[ConfigDecorator].toInstance(injectedMockConfigDecorator),
-        api.inject.bind[NewsAndTilesConfig].toInstance(newsAndTilesConfig),
-        api.inject.bind[TaxCalcPartialService].toInstance(mockTaxCalcPartialService),
-        api.inject.bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
-      )
-      .build()
-
-    val controller = new HomeCardGenerator(
-      mockFeatureFlagService,
-      app.injector.instanceOf[PayAsYouEarnView],
-      childBenefitSingleAccount,
-      marriageAllowance,
-      taxSummaries,
-      latestNewsAndUpdatesView,
-      itsaMergeView,
-      saMergeView,
-      mtditAdvertTileView,
-      enrolmentsHelper,
-      newsAndTilesConfig,
-      nispView,
-      selfAssessmentRegistrationView,
-      mockTaxCalcPartialService,
-      app.injector.instanceOf[TrustedHelpersView]
-    )(injectedMockConfigDecorator, ec)
-
-    implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-      buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        request = FakeRequest(),
-        authNino = Nino(matchingNino)
-      )
-
-    val result = controller.getPayAsYouEarnCard.futureValue
-
-    result.toString must include("https://pega.test.redirect")
-
-    app.stop()
   }
 }

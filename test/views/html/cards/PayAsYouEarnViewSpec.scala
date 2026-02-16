@@ -32,86 +32,32 @@ import views.html.cards.home.PayAsYouEarnView
 
 class PayAsYouEarnViewSpec extends ViewSpec {
 
-  lazy val payAsYouEarnView: PayAsYouEarnView       = inject[PayAsYouEarnView]
-  implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
-
-  override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(
-      api.inject.bind[ConfigDecorator].toInstance(mockConfigDecorator),
-      api.inject.bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
-    )
-    .build()
-
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    reset(mockConfigDecorator)
-    when(mockConfigDecorator.taiHost).thenReturn("")
-    when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("http://paye-to-pega-redirect-url")
-  }
+  lazy val payAsYouEarnView: PayAsYouEarnView = inject[PayAsYouEarnView]
 
   "paye card" must {
-
-    "point to check-income-tax when toggle is OFF (shouldUsePegaRouting = false)" in {
-      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
-
-      val nino                                             = "AA000055A"
-      val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest(), authNino = Nino(nino))
-
-      val doc = asDocument(payAsYouEarnView(shouldUsePegaRouting = false)(implicitly, userRequest).toString)
+    "render PAYE card with redirect-to-paye link" in {
+      val doc = asDocument(payAsYouEarnView().toString)
 
       doc
         .getElementById("paye-card")
         .getElementsByClass("card__link")
-        .attr("href") mustBe "/check-income-tax/what-do-you-want-to-do"
+        .attr("href") mustBe controllers.routes.RedirectToPayeController.redirectToPaye.url
     }
 
-    "point to check-income-tax when toggle is ON but NINO does not match" in {
-      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
-
-      val nino                                             = "AA000003A"
-      val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest(), authNino = Nino(nino))
-
-      val doc = asDocument(payAsYouEarnView(shouldUsePegaRouting = true)(implicitly, userRequest).toString)
+    "render correct heading" in {
+      val doc = asDocument(payAsYouEarnView().toString)
 
       doc
         .getElementById("paye-card")
-        .getElementsByClass("card__link")
-        .attr("href") mustBe "/check-income-tax/what-do-you-want-to-do"
+        .text() must include(messages("label.pay_as_you_earn_paye"))
     }
 
-    "point to pega when toggle is ON and NINO matches" in {
-      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
-
-      val nino                                             = "AA000055A"
-      val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest(), authNino = Nino(nino))
-
-      val doc = asDocument(payAsYouEarnView(shouldUsePegaRouting = true)(implicitly, userRequest).toString)
+    "render correct description" in {
+      val doc = asDocument(payAsYouEarnView().toString)
 
       doc
         .getElementById("paye-card")
-        .getElementsByClass("card__link")
-        .attr("href") mustBe "http://paye-to-pega-redirect-url"
-    }
-    "point to check-income-tax when toggle is ON and NINO matches but user helping (trusted helpers)" in {
-      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq(5))
-
-      val nino                                             = "AA000055A"
-      val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(
-          request = FakeRequest(),
-          authNino = Nino(nino),
-          trustedHelper = Some(TrustedHelper("", "", "", Some(nino)))
-        )
-
-      val doc = asDocument(payAsYouEarnView(shouldUsePegaRouting = true)(implicitly, userRequest).toString)
-
-      doc
-        .getElementById("paye-card")
-        .getElementsByClass("card__link")
-        .attr("href") mustBe "/check-income-tax/what-do-you-want-to-do"
+        .text() must include(messages("label.your_income_from_employers_and_private_pensions_"))
     }
   }
 }
