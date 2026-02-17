@@ -55,7 +55,7 @@ class HomeControllerPayeISpec extends IntegrationSpec {
 
       httpStatus(result) mustBe OK
       contentAsString(result).contains(Messages("label.pay_as_you_earn_paye")) mustBe true
-      contentAsString(result).contains("/check-income-tax/what-do-you-want-to-do") mustBe true
+      contentAsString(result).contains("/personal-account/redirect-to-paye") mustBe true
     }
   }
 }
