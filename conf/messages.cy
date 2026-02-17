@@ -860,11 +860,10 @@ label.trusted_helpers_content=Cael help gyda’ch treth ar-lein gan rywun dibyna
 label.taxes_and_benefits_heading=Taxes and benefits
 label.taxes_and_benefits_subheading=Your current HMRC online taxes and benefits
 label.other_taxes_and_benefits_heading=Other taxes and benefits that may be relevant to you
+label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
 
-label.task_heading=Your tasks
-label.task_paragraph=It can take up to 5 days for tasks to be completed.
-label.task_after_tasks=You may have other tasks not show here. You should check your taxes and benefits to find out if there''s anything else you need to do.
-label.task_no_tasks=Your task list is empty. You should check your taxes and benefits to find out if there''s anything else you need to do.
+label.task_heading=Refunds and tax you owe — Pay As You Earn (PAYE)
+label.task_paragraph=It can take up to 10 days for completed tasks to be removed from the list.
 
 fandf.banner.text=Mae’ch perthynas â’ch cynorthwyydd dibynadwy yn dod i ben am hanner nos ar {0}.
 fandf.banner.linkText=Dysgwch sut mae cynorthwywyr dibynadwy yn newid.

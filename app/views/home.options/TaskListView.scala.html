@@ -23,19 +23,13 @@
 
 @this(h2: H2,
 p: P,
-govukInsetText: GovukInsetText,
 govukTaskList: GovukTaskList)
 
 @(listOfTasks: Seq[Task])(implicit messages: play.api.i18n.Messages)
 
-@h2("label.task_heading")
 
-@if(listOfTasks.isEmpty){
-    @govukInsetText(InsetText(
-       content = Text(messages("label.task_no_tasks"))
-    ))
-} else {
-    @p(Text(messages("label.task_paragraph")))
+@if(listOfTasks.nonEmpty) {
+    @h2("label.task_heading")
     @govukTaskList(TaskList(
         items = listOfTasks.map{ task =>
                TaskListItem(
@@ -55,7 +49,5 @@ govukTaskList: GovukTaskList)
          },
         idPrefix = "task-list"
         ))
-    @govukInsetText(InsetText(
-      content = Text(messages("label.task_after_tasks"))
-    ))
+    @p(Text(messages("It can take up to 10 days for completed tasks to be removed from the list.")))
 }
