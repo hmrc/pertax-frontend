@@ -21,6 +21,7 @@ import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import models.admin.PayeToPegaRedirectToggle
+import play.api.Logging
 import play.api.mvc.*
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
@@ -31,12 +32,15 @@ class RedirectToPayeController @Inject() (
   cc: MessagesControllerComponents,
   featureFlagService: FeatureFlagService
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
-    extends PertaxBaseController(cc) {
+    extends PertaxBaseController(cc)
+    with Logging {
 
   def redirectToPaye: Action[AnyContent] =
     authJourney.authWithPersonalDetails.async { implicit request: UserRequest[AnyContent] =>
       featureFlagService.get(PayeToPegaRedirectToggle).map { toggle =>
+
         val destinationUrl = resolvePayeDestination(toggle.isEnabled)
+        logger.info(s"[RedirectToPayeController][redirectToPaye] Redirecting PAYE user to: $destinationUrl")
         Redirect(destinationUrl)
       }
     }
