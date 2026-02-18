@@ -293,4 +293,9 @@ class ConfigDecorator @Inject() (
   lazy val fandfBannerDate: LocalDate = LocalDate.parse(runModeConfiguration.get[String]("feature.fandfBannerDate"))
 
   lazy val taxCalcYearsToShow: Int = runModeConfiguration.get[Int]("feature.taxCalcYearsToShow")
+
+  lazy val mtdClaimFromPtaHandoffUrl: String =
+    runModeConfiguration.get[String]("external-url.mtd-claim-from-pta.url")
+
+  lazy val mtdGuidanceUrl: String = runModeConfiguration.get[String]("external-url.mtd-guidance.url")
 }
