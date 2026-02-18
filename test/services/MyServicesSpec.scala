@@ -264,6 +264,9 @@ class MyServicesSpec extends BaseSpec {
 
   "getMyServices" must {
     "return a list of items" in {
+      val yearsToShow = 4
+
+      when(mockConfigDecorator.taxCalcYearsToShow).thenReturn(yearsToShow)
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
         .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
       when(mockConfigDecorator.taiHost).thenReturn("tai/")
@@ -306,7 +309,7 @@ class MyServicesSpec extends BaseSpec {
           Some("Pay As You Earn (PAYE)")
         ),
         MyService(
-          s"Your tax calculation — PAYE ${TaxYear.current.back(4).startYear} to ${TaxYear.current.startYear}",
+          s"Your tax calculation — PAYE ${TaxYear.current.back(yearsToShow).startYear} to ${TaxYear.current.startYear}",
           "taxcalc/",
           "",
           Map(),
