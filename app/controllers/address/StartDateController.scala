@@ -114,18 +114,19 @@ class StartDateController @Inject() (
                   val newAddressIsInternational: Boolean = cache.submittedInternationalAddressChoiceDto
                     .exists(_.equals(OutsideUK))
 
-                  val newCountryCodeFromAddress: Option[String] = cache.submittedAddressDto.flatMap(_.subdivision)
+                  val newPostcode: Option[String] = cache.submittedAddressDto.flatMap(_.postcode)
 
                   implicit val hc: HeaderCarrier =
                     HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
                   for {
                     currentCountryCode <- addressCountryService.deriveCountryForPostcode(currentPostcode)
+                    newCountryCode     <- addressCountryService.deriveCountryForPostcode(newPostcode)
                     result             <- {
                       val overseasMove: Boolean = newAddressIsInternational
 
                       val scotlandBorderChange: Boolean =
-                        (currentCountryCode, newCountryCodeFromAddress) match {
+                        (currentCountryCode, newCountryCode) match {
                           case (Some(current), Some(next)) =>
                             normalizationUtils.movedAcrossScottishBorder(current, next)
                           case _                           => true
