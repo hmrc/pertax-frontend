@@ -291,4 +291,6 @@ class ConfigDecorator @Inject() (
 
   lazy val fandfBannerLink: String    = s"$fandfFrontendHost/trusted-helpers/trusted-helpers-interstitial"
   lazy val fandfBannerDate: LocalDate = LocalDate.parse(runModeConfiguration.get[String]("feature.fandfBannerDate"))
+
+  lazy val taxCalcYearsToShow: Int = runModeConfiguration.get[Int]("feature.taxCalcYearsToShow")
 }
