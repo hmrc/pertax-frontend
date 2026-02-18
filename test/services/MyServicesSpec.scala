@@ -32,6 +32,7 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.time.TaxYear
 
 import scala.concurrent.Future
 
@@ -263,6 +264,9 @@ class MyServicesSpec extends BaseSpec {
 
   "getMyServices" must {
     "return a list of items" in {
+      val yearsToShow = 4
+
+      when(mockConfigDecorator.taxCalcYearsToShow).thenReturn(yearsToShow)
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
         .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
       when(mockConfigDecorator.taiHost).thenReturn("tai/")
@@ -304,7 +308,14 @@ class MyServicesSpec extends BaseSpec {
           Some("Income"),
           Some("Pay As You Earn (PAYE)")
         ),
-        MyService("Tax Calculation", "taxcalc/", "", Map(), Some("Income"), Some("Tax Calculation")),
+        MyService(
+          s"Your tax calculation — PAYE ${TaxYear.current.back(yearsToShow).startYear} to ${TaxYear.current.startYear}",
+          "taxcalc/",
+          "",
+          Map(),
+          Some("Income"),
+          Some("Tax Calculation")
+        ),
         MyService(
           "Self Assessment",
           "/personal-account/self-assessment-summary",

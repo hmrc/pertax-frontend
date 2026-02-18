@@ -133,7 +133,11 @@ class MyServices @Inject() (
         if (taxCalcTileFlag.isEnabled) {
           Some(
             MyService(
-              messages("alertBannerShuttering.taxcalc"),
+              messages(
+                "label.tax_calc_option",
+                s"${current.back(configDecorator.taxCalcYearsToShow).startYear}",
+                s"${current.startYear}"
+              ),
               configDecorator.taxCalcHomePageUrl,
               "",
               gaAction = Some("Income"),

@@ -107,12 +107,14 @@
                 }
             </ul>
 
-            @h3("label.other_taxes_and_benefits_heading", classes = Some("govuk-!-margin-top-6"))
-            <ul class="govuk-list">
+            @if(viewModel.otherServices.nonEmpty) {
+                @h3("label.other_taxes_and_benefits_heading", classes = Some("govuk-!-margin-top-6"))
+                <ul class="govuk-list">
                 @for(otherService <- viewModel.otherServices) {
                     @otherServiceView(otherService)
                 }
-            </ul>
+                </ul>
+            }
 
             @viewModel.newsAndUpdates
 
