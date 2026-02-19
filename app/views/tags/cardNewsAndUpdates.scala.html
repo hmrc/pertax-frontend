@@ -22,18 +22,18 @@
         configDecorator: ConfigDecorator
 )
 
-<div class="card card--active card--news govuk-!-padding-2" @id.map { i => id="@i" }>
+<div class="card" @id.map { i => id="@i" }>
 
-    <@headingTag class="govuk-heading-s card-heading-news">
-        @heading
-    </@headingTag>
+    <div class="card-body card-body-news">
 
-    <ul class="govuk-list govuk-list--spaced">
-    @for(newsAndContentModel <- newsAndContentModelList) {
-        <li>
-            <a class="ga-track-anchor-click govuk-link govuk-link--no-visited-state" href="@configDecorator.displayNewsAndUpdatesUrl(newsAndContentModel.newsSectionName)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@newsAndContentModel.shortDescription">@newsAndContentModel.shortDescription</a>
-        </li>
-        }
-    </ul>
+        <@headingTag class="govuk-heading-s card-heading card-heading-news">
+            @heading
+        </@headingTag>
+
+
+        @for(newsAndContentModel <- newsAndContentModelList) {
+            <p class="govuk-body"><a class="ga-track-anchor-click govuk-link govuk-link--no-visited-state" href="@configDecorator.displayNewsAndUpdatesUrl(newsAndContentModel.newsSectionName)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@newsAndContentModel.shortDescription">@newsAndContentModel.shortDescription</a></p>
+            }
+    </div>
 
 </div>
