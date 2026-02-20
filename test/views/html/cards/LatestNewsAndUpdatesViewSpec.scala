@@ -76,15 +76,13 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
     "render the correct HTML" in {
       val expectedView =
         """
-          |<div class="card card--active card--news govuk-!-padding-2" id="news-card">
-          |  <h2 class="govuk-heading-s card-heading-news">
-          |    Latest news and updates
-          |  </h2>
-          |  <ul class="govuk-list govuk-list--spaced">
-          |   <li>
-          |     <a class="ga-track-anchor-click govuk-link govuk-link--no-visited-state" href="/personal-account/news/nicSection" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="1.25 percentage points uplift in National Insurance contributions">1.25 percentage points uplift in National Insurance contributions</a>
-          |   </li>
-          |  </ul>
+          |<div class="card" id="news-card">
+          |  <div class="card-body card-body-news">
+          |    <h2 class="govuk-heading-s card-heading card-heading-news">
+          |      Latest news and updates
+          |    </h2>
+          |    <p class="govuk-body"><a class="ga-track-anchor-click govuk-link govuk-link--no-visited-state" href="/personal-account/news/nicSection" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="1.25 percentage points uplift in National Insurance contributions">1.25 percentage points uplift in National Insurance contributions</a></p>
+          |  </div>
           |</div>
           |""".stripMargin.replaceAll("\\s", "")
 

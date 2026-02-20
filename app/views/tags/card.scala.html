@@ -24,23 +24,27 @@
         divAttr: Map[String, String] = Map.empty
 )(actionContent: Html)
 
-<div class="card @if(url) {card--active} govuk-!-padding-2" @id.map { i => id="@i" } @divAttr.map{attr => @attr._1="@attr._2"} @if(url) {
-    data-journey-click="link - click:@gaAction:@gaLabel"}>
+<div class="card" @id.map { i => id="@i" } @divAttr.map{attr => @attr._1="@attr._2"} >
 
-    <@headingTag class="govuk-heading-s govuk-!-margin-top-0">
-        @if(url) {
-            <a class="govuk-link govuk-link--no-underline card__link" href="@url">
-            @heading
-            </a>
-        } else {
-            @heading
-        }
-    </@headingTag>
+    <div class="card-body @if(url) {active}" @if(url) {
+        data-journey-click="link - click:@gaAction:@gaLabel"}>
 
-    @bodyContent
+        <@headingTag class="govuk-heading-s card-heading">
+            @if(url) {
+                <a class="govuk-link card-link" href="@url">
+                @heading
+                </a>
+            } else {
+                @heading
+            }
+        </@headingTag>
+
+        @bodyContent
+
+    </div>
 
     @if(actionContent.body.trim.nonEmpty) {
-        <div class="card__action govuk-!-padding-2">
+        <div class="card-action">
             @actionContent
         </div>
     }
