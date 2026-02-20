@@ -40,7 +40,7 @@ class PayAsYouEarnViewSpec extends ViewSpec {
 
       doc
         .getElementById("paye-card")
-        .getElementsByClass("card__link")
+        .getElementsByClass("card-link")
         .attr("href") mustBe controllers.routes.RedirectToPayeController.redirectToPaye.url
     }
 

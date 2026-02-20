@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.typedmap.TypedMap
-import play.api.mvc.{AnyContentAsEmpty, Cookie, Cookies, Headers, MessagesControllerComponents}
-import play.api.test.{FakeRequest, Injecting}
 import play.api.mvc.request.{Cell, RequestAttrKey}
+import play.api.mvc.*
+import play.api.test.{FakeRequest, Injecting}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.domain.{Generator, Nino}
@@ -71,12 +71,13 @@ trait BaseSpec
 
   val configValues: Map[String, Any] =
     Map(
-      "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "metrics.enabled"               -> false,
-      "auditing.enabled"              -> false
+      "cookie.encryption.key"               -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "sso.encryption.key"                  -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "queryParameter.encryption.key"       -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "json.encryption.key"                 -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "metrics.enabled"                     -> false,
+      "auditing.enabled"                    -> false,
+      "external-url.mtd-claim-from-pta.url" -> "http://localhost:9999/mtd-claim-from-pta/handoff"
     )
 
   val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]

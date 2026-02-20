@@ -22,5 +22,6 @@ autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
 
 @(scripts: Option[Html])(implicit request: Request[_])
 
+<script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
 @autocompleteJavascript()
 @scripts

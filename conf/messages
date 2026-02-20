@@ -855,3 +855,10 @@ label.task_no_tasks=Your task list is empty. You should check your taxes and ben
 
 fandf.banner.text=Your trusted helper relationship ends at midnight on {0}.
 fandf.banner.linkText=Find out how trusted helpers is changing
+
+label.mtdit.claim.p1.prefix=You are signed up for
+label.mtdit.claim.p1.linkText=Making Tax Digital for Income Tax
+label.mtdit.claim.p1.suffix=(opens in new tab). You need to add the service to your personal tax account before you can access it.
+label.mtdit.claim.question=Do you want to add Making Tax Digital for Income Tax to your personal tax account now?
+label.mtdit.claim.error=Select yes to add Making Tax Digital for Income Tax to your personal tax account
+head.label.mtdit.claim.error=Select yes to add Making Tax Digital for Income Tax to your personal tax account
