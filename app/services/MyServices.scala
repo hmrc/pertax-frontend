@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.*
-import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
+import models.admin.ShowTaxCalcTileToggle
 import play.api.i18n.Messages
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
@@ -41,7 +41,7 @@ class MyServices @Inject() (
   def getMyServices(implicit request: UserRequest[?], hc: HeaderCarrier, messages: Messages): Future[Seq[MyService]] = {
 
     val selfAssessmentF    = getSelfAssessment(request.saUserType, request.trustedHelper.isDefined)
-    val payAsYouEarnF      = getPayAsYouEarn(request.authNino, request.trustedHelper.isDefined)
+    val payAsYouEarnF      = getPayAsYouEarn()
     val taxCalcCardsF      = getTaxcalc(request.trustedHelper.isDefined)
     val trustedHelperF     = getTrustedHelper(request.authNino, request.trustedHelper.isDefined)
     val marriageAllowanceF = getMarriageAllowance(request.authNino, request.trustedHelper.isDefined)
@@ -94,36 +94,18 @@ class MyServices @Inject() (
       }
     })
 
-  def getPayAsYouEarn(nino: Nino, isTrustedHelper: Boolean)(implicit messages: Messages): Future[Option[MyService]] = {
-    val mdtpPaye = MyService(
-      messages("label.pay_as_you_earn_paye"),
-      s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do",
-      "",
-      gaAction = Some("Income"),
-      gaLabel = Some("Pay As You Earn (PAYE)")
+  def getPayAsYouEarn()(implicit messages: Messages): Future[Option[MyService]] =
+    Future.successful(
+      Some(
+        MyService(
+          messages("label.pay_as_you_earn_paye"),
+          controllers.routes.RedirectToPayeController.redirectToPaye.url,
+          "",
+          gaAction = Some("Income"),
+          gaLabel = Some("Pay As You Earn (PAYE)")
+        )
+      )
     )
-
-    featureFlagService.get(PayeToPegaRedirectToggle).map { toggle =>
-      if (toggle.isEnabled) {
-        val penultimateDigit = nino.nino.charAt(6).asDigit
-        if (configDecorator.payeToPegaRedirectList.contains(penultimateDigit) && !isTrustedHelper) {
-          Some(
-            MyService(
-              messages("label.pay_as_you_earn_paye"),
-              configDecorator.payeToPegaRedirectUrl,
-              "",
-              gaAction = Some("Income"),
-              gaLabel = Some("Pay As You Earn (PAYE)")
-            )
-          )
-        } else {
-          Some(mdtpPaye)
-        }
-      } else {
-        Some(mdtpPaye)
-      }
-    }
-  }
 
   def getTaxcalc(trustedHelperEnabled: Boolean)(implicit messages: Messages): Future[Option[MyService]] =
     if (trustedHelperEnabled) {
