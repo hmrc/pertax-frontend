@@ -96,68 +96,13 @@ class MyServicesSpec extends BaseSpec {
   }
 
   "getPayAsYouEarn" must {
-    "return an item with a link to pega" when {
-      "Trusted helper is disabled, nino is in the list and toggle is on" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
-        when(mockConfigDecorator.taiHost).thenReturn("tai/")
-        when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(
-          Seq(0)
-        )
-        when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("pega")
+    "return an item with redirect-to-paye link" in {
+      val result = service.getPayAsYouEarn().futureValue
 
-        val nino   = generatedNino.copy(nino = generatedNino.nino.updated(6, '0'))
-        val result = service.getPayAsYouEarn(nino, false).futureValue
-
-        result.map(_.link) mustBe Some("pega")
-      }
-    }
-
-    "return an item with a link to tai" when {
-      "Trusted helper is disabled, nino is not in the list and toggle is on" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
-        when(mockConfigDecorator.taiHost).thenReturn("tai/")
-        when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(
-          Seq(1)
-        )
-        when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("pega")
-
-        val nino   = generatedNino.copy(nino = generatedNino.nino.updated(6, '0'))
-        val result = service.getPayAsYouEarn(nino, false).futureValue
-
-        result.map(_.link) mustBe Some("tai//check-income-tax/what-do-you-want-to-do")
-      }
-
-      "Trusted helper is enabled, nino is in the list and toggle is on" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
-        when(mockConfigDecorator.taiHost).thenReturn("tai/")
-        when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(
-          Seq(0)
-        )
-        when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("pega")
-
-        val nino   = generatedNino.copy(nino = generatedNino.nino.updated(6, '0'))
-        val result = service.getPayAsYouEarn(nino, true).futureValue
-
-        result.map(_.link) mustBe Some("tai//check-income-tax/what-do-you-want-to-do")
-      }
-
-      "Trusted helper is disabled, nino is in the list and toggle is off" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = false)))
-        when(mockConfigDecorator.taiHost).thenReturn("tai/")
-        when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(
-          Seq(0)
-        )
-        when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("pega")
-
-        val nino   = generatedNino.copy(nino = generatedNino.nino.updated(6, '0'))
-        val result = service.getPayAsYouEarn(nino, false).futureValue
-
-        result.map(_.link) mustBe Some("tai//check-income-tax/what-do-you-want-to-do")
-      }
+      result.map(_.title) mustBe Some(messages("label.pay_as_you_earn_paye"))
+      result.map(_.link) mustBe Some(controllers.routes.RedirectToPayeController.redirectToPaye.url)
+      result.map(_.gaAction) mustBe Some(Some("Income"))
+      result.map(_.gaLabel) mustBe Some(Some("Pay As You Earn (PAYE)"))
     }
   }
 
@@ -302,7 +247,7 @@ class MyServicesSpec extends BaseSpec {
       result mustBe Seq(
         MyService(
           "Pay As You Earn (PAYE)",
-          "tai//check-income-tax/what-do-you-want-to-do",
+          controllers.routes.RedirectToPayeController.redirectToPaye.url,
           "",
           Map(),
           Some("Income"),

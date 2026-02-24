@@ -26,6 +26,8 @@ GET         /personal-account/self-assessment/sign-in-again                     
 GET         /personal-account/self-assessment/need-to-reset-password                   controllers.SaWrongCredentialsController.needToResetPassword()
 GET         /personal-account/self-assessment/find-your-user-id                        controllers.SaWrongCredentialsController.findYourUserId()
 
+GET         /personal-account/redirect-to-paye                                         controllers.RedirectToPayeController.redirectToPaye
+
 GET         /personal-account/lang/enGb                                                controllers.LanguageSwitchController.enGb()
 GET         /personal-account/lang/cyGb                                                controllers.LanguageSwitchController.cyGb()
 
