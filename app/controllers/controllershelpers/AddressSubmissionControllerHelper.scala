@@ -68,7 +68,10 @@ class AddressSubmissionControllerHelper @Inject() (
     def isStartDateError(error: UpstreamErrorResponse): Boolean =
       error.statusCode == 400 && error.message.toLowerCase().contains("start date")
 
-    val p85enabled: Boolean = !isUk(journeyData.submittedInternationalAddressChoiceDto)
+    val p85enabled: Boolean = journeyData.submittedInternationalAddressChoiceDto match {
+      case Some(choice) => !isUk(Some(choice))
+      case None         => true
+    }
 
     val startDateErrorResponse: Result =
       BadRequest(

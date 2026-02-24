@@ -41,35 +41,41 @@ case class AddressDto(
   def toAddress(`type`: String, startDate: LocalDate): Address = {
     val List(newLine2, newLine3, newline4OrTown, newline5OrCounty) =
       List(line2, line3, line4OrTown, line5OrCounty).flatten.map(Some(_)).padTo(4, None)
-    postcode match {
-      case Some(postcode) =>
-        Address(
-          Some(line1),
-          newLine2,
-          newLine3,
-          newline4OrTown,
-          newline5OrCounty,
-          Some(formatMandatoryPostCode(postcode)),
-          None,
-          Some(startDate),
-          None,
-          Some(`type`),
-          isRls = false
-        )
-      case None           =>
-        Address(
-          Some(line1),
-          newLine2,
-          newLine3,
-          newline4OrTown,
-          newline5OrCounty,
-          None,
-          country,
-          Some(startDate),
-          None,
-          Some(`type`),
-          isRls = false
-        )
+
+    val normalisedPostcode: Option[String] =
+      postcode.map(_.trim).filter(_.nonEmpty)
+
+    val isInternational: Boolean =
+      country.exists(_.trim.nonEmpty)
+
+    if (isInternational) {
+      Address(
+        Some(line1),
+        newLine2,
+        newLine3,
+        newline4OrTown,
+        newline5OrCounty,
+        None,
+        country,
+        Some(startDate),
+        None,
+        Some(`type`),
+        isRls = false
+      )
+    } else {
+      Address(
+        Some(line1),
+        newLine2,
+        newLine3,
+        newline4OrTown,
+        newline5OrCounty,
+        normalisedPostcode.map(formatMandatoryPostCode),
+        None,
+        Some(startDate),
+        None,
+        Some(`type`),
+        isRls = false
+      )
     }
   }
 
