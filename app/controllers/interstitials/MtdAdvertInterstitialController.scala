@@ -23,6 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.MtdUserType.*
+import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUserType, WrongCredentialsSelfAssessmentUser}
 import models.admin.{ClaimMtdFromPtaToggle, MTDUserStatusToggle}
 import play.api.Logging
 import play.api.i18n.Messages
@@ -65,11 +66,18 @@ class MtdAdvertInterstitialController @Inject() (
   private def blockedByWrapperRules(request: UserRequest[_]): Boolean =
     request.trustedHelper.nonEmpty || enrolmentsHelper.mtdEnrolmentStatus(request.enrolments).nonEmpty
 
+  private def validSaUser(saUserType: SelfAssessmentUserType) =
+    saUserType match {
+      case ActivatedOnlineFilerSelfAssessmentUser(_) => true
+      case NotEnrolledSelfAssessmentUser(_)          => true
+      case WrongCredentialsSelfAssessmentUser(_)     => true
+      case _                                         => false
+    }
+
   def displayMTDITPage: Action[AnyContent] = authenticate.async { implicit request =>
     if (blockedByWrapperRules(request)) {
       errorRenderer.futureError(FORBIDDEN)
     } else {
-
       val resultET: EitherT[Future, UpstreamErrorResponse, Result] =
         for {
           statusToggle <- featureFlagService.getAsEitherT(MTDUserStatusToggle)
@@ -103,7 +111,7 @@ class MtdAdvertInterstitialController @Inject() (
 
                                    val saGate: EitherT[Future, UpstreamErrorResponse, Unit] =
                                      EitherT.cond[Future](
-                                       request.isSaUserLoggedIntoCorrectAccount,
+                                       validSaUser(request.saUserType),
                                        (),
                                        UpstreamErrorResponse("User is NOT logged into the correct SA account", 404)
                                      )

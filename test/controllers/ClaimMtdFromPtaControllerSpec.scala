@@ -57,10 +57,16 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
   private val credentials = Credentials("providerId-123", "GovernmentGateway")
   private val handoffUrl  = "http://example.com/handoff"
 
-  private val correctSaUser: SelfAssessmentUserType =
+  private val activatedSaUser: SelfAssessmentUserType =
     ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1234567890"))
 
-  private val wrongSaUser: SelfAssessmentUserType =
+  private val notEnrolledSaUser: SelfAssessmentUserType =
+    NotEnrolledSelfAssessmentUser(SaUtr("1234567890"))
+
+  private val wrongCredentialSaUser: SelfAssessmentUserType =
+    WrongCredentialsSelfAssessmentUser(SaUtr("1234567890"))
+
+  private val nonFilerSaUser: SelfAssessmentUserType =
     NonFilerSelfAssessmentUser
 
   private val startUrl  = "/mtd/claim-from-pta/start"
@@ -153,8 +159,8 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
 
   "Calling ClaimMtdFromPtaController.start" must {
 
-    "return NotFound when user is not logged into correct SA account" in {
-      val controller = controllerFor(wrongSaUser)
+    "return NotFound when user is a non filer" in {
+      val controller = controllerFor(nonFilerSaUser)
 
       val result = controller.start()(startRequest)
       status(result) mustBe NOT_FOUND
@@ -165,7 +171,7 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
       stubClaimToggle(enabled = false)
       stubMtdUserType(NotEnrolledMtdUser)
 
-      val controller = controllerFor(correctSaUser)
+      val controller = controllerFor(activatedSaUser)
 
       val result = controller.start()(startRequest)
       status(result) mustBe SEE_OTHER
@@ -174,10 +180,28 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
       ) mustBe Some(controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url)
     }
 
-    "return OK when enrolment-store returns NotEnrolledMtdUser" in {
+    "return OK when enrolment-store returns NotEnrolledMtdUser for a ActivatedSaUser" in {
       stubMtdUserType(NotEnrolledMtdUser)
 
-      val controller = controllerFor(correctSaUser)
+      val controller = controllerFor(activatedSaUser)
+
+      val result = controller.start()(startRequest)
+      status(result) mustBe OK
+    }
+
+    "return OK when enrolment-store returns NotEnrolledMtdUser for a NotEnrolledSaUser" in {
+      stubMtdUserType(NotEnrolledMtdUser)
+
+      val controller = controllerFor(notEnrolledSaUser)
+
+      val result = controller.start()(startRequest)
+      status(result) mustBe OK
+    }
+
+    "return OK when enrolment-store returns NotEnrolledMtdUser for a WrongCredSaUser" in {
+      stubMtdUserType(NotEnrolledMtdUser)
+
+      val controller = controllerFor(wrongCredentialSaUser)
 
       val result = controller.start()(startRequest)
       status(result) mustBe OK
@@ -186,7 +210,7 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
     "redirect to MTDIT advert page when enrolment-store returns any other MTD user type" in {
       stubMtdUserType(NonFilerMtdUser)
 
-      val controller = controllerFor(correctSaUser)
+      val controller = controllerFor(activatedSaUser)
 
       val result = controller.start()(startRequest)
       status(result) mustBe SEE_OTHER
@@ -198,7 +222,7 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
   "Calling ClaimMtdFromPtaController.submit" must {
 
     "redirect to handoff url when yes is selected" in {
-      val controller = controllerFor(correctSaUser)
+      val controller = controllerFor(activatedSaUser)
 
       val result = controller.submit()(submitRequest(Some("true")))
 
@@ -207,7 +231,7 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
     }
 
     "redirect to PTA home when no is selected" in {
-      val controller = controllerFor(correctSaUser)
+      val controller = controllerFor(activatedSaUser)
 
       val result = controller.submit()(submitRequest(Some("false")))
 
@@ -216,14 +240,14 @@ class ClaimMtdFromPtaControllerSpec extends BaseSpec with OptionValues {
     }
 
     "return BAD_REQUEST when nothing is posted" in {
-      val controller = controllerFor(correctSaUser)
+      val controller = controllerFor(activatedSaUser)
 
       val result = controller.submit()(submitRequest())
       status(result) mustBe BAD_REQUEST
     }
 
     "return BAD_REQUEST when unexpected value is posted" in {
-      val controller = controllerFor(correctSaUser)
+      val controller = controllerFor(activatedSaUser)
 
       val result = controller.submit()(submitRequest(Some("unexpected")))
       status(result) mustBe BAD_REQUEST
