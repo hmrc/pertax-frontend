@@ -16,15 +16,21 @@
 
 package services
 
+import cats.data.EitherT
+import cats.implicits.*
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.*
+import models.MtdUserType.*
+import models.admin.MTDUserStatusToggle
+import play.api.Logging
 import play.api.i18n.Messages
-import uk.gov.hmrc.http.HeaderCarrier
-import services.FandFService
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.EnrolmentsHelper
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,75 +38,183 @@ import scala.concurrent.{ExecutionContext, Future}
 class OtherServices @Inject() (
   configDecorator: ConfigDecorator,
   fandFService: FandFService,
-  taiService: TaiService
+  taiService: TaiService,
+  enrolmentStoreProxyService: EnrolmentStoreProxyService,
+  featureFlagService: FeatureFlagService,
+  enrolmentsHelper: EnrolmentsHelper
 )(implicit ec: ExecutionContext)
-    extends CurrentTaxYear {
+    extends CurrentTaxYear
+    with Logging {
 
   def getOtherServices(implicit
-    request: UserRequest[?],
+    request: UserRequest[_],
     hc: HeaderCarrier,
     messages: Messages
   ): Future[Seq[OtherService]] = {
-    // todo MTD is missing
-    val selfAssessment    = getSelfAssessment(request.saUserType, request.trustedHelper.isDefined)
-    val childBenefits     = getChildBenefit(request.trustedHelper.isDefined)
-    val marriageAllowance = getMarriageAllowance(request.authNino, request.trustedHelper.isDefined)
-    val annualTaxSummary  = getAnnualTaxSummaries(request.trustedHelper.isDefined)
-    val trustedHelper     = getTrustedHelper(request.authNino, request.trustedHelper.isDefined)
+
+    val isTrustedHelperUser = request.trustedHelper.isDefined
 
     Future
-      .sequence(Seq(selfAssessment, childBenefits, marriageAllowance, annualTaxSummary, trustedHelper))
+      .sequence(
+        Seq(
+          getSelfAssessmentOtherServiceTile(request.saUserType, isTrustedHelperUser),
+          getMtdOtherServiceTile(isTrustedHelperUser),
+          getChildBenefitOtherServiceTile(isTrustedHelperUser),
+          getMarriageAllowanceOtherServiceTile(request.authNino, isTrustedHelperUser),
+          getAnnualTaxSummaryOtherServiceTile(isTrustedHelperUser),
+          getTrustedHelperOtherServiceTile(request.authNino, isTrustedHelperUser)
+        )
+      )
       .map(_.flatten)
   }
 
-  def getSelfAssessment(saUserType: SelfAssessmentUserType, trustedHelperEnabled: Boolean)(implicit
+  private def noneIfTrustedHelper[A](isTrustedHelperUser: Boolean)(fa: => Future[Option[A]]): Future[Option[A]] =
+    if (isTrustedHelperUser) Future.successful(None) else fa
+
+  private def mtdTile(linkUrl: String)(implicit messages: Messages): OtherService =
+    OtherService(
+      messages("label.mtd_for_it"),
+      linkUrl,
+      gaAction = Some("MTDIT"),
+      gaLabel = Some("Making Tax Digital for Income Tax")
+    )
+
+  private def saTile(title: String, linkUrl: String): OtherService =
+    OtherService(
+      title,
+      linkUrl,
+      gaAction = Some("Income"),
+      gaLabel = Some("Self Assessment")
+    )
+
+  private def fetchMtdUserStatus()(implicit
+    request: UserRequest[_],
+    hc: HeaderCarrier
+  ): EitherT[Future, UpstreamErrorResponse, MtdUser] =
+    for {
+      toggle <- featureFlagService.getAsEitherT(MTDUserStatusToggle)
+      status <-
+        if (!toggle.isEnabled)
+          EitherT.rightT[Future, UpstreamErrorResponse](NonFilerMtdUser: MtdUser)
+        else
+          enrolmentStoreProxyService.getMtdUserType(request.authNino)
+    } yield status
+
+  private def mtdLinkForStatus(status: MtdUser): Option[String] =
+    status match {
+      case NonFilerMtdUser =>
+        Some(controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url)
+
+      case NotEnrolledMtdUser =>
+        Some(controllers.routes.ClaimMtdFromPtaController.start.url)
+
+      case WrongCredentialsMtdUser(_, _) =>
+        Some(controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url)
+
+      case _ =>
+        None
+    }
+
+  def getMtdOtherServiceTile(
+    isTrustedHelperUser: Boolean
+  )(implicit
+    request: UserRequest[_],
+    hc: HeaderCarrier,
     messages: Messages
   ): Future[Option[OtherService]] =
-    Future.successful(if (trustedHelperEnabled) {
-      None
-    } else {
-      saUserType match {
-        case NotEnrolledSelfAssessmentUser(_) =>
-          Some(
-            OtherService(
-              messages("label.activate_your_self_assessment_registration"),
-              controllers.routes.SelfAssessmentController.requestAccess.url,
-              gaAction = Some("Income"),
-              gaLabel = Some("Self Assessment")
-            )
-          )
-        case _                                => None
-      }
-    })
+    noneIfTrustedHelper(isTrustedHelperUser) {
 
-  def getChildBenefit(trustedHelperEnabled: Boolean)(implicit messages: Messages): Future[Option[OtherService]] =
-    Future.successful(if (trustedHelperEnabled) {
-      None
-    } else {
-      Some(
-        OtherService(
-          messages("label.child_benefit"),
-          controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url,
-          gaAction = Some("Benefits"),
-          gaLabel = Some("Child Benefit")
+      if (enrolmentsHelper.mtdEnrolmentStatus(request.enrolments).nonEmpty) Future.successful(None)
+      else {
+        fetchMtdUserStatus()
+          .fold(
+            error => {
+              logger.warn(
+                s"[OtherServices][getMtdOtherServiceTile] Unable to determine MTD status: ${error.getMessage}"
+              )
+              None
+            },
+            status => mtdLinkForStatus(status).map(mtdTile)
+          )
+      }
+    }
+
+  def getSelfAssessmentOtherServiceTile(
+    saUserType: SelfAssessmentUserType,
+    isTrustedHelperUser: Boolean
+  )(implicit messages: Messages): Future[Option[OtherService]] =
+    noneIfTrustedHelper(isTrustedHelperUser) {
+      Future.successful {
+        saUserType match {
+          case NotEnrolledSelfAssessmentUser(_) =>
+            Some(
+              saTile(
+                title = messages("label.self_assessment"),
+                linkUrl = controllers.routes.SelfAssessmentController.requestAccess.url
+              )
+            )
+
+          case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
+            Some(
+              saTile(
+                title = messages("label.self_assessment"),
+                linkUrl = configDecorator.ssoToActivateSaEnrolmentPinUrl
+              )
+            )
+
+          case _ =>
+            None
+        }
+      }
+    }
+
+  def getChildBenefitOtherServiceTile(
+    isTrustedHelperUser: Boolean
+  )(implicit messages: Messages): Future[Option[OtherService]] =
+    noneIfTrustedHelper(isTrustedHelperUser) {
+      Future.successful(
+        Some(
+          OtherService(
+            messages("label.child_benefit"),
+            controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url,
+            gaAction = Some("Benefits"),
+            gaLabel = Some("Child Benefit")
+          )
         )
       )
-    })
+    }
 
-  def getMarriageAllowance(nino: Nino, isTrustedHelper: Boolean)(implicit
+  def getAnnualTaxSummaryOtherServiceTile(
+    isTrustedHelperUser: Boolean
+  )(implicit messages: Messages): Future[Option[OtherService]] =
+    noneIfTrustedHelper(isTrustedHelperUser) {
+      Future.successful(
+        Some(
+          OtherService(
+            messages("card.ats.heading"),
+            configDecorator.annualTaxSaSummariesTileLinkShow,
+            gaAction = Some("Tax Summaries"),
+            gaLabel = Some("Annual Tax Summary")
+          )
+        )
+      )
+    }
+
+  def getMarriageAllowanceOtherServiceTile(
+    nino: Nino,
+    isTrustedHelperUser: Boolean
+  )(implicit
     hc: HeaderCarrier,
-    request: UserRequest[?],
+    request: UserRequest[_],
     messages: Messages
-  ) =
-    if (isTrustedHelper) {
-      Future.successful(None)
-    } else {
-      taiService.getTaxComponentsList(nino, current.currentYear).map {
-        case taxComponents
-            if taxComponents
-              .contains("MarriageAllowanceReceived") || taxComponents.contains("MarriageAllowanceTransferred") =>
-          None
-        case _ =>
+  ): Future[Option[OtherService]] =
+    noneIfTrustedHelper(isTrustedHelperUser) {
+      taiService.getTaxComponentsList(nino, current.currentYear).map { components =>
+        val hasMarriageAllowance =
+          components.contains("MarriageAllowanceReceived") || components.contains("MarriageAllowanceTransferred")
+
+        if (hasMarriageAllowance) None
+        else {
           Some(
             OtherService(
               messages("title.marriage_allowance"),
@@ -109,51 +223,31 @@ class OtherServices @Inject() (
               gaLabel = Some("Marriage Allowance")
             )
           )
+        }
       }
     }
 
-  def getAnnualTaxSummaries(trustedHelperEnabled: Boolean)(implicit messages: Messages): Future[Option[OtherService]] =
-    Future.successful(if (trustedHelperEnabled) {
-      None
-    } else {
-      Some(
-        OtherService(
-          messages("card.ats.heading"),
-          configDecorator.annualTaxSaSummariesTileLinkShow,
-          gaAction = Some("Tax Summaries"),
-          gaLabel = Some("Annual Tax Summary")
-        )
-      )
-    })
-
-  def getTrustedHelper(nino: Nino, isTrustedHelper: Boolean)(implicit
+  def getTrustedHelperOtherServiceTile(
+    nino: Nino,
+    isTrustedHelperUser: Boolean
+  )(implicit
     hc: HeaderCarrier,
     messages: Messages
   ): Future[Option[OtherService]] =
-    if (isTrustedHelper) {
-      Future.successful(None)
-    } else {
-      fandFService
-        .isAnyFandFRelationships(nino)
-        .map {
-          case false =>
-            Some(
-              OtherService(
-                messages("label.trusted_helpers_heading"),
-                configDecorator.manageTrustedHelpersUrl,
-                gaAction = Some("Account"),
-                gaLabel = Some("Trusted helpers")
-              )
+    noneIfTrustedHelper(isTrustedHelperUser) {
+      fandFService.isAnyFandFRelationships(nino).map {
+        case false =>
+          Some(
+            OtherService(
+              messages("label.trusted_helpers_heading"),
+              configDecorator.manageTrustedHelpersUrl,
+              gaAction = Some("Account"),
+              gaLabel = Some("Trusted helpers")
             )
-          case true  => None
-        }
+          )
+        case true  => None
+      }
     }
 
-    /* todo implement MTD
-    gaAction = Some("MTDIT"),
-    gaLabel = Some("Making Tax Digital for Income Tax"),
-     */
-
   override def now: () => LocalDate = LocalDate.now
-
 }

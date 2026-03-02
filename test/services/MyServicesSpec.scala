@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,18 @@ package services
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
 import models.*
+import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import testUtils.BaseSpec
 import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.ConfidenceLevel
+import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -43,226 +44,155 @@ class MyServicesSpec extends BaseSpec {
   private val mockFandFService: FandFService             = mock[FandFService]
   private val mockTaiService: TaiService                 = mock[TaiService]
 
-  private lazy val service: MyServices          =
+  private lazy val service: MyServices =
     new MyServices(mockConfigDecorator, mockFeatureFlagService, mockFandFService, mockTaiService)
-  implicit lazy val messages: Messages          = MessagesImpl(Lang("en"), messagesApi)
-  implicit val request: UserRequest[AnyContent] = UserRequest(
-    generatedNino,
-    NonFilerSelfAssessmentUser,
-    Credentials("credId", "GovernmentGateway"),
-    ConfidenceLevel.L200,
-    None,
-    Set.empty,
-    None,
-    None,
-    FakeRequest(),
-    UserAnswers.empty
-  )
+
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockConfigDecorator)
     reset(mockFeatureFlagService)
+    reset(mockFandFService)
+    reset(mockTaiService)
   }
 
-  "getSelfAssessment" must {
-    val statuses = Map(
-      ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11"))       -> Some("/personal-account/self-assessment-summary"),
-      NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")) -> Some("a/url"),
-      WrongCredentialsSelfAssessmentUser(SaUtr("11"))           -> Some(
-        "/personal-account/self-assessment/signed-in-wrong-account"
-      ),
-      NotEnrolledSelfAssessmentUser(SaUtr("11"))                -> None,
-      NonFilerSelfAssessmentUser                                -> None
+  private def buildRequest(
+    saUserType: SelfAssessmentUserType,
+    enrolments: Set[Enrolment] = Set.empty,
+    trustedHelper: Option[TrustedHelper] = None
+  ): UserRequest[AnyContent] =
+    UserRequest(
+      authNino = generatedNino,
+      saUserType = saUserType,
+      credentials = Credentials("credId", "GovernmentGateway"),
+      confidenceLevel = ConfidenceLevel.L200,
+      trustedHelper = trustedHelper,
+      enrolments = enrolments,
+      profile = None,
+      breadcrumb = None,
+      request = FakeRequest(),
+      userAnswers = UserAnswers.empty
     )
 
-    statuses.foreach { case (saStatus, expected) =>
-      s"return an item or None for $saStatus" in {
-        when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("a/url")
+  private val mtdItsaEnrolment: Enrolment =
+    Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "11111")), "Activated")
 
-        val result = service.getSelfAssessment(saStatus, false).futureValue
-        result.map(_.link) mustBe expected
-      }
-    }
+  "getMyServices" must {
 
-    statuses.foreach { case (saStatus, _) =>
-      s"return None when trustHelper is enabled for $saStatus" in {
-        when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("a/url")
+    "include Self Assessment tile for ActivatedOnlineFilerSelfAssessmentUser when user has no MTD ITSA enrolment" in {
+      val yearsToShow = 4
 
-        val result = service.getSelfAssessment(saStatus, true).futureValue
-        result.map(_.link) mustBe None
-      }
-    }
-  }
+      when(mockConfigDecorator.taxCalcYearsToShow).thenReturn(yearsToShow)
 
-  "getPayAsYouEarn" must {
-    "return an item with a link to pega" when {
-      "Trusted helper is disabled, nino is in the list and toggle is on" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
-        when(mockConfigDecorator.taiHost).thenReturn("tai/")
-        when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(
-          Seq(0)
-        )
-        when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("pega")
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
+        .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
+      when(mockConfigDecorator.taiHost).thenReturn("tai/")
+      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq.empty)
+      when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("pega")
 
-        val nino   = generatedNino.copy(nino = generatedNino.nino.updated(6, '0'))
-        val result = service.getPayAsYouEarn(nino, false).futureValue
-
-        result.map(_.link) mustBe Some("pega")
-      }
-    }
-
-    "return an item with a link to tai" when {
-      "Trusted helper is disabled, nino is not in the list and toggle is on" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
-        when(mockConfigDecorator.taiHost).thenReturn("tai/")
-        when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(
-          Seq(1)
-        )
-        when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("pega")
-
-        val nino   = generatedNino.copy(nino = generatedNino.nino.updated(6, '0'))
-        val result = service.getPayAsYouEarn(nino, false).futureValue
-
-        result.map(_.link) mustBe Some("tai//check-income-tax/what-do-you-want-to-do")
-      }
-
-      "Trusted helper is enabled, nino is in the list and toggle is on" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
-        when(mockConfigDecorator.taiHost).thenReturn("tai/")
-        when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(
-          Seq(0)
-        )
-        when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("pega")
-
-        val nino   = generatedNino.copy(nino = generatedNino.nino.updated(6, '0'))
-        val result = service.getPayAsYouEarn(nino, true).futureValue
-
-        result.map(_.link) mustBe Some("tai//check-income-tax/what-do-you-want-to-do")
-      }
-
-      "Trusted helper is disabled, nino is in the list and toggle is off" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
-          .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = false)))
-        when(mockConfigDecorator.taiHost).thenReturn("tai/")
-        when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(
-          Seq(0)
-        )
-        when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("pega")
-
-        val nino   = generatedNino.copy(nino = generatedNino.nino.updated(6, '0'))
-        val result = service.getPayAsYouEarn(nino, false).futureValue
-
-        result.map(_.link) mustBe Some("tai//check-income-tax/what-do-you-want-to-do")
-      }
-    }
-  }
-
-  "getTaxcalc" must {
-    "return an item" in {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
       when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("taxcalc/")
 
-      val result = service.getTaxcalc(false).futureValue
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(Future.successful(List.empty))
+      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(Future.successful(true))
+      when(mockConfigDecorator.manageTrustedHelpersUrl).thenReturn("/fandf")
 
-      result.map(_.link) mustBe Some("taxcalc/")
-    }
+      val req = buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
+      val res = service.getMyServices(req).futureValue
 
-    "return None" when {
-      "trusted helper is defined" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
-          .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
-        when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("taxcalc/")
-
-        val result = service.getTaxcalc(true).futureValue
-
-        result mustBe None
-      }
-
-      "feature flag is disabled" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
-          .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = false)))
-        when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("taxcalc/")
-
-        val result = service.getTaxcalc(false).futureValue
-
-        result mustBe None
-      }
-    }
-  }
-
-  "getNationalInsuranceCard" must {
-    "return an item" in {
-      val result = service.getNationalInsuranceCard.futureValue
-      result.map(_.link) mustBe Some("/personal-account/your-national-insurance-state-pension")
-    }
-  }
-
-  "getMarriageAllowance" must {
-    "return None" when {
-      "trusted helper is active" in {
-        val result = service.getMarriageAllowance(generatedNino, true).futureValue
-
-        result mustBe None
-        verify(mockTaiService, times(0)).getTaxComponentsList(any(), any())(any(), any())
-      }
-
-      "trusted helper is not active and there is no tax component for marriage allowance" in {
-        when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
-          Future.successful(List.empty)
-        )
-        val result = service.getMarriageAllowance(generatedNino, false).futureValue
-
-        result mustBe None
-      }
-    }
-
-    "return an item with MarriageAllowanceTransferred" in {
-      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
-        Future.successful(List("MarriageAllowanceTransferred"))
-      )
-
-      val result = service.getMarriageAllowance(generatedNino, false).futureValue
-
-      result mustBe Some(
-        MyService(
-          "Marriage Allowance",
-          "You currently transfer part of your Personal Allowance to your partner.",
-          "/marriage-allowance-application/history",
-          Map(),
-          Some("Benefits"),
-          Some("Marriage Allowance"),
-          None
-        )
+      res.map(_.link) must contain("/personal-account/self-assessment-summary")
+      res.find(_.gaLabel.contains("Self Assessment")).map(_.link) mustBe Some(
+        "/personal-account/self-assessment-summary"
       )
     }
 
-    "return an item with MarriageAllowanceReceived" in {
-      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
-        Future.successful(List("MarriageAllowanceReceived"))
+    "include combined tile (MTD IT & SA) for ActivatedOnlineFilerSelfAssessmentUser when user has MTD ITSA enrolment" in {
+      val yearsToShow = 4
+
+      when(mockConfigDecorator.taxCalcYearsToShow).thenReturn(yearsToShow)
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
+        .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = false)))
+      when(mockConfigDecorator.taiHost).thenReturn("tai/")
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = false)))
+
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(Future.successful(List.empty))
+      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(Future.successful(false))
+      when(mockConfigDecorator.manageTrustedHelpersUrl).thenReturn("/fandf")
+
+      val req = buildRequest(
+        ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")),
+        enrolments = Set(mtdItsaEnrolment)
       )
 
-      val result = service.getMarriageAllowance(generatedNino, false).futureValue
+      val res = service.getMyServices(req).futureValue
 
-      result mustBe Some(
-        MyService(
-          "Marriage Allowance",
-          "Your partner currently transfers part of their Personal Allowance to you.",
-          "/marriage-allowance-application/history",
-          Map(),
-          Some("Benefits"),
-          Some("Marriage Allowance"),
-          None
-        )
+      res.exists(_.gaLabel.contains("MTD IT & SA")) mustBe true
+    }
+
+    "include combined tile (MTD IT & SA) linking to SA wrong-credentials journey for WrongCredentialsSelfAssessmentUser when user has MTD ITSA enrolment" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
+        .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = false)))
+      when(mockConfigDecorator.taiHost).thenReturn("tai/")
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = false)))
+
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(Future.successful(List.empty))
+      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(Future.successful(false))
+      when(mockConfigDecorator.manageTrustedHelpersUrl).thenReturn("/fandf")
+
+      val req = buildRequest(
+        WrongCredentialsSelfAssessmentUser(SaUtr("11")),
+        enrolments = Set(mtdItsaEnrolment)
+      )
+
+      val res = service.getMyServices(req).futureValue
+
+      res.find(_.gaLabel.contains("MTD IT & SA")).map(_.link) mustBe Some(
+        "/personal-account/self-assessment/signed-in-wrong-account"
       )
     }
-  }
 
-  "getMyServices" must {
+    "NOT include Self Assessment tile in My taxes for NotYetActivatedOnlineFilerSelfAssessmentUser" in {
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
+        .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = false)))
+      when(mockConfigDecorator.taiHost).thenReturn("tai/")
+
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = false)))
+
+      when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("a/url")
+
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(Future.successful(List.empty))
+      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(Future.successful(false))
+
+      val req = buildRequest(NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
+      val res = service.getMyServices(req).futureValue
+
+      res.exists(_.gaLabel.contains("Self Assessment")) mustBe false
+      res.map(_.link) must not contain "a/url"
+    }
+
+    "return None items when trusted helper is enabled" in {
+      val req = buildRequest(
+        ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")),
+        trustedHelper = Some(TrustedHelper("Principal", "Trusted helper", "return-url", Some(generatedNino.nino)))
+      )
+      when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
+        .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = false)))
+      when(mockConfigDecorator.taiHost).thenReturn("tai/")
+
+      val res = service.getMyServices(req).futureValue
+
+      verify(mockTaiService, times(0)).getTaxComponentsList(any(), any())(any(), any())
+      res.exists(_.gaLabel.contains("Self Assessment")) mustBe false
+    }
+
     "return a list of items" in {
       val yearsToShow = 4
 
@@ -270,33 +200,16 @@ class MyServicesSpec extends BaseSpec {
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(PayeToPegaRedirectToggle)))
         .thenReturn(Future.successful(FeatureFlag(PayeToPegaRedirectToggle, isEnabled = true)))
       when(mockConfigDecorator.taiHost).thenReturn("tai/")
-      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(
-        Seq.empty
-      )
+      when(mockConfigDecorator.payeToPegaRedirectList).thenReturn(Seq.empty)
       when(mockConfigDecorator.payeToPegaRedirectUrl).thenReturn("pega")
       when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
       when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("taxcalc/")
-      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
-        Future.successful(List.empty)
-      )
-      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(
-        Future.successful(true)
-      )
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(Future.successful(List.empty))
+      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(Future.successful(true))
       when(mockConfigDecorator.manageTrustedHelpersUrl).thenReturn("/fandf")
 
-      val request = UserRequest(
-        generatedNino,
-        ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")),
-        Credentials("test", "test"),
-        ConfidenceLevel.L200,
-        None,
-        Set.empty,
-        None,
-        None,
-        FakeRequest(),
-        UserAnswers("id")
-      )
+      val request = buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
       val result  = service.getMyServices(request).futureValue
 
       result mustBe Seq(
