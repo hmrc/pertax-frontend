@@ -215,7 +215,7 @@ class MyServicesSpec extends BaseSpec {
       result mustBe Seq(
         MyService(
           "Pay As You Earn (PAYE)",
-          "tai//check-income-tax/what-do-you-want-to-do",
+          controllers.routes.RedirectToPayeController.redirectToPaye.url,
           "",
           Map(),
           Some("Income"),

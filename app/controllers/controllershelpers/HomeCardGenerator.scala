@@ -96,10 +96,8 @@ class HomeCardGenerator @Inject() (
       Future.successful(Nil)
     }
 
-  def getPayAsYouEarnCard(implicit request: UserRequest[_], messages: Messages): Future[HtmlFormat.Appendable] =
-    featureFlagService.get(PayeToPegaRedirectToggle).map { case FeatureFlag(_, isEnabled) =>
-      payAsYouEarnView(shouldUsePegaRouting = isEnabled)
-    }
+  def getPayAsYouEarnCard(implicit messages: Messages): Future[HtmlFormat.Appendable] =
+    Future.successful(payAsYouEarnView())
 
   private def displaySACall: Call = controllers.interstitials.routes.InterstitialController.displaySelfAssessment
 

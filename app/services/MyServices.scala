@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.*
-import models.admin.{PayeToPegaRedirectToggle, ShowTaxCalcTileToggle}
+import models.admin.ShowTaxCalcTileToggle
 import play.api.i18n.Messages
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
@@ -43,7 +43,7 @@ class MyServices @Inject() (
     val isTrustedHelperUser = request.trustedHelper.isDefined
 
     val selfAssessmentTileF    = getSelfAssessmentOrCombinedMtdTile(request.saUserType, isTrustedHelperUser)
-    val payAsYouEarnTileF      = getPayAsYouEarnTile(request.authNino, isTrustedHelperUser)
+    val payAsYouEarnTileF      = getPayAsYouEarnTile()
     val taxCalculationTileF    = getTaxCalculationTile(isTrustedHelperUser)
     val trustedHelperTileF     = getTrustedHelperTile(request.authNino, isTrustedHelperUser)
     val marriageAllowanceTileF = getMarriageAllowanceTile(request.authNino, isTrustedHelperUser)
@@ -113,41 +113,18 @@ class MyServices @Inject() (
       }
     }
 
-  private def getPayAsYouEarnTile(nino: Nino, isTrustedHelperUser: Boolean)(implicit
-    messages: Messages
-  ): Future[Option[MyService]] = {
-    val mdtpPayeTile = MyService(
-      messages("label.pay_as_you_earn_paye"),
-      s"${configDecorator.taiHost}/check-income-tax/what-do-you-want-to-do",
-      "",
-      gaAction = Some("Income"),
-      gaLabel = Some("Pay As You Earn (PAYE)")
+  def getPayAsYouEarnTile()(implicit messages: Messages): Future[Option[MyService]] =
+    Future.successful(
+      Some(
+        MyService(
+          messages("label.pay_as_you_earn_paye"),
+          controllers.routes.RedirectToPayeController.redirectToPaye.url,
+          "",
+          gaAction = Some("Income"),
+          gaLabel = Some("Pay As You Earn (PAYE)")
+        )
+      )
     )
-
-    featureFlagService.get(PayeToPegaRedirectToggle).map { payeToPegaToggle =>
-      if (!payeToPegaToggle.isEnabled) {
-        Some(mdtpPayeTile)
-      } else {
-        val penultimateDigit     = nino.nino.charAt(6).asDigit
-        val shouldRedirectToPega =
-          configDecorator.payeToPegaRedirectList.contains(penultimateDigit) && !isTrustedHelperUser
-
-        if (shouldRedirectToPega) {
-          Some(
-            MyService(
-              messages("label.pay_as_you_earn_paye"),
-              configDecorator.payeToPegaRedirectUrl,
-              "",
-              gaAction = Some("Income"),
-              gaLabel = Some("Pay As You Earn (PAYE)")
-            )
-          )
-        } else {
-          Some(mdtpPayeTile)
-        }
-      }
-    }
-  }
 
   private def getTaxCalculationTile(
     isTrustedHelperUser: Boolean
