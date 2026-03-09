@@ -117,12 +117,12 @@ class TasksServiceSpec extends BaseSpec {
 
         result mustBe Seq(
           Task(
-            "HMRC owes you a £84.23 refund for year 2026 to 2027.",
+            "HMRC owes you a £84.23 refund for year 2026 to 2027",
             TaskStatus.Incomplete,
             "http://link/to/taxcalc",
             None
           ),
-          Task("You owe HMRC £500 for tax year 2026 to 2027.", TaskStatus.Incomplete, "http://link/to/taxcalc", None)
+          Task("You owe £500 for tax year 2026 to 2027", TaskStatus.Incomplete, "http://link/to/taxcalc", None)
         )
       }
     }

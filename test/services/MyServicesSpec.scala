@@ -270,7 +270,7 @@ class MyServicesSpec extends BaseSpec {
           Some("Self Assessment")
         ),
         MyService(
-          "Your National Insurance and State Pension",
+          "National Insurance and State Pension",
           "/personal-account/your-national-insurance-state-pension",
           "",
           Map(),
