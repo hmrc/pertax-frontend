@@ -24,14 +24,14 @@ class NinoUtilSpec extends BaseSpec {
   "NinoUtil.shouldShowNewLayoutForNino" should {
 
     "return true when the last numeric digit matches the config digit (default 9)" in {
-      val config   = Configuration("feature.onboarding-by-nino.lastNumericDigit" -> 9)
+      val config   = Configuration("onboarding.by.nino.lastNumericDigit" -> Seq(4, 9))
       val ninoUtil = new NinoUtil()(config)
 
       ninoUtil.shouldShowNewLayoutForNino("AB123459C") shouldBe true
     }
 
     "return false when the last numeric digit does not match the config digit (default 9)" in {
-      val config   = Configuration("feature.onboarding-by-nino.lastNumericDigit" -> 9)
+      val config   = Configuration("onboarding.by.nino.lastNumericDigit" -> Seq(4, 9))
       val ninoUtil = new NinoUtil()(config)
 
       ninoUtil.shouldShowNewLayoutForNino("AB123458C") shouldBe false
@@ -46,7 +46,7 @@ class NinoUtilSpec extends BaseSpec {
     }
 
     "handle custom config digit values" in {
-      val config   = Configuration("feature.onboarding-by-nino.lastNumericDigit" -> 5)
+      val config   = Configuration("onboarding.by.nino.lastNumericDigit" -> Seq(1, 2, 5))
       val ninoUtil = new NinoUtil()(config)
 
       ninoUtil.shouldShowNewLayoutForNino("AB123455C") shouldBe true

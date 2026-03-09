@@ -17,6 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
+import config.ConfigDecorator
 import connectors.FandFConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
@@ -54,7 +55,7 @@ class HomeController @Inject() (
   rlsInterruptHelper: RlsInterruptHelper,
   alertBannerHelper: AlertBannerHelper,
   fandFConnector: FandFConnector
-)(implicit ec: ExecutionContext)
+)(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
 
@@ -180,10 +181,12 @@ class HomeController @Inject() (
       if (!toggle.isEnabled) {
         oldHomePage
       } else {
-        if (!isNewDesign) {
-          oldHomePage
-        } else {
+        val shouldShowNewLayoutForNino = configDecorator.onboardingByNiNoLastNumericDigitList
+          .contains(request.helpeeNinoOrElse.nino.charAt(6).asDigit)
+        if (shouldShowNewLayoutForNino || isNewDesign) {
           newHomePage
+        } else {
+          oldHomePage
         }
       }
     }
