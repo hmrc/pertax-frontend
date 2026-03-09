@@ -60,7 +60,7 @@ class TasksService @Inject() (
                       Some(
                         Task(
                           messages(
-                            "newLabel.you_owe_hmrc",
+                            "newLabel.you_owe",
                             amount,
                             card.startTaxYear.toString,
                             (card.startTaxYear + 1).toString
