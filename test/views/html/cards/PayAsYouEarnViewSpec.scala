@@ -25,7 +25,6 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import repositories.JourneyCacheRepository
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import views.html.ViewSpec
 import views.html.cards.home.PayAsYouEarnView

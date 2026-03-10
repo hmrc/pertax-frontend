@@ -30,7 +30,7 @@ import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import repositories.JourneyCacheRepository
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 

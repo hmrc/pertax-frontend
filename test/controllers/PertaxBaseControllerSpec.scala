@@ -23,7 +23,7 @@ import play.api.mvc.{AnyContent, AnyContentAsEmpty, MessagesControllerComponents
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{BaseSpec, Fixtures}
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.sca.models.TrustedHelper
 
 class PertaxBaseControllerSpec extends BaseSpec with I18nSupport {
   private val cc = app.injector.instanceOf[MessagesControllerComponents]
