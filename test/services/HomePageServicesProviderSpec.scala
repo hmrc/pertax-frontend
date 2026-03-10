@@ -28,7 +28,7 @@ import play.api.test.FakeRequest
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -55,7 +55,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
   private def buildRequest(
     saUserType: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
-    trustedHelper: Option[uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper] = None
+    trustedHelper: Option[uk.gov.hmrc.sca.models.TrustedHelper] = None
   ): UserRequest[AnyContent] =
     UserRequest(
       authNino = generatedNino,

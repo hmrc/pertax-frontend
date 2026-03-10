@@ -38,7 +38,7 @@ import services.CitizenDetailsService
 import services.partials.{FormPartialService, SaPartialService}
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures}
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.UpstreamErrorResponse

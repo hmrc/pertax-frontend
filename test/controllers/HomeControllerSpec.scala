@@ -39,7 +39,8 @@ import services.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
 import testUtils.{BaseSpec, Fixtures, WireMockHelper}
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.sca.models.TrustedHelper
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import util.AlertBannerHelper

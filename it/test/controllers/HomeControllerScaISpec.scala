@@ -33,7 +33,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{SessionKeys, UpstreamErrorResponse}
