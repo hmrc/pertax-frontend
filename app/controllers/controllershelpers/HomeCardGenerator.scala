@@ -26,13 +26,14 @@ import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, Call}
 import play.twirl.api.{Html, HtmlFormat}
 import services.partials.TaxCalcPartialService
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.sca.logging.Logging
+import uk.gov.hmrc.sca.models.TrustedHelper
 import util.DateTimeTools.current
 import util.EnrolmentsHelper
 import views.html.cards.home.*
+
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
