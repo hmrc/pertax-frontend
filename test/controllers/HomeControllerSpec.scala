@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.ConfigDecorator
 import connectors.FandFConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
@@ -38,7 +39,7 @@ import play.twirl.api.Html
 import services.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
-import testUtils.{BaseSpec, Fixtures, WireMockHelper}
+import testUtils.{ActionBuilderFixture, BaseSpec, Fixtures, WireMockHelper}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderNames
@@ -61,6 +62,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   val mockMyServices: MyServices                       = mock[MyServices]
   val mockOtherServices: OtherServices                 = mock[OtherServices]
   val mockTasksService: TasksService                   = mock[TasksService]
+  val mockConfigDecorator: ConfigDecorator             = mock[ConfigDecorator]
 
   lazy val appBuilder: GuiceApplicationBuilder = localGuiceApplicationBuilder()
     .overrides(
@@ -75,8 +77,18 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       bind[FandFConnector].toInstance(mockFandfConnector),
       bind[MyServices].toInstance(mockMyServices),
       bind[OtherServices].toInstance(mockOtherServices),
-      bind[TasksService].toInstance(mockTasksService)
+      bind[TasksService].toInstance(mockTasksService),
+      bind[ConfigDecorator].toInstance(mockConfigDecorator)
     )
+
+  private def stubConfig(onboardingList: Seq[Int]): Unit =
+    when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(onboardingList)
+
+  private def stubAuthJourney(nino: String, trustedHelper: Option[TrustedHelper] = None): Unit =
+    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+        block(buildUserRequest(request = request, authNino = Nino(nino), trustedHelper = trustedHelper))
+    })
 
   private val taxComponents = List("EmployerProvidedServices", "PersonalPensionPayments")
 
@@ -94,6 +106,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     reset(mockMyServices)
     reset(mockOtherServices)
     reset(mockFandfConnector)
+    reset(mockAuthJourney, mockConfigDecorator)
 
     when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
       .thenReturn(Future.successful(WithinPeriod))
@@ -315,6 +328,35 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
   }
 
   "Calling HomeController.index with layout toggle on" must {
+
+    "Return the new home page design when NINO last numeric digit is in onboarding list" in {
+      val path             = "/personal-account"
+      val newDesignRequest = FakeRequest("GET", path)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      val matchingNino = "AA000055A"
+
+      stubConfig(onboardingList = Seq(5))
+      stubAuthJourney(matchingNino)
+
+      // Mock the feature flag to be enabled
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val appLocal: Application = appBuilder.build()
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(newDesignRequest)
+      status(result) mustBe OK
+
+      val htmlContent = contentAsString(result)
+      htmlContent must include("""id="taxes-and-benefits-heading""")
+
+      val content                 = Jsoup.parse(htmlContent)
+      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
+      taxesAndBenefitsElement must not be null
+    }
 
     "Return the new home page design when newDesign parameter is true " in {
       val path             = "/personal-account?newDesign=true"
