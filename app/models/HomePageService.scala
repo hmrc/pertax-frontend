@@ -16,13 +16,15 @@
 
 package models
 
-final case class OtherService(
-  title: String,
-  link: String,
-  divAttr: Map[String, String] = Map.empty,
-  gaAction: Option[String] = None,
-  gaLabel: Option[String] = None,
-  id: Option[String] = None
-) extends HomePageService {
-  override val category: HomePageServiceCategory = HomePageServiceCategory.OtherServices
+sealed trait HomePageServiceCategory
+
+object HomePageServiceCategory {
+  case object MyServices extends HomePageServiceCategory
+  case object OtherServices extends HomePageServiceCategory
+}
+
+trait HomePageService {
+  def title: String
+  def link: String
+  def category: HomePageServiceCategory
 }
