@@ -388,7 +388,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
-      val matchingNino = "AA000066B"
+      val notMatchingNino = "AA000066B"
 
       val newLayoutHtmlString = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
 
@@ -403,7 +403,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
                     block(
                       buildUserRequest(
                         request = request,
-                        authNino = Nino(matchingNino),
+                        authNino = Nino(notMatchingNino),
                         trustedHelper = None
                       )
                     )
