@@ -45,6 +45,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.AlertBannerHelper
 
 import scala.concurrent.Future
@@ -78,19 +79,12 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       bind[FandFConnector].toInstance(mockFandfConnector),
       bind[MyServices].toInstance(mockMyServices),
       bind[OtherServices].toInstance(mockOtherServices),
-      bind[TasksService].toInstance(mockTasksService),
-      bind[ConfigDecorator].toInstance(mockConfigDecorator),
-      bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
+      bind[TasksService].toInstance(mockTasksService)
     )
-
-//    private def stubConfig(onboardingList: Seq[Int]): Unit =
-//      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(onboardingList)
 
   private val taxComponents = List("EmployerProvidedServices", "PersonalPensionPayments")
 
-  override implicit lazy val app: Application =
-    appBuilder.build()
-  implicit lazy val messages: Messages        = MessagesImpl(Lang("en"), messagesApi)
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -151,8 +145,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     )
 
     when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(Seq.empty)
-
-    when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/personal-account")
   }
 
   def currentRequest[A]: Request[A] =
@@ -329,7 +321,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
   "Calling HomeController.index with layout toggle on" must {
 
-    /*    "Return the new home page design when NINO last numeric digit is in onboarding list" in {
+    "Return the new home page design when NINO last numeric digit is in onboarding list" in {
       val path             = "/personal-account"
       val newDesignRequest = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
@@ -337,14 +329,46 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
       val matchingNino = "AA000055A"
 
-      stubConfig(onboardingList = Seq(5))
-      stubAuthJourney(matchingNino)
+      val appLocal: Application =
+        localGuiceApplicationBuilder()
+          .overrides(
+            bind[AuthJourney].toInstance(new AuthJourney {
+              override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+                new testUtils.ActionBuilderFixture {
+                  override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
+                    : Future[Result] =
+                    block(
+                      buildUserRequest(
+                        request = request,
+                        authNino = Nino(matchingNino),
+                        trustedHelper = None
+                      )
+                    )
+                }
+            }),
+            bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
+            bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
+            bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
+            bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+            bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
+            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
+            bind[TaiService].toInstance(mockTaiService),
+            bind[FandFConnector].toInstance(mockFandfConnector),
+            bind[MyServices].toInstance(mockMyServices),
+            bind[OtherServices].toInstance(mockOtherServices),
+            bind[TasksService].toInstance(mockTasksService),
+            bind[ConfigDecorator].toInstance(mockConfigDecorator),
+            bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
+          )
+          .build()
 
       // Mock the feature flag to be enabled
       when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
 
-      val appLocal: Application = appBuilder.build()
+      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(Seq(5))
+
+      when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/personal-account/signed-out")
 
       val controller: HomeController = appLocal.injector.instanceOf[HomeController]
       val result: Future[Result]     = controller.index()(newDesignRequest)
@@ -356,7 +380,67 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       val content                 = Jsoup.parse(htmlContent)
       val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
       taxesAndBenefitsElement must not be null
-    }*/
+    }
+
+    "Return the old home page design when NINO last numeric digit is not in onboarding list" in {
+      val path             = "/personal-account"
+      val newDesignRequest = FakeRequest("GET", path)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      val matchingNino = "AA000066B"
+
+      val newLayoutHtmlString = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
+
+      val appLocal: Application =
+        localGuiceApplicationBuilder()
+          .overrides(
+            bind[AuthJourney].toInstance(new AuthJourney {
+              override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+                new testUtils.ActionBuilderFixture {
+                  override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
+                    : Future[Result] =
+                    block(
+                      buildUserRequest(
+                        request = request,
+                        authNino = Nino(matchingNino),
+                        trustedHelper = None
+                      )
+                    )
+                }
+            }),
+            bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
+            bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
+            bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
+            bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+            bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
+            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
+            bind[TaiService].toInstance(mockTaiService),
+            bind[FandFConnector].toInstance(mockFandfConnector),
+            bind[MyServices].toInstance(mockMyServices),
+            bind[OtherServices].toInstance(mockOtherServices),
+            bind[TasksService].toInstance(mockTasksService),
+            bind[ConfigDecorator].toInstance(mockConfigDecorator),
+            bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
+          )
+          .build()
+
+      // Mock the feature flag to be enabled
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(Seq(5))
+
+      when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/personal-account/signed-out")
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(newDesignRequest)
+      status(result) mustBe OK
+
+      val containsNewLayoutHtmlString =
+        contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
+      assert(!containsNewLayoutHtmlString)
+    }
 
     "Return the new home page design when newDesign parameter is true " in {
       val path             = "/personal-account?newDesign=true"
