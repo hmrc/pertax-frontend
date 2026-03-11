@@ -22,8 +22,8 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.sca.models.TrustedHelper
 import viewmodels.AlertBannerViewModel
 import views.html.ViewSpec
 
