@@ -53,10 +53,10 @@ class ConfigDecorator @Inject() (
 
   def seissUrl: String = servicesConfig.baseUrl("self-employed-income-support")
 
-  private lazy val formFrontendService       = servicesConfig.baseUrl("dfs-digital-forms-frontend")
-  private lazy val taxCalcFrontendService    = servicesConfig.baseUrl("taxcalc-frontend")
-  private lazy val taxCalcFrontendExternal     = getExternalUrl("taxcalc-frontend.host").getOrElse("")
-  
+  private lazy val formFrontendService     = servicesConfig.baseUrl("dfs-digital-forms-frontend")
+  private lazy val taxCalcFrontendService  = servicesConfig.baseUrl("taxcalc-frontend")
+  private lazy val taxCalcFrontendExternal = getExternalUrl("taxcalc-frontend.host").getOrElse("")
+
   lazy val businessTaxAccountService: String = servicesConfig.baseUrl("business-tax-account")
 
   private lazy val payApiUrl = servicesConfig.baseUrl("pay-api")
@@ -158,7 +158,6 @@ class ConfigDecorator @Inject() (
     s"$formFrontendService/digital-forms/forms/personal-tax/self-assessment/catalogue"
   lazy val taxCalcPartialLinkUrl               = s"$taxCalcFrontendService/tax-you-paid/summary-card-partials"
   lazy val taxCalcHomePageUrl                  = s"$taxCalcFrontendExternal/tax-you-paid"
-  
 
   lazy val updateAddressShortFormUrl = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
   lazy val changeNameLinkUrl         =
