@@ -16,21 +16,14 @@
 
 package services
 
-import cats.data.EitherT
-import cats.implicits.*
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.*
-import models.MtdUserType.*
-import models.admin.MTDUserStatusToggle
-import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.EnrolmentsHelper
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,13 +31,11 @@ import scala.concurrent.{ExecutionContext, Future}
 class OtherServices @Inject() (
   configDecorator: ConfigDecorator,
   fandFService: FandFService,
-  taiService: TaiService,
-  enrolmentStoreProxyService: EnrolmentStoreProxyService,
-  featureFlagService: FeatureFlagService,
-  enrolmentsHelper: EnrolmentsHelper
+  taiService: TaiService
 )(implicit ec: ExecutionContext)
-    extends CurrentTaxYear
-    with Logging {
+    extends CurrentTaxYear {
+
+  private val MtdItsaEnrolmentKey = "HMRC-MTD-IT"
 
   def getOtherServices(implicit
     request: UserRequest[_],
@@ -71,6 +62,9 @@ class OtherServices @Inject() (
   private def noneIfTrustedHelper[A](isTrustedHelperUser: Boolean)(fa: => Future[Option[A]]): Future[Option[A]] =
     if (isTrustedHelperUser) Future.successful(None) else fa
 
+  private def userHasMtdItsaEnrolment(enrolments: Set[uk.gov.hmrc.auth.core.Enrolment]): Boolean =
+    enrolments.exists(_.key == MtdItsaEnrolmentKey)
+
   private def mtdTile(linkUrl: String)(implicit messages: Messages): OtherService =
     OtherService(
       messages("label.mtd_for_it"),
@@ -87,55 +81,25 @@ class OtherServices @Inject() (
       gaLabel = Some("Self Assessment")
     )
 
-  private def fetchMtdUserStatus()(implicit
-    request: UserRequest[_],
-    hc: HeaderCarrier
-  ): EitherT[Future, UpstreamErrorResponse, MtdUser] =
-    for {
-      toggle <- featureFlagService.getAsEitherT(MTDUserStatusToggle)
-      status <-
-        if (!toggle.isEnabled)
-          EitherT.rightT[Future, UpstreamErrorResponse](NonFilerMtdUser: MtdUser)
-        else
-          enrolmentStoreProxyService.getMtdUserType(request.authNino)
-    } yield status
-
-  private def mtdLinkForStatus(status: MtdUser): Option[String] =
-    status match {
-      case NonFilerMtdUser =>
-        Some(controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url)
-
-      case NotEnrolledMtdUser =>
-        Some(controllers.routes.ClaimMtdFromPtaController.start.url)
-
-      case WrongCredentialsMtdUser(_, _) =>
-        Some(controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url)
-
-      case _ =>
-        None
-    }
-
   def getMtdOtherServiceTile(
     isTrustedHelperUser: Boolean
   )(implicit
     request: UserRequest[_],
-    hc: HeaderCarrier,
     messages: Messages
   ): Future[Option[OtherService]] =
     noneIfTrustedHelper(isTrustedHelperUser) {
+      val hasActiveMtd = userHasMtdItsaEnrolment(request.enrolments)
 
-      if (enrolmentsHelper.mtdEnrolmentStatus(request.enrolments).nonEmpty) Future.successful(None)
-      else {
-        fetchMtdUserStatus()
-          .fold(
-            error => {
-              logger.warn(
-                s"[OtherServices][getMtdOtherServiceTile] Unable to determine MTD status: ${error.getMessage}"
-              )
-              None
-            },
-            status => mtdLinkForStatus(status).map(mtdTile)
+      if (hasActiveMtd) {
+        Future.successful(None)
+      } else {
+        Future.successful(
+          Some(
+            mtdTile(
+              controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
+            )
           )
+        )
       }
     }
 
