@@ -176,17 +176,21 @@ class HomeController @Inject() (
   }
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
-    val isNewDesign: Boolean = request.queryString.get("newDesign").flatMap(_.headOption).contains("true")
+    val shouldShowNewLayoutForNino = configDecorator.onboardingByNiNoLastNumericDigitList
+      .contains(request.helpeeNinoOrElse.nino.charAt(6).asDigit)
+    val isNewDesign: Boolean       = request.queryString
+      .get("newDesign")
+      .flatMap(_.headOption)
+      .fold(shouldShowNewLayoutForNino)(_ == "true")
+
     featureFlagService.get(HomePageNewLayoutToggle).flatMap { toggle =>
       if (!toggle.isEnabled) {
         oldHomePage
       } else {
-        val shouldShowNewLayoutForNino = configDecorator.onboardingByNiNoLastNumericDigitList
-          .contains(request.helpeeNinoOrElse.nino.charAt(6).asDigit)
-        if (shouldShowNewLayoutForNino || isNewDesign) {
-          newHomePage
-        } else {
+        if (!isNewDesign) {
           oldHomePage
+        } else {
+          newHomePage
         }
       }
     }

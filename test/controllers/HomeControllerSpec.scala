@@ -42,7 +42,7 @@ import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
 import testUtils.{BaseSpec, Fixtures, WireMockHelper}
 import uk.gov.hmrc.sca.models.TrustedHelper
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -327,7 +327,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
-      val matchingNino = "AA000055A"
+      val generatedNino: Nino = new Generator().nextNino
+      val onboardingNiNoList  = Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 
       val appLocal: Application =
         localGuiceApplicationBuilder()
@@ -340,7 +341,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
                     block(
                       buildUserRequest(
                         request = request,
-                        authNino = Nino(matchingNino),
+                        authNino = generatedNino,
                         trustedHelper = None
                       )
                     )
@@ -366,7 +367,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
 
-      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(Seq(5))
+      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(onboardingNiNoList)
 
       when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/personal-account/signed-out")
 
@@ -379,18 +380,16 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
       val content                 = Jsoup.parse(htmlContent)
       val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
-      taxesAndBenefitsElement must not be null
+      assert(taxesAndBenefitsElement != null)
     }
 
-    "Return the old home page design when NINO last numeric digit is not in onboarding list" in {
-      val path             = "/personal-account"
+    "Return the new home page design when NINO last numeric digit is not in onboarding list and newDesign is true" in {
+      val path             = "/personal-account?newDesign=true"
       val newDesignRequest = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
-      val notMatchingNino = "AA000066B"
-
-      val newLayoutHtmlString = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
+      val generatedNino: Nino = new Generator().nextNino
 
       val appLocal: Application =
         localGuiceApplicationBuilder()
@@ -403,7 +402,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
                     block(
                       buildUserRequest(
                         request = request,
-                        authNino = Nino(notMatchingNino),
+                        authNino = generatedNino,
                         trustedHelper = None
                       )
                     )
@@ -429,7 +428,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
 
-      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(Seq(5))
+      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(Seq(11))
 
       when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/personal-account/signed-out")
 
@@ -437,9 +436,129 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       val result: Future[Result]     = controller.index()(newDesignRequest)
       status(result) mustBe OK
 
-      val containsNewLayoutHtmlString =
-        contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
-      assert(!containsNewLayoutHtmlString)
+      val htmlContent = contentAsString(result)
+      htmlContent must include("""id="taxes-and-benefits-heading""")
+
+      val content                 = Jsoup.parse(htmlContent)
+      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
+      assert(taxesAndBenefitsElement != null)
+    }
+
+    "Return the old home page design when NINO last numeric digit is not in onboarding list" in {
+      val path             = "/personal-account"
+      val newDesignRequest = FakeRequest("GET", path)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      val generatedNino: Nino = new Generator().nextNino
+
+      val appLocal: Application =
+        localGuiceApplicationBuilder()
+          .overrides(
+            bind[AuthJourney].toInstance(new AuthJourney {
+              override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+                new testUtils.ActionBuilderFixture {
+                  override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
+                    : Future[Result] =
+                    block(
+                      buildUserRequest(
+                        request = request,
+                        authNino = generatedNino,
+                        trustedHelper = None
+                      )
+                    )
+                }
+            }),
+            bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
+            bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
+            bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
+            bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+            bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
+            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
+            bind[TaiService].toInstance(mockTaiService),
+            bind[FandFConnector].toInstance(mockFandfConnector),
+            bind[MyServices].toInstance(mockMyServices),
+            bind[OtherServices].toInstance(mockOtherServices),
+            bind[TasksService].toInstance(mockTasksService),
+            bind[ConfigDecorator].toInstance(mockConfigDecorator),
+            bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
+          )
+          .build()
+
+      // Mock the feature flag to be enabled
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(Seq(11))
+
+      when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/personal-account/signed-out")
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(newDesignRequest)
+      status(result) mustBe OK
+
+      val content                 = Jsoup.parse(contentAsString(result))
+      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
+      assert(taxesAndBenefitsElement == null)
+    }
+
+    "Return the old home page design when NINO last numeric digit is in onboarding list and newDesign is false" in {
+      val path             = "/personal-account?newDesign=false"
+      val newDesignRequest = FakeRequest("GET", path)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      val generatedNino: Nino = new Generator().nextNino
+      val onboardingNiNoList  = Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+
+      val appLocal: Application =
+        localGuiceApplicationBuilder()
+          .overrides(
+            bind[AuthJourney].toInstance(new AuthJourney {
+              override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+                new testUtils.ActionBuilderFixture {
+                  override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
+                    : Future[Result] =
+                    block(
+                      buildUserRequest(
+                        request = request,
+                        authNino = generatedNino,
+                        trustedHelper = None
+                      )
+                    )
+                }
+            }),
+            bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
+            bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
+            bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
+            bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+            bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
+            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
+            bind[TaiService].toInstance(mockTaiService),
+            bind[FandFConnector].toInstance(mockFandfConnector),
+            bind[MyServices].toInstance(mockMyServices),
+            bind[OtherServices].toInstance(mockOtherServices),
+            bind[TasksService].toInstance(mockTasksService),
+            bind[ConfigDecorator].toInstance(mockConfigDecorator),
+            bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
+          )
+          .build()
+
+      // Mock the feature flag to be enabled
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(onboardingNiNoList)
+
+      when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/personal-account/signed-out")
+
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(newDesignRequest)
+      status(result) mustBe OK
+
+      val content                 = Jsoup.parse(contentAsString(result))
+      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
+      assert(taxesAndBenefitsElement == null)
     }
 
     "Return the new home page design when newDesign parameter is true " in {
@@ -462,7 +581,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
 
       val content                 = Jsoup.parse(htmlContent)
       val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
-      taxesAndBenefitsElement must not be null
+      assert(taxesAndBenefitsElement != null)
     }
 
     "Return the old home page design when newDesign parameter is false " in {
@@ -474,15 +593,15 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
 
-      val newLayoutHtmlString   = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
       val appLocal: Application = appBuilder.build()
 
-      val controller: HomeController  = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]      = controller.index()(newDesignRequest)
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(newDesignRequest)
       status(result) mustBe OK
-      val containsNewLayoutHtmlString =
-        contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
-      assert(!containsNewLayoutHtmlString)
+
+      val content                 = Jsoup.parse(contentAsString(result))
+      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
+      assert(taxesAndBenefitsElement == null)
     }
 
     "Return the old home page design when HomePageNewLayoutToggle is false " in {
@@ -494,15 +613,14 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
       when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
 
-      val newLayoutHtmlString   = "<h2class=\"govuk-heading-m\">Taxesandbenefits</h2>"
       val appLocal: Application = appBuilder.build()
 
-      val controller: HomeController  = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]      = controller.index()(newDesignRequest)
+      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
+      val result: Future[Result]     = controller.index()(newDesignRequest)
       status(result) mustBe OK
-      val containsNewLayoutHtmlString =
-        contentAsString(result).replaceAll("\\s", "").contains(newLayoutHtmlString.replaceAll("\\s", ""))
-      assert(!containsNewLayoutHtmlString)
+      val content                    = Jsoup.parse(contentAsString(result))
+      val taxesAndBenefitsElement    = content.getElementById("taxes-and-benefits-heading")
+      assert(taxesAndBenefitsElement == null)
     }
 
     "Return a Breathing space if that is returned within period" in {
