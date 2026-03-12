@@ -16,12 +16,12 @@
 
 package controllers.auth.requests
 
-import models._
+import models.*
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.sca.models.TrustedHelper
 
 final case class UserRequest[+A](
   authNino: Nino,
