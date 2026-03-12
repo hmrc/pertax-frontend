@@ -28,11 +28,11 @@ import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.time.TaxYear
 
 import scala.concurrent.Future
