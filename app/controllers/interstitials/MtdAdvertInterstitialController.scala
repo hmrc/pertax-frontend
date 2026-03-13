@@ -113,7 +113,7 @@ class MtdAdvertInterstitialController @Inject() (
                                      EitherT.cond[Future](
                                        validSaUser(request.saUserType),
                                        (),
-                                       UpstreamErrorResponse("User is NOT logged into the correct SA account", 404)
+                                       UpstreamErrorResponse("User does not have an eligible SA state for claim journey", 404)
                                      )
 
                                    (for {
