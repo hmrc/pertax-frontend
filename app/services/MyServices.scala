@@ -92,7 +92,7 @@ class MyServices @Inject() (
             Some(
               saTile(
                 href = controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-                body = messages("label.newViewAndManageSA", s"${current.currentYear + 1}")
+                body = ""
               )
             )
 

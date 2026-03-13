@@ -232,7 +232,7 @@ class MyServicesSpec extends BaseSpec {
         MyService(
           "Self Assessment",
           "/personal-account/self-assessment-summary",
-          "The deadline for online returns is 31 January 2026.",
+          "",
           Map(),
           Some("Income"),
           Some("Self Assessment")
