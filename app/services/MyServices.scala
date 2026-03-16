@@ -136,7 +136,7 @@ class MyServices @Inject() (
     Future.successful(
       Some(
         MyService(
-          messages("label.your_national_insurance_and_state_pension"),
+          messages("label.new_national_insurance_and_state_pension"),
           controllers.interstitials.routes.InterstitialController.displayNISP.url,
           "",
           gaAction = Some("Income"),
