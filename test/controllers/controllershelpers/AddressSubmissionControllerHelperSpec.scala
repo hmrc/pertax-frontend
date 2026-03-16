@@ -26,19 +26,20 @@ import models.dto.{AddressDto, DateDto}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api
 import play.api.i18n.{Lang, Messages, MessagesImpl, MessagesProvider}
-import play.api.mvc.Request
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import services.{AddressMovedService, CitizenDetailsService}
 import testUtils.BaseSpec
-import testUtils.Fixtures.buildPersonDetails
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api.mvc.Request
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.language.LanguageUtils
 import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, UpdateAddressConfirmationView}
+import testUtils.Fixtures.buildPersonDetails
 
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -88,15 +89,21 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
 
   "Calling updateCitizenDetailsAddress" must {
     "update address" when {
-
       "address is residential" in {
         when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](true))
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-        when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-        when(mockAddressMovedService.moved(any(), any(), any())(any(), any()))
-          .thenReturn(Future.successful(AnyOtherMove))
-        when(mockAddressMovedService.toMessageKey(any())).thenReturn(Some("label.mockAddressMovedService"))
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
+          Future.successful(AuditResult.Success)
+        )
+        when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
+          Future.successful(true)
+        )
+        when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(
+          Future.successful(AnyOtherMove)
+        )
+        when(mockAddressMovedService.toMessageKey(any())).thenReturn(
+          Some("label.mockAddressMovedService")
+        )
 
         val addressJourneyData = AddressJourneyData(
           None,
@@ -105,7 +112,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
           None,
           None,
           None,
-          Some(models.dto.InternationalAddressChoiceDto.Scotland),
+          None,
           None
         )
 
@@ -136,11 +143,18 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       "address is postal" in {
         when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](true))
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-        when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-        when(mockAddressMovedService.moved(any(), any(), any())(any(), any()))
-          .thenReturn(Future.successful(AnyOtherMove))
-        when(mockAddressMovedService.toMessageKey(any())).thenReturn(Some("label.mockAddressMovedService"))
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
+          Future.successful(AuditResult.Success)
+        )
+        when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
+          Future.successful(true)
+        )
+        when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(
+          Future.successful(AnyOtherMove)
+        )
+        when(mockAddressMovedService.toMessageKey(any())).thenReturn(
+          Some("label.mockAddressMovedService")
+        )
 
         val addressJourneyData = AddressJourneyData(
           None,
@@ -149,7 +163,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
           None,
           None,
           None,
-          Some(models.dto.InternationalAddressChoiceDto.Scotland),
+          None,
           None
         )
 
@@ -180,11 +194,18 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       "address is international" in {
         when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](true))
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-        when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-        when(mockAddressMovedService.moved(any(), any(), any())(any(), any()))
-          .thenReturn(Future.successful(AnyOtherMove))
-        when(mockAddressMovedService.toMessageKey(any())).thenReturn(Some("label.mockAddressMovedService"))
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
+          Future.successful(AuditResult.Success)
+        )
+        when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
+          Future.successful(true)
+        )
+        when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(
+          Future.successful(AnyOtherMove)
+        )
+        when(mockAddressMovedService.toMessageKey(any())).thenReturn(
+          Some("label.mockAddressMovedService")
+        )
 
         val addressJourneyData = AddressJourneyData(
           None,
@@ -233,10 +254,18 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
             )
           )
         )
-      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(Future.successful(AnyOtherMove))
-      when(mockAddressMovedService.toMessageKey(any())).thenReturn(Some("label.mockAddressMovedService"))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
+        Future.successful(AuditResult.Success)
+      )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
+        Future.successful(true)
+      )
+      when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(
+        Future.successful(AnyOtherMove)
+      )
+      when(mockAddressMovedService.toMessageKey(any())).thenReturn(
+        Some("label.mockAddressMovedService")
+      )
 
       val addressJourneyData = AddressJourneyData(
         None,
@@ -283,10 +312,18 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
             )
           )
         )
-      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
-      when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(Future.successful(AnyOtherMove))
-      when(mockAddressMovedService.toMessageKey(any())).thenReturn(Some("label.mockAddressMovedService"))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
+        Future.successful(AuditResult.Success)
+      )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
+        Future.successful(true)
+      )
+      when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(
+        Future.successful(AnyOtherMove)
+      )
+      when(mockAddressMovedService.toMessageKey(any())).thenReturn(
+        Some("label.mockAddressMovedService")
+      )
 
       val addressJourneyData = AddressJourneyData(
         None,
@@ -322,7 +359,9 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
 
   "Calling handleAddressChangeAuditing" must {
     "audit when not modified" in {
-      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
+        Future.successful(AuditResult.Success)
+      )
 
       val addressDto: AddressDto =
         AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
@@ -345,7 +384,9 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
     }
 
     "audit when heavily modified" in {
-      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
+        Future.successful(AuditResult.Success)
+      )
 
       val addressDto: AddressDto =
         AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
@@ -371,7 +412,9 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
     }
 
     "audit when slightly modified" in {
-      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
+        Future.successful(AuditResult.Success)
+      )
 
       val addressDto: AddressDto =
         AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
