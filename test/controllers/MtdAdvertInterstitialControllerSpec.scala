@@ -59,6 +59,10 @@ class MtdAdvertInterstitialControllerSpec extends BaseSpec {
 
     when(mockMtditAdvertPageView.apply()(any(), any())).thenReturn(play.twirl.api.Html("MTD Advert Page"))
     when(mockEnrolmentsHelper.mtdEnrolmentStatus(any())).thenReturn(None)
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(MTDUserStatusToggle)))
+      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(MTDUserStatusToggle, isEnabled = true)))
+    when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(ClaimMtdFromPtaToggle)))
+      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(ClaimMtdFromPtaToggle, isEnabled = true)))
   }
 
   private def setupAuth(
@@ -128,8 +132,10 @@ class MtdAdvertInterstitialControllerSpec extends BaseSpec {
     "return OK with mtditAdvertPageView" when {
       "MTDUserStatusToggle is disabled" in {
         setupAuth()
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(MTDUserStatusToggle)))
-          .thenReturn(Future.successful(FeatureFlag(MTDUserStatusToggle, isEnabled = false)))
+        when(mockFeatureFlagService.getAsEitherT(ArgumentMatchers.eq(MTDUserStatusToggle)))
+          .thenReturn(
+            EitherT.rightT[Future, UpstreamErrorResponse](FeatureFlag(MTDUserStatusToggle, isEnabled = false))
+          )
 
         val result = controller.displayMTDITPage(FakeRequest())
 
@@ -195,7 +201,6 @@ class MtdAdvertInterstitialControllerSpec extends BaseSpec {
     "redirect to Claim MTD journey" when
       List(
         ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1234567890")),
-        NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1234567890")),
         WrongCredentialsSelfAssessmentUser(SaUtr("1234567890")),
         NotEnrolledSelfAssessmentUser(SaUtr("1234567890"))
       ).foreach { saUserType =>

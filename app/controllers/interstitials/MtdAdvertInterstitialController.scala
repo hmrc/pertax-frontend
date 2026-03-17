@@ -57,7 +57,7 @@ class MtdAdvertInterstitialController @Inject() (
 
   override def now: () => LocalDate = () => LocalDate.now()
 
-  private val authenticate: ActionBuilder[UserRequest, AnyContent] =
+  private def authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)
 
   private def advertOk(implicit request: UserRequest[_], messages: Messages): Result =
