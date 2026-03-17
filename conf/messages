@@ -15,6 +15,7 @@ global.label.this_is_a_trial_service=This is a trial service.
 #
 # Mesages in title case
 #
+test.message=Hello World
 title.address=Address
 title.name=Name
 title.year=Year
