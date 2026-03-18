@@ -40,61 +40,86 @@ class MyServices @Inject() (
 
   def getMyServices(implicit request: UserRequest[?], hc: HeaderCarrier, messages: Messages): Future[Seq[MyService]] = {
 
-    val selfAssessmentF    = getSelfAssessment(request.saUserType, request.trustedHelper.isDefined)
-    val payAsYouEarnF      = getPayAsYouEarn()
-    val taxCalcCardsF      = getTaxcalc(request.trustedHelper.isDefined)
-    val trustedHelperF     = getTrustedHelper(request.authNino, request.trustedHelper.isDefined)
-    val marriageAllowanceF = getMarriageAllowance(request.authNino, request.trustedHelper.isDefined)
+    val isTrustedHelperUser = request.trustedHelper.isDefined
+
+    val selfAssessmentTileF    = getSelfAssessmentOrCombinedMtdTile(request.saUserType, isTrustedHelperUser)
+    val payAsYouEarnTileF      = getPayAsYouEarnTile()
+    val taxCalculationTileF    = getTaxCalculationTile(isTrustedHelperUser)
+    val trustedHelperTileF     = getTrustedHelperTile(request.authNino, isTrustedHelperUser)
+    val marriageAllowanceTileF = getMarriageAllowanceTile(request.authNino, isTrustedHelperUser)
+    val nationalInsuranceTileF = getNationalInsuranceTile
 
     Future
       .sequence(
-        Seq(payAsYouEarnF, taxCalcCardsF, selfAssessmentF, marriageAllowanceF, getNationalInsuranceCard, trustedHelperF)
+        Seq(
+          payAsYouEarnTileF,
+          taxCalculationTileF,
+          selfAssessmentTileF,
+          marriageAllowanceTileF,
+          nationalInsuranceTileF,
+          trustedHelperTileF
+        )
       )
       .map(_.flatten)
   }
 
-  def getSelfAssessment(saUserType: SelfAssessmentUserType, isTrustedHelper: Boolean)(implicit
-    messages: Messages
-  ): Future[Option[MyService]] =
-    Future.successful(if (isTrustedHelper) {
-      None
-    } else {
-      saUserType match {
-        case _: ActivatedOnlineFilerSelfAssessmentUser       =>
-          Some(
-            MyService(
-              messages("label.self_assessment"),
-              controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-              messages("label.newViewAndManageSA", s"${current.currentYear + 1}"),
-              gaAction = Some("Income"),
-              gaLabel = Some("Self Assessment")
-            )
-          )
-        case WrongCredentialsSelfAssessmentUser(_)           =>
-          Some(
-            MyService(
-              messages("label.self_assessment"),
-              controllers.routes.SaWrongCredentialsController.landingPage().url,
-              messages("title.signed_in_wrong_account.h1"),
-              gaAction = Some("Income"),
-              gaLabel = Some("Self Assessment")
-            )
-          )
-        case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-          Some(
-            MyService(
-              messages("label.self_assessment"),
-              configDecorator.ssoToActivateSaEnrolmentPinUrl,
-              messages("label.activate_your_self_assessment_registration"),
-              gaAction = Some("Income"),
-              gaLabel = Some("Self Assessment")
-            )
-          )
-        case _                                               => None
-      }
-    })
+  private def getSelfAssessmentOrCombinedMtdTile(
+    selfAssessmentUserType: SelfAssessmentUserType,
+    isTrustedHelperUser: Boolean
+  )(implicit request: UserRequest[?], messages: Messages): Future[Option[MyService]] =
+    Future.successful {
+      if (isTrustedHelperUser) {
+        None
+      } else {
+        val hasMtdItsa = userHasMtdItsaEnrolment(request.enrolments)
 
-  def getPayAsYouEarn()(implicit messages: Messages): Future[Option[MyService]] =
+        (selfAssessmentUserType, hasMtdItsa) match {
+
+          case (_: ActivatedOnlineFilerSelfAssessmentUser, true) =>
+            Some(
+              combinedMtdSaTile(
+                href = controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url
+              )
+            )
+
+          case (WrongCredentialsSelfAssessmentUser(_), true) =>
+            Some(
+              combinedMtdSaTile(
+                href = controllers.routes.SaWrongCredentialsController.landingPage().url
+              )
+            )
+
+          case (_: ActivatedOnlineFilerSelfAssessmentUser, false) =>
+            Some(
+              saTile(
+                href = controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
+                body = messages("label.newViewAndManageSA", s"${current.currentYear + 1}")
+              )
+            )
+
+          case (WrongCredentialsSelfAssessmentUser(_), false) =>
+            Some(
+              saTile(
+                href = controllers.routes.SaWrongCredentialsController.landingPage().url,
+                body = messages("title.signed_in_wrong_account.h1")
+              )
+            )
+
+          case (_: NotYetActivatedOnlineFilerSelfAssessmentUser, _) =>
+            Some(
+              saTile(
+                href = configDecorator.ssoToActivateSaEnrolmentPinUrl,
+                body = messages("label.activate_your_self_assessment_registration")
+              )
+            )
+
+          case _ =>
+            None
+        }
+      }
+    }
+
+  def getPayAsYouEarnTile()(implicit messages: Messages): Future[Option[MyService]] =
     Future.successful(
       Some(
         MyService(
@@ -107,12 +132,14 @@ class MyServices @Inject() (
       )
     )
 
-  def getTaxcalc(trustedHelperEnabled: Boolean)(implicit messages: Messages): Future[Option[MyService]] =
-    if (trustedHelperEnabled) {
+  private def getTaxCalculationTile(
+    isTrustedHelperUser: Boolean
+  )(implicit messages: Messages): Future[Option[MyService]] =
+    if (isTrustedHelperUser) {
       Future.successful(None)
     } else {
-      featureFlagService.get(ShowTaxCalcTileToggle).map { taxCalcTileFlag =>
-        if (taxCalcTileFlag.isEnabled) {
+      featureFlagService.get(ShowTaxCalcTileToggle).map { showTaxCalcTile =>
+        if (showTaxCalcTile.isEnabled) {
           Some(
             MyService(
               messages(
@@ -132,7 +159,7 @@ class MyServices @Inject() (
       }
     }
 
-  def getNationalInsuranceCard(implicit messages: Messages): Future[Option[MyService]] =
+  private def getNationalInsuranceTile(implicit messages: Messages): Future[Option[MyService]] =
     Future.successful(
       Some(
         MyService(
@@ -145,11 +172,11 @@ class MyServices @Inject() (
       )
     )
 
-  def getTrustedHelper(nino: Nino, isTrustedHelper: Boolean)(implicit
+  private def getTrustedHelperTile(nino: Nino, isTrustedHelperUser: Boolean)(implicit
     hc: HeaderCarrier,
     messages: Messages
   ): Future[Option[MyService]] =
-    if (isTrustedHelper) {
+    if (isTrustedHelperUser) {
       Future.successful(None)
     } else {
       fandFService
@@ -169,12 +196,12 @@ class MyServices @Inject() (
         }
     }
 
-  def getMarriageAllowance(nino: Nino, isTrustedHelper: Boolean)(implicit
+  private def getMarriageAllowanceTile(nino: Nino, isTrustedHelperUser: Boolean)(implicit
     hc: HeaderCarrier,
     request: UserRequest[?],
     messages: Messages
-  ) =
-    if (isTrustedHelper) {
+  ): Future[Option[MyService]] =
+    if (isTrustedHelperUser) {
       Future.successful(None)
     } else {
       taiService.getTaxComponentsList(nino, current.currentYear).map { taxComponents =>
@@ -183,7 +210,8 @@ class MyServices @Inject() (
             Some(messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you"))
           case tc if tc.contains("MarriageAllowanceTransferred") =>
             Some(messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner"))
-          case _                                                 => None
+          case _                                                 =>
+            None
         }
 
         maMsg.map { msg =>
@@ -199,4 +227,27 @@ class MyServices @Inject() (
     }
 
   override def now: () => LocalDate = LocalDate.now
+
+  private def combinedMtdSaTile(href: String)(implicit messages: Messages): MyService =
+    MyService(
+      messages("label.mtd_for_itsa"),
+      href,
+      "",
+      gaAction = Some("Income"),
+      gaLabel = Some("MTD IT & SA")
+    )
+
+  private def saTile(href: String, body: String)(implicit messages: Messages): MyService =
+    MyService(
+      messages("label.self_assessment"),
+      href,
+      body,
+      gaAction = Some("Income"),
+      gaLabel = Some("Self Assessment")
+    )
+
+  private val MtdItsaEnrolmentKey = "HMRC-MTD-IT"
+
+  private def userHasMtdItsaEnrolment(enrolments: Set[uk.gov.hmrc.auth.core.Enrolment]): Boolean =
+    enrolments.exists(_.key == MtdItsaEnrolmentKey)
 }

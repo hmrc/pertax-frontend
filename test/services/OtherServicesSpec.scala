@@ -18,16 +18,17 @@ package services
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, OtherService, UserAnswers, WrongCredentialsSelfAssessmentUser}
+import models.*
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.Mockito.*
 import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
-import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.sca.models.TrustedHelper
 
 import scala.concurrent.Future
 
@@ -37,132 +38,176 @@ class OtherServicesSpec extends BaseSpec {
   private val mockFandFService: FandFService       = mock[FandFService]
   private val mockTaiService: TaiService           = mock[TaiService]
 
-  private lazy val service: OtherServices       = new OtherServices(mockConfigDecorator, mockFandFService, mockTaiService)
-  implicit lazy val messages: Messages          = MessagesImpl(Lang("en"), messagesApi)
-  implicit val request: UserRequest[AnyContent] = UserRequest(
-    generatedNino,
-    NonFilerSelfAssessmentUser,
-    Credentials("credId", "GovernmentGateway"),
-    ConfidenceLevel.L200,
-    None,
-    Set.empty,
-    None,
-    None,
-    FakeRequest(),
-    UserAnswers.empty
-  )
+  private lazy val service: OtherServices =
+    new OtherServices(
+      mockConfigDecorator,
+      mockFandFService,
+      mockTaiService
+    )
+
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockConfigDecorator)
+    reset(mockFandFService)
+    reset(mockTaiService)
   }
 
-  "getSelfAssessment" must {
-    val statuses = Map(
-      ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11"))       -> None,
-      NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")) -> None,
-      WrongCredentialsSelfAssessmentUser(SaUtr("11"))           -> None,
-      NotEnrolledSelfAssessmentUser(SaUtr("11"))                -> Some("/personal-account/self-assessment/request-access"),
-      NonFilerSelfAssessmentUser                                -> None
+  private def buildRequest(
+    saUserType: SelfAssessmentUserType,
+    enrolments: Set[Enrolment] = Set.empty,
+    trustedHelper: Option[TrustedHelper] = None
+  ): UserRequest[AnyContent] =
+    UserRequest(
+      authNino = generatedNino,
+      saUserType = saUserType,
+      credentials = Credentials("credId", "GovernmentGateway"),
+      confidenceLevel = ConfidenceLevel.L200,
+      trustedHelper = trustedHelper,
+      enrolments = enrolments,
+      profile = None,
+      breadcrumb = None,
+      request = FakeRequest(),
+      userAnswers = UserAnswers.empty
     )
 
-    statuses.foreach { case (saStatus, expected) =>
-      s"return an item or None when trusted helper is disabled for $saStatus" in {
-        val result = service.getSelfAssessment(saStatus, false).futureValue
-        result.map(_.link) mustBe expected
-      }
+  private val mtdItsaEnrolment: Enrolment =
+    Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "11111")), "Activated")
+
+  "getSelfAssessmentOtherServiceTile" must {
+
+    "return request-access SA tile for NotEnrolledSelfAssessmentUser when trusted helper disabled" in {
+      val result = service
+        .getSelfAssessmentOtherServiceTile(NotEnrolledSelfAssessmentUser(SaUtr("11")), isTrustedHelperUser = false)
+        .futureValue
+
+      result.map(_.link) mustBe Some(controllers.routes.SelfAssessmentController.requestAccess.url)
     }
 
-    statuses.foreach { case (saStatus, _) =>
-      s"return None when trusted helper is enabled for $saStatus" in {
-        val result = service.getSelfAssessment(saStatus, true).futureValue
-        result.map(_.link) mustBe None
-      }
+    "return activate SA tile for NotYetActivatedOnlineFilerSelfAssessmentUser when trusted helper disabled" in {
+      when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("a/url")
+
+      val result = service
+        .getSelfAssessmentOtherServiceTile(
+          NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")),
+          isTrustedHelperUser = false
+        )
+        .futureValue
+
+      result.map(_.link) mustBe Some("a/url")
+    }
+
+    "return None for ActivatedOnlineFilerSelfAssessmentUser when trusted helper disabled" in {
+      val result = service
+        .getSelfAssessmentOtherServiceTile(
+          ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")),
+          isTrustedHelperUser = false
+        )
+        .futureValue
+
+      result mustBe None
+    }
+
+    "return None when trusted helper enabled" in {
+      when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("a/url")
+
+      val result = service
+        .getSelfAssessmentOtherServiceTile(NotEnrolledSelfAssessmentUser(SaUtr("11")), isTrustedHelperUser = true)
+        .futureValue
+
+      result mustBe None
     }
   }
 
-  "getMarriageAllowance" must {
-    "return None" when {
-      "trusted helper is active" in {
-        val result = service.getMarriageAllowance(generatedNino, true).futureValue
+  "getMtdOtherServiceTile" must {
 
-        result mustBe None
-        verify(mockTaiService, times(0)).getTaxComponentsList(any(), any())(any(), any())
-      }
+    "return None when trusted helper is enabled" in {
+      implicit val req: UserRequest[AnyContent] = buildRequest(NonFilerSelfAssessmentUser)
 
-      "trusted helper is not active and there is a tax component for marriage allowance" in {
-        when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
-          Future.successful(List("MarriageAllowanceReceived"))
-        )
-        val result = service.getMarriageAllowance(generatedNino, false).futureValue
+      val result = service.getMtdOtherServiceTile(isTrustedHelperUser = true).futureValue
 
-        result mustBe None
-      }
+      result mustBe None
     }
 
-    "return an item" in {
-      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
-        Future.successful(List.empty)
-      )
+    "return None when user has MTD ITSA enrolment" in {
+      implicit val req: UserRequest[AnyContent] =
+        buildRequest(NonFilerSelfAssessmentUser, enrolments = Set(mtdItsaEnrolment))
 
-      val result = service.getMarriageAllowance(generatedNino, false).futureValue
+      val result = service.getMtdOtherServiceTile(isTrustedHelperUser = false).futureValue
 
-      result mustBe Some(
-        OtherService(
-          "Marriage Allowance",
-          "/marriage-allowance-application/history",
-          Map(),
-          Some("Benefits"),
-          Some("Marriage Allowance"),
-          None
-        )
-      )
+      result mustBe None
     }
 
+    "return MTD interstitial tile when user does not have MTD ITSA enrolment" in {
+      implicit val req: UserRequest[AnyContent] =
+        buildRequest(NonFilerSelfAssessmentUser, enrolments = Set.empty)
+
+      val result = service.getMtdOtherServiceTile(isTrustedHelperUser = false).futureValue
+
+      result.map(_.link) mustBe Some(
+        controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
+      )
+    }
+  }
+
+  "getMarriageAllowanceOtherServiceTile" must {
+
+    "return None when trusted helper is active and does not call TAI" in {
+      implicit val req: UserRequest[AnyContent] = buildRequest(NonFilerSelfAssessmentUser)
+
+      val result =
+        service.getMarriageAllowanceOtherServiceTile(generatedNino, isTrustedHelperUser = true).futureValue
+
+      result mustBe None
+      verify(mockTaiService, times(0)).getTaxComponentsList(any(), any())(any(), any())
+    }
   }
 
   "getOtherServices" must {
-    "return a list of items" in {
+
+    "return expected list for Activated SA and MTD enrolment present" in {
       when(mockConfigDecorator.annualTaxSaSummariesTileLinkShow).thenReturn("ats/")
       when(mockConfigDecorator.manageTrustedHelpersUrl).thenReturn("trustedHelper/")
-      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(
-        Future.successful(List.empty)
-      )
-      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(
-        Future.successful(false)
-      )
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(Future.successful(List.empty))
+      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(Future.successful(false))
 
-      val request = UserRequest(
-        generatedNino,
-        ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")),
-        Credentials("test", "test"),
-        ConfidenceLevel.L200,
-        None,
-        Set.empty,
-        None,
-        None,
-        FakeRequest(),
-        UserAnswers("id")
-      )
-      val result  = service.getOtherServices(request).futureValue
+      implicit val req: UserRequest[AnyContent] =
+        buildRequest(
+          ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")),
+          enrolments = Set(mtdItsaEnrolment)
+        )
 
-      result mustBe Seq(
-        OtherService(
-          "Child Benefit",
-          "/personal-account/child-benefit/home",
-          Map(),
-          Some("Benefits"),
-          Some("Child Benefit")
-        ),
-        OtherService(
-          "Marriage Allowance",
-          "/marriage-allowance-application/history",
-          Map(),
-          Some("Benefits"),
-          Some("Marriage Allowance")
-        ),
-        OtherService("Annual Tax Summary", "ats/", Map(), Some("Tax Summaries"), Some("Annual Tax Summary")),
-        OtherService("Trusted helpers", "trustedHelper/", Map(), Some("Account"), Some("Trusted helpers"))
+      val result = service.getOtherServices.futureValue
+
+      result.exists(_.gaLabel.contains("Self Assessment")) mustBe false
+      result.exists(_.gaLabel.contains("Making Tax Digital for Income Tax")) mustBe false
+
+      result.map(_.link) must contain(
+        controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url
+      )
+      result.map(_.link) must contain("ats/")
+      result.map(_.link) must contain("trustedHelper/")
+    }
+
+    "return expected list for NotYetActivated SA and no MTD enrolment" in {
+      when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl).thenReturn("activate-sa/")
+      when(mockConfigDecorator.annualTaxSaSummariesTileLinkShow).thenReturn("ats/")
+      when(mockConfigDecorator.manageTrustedHelpersUrl).thenReturn("trustedHelper/")
+      when(mockTaiService.getTaxComponentsList(any(), any())(any(), any())).thenReturn(Future.successful(List.empty))
+      when(mockFandFService.isAnyFandFRelationships(any())(any())).thenReturn(Future.successful(false))
+
+      implicit val req: UserRequest[AnyContent] =
+        buildRequest(
+          NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")),
+          enrolments = Set.empty
+        )
+
+      val result = service.getOtherServices.futureValue
+
+      result.map(_.link) must contain("activate-sa/")
+      result.map(_.link) must contain(
+        controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
       )
     }
   }
