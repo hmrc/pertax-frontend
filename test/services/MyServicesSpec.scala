@@ -58,10 +58,10 @@ class MyServicesSpec extends BaseSpec {
   }
 
   private def buildRequest(
-                            saUserType: SelfAssessmentUserType,
-                            enrolments: Set[Enrolment] = Set.empty,
-                            trustedHelper: Option[TrustedHelper] = None
-                          ): UserRequest[AnyContent] =
+    saUserType: SelfAssessmentUserType,
+    enrolments: Set[Enrolment] = Set.empty,
+    trustedHelper: Option[TrustedHelper] = None
+  ): UserRequest[AnyContent] =
     UserRequest(
       authNino = generatedNino,
       saUserType = saUserType,
@@ -103,8 +103,8 @@ class MyServicesSpec extends BaseSpec {
       res.find(_.gaLabel.contains("Self Assessment")).map(_.link) mustBe Some(
         "/personal-account/self-assessment-summary"
       )
-      res.find(_.gaLabel.contains("Self Assessment")).map(_.description) mustBe Some(
-        "The deadline for online returns is 31 January 2027."
+      res.find(_.gaLabel.contains("Self Assessment")).map(_.hintText) mustBe Some(
+        "The deadline for online returns is 31 January 2026."
       )
     }
 
@@ -167,7 +167,7 @@ class MyServicesSpec extends BaseSpec {
       val res = service.getMyServices(req).futureValue
 
       res.find(_.gaLabel.contains("Self Assessment")).map(_.link) mustBe Some("a/url")
-      res.find(_.gaLabel.contains("Self Assessment")).map(_.description) mustBe Some(
+      res.find(_.gaLabel.contains("Self Assessment")).map(_.hintText) mustBe Some(
         "Activate your Self Assessment registration"
       )
     }
@@ -226,13 +226,13 @@ class MyServicesSpec extends BaseSpec {
         MyService(
           "Self Assessment",
           "/personal-account/self-assessment-summary",
-          "The deadline for online returns is 31 January 2027.",
+          "The deadline for online returns is 31 January 2026.",
           Map(),
           Some("Income"),
           Some("Self Assessment")
         ),
         MyService(
-          "Your National Insurance and State Pension",
+          "National Insurance and State Pension",
           "/personal-account/your-national-insurance-state-pension",
           "",
           Map(),
