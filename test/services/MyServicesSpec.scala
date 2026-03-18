@@ -176,8 +176,8 @@ class MyServicesSpec extends BaseSpec {
       result mustBe Some(
         MyService(
           "Marriage Allowance",
-          "You currently transfer part of your Personal Allowance to your partner.",
           "/marriage-allowance-application/history",
+          "You currently transfer part of your Personal Allowance to your partner.",
           Map(),
           Some("Benefits"),
           Some("Marriage Allowance"),
@@ -196,8 +196,8 @@ class MyServicesSpec extends BaseSpec {
       result mustBe Some(
         MyService(
           "Marriage Allowance",
-          "Your partner currently transfers part of their Personal Allowance to you.",
           "/marriage-allowance-application/history",
+          "Your partner currently transfers part of their Personal Allowance to you.",
           Map(),
           Some("Benefits"),
           Some("Marriage Allowance"),

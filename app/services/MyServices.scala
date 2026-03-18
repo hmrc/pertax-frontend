@@ -177,28 +177,24 @@ class MyServices @Inject() (
     if (isTrustedHelper) {
       Future.successful(None)
     } else {
-      taiService.getTaxComponentsList(nino, current.currentYear).map {
-        case taxComponents if taxComponents.contains("MarriageAllowanceReceived")    =>
-          Some(
-            MyService(
-              messages("title.marriage_allowance"),
-              messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you"),
-              "/marriage-allowance-application/history",
-              gaAction = Some("Benefits"),
-              gaLabel = Some("Marriage Allowance")
-            )
+      taiService.getTaxComponentsList(nino, current.currentYear).map { taxComponents =>
+        val maMsg = taxComponents match {
+          case tc if tc.contains("MarriageAllowanceReceived")    =>
+            Some(messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you"))
+          case tc if tc.contains("MarriageAllowanceTransferred") =>
+            Some(messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner"))
+          case _                                                 => None
+        }
+
+        maMsg.map { msg =>
+          MyService(
+            messages("title.marriage_allowance"),
+            "/marriage-allowance-application/history",
+            msg,
+            gaAction = Some("Benefits"),
+            gaLabel = Some("Marriage Allowance")
           )
-        case taxComponents if taxComponents.contains("MarriageAllowanceTransferred") =>
-          Some(
-            MyService(
-              messages("title.marriage_allowance"),
-              messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner"),
-              "/marriage-allowance-application/history",
-              gaAction = Some("Benefits"),
-              gaLabel = Some("Marriage Allowance")
-            )
-          )
-        case _                                                                       => None
+        }
       }
     }
 
