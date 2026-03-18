@@ -298,4 +298,7 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.get[String]("external-url.mtd-claim-from-pta.url")
 
   lazy val mtdGuidanceUrl: String = runModeConfiguration.get[String]("external-url.mtd-guidance.url")
+
+  val onboardingByNiNoLastNumericDigitList: Seq[Int] =
+    runModeConfiguration.get[Seq[Int]]("onboarding.by.nino.lastNumericDigit")
 }
