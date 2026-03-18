@@ -38,7 +38,7 @@ class MyServices @Inject() (
 )(implicit ec: ExecutionContext)
     extends CurrentTaxYear {
 
-  def getMyServices(implicit request: UserRequest[_], hc: HeaderCarrier, messages: Messages): Future[Seq[MyService]] = {
+  def getMyServices(implicit request: UserRequest[?], hc: HeaderCarrier, messages: Messages): Future[Seq[MyService]] = {
 
     val isTrustedHelperUser = request.trustedHelper.isDefined
 
@@ -66,10 +66,11 @@ class MyServices @Inject() (
   private def getSelfAssessmentOrCombinedMtdTile(
     selfAssessmentUserType: SelfAssessmentUserType,
     isTrustedHelperUser: Boolean
-  )(implicit request: UserRequest[_], messages: Messages): Future[Option[MyService]] =
+  )(implicit request: UserRequest[?], messages: Messages): Future[Option[MyService]] =
     Future.successful {
-      if (isTrustedHelperUser) None
-      else {
+      if (isTrustedHelperUser) {
+        None
+      } else {
         val hasMtdItsa = userHasMtdItsaEnrolment(request.enrolments)
 
         (selfAssessmentUserType, hasMtdItsa) match {
@@ -92,7 +93,7 @@ class MyServices @Inject() (
             Some(
               saTile(
                 href = controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-                body = ""
+                body = messages("label.newViewAndManageSA", s"${current.currentYear + 1}")
               )
             )
 
@@ -100,12 +101,17 @@ class MyServices @Inject() (
             Some(
               saTile(
                 href = controllers.routes.SaWrongCredentialsController.landingPage().url,
-                body = ""
+                body = messages("title.signed_in_wrong_account.h1")
               )
             )
 
           case (_: NotYetActivatedOnlineFilerSelfAssessmentUser, _) =>
-            None
+            Some(
+              saTile(
+                href = configDecorator.ssoToActivateSaEnrolmentPinUrl,
+                body = messages("label.activate_your_self_assessment_registration")
+              )
+            )
 
           case _ =>
             None
@@ -157,7 +163,7 @@ class MyServices @Inject() (
     Future.successful(
       Some(
         MyService(
-          messages("label.your_national_insurance_and_state_pension"),
+          messages("label.new_national_insurance_and_state_pension"),
           controllers.interstitials.routes.InterstitialController.displayNISP.url,
           "",
           gaAction = Some("Income"),
@@ -192,35 +198,31 @@ class MyServices @Inject() (
 
   private def getMarriageAllowanceTile(nino: Nino, isTrustedHelperUser: Boolean)(implicit
     hc: HeaderCarrier,
-    request: UserRequest[_],
+    request: UserRequest[?],
     messages: Messages
   ): Future[Option[MyService]] =
     if (isTrustedHelperUser) {
       Future.successful(None)
     } else {
-      taiService.getTaxComponentsList(nino, current.currentYear).map {
-        case taxComponents if taxComponents.contains("MarriageAllowanceReceived")    =>
-          Some(
-            MyService(
-              messages("title.marriage_allowance"),
-              messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you"),
-              "/marriage-allowance-application/history",
-              gaAction = Some("Benefits"),
-              gaLabel = Some("Marriage Allowance")
-            )
+      taiService.getTaxComponentsList(nino, current.currentYear).map { taxComponents =>
+        val maMsg = taxComponents match {
+          case tc if tc.contains("MarriageAllowanceReceived")    =>
+            Some(messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you"))
+          case tc if tc.contains("MarriageAllowanceTransferred") =>
+            Some(messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner"))
+          case _                                                 =>
+            None
+        }
+
+        maMsg.map { msg =>
+          MyService(
+            messages("title.marriage_allowance"),
+            "/marriage-allowance-application/history",
+            msg,
+            gaAction = Some("Benefits"),
+            gaLabel = Some("Marriage Allowance")
           )
-        case taxComponents if taxComponents.contains("MarriageAllowanceTransferred") =>
-          Some(
-            MyService(
-              messages("title.marriage_allowance"),
-              messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner"),
-              "/marriage-allowance-application/history",
-              gaAction = Some("Benefits"),
-              gaLabel = Some("Marriage Allowance")
-            )
-          )
-        case _                                                                       =>
-          None
+        }
       }
     }
 
