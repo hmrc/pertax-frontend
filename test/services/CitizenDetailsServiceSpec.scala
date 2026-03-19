@@ -18,7 +18,7 @@ package services
 
 import cats.data.EitherT
 import connectors.CitizenDetailsConnector
-import models.admin.GetPersonFromCitizenDetailsToggle
+import models.admin.{GetMatchingFromCitizenDetailsToggle, GetPersonFromCitizenDetailsToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -373,8 +373,8 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Json.obj("ids" -> Json.obj("sautr" -> saUtr.utr)))
         )
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetMatchingFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetMatchingFromCitizenDetailsToggle, isEnabled = true)))
 
         val result =
           sut
@@ -405,8 +405,8 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
           EitherT.leftT[Future, JsValue](UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
         )
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetMatchingFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetMatchingFromCitizenDetailsToggle, isEnabled = true)))
 
         val result: Either[UpstreamErrorResponse, Option[SaUtr]] =
           sut
