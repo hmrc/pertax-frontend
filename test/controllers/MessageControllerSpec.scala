@@ -114,7 +114,7 @@ class MessageControllerSpec extends BaseSpec {
 
       status(r) mustBe OK
       verify(mockMessageFrontendService, never).getMessageListPartial(any())
-      body must include("You cannot view principal Name’s messages as their Trusted Helper.")
+      body must include("You cannot view principal Name’s messages as their trusted helper.")
     }
   }
 
