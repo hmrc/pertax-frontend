@@ -1,1 +1,4 @@
 ->          /featureFlags           mongoFeatureTogglesAdmin.Routes
+
+GET         /fix-addresses/put      controllers.tempAddressFix.FixController.putData
+GET         /fix-addresses/get/:key controllers.tempAddressFix.FixController.getData(key)
