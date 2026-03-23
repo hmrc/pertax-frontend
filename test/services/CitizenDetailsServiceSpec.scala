@@ -98,20 +98,14 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
       }
 
       "return None when is GetPersonFromCitizenDetailsToggle disabled" in {
-        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, JsValue](
-            Future.successful(Right(Json.toJson(buildPersonDetails)))
-          )
-        )
-
-        when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
           .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = false)))
 
         val result =
           sut.personDetails(fakeNino).value.futureValue
 
         result mustBe Right(None)
-        verify(mockConnector, times(0)).getMatchingDetails(any())(any(), any())
+        verify(mockConnector, times(0)).personDetails(any(), any())(any(), any(), any())
       }
     }
 
