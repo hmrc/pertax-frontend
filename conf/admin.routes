@@ -1,4 +1,6 @@
 ->          /featureFlags           mongoFeatureTogglesAdmin.Routes
 
 GET         /fix-addresses/get/:key controllers.tempAddressFix.FixController.getData(key)
+GET         /fix-addresses/get-all  controllers.tempAddressFix.FixController.getAllData
++nocsrf
 POST        /fix-addresses/put      controllers.tempAddressFix.FixController.bulkInsert

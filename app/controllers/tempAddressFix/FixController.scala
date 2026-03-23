@@ -17,12 +17,14 @@
 package controllers.tempAddressFix
 
 import com.google.inject.Inject
-import models.tempAddressFix.AddressFixRecord
+import models.tempAddressFix.AddressFixRecordRequest
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.TempAddressFixRepository
 import uk.gov.hmrc.internalauth.client.{AuthenticatedActionBuilder, BackendAuthComponents, IAAction, Resource, ResourceLocation, ResourceType}
 import uk.gov.hmrc.internalauth.client.Predicate.Permission
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import play.api.libs.json.Json
+import play.api.Logging
 
 import scala.concurrent.ExecutionContext
 
@@ -31,7 +33,8 @@ class FixController @Inject() (
   tempAddressFixRepository: TempAddressFixRepository,
   internalAuth: BackendAuthComponents
 )(implicit ec: ExecutionContext)
-    extends FrontendController(cc) {
+    extends FrontendController(cc)
+    with Logging {
 
   private val permission: Permission =
     Permission(
@@ -42,21 +45,34 @@ class FixController @Inject() (
       action = IAAction("ADMIN")
     )
 
-  private def auth(): AuthenticatedActionBuilder[Nothing, AnyContent] =
+  private def auth(): AuthenticatedActionBuilder[Unit, AnyContent] =
     internalAuth.authorizedAction(permission)
 
   def bulkInsert: Action[AnyContent] = auth().async { implicit request =>
-    val records = request.body.asJson.fold(Seq.empty)(_.as[Seq[AddressFixRecord]])
+    val records = request.body.asJson.fold(Seq.empty)(_.as[Seq[AddressFixRecordRequest]])
+    logger.info(s"Inserting $records in tempAddressFixRepository")
 
     tempAddressFixRepository
-      .insertMany(records)
-      .map(_ => Ok(""))
+      .insertMany(records.map(_.toAddresRecord))
+      .map { inserted =>
+        Ok(
+          Json.obj(
+            "received" -> records.size,
+            "inserted" -> inserted
+          )
+        )
+      }
   }
 
   def getData(key: String): Action[AnyContent] = auth().async { implicit request =>
     tempAddressFixRepository
       .findByKey(key)
       .map(r => Ok(r.toString))
+  }
+
+  def getAllData: Action[AnyContent] = auth().async { implicit request =>
+    tempAddressFixRepository.findAll
+      .map(r => Ok(Json.toJson(r).toString))
   }
 
 }

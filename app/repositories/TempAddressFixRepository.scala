@@ -68,13 +68,18 @@ class TempAddressFixRepository @Inject() (
       .toFuture()
       .map { multiBulkWriteResult =>
         logger.info(
-          s"Number of records requested to be inserted: ${entities.size} - writeResult: $multiBulkWriteResult"
+          s"Number of records requested to be inserted: ${entities.size}"
         )
         multiBulkWriteResult.getInsertedIds.size()
       }
       .recoverWith {
         case e: MongoBulkWriteException if e.getWriteErrors.asScala.forall(_.getCode == DUPLICATE_KEY_ERROR) =>
-          Future.successful(e.getWriteResult.getInsertedCount)
+          val inserted = e.getWriteResult.getInsertedCount
+          val skipped  = e.getWriteErrors.asScala.count(_.getCode == DUPLICATE_KEY_ERROR)
+          logger.info(
+            s"Records requested: ${entities.size}, inserted: $inserted, skipped (duplicates): $skipped"
+          )
+          Future.successful(inserted)
       }
   }
 
@@ -82,5 +87,10 @@ class TempAddressFixRepository @Inject() (
     collection
       .find(equal("key", AddressFixRecord(key, "", "").hashedNino))
       .headOption()
+
+  def findAll: Future[Seq[AddressFixRecord]] =
+    collection
+      .find()
+      .toFuture()
 
 }

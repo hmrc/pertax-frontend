@@ -19,6 +19,7 @@ package models.tempAddressFix
 import config.CryptoProvider
 import play.api.libs.json.{Format, JsSuccess, Json, OFormat, Reads, Writes}
 import uk.gov.hmrc.crypto.{Crypted, PlainText}
+
 import java.time.Instant
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
@@ -52,4 +53,12 @@ object AddressFixRecord {
 
     Format(reads, writes)
   }
+}
+
+case class AddressFixRecordRequest(nino: String, postcode: String) {
+  def toAddresRecord: AddressFixRecord = AddressFixRecord(nino, postcode, "todo")
+}
+
+object AddressFixRecordRequest {
+  implicit val reads: Reads[AddressFixRecordRequest] = Json.reads[AddressFixRecordRequest]
 }
