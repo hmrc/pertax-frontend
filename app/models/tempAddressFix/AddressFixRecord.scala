@@ -20,18 +20,20 @@ import config.CryptoProvider
 import play.api.libs.json.{Format, JsSuccess, Json, OFormat, Reads, Writes}
 import uk.gov.hmrc.crypto.{Crypted, PlainText}
 import java.time.Instant
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
-case class AddressFixRecord(nino: String, postcode: String, status: String, timestamp: Instant = Instant.now)
+case class AddressFixRecord(nino: String, postcode: String, status: String, timestamp: Instant = Instant.now) {
+  def hashedNino: String =
+    java.security.MessageDigest
+      .getInstance("SHA-256")
+      .digest(nino.getBytes("UTF-8"))
+      .map("%02x".format(_))
+      .mkString
+}
 
 object AddressFixRecord {
   implicit val formats: OFormat[AddressFixRecord] = Json.format[AddressFixRecord]
-
-  def hash(value: String): String =
-    java.security.MessageDigest
-      .getInstance("SHA-256")
-      .digest(value.getBytes("UTF-8"))
-      .map("%02x".format(_))
-      .mkString
+  implicit val formatInstant: Format[Instant]     = MongoJavatimeFormats.instantFormat
 
   def format(cryptoProvider: CryptoProvider): Format[AddressFixRecord] = {
     val crypto = cryptoProvider.get()
@@ -42,8 +44,9 @@ object AddressFixRecord {
 
     val writes: Writes[AddressFixRecord] = Writes { record =>
       Json.obj(
-        "key"  -> hash(record.nino),
-        "data" -> crypto.encrypt(PlainText(Json.toJson(record).toString)).value
+        "key"       -> record.hashedNino,
+        "timestamp" -> record.timestamp,
+        "data"      -> crypto.encrypt(PlainText(Json.toJson(record).toString)).value
       )
     }
 

@@ -17,6 +17,7 @@
 package repositories
 
 import com.mongodb.client.model.Indexes.ascending
+import com.mongodb.client.model.Indexes
 import config.CryptoProvider
 import org.mongodb.scala.model.{IndexModel, IndexOptions, InsertManyOptions}
 import uk.gov.hmrc.mongo.MongoComponent
@@ -26,6 +27,7 @@ import org.mongodb.scala.model.Filters.equal
 import play.api.Logging
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import scala.jdk.CollectionConverters.*
+import java.util.concurrent.TimeUnit
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,7 +42,14 @@ class TempAddressFixRepository @Inject() (
       collectionName = "fixNinoAddresses",
       domainFormat = AddressFixRecord.format(cryptoProvider),
       indexes = Seq(
-        IndexModel(ascending("key"), IndexOptions().unique(true).name("key"))
+        IndexModel(ascending("key"), IndexOptions().unique(true).name("key")),
+        IndexModel(
+          Indexes.ascending("timestamp"),
+          IndexOptions()
+            .name("ttlIndex")
+            .expireAfter(365, TimeUnit.DAYS)
+            .background(true)
+        )
       )
     )
     with Logging {
@@ -71,7 +80,7 @@ class TempAddressFixRepository @Inject() (
 
   def findByKey(key: String): Future[Option[AddressFixRecord]] =
     collection
-      .find(equal("key", AddressFixRecord.hash(key)))
+      .find(equal("key", AddressFixRecord(key, "", "").hashedNino))
       .headOption()
 
 }
