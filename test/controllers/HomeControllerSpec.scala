@@ -16,6 +16,7 @@
 
 package controllers
 
+import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.FandFConnector
 import controllers.auth.AuthJourney
@@ -40,17 +41,17 @@ import repositories.JourneyCacheRepository
 import services.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
-import testUtils.{BaseSpec, Fixtures, WireMockHelper}
+import testUtils.{BaseSpec, CitizenDetailsFixtures, Fixtures, WireMockHelper}
 import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.AlertBannerHelper
 
 import scala.concurrent.Future
 
-class HomeControllerSpec extends BaseSpec with WireMockHelper {
+class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetailsFixtures {
   val fakeAuthJourney              = new FakeAuthJourney
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
   val fakePaperlessInterruptHelper = new FakePaperlessInterruptHelper
@@ -789,5 +790,54 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper {
     verify(mockFandfConnector, times(1)).showFandfBanner(ArgumentMatchers.eq(Fixtures.fakeNino))(any(), any())
     verify(mockFandfConnector, times(0)).showFandfBanner(ArgumentMatchers.eq(generatedTrustedHelperNino))(any(), any())
 
+  }
+
+  "Address error banner appears when address features ADDRESS - NOT KNOWN" in {
+    val mockCitizenDetailsService = mock[CitizenDetailsService]
+
+    val appLocal: Application =
+      localGuiceApplicationBuilder()
+        .overrides(
+          bind[AuthJourney].toInstance(new AuthJourney {
+            override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+              new testUtils.ActionBuilderFixture {
+                override def invokeBlock[A](
+                  request: Request[A],
+                  block: UserRequest[A] => Future[Result]
+                ): Future[Result] =
+                  block(
+                    buildUserRequest(
+                      request = request,
+                      trustedHelper = None
+                    )
+                  )
+              }
+          }),
+          bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
+          bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
+          bind[TaiService].toInstance(mockTaiService),
+          bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
+          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+          bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
+          bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
+          bind[FandFConnector].toInstance(mockFandfConnector),
+          bind[CitizenDetailsService].toInstance(mockCitizenDetailsService)
+        )
+        .build()
+
+    when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+      .thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](
+          Some(
+            buildPersonDetailsWithPersonalAndCorrespondenceAddress.copy(address =
+              Some(buildFakeAddress.copy(country = Some("ABROAD - NOT KNOWN")))
+            )
+          )
+        )
+      )
+    val controller = appLocal.injector.instanceOf[HomeController]
+    val result     = controller.index()(currentRequest)
+    status(result) mustBe OK
+    contentAsString(result) must include("There was a problem updating your postcode")
   }
 }

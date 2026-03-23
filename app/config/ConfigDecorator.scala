@@ -303,4 +303,34 @@ class ConfigDecorator @Inject() (
 
   val onboardingByNiNoLastNumericDigitList: Seq[Int] =
     runModeConfiguration.get[Seq[Int]]("onboarding.by.nino.lastNumericDigit")
+
+  lazy val addressChangeBannerTextEn: String       =
+    runModeConfiguration.get[String]("feature.address-change-error.banner.paragraph.en")
+  lazy val addressChangeBannerTextCy: String       =
+    runModeConfiguration.get[String]("feature.address-change-error.banner.paragraph.cy")
+  lazy val addressChangeBannerLink: String         =
+    runModeConfiguration.get[String]("feature.address-change-error.banner.link")
+  lazy val addressChangeBannerLinkTextEn: String   =
+    runModeConfiguration.get[String]("feature.address-change-error.banner.link-text.en")
+  lazy val addressChangeBannerLinkTextCy: String   =
+    runModeConfiguration.get[String]("feature.address-change-error.banner.link-text.cy")
+  lazy val addressChangeStartDateHeadingEn: String =
+    runModeConfiguration.get[String]("feature.address-change-error.start-date.heading.en")
+  lazy val addressChangeStartDateHeadingCy: String =
+    runModeConfiguration.get[String]("feature.address-change-error.start-date.heading.cy")
+  lazy val addressChangeProfileTextEn: String      =
+    runModeConfiguration.get[String]("feature.address-change-error.profile.text.en")
+  lazy val addressChangeProfileTextCy: String      =
+    runModeConfiguration.get[String]("feature.address-change-error.profile.text.cy")
+
+  def addressChangeStartDateParagraphEn(addressType: String, date: String): String =
+    runModeConfiguration
+      .get[String]("feature.address-change-error.start-date.paragraph.en")
+      .replace("{0}", addressType)
+      .replace("{1}", date)
+  def addressChangeStartDateParagraphCy(addressType: String, date: String): String =
+    runModeConfiguration
+      .get[String]("feature.address-change-error.start-date.paragraph.cy")
+      .replace("{0}", addressType)
+      .replace("{1}", date)
 }
