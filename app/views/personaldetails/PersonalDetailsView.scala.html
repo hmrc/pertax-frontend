@@ -47,7 +47,7 @@
         <dd class="govuk-summary-list__value">
             @row.content
             @if(isMainAddress && showAddressErrorBanner){
-                <p class="govuk-hint">@if(messages.lang.code == "cy"){ @configDecorator.addressChangeBannerTextCy} else { @configDecorator.addressChangeProfileTextEn } </p>
+                <p class="govuk-hint">@if(messages.lang.code == "cy"){ @configDecorator.addressChangeProfileTextCy} else { @configDecorator.addressChangeProfileTextEn } </p>
             }
         </dd>
         <dd class="govuk-summary-list__actions">
