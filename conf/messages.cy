@@ -273,6 +273,7 @@ label.change_address=eich cyfeiriad newydd
 label.when_you_started_living_here=Pan wnaethoch ddechrau byw fan hyn
 label.when_you_started_living_here.change=pryd y gwnaethoch ddechrau byw fan hyn
 label.what_happens_next=Yr hyn sy’n digwydd nesaf
+label.todays_date_warning=Byddwch yn gweld dyddiad heddiw os yw’r dyddiad a nodwyd gennych yn gynharach na’r un sydd ar gofnod gan CThEF.
 label.confirm_and_save=Cadarnhau a chadw
 label.continue_to_your_sa302=Mynd yn eich blaen i’ch SA302
 label.we_are_processing_your-details=Rydym yn prosesu’ch manylion

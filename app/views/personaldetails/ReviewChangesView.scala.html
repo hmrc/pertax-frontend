@@ -94,6 +94,11 @@ displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], messages: 
           }
       </dl>
 
+      @govukInsetText(InsetText(
+          content = HtmlContent(messages("label.todays_date_warning"))
+        )
+      )
+
     @form(controllers.address.routes.AddressSubmissionController.onSubmit(typ)) {
         @button("label.confirm_and_save")
     }
