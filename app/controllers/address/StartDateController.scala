@@ -33,7 +33,7 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.language.LanguageUtils
 import views.html.InternalServerErrorView
-import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, CannotUpdateAddressFutureDateView, EnterStartDateView}
+import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, CannotUpdateAddressErrorAddressEarlyDateView, CannotUpdateAddressFutureDateView, EnterStartDateView}
 
 import java.time.LocalDate
 import javax.inject.Singleton
@@ -48,6 +48,7 @@ class StartDateController @Inject() (
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressEarlyDateView: CannotUpdateAddressEarlyDateView,
   cannotUpdateAddressFutureDateView: CannotUpdateAddressFutureDateView,
+  cannotUpdateAddressErrorAddressEarlyDateView: CannotUpdateAddressErrorAddressEarlyDateView,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
   errorRenderer: ErrorRenderer,
@@ -154,15 +155,26 @@ class StartDateController @Inject() (
                               )
 
                             case StartDateDecisionService.EarlyDateError =>
-                              Future.successful(
-                                BadRequest(
-                                  cannotUpdateAddressEarlyDateView(
-                                    typ,
-                                    languageUtils.Dates.formatDate(proposedStartDate),
-                                    overseasMove
+                              if (personDetails.notKnownAddress) {
+                                Future.successful(
+                                  BadRequest(
+                                    cannotUpdateAddressErrorAddressEarlyDateView(
+                                      typ,
+                                      languageUtils.Dates.formatDate(existingStartDate.get.plusDays(1))
+                                    )
                                   )
                                 )
-                              )
+                              } else {
+                                Future.successful(
+                                  BadRequest(
+                                    cannotUpdateAddressEarlyDateView(
+                                      typ,
+                                      languageUtils.Dates.formatDate(proposedStartDate),
+                                      overseasMove
+                                    )
+                                  )
+                                )
+                              }
                           },
                           dateToPersist =>
                             cachingHelper

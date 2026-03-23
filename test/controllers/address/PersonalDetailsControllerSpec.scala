@@ -25,14 +25,14 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import play.api.Application
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import services.CitizenDetailsService
 import testUtils.BaseSpec
-import testUtils.Fixtures.buildPersonDetailsWithPersonalAndCorrespondenceAddress
+import testUtils.Fixtures.{buildFakeAddress, buildPersonDetailsWithPersonalAndCorrespondenceAddress}
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -154,6 +154,34 @@ class PersonalDetailsControllerSpec extends BaseSpec {
         )
 
         status(result) mustBe OK
+      }
+    }
+
+    "show the problem updating postcode messaging" when {
+      "user has ABROAD - NOT KNOWN address" in {
+        val notKnownAddress = buildFakeAddress.copy(country = Some("ABROAD - NOT KNOWN"))
+
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(
+              Right(Some(personDetails.copy(address = Some(notKnownAddress))))
+            )
+          )
+        )
+
+        when(mockEditAddressLockRepository.get(any())).thenReturn(
+          Future.successful(List.empty)
+        )
+
+        val result: Future[Result] = controller.onPageLoad(
+          FakeRequest().withHeaders(
+            (HeaderNames.xSessionId, "test-session-id")
+          )
+        )
+
+        status(result) mustBe OK
+        contentAsString(result) must include("There was a problem updating your postcode")
+        contentAsString(result) must include("We could not update your postcode. Please try again.")
       }
     }
   }

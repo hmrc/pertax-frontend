@@ -144,8 +144,13 @@ class HomeController @Inject() (
         eitherPersonDetails     <- fEitherPersonDetails
         showFandfBanner         <- fShowFandfBanner
       } yield {
-        val personDetailsOpt = eitherPersonDetails.toOption.flatten
-        val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
+        val personDetailsOpt           = eitherPersonDetails.toOption.flatten
+        val nameToDisplay              = Some(personalDetailsNameOrDefault(personDetailsOpt))
+        val showAddressBanner: Boolean =
+          eitherPersonDetails.fold(
+            _ => false,
+            _.exists(_.notKnownAddress)
+          )
 
         val benefitCards       = homeCardGenerator.getBenefitCards(taxComponents, request.trustedHelper)
         val trustedHelpersCard = if (request.trustedHelper.isDefined) {
@@ -168,7 +173,8 @@ class HomeController @Inject() (
               trustedHelpersCard
             ),
             shutteringMessaging.isEnabled,
-            showFandfBanner
+            showFandfBanner,
+            showAddressBanner
           )
         )
       }

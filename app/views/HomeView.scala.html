@@ -30,7 +30,7 @@
         languageUtils: LanguageUtils
 )
 
-@(viewModel: HomeViewModel, shutteringMessaging: Boolean, fandfBanner: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(viewModel: HomeViewModel, shutteringMessaging: Boolean, fandfBanner: Boolean, addressBanner: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @bannerHtml = {
     <p class="govuk-notification-banner__heading">
@@ -46,6 +46,14 @@
     </p>
 }
 
+@addressBannerHtml = {
+    <p class="govuk-notification-banner__heading">
+        @if(messages.lang.code == "cy"){ @configDecorator.addressChangeBannerTextCy }else {@configDecorator.addressChangeBannerTextEn}<br/>
+        <a class="govuk-notification-banner__link" href="@configDecorator.addressChangeBannerLink"> @if(messages.lang.code == "cy"){ @configDecorator.addressChangeBannerLinkTextCy }else {@configDecorator.addressChangeBannerLinkTextEn}</a>
+    </p>
+}
+
+
 @main(
     pageTitle = messages("label.account_home"),
     fullWidth = true,
@@ -55,6 +63,12 @@
     @if(shutteringMessaging) {
         @govukNotificationBanner(NotificationBanner(
             content = HtmlContent(bannerHtml)
+        ))
+    }
+
+    @if(addressBanner){
+        @govukNotificationBanner(NotificationBanner(
+            content = HtmlContent(addressBannerHtml)
         ))
     }
 
