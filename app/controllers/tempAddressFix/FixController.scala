@@ -20,29 +20,32 @@ import com.google.inject.Inject
 import models.tempAddressFix.AddressFixRecord
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.TempAddressFixRepository
+import uk.gov.hmrc.internalauth.client.{AuthenticatedActionBuilder, BackendAuthComponents, IAAction, Resource, ResourceLocation, ResourceType}
+import uk.gov.hmrc.internalauth.client.Predicate.Permission
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 
 class FixController @Inject() (
   cc: MessagesControllerComponents,
-  tempAddressFixRepository: TempAddressFixRepository
+  tempAddressFixRepository: TempAddressFixRepository,
+  internalAuth: BackendAuthComponents
 )(implicit ec: ExecutionContext)
     extends FrontendController(cc) {
 
-  def putData: Action[AnyContent] = Action.async { implicit request =>
-    tempAddressFixRepository
-      .insert(
-        AddressFixRecord(
-          nino = "nino",
-          postcode = "postcode",
-          status = "todo"
-        )
-      )
-      .map(_ => Ok(""))
-  }
+  private val permission: Permission =
+    Permission(
+      resource = Resource(
+        resourceType = ResourceType("ddcn-live-admin-frontend"),
+        resourceLocation = ResourceLocation("*")
+      ),
+      action = IAAction("ADMIN")
+    )
 
-  def bulkInsert: Action[AnyContent] = Action.async { implicit request =>
+  private def auth(): AuthenticatedActionBuilder[Nothing, AnyContent] =
+    internalAuth.authorizedAction(permission)
+
+  def bulkInsert: Action[AnyContent] = auth().async { implicit request =>
     val records = request.body.asJson.fold(Seq.empty)(_.as[Seq[AddressFixRecord]])
 
     tempAddressFixRepository
@@ -50,7 +53,7 @@ class FixController @Inject() (
       .map(_ => Ok(""))
   }
 
-  def getData(key: String): Action[AnyContent] = Action.async { implicit request =>
+  def getData(key: String): Action[AnyContent] = auth().async { implicit request =>
     tempAddressFixRepository
       .findByKey(key)
       .map(r => Ok(r.toString))
