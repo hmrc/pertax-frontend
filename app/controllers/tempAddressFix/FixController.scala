@@ -34,8 +34,8 @@ class FixController @Inject() (
     tempAddressFixRepository
       .insert(
         AddressFixRecord(
-          nino = "AA123457A",
-          postcode = "AA1 1AA",
+          nino = "nino",
+          postcode = "postcode",
           status = "todo"
         )
       )
