@@ -18,11 +18,14 @@ package repositories
 
 import com.mongodb.client.model.Indexes.ascending
 import config.CryptoProvider
-import org.mongodb.scala.model.{IndexModel, IndexOptions}
+import org.mongodb.scala.model.{IndexModel, IndexOptions, InsertManyOptions}
 import uk.gov.hmrc.mongo.MongoComponent
 import models.tempAddressFix.AddressFixRecord
+import org.mongodb.scala.MongoBulkWriteException
 import org.mongodb.scala.model.Filters.equal
+import play.api.Logging
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import scala.jdk.CollectionConverters.*
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,13 +42,32 @@ class TempAddressFixRepository @Inject() (
       indexes = Seq(
         IndexModel(ascending("key"), IndexOptions().unique(true).name("key"))
       )
-    ) {
+    )
+    with Logging {
 
   def insert(entity: AddressFixRecord): Future[AddressFixRecord] =
     collection
       .insertOne(entity)
       .toFuture()
       .map(_ => entity)
+
+  def insertMany(entities: Seq[AddressFixRecord]): Future[Int] = {
+    val DUPLICATE_KEY_ERROR = 11000
+
+    collection
+      .insertMany(entities, InsertManyOptions().ordered(false))
+      .toFuture()
+      .map { multiBulkWriteResult =>
+        logger.info(
+          s"Number of records requested to be inserted: ${entities.size} - writeResult: $multiBulkWriteResult"
+        )
+        multiBulkWriteResult.getInsertedIds.size()
+      }
+      .recoverWith {
+        case e: MongoBulkWriteException if e.getWriteErrors.asScala.forall(_.getCode == DUPLICATE_KEY_ERROR) =>
+          Future.successful(e.getWriteResult.getInsertedCount)
+      }
+  }
 
   def findByKey(key: String): Future[Option[AddressFixRecord]] =
     collection

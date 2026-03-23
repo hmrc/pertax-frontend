@@ -34,11 +34,19 @@ class FixController @Inject() (
     tempAddressFixRepository
       .insert(
         AddressFixRecord(
-          nino = "AA123456A",
+          nino = "AA123457A",
           postcode = "AA1 1AA",
           status = "todo"
         )
       )
+      .map(_ => Ok(""))
+  }
+
+  def bulkInsert: Action[AnyContent] = Action.async { implicit request =>
+    val records = request.body.asJson.fold(Seq.empty)(_.as[Seq[AddressFixRecord]])
+
+    tempAddressFixRepository
+      .insertMany(records)
       .map(_ => Ok(""))
   }
 

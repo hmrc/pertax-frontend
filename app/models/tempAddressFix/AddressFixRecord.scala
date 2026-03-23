@@ -19,8 +19,9 @@ package models.tempAddressFix
 import config.CryptoProvider
 import play.api.libs.json.{Format, JsSuccess, Json, OFormat, Reads, Writes}
 import uk.gov.hmrc.crypto.{Crypted, PlainText}
+import java.time.Instant
 
-case class AddressFixRecord(nino: String, postcode: String, status: String)
+case class AddressFixRecord(nino: String, postcode: String, status: String, timestamp: Instant = Instant.now)
 
 object AddressFixRecord {
   implicit val formats: OFormat[AddressFixRecord] = Json.format[AddressFixRecord]
