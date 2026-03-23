@@ -18,10 +18,14 @@
 @import controllers.auth.requests.UserRequest
 @import viewmodels.{AddressRowModel, ExtraLinks, PersonalDetailsTableRowModel}
 @import views.MainView
+@import config.ConfigDecorator
+
 @this(
     main: MainView,
     h1: H1,
-    h2: H2
+    h2: H2,
+    configDecorator: ConfigDecorator,
+    govukNotificationBanner: GovukNotificationBanner
 )
 
 @(
@@ -31,16 +35,20 @@
     paperlessHelpers: Option[PersonalDetailsTableRowModel],
     signinDetailsHelpers: Option[PersonalDetailsTableRowModel],
     manageTaxAgent: Option[PersonalDetailsTableRowModel],
-    addressChangeAllowed: Boolean
+    addressChangeAllowed: Boolean,
+    showAddressErrorBanner: Boolean
 )(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
-@rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil) = {
+@rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil, isMainAddress: Boolean = false) = {
     <div class="govuk-summary-list__row" id="@row.id">
         <dt class="govuk-summary-list__key">
             @messages(row.titleMessage)
         </dt>
         <dd class="govuk-summary-list__value">
             @row.content
+            @if(isMainAddress && showAddressErrorBanner){
+                <p class="govuk-hint">@if(messages.lang.code == "cy"){ @configDecorator.addressChangeProfileTextCy} else { @configDecorator.addressChangeProfileTextEn } </p>
+            }
         </dd>
         <dd class="govuk-summary-list__actions">
             @row.linkUrl.map { url =>
@@ -70,7 +78,7 @@
 @addressRowsPresenter(addressRow: Option[PersonalDetailsTableRowModel], isMainAddress: Boolean, extraLinks: List[ExtraLinks] = Nil) = {
     @{
         addressRow match {
-            case Some(row) => rowsPresenter(row, extraLinks)
+            case Some(row) => rowsPresenter(row, extraLinks, isMainAddress)
             case _ => emptyAddressRow(isMainAddress)
         }
     }
@@ -110,11 +118,23 @@
     }
 }
 
+@addressErrorBannerContent = {
+    <p class="govuk-notification-banner__heading">
+        @if(messages.lang.code == "cy"){ @configDecorator.addressChangeBannerTextCy }else {@configDecorator.addressChangeBannerTextEn}<br/>
+        @if(messages.lang.code == "cy"){ @configDecorator.addressChangeBannerLinkTextCy }else {@configDecorator.addressChangeBannerLinkTextEn}</a>
+    </p>
+}
 
 @main(
     pageTitle = messages("label.profile_and_settings"),
     yourProfileActive = true
 ) {
+
+  @if(showAddressErrorBanner) {
+      @govukNotificationBanner(NotificationBanner(
+          content = HtmlContent(addressErrorBannerContent)
+      ))
+  }
 
         @h1("label.profile_and_settings", classes=Some("govuk-heading-xl"))
 

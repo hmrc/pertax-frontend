@@ -101,10 +101,15 @@ class PersonalDetailsController @Inject() (
         personalDetailsTable       <- personalDetailsViewModel.getPersonDetailsTable(Some(ninoToDisplay), nameToDisplay)
 
       } yield {
-        val trustedHelpers       = personalDetailsViewModel.getTrustedHelpersRow
-        val paperlessHelpers     = paperLessPreference
-        val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
-        val manageTaxAgent       = if (agentClientStatus) personalDetailsViewModel.getManageTaxAgentsRow else None
+        val trustedHelpers             = personalDetailsViewModel.getTrustedHelpersRow
+        val paperlessHelpers           = paperLessPreference
+        val signinDetailsHelpers       = personalDetailsViewModel.getSignInDetailsRow
+        val manageTaxAgent             = if (agentClientStatus) personalDetailsViewModel.getManageTaxAgentsRow else None
+        val showAddressBanner: Boolean =
+          personDetails.match {
+            case None          => false
+            case Some(details) => details.notKnownAddress
+          }
 
         Ok(
           personalDetailsView(
@@ -114,7 +119,8 @@ class PersonalDetailsController @Inject() (
             paperlessHelpers,
             signinDetailsHelpers,
             manageTaxAgent,
-            addressChangeAllowedToggle.isEnabled && getPersonDetailsToggle.isEnabled
+            addressChangeAllowedToggle.isEnabled && getPersonDetailsToggle.isEnabled,
+            showAddressBanner
           )
         )
       }

@@ -32,18 +32,14 @@ import play.api.test.Helpers.{redirectLocation, *}
 import repositories.JourneyCacheRepository
 import routePages.{HasAddressAlreadyVisitedPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage}
 import services.{AddressCountryService, CitizenDetailsService, NormalizationUtils, StartDateDecisionService}
-import testUtils.Fixtures.{buildPersonDetailsCorrespondenceAddress, buildPersonDetailsWithPersonalAndCorrespondenceAddress, fakeStreetTupleListAddressForUnmodified}
 import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.{BaseSpec, Fixtures}
+import testUtils.{BaseSpec, CitizenDetailsFixtures, Fixtures}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
-class StartDateControllerSpec extends BaseSpec {
-
-  def asAddressDto(l: List[(String, String)]): AddressDto =
-    AddressDto.ukForm.bind(l.toMap).get
+class StartDateControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
   def asAddressDtoWithSubdivision(l: List[(String, String)], subdivision: String): AddressDto =
     AddressDto.ukForm.bind(l.toMap).get.copy(subdivision = Some(subdivision))
@@ -498,6 +494,42 @@ class StartDateControllerSpec extends BaseSpec {
         controller.onSubmit(ResidentialAddrType)(postReq)
 
       status(result) mustBe BAD_REQUEST
+    }
+
+    "return 400 when startDate is same as on record for ABROAD - NOT KNOWN user" in {
+      val userAnswers: UserAnswers =
+        UserAnswers
+          .empty("id")
+          .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+          .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
+          .setOrException(SubmittedAddressPage(ResidentialAddrType), submittedUkAddress)
+
+      val startDate      = LocalDate.of(2024, 3, 15)
+      val currentAddress = buildFakeAddress.copy(country = Some("ABROAD - NOT KNOWN"), startDate = Some(startDate))
+
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier]))
+        .thenReturn(Future.successful(userAnswers))
+
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(Right(Some(personDetails.copy(address = Some(currentAddress)))))
+          )
+        )
+
+      when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
+        .thenReturn(Future.successful(Some("GB-ENG")), Future.successful(Some("GB-SCT")))
+
+      def postReq[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2024")
+          .asInstanceOf[Request[A]]
+
+      val result: Future[Result] =
+        controller.onSubmit(ResidentialAddrType)(postReq)
+
+      status(result) mustBe BAD_REQUEST
+      contentAsString(result) must include("The date you entered must be later than the one we already have")
     }
 
     "return 400 when startDate is the same as recorded and move is cross-border Scotland" in {
