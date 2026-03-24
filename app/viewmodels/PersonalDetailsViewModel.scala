@@ -108,7 +108,7 @@ class PersonalDetailsViewModel @Inject() (
     val postalAddress                =
       getPostalAddressIfExists(personDetails, isCorrespondenceChangeLocked)
 
-    val isAddressError = personDetails.exists(_.notKnownMainAddress)
+    val isAddressError = personDetails.exists(_.notKnownCorrespondenceAddress)
 
     for {
       addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
