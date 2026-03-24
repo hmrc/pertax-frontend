@@ -23,8 +23,8 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.{BreathingSpaceIndicatorResponse, HomePageServices}
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePageNewLayoutToggle, ShowPlannedOutageBannerToggle}
+import models.{BreathingSpaceIndicatorResponse, HomePageServices}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -56,15 +56,15 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
   val fakePaperlessInterruptHelper = new FakePaperlessInterruptHelper
 
-  val mockBreathingSpaceService: BreathingSpaceService = mock[BreathingSpaceService]
-  val mockHomeCardGenerator: HomeCardGenerator         = mock[HomeCardGenerator]
-  val mockHomeOptionsGenerator: HomeOptionsGenerator   = mock[HomeOptionsGenerator]
-  val mockAlertBannerHelper: AlertBannerHelper         = mock[AlertBannerHelper]
-  val mockTaiService: TaiService                       = mock[TaiService]
-  val mockFandfConnector: FandFConnector               = mock[FandFConnector]
+  val mockBreathingSpaceService: BreathingSpaceService       = mock[BreathingSpaceService]
+  val mockHomeCardGenerator: HomeCardGenerator               = mock[HomeCardGenerator]
+  val mockHomeOptionsGenerator: HomeOptionsGenerator         = mock[HomeOptionsGenerator]
+  val mockAlertBannerHelper: AlertBannerHelper               = mock[AlertBannerHelper]
+  val mockTaiService: TaiService                             = mock[TaiService]
+  val mockFandfConnector: FandFConnector                     = mock[FandFConnector]
   val mockHomePageServicesProvider: HomePageServicesProvider = mock[HomePageServicesProvider]
-  val mockTasksService: TasksService                   = mock[TasksService]
-  val mockConfigDecorator: ConfigDecorator             = mock[ConfigDecorator]
+  val mockTasksService: TasksService                         = mock[TasksService]
+  val mockConfigDecorator: ConfigDecorator                   = mock[ConfigDecorator]
 
   lazy val appBuilder: GuiceApplicationBuilder = localGuiceApplicationBuilder()
     .overrides(
@@ -281,7 +281,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
               override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
                 new testUtils.ActionBuilderFixture {
                   override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
-                  : Future[Result] =
+                    : Future[Result] =
                     block(
                       buildUserRequest(
                         request = request,
@@ -333,7 +333,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
               override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
                 new testUtils.ActionBuilderFixture {
                   override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
-                  : Future[Result] =
+                    : Future[Result] =
                     block(
                       buildUserRequest(
                         request = request,
@@ -393,7 +393,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
               override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
                 new testUtils.ActionBuilderFixture {
                   override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
-                  : Future[Result] =
+                    : Future[Result] =
                     block(
                       buildUserRequest(
                         request = request,
@@ -453,7 +453,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
               override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
                 new testUtils.ActionBuilderFixture {
                   override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
-                  : Future[Result] =
+                    : Future[Result] =
                     block(
                       buildUserRequest(
                         request = request,
@@ -511,7 +511,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
               override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
                 new testUtils.ActionBuilderFixture {
                   override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
-                  : Future[Result] =
+                    : Future[Result] =
                     block(
                       buildUserRequest(
                         request = request,
@@ -749,9 +749,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
               new testUtils.ActionBuilderFixture {
                 override def invokeBlock[A](
-                                             request: Request[A],
-                                             block: UserRequest[A] => Future[Result]
-                                           ): Future[Result] =
+                  request: Request[A],
+                  block: UserRequest[A] => Future[Result]
+                ): Future[Result] =
                   block(
                     buildUserRequest(
                       request = request,
@@ -795,9 +795,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
               new testUtils.ActionBuilderFixture {
                 override def invokeBlock[A](
-                                             request: Request[A],
-                                             block: UserRequest[A] => Future[Result]
-                                           ): Future[Result] =
+                  request: Request[A],
+                  block: UserRequest[A] => Future[Result]
+                ): Future[Result] =
                   block(
                     buildUserRequest(
                       request = request,

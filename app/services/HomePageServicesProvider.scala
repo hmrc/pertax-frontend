@@ -31,20 +31,20 @@ import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomePageServicesProvider @Inject() (
-                                           configDecorator: ConfigDecorator,
-                                           featureFlagService: FeatureFlagService,
-                                           fandFService: FandFService,
-                                           taiService: TaiService
-                                         )(implicit ec: ExecutionContext)
-  extends CurrentTaxYear {
+  configDecorator: ConfigDecorator,
+  featureFlagService: FeatureFlagService,
+  fandFService: FandFService,
+  taiService: TaiService
+)(implicit ec: ExecutionContext)
+    extends CurrentTaxYear {
 
   private val MtdItsaEnrolmentKey = "HMRC-MTD-IT"
 
   def getHomePageServices(implicit
-                          request: UserRequest[?],
-                          hc: HeaderCarrier,
-                          messages: Messages
-                         ): Future[HomePageServices] = {
+    request: UserRequest[?],
+    hc: HeaderCarrier,
+    messages: Messages
+  ): Future[HomePageServices] = {
 
     val isTrustedHelperUser = request.trustedHelper.isDefined
     val nino                = request.authNino
@@ -120,10 +120,10 @@ class HomePageServicesProvider @Inject() (
     )
 
   private def getMySelfAssessment(
-                                   saUserType: SelfAssessmentUserType,
-                                   enrolments: Set[Enrolment],
-                                   isTrustedHelperUser: Boolean
-                                 )(implicit messages: Messages): Future[Option[MyService]] =
+    saUserType: SelfAssessmentUserType,
+    enrolments: Set[Enrolment],
+    isTrustedHelperUser: Boolean
+  )(implicit messages: Messages): Future[Option[MyService]] =
     Future.successful {
       if (isTrustedHelperUser) {
         None
@@ -176,9 +176,9 @@ class HomePageServicesProvider @Inject() (
     }
 
   private def getOtherSelfAssessment(
-                                      saUserType: SelfAssessmentUserType,
-                                      isTrustedHelperUser: Boolean
-                                    )(implicit messages: Messages): Future[Option[OtherService]] =
+    saUserType: SelfAssessmentUserType,
+    isTrustedHelperUser: Boolean
+  )(implicit messages: Messages): Future[Option[OtherService]] =
     Future.successful {
       if (isTrustedHelperUser) {
         None
@@ -207,8 +207,8 @@ class HomePageServicesProvider @Inject() (
     }
 
   private def getMtdOtherService(
-                                  isTrustedHelperUser: Boolean
-                                )(implicit request: UserRequest[?], messages: Messages): Future[Option[OtherService]] =
+    isTrustedHelperUser: Boolean
+  )(implicit request: UserRequest[?], messages: Messages): Future[Option[OtherService]] =
     if (isTrustedHelperUser) {
       Future.successful(None)
     } else {
@@ -295,7 +295,7 @@ class HomePageServicesProvider @Inject() (
     }
 
   private def getAnnualTaxSummaries(isTrustedHelperUser: Boolean)(implicit
-                                                                  messages: Messages
+    messages: Messages
   ): Future[Option[OtherService]] =
     Future.successful {
       if (isTrustedHelperUser) {
@@ -313,7 +313,7 @@ class HomePageServicesProvider @Inject() (
     }
 
   private def buildMarriageAllowanceServices(taxComponents: List[String])(implicit
-                                                                          messages: Messages
+    messages: Messages
   ): Seq[HomePageService] =
     taxComponents match {
       case components if components.contains("MarriageAllowanceReceived") =>
@@ -350,7 +350,7 @@ class HomePageServicesProvider @Inject() (
     }
 
   private def buildTrustedHelperServices(hasRelationships: Boolean)(implicit
-                                                                    messages: Messages
+    messages: Messages
   ): Seq[HomePageService] =
     if (hasRelationships) {
       Seq(
