@@ -17,19 +17,19 @@
 package controllers.tempAddressFix
 
 import cats.data.EitherT
-import models.PersonDetails
+import models.{Address, PersonDetails}
 import models.tempAddressFix.AddressFixRecord
-import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import repositories.TempAddressFixRepository
 import services.CitizenDetailsService
 import connectors.CitizenDetailsConnector
 import models.tempAddressFix.FixStatus
 import com.google.inject.Inject
+import models.tempAddressFix.FixStatus.{DoneCorrespondence, DoneResidential}
 import play.api.Logging
-import play.api.mvc.Results.{InternalServerError, NotFound, NotImplemented, Ok}
+import play.api.mvc.Results.{InternalServerError, NotFound}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,64 +40,62 @@ class FixControllerHelper @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def processRecord(nino: String)(implicit request: Request[_], hc: HeaderCarrier): Future[Result] =
-    tempAddressFixRepository.findOneAndUpdate(nino, FixStatus.Processing, Some(FixStatus.Todo)).flatMap {
-      case None         =>
-        logger.info(s"$nino was not found in the mongo collection")
-        Future.successful(NotFound("No record found to fix"))
-      case Some(record) =>
-        logger.info(s"Fixing record for nino ${record.nino}")
-        fixRecord(record).leftSemiflatMap { error =>
-          tempAddressFixRepository.findOneAndUpdate(record.nino, FixStatus.Todo, Some(FixStatus.Processing)).map {
-            case Some(_) => InternalServerError(error.message)
-            case None    =>
-              logger.error(s"Cannot find record for nino $nino and status processing")
-              InternalServerError("Something is seriously wrong. unexpected status in mongo")
-          }
-        }.merge
+  def personDetailsWithResult(
+    nino: String
+  )(implicit request: Request[_], hc: HeaderCarrier): EitherT[Future, Result, PersonDetails] =
+    citizenDetailsService.personDetails(Nino(nino)).transform {
+      case Left(error)          => Left(InternalServerError(error.getMessage))
+      case Right(None)          => Left(NotFound(s"details not found for nino $nino"))
+      case Right(Some(details)) => Right(details)
     }
 
-  def fixRecord(
-    record: AddressFixRecord
-  )(implicit request: Request[_], hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, Result] =
-    citizenDetailsService.personDetails(Nino(record.nino)).flatMap {
-      case None          =>
-        logger.error(s"Error nino ${record.nino} not found in citizen details")
-        EitherT.rightT[Future, UpstreamErrorResponse](NotFound(s"nino ${record.nino} not found in citizen details"))
-      case Some(details) =>
-        fixAddress(record, details)
-    }
+  def findOneAndUpdateWithResult(
+    nino: String,
+    newStatus: FixStatus,
+    oldStatus: Option[FixStatus] = None
+  ): EitherT[Future, Result, AddressFixRecord] =
+    EitherT.fromOptionF(
+      tempAddressFixRepository.findOneAndUpdate(nino, newStatus, oldStatus),
+      NotFound("No record found to fix")
+    )
+
+  def updateAddressWithResult(nino: String, etag: String, address: Address, fixStatus: FixStatus)(implicit
+    request: Request[_],
+    hc: HeaderCarrier
+  ): EitherT[Future, Result, FixStatus] =
+    citizenDetailsConnector
+      .updateAddress(Nino(nino), etag, address)
+      .bimap(
+        error => InternalServerError(error.message),
+        _ => fixStatus
+      )
+
+  def processRecord(nino: String)(implicit request: Request[_], hc: HeaderCarrier): EitherT[Future, Result, FixStatus] =
+    for {
+      recordToFix <-
+        findOneAndUpdateWithResult(nino, FixStatus.Processing, Some(FixStatus.Todo)) // Set record for processing
+      details     <- personDetailsWithResult(nino) // get current address
+      newStatus   <- fixAddress(recordToFix, details) // update address
+      _           <- findOneAndUpdateWithResult(nino, newStatus) // set record as Done/Skipped
+    } yield newStatus
 
   def fixAddress(record: AddressFixRecord, details: PersonDetails)(implicit
     request: Request[_],
     hc: HeaderCarrier
-  ): EitherT[Future, UpstreamErrorResponse, Result] =
+  ): EitherT[Future, Result, FixStatus] =
     if (details.address.flatMap(_.country).contains("ABROAD - NOT KNOWN")) {
-      logger.info(
-        s"residential address for nino ${record.nino} is ABROAD - NOT KNOWN and need fixing"
-      )
+      logger.info(s"residential address for nino ${record.nino} is ABROAD - NOT KNOWN and need fixing")
       val newAddress = details.address.map(_.copy(country = None, postcode = Some(record.postcode))).get
-      citizenDetailsConnector.updateAddress(Nino(record.nino), details.etag, newAddress).semiflatMap { _ =>
-        tempAddressFixRepository.findOneAndUpdate(record.nino, FixStatus.DoneResidential).map { newRecord =>
-          Ok(Json.toJson(newRecord))
-        }
-      }
+      updateAddressWithResult(record.nino, details.etag, newAddress, DoneResidential)
     } else if (details.correspondenceAddress.flatMap(_.country).contains("ABROAD - NOT KNOWN")) {
-      EitherT.rightT[Future, UpstreamErrorResponse](NotImplemented("not done yet"))
+      logger.info(s"correspondence address for nino ${record.nino} is ABROAD - NOT KNOWN and need fixing")
+      val newAddress = details.correspondenceAddress.map(_.copy(country = None, postcode = Some(record.postcode))).get
+      updateAddressWithResult(record.nino, details.etag, newAddress, DoneCorrespondence)
     } else {
       logger.warn(
         s"Address is no longer ABROAD - NOT KNOWN for nino ${record.nino}, skipping record"
       )
-      EitherT.liftF(
-        tempAddressFixRepository
-          .findOneAndUpdate(record.nino, FixStatus.SkippedNotAbroad, Some(FixStatus.Processing))
-          .map {
-            case Some(newRecord) => Ok(Json.toJson(newRecord))
-            case None            =>
-              logger.error(s"Cannot find record for nino ${record.nino} and status processing")
-              InternalServerError("Something is seriously wrong. unexpected status in mongo")
-          }
-      )
+      EitherT.rightT(FixStatus.SkippedNotAbroad)
     }
 
 }

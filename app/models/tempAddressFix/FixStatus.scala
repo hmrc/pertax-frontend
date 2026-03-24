@@ -19,7 +19,8 @@ package models.tempAddressFix
 import play.api.libs.json.*
 
 enum FixStatus {
-  case Todo
+  case Backlog // records to be fixed
+  case Todo // records queued for fixing
   case Processing
   case DoneResidential
   case DoneCorrespondence

@@ -26,7 +26,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import play.api.libs.json.Json
 import play.api.Logging
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class FixController @Inject() (
   cc: MessagesControllerComponents,
@@ -77,7 +77,19 @@ class FixController @Inject() (
   }
 
   def getFixARecord(nino: String): Action[AnyContent] = auth().async { implicit request =>
-    fixControllerHelper.processRecord(nino)
+    fixControllerHelper
+      .processRecord(nino)
+      .foldF(
+        errorResult => Future.successful(errorResult),
+        _ =>
+          tempAddressFixRepository.findByKey(nino).map {
+            case Some(record) => Ok(Json.toJson(record))
+            case None         =>
+              InternalServerError(
+                "I gave up. All went well, address was fixed but now I can't find the record in mongo"
+              )
+          }
+      )
   }
 
 }
