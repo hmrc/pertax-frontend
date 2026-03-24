@@ -792,7 +792,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
   }
 
-  "Address error banner appears when address features ADDRESS - NOT KNOWN" in {
+  "Address error banner appears when address features ADDRESS - NOT KNOWN" must {
     val mockCitizenDetailsService = mock[CitizenDetailsService]
 
     val appLocal: Application =
@@ -802,9 +802,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
               new testUtils.ActionBuilderFixture {
                 override def invokeBlock[A](
-                  request: Request[A],
-                  block: UserRequest[A] => Future[Result]
-                ): Future[Result] =
+                                             request: Request[A],
+                                             block: UserRequest[A] => Future[Result]
+                                           ): Future[Result] =
                   block(
                     buildUserRequest(
                       request = request,
@@ -824,20 +824,38 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
           bind[CitizenDetailsService].toInstance(mockCitizenDetailsService)
         )
         .build()
-
-    when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
-      .thenReturn(
-        EitherT.rightT[Future, UpstreamErrorResponse](
-          Some(
-            buildPersonDetailsWithPersonalAndCorrespondenceAddress.copy(address =
-              Some(buildFakeAddress.copy(country = Some("ABROAD - NOT KNOWN")))
+    "when issue is main address " in {
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](
+            Some(
+              buildPersonDetailsWithPersonalAndCorrespondenceAddress.copy(address =
+                Some(buildFakeAddress.copy(country = Some("ABROAD - NOT KNOWN")))
+              )
             )
           )
         )
-      )
-    val controller = appLocal.injector.instanceOf[HomeController]
-    val result     = controller.index()(currentRequest)
-    status(result) mustBe OK
-    contentAsString(result) must include("There was a problem updating your postcode")
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result = controller.index()(currentRequest)
+      status(result) mustBe OK
+      contentAsString(result) must include("There was a problem updating your postcode")
+    }
+
+    "when issue is postal address " in {
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](
+            Some(
+              buildPersonDetailsWithPersonalAndCorrespondenceAddress.copy(correspondenceAddress =
+                Some(buildFakeAddress.copy(country = Some("ABROAD - NOT KNOWN")))
+              )
+            )
+          )
+        )
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result = controller.index()(currentRequest)
+      status(result) mustBe OK
+      contentAsString(result) must include("There was a problem updating your postcode")
+    }
   }
 }

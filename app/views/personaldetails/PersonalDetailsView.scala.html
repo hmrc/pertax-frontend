@@ -78,7 +78,7 @@
 @addressRowsPresenter(addressRow: Option[PersonalDetailsTableRowModel], isMainAddress: Boolean, extraLinks: List[ExtraLinks] = Nil) = {
     @{
         addressRow match {
-            case Some(row) => rowsPresenter(row, extraLinks, true)
+            case Some(row) => rowsPresenter(row, extraLinks, isMainAddress)
             case _ => emptyAddressRow(isMainAddress)
         }
     }
