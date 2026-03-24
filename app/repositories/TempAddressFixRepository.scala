@@ -23,11 +23,14 @@ import org.mongodb.scala.model.{IndexModel, IndexOptions, InsertManyOptions}
 import uk.gov.hmrc.mongo.MongoComponent
 import models.tempAddressFix.AddressFixRecord
 import org.mongodb.scala.MongoBulkWriteException
-import org.mongodb.scala.model.Filters.equal
+import org.mongodb.scala.model.Filters.{and, equal}
+import org.mongodb.scala.model.Updates
+import org.mongodb.scala.model.{FindOneAndUpdateOptions, ReturnDocument}
 import play.api.Logging
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import scala.jdk.CollectionConverters.*
 import java.util.concurrent.TimeUnit
+import java.time.Instant
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,9 +45,9 @@ class TempAddressFixRepository @Inject() (
       collectionName = "fixNinoAddresses",
       domainFormat = AddressFixRecord.format(cryptoProvider),
       indexes = Seq(
-        IndexModel(ascending("key"), IndexOptions().unique(true).name("key")),
+        IndexModel(ascending("data.nino"), IndexOptions().unique(true).name("nino")),
         IndexModel(
-          Indexes.ascending("timestamp"),
+          Indexes.ascending("data.timestamp"),
           IndexOptions()
             .name("ttlIndex")
             .expireAfter(365, TimeUnit.DAYS)
@@ -85,12 +88,37 @@ class TempAddressFixRepository @Inject() (
 
   def findByKey(key: String): Future[Option[AddressFixRecord]] =
     collection
-      .find(equal("key", AddressFixRecord(key, "", "").hashedNino))
+      .find(equal("data.nino", AddressFixRecord(key, "", "").encryptedNino(cryptoProvider)))
       .headOption()
 
   def findAll: Future[Seq[AddressFixRecord]] =
     collection
       .find()
       .toFuture()
+
+  def findOneAndUpdate(
+    key: String,
+    newStatus: String,
+    oldStatus: Option[String] = None
+  ): Future[Option[AddressFixRecord]] = {
+    val filter =
+      oldStatus.fold(equal("data.nino", AddressFixRecord(key, "", "").encryptedNino(cryptoProvider))) { status =>
+        and(
+          equal("data.nino", AddressFixRecord(key, "", "").encryptedNino(cryptoProvider)),
+          equal("data.status", status)
+        )
+      }
+
+    collection
+      .findOneAndUpdate(
+        filter,
+        Updates.combine(
+          Updates.set("data.status", newStatus),
+          Updates.set("data.timestamp", Instant.now())
+        ),
+        FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+      )
+      .toFutureOption()
+  }
 
 }

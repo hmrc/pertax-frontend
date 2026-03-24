@@ -42,7 +42,7 @@ class TempAddressFixRepositorySpec extends BaseSpec with DefaultPlayMongoReposit
     "insert a record and return it" in {
       val result = repository.insert(record1).futureValue
       result mustBe record1
-      find(bsonEqual("key", record1.hashedNino))
+      find(bsonEqual("key", record1.encryptedNino(cryptoProvider)))
     }
 
     "fail with an exception when inserting a duplicate key" in {
