@@ -22,6 +22,7 @@ import testUtils.BaseSpec
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import org.mongodb.scala.model.Filters.{equal => bsonEqual}
 import java.time.temporal.ChronoUnit
+import models.tempAddressFix.FixStatus
 
 class TempAddressFixRepositorySpec extends BaseSpec with DefaultPlayMongoRepositorySupport[AddressFixRecord] {
 
@@ -31,11 +32,11 @@ class TempAddressFixRepositorySpec extends BaseSpec with DefaultPlayMongoReposit
     new TempAddressFixRepository(mongoComponent, cryptoProvider)
 
   private val record1 =
-    AddressFixRecord(nino = "nino1", postcode = "postcode 1", status = "todo")
+    AddressFixRecord(nino = "nino1", postcode = "postcode 1", status = FixStatus.Todo)
   private val record2 =
-    AddressFixRecord(nino = "nino2", postcode = "postcode 2", status = "todo")
+    AddressFixRecord(nino = "nino2", postcode = "postcode 2", status = FixStatus.Todo)
   private val record3 =
-    AddressFixRecord(nino = "nino3", postcode = "postcode 3", status = "todo")
+    AddressFixRecord(nino = "nino3", postcode = "postcode 3", status = FixStatus.Todo)
 
   "insert" must {
 

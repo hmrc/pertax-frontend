@@ -21,17 +21,17 @@ import com.mongodb.client.model.Indexes
 import config.CryptoProvider
 import org.mongodb.scala.model.{IndexModel, IndexOptions, InsertManyOptions}
 import uk.gov.hmrc.mongo.MongoComponent
-import models.tempAddressFix.AddressFixRecord
+import models.tempAddressFix.{AddressFixRecord, FixStatus}
 import org.mongodb.scala.MongoBulkWriteException
 import org.mongodb.scala.model.Filters.{and, equal}
 import org.mongodb.scala.model.Updates
 import org.mongodb.scala.model.{FindOneAndUpdateOptions, ReturnDocument}
 import play.api.Logging
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+
 import scala.jdk.CollectionConverters.*
 import java.util.concurrent.TimeUnit
 import java.time.Instant
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -88,7 +88,7 @@ class TempAddressFixRepository @Inject() (
 
   def findByKey(key: String): Future[Option[AddressFixRecord]] =
     collection
-      .find(equal("data.nino", AddressFixRecord(key, "", "").encryptedNino(cryptoProvider)))
+      .find(equal("data.nino", AddressFixRecord.encryptedNino(key, cryptoProvider)))
       .headOption()
 
   def findAll: Future[Seq[AddressFixRecord]] =
@@ -98,14 +98,14 @@ class TempAddressFixRepository @Inject() (
 
   def findOneAndUpdate(
     key: String,
-    newStatus: String,
-    oldStatus: Option[String] = None
+    newStatus: FixStatus,
+    oldStatus: Option[FixStatus] = None
   ): Future[Option[AddressFixRecord]] = {
     val filter =
-      oldStatus.fold(equal("data.nino", AddressFixRecord(key, "", "").encryptedNino(cryptoProvider))) { status =>
+      oldStatus.fold(equal("data.nino", AddressFixRecord.encryptedNino(key, cryptoProvider))) { status =>
         and(
-          equal("data.nino", AddressFixRecord(key, "", "").encryptedNino(cryptoProvider)),
-          equal("data.status", status)
+          equal("data.nino", AddressFixRecord.encryptedNino(key, cryptoProvider)),
+          equal("data.status", status.toString)
         )
       }
 
@@ -113,7 +113,7 @@ class TempAddressFixRepository @Inject() (
       .findOneAndUpdate(
         filter,
         Updates.combine(
-          Updates.set("data.status", newStatus),
+          Updates.set("data.status", newStatus.toString),
           Updates.set("data.timestamp", Instant.now())
         ),
         FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)

@@ -19,20 +19,24 @@ package models.tempAddressFix
 import config.CryptoProvider
 import play.api.libs.json.{Format, JsObject, JsSuccess, JsValue, Json, OFormat, Reads, Writes}
 import uk.gov.hmrc.crypto.{Crypted, Decrypter, Encrypter, PlainText}
+import models.tempAddressFix.FixStatus
 
 import java.time.Instant
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
-case class AddressFixRecord(nino: String, postcode: String, status: String, timestamp: Instant = Instant.now) {
-  def encryptedNino(cryptoProvider: CryptoProvider): String = {
-    val crypto = cryptoProvider.get()
-    crypto.encrypt(PlainText(nino)).value
-  }
+case class AddressFixRecord(nino: String, postcode: String, status: FixStatus, timestamp: Instant = Instant.now) {
+  def encryptedNino(cryptoProvider: CryptoProvider): String =
+    AddressFixRecord.encryptedNino(nino, cryptoProvider)
 }
 
 object AddressFixRecord {
   implicit val formats: OFormat[AddressFixRecord] = Json.format[AddressFixRecord]
   implicit val formatInstant: Format[Instant]     = MongoJavatimeFormats.instantFormat
+
+  def encryptedNino(nino: String, cryptoProvider: CryptoProvider): String = {
+    val crypto = cryptoProvider.get()
+    crypto.encrypt(PlainText(nino)).value
+  }
 
   def format(cryptoProvider: CryptoProvider): Format[AddressFixRecord] = {
     implicit val crypto: Encrypter & Decrypter = cryptoProvider.get()
@@ -43,7 +47,8 @@ object AddressFixRecord {
       Reads[AddressFixRecord] { json =>
         val nino      = crypto.decrypt(Crypted((json \ "data" \ "nino").as[String])).value
         val postcode  = crypto.decrypt(Crypted((json \ "data" \ "postcode").as[String])).value
-        val status    = (json \ "data" \ "status").as[String]
+        // (json \ "data" \ "status").as[FixStatus](FixStatus.format) does not work: Scala 3 enums are being treated as anonymous subclasses by the BSON layer
+        val status    = FixStatus.valueOf((json \ "data" \ "status").as[String])
         val timestamp = (json \ "data" \ "timestamp").as[Instant]
 
         JsSuccess(AddressFixRecord(nino, postcode, status, timestamp))
@@ -55,7 +60,7 @@ object AddressFixRecord {
           "data" -> Json.obj(
             "nino"      -> crypto.encrypt(PlainText(address.nino)).value,
             "postcode"  -> crypto.encrypt(PlainText(address.postcode)).value,
-            "status"    -> address.status,
+            "status"    -> address.status.toString,
             "timestamp" -> address.timestamp
           )
         )
@@ -66,7 +71,7 @@ object AddressFixRecord {
 }
 
 case class AddressFixRecordRequest(nino: String, postcode: String) {
-  def toAddresRecord: AddressFixRecord = AddressFixRecord(nino, postcode, "todo")
+  def toAddresRecord: AddressFixRecord = AddressFixRecord(nino, postcode, FixStatus.Todo)
 }
 
 object AddressFixRecordRequest {

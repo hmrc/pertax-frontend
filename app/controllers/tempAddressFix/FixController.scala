@@ -16,7 +16,6 @@
 
 package controllers.tempAddressFix
 
-import cats.data.EitherT
 import com.google.inject.Inject
 import models.tempAddressFix.{AddressFixRecord, AddressFixRecordRequest}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -26,20 +25,13 @@ import uk.gov.hmrc.internalauth.client.Predicate.Permission
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import play.api.libs.json.Json
 import play.api.Logging
-import services.CitizenDetailsService
-import connectors.CitizenDetailsConnector
-import uk.gov.hmrc.domain.Nino
-import models.PersonDetails
-import play.api.mvc.{Request, Result}
-import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class FixController @Inject() (
   cc: MessagesControllerComponents,
+  fixControllerHelper: FixControllerHelper,
   tempAddressFixRepository: TempAddressFixRepository,
-  citizenDetailsService: CitizenDetailsService,
-  citizenDetailsConnector: CitizenDetailsConnector,
   internalAuth: BackendAuthComponents
 )(implicit ec: ExecutionContext)
     extends FrontendController(cc)
@@ -85,59 +77,7 @@ class FixController @Inject() (
   }
 
   def getFixARecord(nino: String): Action[AnyContent] = auth().async { implicit request =>
-    tempAddressFixRepository.findOneAndUpdate(nino, "processing", Some("todo")).flatMap {
-      case None         =>
-        logger.info(s"$nino was not found in the mongo collection")
-        Future.successful(NotFound("No record found to fix"))
-      case Some(record) =>
-        logger.info(s"Fixing record for nino ${record.nino}")
-        fixRecord(record).leftSemiflatMap { error =>
-          tempAddressFixRepository.findOneAndUpdate(record.nino, "todo", Some("processing")).map {
-            case Some(_) => InternalServerError(error.message)
-            case None    =>
-              logger.error(s"Cannot find record for nino $nino and status processing")
-              InternalServerError("Something is seriously wrong. unexpected status in mongo")
-          }
-        }.merge
-    }
+    fixControllerHelper.processRecord(nino)
   }
-
-  private def fixRecord(
-    record: AddressFixRecord
-  )(implicit request: Request[_]): EitherT[Future, UpstreamErrorResponse, Result] =
-    citizenDetailsService.personDetails(Nino(record.nino)).flatMap {
-      case None          =>
-        logger.error(s"Error nino ${record.nino} not found in citizen details")
-        EitherT.rightT[Future, UpstreamErrorResponse](NotFound(s"nino ${record.nino} not found in citizen details"))
-      case Some(details) =>
-        fixAddress(record, details)
-    }
-
-  private def fixAddress(record: AddressFixRecord, details: PersonDetails)(implicit
-    request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, Result] =
-    if (details.address.flatMap(_.country).contains("ABROAD - NOT KNOWN")) {
-      logger.info(
-        s"residential address for nino ${record.nino} is ABROAD - NOT KNOWN and need fixing"
-      )
-      val newAddress = details.address.map(_.copy(country = None, postcode = Some(record.postcode))).get
-      citizenDetailsConnector.updateAddress(Nino(record.nino), details.etag, newAddress).semiflatMap { _ =>
-        tempAddressFixRepository.findOneAndUpdate(record.nino, "done").map { newRecord =>
-          Ok(Json.toJson(newRecord))
-        }
-      }
-    } else if (details.correspondenceAddress.flatMap(_.country).contains("ABROAD - NOT KNOWN")) {
-      EitherT.rightT[Future, UpstreamErrorResponse](NotImplemented("not done yet"))
-    } else {
-      logger.warn(
-        s"Address is no longer ABROAD - NOT KNOWN for nino ${record.nino}, skipping record"
-      )
-      EitherT.liftF(tempAddressFixRepository.findOneAndUpdate(record.nino, "skipped", Some("processing")).map {
-        case Some(newRecord) => Ok(Json.toJson(newRecord))
-        case None            =>
-          logger.error(s"Cannot find record for nino ${record.nino} and status processing")
-          InternalServerError("Something is seriously wrong. unexpected status in mongo")
-      })
-    }
 
 }
