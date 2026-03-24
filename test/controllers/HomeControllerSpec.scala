@@ -802,9 +802,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
               new testUtils.ActionBuilderFixture {
                 override def invokeBlock[A](
-                                             request: Request[A],
-                                             block: UserRequest[A] => Future[Result]
-                                           ): Future[Result] =
+                  request: Request[A],
+                  block: UserRequest[A] => Future[Result]
+                ): Future[Result] =
                   block(
                     buildUserRequest(
                       request = request,
@@ -836,7 +836,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
           )
         )
       val controller = appLocal.injector.instanceOf[HomeController]
-      val result = controller.index()(currentRequest)
+      val result     = controller.index()(currentRequest)
       status(result) mustBe OK
       contentAsString(result) must include("There was a problem updating your postcode")
     }
@@ -853,7 +853,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
           )
         )
       val controller = appLocal.injector.instanceOf[HomeController]
-      val result = controller.index()(currentRequest)
+      val result     = controller.index()(currentRequest)
       status(result) mustBe OK
       contentAsString(result) must include("There was a problem updating your postcode")
     }

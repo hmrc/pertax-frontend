@@ -27,12 +27,12 @@ case class PersonDetails(
 
   def notKnownAddress: Boolean = notKnownMainAddress || notKnownCorrespondenceAddress
 
-  private def notKnownMainAddress: Boolean = address.match {
+  def notKnownMainAddress: Boolean = address.match {
     case None      => false
     case Some(add) => add.country.contains("ABROAD - NOT KNOWN")
   }
 
-  private def notKnownCorrespondenceAddress: Boolean = correspondenceAddress.match {
+  def notKnownCorrespondenceAddress: Boolean = correspondenceAddress.match {
     case None      => false
     case Some(add) => add.country.contains("ABROAD - NOT KNOWN")
   }

@@ -50,6 +50,7 @@ class PersonalDetailsViewModel @Inject() (
     val isMainAddressChangeLocked = optionalEditAddress.exists(
       _.isInstanceOf[EditResidentialAddress]
     )
+    val isAddressError            = personDetails.exists(_.notKnownMainAddress)
 
     for {
       addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
@@ -64,7 +65,8 @@ class PersonalDetailsViewModel @Inject() (
               addressView(address, countryHelper.excludedCountries),
               "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
               "label.your_main_home",
-              None
+              None,
+              addressHasError = isAddressError
             )
           })
         } else {
@@ -75,7 +77,8 @@ class PersonalDetailsViewModel @Inject() (
               addressView(address, countryHelper.excludedCountries),
               "label.change",
               "label.your_main_home",
-              Some(AddressRowModel.changeMainAddressUrl)
+              Some(AddressRowModel.changeMainAddressUrl),
+              addressHasError = isAddressError
             )
           })
         }
@@ -87,7 +90,8 @@ class PersonalDetailsViewModel @Inject() (
             content = addressUnavailableView(displayAllLettersLine = false),
             linkTextMessage = "",
             visuallyhiddenText = "label.your_main_home",
-            linkUrl = None
+            linkUrl = None,
+            addressHasError = isAddressError
           )
         )
       }
@@ -103,6 +107,8 @@ class PersonalDetailsViewModel @Inject() (
       optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
     val postalAddress                =
       getPostalAddressIfExists(personDetails, isCorrespondenceChangeLocked)
+
+    val isAddressError = personDetails.exists(_.notKnownMainAddress)
 
     for {
       addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
@@ -120,7 +126,8 @@ class PersonalDetailsViewModel @Inject() (
                 "label.change",
                 "label.your.postal_address",
                 Some(AddressRowModel.changePostalAddressUrl),
-                isPostalAddressSame = true
+                isPostalAddressSame = true,
+                addressHasError = isAddressError
               )
             })
         }
@@ -132,7 +139,8 @@ class PersonalDetailsViewModel @Inject() (
             content = addressUnavailableView(displayAllLettersLine = true),
             linkTextMessage = "",
             visuallyhiddenText = "label.your.postal_address",
-            linkUrl = None
+            linkUrl = None,
+            addressHasError = isAddressError
           )
         )
       }
@@ -145,6 +153,7 @@ class PersonalDetailsViewModel @Inject() (
     messages: play.api.i18n.Messages
   ) =
     personDetails.flatMap(_.correspondenceAddress.find(!_.isWelshLanguageUnit).map { correspondenceAddress =>
+      val isAddressError                                              = personDetails.exists(_.notKnownCorrespondenceAddress)
       def createRow(linkTextMessage: String, linkUrl: Option[String]) =
         PersonalDetailsTableRowModel(
           "postal_address",
@@ -155,7 +164,8 @@ class PersonalDetailsViewModel @Inject() (
           ),
           linkTextMessage,
           "label.your.postal_address",
-          linkUrl
+          linkUrl,
+          addressHasError = isAddressError
         )
 
       if (isCorrespondenceChangeLocked) {
