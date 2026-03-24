@@ -90,8 +90,7 @@ class PersonalDetailsViewModel @Inject() (
             content = addressUnavailableView(displayAllLettersLine = false),
             linkTextMessage = "",
             visuallyhiddenText = "label.your_main_home",
-            linkUrl = None,
-            addressHasError = isAddressError
+            linkUrl = None
           )
         )
       }
@@ -108,7 +107,7 @@ class PersonalDetailsViewModel @Inject() (
     val postalAddress                =
       getPostalAddressIfExists(personDetails, isCorrespondenceChangeLocked)
 
-    val isAddressError = personDetails.exists(_.notKnownCorrespondenceAddress)
+    val isAddressError = personDetails.exists(_.notKnownMainAddress)
 
     for {
       addressChangeAllowedToggle <- featureFlagService.get(AddressChangeAllowedToggle)
@@ -139,8 +138,7 @@ class PersonalDetailsViewModel @Inject() (
             content = addressUnavailableView(displayAllLettersLine = true),
             linkTextMessage = "",
             visuallyhiddenText = "label.your.postal_address",
-            linkUrl = None,
-            addressHasError = isAddressError
+            linkUrl = None
           )
         )
       }
