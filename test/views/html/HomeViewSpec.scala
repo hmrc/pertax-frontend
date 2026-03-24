@@ -59,6 +59,7 @@ class HomeViewSpec extends ViewSpec {
     when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/feedback/url")
     when(mockConfigDecorator.fandfBannerLink).thenReturn("/trusted-helpers")
     when(mockConfigDecorator.fandfBannerDate).thenReturn(LocalDate.of(2026, 1, 1))
+    when(mockConfigDecorator.addressChangeBannerTextEn).thenReturn("There was a problem updating your postcode")
   }
 
   val homeViewModel: HomeViewModel =
@@ -85,7 +86,8 @@ class HomeViewSpec extends ViewSpec {
           home(
             homeViewModel.copy(name = Some("Firstname Lastname")),
             shutteringMessaging = false,
-            fandfBanner = false
+            fandfBanner = false,
+            addressBanner = false
           ).toString
         )
 
@@ -103,7 +105,8 @@ class HomeViewSpec extends ViewSpec {
           home(
             homeViewModel.copy(name = Some("Firstname Lastname")),
             shutteringMessaging = false,
-            fandfBanner = false
+            fandfBanner = false,
+            addressBanner = false
           ).toString
         )
 
@@ -116,7 +119,9 @@ class HomeViewSpec extends ViewSpec {
         buildUserRequest(request = FakeRequest())
 
       lazy val document: Document =
-        asDocument(home(homeViewModel, shutteringMessaging = false, fandfBanner = false).toString)
+        asDocument(
+          home(homeViewModel, shutteringMessaging = false, fandfBanner = false, addressBanner = false).toString
+        )
 
       document.select("h1").asScala.exists(e => e.text == "Your account") mustBe true
     }
@@ -124,7 +129,7 @@ class HomeViewSpec extends ViewSpec {
     "must not show the UTR if the user is not a self assessment user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
-      val view = home(homeViewModel, shutteringMessaging = false, fandfBanner = false).toString
+      val view = home(homeViewModel, shutteringMessaging = false, fandfBanner = false, addressBanner = false).toString
 
       view must not contain messages("label.home_page.utr")
     }
@@ -132,7 +137,12 @@ class HomeViewSpec extends ViewSpec {
     "must show the UTR if the user is a self assessment user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val utr                                                       = new SaUtrGenerator().nextSaUtr.utr
-      val view                                                      = home(homeViewModel.copy(saUtr = Some(utr)), shutteringMessaging = false, fandfBanner = false).toString
+      val view                                                      = home(
+        homeViewModel.copy(saUtr = Some(utr)),
+        shutteringMessaging = false,
+        fandfBanner = false,
+        addressBanner = false
+      ).toString
 
       view must include(messages("label.home_page.utr"))
       view must include(utr)
@@ -145,7 +155,7 @@ class HomeViewSpec extends ViewSpec {
       )
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = home(homeViewModel, shutteringMessaging = true, fandfBanner = false).toString
+      val view                                                      = home(homeViewModel, shutteringMessaging = true, fandfBanner = false, addressBanner = false).toString
 
       view must include(
         "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
@@ -154,7 +164,7 @@ class HomeViewSpec extends ViewSpec {
 
     "not show the Nps Shutter Banner when boolean is set to false" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = home(homeViewModel, shutteringMessaging = false, fandfBanner = false).toString
+      val view                                                      = home(homeViewModel, shutteringMessaging = false, fandfBanner = false, addressBanner = false).toString
 
       view mustNot include(
         "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
@@ -167,7 +177,8 @@ class HomeViewSpec extends ViewSpec {
         home(
           homeViewModel.copy(alertBannerContent = List(Html("something to alert"))),
           shutteringMessaging = true,
-          fandfBanner = false
+          fandfBanner = false,
+          addressBanner = false
         ).toString
       )
 
@@ -177,7 +188,9 @@ class HomeViewSpec extends ViewSpec {
 
     "not show the alert banner if no alert content" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = Jsoup.parse(home(homeViewModel, shutteringMessaging = true, fandfBanner = false).toString)
+      val view                                                      = Jsoup.parse(
+        home(homeViewModel, shutteringMessaging = true, fandfBanner = false, addressBanner = false).toString
+      )
 
       view.getElementById("alert-banner") mustBe null
     }
@@ -188,7 +201,8 @@ class HomeViewSpec extends ViewSpec {
       val view                                                      = home(
         homeViewModel.copy(trustedHelpersCard = Some(helpersHtml)),
         shutteringMessaging = false,
-        fandfBanner = false
+        fandfBanner = false,
+        addressBanner = false
       ).toString
 
       view must include("<div class='trusted-helpers-card'></div>")
@@ -199,10 +213,23 @@ class HomeViewSpec extends ViewSpec {
       val view                                                      = home(
         homeViewModel,
         shutteringMessaging = false,
-        fandfBanner = true
+        fandfBanner = true,
+        addressBanner = false
       ).toString
 
       view must include("Your trusted helper relationship ends at midnight ")
+    }
+
+    "show the address banner when set as true" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val view                                                      = home(
+        homeViewModel,
+        shutteringMessaging = false,
+        fandfBanner = false,
+        addressBanner = true
+      ).toString
+
+      view must include("There was a problem updating your postcode")
     }
   }
 }
