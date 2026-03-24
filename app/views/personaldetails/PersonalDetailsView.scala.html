@@ -39,14 +39,14 @@
     showAddressErrorBanner: Boolean
 )(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
-@rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil, isMainAddress: Boolean = false) = {
+@rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil, isAddress: Boolean = false) = {
     <div class="govuk-summary-list__row" id="@row.id">
         <dt class="govuk-summary-list__key">
             @messages(row.titleMessage)
         </dt>
         <dd class="govuk-summary-list__value">
             @row.content
-            @if(isMainAddress && showAddressErrorBanner){
+            @if(isAddress && showAddressErrorBanner){
                 <p class="govuk-hint">@if(messages.lang.code == "cy"){ @configDecorator.addressChangeProfileTextCy} else { @configDecorator.addressChangeProfileTextEn } </p>
             }
         </dd>
@@ -78,7 +78,7 @@
 @addressRowsPresenter(addressRow: Option[PersonalDetailsTableRowModel], isMainAddress: Boolean, extraLinks: List[ExtraLinks] = Nil) = {
     @{
         addressRow match {
-            case Some(row) => rowsPresenter(row, extraLinks, isMainAddress)
+            case Some(row) => rowsPresenter(row, extraLinks, true)
             case _ => emptyAddressRow(isMainAddress)
         }
     }
