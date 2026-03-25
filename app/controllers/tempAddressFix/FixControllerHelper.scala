@@ -87,7 +87,7 @@ class FixControllerHelper @Inject() (
       details     <- personDetailsWithErrorResult(nino) // get current address
       newStatus   <- fixAddress(recordToFix, details) // update address
       _           <- findOneAndUpdateWithErrorResult(nino, newStatus) // set record as Done/Skipped
-      _           <- EitherT.rightT(lockAddress(nino, newStatus)) // lock the address that was updated
+      _           <- EitherT.liftF(lockAddress(nino, newStatus)) // lock the address that was updated
     } yield newStatus
 
   def fixAddress(record: AddressFixRecord, details: PersonDetails)(implicit

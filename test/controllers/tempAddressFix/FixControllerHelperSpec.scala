@@ -45,7 +45,8 @@ class FixControllerHelperSpec extends BaseSpec {
   val helper = new FixControllerHelper(
     mockTempAddressFixRepository,
     mockCitizenDetailsService,
-    mockCitizenDetailsConnector
+    mockCitizenDetailsConnector,
+    mockEditAddressLockRepository
   )
 
   val nino: String = generatedNino.nino

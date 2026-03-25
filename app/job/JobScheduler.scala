@@ -21,6 +21,7 @@ import play.api.inject.ApplicationLifecycle
 import org.quartz.*
 import org.quartz.impl.StdSchedulerFactory
 import org.quartz.spi.{JobFactory, TriggerFiredBundle}
+import play.api.Configuration
 
 import java.util.Date
 import scala.concurrent.Future
@@ -33,18 +34,25 @@ class GuiceJobFactory @Inject() (injector: Injector) extends JobFactory {
 }
 
 @Singleton
-class JobScheduler @Inject() (lifecycle: ApplicationLifecycle, guiceJobFactory: GuiceJobFactory) {
+class JobScheduler @Inject() (
+  lifecycle: ApplicationLifecycle,
+  guiceJobFactory: GuiceJobFactory,
+  configuration: Configuration
+) {
 
-  val scheduler = StdSchedulerFactory.getDefaultScheduler
+  private val interval: Int    = configuration.get[Int]("scheduler.intervalInSeconds")
+  private val startJitter: Int = configuration.get[Int]("scheduler.startJitterInSeconds") * 1000
+
+  val scheduler: Scheduler = StdSchedulerFactory.getDefaultScheduler
   scheduler.setJobFactory(guiceJobFactory)
 
-  val job = JobBuilder
+  val job: JobDetail = JobBuilder
     .newJob(classOf[FixAddressJob])
     .withIdentity("myJob", "group1")
     .build()
 
-  val jitterMillis = Random.nextInt(5_000) // up to 10 seconds
-  val startTime    = new Date(System.currentTimeMillis() + jitterMillis)
+  private val jitterMillis = Random.nextInt(startJitter)
+  val startTime            = new Date(System.currentTimeMillis() + jitterMillis)
 
   val trigger = TriggerBuilder
     .newTrigger()
@@ -53,7 +61,7 @@ class JobScheduler @Inject() (lifecycle: ApplicationLifecycle, guiceJobFactory: 
     .withSchedule(
       SimpleScheduleBuilder
         .simpleSchedule()
-        .withIntervalInSeconds(6)
+        .withIntervalInSeconds(interval)
         .repeatForever()
     )
     .build()
@@ -61,6 +69,5 @@ class JobScheduler @Inject() (lifecycle: ApplicationLifecycle, guiceJobFactory: 
   scheduler.start()
   scheduler.scheduleJob(job, trigger)
 
-  // Shut down cleanly when Play stops
   lifecycle.addStopHook(() => Future.successful(scheduler.shutdown()))
 }

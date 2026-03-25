@@ -46,7 +46,7 @@ class FixAddressJob @Inject() (
       override def attrs: TypedMap              = TypedMap.empty
     }
     implicit val request: Request[AnyContentAsEmpty.type] = Request(requestHeader, AnyContentAsEmpty)
-    implicit val hc                                       = HeaderCarrier()
+    implicit val hc: HeaderCarrier                        = HeaderCarrier()
 
     tempAddressFixRepository.findTodo.map {
       case None         => ()
