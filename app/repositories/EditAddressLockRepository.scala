@@ -71,7 +71,7 @@ class EditAddressLockRepository @Inject() (
     val record: EditedAddress =
       AddrType.toEditedAddress(addressType, nextMidnight)
 
-    logger.info("Inserting address lock: " + AddressJourneyTTLModel(nino, record).toString)
+    logger.info("Inserting address lock: " + AddressJourneyTTLModel(nino.patch(3, "*" * 4, 4), record).toString)
 
     insertCore(AddressJourneyTTLModel(nino, record)).map(_.wasAcknowledged()).recover {
       case error: MongoWriteException =>
