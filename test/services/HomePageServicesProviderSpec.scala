@@ -130,7 +130,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Some("Self Assessment")
         ),
         MyService(
-          "Your National Insurance and State Pension",
+          "National Insurance and State Pension",
           controllers.interstitials.routes.InterstitialController.displayNISP.url,
           "",
           Map(),
@@ -141,6 +141,13 @@ class HomePageServicesProviderSpec extends BaseSpec {
       )
 
       result.otherServices mustBe Seq(
+        OtherService(
+          "Making Tax Digital for Income Tax",
+          controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
+          Map(),
+          Some("MTDIT"),
+          Some("Making Tax Digital for Income Tax")
+        ),
         OtherService(
           "Child Benefit",
           controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url,
@@ -231,7 +238,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       result.otherServices           must contain(
         OtherService(
-          "Activate your Self Assessment registration",
+          "Self Assessment",
           controllers.routes.SelfAssessmentController.requestAccess.url,
           Map(),
           Some("Income"),
@@ -287,7 +294,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Some("Pay As You Earn (PAYE)")
         ),
         MyService(
-          "Your National Insurance and State Pension",
+          "National Insurance and State Pension",
           controllers.interstitials.routes.InterstitialController.displayNISP.url,
           "",
           Map(),
