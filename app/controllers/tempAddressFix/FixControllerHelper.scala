@@ -21,10 +21,11 @@ import models.{Address, PersonDetails}
 import models.tempAddressFix.{AddressFixRecord, ErrorResult, FixStatus}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import repositories.TempAddressFixRepository
+import repositories.{EditAddressLockRepository, TempAddressFixRepository}
 import services.CitizenDetailsService
 import connectors.CitizenDetailsConnector
 import com.google.inject.Inject
+import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.tempAddressFix.FixStatus.{DoneCorrespondence, DoneResidential}
 import play.api.Logging
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND}
@@ -35,7 +36,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class FixControllerHelper @Inject() (
   tempAddressFixRepository: TempAddressFixRepository,
   citizenDetailsService: CitizenDetailsService,
-  citizenDetailsConnector: CitizenDetailsConnector
+  citizenDetailsConnector: CitizenDetailsConnector,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit ec: ExecutionContext)
     extends Logging {
 
@@ -84,6 +86,7 @@ class FixControllerHelper @Inject() (
         ) // Set record for processing
       details     <- personDetailsWithErrorResult(nino) // get current address
       newStatus   <- fixAddress(recordToFix, details) // update address
+      _           <- EitherT.rightT(lockAddress(nino, newStatus)) // lock the address that was updated
       _           <- findOneAndUpdateWithErrorResult(nino, newStatus) // set record as Done/Skipped
     } yield newStatus
 
@@ -113,5 +116,11 @@ class FixControllerHelper @Inject() (
       )
       EitherT.rightT(FixStatus.SkippedNotAbroad)
     }
+
+  private def lockAddress(nino: String, status: FixStatus): Future[Boolean] = status match {
+    case DoneResidential    => editAddressLockRepository.insert(nino, ResidentialAddrType)
+    case DoneCorrespondence => editAddressLockRepository.insert(nino, PostalAddrType)
+    case _                  => Future.successful(false)
+  }
 
 }
