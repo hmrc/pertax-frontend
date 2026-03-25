@@ -118,8 +118,8 @@ class FixControllerHelper @Inject() (
     }
 
   private def lockAddress(nino: String, status: FixStatus): Future[Boolean] = status match {
-    case DoneResidential    => editAddressLockRepository.insert(nino, ResidentialAddrType)
-    case DoneCorrespondence => editAddressLockRepository.insert(nino, PostalAddrType)
+    case DoneResidential    => editAddressLockRepository.insert(nino.take(8), ResidentialAddrType)
+    case DoneCorrespondence => editAddressLockRepository.insert(nino.take(8), PostalAddrType)
     case _                  => Future.successful(false)
   }
 
