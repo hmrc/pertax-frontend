@@ -21,7 +21,6 @@ import models.tempAddressFix.{AddressFixRecord, FixStatus}
 import models.{Address, PersonDetails}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, when}
-import play.api.mvc.Results.*
 import repositories.TempAddressFixRepository
 import services.CitizenDetailsService
 import connectors.CitizenDetailsConnector
@@ -31,6 +30,8 @@ import testUtils.BaseSpec
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import testUtils.Fixtures
+import models.tempAddressFix.ErrorResult
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND}
 
 import java.time.{Instant, LocalDate}
 import scala.concurrent.Future
@@ -175,7 +176,7 @@ class FixControllerHelperSpec extends BaseSpec {
     }
 
     "no record found in mongo" should {
-      "return Left(NotFound) and not proceed further" in {
+      "return error not found and not proceed further" in {
         when(
           mockTempAddressFixRepository
             .findOneAndUpdate(eqTo(nino), eqTo(FixStatus.Processing), eqTo(Some(FixStatus.Todo)))
@@ -184,12 +185,12 @@ class FixControllerHelperSpec extends BaseSpec {
 
         val result = helper.processRecord(nino).value.futureValue
 
-        result mustBe Left(NotFound("No record found to fix"))
+        result mustBe Left(ErrorResult(NOT_FOUND, "No record found to fix"))
       }
     }
 
     "citizen details returns None" should {
-      "return Left(NotFound)" in {
+      "return error not found" in {
         when(
           mockTempAddressFixRepository
             .findOneAndUpdate(eqTo(nino), eqTo(FixStatus.Processing), eqTo(Some(FixStatus.Todo)))
@@ -201,12 +202,12 @@ class FixControllerHelperSpec extends BaseSpec {
 
         val result = helper.processRecord(nino).value.futureValue
 
-        result mustBe Left(NotFound(s"details not found for nino $nino"))
+        result mustBe Left(ErrorResult(NOT_FOUND, s"details not found for nino $nino"))
       }
     }
 
     "updateAddress fails" should {
-      "return Left(InternalServerError)" in {
+      "return error InternalServerError" in {
         val details = fakePersonDetails(address = Some(abroadAddress))
         val error   = UpstreamErrorResponse("update failed", 500)
 
@@ -224,7 +225,7 @@ class FixControllerHelperSpec extends BaseSpec {
 
         val result = helper.processRecord(nino).value.futureValue
 
-        result mustBe Left(InternalServerError(error.message))
+        result mustBe Left(ErrorResult(INTERNAL_SERVER_ERROR, error.message))
       }
     }
   }

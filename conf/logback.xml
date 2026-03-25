@@ -20,6 +20,7 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="controllers.auth.SessionAuditor" level="${logger.auth:-INFO}"/>
+    <logger name="job.JobScheduler" level="DEBUG"/>
+    <logger name="job.FixAddressJob" level="DEBUG"/>
 
 </configuration>

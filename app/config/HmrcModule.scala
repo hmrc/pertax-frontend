@@ -25,10 +25,15 @@ import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import java.time.{Clock, ZoneId}
 
 class HmrcModule extends Module {
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] =
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
+    val scheduler = if (configuration.get[Boolean]("scheduler.enabled")) {
+      Seq(bind[JobScheduler].toSelf.eagerly())
+    } else {
+      Nil
+    }
+
     Seq(
       bind[Clock].toInstance(Clock.systemDefaultZone.withZone(ZoneId.of("Europe/London"))),
-      bind[JobScheduler].toSelf.eagerly(),
       bind[ApplicationStartUp].toSelf.eagerly(),
       bind[CitizenDetailsConnector].qualifiedWith("default").to[DefaultCitizenDetailsConnector],
       bind[CitizenDetailsConnector]
@@ -40,5 +45,6 @@ class HmrcModule extends Module {
       bind[Encrypter with Decrypter].toProvider[CryptoProvider],
       bind[AgentClientAuthorisationConnector].to[CachingAgentClientAuthorisationConnector],
       bind[AgentClientAuthorisationConnector].qualifiedWith("default").to[DefaultAgentClientAuthorisationConnector]
-    )
+    ) ++ scheduler
+  }
 }
