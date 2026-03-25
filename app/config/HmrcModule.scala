@@ -16,7 +16,8 @@
 
 package config
 
-import connectors._
+import connectors.*
+import job.JobScheduler
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
@@ -27,6 +28,7 @@ class HmrcModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] =
     Seq(
       bind[Clock].toInstance(Clock.systemDefaultZone.withZone(ZoneId.of("Europe/London"))),
+      bind[JobScheduler].toSelf.eagerly(),
       bind[ApplicationStartUp].toSelf.eagerly(),
       bind[CitizenDetailsConnector].qualifiedWith("default").to[DefaultCitizenDetailsConnector],
       bind[CitizenDetailsConnector]

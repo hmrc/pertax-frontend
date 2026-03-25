@@ -18,18 +18,17 @@ package controllers.tempAddressFix
 
 import cats.data.EitherT
 import models.{Address, PersonDetails}
-import models.tempAddressFix.AddressFixRecord
-import play.api.mvc.{Request, Result}
+import models.tempAddressFix.{AddressFixRecord, ErrorResult, FixStatus}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import repositories.TempAddressFixRepository
 import services.CitizenDetailsService
 import connectors.CitizenDetailsConnector
-import models.tempAddressFix.FixStatus
 import com.google.inject.Inject
 import models.tempAddressFix.FixStatus.{DoneCorrespondence, DoneResidential}
 import play.api.Logging
-import play.api.mvc.Results.{InternalServerError, NotFound}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND}
+import play.api.mvc.Request
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,60 +39,73 @@ class FixControllerHelper @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def personDetailsWithResult(
+  def personDetailsWithErrorResult(
     nino: String
-  )(implicit request: Request[_], hc: HeaderCarrier): EitherT[Future, Result, PersonDetails] =
+  )(implicit request: Request[_], hc: HeaderCarrier): EitherT[Future, ErrorResult, PersonDetails] =
     citizenDetailsService.personDetails(Nino(nino)).transform {
-      case Left(error)          => Left(InternalServerError(error.getMessage))
-      case Right(None)          => Left(NotFound(s"details not found for nino $nino"))
+      case Left(error)          => Left(ErrorResult(INTERNAL_SERVER_ERROR, error.getMessage))
+      case Right(None)          => Left(ErrorResult(NOT_FOUND, s"details not found for nino $nino"))
       case Right(Some(details)) => Right(details)
     }
 
-  def findOneAndUpdateWithResult(
+  def findOneAndUpdateWithErrorResult(
     nino: String,
     newStatus: FixStatus,
     oldStatus: Option[FixStatus] = None
-  ): EitherT[Future, Result, AddressFixRecord] =
+  ): EitherT[Future, ErrorResult, AddressFixRecord] =
     EitherT.fromOptionF(
       tempAddressFixRepository.findOneAndUpdate(nino, newStatus, oldStatus),
-      NotFound("No record found to fix")
+      ErrorResult(NOT_FOUND, "No record found to fix")
     )
 
-  def updateAddressWithResult(nino: String, etag: String, address: Address, fixStatus: FixStatus)(implicit
+  def updateAddressWithErrorResult(record: AddressFixRecord, etag: String, address: Address, fixStatus: FixStatus)(
+    implicit
     request: Request[_],
     hc: HeaderCarrier
-  ): EitherT[Future, Result, FixStatus] =
+  ): EitherT[Future, ErrorResult, FixStatus] =
     citizenDetailsConnector
-      .updateAddress(Nino(nino), etag, address)
+      .updateAddress(Nino(record.nino), etag, address)
       .bimap(
-        error => InternalServerError(error.message),
-        _ => fixStatus
+        error => ErrorResult(INTERNAL_SERVER_ERROR, error.message),
+        _ =>
+          logger.info(s"Address updated successfully in NPS for ${record.obscuredId}")
+          fixStatus
       )
 
-  def processRecord(nino: String)(implicit request: Request[_], hc: HeaderCarrier): EitherT[Future, Result, FixStatus] =
+  def processRecord(
+    nino: String
+  )(implicit request: Request[_], hc: HeaderCarrier): EitherT[Future, ErrorResult, FixStatus] =
     for {
       recordToFix <-
-        findOneAndUpdateWithResult(nino, FixStatus.Processing, Some(FixStatus.Todo)) // Set record for processing
-      details     <- personDetailsWithResult(nino) // get current address
+        findOneAndUpdateWithErrorResult(nino, FixStatus.Processing, Some(FixStatus.Backlog)) // Set record for processing
+      details     <- personDetailsWithErrorResult(nino) // get current address
       newStatus   <- fixAddress(recordToFix, details) // update address
-      _           <- findOneAndUpdateWithResult(nino, newStatus) // set record as Done/Skipped
+      _           <- findOneAndUpdateWithErrorResult(nino, newStatus) // set record as Done/Skipped
     } yield newStatus
 
   def fixAddress(record: AddressFixRecord, details: PersonDetails)(implicit
     request: Request[_],
     hc: HeaderCarrier
-  ): EitherT[Future, Result, FixStatus] =
+  ): EitherT[Future, ErrorResult, FixStatus] =
     if (details.address.flatMap(_.country).contains("ABROAD - NOT KNOWN")) {
-      logger.info(s"residential address for nino ${record.nino} is ABROAD - NOT KNOWN and need fixing")
-      val newAddress = details.address.map(_.copy(country = None, postcode = Some(record.postcode))).get
-      updateAddressWithResult(record.nino, details.etag, newAddress, DoneResidential)
+      logger.info(s"residential address for ${record.obscuredId} is ABROAD - NOT KNOWN and need fixing")
+      val newAddress = details.address
+        .map(addr =>
+          addr.copy(country = None, postcode = Some(record.postcode), startDate = addr.startDate.map(_.plusDays(1)))
+        )
+        .get
+      updateAddressWithErrorResult(record, details.etag, newAddress, DoneResidential)
     } else if (details.correspondenceAddress.flatMap(_.country).contains("ABROAD - NOT KNOWN")) {
-      logger.info(s"correspondence address for nino ${record.nino} is ABROAD - NOT KNOWN and need fixing")
-      val newAddress = details.correspondenceAddress.map(_.copy(country = None, postcode = Some(record.postcode))).get
-      updateAddressWithResult(record.nino, details.etag, newAddress, DoneCorrespondence)
+      logger.info(s"correspondence address for ${record.obscuredId} is ABROAD - NOT KNOWN and need fixing")
+      val newAddress = details.correspondenceAddress
+        .map(addr =>
+          addr.copy(country = None, postcode = Some(record.postcode), startDate = addr.startDate.map(_.plusDays(1)))
+        )
+        .get
+      updateAddressWithErrorResult(record, details.etag, newAddress, DoneCorrespondence)
     } else {
       logger.warn(
-        s"Address is no longer ABROAD - NOT KNOWN for nino ${record.nino}, skipping record"
+        s"Address is no longer ABROAD - NOT KNOWN for ${record.obscuredId}, skipping record"
       )
       EitherT.rightT(FixStatus.SkippedNotAbroad)
     }

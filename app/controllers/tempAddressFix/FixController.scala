@@ -16,8 +16,10 @@
 
 package controllers.tempAddressFix
 
+import cats.syntax.traverse.*
 import com.google.inject.Inject
-import models.tempAddressFix.{AddressFixRecord, AddressFixRecordRequest}
+import models.tempAddressFix.FixStatus.Backlog
+import models.tempAddressFix.{AddressFixRecord, AddressFixRecordRequest, FixStatus}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.TempAddressFixRepository
 import uk.gov.hmrc.internalauth.client.{AuthenticatedActionBuilder, BackendAuthComponents, IAAction, Resource, ResourceLocation, ResourceType}
@@ -54,7 +56,7 @@ class FixController @Inject() (
     logger.info(s"Inserting ${records.size} in tempAddressFixRepository")
 
     tempAddressFixRepository
-      .insertMany(records.map(_.toAddresRecord))
+      .insertMany(records.map(_.toAddressRecord))
       .map { inserted =>
         Ok(
           Json.obj(
@@ -80,7 +82,7 @@ class FixController @Inject() (
     fixControllerHelper
       .processRecord(nino)
       .foldF(
-        errorResult => Future.successful(errorResult),
+        errorResult => Future.successful(Status(errorResult.httpStatus)(errorResult.errorMessage)),
         _ =>
           tempAddressFixRepository.findByKey(nino).map {
             case Some(record) => Ok(Json.toJson(record))
@@ -90,6 +92,17 @@ class FixController @Inject() (
               )
           }
       )
+  }
+
+  def markRecordsForProcessing(size: Int): Action[AnyContent] = auth().async { implicit request =>
+    tempAddressFixRepository
+      .findNRecords(size, Backlog)
+      .flatMap { recordsList =>
+        recordsList.traverse { record =>
+          tempAddressFixRepository.findOneAndUpdate(record.nino, FixStatus.Todo, Some(FixStatus.Backlog))
+        }
+      }
+      .map(_ => Accepted)
   }
 
 }

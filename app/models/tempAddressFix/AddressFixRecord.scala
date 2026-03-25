@@ -27,6 +27,11 @@ import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 case class AddressFixRecord(nino: String, postcode: String, status: FixStatus, timestamp: Instant = Instant.now) {
   def encryptedNino(cryptoProvider: CryptoProvider): String =
     AddressFixRecord.encryptedNino(nino, cryptoProvider)
+
+  def obscuredNino: String     = nino.patch(3, "*" * 4, 4)
+  def obscuredPostcode: String = postcode.dropRight(3) + "***"
+
+  def obscuredId: String = s"nino: $obscuredNino, postcode: $obscuredPostcode"
 }
 
 object AddressFixRecord {
@@ -71,7 +76,7 @@ object AddressFixRecord {
 }
 
 case class AddressFixRecordRequest(nino: String, postcode: String) {
-  def toAddresRecord: AddressFixRecord = AddressFixRecord(nino, postcode, FixStatus.Todo)
+  def toAddressRecord: AddressFixRecord = AddressFixRecord(nino, postcode, FixStatus.Backlog)
 }
 
 object AddressFixRecordRequest {

@@ -96,6 +96,18 @@ class TempAddressFixRepository @Inject() (
       .find()
       .toFuture()
 
+  def findTodo: Future[Option[AddressFixRecord]] =
+    collection
+      .find(equal("data.status", FixStatus.Todo.toString))
+      .limit(1)
+      .headOption()
+
+  def findNRecords(size: Int, status: FixStatus): Future[Seq[AddressFixRecord]] =
+    collection
+      .find(equal("data.status", status.toString))
+      .limit(size)
+      .toFuture()
+
   def findOneAndUpdate(
     key: String,
     newStatus: FixStatus,
