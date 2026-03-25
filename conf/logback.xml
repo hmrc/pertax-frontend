@@ -22,5 +22,6 @@
 
     <logger name="job.JobScheduler" level="DEBUG"/>
     <logger name="job.FixAddressJob" level="DEBUG"/>
+    <logger name="controllers.tempAddressFix.FixControllerHelper" level="DEBUG"/>
 
 </configuration>

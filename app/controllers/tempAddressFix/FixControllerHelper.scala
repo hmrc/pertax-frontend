@@ -44,7 +44,7 @@ class FixControllerHelper @Inject() (
   def personDetailsWithErrorResult(
     nino: String
   )(implicit request: Request[_], hc: HeaderCarrier): EitherT[Future, ErrorResult, PersonDetails] =
-    citizenDetailsService.personDetails(Nino(nino)).transform {
+    citizenDetailsService.personDetails(Nino(nino), true).transform {
       case Left(error)          => Left(ErrorResult(INTERNAL_SERVER_ERROR, error.getMessage))
       case Right(None)          => Left(ErrorResult(NOT_FOUND, s"details not found for nino $nino"))
       case Right(Some(details)) => Right(details)
@@ -111,6 +111,12 @@ class FixControllerHelper @Inject() (
         .get
       updateAddressWithErrorResult(record, details.etag, newAddress, DoneCorrespondence)
     } else {
+      logger.debug(
+        s"Residential postcode is ${details.address.map(_.postcode)}, Country is ${details.address.map(_.country)}"
+      )
+      logger.debug(
+        s"Correspondence postcode is ${details.correspondenceAddress.map(_.postcode)}, Country is ${details.correspondenceAddress.map(_.country)}"
+      )
       logger.warn(
         s"Address is no longer ABROAD - NOT KNOWN for ${record.obscuredId}, skipping record"
       )
