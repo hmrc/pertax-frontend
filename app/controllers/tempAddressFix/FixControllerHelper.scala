@@ -77,7 +77,11 @@ class FixControllerHelper @Inject() (
   )(implicit request: Request[_], hc: HeaderCarrier): EitherT[Future, ErrorResult, FixStatus] =
     for {
       recordToFix <-
-        findOneAndUpdateWithErrorResult(nino, FixStatus.Processing, Some(FixStatus.Backlog)) // Set record for processing
+        findOneAndUpdateWithErrorResult(
+          nino,
+          FixStatus.Processing,
+          Some(FixStatus.Todo)
+        ) // Set record for processing
       details     <- personDetailsWithErrorResult(nino) // get current address
       newStatus   <- fixAddress(recordToFix, details) // update address
       _           <- findOneAndUpdateWithErrorResult(nino, newStatus) // set record as Done/Skipped
