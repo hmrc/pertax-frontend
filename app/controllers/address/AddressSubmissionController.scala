@@ -82,6 +82,7 @@ class AddressSubmissionController @Inject() (
                       doYouLiveInTheUK,
                       isUkAddress,
                       journeyData.submittedStartDateDto,
+                      journeyData.defaultedStartDate.contains(true),
                       showAddressChangedDate
                     )
                   )
@@ -102,6 +103,7 @@ class AddressSubmissionController @Inject() (
                       doYouLiveInTheUK,
                       isUkAddress,
                       journeyData.submittedStartDateDto,
+                      showDefaultedStartDateMessage = journeyData.defaultedStartDate.contains(true),
                       displayDateAddressChanged = true
                     )
                   )

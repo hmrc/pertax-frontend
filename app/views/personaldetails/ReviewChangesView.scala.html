@@ -17,18 +17,24 @@
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.language.LanguageUtils
 @import scala.concurrent.ExecutionContext
+@import config.ConfigDecorator
 @import components.{H1, Link, Button}
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukInsetText
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 @import views.MainView
 @this(
     main: MainView,
     form: FormWithCSRF,
     languageUtils: LanguageUtils,
     h1: H1,
-    button: Button
+    button: Button,
+    govukInsetText: GovukInsetText
 )
 
 @(typ: AddrType, addressDto: AddressDto, addressCountry: String, isUkAddress: Boolean,  startDateDto: Option[DateDto],
-displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+showDefaultedStartDateMessage: Boolean,
+displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.check_your_details"),
@@ -37,6 +43,21 @@ displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], messages: 
 ) {
 
     @h1("label.check_your_details")
+
+    @if(showDefaultedStartDateMessage) {
+        @startDateDto.map { startDateDto =>
+            @govukInsetText(InsetText(
+                content = HtmlContent(
+                    if(messages.lang.code == "cy") {
+                        configDecorator.addressChangeStartDateParagraphCy(typ.toString, languageUtils.Dates.formatDate(startDateDto.startDate))
+                    } else {
+                        configDecorator.addressChangeStartDateParagraphEn(typ.toString, languageUtils.Dates.formatDate(startDateDto.startDate))
+                    }
+                )
+            ))
+        }
+    }
+
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
             @if(typ==PostalAddrType){

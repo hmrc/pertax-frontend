@@ -59,7 +59,8 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
         userAnswers.get(SelectedAddressRecordPage(typ)),
         userAnswers.get(SubmittedAddressPage(typ)),
         userAnswers.get(SubmittedInternationalAddressChoicePage),
-        userAnswers.get(SubmittedStartDatePage(typ))
+        userAnswers.get(SubmittedStartDatePage(typ)),
+        userAnswers.get(DefaultedStartDatePage(typ))
       )
     }
 
@@ -79,7 +80,8 @@ class AddressJourneyCachingHelper @Inject() (val journeyCacheRepository: Journey
             userAnswers.get(SelectedAddressRecordPage(typ)),
             userAnswers.get(SubmittedAddressPage(typ)),
             userAnswers.get(SubmittedInternationalAddressChoicePage),
-            userAnswers.get(SubmittedStartDatePage(typ))
+            userAnswers.get(SubmittedStartDatePage(typ)),
+            userAnswers.get(DefaultedStartDatePage(typ))
           )
         )
       }

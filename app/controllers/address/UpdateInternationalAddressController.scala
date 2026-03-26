@@ -24,7 +24,7 @@ import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelpe
 import error.ErrorRenderer
 import models.dto.{AddressDto, DateDto}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import routePages.{SubmittedAddressPage, SubmittedStartDatePage}
+import routePages.{DefaultedStartDatePage, SubmittedAddressPage, SubmittedStartDatePage}
 import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -107,6 +107,7 @@ class UpdateInternationalAddressController @Inject() (
                   typ match {
                     case PostalAddrType =>
                       cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(LocalDate.now()))
+                      cachingHelper.addToCache(DefaultedStartDatePage(typ), false)
                       Future.successful(Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
                     case _              =>
                       Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
