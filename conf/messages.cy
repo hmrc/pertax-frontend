@@ -149,13 +149,7 @@ label.the_date_you_entered_is_earlier_than_a_date_previously_held_=Mae’r dyddi
 label.go_back_to_change_before_link=Gallwch
 label.go_back_to_change_link_text=ewch yn ôl i newid y dyddiad
 label.go_back_to_change_after_link=os gwnaethoch nodi {0} trwy gamgymeriad.
-label.earlier_date_than_record_before_link=Os yw’r dyddiad yn gywir,
-label.earlier_date_than_record_link_text=cysylltwch â CThEF (yn agor tab newydd)
-label.earlier_date_than_record_after_link=i ddiweddaru’ch manylion
 label.future_date_than_record_h1=Ni allwch ddiweddaru’ch cyfeiriad tan y dyddiad y byddwch yn symud
-label.if_you_entered_proposedStartDate_by_mistake_text_before_link_1=Os nodwyd
-label.if_you_entered_proposedStartDate_by_mistake_text_before_link_2=gennych drwy gamgymeriad, gallwch
-label.if_you_entered_proposedStartDate_by_mistake_link_text=fynd yn ôl i roi dyddiad arall
 label.if_you_entered_the_correct_date_contact_HMRC_text_before_link=Os nodwyd y dyddiad cywir gennych,
 label.if_you_entered_the_correct_date_contact_HMRC_link_text=cysylltwch â CThEM
 label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=i ddiweddaru’ch cyfeiriad
@@ -757,7 +751,8 @@ p85.p1.before_link=Mae angen i chi roi gwybod i CThEF os ydych yn gadael y DU.
 p85.p1.link_text=Llenwch Ffurflen P85 (yn agor tab newydd)
 p85.p1.after_link=er mwyn:
 p85.bullet1=rhoi gwybod i CThEF eich bod yn gadael y DU
-p85.bullet2=cael eich Treth Incwm yn iawn, gan gynnwys hawlio rhyddhad treth neu ad-daliad treth
+p85.bullet2=cael eich Treth Incwm yn iawn
+p85.bullet3=gan gynnwys hawlio rhyddhad treth neu ad-daliad treth
 
 #*************************************************************
 # Self Assessment Who Needs to Register
