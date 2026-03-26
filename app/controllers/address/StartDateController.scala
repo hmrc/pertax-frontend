@@ -26,7 +26,7 @@ import models.dto.DateDto
 import models.dto.InternationalAddressChoiceDto.OutsideUK
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import routePages.SubmittedStartDatePage
+import routePages.{StartDateUpdatedPage, SubmittedStartDatePage}
 import services.{AddressCountryService, CitizenDetailsService, NormalizationUtils, StartDateDecisionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -177,9 +177,11 @@ class StartDateController @Inject() (
                               }
                           },
                           dateToPersist =>
-                            cachingHelper
-                              .addToCache(SubmittedStartDatePage(typ), DateDto(dateToPersist))
-                              .map(_ => Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
+                            for {
+                              _ <- cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(dateToPersist))
+                              _ <- cachingHelper
+                                     .addToCache(StartDateUpdatedPage(typ), !dateToPersist.equals(proposedStartDate))
+                            } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                         )
                     }
                   } yield result
