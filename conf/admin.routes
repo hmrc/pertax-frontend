@@ -1,1 +1,8 @@
 ->          /featureFlags           mongoFeatureTogglesAdmin.Routes
+
+GET         /fix-addresses/get/:key controllers.tempAddressFix.FixController.getData(key)
+GET         /fix-addresses/get-all  controllers.tempAddressFix.FixController.getAllData
+GET         /fix-addresses/process/:nino  controllers.tempAddressFix.FixController.getFixARecord(nino)
+GET         /fix-addresses/process-n/:size  controllers.tempAddressFix.FixController.markRecordsForProcessing(size: Int)
++nocsrf
+POST        /fix-addresses/put      controllers.tempAddressFix.FixController.bulkInsert

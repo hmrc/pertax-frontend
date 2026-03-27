@@ -7,6 +7,7 @@ object AppDependencies {
   private val cryptoVersion             = "8.4.0"
   private val scaWrapperVersion         = "4.13.0"
   private val mongoFeatureClientVersion = "2.5.0"
+  private val quartzVersion        = "2.5.2"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -18,7 +19,8 @@ object AppDependencies {
     "org.apache.commons" % "commons-text"                               % "1.15.0",
     "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % scaWrapperVersion,
     "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % mongoFeatureClientVersion,
-    "uk.gov.hmrc"       %% s"crypto-json-$playVersion"                  % cryptoVersion
+    "uk.gov.hmrc"       %% s"crypto-json-$playVersion"                  % cryptoVersion,
+    "org.quartz-scheduler" % "quartz"                        % quartzVersion
   )
 
   val test: Seq[ModuleID] = Seq(

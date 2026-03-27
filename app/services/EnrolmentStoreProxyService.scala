@@ -41,7 +41,7 @@ class EnrolmentStoreProxyService @Inject() (
     val knownFactsRequest = KnownFactsRequest("HMRC-MTD-IT", List(IdentifiersOrVerifiers("NINO", nino.nino)))
     enrolmentsConnector.getKnownFacts(knownFactsRequest).flatMap { knownFactsResponse =>
       // Getting all the known facts from nino for MTDITID.
-      // Once a unique id is founds, it used to find all the enrolments
+      // Once a unique id is found, it used to find all the enrolments
       knownFactsResponse.enrolments
         .flatMap { enrolment =>
           enrolment.identifiers.find(_.key == "MTDITID").map(_.value)
