@@ -24,6 +24,7 @@ import org.mockito.Mockito.{reset, when}
 import repositories.TempAddressFixRepository
 import services.CitizenDetailsService
 import connectors.CitizenDetailsConnector
+import controllers.bindable.ResidentialAddrType
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
@@ -169,6 +170,9 @@ class FixControllerHelperSpec extends BaseSpec {
 
         when(mockTempAddressFixRepository.findOneAndUpdate(eqTo(nino), eqTo(FixStatus.DoneResidential), eqTo(None)))
           .thenReturn(Future.successful(Some(record.copy(status = FixStatus.DoneResidential))))
+
+        when(mockEditAddressLockRepository.insert(eqTo(nino.take(8)), eqTo(ResidentialAddrType)))
+          .thenReturn(Future.successful(true))
 
         val result = helper.processRecord(nino).value.futureValue
 
