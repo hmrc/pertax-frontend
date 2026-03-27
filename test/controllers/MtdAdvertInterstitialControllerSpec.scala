@@ -35,7 +35,7 @@ import play.api.test.Helpers.*
 import services.EnrolmentStoreProxyService
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.{ActionBuilderFixture, BaseSpec}
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.UpstreamErrorResponse
