@@ -19,7 +19,7 @@ package services
 import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.CitizenDetailsConnector
-import models.admin.GetPersonFromCitizenDetailsToggle
+import models.admin.{GetMatchingFromCitizenDetailsToggle, GetPersonFromCitizenDetailsToggle}
 import models.{Address, PersonDetails}
 import play.api.Logging
 import play.api.mvc.Request
@@ -98,7 +98,7 @@ class CitizenDetailsService @Inject() (
     nino: Nino
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, UpstreamErrorResponse, Option[SaUtr]] =
     for {
-      toggle <- EitherT.liftF(featureFlagService.get(GetPersonFromCitizenDetailsToggle))
+      toggle <- EitherT.liftF(featureFlagService.get(GetMatchingFromCitizenDetailsToggle))
       result <- if (toggle.isEnabled) {
                   citizenDetailsConnector
                     .getMatchingDetails(nino)
@@ -108,7 +108,7 @@ class CitizenDetailsService @Inject() (
                         .map(SaUtr.apply)
                     )
                 } else {
-                  logger.warn("GetPersonFromCitizenDetailsToggle flag disabled")
+                  logger.warn("GetMatchingFromCitizenDetailsToggle flag disabled")
                   EitherT.rightT[Future, UpstreamErrorResponse](None)
                 }
     } yield result
