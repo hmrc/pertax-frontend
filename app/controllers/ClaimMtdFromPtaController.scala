@@ -60,7 +60,7 @@ class ClaimMtdFromPtaController @Inject() (
     } yield mtdStatusToggle.isEnabled && claimToggle.isEnabled
 
   def start: Action[AnyContent] = authenticate.async { implicit request =>
-    if (!request.isSaUserLoggedIntoCorrectAccount) {
+    if (!request.isSa) {
       Future.successful(NotFound)
     } else {
       val action: EitherT[Future, UpstreamErrorResponse, Result] =
