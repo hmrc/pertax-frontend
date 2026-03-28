@@ -20,12 +20,15 @@ import com.google.inject.Inject
 import connectors.AddressLookupConnector
 import models.addresslookup.Country
 import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
-import uk.gov.hmrc.http.HeaderCarrier
 import play.api.Logging
+import uk.gov.hmrc.http.HeaderCarrier
+import util.PertaxValidators.PostcodeRegex
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AddressMovedService @Inject() (addressLookupService: AddressLookupConnector) extends Logging {
+
+  private def isValidUkPostcode(p: String): Boolean = PostcodeRegex.pattern.matcher(p.trim.toUpperCase).matches()
 
   def moved(originalPostcode: String, newPostcode: String, p85Enabled: Boolean)(implicit
     hc: HeaderCarrier,
@@ -34,11 +37,14 @@ class AddressMovedService @Inject() (addressLookupService: AddressLookupConnecto
     if (p85Enabled) {
       Future.successful(AnyOtherMove)
     } else {
-      (originalPostcode, newPostcode) match {
+      (originalPostcode.trim, newPostcode.trim) match {
         case (_, "")                         =>
           logger.error("New postcode is empty when checking for address move.")
           Future.successful(AnyOtherMove)
         case ("", _)                         => Future.successful(AnyOtherMove)
+        case (originalPostcode, newPostcode)
+            if !isValidUkPostcode(originalPostcode) || !isValidUkPostcode(newPostcode) =>
+          Future.successful(AnyOtherMove)
         case (originalPostcode, newPostcode) =>
           (for {
             fromResponse <- addressLookupService.lookup(originalPostcode)
