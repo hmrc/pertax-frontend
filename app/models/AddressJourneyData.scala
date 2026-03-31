@@ -27,7 +27,8 @@ case class AddressJourneyData(
   selectedAddressRecord: Option[AddressRecord],
   submittedAddressDto: Option[AddressDto],
   submittedInternationalAddressChoiceDto: Option[InternationalAddressChoiceDto],
-  submittedStartDateDto: Option[DateDto]
+  submittedStartDateDto: Option[DateDto],
+  wasStartDateUpdate: Option[Boolean]
 ) {
   def getAddressToDisplay: Option[AddressDto] =
     submittedAddressDto match {

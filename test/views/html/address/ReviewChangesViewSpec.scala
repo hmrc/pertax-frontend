@@ -41,7 +41,15 @@ class ReviewChangesViewSpec extends ViewSpec {
     AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
 
   def result(addressType: AddrType): Document = asDocument(
-    view(addressType, address, "yes.label", isUkAddress = true, None, displayDateAddressChanged = false).toString
+    view(
+      addressType,
+      address,
+      "yes.label",
+      isUkAddress = true,
+      None,
+      displayDateAddressChanged = false,
+      startDateChanged = false
+    ).toString
   )
 
   "rendering ReviewChangesView" must {

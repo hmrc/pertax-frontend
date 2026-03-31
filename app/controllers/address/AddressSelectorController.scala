@@ -29,7 +29,7 @@ import models.dto.{AddressDto, AddressSelectorDto, DateDto}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.JourneyCacheRepository
-import routePages.{SelectedAddressRecordPage, SelectedRecordSetPage, SubmittedAddressPage, SubmittedStartDatePage}
+import routePages.{SelectedAddressRecordPage, SelectedRecordSetPage, StartDateUpdatedPage, SubmittedAddressPage, SubmittedStartDatePage}
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import services.{AddressSelectorService, CitizenDetailsService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -131,6 +131,7 @@ class AddressSelectorController @Inject() (
                         case (_, true)               => Redirect(routes.StartDateController.onPageLoad(typ))
                         case (_, false)              =>
                           cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(LocalDate.now()))
+                          cachingHelper.addToCache(StartDateUpdatedPage(typ), false)
                           Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                       }
                     }
