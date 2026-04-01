@@ -33,9 +33,9 @@
 @(residenceStartDateForm: Form[DateDto], typ: AddrType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @detailsContent = {
-    @messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_text_before_link")
+    @messages("label.scottish_tax_info")
     @link(configDecorator.scottishRateIncomeTaxUrl,
-            messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_link_text") + " " + messages("label.opens_in_a_new_window"),
+            messages("label.scottish_tax_info_link"),
             inParagraph = true,
             fullStop = true,
             attrTarget = true
@@ -69,7 +69,7 @@
         )
 
         @govukDetails(Details(
-            summary = Text(messages("label.why_do_you_need_to_know_this")),
+            summary = Text(messages("label.what_if_i_live_in_scotland")),
             content = HtmlContent(detailsContent),
             id=Some("details-content")
         ))

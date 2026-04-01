@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package viewmodels
+package routePages
 
-import play.twirl.api.HtmlFormat
+import controllers.bindable.AddrType
+import play.api.libs.json.JsPath
 
-case class PersonalDetailsTableRowModel(
-  id: String,
-  titleMessage: String,
-  content: HtmlFormat.Appendable,
-  linkTextMessage: String,
-  visuallyhiddenText: String,
-  linkUrl: Option[String],
-  displayChangelink: Boolean = true,
-  isPostalAddressSame: Boolean = false,
-  addressHasError: Boolean = false
-)
+case class StartDateUpdatedPage(typ: AddrType) extends QuestionPage[Boolean] {
+
+  override def toString: String = "wasStartDateUpdated"
+
+  override def path: JsPath = JsPath \ s"$typ" \ toString
+}
