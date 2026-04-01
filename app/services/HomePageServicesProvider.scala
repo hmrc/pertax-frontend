@@ -149,7 +149,7 @@ class HomePageServicesProvider @Inject() (
             Some(
               mySaTile(
                 href = controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-                body = messages("label.newViewAndManageSA", s"${current.currentYear + 1}")
+                body = ""
               )
             )
 
@@ -158,14 +158,6 @@ class HomePageServicesProvider @Inject() (
               mySaTile(
                 href = controllers.routes.SaWrongCredentialsController.landingPage().url,
                 body = messages("title.signed_in_wrong_account.h1")
-              )
-            )
-
-          case (_: NotYetActivatedOnlineFilerSelfAssessmentUser, _) =>
-            Some(
-              mySaTile(
-                href = configDecorator.ssoToActivateSaEnrolmentPinUrl,
-                body = messages("label.activate_your_self_assessment_registration")
               )
             )
 

@@ -28,10 +28,10 @@ import play.api.test.FakeRequest
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.time.TaxYear
 
 import scala.concurrent.Future
@@ -124,7 +124,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           "Self Assessment",
           controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-          messages("label.newViewAndManageSA", s"${TaxYear.current.currentYear + 1}"),
+          "",
           Map(),
           Some("Income"),
           Some("Self Assessment")
@@ -212,22 +212,24 @@ class HomePageServicesProviderSpec extends BaseSpec {
       )
     }
 
-    "return self assessment in myServices for not yet activated SA user" in {
+    "return self assessment in otherServices for not yet activated SA user" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
 
       val result = service.getHomePageServices.futureValue
 
-      result.myServices must contain(
-        MyService(
+      result.otherServices must contain(
+        OtherService(
           "Self Assessment",
           "activate-sa-url",
-          "Activate your Self Assessment registration",
           Map(),
           Some("Income"),
-          Some("Self Assessment")
+          Some("Self Assessment"),
+          None
         )
       )
+
+      result.myServices.map(_.title) must not contain "Self Assessment"
     }
 
     "return self assessment in otherServices for not enrolled SA user" in {
