@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,7 @@ class HomeController @Inject() (
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
-  myServices: MyServices,
-  otherServices: OtherServices,
+  homePageServicesProvider: HomePageServicesProvider,
   tasksService: TasksService,
   homeCardGenerator: HomeCardGenerator,
   homeOptionsGenerator: HomeOptionsGenerator,
@@ -64,7 +63,7 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
+  private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
     val nino: Nino = request.helpeeNinoOrElse
 
@@ -74,11 +73,9 @@ class HomeController @Inject() (
     }
 
     enforceInterrupts {
-      // All elements assigned to a val first before using them in a for comprehension to allow them to run in parallel
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
       val fListOfTasks             = tasksService.getListOfTasks
-      val fMyServices              = myServices.getMyServices
-      val fOtherServices           = otherServices.getOtherServices
+      val fHomePageServices        = homePageServicesProvider.getHomePageServices
       val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
       val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
@@ -87,12 +84,11 @@ class HomeController @Inject() (
       for {
         breathingSpaceIndicator <- fBreathingSpaceIndicator
         listOfTasks             <- fListOfTasks
+        homePageServices        <- fHomePageServices
         shutteringMessaging     <- fShutteringMessaging
         alertBannerContent      <- fAlertBannerContent
         eitherPersonDetails     <- fEitherPersonDetails
         showFandfBanner         <- fShowFandfBanner
-        myServices              <- fMyServices
-        otherServices           <- fOtherServices
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
@@ -107,8 +103,8 @@ class HomeController @Inject() (
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
               alertBannerContent = alertBannerContent,
               name = nameToDisplay,
-              myServices = myServices,
-              otherServices = otherServices
+              myServices = homePageServices.myServices,
+              otherServices = homePageServices.otherServices
             ),
             shutteringMessaging.isEnabled,
             showFandfBanner
@@ -118,7 +114,7 @@ class HomeController @Inject() (
     }
   }
 
-  def oldHomePage(implicit request: UserRequest[AnyContent]) = {
+  private def oldHomePage(implicit request: UserRequest[AnyContent]) = {
     val saUserType = request.saUserType
 
     val nino: Nino   = request.helpeeNinoOrElse

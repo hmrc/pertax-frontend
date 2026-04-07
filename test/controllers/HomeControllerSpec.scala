@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ import connectors.FandFConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
-import models.BreathingSpaceIndicatorResponse
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePageNewLayoutToggle, ShowPlannedOutageBannerToggle}
+import models.{BreathingSpaceIndicatorResponse, HomePageServices}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -42,11 +42,11 @@ import services.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
 import testUtils.{BaseSpec, CitizenDetailsFixtures, Fixtures, WireMockHelper}
-import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.sca.models.TrustedHelper
 import util.AlertBannerHelper
 
 import scala.concurrent.Future
@@ -56,16 +56,15 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
   val fakePaperlessInterruptHelper = new FakePaperlessInterruptHelper
 
-  val mockBreathingSpaceService: BreathingSpaceService = mock[BreathingSpaceService]
-  val mockHomeCardGenerator: HomeCardGenerator         = mock[HomeCardGenerator]
-  val mockHomeOptionsGenerator: HomeOptionsGenerator   = mock[HomeOptionsGenerator]
-  val mockAlertBannerHelper: AlertBannerHelper         = mock[AlertBannerHelper]
-  val mockTaiService: TaiService                       = mock[TaiService]
-  val mockFandfConnector: FandFConnector               = mock[FandFConnector]
-  val mockMyServices: MyServices                       = mock[MyServices]
-  val mockOtherServices: OtherServices                 = mock[OtherServices]
-  val mockTasksService: TasksService                   = mock[TasksService]
-  val mockConfigDecorator: ConfigDecorator             = mock[ConfigDecorator]
+  val mockBreathingSpaceService: BreathingSpaceService       = mock[BreathingSpaceService]
+  val mockHomeCardGenerator: HomeCardGenerator               = mock[HomeCardGenerator]
+  val mockHomeOptionsGenerator: HomeOptionsGenerator         = mock[HomeOptionsGenerator]
+  val mockAlertBannerHelper: AlertBannerHelper               = mock[AlertBannerHelper]
+  val mockTaiService: TaiService                             = mock[TaiService]
+  val mockFandfConnector: FandFConnector                     = mock[FandFConnector]
+  val mockHomePageServicesProvider: HomePageServicesProvider = mock[HomePageServicesProvider]
+  val mockTasksService: TasksService                         = mock[TasksService]
+  val mockConfigDecorator: ConfigDecorator                   = mock[ConfigDecorator]
 
   lazy val appBuilder: GuiceApplicationBuilder = localGuiceApplicationBuilder()
     .overrides(
@@ -78,8 +77,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
       bind[TaiService].toInstance(mockTaiService),
       bind[FandFConnector].toInstance(mockFandfConnector),
-      bind[MyServices].toInstance(mockMyServices),
-      bind[OtherServices].toInstance(mockOtherServices),
+      bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
       bind[TasksService].toInstance(mockTasksService)
     )
 
@@ -94,8 +92,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     reset(mockHomeCardGenerator)
     reset(mockAlertBannerHelper)
     reset(mockFeatureFlagService)
-    reset(mockMyServices)
-    reset(mockOtherServices)
+    reset(mockHomePageServicesProvider)
     reset(mockFandfConnector)
     reset(mockConfigDecorator)
 
@@ -137,12 +134,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockFandfConnector.showFandfBanner(any())(any(), any()))
       .thenReturn(Future.successful(false))
 
-    when(mockMyServices.getMyServices(any(), any(), any())).thenReturn(
-      Future.successful(Seq.empty)
-    )
-
-    when(mockOtherServices.getOtherServices(any(), any(), any())).thenReturn(
-      Future.successful(Seq.empty)
+    when(mockHomePageServicesProvider.getHomePageServices(any(), any(), any())).thenReturn(
+      Future.successful(HomePageServices(Seq.empty))
     )
 
     when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(Seq.empty)
@@ -304,7 +297,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
             bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
             bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-            bind[FandFConnector].toInstance(mockFandfConnector)
+            bind[FandFConnector].toInstance(mockFandfConnector),
+            bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
+            bind[TasksService].toInstance(mockTasksService)
           )
           .build()
 
@@ -356,8 +351,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
             bind[TaiService].toInstance(mockTaiService),
             bind[FandFConnector].toInstance(mockFandfConnector),
-            bind[MyServices].toInstance(mockMyServices),
-            bind[OtherServices].toInstance(mockOtherServices),
+            bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
             bind[TasksService].toInstance(mockTasksService),
             bind[ConfigDecorator].toInstance(mockConfigDecorator),
             bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
@@ -417,8 +411,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
             bind[TaiService].toInstance(mockTaiService),
             bind[FandFConnector].toInstance(mockFandfConnector),
-            bind[MyServices].toInstance(mockMyServices),
-            bind[OtherServices].toInstance(mockOtherServices),
+            bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
             bind[TasksService].toInstance(mockTasksService),
             bind[ConfigDecorator].toInstance(mockConfigDecorator),
             bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
@@ -478,8 +471,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
             bind[TaiService].toInstance(mockTaiService),
             bind[FandFConnector].toInstance(mockFandfConnector),
-            bind[MyServices].toInstance(mockMyServices),
-            bind[OtherServices].toInstance(mockOtherServices),
+            bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
             bind[TasksService].toInstance(mockTasksService),
             bind[ConfigDecorator].toInstance(mockConfigDecorator),
             bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
@@ -537,8 +529,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
             bind[TaiService].toInstance(mockTaiService),
             bind[FandFConnector].toInstance(mockFandfConnector),
-            bind[MyServices].toInstance(mockMyServices),
-            bind[OtherServices].toInstance(mockOtherServices),
+            bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
             bind[TasksService].toInstance(mockTasksService),
             bind[ConfigDecorator].toInstance(mockConfigDecorator),
             bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
@@ -776,7 +767,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
           bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
           bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
           bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-          bind[FandFConnector].toInstance(mockFandfConnector)
+          bind[FandFConnector].toInstance(mockFandfConnector),
+          bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
+          bind[TasksService].toInstance(mockTasksService)
         )
         .build()
 
@@ -786,7 +779,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     val controller: HomeController = appLocal.injector.instanceOf[HomeController]
     val result: Future[Result]     = controller.index()(currentRequest)
     status(result) mustBe OK
-//    assert(contentAsString(result).contains("Your trusted helper relationship ends at midnight"))
+    //    assert(contentAsString(result).contains("Your trusted helper relationship ends at midnight"))
     verify(mockFandfConnector, times(1)).showFandfBanner(ArgumentMatchers.eq(Fixtures.fakeNino))(any(), any())
     verify(mockFandfConnector, times(0)).showFandfBanner(ArgumentMatchers.eq(generatedTrustedHelperNino))(any(), any())
 
@@ -821,7 +814,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
           bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
           bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
           bind[FandFConnector].toInstance(mockFandfConnector),
-          bind[CitizenDetailsService].toInstance(mockCitizenDetailsService)
+          bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+          bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
+          bind[TasksService].toInstance(mockTasksService)
         )
         .build()
     "when issue is main address " in {

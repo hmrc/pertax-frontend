@@ -16,13 +16,15 @@
 
 package models
 
-final case class OtherService(
-  title: String,
-  link: String,
-  divAttr: Map[String, String] = Map.empty,
-  gaAction: Option[String] = None,
-  gaLabel: Option[String] = None,
-  id: Option[String] = None
-) extends HomePageService {
-  override val category: HomePageServiceCategory = HomePageServiceCategory.OtherServices
+final case class HomePageServices(services: Seq[HomePageService]) {
+
+  private lazy val servicesByCategory: Map[HomePageServiceCategory, Seq[HomePageService]] = services.groupBy(_.category)
+
+  lazy val myServices: Seq[MyService] = servicesByCategory
+    .getOrElse(HomePageServiceCategory.MyServices, Seq.empty)
+    .collect { case service: MyService => service }
+
+  lazy val otherServices: Seq[OtherService] = servicesByCategory
+    .getOrElse(HomePageServiceCategory.OtherServices, Seq.empty)
+    .collect { case service: OtherService => service }
 }

@@ -26,4 +26,6 @@ final case class MyService(
   gaAction: Option[String] = None,
   gaLabel: Option[String] = None,
   id: Option[String] = None
-)
+) extends HomePageService {
+  override val category: HomePageServiceCategory = HomePageServiceCategory.MyServices
+}

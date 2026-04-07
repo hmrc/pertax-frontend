@@ -25,7 +25,7 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.dto.{AddressDto, DateDto}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import routePages.{SubmittedAddressPage, SubmittedStartDatePage}
+import routePages.{StartDateUpdatedPage, SubmittedAddressPage, SubmittedStartDatePage}
 import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
@@ -103,5 +103,8 @@ class UpdateAddressController @Inject() (
     }
 
   private def cacheStartDate(typ: AddrType, redirect: Result)(implicit request: UserRequest[_]): Future[Result] =
-    cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(LocalDate.now())) map (_ => redirect)
+    for {
+      _ <- cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(LocalDate.now()))
+      _ <- cachingHelper.addToCache(StartDateUpdatedPage(typ), false)
+    } yield redirect
 }
