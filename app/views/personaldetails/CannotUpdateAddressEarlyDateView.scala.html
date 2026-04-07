@@ -29,6 +29,20 @@
 
 @(typ: AddrType, proposedStartDate: String, p85Enabled: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,messages: play.api.i18n.Messages)
 
+@*
+* @movingAffects = {
+*     @if(TODO.isScotlandMove){
+*         @p(HtmlContent(
+*             @typ.ifIs(
+*                 moveTo = messages("label.moving_to_affects"),
+*                 moveFrom = messages("label.moving_from_affects")
+*             ) + " " +
+*             messages("label.moving_affects_after")
+*         )
+*     }
+* }
+*@
+
 @main(
     pageTitle = messages("label.your_address_cannot_be_updated"),
     showBackLink = true,
@@ -37,51 +51,24 @@
 
     @h1("label.the_date_you_entered_is_earlier_than_a_date_previously_held_")
 
-@*
-*    @if(movingToScotland) {
-*        @p(HtmlContent(messages("label.moving_to_scotland_affects")))
-*   }
-*@
+@*    @p(movingAffects)*@
 
-@*
-*    @ifNot(movingFromScotland) {
-*@
+    @p(HtmlContent(Messages("label.if_you_entered_the_correct_date_contact_HMRC_text_before_link", proposedStartDate) + " " +
+        link(configDecorator.changePersonalDetailsUrl,
+            messages("label.if_you_entered_the_correct_date_contact_HMRC_link_text"),
+            attrTarget = true,
+            inParagraph = true) + " " +
+            messages("label.if_you_entered_the_correct_date_contact_HMRC_text_after_link")+"."
+    ))
 
-        @p(HtmlContent(Messages("label.if_you_entered_the_correct_date_contact_HMRC_text_before_link_new", proposedStartDate) + " " +
-                        link(configDecorator.changePersonalDetailsUrl,
-                                messages("label.if_you_entered_the_correct_date_contact_HMRC_link_text") + " " + messages("label.opens_in_a_new_window"),
-                                attrTarget = true,
-                                inParagraph = true) + " " +
-                                messages("label.if_you_entered_the_correct_date_contact_HMRC_text_after_link")+"."
-        ))
- 
-        @p(HtmlContent(messages("label.go_back_to_change_before_link_alt") +
-                link(controllers.address.routes.StartDateController.onPageLoad(typ).url, "label.go_back_to_change_link_text_alt", inParagraph = true)+ " " +
-                Messages("label.go_back_to_change_after_link_alt", proposedStartDate)))
-
-@*
-*    }
-*@
-
-
-@*
-*    @if(movingFromScotland) {
-*        @p(HtmlContent(messages("label.go_back_to_change_before_link") +
-*                link(controllers.address.routes.StartDateController.onPageLoad(typ).url, "label.go_back_to_change_link_text", inParagraph = true)+ " " +
-*                Messages("label.go_back_to_change_after_link", proposedStartDate)))
-*
-*        @p(HtmlContent(messages("label.if_you_entered_the_correct_date_contact_HMRC_text_before_link") + " " +
-*                        link(configDecorator.changePersonalDetailsUrl,
-*                                messages("label.if_you_entered_the_correct_date_contact_HMRC_link_text") + " " + messages("label.opens_in_a_new_window"),
-*                                attrTarget = true,
-*                                inParagraph = true) + " " +
-*                                messages("label.if_you_entered_the_correct_date_contact_HMRC_text_after_link")+"."
-*        ))
-*    }
-*@
-
+    @p(HtmlContent(messages("label.go_back_to_change_before_link_early") +
+        link(controllers.address.routes.StartDateController.onPageLoad(typ).url, "label.go_back_to_change_link_text_early", inParagraph = true)+ " " +
+        Messages("label.go_back_to_change_after_link_early", proposedStartDate)))
 
     @if(p85Enabled) {
         @p85Content()
     }
+@*
+    @p(link(TODO.profileAndSettings.url, "label.back_to_profile", inParagraph = true))
+*@
 }

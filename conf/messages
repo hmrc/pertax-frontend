@@ -163,23 +163,25 @@ label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Sorry, ther
 label.sorry_theres_been_a_techinal_problem_retrieving_your_message=Sorry, there has been a technical problem retrieving your message
 
 label.the_date_you_entered_is_earlier_than_a_date_previously_held_=The date you entered is earlier than the one HMRC already has for you
-label.moving_to_scotland_affects=Moving to Scotland can affect how your tax is calculated, so it's important that the date you started living at the new address is correct.
-label.moving_from_scotland_affects=You have moved from Scotland which will change your tax calculations, so it's important that we have your move-in date correct.
 
-label.go_back_to_change_before_link=You can
-label.go_back_to_change_link_text=go back to change the date
-label.go_back_to_change_after_link=if you entered {0} by mistake.
+label.moving_to_affects=Moving to
+label.moving_from_affects=Moving from 
+label.moving_affects_after=Scotland can affect how your tax is calculated, so it's important that the date you started living at the new address is correct.
 
-label.go_back_to_change_before_link_alt=You can also
-label.go_back_to_change_link_text_alt=go back
-label.go_back_to_change_after_link_alt=and change the date.
+label.go_back_to_change_before_link_early=You can also
+label.go_back_to_change_link_text_early=go back
+label.go_back_to_change_after_link_early=and change the date.
+
+label.if_you_entered_the_correct_date_contact_HMRC_text_before_link=If {0} is correct,
+label.if_you_entered_the_correct_date_contact_HMRC_link_text=contact HMRC (opens in new tab)
+label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=to update your details
 
 label.future_date_than_record_h1=You can only update your address once you have started living there
+label.go_back_to_change_before_link=If you entered {0} by mistake, you can
+label.go_back_to_change_link_text=go back
+label.go_back_to_change_after_link=and change the date
 
-label.if_you_entered_the_correct_date_contact_HMRC_text_before_link=If the date you entered is correct,
-label.if_you_entered_the_correct_date_contact_HMRC_text_before_link_new=If {0} is correct,
-label.if_you_entered_the_correct_date_contact_HMRC_link_text=contact HMRC
-label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=to update your details
+label.back_to_profile=Back to profile and settings
 
 label.you_cannot_use_this_service_to_update_your_address=You cannot use this service to update your address
 label.your_address_cannot_be_updated=Your address cannot be updated
@@ -760,8 +762,8 @@ alert_banner.peak_demand.message = Some services are busier than usual. You migh
 # P85
 #*************************************************************
 p85.heading=Leaving the UK
-p85.p1.before_link=You need to let HMRC know if you are leaving the UK.
-p85.p1.link_text=Complete a P85 form (opens in new tab)
+p85.p1.before_link=You will need to
+p85.p1.link_text=complete a P85 form (opens in new tab)
 p85.p1.after_link=to:
 p85.bullet1=let HMRC know you are leaving the UK
 p85.bullet2=get your Income Tax right

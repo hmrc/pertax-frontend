@@ -145,14 +145,28 @@ label.all_messages=Pob neges
 label.your_messages=Eich Negeseuon
 label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Mae’n ddrwg gennym. Mae problem dechnegol wedi codi wrth gael eich negeseuon
 label.sorry_theres_been_a_techinal_problem_retrieving_your_message=Mae’n ddrwg gennym. Mae problem dechnegol wedi codi wrth gael eich neges
-label.the_date_you_entered_is_earlier_than_a_date_previously_held_=Mae’r dyddiad a nodwyd gennych yn gynharach na dyddiad a gadwyd yn flaenorol ar gofnod eich cyfeiriad.
-label.go_back_to_change_before_link=Gallwch
-label.go_back_to_change_link_text=ewch yn ôl i newid y dyddiad
-label.go_back_to_change_after_link=os gwnaethoch nodi {0} trwy gamgymeriad.
-label.future_date_than_record_h1=Ni allwch ddiweddaru’ch cyfeiriad tan y dyddiad y byddwch yn symud
-label.if_you_entered_the_correct_date_contact_HMRC_text_before_link=Os nodwyd y dyddiad cywir gennych,
-label.if_you_entered_the_correct_date_contact_HMRC_link_text=cysylltwch â CThEM
-label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=i ddiweddaru’ch cyfeiriad
+
+label.the_date_you_entered_is_earlier_than_a_date_previously_held_=Mae’r dyddiad a nodwyd gennych yn gynharach na’r un sydd eisoes gan CThEF ar eich cyfer
+
+label.moving_to_affects=Mae symud i’r
+label.moving_from_affects=Mae symud o’r
+label.moving_affects_after=Alban, yn gallu effeithio ar sut mae’ch treth yn cael ei chyfrifo, felly mae’n bwysig bod y dyddiad y gwnaethoch ddechrau byw yn y cyfeiriad newydd yn gywir.
+
+label.go_back_to_change_before_link_early=Gallwch hefyd fynd
+label.go_back_to_change_link_text_early=yn ôl
+label.go_back_to_change_after_link_early=a newid y dyddiad.
+
+label.if_you_entered_the_correct_date_contact_HMRC_text_before_link=Os yw {0} yn gywir,
+label.if_you_entered_the_correct_date_contact_HMRC_link_text=cysylltwch â CThEF (yn agor tab newydd)
+label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=i ddiweddaru’ch manylion.
+
+label.future_date_than_record_h1=Dim ond ar ôl i chi ddechrau byw yno y gallwch ddiweddaru’ch cyfeiriad
+label.go_back_to_change_before_link=Os gwnaethoch nodi {0} mewn camgymeriad, gallwch fynd 
+label.go_back_to_change_link_text=yn ôl
+label.go_back_to_change_after_link=a newid y dyddiad.
+
+label.back_to_profile=Yn ôl i’r proffil a gosodiadau
+
 label.you_cannot_use_this_service_to_update_your_address=Ni allwch ddefnyddio’r gwasanaeth hwn i ddiweddaru’ch cyfeiriad
 label.your_address_cannot_be_updated=Ni ellir diweddaru’ch cyfeiriad
 label.name=Enw
@@ -747,12 +761,12 @@ alert_banner.peak_demand.message = Mae ambell wasanaeth yn brysurach nag arfer. 
 # P85
 #*************************************************************
 p85.heading=Gadael y DU
-p85.p1.before_link=Mae angen i chi roi gwybod i CThEF os ydych yn gadael y DU.
+p85.p1.before_link=Bydd angen i chi
 p85.p1.link_text=Llenwch Ffurflen P85 (yn agor tab newydd)
-p85.p1.after_link=er mwyn:
+p85.p1.after_link=er mwyn gwneud y canlynol:
 p85.bullet1=rhoi gwybod i CThEF eich bod yn gadael y DU
-p85.bullet2=cael eich Treth Incwm yn iawn
-p85.bullet3=gan gynnwys hawlio rhyddhad treth neu ad-daliad treth
+p85.bullet2=cael eich Treth Incwm yn gywir
+p85.bullet3=hawlio rhyddhad treth neu ad-daliad treth
 
 #*************************************************************
 # Self Assessment Who Needs to Register
