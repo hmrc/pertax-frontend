@@ -872,3 +872,5 @@ label.mtdit.claim.p1.suffix=(opens in new tab). You need to add the service to y
 label.mtdit.claim.question=Do you want to add Making Tax Digital for Income Tax to your personal tax account now?
 label.mtdit.claim.error=Select yes to add Making Tax Digital for Income Tax to your personal tax account
 head.label.mtdit.claim.error=Select yes to add Making Tax Digital for Income Tax to your personal tax account
+label.earlier_date_scotland_to_p1=Moving to {0} can affect how your tax is calculated, so it's important that the date you started living at the new address is correct.
+label.earlier_date_contact_hmrc=If {0} is correct, contact HMRC

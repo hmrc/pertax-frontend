@@ -27,7 +27,7 @@
     p85Content: P85Content
 )
 
-@(typ: AddrType, proposedStartDate: String, p85Enabled: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,messages: play.api.i18n.Messages)
+@(typ: AddrType, proposedStartDate: String, p85Enabled: Boolean, scotlandMoveContext: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @*
 * @movingAffects = {
