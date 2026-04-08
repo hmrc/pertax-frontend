@@ -29,20 +29,6 @@
 
 @(typ: AddrType, proposedStartDate: String, p85Enabled: Boolean, scotlandMoveContext: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
-@*
-* @movingAffects = {
-*     @if(TODO.isScotlandMove){
-*         @p(HtmlContent(
-*             @typ.ifIs(
-*                 moveTo = messages("label.moving_to_affects"),
-*                 moveFrom = messages("label.moving_from_affects")
-*             ) + " " +
-*             messages("label.moving_affects_after")
-*         )
-*     }
-* }
-*@
-
 @main(
     pageTitle = messages("label.your_address_cannot_be_updated"),
     showBackLink = true,
@@ -51,7 +37,9 @@
 
     @h1("label.the_date_you_entered_is_earlier_than_a_date_previously_held_")
 
-@*    @p(movingAffects)*@
+    @scotlandMoveContext.map { contextKey =>
+        @p(Text(messages(contextKey, messages("label.address_country.scotland"))))
+    }
 
     @p(HtmlContent(Messages("label.if_you_entered_the_correct_date_contact_HMRC_text_before_link", proposedStartDate) + " " +
         link(configDecorator.changePersonalDetailsUrl,
