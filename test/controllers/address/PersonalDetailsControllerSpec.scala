@@ -183,6 +183,31 @@ class PersonalDetailsControllerSpec extends BaseSpec {
         contentAsString(result) must include("There was a problem updating your postcode")
         contentAsString(result) must include("We could not update your postcode. Please try again.")
       }
+      "user has ABROAD - NOT KNOWN postal address" in {
+        val notKnownAddress = buildFakeAddress.copy(country = Some("ABROAD - NOT KNOWN"))
+
+        when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
+          EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+            Future.successful(
+              Right(Some(personDetails.copy(correspondenceAddress = Some(notKnownAddress))))
+            )
+          )
+        )
+
+        when(mockEditAddressLockRepository.get(any())).thenReturn(
+          Future.successful(List.empty)
+        )
+
+        val result: Future[Result] = controller.onPageLoad(
+          FakeRequest().withHeaders(
+            (HeaderNames.xSessionId, "test-session-id")
+          )
+        )
+
+        status(result) mustBe OK
+        contentAsString(result) must include("There was a problem updating your postcode")
+        contentAsString(result) must include("We could not update your postcode. Please try again.")
+      }
     }
   }
 

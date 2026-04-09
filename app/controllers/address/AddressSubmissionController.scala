@@ -82,7 +82,8 @@ class AddressSubmissionController @Inject() (
                       doYouLiveInTheUK,
                       isUkAddress,
                       journeyData.submittedStartDateDto,
-                      showAddressChangedDate
+                      showAddressChangedDate,
+                      journeyData.wasStartDateUpdate.getOrElse(false)
                     )
                   )
                 } else {
@@ -102,7 +103,8 @@ class AddressSubmissionController @Inject() (
                       doYouLiveInTheUK,
                       isUkAddress,
                       journeyData.submittedStartDateDto,
-                      displayDateAddressChanged = true
+                      displayDateAddressChanged = true,
+                      journeyData.wasStartDateUpdate.getOrElse(false)
                     )
                   )
                 } else {

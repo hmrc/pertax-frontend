@@ -24,11 +24,12 @@
     form: FormWithCSRF,
     languageUtils: LanguageUtils,
     h1: H1,
+    govukInsetText: GovukInsetText,
     button: Button
 )
 
 @(typ: AddrType, addressDto: AddressDto, addressCountry: String, isUkAddress: Boolean,  startDateDto: Option[DateDto],
-displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+displayDateAddressChanged: Boolean, startDateChanged: Boolean)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("label.check_your_details"),
@@ -93,6 +94,10 @@ displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], messages: 
             </div>
           }
       </dl>
+
+      @if(startDateChanged) {
+          @govukInsetText(InsetText(content = Text(messages("label.todays_date_warning"))))
+      }
 
     @form(controllers.address.routes.AddressSubmissionController.onSubmit(typ)) {
         @button("label.confirm_and_save")

@@ -24,7 +24,15 @@ case class PersonDetails(
   address: Option[Address],
   correspondenceAddress: Option[Address]
 ) {
-  def notKnownAddress: Boolean = address.match {
+
+  def notKnownAddress: Boolean = notKnownMainAddress || notKnownCorrespondenceAddress
+
+  def notKnownMainAddress: Boolean = address.match {
+    case None      => false
+    case Some(add) => add.country.contains("ABROAD - NOT KNOWN")
+  }
+
+  def notKnownCorrespondenceAddress: Boolean = correspondenceAddress.match {
     case None      => false
     case Some(add) => add.country.contains("ABROAD - NOT KNOWN")
   }

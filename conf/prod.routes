@@ -102,8 +102,8 @@ POST        /personal-account/sa/spread-the-cost-of-your-self-assessment        
 
 GET         /personal-account/redirect-to-making-tax-digital                           controllers.interstitials.InterstitialController.mtditRedirect
 
-GET         /personal-account/mtd/claim-from-pta/start                                                  controllers.ClaimMtdFromPtaController.start
-POST        /personal-account/mtd/claim-from-pta/submit                                                 controllers.ClaimMtdFromPtaController.submit
+GET         /personal-account/mtd/claim-from-pta/start                                 controllers.ClaimMtdFromPtaController.start
+POST        /personal-account/mtd/claim-from-pta/submit                                controllers.ClaimMtdFromPtaController.submit
 
 ->         /admin                                                                      admin.Routes
 ->          /                                                                          health.Routes

@@ -77,13 +77,13 @@ class InterstitialController @Inject() (
 
   override def now: () => LocalDate = () => LocalDate.now()
 
-  private val saBreadcrumb: Breadcrumb =
+  private def saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
-  private val authenticate: ActionBuilder[UserRequest, AnyContent]   =
+  private def authenticate: ActionBuilder[UserRequest, AnyContent]   =
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)
-  private val authenticateSa: ActionBuilder[UserRequest, AnyContent] =
+  private def authenticateSa: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(saBreadcrumb)
 

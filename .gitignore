@@ -34,3 +34,4 @@ tmp
 .idea_modules
 bin
 node_modules
+project/metals.sbt
