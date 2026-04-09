@@ -351,7 +351,7 @@ class StartDateControllerSpec extends BaseSpec with CitizenDetailsFixtures {
         controller.onSubmit(ResidentialAddrType)(postReq)
 
       status(result) mustBe BAD_REQUEST
-      contentAsString(result) must include("Complete a P85 form (opens in new tab)")
+      contentAsString(result) must include("You will need to complete a P85 form (opens in new tab)")
     }
 
     "return 400 with P85 messaging when passed ResidentialAddrType and the start date is after today's date (international address)" in {

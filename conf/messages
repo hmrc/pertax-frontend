@@ -163,8 +163,8 @@ label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Sorry, ther
 label.sorry_theres_been_a_techinal_problem_retrieving_your_message=Sorry, there has been a technical problem retrieving your message
 
 label.the_date_you_entered_is_earlier_than_a_date_previously_held_=The date you entered is earlier than the one HMRC already has for you
-label.moving_to_scotland_affects=Moving to {0} can affect how your tax is calculated, so it's important that the date you started living at the new address is correct.
-label.moving_from_scotland_affects=Moving from {0} can affect how your tax is calculated, so it's important that the date you started living at the new address is correct.
+label.moving_to_scotland_affects=Moving to {0} can affect how your tax is calculated, so it''s important that the date you started living at the new address is correct.
+label.moving_from_scotland_affects=Moving from {0} can affect how your tax is calculated, so it''s important that the date you started living at the new address is correct.
 label.go_back_to_change_before_link_early=You can also
 label.go_back_to_change_link_text_early=go back
 label.go_back_to_change_after_link_early=and change the date.
