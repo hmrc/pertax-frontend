@@ -147,24 +147,18 @@ label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Mae’n ddr
 label.sorry_theres_been_a_techinal_problem_retrieving_your_message=Mae’n ddrwg gennym. Mae problem dechnegol wedi codi wrth gael eich neges
 
 label.the_date_you_entered_is_earlier_than_a_date_previously_held_=Mae’r dyddiad a nodwyd gennych yn gynharach na’r un sydd eisoes gan CThEF ar eich cyfer
-
-label.moving_to_affects=Mae symud i’r
-label.moving_from_affects=Mae symud o’r
-label.moving_affects_after=Alban, yn gallu effeithio ar sut mae’ch treth yn cael ei chyfrifo, felly mae’n bwysig bod y dyddiad y gwnaethoch ddechrau byw yn y cyfeiriad newydd yn gywir.
-
+label.moving_to_scotland_affects=Mae symud i: {0}, yn gallu effeithio ar sut mae’ch treth yn cael ei chyfrifo, felly mae’n bwysig bod y dyddiad y gwnaethoch ddechrau byw yn y cyfeiriad newydd yn gywir.
+label.moving_from_scotland_affects=Mae symud o: {0}, yn gallu effeithio ar sut mae’ch treth yn cael ei chyfrifo, felly mae’n bwysig bod y dyddiad y gwnaethoch ddechrau byw yn y cyfeiriad newydd yn gywir.
 label.go_back_to_change_before_link_early=Gallwch hefyd fynd
 label.go_back_to_change_link_text_early=yn ôl
 label.go_back_to_change_after_link_early=a newid y dyddiad.
-
 label.if_you_entered_the_correct_date_contact_HMRC_text_before_link=Os yw {0} yn gywir,
 label.if_you_entered_the_correct_date_contact_HMRC_link_text=cysylltwch â CThEF (yn agor tab newydd)
 label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=i ddiweddaru’ch manylion.
-
 label.future_date_than_record_h1=Dim ond ar ôl i chi ddechrau byw yno y gallwch ddiweddaru’ch cyfeiriad
 label.go_back_to_change_before_link=Os gwnaethoch nodi {0} mewn camgymeriad, gallwch fynd 
 label.go_back_to_change_link_text=yn ôl
 label.go_back_to_change_after_link=a newid y dyddiad.
-
 label.back_to_profile=Yn ôl i’r proffil a gosodiadau
 
 label.you_cannot_use_this_service_to_update_your_address=Ni allwch ddefnyddio’r gwasanaeth hwn i ddiweddaru’ch cyfeiriad
