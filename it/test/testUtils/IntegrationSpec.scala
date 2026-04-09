@@ -391,6 +391,9 @@ trait IntegrationSpec
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetMatchingFromCitizenDetailsToggle)))
+      .thenReturn(Future.successful(FeatureFlag(GetMatchingFromCitizenDetailsToggle, isEnabled = true)))
+
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(FandFBannerToggle)))
       .thenReturn(Future.successful(FeatureFlag(FandFBannerToggle, isEnabled = false)))
 

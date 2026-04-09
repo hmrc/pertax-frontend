@@ -18,7 +18,7 @@ package services
 
 import cats.data.EitherT
 import connectors.CitizenDetailsConnector
-import models.admin.GetPersonFromCitizenDetailsToggle
+import models.admin.{GetMatchingFromCitizenDetailsToggle, GetPersonFromCitizenDetailsToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -98,20 +98,14 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
       }
 
       "return None when is GetPersonFromCitizenDetailsToggle disabled" in {
-        when(mockConnector.personDetails(any(), any())(any(), any(), any())).thenReturn(
-          EitherT[Future, UpstreamErrorResponse, JsValue](
-            Future.successful(Right(Json.toJson(buildPersonDetails)))
-          )
-        )
-
-        when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
           .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = false)))
 
         val result =
           sut.personDetails(fakeNino).value.futureValue
 
         result mustBe Right(None)
-        verify(mockConnector, times(0)).getMatchingDetails(any())(any(), any())
+        verify(mockConnector, times(0)).personDetails(any(), any())(any(), any(), any())
       }
     }
 
@@ -373,8 +367,8 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Json.obj("ids" -> Json.obj("sautr" -> saUtr.utr)))
         )
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetMatchingFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetMatchingFromCitizenDetailsToggle, isEnabled = true)))
 
         val result =
           sut
@@ -389,8 +383,8 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
           EitherT.rightT[Future, UpstreamErrorResponse](Json.obj("ids" -> ""))
         )
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetMatchingFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetMatchingFromCitizenDetailsToggle, isEnabled = true)))
 
         val result: Either[UpstreamErrorResponse, Option[SaUtr]] =
           sut
@@ -405,8 +399,8 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         when(mockConnector.getMatchingDetails(any())(any(), any())).thenReturn(
           EitherT.leftT[Future, JsValue](UpstreamErrorResponse("server error", INTERNAL_SERVER_ERROR))
         )
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetMatchingFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetMatchingFromCitizenDetailsToggle, isEnabled = true)))
 
         val result: Either[UpstreamErrorResponse, Option[SaUtr]] =
           sut
@@ -417,9 +411,9 @@ class CitizenDetailsServiceSpec extends BaseSpec with Injecting with Integration
         result mustBe a[Left[UpstreamErrorResponse, _]]
       }
 
-      "return None when GetPersonFromCitizenDetailsToggle is disabled" in {
-        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
-          .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = false)))
+      "return None when GetMatchingFromCitizenDetailsToggle is disabled" in {
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetMatchingFromCitizenDetailsToggle)))
+          .thenReturn(Future.successful(FeatureFlag(GetMatchingFromCitizenDetailsToggle, isEnabled = false)))
 
         val result: Either[UpstreamErrorResponse, Option[SaUtr]] =
           sut
