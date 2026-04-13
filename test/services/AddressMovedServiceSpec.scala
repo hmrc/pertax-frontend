@@ -20,21 +20,29 @@ import cats.data.EitherT
 import connectors.AddressLookupConnector
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import models.{AnyOtherMove, MovedFromScotland, MovedToScotland}
-import org.mockito.Mockito.when
-import play.api.http.Status._
+import org.mockito.Mockito.{reset, verifyNoInteractions, when}
+import org.scalatest.BeforeAndAfterEach
+import play.api.http.Status.*
 import testUtils.BaseSpec
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressMovedServiceSpec extends BaseSpec {
+class AddressMovedServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
-  implicit val executionContext: ExecutionContext  = inject[ExecutionContext]
+  implicit val executionContext: ExecutionContext = inject[ExecutionContext]
+
   val addressLookupService: AddressLookupConnector = mock[AddressLookupConnector]
-  val fromPostcode                                 = "AA1 1AA"
-  val toPostcode                                   = "AA1 2AA"
 
-  val englandRecordSet: RecordSet  = RecordSet(
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(addressLookupService)
+  }
+
+  val fromPostcode = "AA1 1AA"
+  val toPostcode   = "AA1 2AA"
+
+  val englandRecordSet: RecordSet = RecordSet(
     Seq(
       AddressRecord(
         "some id",
@@ -43,6 +51,7 @@ class AddressMovedServiceSpec extends BaseSpec {
       )
     )
   )
+
   val scotlandRecordSet: RecordSet = RecordSet(
     Seq(
       AddressRecord(
@@ -60,36 +69,29 @@ class AddressMovedServiceSpec extends BaseSpec {
       "the post code is the same" in {
         when(addressLookupService.lookup(fromPostcode))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, RecordSet](
-              Future.successful(Right(englandRecordSet))
-            )
+            EitherT(Future.successful(Right(englandRecordSet)))
           )
+
         service.moved(fromPostcode, fromPostcode, false).futureValue mustBe AnyOtherMove
       }
 
       "there are no addresses returned for the previous address" in {
         when(addressLookupService.lookup(fromPostcode))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, RecordSet](
-              Future.successful(Right(RecordSet(Seq.empty[AddressRecord])))
-            )
+            EitherT(Future.successful(Right(RecordSet(Seq.empty[AddressRecord]))))
           )
+
         service.moved(fromPostcode, fromPostcode, false).futureValue mustBe AnyOtherMove
       }
 
       "there are no addresses returned for the new address" in {
-
         when(addressLookupService.lookup(fromPostcode))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, RecordSet](
-              Future.successful(Right(englandRecordSet))
-            )
+            EitherT(Future.successful(Right(englandRecordSet)))
           )
         when(addressLookupService.lookup(toPostcode))
           .thenReturn(
-            EitherT[Future, UpstreamErrorResponse, RecordSet](
-              Future.successful(Right(RecordSet(Seq.empty[AddressRecord])))
-            )
+            EitherT(Future.successful(Right(RecordSet(Seq.empty[AddressRecord]))))
           )
 
         service.moved(fromPostcode, toPostcode, false).futureValue mustBe AnyOtherMove
@@ -97,14 +99,42 @@ class AddressMovedServiceSpec extends BaseSpec {
 
       "there is no postcode for the moving to address" in {
         service.moved(fromPostcode, "", false).futureValue mustBe AnyOtherMove
+        verifyNoInteractions(addressLookupService)
       }
 
       "there is no postcode for the moving from address" in {
         service.moved("", toPostcode, false).futureValue mustBe AnyOtherMove
+        verifyNoInteractions(addressLookupService)
       }
 
       "there is no postcode for both the moving to and moving from address" in {
         service.moved("", "", false).futureValue mustBe AnyOtherMove
+        verifyNoInteractions(addressLookupService)
+      }
+
+      "the moving to postcode is only whitespace" in {
+        service.moved(fromPostcode, "   ", false).futureValue mustBe AnyOtherMove
+        verifyNoInteractions(addressLookupService)
+      }
+
+      "the moving from postcode is only whitespace" in {
+        service.moved("   ", toPostcode, false).futureValue mustBe AnyOtherMove
+        verifyNoInteractions(addressLookupService)
+      }
+
+      "the moving from postcode is not a valid UK postcode" in {
+        service.moved("NOT-A-POSTCODE", toPostcode, false).futureValue mustBe AnyOtherMove
+        verifyNoInteractions(addressLookupService)
+      }
+
+      "the moving to postcode is not a valid UK postcode" in {
+        service.moved(fromPostcode, "NOT-A-POSTCODE", false).futureValue mustBe AnyOtherMove
+        verifyNoInteractions(addressLookupService)
+      }
+
+      "both postcodes are not valid UK postcodes" in {
+        service.moved("INVALID1", "INVALID2", false).futureValue mustBe AnyOtherMove
+        verifyNoInteractions(addressLookupService)
       }
 
       List(
@@ -120,31 +150,27 @@ class AddressMovedServiceSpec extends BaseSpec {
         s"the AddressLookUpService gives a Left containing $httpResponse" in {
           when(addressLookupService.lookup(fromPostcode))
             .thenReturn(
-              EitherT[Future, UpstreamErrorResponse, RecordSet](
-                Future.successful(Left(UpstreamErrorResponse("", BAD_REQUEST)))
-              )
+              EitherT(Future.successful(Left(UpstreamErrorResponse("", httpResponse))))
             )
+
           service.moved(fromPostcode, fromPostcode, false).futureValue mustBe AnyOtherMove
         }
       }
 
       "when p85enabled is true" in {
         service.moved(fromPostcode, toPostcode, true).futureValue mustBe AnyOtherMove
+        verifyNoInteractions(addressLookupService)
       }
     }
 
     "be MovedToScotland when they have moved to Scotland" in {
       when(addressLookupService.lookup(fromPostcode))
         .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, RecordSet](
-            Future.successful(Right(englandRecordSet))
-          )
+          EitherT(Future.successful(Right(englandRecordSet)))
         )
       when(addressLookupService.lookup(toPostcode))
         .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, RecordSet](
-            Future.successful(Right(scotlandRecordSet))
-          )
+          EitherT(Future.successful(Right(scotlandRecordSet)))
         )
 
       service.moved(fromPostcode, toPostcode, false).futureValue mustBe MovedToScotland
@@ -153,15 +179,11 @@ class AddressMovedServiceSpec extends BaseSpec {
     "be MovedFromScotland when they have moved from Scotland" in {
       when(addressLookupService.lookup(fromPostcode))
         .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, RecordSet](
-            Future.successful(Right(scotlandRecordSet))
-          )
+          EitherT(Future.successful(Right(scotlandRecordSet)))
         )
       when(addressLookupService.lookup(toPostcode))
         .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, RecordSet](
-            Future.successful(Right(englandRecordSet))
-          )
+          EitherT(Future.successful(Right(englandRecordSet)))
         )
 
       service.moved(fromPostcode, toPostcode, false).futureValue mustBe MovedFromScotland

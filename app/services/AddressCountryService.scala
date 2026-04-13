@@ -19,6 +19,7 @@ package services
 import cats.data.OptionT
 import connectors.AddressLookupConnector
 import uk.gov.hmrc.http.HeaderCarrier
+import util.PertaxValidators.PostcodeRegex
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,9 +27,12 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class AddressCountryService @Inject() (connector: AddressLookupConnector)(implicit ec: ExecutionContext) {
 
+  private def isValidUkPostcode(p: String): Boolean =
+    PostcodeRegex.pattern.matcher(p.trim.toUpperCase).matches()
+
   def deriveCountryForPostcode(postcodeOpt: Option[String])(implicit hc: HeaderCarrier): Future[Option[String]] =
     OptionT
-      .fromOption[Future](postcodeOpt.filter(_.trim.nonEmpty))
+      .fromOption[Future](postcodeOpt.map(_.trim).filter(p => p.nonEmpty && isValidUkPostcode(p)))
       .flatMap { postcode =>
         connector
           .lookup(postcode, filter = None)

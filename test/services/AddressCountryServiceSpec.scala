@@ -20,7 +20,7 @@ import cats.data.EitherT
 import connectors.AddressLookupConnector
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import org.mockito.ArgumentMatchers.{any, eq as meq}
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, verifyNoInteractions, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
@@ -69,11 +69,19 @@ class AddressCountryServiceSpec extends BaseSpec {
     "return None when postcode is not provided" in {
       val result = await(service.deriveCountryForPostcode(None))
       result mustBe None
+      verifyNoInteractions(mockConnector)
     }
 
     "return None when postcode is only whitespace" in {
       val result = await(service.deriveCountryForPostcode(Some("   ")))
       result mustBe None
+      verifyNoInteractions(mockConnector)
+    }
+
+    "return None when postcode is not a valid UK postcode" in {
+      val result = await(service.deriveCountryForPostcode(Some("INVALID")))
+      result mustBe None
+      verifyNoInteractions(mockConnector)
     }
 
     "return a single subdivision code when all addresses share the same subdivision" in {
@@ -92,6 +100,22 @@ class AddressCountryServiceSpec extends BaseSpec {
       val expected = Some(Country.Scotland.code)
 
       result mustBe expected
+    }
+
+    "trim the postcode before validating and looking it up" in {
+      val recordSet = RecordSet(
+        Seq(
+          addressRecord(Country.Scotland),
+          addressRecord(Country.Scotland, Seq("2 TEST STREET"), "EH1 1AA")
+        )
+      )
+
+      when(mockConnector.lookup(meq("EH1 1AA"), meq(None))(any(), any()))
+        .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](recordSet))
+
+      val result = await(service.deriveCountryForPostcode(Some("  EH1 1AA  ")))
+
+      result mustBe Some(Country.Scotland.code)
     }
 
     "return None when multiple different subdivision codes are associated with the postcode" in {
