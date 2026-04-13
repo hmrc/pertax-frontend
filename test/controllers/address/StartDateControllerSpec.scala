@@ -352,6 +352,8 @@ class StartDateControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
       status(result) mustBe BAD_REQUEST
       contentAsString(result) must include("complete a P85 form (opens in new tab)")
+      contentAsString(result) mustNot include("Moving to Scotland can affect how your tax is calculated")
+      contentAsString(result) mustNot include("Moving from Scotland can affect how your tax is calculated")
     }
 
     "return 400 with P85 messaging when passed ResidentialAddrType and the start date is after today's date (international address)" in {
@@ -466,7 +468,7 @@ class StartDateControllerSpec extends BaseSpec with CitizenDetailsFixtures {
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
     }
 
-    "return 400 when startDate is earlier than recorded and move is cross-border Scotland" in {
+    "return 400 with moving to Scotland messaging when startDate is earlier than recorded and move is cross-border Scotland" in {
       val userAnswers: UserAnswers =
         UserAnswers
           .empty("id")
@@ -494,6 +496,7 @@ class StartDateControllerSpec extends BaseSpec with CitizenDetailsFixtures {
         controller.onSubmit(ResidentialAddrType)(postReq)
 
       status(result) mustBe BAD_REQUEST
+      contentAsString(result) must include("Moving to Scotland can affect how your tax is calculated")
     }
 
     "return 400 when startDate is same as on record for ABROAD - NOT KNOWN user" in {
@@ -530,9 +533,11 @@ class StartDateControllerSpec extends BaseSpec with CitizenDetailsFixtures {
 
       status(result) mustBe BAD_REQUEST
       contentAsString(result) must include("The date you entered must be later than the one we already have")
+      contentAsString(result) mustNot include("Moving to Scotland can affect how your tax is calculated")
+      contentAsString(result) mustNot include("Moving from Scotland can affect how your tax is calculated")
     }
 
-    "return 400 when startDate is the same as recorded and move is cross-border Scotland" in {
+    "return 400 with moving to Scotland messaging when startDate is the same as recorded and move is cross-border Scotland" in {
       val userAnswers: UserAnswers =
         UserAnswers
           .empty("id")
@@ -560,6 +565,7 @@ class StartDateControllerSpec extends BaseSpec with CitizenDetailsFixtures {
         controller.onSubmit(ResidentialAddrType)(postReq)
 
       status(result) mustBe BAD_REQUEST
+      contentAsString(result) must include("Moving to Scotland can affect how your tax is calculated")
     }
 
     "redirect to correct successful url when supplied with startDate after recorded with residential address type" in {
@@ -702,5 +708,36 @@ class StartDateControllerSpec extends BaseSpec with CitizenDetailsFixtures {
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
     }
+  }
+
+  "return 400 with moving from Scotland messaging when startDate is earlier than recorded and move is from Scotland" in {
+    val userAnswers: UserAnswers =
+      UserAnswers
+        .empty("id")
+        .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+        .setOrException(SubmittedInternationalAddressChoicePage, InternationalAddressChoiceDto.England)
+        .setOrException(SubmittedAddressPage(ResidentialAddrType), submittedUkAddress)
+
+    when(mockJourneyCacheRepository.get(any[HeaderCarrier]))
+      .thenReturn(Future.successful(userAnswers))
+
+    when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+      .thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](Future.successful(Right(Some(personDetails))))
+      )
+
+    when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
+      .thenReturn(Future.successful(Some("GB-SCT")), Future.successful(Some("GB-ENG")))
+
+    def postReq[A]: Request[A] =
+      FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
+        .asInstanceOf[Request[A]]
+
+    val result: Future[Result] =
+      controller.onSubmit(ResidentialAddrType)(postReq)
+
+    status(result) mustBe BAD_REQUEST
+    contentAsString(result) must include("Moving from Scotland can affect how your tax is calculated")
   }
 }

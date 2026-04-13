@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ import models.{Address, AddressJourneyData, PersonDetails}
 import play.api.Logging
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.i18n.Messages
-import play.api.mvc.Results.{BadRequest, Ok, Redirect}
 import play.api.mvc.Result
+import play.api.mvc.Results.{BadRequest, Ok, Redirect}
 import repositories.EditAddressLockRepository
-import services.{AddressMovedService, CitizenDetailsService}
+import services.{AddressCountryService, AddressMovedService, CitizenDetailsService}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
@@ -51,7 +51,8 @@ class AddressSubmissionControllerHelper @Inject() (
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   citizenDetailsService: CitizenDetailsService,
   cannotUpdateAddressEarlyDateView: CannotUpdateAddressEarlyDateView,
-  languageUtils: LanguageUtils
+  languageUtils: LanguageUtils,
+  addressCountryService: AddressCountryService
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends Logging {
 
@@ -70,20 +71,6 @@ class AddressSubmissionControllerHelper @Inject() (
 
     val p85enabled: Boolean = !isUk(journeyData.submittedInternationalAddressChoiceDto)
 
-    val startDateErrorResponse: Result =
-      BadRequest(
-        cannotUpdateAddressEarlyDateView(
-          addressType,
-          languageUtils.Dates.formatDate(
-            journeyData.submittedStartDateDto
-              .map(_.startDate)
-              .getOrElse(LocalDate.now())
-          ),
-          p85enabled,
-          None
-        )
-      )
-
     val originalAddressDto: Option[AddressDto] =
       journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
     val addressDtoWithFormattedPostCode        = submittedAddress
@@ -95,46 +82,78 @@ class AddressSubmissionControllerHelper @Inject() (
         journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate)
       )
 
-    citizenDetailsService
-      .updateAddress(nino, newAddress, personDetails)
-      .foldF(
-        {
-          case error if isStartDateError(error) =>
-            Future.successful(startDateErrorResponse)
+    val currentPostcode: Option[String] = personDetails.address.flatMap(_.postcode)
+    val newPostcode: Option[String]     = submittedAddress.postcode
 
-          case error if EtagError.isConflict(error) =>
-            logger.error("Etag conflict detected when updating address. Retry was not successful or not possible.")
-            Future.successful(Redirect(controllers.routes.UpdateDetailsErrorController.displayTryAgainToUpdateDetails))
-          case _                                    =>
-            errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-        },
-        _ =>
-          for {
-            _                           <- handleAddressChangeAuditing(
-                                             originalAddressDto,
-                                             addressDtoWithFormattedPostCode,
-                                             personDetails.etag,
-                                             addressType.ifIs("Residential", "Correspondence")
-                                           )
-            _                           <- editAddressLockRepository.insert(nino.withoutSuffix, addressType)
-            addressMovedCountryInsideUk <-
-              addressMovedService
-                .moved(
-                  personDetails.address.flatMap(_.postcode).getOrElse(""),
-                  newAddress.postcode.getOrElse(""),
-                  p85enabled
+    for {
+      currentCountryCode <- addressCountryService.deriveCountryForPostcode(currentPostcode)
+      newCountryCode     <- addressCountryService.deriveCountryForPostcode(newPostcode)
+      result             <- {
+        val scotlandMoveContext: Option[String] =
+          (currentCountryCode.map(_.trim.toUpperCase), newCountryCode.map(_.trim.toUpperCase)) match {
+            case (Some("GB-SCT"), Some(next)) if next != "GB-SCT"       =>
+              Some("label.moving_from_scotland_affects")
+            case (Some(current), Some("GB-SCT")) if current != "GB-SCT" =>
+              Some("label.moving_to_scotland_affects")
+            case _                                                      => None
+          }
+
+        citizenDetailsService
+          .updateAddress(nino, newAddress, personDetails)
+          .foldF(
+            {
+              case error if isStartDateError(error) =>
+                Future.successful(
+                  BadRequest(
+                    cannotUpdateAddressEarlyDateView(
+                      addressType,
+                      languageUtils.Dates.formatDate(
+                        journeyData.submittedStartDateDto
+                          .map(_.startDate)
+                          .getOrElse(LocalDate.now())
+                      ),
+                      p85enabled,
+                      scotlandMoveContext
+                    )
+                  )
                 )
 
-          } yield Ok(
-            updateAddressConfirmationView(
-              addressType,
-              closedPostalAddress = false,
-              None,
-              addressMovedService.toMessageKey(addressMovedCountryInsideUk),
-              displayP85Message = p85enabled
-            )
+              case error if EtagError.isConflict(error) =>
+                logger.error("Etag conflict detected when updating address. Retry was not successful or not possible.")
+                Future
+                  .successful(Redirect(controllers.routes.UpdateDetailsErrorController.displayTryAgainToUpdateDetails))
+              case _                                    =>
+                errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+            },
+            _ =>
+              for {
+                _                           <- handleAddressChangeAuditing(
+                                                 originalAddressDto,
+                                                 addressDtoWithFormattedPostCode,
+                                                 personDetails.etag,
+                                                 addressType.ifIs("Residential", "Correspondence")
+                                               )
+                _                           <- editAddressLockRepository.insert(nino.withoutSuffix, addressType)
+                addressMovedCountryInsideUk <-
+                  addressMovedService
+                    .moved(
+                      personDetails.address.flatMap(_.postcode).getOrElse(""),
+                      newAddress.postcode.getOrElse(""),
+                      p85enabled
+                    )
+
+              } yield Ok(
+                updateAddressConfirmationView(
+                  addressType,
+                  closedPostalAddress = false,
+                  None,
+                  addressMovedService.toMessageKey(addressMovedCountryInsideUk),
+                  displayP85Message = p85enabled
+                )
+              )
           )
-      )
+      }
+    } yield result
   }
 
   def handleAddressChangeAuditing(
