@@ -67,7 +67,7 @@ lazy val microservice = Project(appName, file("."))
     )
   )
   .configs(A11yTest)
-  .settings(inConfig(A11yTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings) *)
+  .settings(ScalafmtPlugin.scalafmtConfigSettings(A11yTest): _*)
   .settings(headerSettings(A11yTest) *)
   .settings(automateHeaderSettings(A11yTest))
 
