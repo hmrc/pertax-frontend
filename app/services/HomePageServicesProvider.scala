@@ -206,16 +206,16 @@ class HomePageServicesProvider @Inject() (
     } else {
       val hasActiveMtd = userHasMtdItsaEnrolment(request.enrolments)
 
-      if (hasActiveMtd) {
-        Future.successful(None)
-      } else {
-        Future.successful(
-          Some(
-            mtdTile(
-              controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
+      (hasActiveMtd, request.isSa) match {
+        case (false, true) =>
+          Future.successful(
+            Some(
+              mtdTile(
+                controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
+              )
             )
           )
-        )
+        case _             => Future.successful(None)
       }
     }
 

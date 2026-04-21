@@ -194,13 +194,13 @@ class HomePageServicesProviderSpec extends BaseSpec {
         controllers.routes.SelfAssessmentController.requestAccess.url
     }
 
-    "return self assessment in myServices for wrong credentials user" in {
+    "return self assessment and MTD in myServices for wrong credentials user" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(WrongCredentialsSelfAssessmentUser(SaUtr("11")))
 
       val result = service.getHomePageServices.futureValue
 
-      result.myServices must contain(
+      result.myServices    must contain(
         MyService(
           "Self Assessment",
           controllers.routes.SaWrongCredentialsController.landingPage().url,
@@ -210,9 +210,17 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Some("Self Assessment")
         )
       )
+      result.otherServices must contain(
+        OtherService(
+          messages("label.mtd_for_it"),
+          controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
+          gaAction = Some("MTDIT"),
+          gaLabel = Some("Making Tax Digital for Income Tax")
+        )
+      )
     }
 
-    "return self assessment in otherServices for not yet activated SA user" in {
+    "return self assessment and MTD in otherServices for not yet activated SA user" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
 
@@ -228,11 +236,19 @@ class HomePageServicesProviderSpec extends BaseSpec {
           None
         )
       )
+      result.otherServices must contain(
+        OtherService(
+          messages("label.mtd_for_it"),
+          controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
+          gaAction = Some("MTDIT"),
+          gaLabel = Some("Making Tax Digital for Income Tax")
+        )
+      )
 
       result.myServices.map(_.title) must not contain "Self Assessment"
     }
 
-    "return self assessment in otherServices for not enrolled SA user" in {
+    "return self assessment and MTD in otherServices for not enrolled SA user" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(NotEnrolledSelfAssessmentUser(SaUtr("11")))
 
@@ -248,18 +264,29 @@ class HomePageServicesProviderSpec extends BaseSpec {
           None
         )
       )
+      result.otherServices           must contain(
+        OtherService(
+          messages("label.mtd_for_it"),
+          controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
+          gaAction = Some("MTDIT"),
+          gaLabel = Some("Making Tax Digital for Income Tax")
+        )
+      )
       result.myServices.map(_.title) must not contain "Self Assessment"
     }
 
-    "not return any self assessment service for non filer user" in {
+    "not return any self assessment or MTD service for non filer user" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(NonFilerSelfAssessmentUser)
 
       val result = service.getHomePageServices.futureValue
 
       result.myServices.map(_.title)   must not contain "Self Assessment"
+      result.myServices.map(_.title)   must not contain "Making Tax Digital for Income Tax"
       result.otherServices.map(_.link) must not contain
         controllers.routes.SelfAssessmentController.requestAccess.url
+      result.otherServices.map(_.link) must not contain
+        controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
     }
 
     "return no tax calculation service when trusted helper is active" in {
