@@ -118,21 +118,21 @@ class AddressSelectorController @Inject() (
                   case Some(addressRecord) =>
                     val addressDto = AddressDto.fromAddressRecord(addressRecord)
 
-                    for {
-                      _ <- cachingHelper.addToCache(SelectedAddressRecordPage(typ), addressRecord)
-                      _ <- cachingHelper.addToCache(SubmittedAddressPage(typ), addressDto)
-                    } yield {
-                      val postCodeHasChanged = !postcodeFromRequest
-                        .replace(" ", "")
-                        .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
-                      (typ, postCodeHasChanged) match {
-                        case (PostalAddrType, false) =>
-                          Redirect(routes.UpdateAddressController.onPageLoad(typ))
-                        case (_, true)               => Redirect(routes.StartDateController.onPageLoad(typ))
-                        case (_, false)              =>
-                          cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(LocalDate.now()))
-                          cachingHelper.addToCache(StartDateUpdatedPage(typ), false)
-                          Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                    cachingHelper.addToCache(SelectedAddressRecordPage(typ), addressRecord).flatMap{ _ =>
+                      cachingHelper.addToCache(SubmittedAddressPage(typ), addressDto).flatMap { _ =>
+                        val postCodeHasChanged = !postcodeFromRequest
+                          .replace(" ", "")
+                          .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
+                        (typ, postCodeHasChanged) match {
+                          case (PostalAddrType, false) =>
+                            Future.successful(Redirect(routes.UpdateAddressController.onPageLoad(typ)))
+                          case (_, true) => Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
+                          case (_, false) =>
+                            for {
+                              _ <- cachingHelper.addToCache(SubmittedStartDatePage(typ), DateDto(LocalDate.now()))
+                              _ <- cachingHelper.addToCache(StartDateUpdatedPage(typ), false)
+                            } yield Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                        }
                       }
                     }
                   case _                   =>
