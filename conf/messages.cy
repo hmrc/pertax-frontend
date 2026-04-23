@@ -315,7 +315,7 @@ label.tax_calc_heading=Your tax calculation
 # News
 #
 label.latest_news_and_updates=Y newyddion diweddaraf a diweddariadau
-label.hmrc_news=HMRC News
+label.hmrc_news=Newyddion CThEF
 label.other_news_and_updates=Newyddion a diweddariadau eraill
 label.news_and_updates=Newyddion a Diweddariadau
 label.percentage_points_uplift_in_NIC=Cynnydd o 1.25 pwynt canrannol yng nghyfraniadau Yswiriant Gwladol
@@ -858,13 +858,13 @@ personal_details.try_again.try.again.to.update = rhowch gynnig arall arni i ddiw
 label.trusted_helpers_heading=Cynorthwywyr dibynadwy
 label.trusted_helpers_content=Cael help gyda’ch treth ar-lein gan rywun dibynadwy, neu helpwch rywun rydych yn ei adnabod.
 
-label.taxes_and_benefits_heading=Taxes and benefits
-label.taxes_and_benefits_subheading=Your current HMRC online taxes and benefits
-label.other_taxes_and_benefits_heading=Other taxes and benefits that may be relevant to you
-label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
+label.taxes_and_benefits_heading=Trethi a budd-daliadau
+label.taxes_and_benefits_subheading=Eich trethi a budd-daliadau CThEF ar-lein presennol
+label.other_taxes_and_benefits_heading=Trethi a budd-daliadau eraill a allai fod yn berthnasol i chi
+label.tax_calc_option=Eich cyfrifiad treth – TWE {0} i {1}
 
-label.task_heading=Refunds and tax you owe — Pay As You Earn (PAYE)
-label.task_paragraph=It can take up to 10 days for completed tasks to be removed from the list.
+label.task_heading=Ad-daliadau a’r dreth sydd arnoch – Talu Wrth Ennill (TWE)
+label.task_paragraph=Gall gymryd hyd at 10 diwrnod i’r tasgau sydd wedi’u cwblhau gael eu tynnu o’r rhestr.
 
 fandf.banner.text=Mae’ch perthynas â’ch cynorthwyydd dibynadwy yn dod i ben am hanner nos ar {0}.
 fandf.banner.linkText=Dysgwch sut mae cynorthwywyr dibynadwy yn newid.
